@@ -1,0 +1,255 @@
+package littleware.apps.test;
+
+import java.util.*;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import javax.mail.internet.*;
+import java.net.*;
+
+import junit.framework.*;
+
+import littleware.asset.*;
+import littleware.asset.xml.*;
+import littleware.apps.filebucket.*;
+import littleware.apps.swingclient.*;
+import littleware.apps.tracker.*;
+import littleware.apps.tracker.swing.*;
+import littleware.base.*;
+import littleware.base.swing.*;
+import littleware.security.*;
+import littleware.security.auth.SessionHelper;
+import littleware.security.auth.ServiceType;
+
+
+/**
+ * Tester for the task-tracking tools in 
+ * the littleware.apps.tracker package.
+ */
+public class TrackerTester extends TestCase {
+	private static final String       os_test_data = "Frickjack bla bla " + (new Date ()).getTime ();
+    private static final String       os_test_folder = "TrackerTester";
+	private static final Logger       olog_generic = Logger.getLogger ( "littleware.apps.test.TrackerTester" );
+    private static Asset              oa_test_folder = null;
+	
+    private AssetManager       om_asset = null;
+	private AssetSearchManager om_search = null;
+    private BucketManager      om_bucket = null;
+    private AccountManager     om_account = null;
+    
+    private SessionHelper            om_helper = null;
+    private Set<Asset>               ov_test = new HashSet<Asset> ();
+
+    
+	
+	/**
+     * Constructor just takes test name
+	 */
+	public TrackerTester ( String s_test_name 
+                           ) {
+		super( s_test_name );
+	}
+    
+	
+	/**
+     * Setup the test folder to create test assets under.
+	 */
+	public void setUp () {
+        om_helper = PackageTestSuite.getTestSessionHelper ();
+        
+		try {
+            om_asset = om_helper.getService ( ServiceType.ASSET_MANAGER );
+            om_search = om_helper.getService ( ServiceType.ASSET_SEARCH );
+            om_bucket = om_helper.getService ( BucketServiceType.BUCKET_MANAGER );
+            om_account = om_helper.getService ( ServiceType.ACCOUNT_MANAGER );
+            
+            if ( null == oa_test_folder ) {                
+                UUID  u_home = om_search.getHomeAssetIds ().get ( littleware.asset.test.AssetManagerTester.MS_TEST_HOME );
+                Map<String,UUID> v_children = om_search.getAssetIdsFrom ( u_home, AssetType.GENERIC
+                                                                          );
+                UUID             u_test_folder = v_children.get ( os_test_folder );
+
+                if ( null == u_test_folder ) {
+                    Asset   a_folder = AssetType.GENERIC.create ();
+                    a_folder.setFromId ( u_home );
+                    a_folder.setHomeId ( u_home );
+                    a_folder.setName ( os_test_folder );
+                    UUID u_acl = om_search.getByName ( littleware.security.AclManager.ACL_EVERYBODY_READ,
+                                                            SecurityAssetType.ACL ).getObjectId ();
+
+                    a_folder.setAclId ( u_acl );
+                    oa_test_folder = om_asset.saveAsset ( a_folder, "setup folder for test" );
+                } else {
+                    oa_test_folder = om_search.getAsset ( u_test_folder );
+                }
+            }
+ 		} catch ( Exception e ) {
+			olog_generic.log ( Level.WARNING, "Failed setup, caught: " + e + ", " +
+							   BaseException.getStackTrace ( e ) 
+							   );
+			throw new AssertionFailedException ( "Failed setup, caught: " + e, e );
+		}
+	}
+	
+    
+    /** 
+     * Delete the test assets
+     */
+    public void tearDown () {
+        for ( Asset a_test : ov_test ) {
+            try {
+                om_asset.deleteAsset ( a_test.getObjectId () , "Cleanup after test" );
+            } catch ( Exception e ) {
+                olog_generic.log ( Level.WARNING, "Teardown caught: " + e );
+            }
+        }
+        ov_test.clear ();
+	}
+	
+    
+    
+	
+	/**
+     * Try to write some data to a bucket under a test asset.
+	 */
+	public littleware.apps.tracker.Queue buildQueueAndTest () {
+		try {            
+            littleware.apps.tracker.Queue q_test = TrackerAssetType.QUEUE.create ();
+            Date                          t_now = new Date ();
+            
+            {
+                LittleUser   p_user = om_account.getAuthenticatedUser ();
+                assertTrue ( "Authenticated: " + p_user.getName (), 
+                             p_user.getName ().equals ( littleware.security.test.LoginTester.OS_TEST_USER )
+                             );
+            }            
+            q_test.setHomeId ( oa_test_folder.getHomeId () );
+            q_test.setName ( "test" + t_now.getTime () );
+            q_test.setAclId ( oa_test_folder.getAclId () );
+            q_test.setFromId ( oa_test_folder.getObjectId () );
+            q_test.save ( om_asset, "setup new test" );
+            ov_test.add ( q_test );
+            
+            Task   task_1 = TrackerAssetType.TASK.create ();
+            long   l_starting_transaction = task_1.getTransactionCount ();
+            task_1.setHomeId ( oa_test_folder.getHomeId () );
+            task_1.setName ( "task_1_" + t_now.getTime () );
+            task_1.setAclId ( oa_test_folder.getAclId () );
+            task_1.addToQueue ( q_test );
+            task_1.setComment ( "I am task_1" );
+            assertTrue ( "Task points to its queue",
+                         task_1.getToId ().equals ( q_test.getObjectId () )
+                         );
+            task_1.setTaskStatus ( TaskStatus.WAITING_IN_Q );
+            task_1.save ( om_asset, "setup task1 in test queue" );
+            assertTrue ( "Transaction count adavances on save",
+                         task_1.getTransactionCount () > l_starting_transaction 
+                         );
+            ov_test.add ( task_1 );
+            
+
+            Map<UUID,Long> v_check = new HashMap ();
+            v_check.put ( q_test.getObjectId (), q_test.getTransactionCount () );
+            v_check.put ( task_1.getObjectId (), task_1.getTransactionCount () );
+            Map<UUID,Long> v_check_result = om_search.checkTransactionCount ( v_check );
+
+            assertTrue ( "Queue needs update after adding task",
+                         v_check_result.containsKey ( q_test.getObjectId () )
+                         );
+            assertTrue ( "Task is up to date",
+                         ! v_check_result.containsKey ( task_1.getObjectId () )
+                         );
+            
+            q_test.sync ( om_search.getAsset ( q_test.getObjectId () ) );
+            
+            Task task_2 = TrackerAssetType.TASK.create ();
+            task_2.setName ( "task_2_" + t_now.getTime () );
+            task_2.setAclId ( task_1.getAclId () );
+            task_2.setHomeId ( task_1.getHomeId () );
+            task_2.setComment ( "I am task_2" );
+            task_2.makeSubtaskOf ( task_1 );
+            assertTrue ( "Subtask sets from id", task_2.getFromId ().equals ( task_1.getObjectId () ) );
+            Dependency depend_1_2 = task_1.addDependency ( task_2 );
+            task_2.save ( om_asset, "Setup another test task" );
+            ov_test.add ( task_2 );
+            depend_1_2.save ( om_asset, "Setup task1 to task2 dependency" );
+            ov_test.add ( depend_1_2 );
+            task_1.sync ( om_search );
+            
+            List<UUID> v_subtask = task_1.getSubtask ().get ( TaskStatus.IDLE );
+            assertTrue ( "IDLE subtask list not empty", ! v_subtask.isEmpty () );
+            assertTrue ( "IDLE subtask list contains task_2", 
+                         v_subtask.contains ( task_2.getObjectId () ) );
+            
+            List<UUID> v_depend = task_1.getTaskIdDependingOn ().get ( TaskStatus.IDLE );
+            assertTrue ( "IDLE depend list not empty", ! v_depend.isEmpty () );
+            assertTrue ( "IDLE depend list contains task_2", 
+                         v_depend.contains ( task_2.getObjectId () ) 
+                         );
+            
+            Comment comment_simple = task_1.addComment ( "Just a test" );
+            assertTrue ( "Comment points at its Task", 
+                         comment_simple.getToId ().equals ( task_1.getObjectId () )
+                         );
+            comment_simple.saveComment ( om_bucket, "Writing some goofy comment" );
+            ov_test.add ( comment_simple );
+            
+            v_check.clear ();
+            v_check.put ( task_1.getObjectId (), task_1.getTransactionCount () );
+            v_check_result = om_search.checkTransactionCount ( v_check );            
+            assertTrue ( "Task needs sync after adding comment",
+                         v_check_result.containsKey ( task_1.getObjectId () )
+                         );
+            task_1.sync ( om_search );
+            assertTrue ( "Task comment list has one entry",
+                         task_1.getTaskComments ().size () == 1
+                         );
+            assertTrue ( "Task contains expected comment: " +
+                         comment_simple.getObjectId () + " =? " +
+                         task_1.getTaskComments ().get( 0 ),
+                         task_1.getTaskComments ().contains ( comment_simple.getObjectId () ) );
+            comment_simple.eraseComment ( om_bucket );
+            v_check.put ( task_1.getObjectId (), task_1.getTransactionCount () );
+            v_check_result = om_search.checkTransactionCount ( v_check );            
+            assertTrue ( "Task does not need sync after updating already added comment",
+                         ! v_check_result.containsKey ( task_1.getObjectId () )
+                         );
+            
+            return q_test;
+		} catch ( Exception e ) {
+			olog_generic.log ( Level.WARNING, "Caught: " + e + 
+							   ", " + BaseException.getStackTrace ( e ) );
+			assertTrue ( "Caught: " + e, false );
+            throw new AssertionFailedException ( "Should never make it here" );
+		}			
+	}
+    
+    public void testTracker () {
+        buildQueueAndTest ();
+    }
+    
+
+    /**
+     * Test littleware.apps.tracker.swing components
+     */
+    public void testTrackerSwing () {
+        try {
+            littleware.apps.tracker.Queue       q_test = buildQueueAndTest ();
+            AssetModel  model_queue = (new SimpleAssetModelLibrary ()).syncAsset ( q_test );
+            JQView      wq_view = new JQView ( model_queue, om_search, new WebIconLibrary ( "localhost" ) );
+            assertTrue ( "User confirmed queue-viewer UI functional",
+                         JLittleDialog.showTestDialog ( wq_view,
+                                                        "play with the queue view widget. \n" +
+                                                        "Hit OK when test successfully done"
+                                                        )
+                         );
+		} catch ( Exception e ) {
+			olog_generic.log ( Level.WARNING, "Caught: " + e + 
+							   ", " + BaseException.getStackTrace ( e ) );
+			assertTrue ( "Caught: " + e, false );
+        }            
+    }
+}
+
+// littleware asset management system
+// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
+

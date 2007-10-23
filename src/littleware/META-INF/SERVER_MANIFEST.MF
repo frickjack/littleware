@@ -1,0 +1,74 @@
+Manifest-Version: 1.0
+Created-By: 1.5 (Apple Computer, Inc.)
+
+Name: littleware/apps/addressbook/server
+Specification-Title: "Server-side littleware.apps.addressbook code"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.apps.addressbook.server"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"
+
+Name: littleware/apps/filebucket/server
+Specification-Title: "Server-side littleware.apps.filebucket code"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.apps.filebucket.server"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"
+
+Name: littleware/apps/tracker/server
+Specification-Title: "Server-side littleware.apps.tracker code"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.apps.tracker.server"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"
+
+Name: littleware/asset/server
+Specification-Title: "Server-side littleware.asset code"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.asset.server"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"
+
+Name: littleware/db
+Specification-Title: "Server-side ORM support"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.db"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"
+
+Name: littleware/asset/server/db
+Specification-Title: "Server-side littleware.asset ORM code"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.asset.server.db"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"
+
+Name: littleware/security/server
+Specification-Title: "Server-side littleware.security code"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.security.server"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"
+
+Name: littleware/security/auth/server
+Specification-Title: "Server-side littleware.security.auth code"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.security.auth.server"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"
+
+Name: littleware/security/auth/server/db
+Specification-Title: "Server-side littleware.security.auth ORM code"
+Specification-Version: "1.1"
+Specification-Vendor: "frickjack.com"
+Package-Title: "littleware.security.auth.server.db"
+Package-Version: "0.0"
+Package-Vendor: "frickjack.com"

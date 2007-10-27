@@ -196,10 +196,8 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
         } else if ( event_little instanceof SaveRequestEvent ) {
             // Save request from spawned editor
             SaveRequestEvent event_save = (SaveRequestEvent) event_little;
-            Asset            a_save = event_save.getChangedAsset ();
-            
             try {
-                event_save.getModelLibrary ().syncAsset ( om_asset.saveAsset ( a_save, event_save.getUpdateComment () ) );
+                event_save.doSave ( om_asset );
             } catch ( Exception e ) {
                 olog_generic.log ( Level.WARNING, "Asset-save caught unexpected: " + e );
                 JOptionPane.showMessageDialog(null, "Could not save asset, caught: " + e,

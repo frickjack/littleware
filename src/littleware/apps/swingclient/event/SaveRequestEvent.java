@@ -1,12 +1,23 @@
 package littleware.apps.swingclient.event;
 
-import littleware.asset.Asset;
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+
 import littleware.apps.swingclient.LittleEvent;
+import littleware.apps.swingclient.AssetEditor;
 import littleware.apps.swingclient.AssetModelLibrary;
+import littleware.asset.Asset;
+import littleware.asset.AssetManager;
+import littleware.base.BaseException;
 
 /**
  * Event triggered to indicate a user request to save an edited
  * version of an Asset to the repository.
+ * The doSave() method is the recommended way to save the data
+ * if a controller decides to issue the save.
  */
 public class SaveRequestEvent extends LittleEvent {
     private static final String   OS_OPERATION = "SaveRequestEvent";
@@ -45,6 +56,29 @@ public class SaveRequestEvent extends LittleEvent {
      * Get the AssetModelLibrary this app is working with
      */
     public AssetModelLibrary getModelLibrary () { return olib_asset; }
+    
+    /**
+     * Recommended save method for controllers to ensure proper update of editors.
+     * Subtypes may override for custom situations.
+     * This implementation saves getChangedAsset() if its not null,
+     * else getSource ().saveLocalChanges() if source is an AssetEditor,
+     * else NOOP - just log a confused message.
+     */
+    public void doSave ( AssetManager m_asset ) throws BaseException, RemoteException,
+        GeneralSecurityException 
+    {
+        Asset a_save = getChangedAsset ();
+        Object x_source = getSource ();
+        
+        if ( null != a_save ) {
+            getModelLibrary ().syncAsset ( m_asset.saveAsset ( a_save, getUpdateComment () ) );    
+        } else if ( x_source instanceof AssetEditor ) {
+            ((AssetEditor) x_source).saveLocalChanges ( m_asset, getUpdateComment () );
+        } else {
+            Logger.getLogger ( getClass ().getName () ).log ( Level.WARNING, "NOOP on doSave()" );
+        }
+    }
+    
 }
 
 // littleware asset management system

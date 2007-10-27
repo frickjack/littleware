@@ -178,7 +178,8 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                     };
                     act_button.setEnabled ( true );                    
                     act_button.putValue ( Action.SMALL_ICON, olib_icon.lookupIcon ( "littleware.goto" ) );
-                    act_button.putValue ( Action.SHORT_DESCRIPTION, "Go to path" );                    
+                    act_button.putValue ( Action.SHORT_DESCRIPTION, "Go to path" ); 
+                    owtext_goto_path.addActionListener ( act_button );
                 } break;
                     
                 default: {

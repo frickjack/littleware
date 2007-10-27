@@ -6,6 +6,8 @@ import java.util.logging.Level;
 
 import junit.framework.*;
 
+import littleware.apps.filebucket.BucketManager;
+import littleware.apps.filebucket.BucketServiceType;
 import littleware.apps.swingclient.*;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
@@ -34,8 +36,8 @@ public class PackageTestSuite extends TestSuite {
                 SessionManager m_session = SessionUtil.getSessionManager ( SessionUtil.getRegistryHost (),
                                                                            SessionUtil.getRegistryPort ()
                                                                            );			
-                String s_test_user = littleware.security.test.LoginTester.OS_TEST_USER;
-                String s_test_password = littleware.security.test.LoginTester.OS_TEST_USER_PASSWORD;
+                String s_test_user = "littleware.test_user";
+                String s_test_password = "test123";
                 
                 om_helper = m_session.login ( s_test_user, s_test_password, 
                                                "setup test session for SwingClientTester" 
@@ -138,26 +140,33 @@ public class PackageTestSuite extends TestSuite {
                                                          ) );
         }
         
-        littleware.apps.filebucket.BucketManager m_bucket = new littleware.apps.filebucket.server.SimpleBucketManager ( m_search, m_asset );
-        if ( b_run ) {
-            this.addTest ( new BucketTester ( "testBucket", 
-                                                    m_asset, m_search, m_bucket
-                                                    )
-                                 );
-        }
-        if ( b_run ) {
-            this.addTest ( new TrackerTester ( "testTracker"
-                                                     )
-                                 );
-        }
-        if ( b_run ) {
-            this.addTest ( new TrackerTester ( "testTrackerSwing"
-                                                     )
-                                 );
+        try {
+            BucketManager m_bucket = m_helper.getService( BucketServiceType.BUCKET_MANAGER );
+            // new littleware.apps.filebucket.server.SimpleBucketManager( m_search, m_asset );
+
+            if ( b_run ) {
+                this.addTest ( new BucketTester ( "testBucket", 
+                                                        m_asset, m_search, m_bucket
+                                                        )
+                                     );
+            }
+            if ( b_run ) {
+                this.addTest ( new TrackerTester ( "testTracker"
+                                                         )
+                                     );
+            }
+            if ( b_run ) {
+                this.addTest ( new TrackerTester ( "testTrackerSwing"
+                                                         )
+                                     );
+            }
+        } catch ( RuntimeException e ) {
+            throw e;
+        } catch ( Exception e ) {
+            throw new AssertionFailedException ( "Failed to get started" );
         }
         
-        
-		olog_generic.log ( Level.INFO, "PackageTestSuite() returning ok ..." );
+        olog_generic.log ( Level.INFO, "PackageTestSuite() returning ok ..." );
     }
 }
 

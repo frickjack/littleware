@@ -51,9 +51,10 @@ public class AssetBuilderTester extends TestCase {
                      && a_home.getAssetType().equals ( AssetType.HOME )
                      );
 
-        Asset a_folder = build_test.setAssetType ( AssetType.GENERIC ).setAclId ( a_acl.getObjectId () ).setName( "folder" ).create ();
+        Asset a_folder = build_test.setAssetType ( AssetType.GENERIC ).setAclId ( a_acl.getObjectId () ).setName( null ).create ();
         assertTrue ( "aclid set ok", a_folder.getAclId ().equals ( a_acl.getObjectId () ) );
         assertTrue ( "fromid set ok", a_folder.getFromId ().equals ( a_home.getObjectId () ) );
+        assertTrue ( "null name set to objectid ok", a_folder.getName ().equals ( a_folder.getObjectId ().toString () ) );
         Asset a_link = build_test.setAssetType ( AssetType.LINK ).setToId ( a_folder.getObjectId () ).setName ( "link" ).create ();
         assertTrue ( "toid set ok", a_link.getToId ().equals ( a_folder.getObjectId () ) );
     }

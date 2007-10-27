@@ -64,7 +64,12 @@ public class AssetBuilder implements Factory<Asset> {
         return this;
     }
     
-    /** Default to null */    
+    /**
+     * If set null, then new assets will be initialized to 
+     * asset_new.setName( asset_new.getObjectId ().toString () ) -
+     * which is conveninent for setting up anonymous assets.
+     * Default is null 
+     */    
 	public AssetBuilder        setName ( String s_name ) {
         os_name = s_name;
         return this;
@@ -77,8 +82,20 @@ public class AssetBuilder implements Factory<Asset> {
         return this;
     }
     
+    /**
+     * Create a new asset using the set AssetType and
+     * other parameters.
+     */
     public Asset create () throws FactoryException {
-        Asset  a_new = oatype_build.create ();
+        return create( oatype_build );
+    }
+    
+    /**
+     * Create a new asset of the given AssetType (ignore the set AssetType).
+     * Avoids need to cast to subtype.
+     */
+    public <T extends Asset> T create ( AssetType<T> atype_usethis ) {
+        T  a_new = atype_usethis.create ();
         a_new.setObjectId ( ofactory_uuid.create () );
         a_new.setAclId ( ou_acl );
         a_new.setOwnerId ( ou_owner );
@@ -86,9 +103,14 @@ public class AssetBuilder implements Factory<Asset> {
         a_new.setHomeId ( ou_home );
         a_new.setFromId ( ou_from );
         a_new.setToId ( ou_to );
-        a_new.setName ( os_name );
+        if ( null == os_name ) {
+            a_new.setName ( a_new.getObjectId ().toString () );
+        } else {
+            a_new.setName ( os_name );
+        }
         return a_new;
     }
+    
     
     /** NOOP */
     public void recycle ( Asset a_bla ) {}

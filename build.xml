@@ -7,7 +7,7 @@
      xmlns="antlib:org.apache.tools.ant"
   >
  <property name="srcdir.littleware" location="src/littleware" />
- <property name="srcdir.wizard" location="src/wizard/com" />
+ <property name="srcdir.wizard" location="src/com" />
  <property name="builddir" location="build/ant" />
  <property name="buildclient" location="${builddir}/client" />
  <property name="buildserver" location="${builddir}/server" />
@@ -147,7 +147,6 @@
            windowtitle="Littleware API"
         >
 
-    <packageset dir="src/wizard" defaultexcludes="yes" />
     <packageset dir="lib/src" defaultexcludes="yes" />
     <packageset dir="src" defaultexcludes="yes">
       <exclude name="littleware/apps/calendar/**" />
@@ -160,7 +159,6 @@
       <exclude name="littleware/trash/**" />
       <exclude name="littleware/3rdparty/**" />
       <exclude name="play/**" />
-      <exclude name="wizard/**" />
     </packageset>
 
     <doctitle><![CDATA[<h1>Test</h1>]]></doctitle>

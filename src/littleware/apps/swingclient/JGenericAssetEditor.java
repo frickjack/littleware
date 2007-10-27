@@ -63,6 +63,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
     private final JAssetLinkEditor        owalink_to;
     private final JAssetLinkEditor        owalink_from;
     private final JAssetLinkEditor        owalink_acl;
+    private final JAssetLinkEditor        owalink_owner;
     
     private final JTextArea               owtext_comment = new JTextArea ( 2, 60 );
     private final JTextArea               owtext_update = new JTextArea ( 2, 60 );
@@ -79,7 +80,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                         oeditor_util.fireLittleEvent ( 
                                                        new SaveRequestEvent (
                                                                              JGenericAssetEditor.this, 
-                                                                             getLocalAsset (),
+                                                                             null,
                                                                              getAssetModel ().getLibrary (),
                                                                              owtext_update.getText ()
                                                                              )
@@ -235,7 +236,17 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
             gcontrol_summary.gridwidth = 3;
             gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;            
             wpanel_build.add ( owalink_acl, gcontrol_summary );
-            
+
+            gcontrol_summary.gridx = 0;
+            gcontrol_summary.gridwidth = 1;
+            gcontrol_summary.fill = GridBagConstraints.NONE;
+            gcontrol_summary.gridy += gcontrol_summary.gridheight;
+            wpanel_build.add ( new JLabel ( "Owner: " ), gcontrol_summary );
+            gcontrol_summary.gridx += gcontrol_summary.gridwidth;
+            gcontrol_summary.gridwidth = 3;
+            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;            
+            wpanel_build.add ( owalink_owner, gcontrol_summary );
+                        
             gcontrol_summary.gridx = 0;
             gcontrol_summary.gridwidth = 1;
             gcontrol_summary.fill = GridBagConstraints.NONE;
@@ -313,6 +324,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
             UUID       u_to = owalink_to.getLink ();
             UUID       u_from = owalink_from.getLink ();
             UUID       u_acl = owalink_acl.getLink ();
+            UUID       u_owner = owalink_owner.getLink ();
 
             Asset      a_local = getLocalAsset ();
             
@@ -336,6 +348,10 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                 a_local.setAclId ( u_acl );
                 setHasLocalChanges ( true );
             }
+            if ( ! Whatever.equalsSafe ( a_local.getOwnerId (), u_owner ) ) {
+                a_local.setOwnerId ( u_owner );
+                setHasLocalChanges ( true );
+            }            
             
             return true;
         } catch ( Exception e ) {
@@ -383,6 +399,21 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                                              model_view,
                                              factory_view
                                              );
+
+        owalink_owner = new JAssetLinkEditor ( m_search, olib_asset,
+                                             lib_icon, 
+                                             model_view,
+                                             factory_view
+                                             );
+
+        owalink_owner.addLittleListener ( new LittleListener () {
+            public void receiveLittleEvent ( LittleEvent event_edit ) {
+                if ( event_edit instanceof SelectAssetEvent ) {
+                    owalink_owner.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
+                }
+            }
+        }
+                                        );
         
         owalink_acl.addLittleListener ( new LittleListener () {
             public void receiveLittleEvent ( LittleEvent event_edit ) {
@@ -444,10 +475,12 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
         owalink_to.setLink ( a_local.getToId () );
         owalink_from.setLink ( a_local.getFromId () );
         owalink_acl.setLink ( a_local.getAclId () );
+        owalink_owner.setLink ( a_local.getOwnerId () );
         
         owalink_to.setFallbackAsset ( getAssetModel () );
         owalink_from.setFallbackAsset ( getAssetModel () );
         owalink_acl.setFallbackAsset ( getAssetModel () );
+        owalink_owner.setFallbackAsset ( getAssetModel () );
         
         owtext_comment.setText ( a_local.getComment () );        
     }        
@@ -483,6 +516,13 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
     
     public void clearLocalChanges () {
         oeditor_util.clearLocalChanges ();
+        SwingUtilities.invokeLater ( 
+                                     new Runnable () {
+                                         public void run () {
+                                             updateAssetUI ();
+                                         }
+                                     }
+                                     );                 
     }
     
     public boolean getHasLocalChanges () {
@@ -510,8 +550,14 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
      * if the LittleEvent comes from
      * the getAssetModel() AssetModel (data model update).
      */
-    protected void eventFromModel ( LittleEvent evt_prop ) {
-        if ( evt_prop.getSource () == getAssetModel () ) {
+    protected void eventFromModel ( LittleEvent evt_in ) {
+        if ( evt_in.getSource () == getAssetModel () ) {
+            if ( evt_in instanceof AssetModelEvent ) {
+                AssetModelEvent evt_asset = (AssetModelEvent) evt_in;
+                if ( evt_asset.getOp().equals ( AssetModel.Operation.assetUpdated ) ) {
+                    clearLocalChanges ();
+                }
+            }
             // Model has changed under us
             SwingUtilities.invokeLater ( 
                                          new Runnable () {
@@ -522,6 +568,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                                          );                
         }
     }
+    
 
     /**
      * Give subtypes access to SimpleLittleTool for

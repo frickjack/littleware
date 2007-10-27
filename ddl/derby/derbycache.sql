@@ -10,7 +10,7 @@
 --
 CREATE TABLE littleware.asset_cache (	
 	s_id                VARCHAR(32) PRIMARY KEY,
-	s_name              VARCHAR(40),
+	s_name              VARCHAR(80),
 	s_id_home           VARCHAR(32),
 	l_last_transaction  BIGINT,
 	s_pk_type           VARCHAR(32),

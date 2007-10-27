@@ -10,7 +10,6 @@ import junit.framework.*;
 
 import littleware.asset.*;
 import littleware.asset.xml.*;
-import littleware.asset.server.AssetResourceBundle;
 import littleware.apps.addressbook.*;
 import littleware.base.*;
 import littleware.security.*;

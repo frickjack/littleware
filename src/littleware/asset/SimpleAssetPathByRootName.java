@@ -25,7 +25,7 @@ public class SimpleAssetPathByRootName extends AbstractAssetPath implements Asse
                                        String s_subroot_path ) throws InvalidAssetTypeException
     {
         super ( "/byname:" + s_root_name +
-                ":type:" + n_type +
+                ":type:" + n_type + "/" +
                 s_subroot_path
                 );
 

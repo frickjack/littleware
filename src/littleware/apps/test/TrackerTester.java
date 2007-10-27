@@ -63,7 +63,7 @@ public class TrackerTester extends TestCase {
             om_account = om_helper.getService ( ServiceType.ACCOUNT_MANAGER );
             
             if ( null == oa_test_folder ) {                
-                UUID  u_home = om_search.getHomeAssetIds ().get ( littleware.asset.test.AssetManagerTester.MS_TEST_HOME );
+                UUID  u_home = om_search.getHomeAssetIds ().get ( "littleware.test_home" );
                 Map<String,UUID> v_children = om_search.getAssetIdsFrom ( u_home, AssetType.GENERIC
                                                                           );
                 UUID             u_test_folder = v_children.get ( os_test_folder );
@@ -119,7 +119,7 @@ public class TrackerTester extends TestCase {
             {
                 LittleUser   p_user = om_account.getAuthenticatedUser ();
                 assertTrue ( "Authenticated: " + p_user.getName (), 
-                             p_user.getName ().equals ( littleware.security.test.LoginTester.OS_TEST_USER )
+                             p_user.getName ().equals ( "littleware.test_user" )
                              );
             }            
             q_test.setHomeId ( oa_test_folder.getHomeId () );

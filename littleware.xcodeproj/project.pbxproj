@@ -1348,12 +1348,12 @@
 		1D922CD30AB4FE79007DC0D1 /* AssetSearchManagerTester.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = AssetSearchManagerTester.java; path = asset/test/AssetSearchManagerTester.java; sourceTree = "<group>"; };
 		1D9509630C86149700C9ED37 /* JAclEditor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = JAclEditor.java; path = apps/swingclient/JAclEditor.java; sourceTree = "<group>"; };
 		1D950B8A0C91C26200C9ED37 /* ExtendedAssetViewController.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ExtendedAssetViewController.java; path = apps/swingclient/controller/ExtendedAssetViewController.java; sourceTree = "<group>"; };
-		1D966F7C0C2F127B00D4201E /* Wizard.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Wizard.java; path = src/wizard/com/nexes/wizard/Wizard.java; sourceTree = "<group>"; };
-		1D966F7D0C2F127B00D4201E /* wizard.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wizard.properties; path = src/wizard/com/nexes/wizard/wizard.properties; sourceTree = "<group>"; };
-		1D966F7E0C2F127B00D4201E /* WizardController.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = WizardController.java; path = src/wizard/com/nexes/wizard/WizardController.java; sourceTree = "<group>"; };
-		1D966F7F0C2F127B00D4201E /* WizardModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = WizardModel.java; path = src/wizard/com/nexes/wizard/WizardModel.java; sourceTree = "<group>"; };
-		1D966F800C2F127B00D4201E /* WizardPanelDescriptor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = WizardPanelDescriptor.java; path = src/wizard/com/nexes/wizard/WizardPanelDescriptor.java; sourceTree = "<group>"; };
-		1D966F810C2F127B00D4201E /* WizardPanelNotFoundException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = WizardPanelNotFoundException.java; path = src/wizard/com/nexes/wizard/WizardPanelNotFoundException.java; sourceTree = "<group>"; };
+		1D966F7C0C2F127B00D4201E /* Wizard.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Wizard.java; path = src/com/nexes/wizard/Wizard.java; sourceTree = "<group>"; };
+		1D966F7D0C2F127B00D4201E /* wizard.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wizard.properties; path = src/com/nexes/wizard/wizard.properties; sourceTree = "<group>"; };
+		1D966F7E0C2F127B00D4201E /* WizardController.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = WizardController.java; path = src/com/nexes/wizard/WizardController.java; sourceTree = "<group>"; };
+		1D966F7F0C2F127B00D4201E /* WizardModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = WizardModel.java; path = src/com/nexes/wizard/WizardModel.java; sourceTree = "<group>"; };
+		1D966F800C2F127B00D4201E /* WizardPanelDescriptor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = WizardPanelDescriptor.java; path = src/com/nexes/wizard/WizardPanelDescriptor.java; sourceTree = "<group>"; };
+		1D966F810C2F127B00D4201E /* WizardPanelNotFoundException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = WizardPanelNotFoundException.java; path = src/com/nexes/wizard/WizardPanelNotFoundException.java; sourceTree = "<group>"; };
 		1D96708F0C34343A00D4201E /* JAssetPathPanel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = JAssetPathPanel.java; path = apps/swingclient/wizard/JAssetPathPanel.java; sourceTree = "<group>"; };
 		1D9671140C3888B000D4201E /* AssetEditorFactory.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = AssetEditorFactory.java; path = apps/swingclient/AssetEditorFactory.java; sourceTree = "<group>"; };
 		1D97451F07AE05BD007C37BB /* AclManagerTester.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = AclManagerTester.java; path = src/littleware/security/test/AclManagerTester.java; sourceTree = SOURCE_ROOT; };
@@ -1393,10 +1393,10 @@
 		1DA453BB07CC642C009B7053 /* ReadOnlyException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ReadOnlyException.java; sourceTree = "<group>"; };
 		1DA858590ADEF03F004E8A27 /* SessionUtil.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SessionUtil.java; path = src/littleware/security/auth/SessionUtil.java; sourceTree = SOURCE_ROOT; };
 		1DAC4EDC0C5BE60A006D3BA5 /* WizardSupport.properties */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = WizardSupport.properties; path = apps/swingclient/wizard/resources/WizardSupport.properties; sourceTree = "<group>"; };
-		1DAC4FB80C5E3C08006D3BA5 /* backIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = backIcon.gif; path = src/wizard/com/nexes/wizard/backIcon.gif; sourceTree = "<group>"; };
-		1DAC4FB90C5E3C08006D3BA5 /* cancelIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = cancelIcon.gif; path = src/wizard/com/nexes/wizard/cancelIcon.gif; sourceTree = "<group>"; };
-		1DAC4FBA0C5E3C08006D3BA5 /* finishIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = finishIcon.gif; path = src/wizard/com/nexes/wizard/finishIcon.gif; sourceTree = "<group>"; };
-		1DAC4FBB0C5E3C08006D3BA5 /* nextIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = nextIcon.gif; path = src/wizard/com/nexes/wizard/nextIcon.gif; sourceTree = "<group>"; };
+		1DAC4FB80C5E3C08006D3BA5 /* backIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = backIcon.gif; path = src/com/nexes/wizard/backIcon.gif; sourceTree = "<group>"; };
+		1DAC4FB90C5E3C08006D3BA5 /* cancelIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = cancelIcon.gif; path = src/com/nexes/wizard/cancelIcon.gif; sourceTree = "<group>"; };
+		1DAC4FBA0C5E3C08006D3BA5 /* finishIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = finishIcon.gif; path = src/com/nexes/wizard/finishIcon.gif; sourceTree = "<group>"; };
+		1DAC4FBB0C5E3C08006D3BA5 /* nextIcon.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = nextIcon.gif; path = src/com/nexes/wizard/nextIcon.gif; sourceTree = "<group>"; };
 		1DAC50820C5F827D006D3BA5 /* ListModelIterator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ListModelIterator.java; path = swing/ListModelIterator.java; sourceTree = "<group>"; };
 		1DAC50DD0C60DAC5006D3BA5 /* DeleteRequestEvent.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = DeleteRequestEvent.java; path = apps/swingclient/event/DeleteRequestEvent.java; sourceTree = "<group>"; };
 		1DAC51270C6169E7006D3BA5 /* BaseRuntimeException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = BaseRuntimeException.java; sourceTree = "<group>"; };
@@ -2306,6 +2306,7 @@
 		1DDDFDE906D00DC300CC4A35 /* asset */ = {
 			isa = PBXGroup;
 			children = (
+				1D9C3A500BA87274002108E0 /* AbstractAssetPath.java */,
 				1D3C0BDE0CCAD48E0018BE9B /* AssetBuilder.java */,
 				1DDC4E410915D94900BA5B4B /* Asset.java */,
 				1D110E190AFD19BA002045CC /* AssetCursor.java */,
@@ -2314,7 +2315,6 @@
 				1D746EC50BA726F5006A2A1B /* AssetPath.java */,
 				1D9C3A5D0BA9DA0C002108E0 /* AssetPathByRootId.java */,
 				1D9C3A550BA9D627002108E0 /* AssetPathByRootName.java */,
-				1D9C3A500BA87274002108E0 /* AbstractAssetPath.java */,
 				1D746ECA0BA73CAB006A2A1B /* AssetPathFactory.java */,
 				1D3E26F50A5B3A5B0082B98E /* AssetRetriever.java */,
 				1DC16A1D0AA38BF2001C88FC /* AssetSearchManager.java */,

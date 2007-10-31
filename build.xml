@@ -51,13 +51,15 @@
    <mkdir dir="${buildserver}" />
  </target>
 
- <target name="clean">
+ <target name="clean"
+         description="Clean the build area"
+      >
   <delete dir="${builddir}"/>
  </target>
 
  <target name="clientclasses" depends="prepare">
   <javac srcdir="${srcdir.littleware}:${srcdir.wizard}" 
-          destdir="${buildclient}" debug="false"
+          destdir="${buildclient}" debug="true"
       >
    <exclude name="apps/calendar/**" />
    <exclude name="alarmClock/**" />
@@ -78,7 +80,7 @@
           depends="clientjar"
       >
   <javac srcdir="${srcdir.littleware}" 
-          destdir="${buildserver}" debug="false"
+          destdir="${buildserver}" debug="true"
       >
    <include name="**/server/**" />
    <include name="**/test/**" />

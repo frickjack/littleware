@@ -56,21 +56,21 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         
         // cache miss
         final Set<Asset> v_load;
-        try {
-            DbReader<Set<Asset>,String> db_reader = om_db.makeDbAssetsByNameLoader ( s_name, n_type, null );
-            
-            v_load = db_reader.loadObject ( null );
-            om_cache.setAssetsByName ( s_name, n_type, null, v_load );
-        } catch ( SQLException e ) {
-            olog_generic.log ( Level.SEVERE, "Caught unexpected: " + e );
-            throw new DataAccessException ( "Unexpected caught: " + e, e );
-        }
-        
-        if ( v_load.isEmpty () ) {
-            return null;
-        }
         Map<UUID,Asset> v_cycle_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
         try {
+            try {
+                DbReader<Set<Asset>,String> db_reader = om_db.makeDbAssetsByNameLoader ( s_name, n_type, null );
+                
+                v_load = db_reader.loadObject ( null );
+                om_cache.setAssetsByName ( s_name, n_type, null, v_load );
+            } catch ( SQLException e ) {
+                olog_generic.log ( Level.SEVERE, "Caught unexpected: " + e );
+                throw new DataAccessException ( "Unexpected caught: " + e, e );
+            }
+            
+            if ( v_load.isEmpty () ) {
+                return null;
+            }
             Asset a_load = v_load.iterator ().next ();
             v_cycle_cache.put ( a_load.getObjectId (), a_load );
             return (T) secureAndSpecialize ( a_load );

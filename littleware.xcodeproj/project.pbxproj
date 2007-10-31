@@ -254,6 +254,8 @@
 		1D110E220AFD42A3002045CC /* LittleAclEntry.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D110E200AFD42A3002045CC /* LittleAclEntry.java */; };
 		1D110E8B0AFFD376002045CC /* ParseException.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D110E8A0AFFD376002045CC /* ParseException.java */; };
 		1D110E8C0AFFD377002045CC /* ParseException.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D110E8A0AFFD376002045CC /* ParseException.java */; };
+		1D169B180CD798D6000DF381 /* SimpleListModel.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D169B170CD798D6000DF381 /* SimpleListModel.java */; };
+		1D169B190CD798D7000DF381 /* SimpleListModel.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D169B170CD798D6000DF381 /* SimpleListModel.java */; };
 		1D1B1C80085BD2BA00BCF333 /* PackageTestSuite.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D1B1C7F085BD2BA00BCF333 /* PackageTestSuite.java */; };
 		1D1B1C81085BD2BA00BCF333 /* PackageTestSuite.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D1B1C7F085BD2BA00BCF333 /* PackageTestSuite.java */; };
 		1D1B72D10B88D88600E44FDD /* littleware.policy in Resources */ = {isa = PBXBuildFile; fileRef = 1D0FBF820AB8F889009BA72D /* littleware.policy */; };
@@ -1140,6 +1142,7 @@
 		1D110E190AFD19BA002045CC /* AssetCursor.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = AssetCursor.java; path = asset/AssetCursor.java; sourceTree = "<group>"; };
 		1D110E200AFD42A3002045CC /* LittleAclEntry.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LittleAclEntry.java; path = src/littleware/security/LittleAclEntry.java; sourceTree = SOURCE_ROOT; };
 		1D110E8A0AFFD376002045CC /* ParseException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ParseException.java; sourceTree = "<group>"; };
+		1D169B170CD798D6000DF381 /* SimpleListModel.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SimpleListModel.java; path = apps/swingclient/SimpleListModel.java; sourceTree = "<group>"; };
 		1D1B1C7F085BD2BA00BCF333 /* PackageTestSuite.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PackageTestSuite.java; path = asset/test/PackageTestSuite.java; sourceTree = "<group>"; };
 		1D1B73420B89659900E44FDD /* local1260_setup.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = local1260_setup.sql; path = ddl/postgres/local1260_setup.sql; sourceTree = "<group>"; };
 		1D1E8E7B0C187EC800BFCFF8 /* SimpleAssetViewController.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SimpleAssetViewController.java; path = apps/swingclient/controller/SimpleAssetViewController.java; sourceTree = "<group>"; };
@@ -1747,6 +1750,7 @@
 		1D38A0500B5C314B00B43105 /* swingclient */ = {
 			isa = PBXGroup;
 			children = (
+				1D169B170CD798D6000DF381 /* SimpleListModel.java */,
 				1D1E8E780C187E7700BFCFF8 /* controller */,
 				1DF49AE00BB8500D00B71F2E /* event */,
 				1D9A53F20C0CCB0F000477C3 /* wizard */,
@@ -3058,6 +3062,7 @@
 				1D3C0CBC0CCD53690018BE9B /* AbstractDerbyWriter.java in Sources */,
 				1D3C0CD80CCD5EB70018BE9B /* AssetBuilderTester.java in Sources */,
 				1D3C0DDF0CCE4BD40018BE9B /* TransactionTester.java in Sources */,
+				1D169B180CD798D6000DF381 /* SimpleListModel.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3513,6 +3518,7 @@
 				1D5A260B0CA4669C00C19715 /* SelectAssetEvent.java in Sources */,
 				1D5A26120CA4737C00C19715 /* LibraryMismatchException.java in Sources */,
 				1D3C0BDF0CCAD48E0018BE9B /* AssetBuilder.java in Sources */,
+				1D169B190CD798D7000DF381 /* SimpleListModel.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

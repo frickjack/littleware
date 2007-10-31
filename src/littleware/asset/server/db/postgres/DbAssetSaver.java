@@ -60,7 +60,7 @@ public class DbAssetSaver extends AbstractDbWriter<Asset> {
 		DateFormat format_date = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss" );
 
 		sql_call.setString ( 13, (null == t_start) ? null : format_date.format ( t_start ) );
-		sql_call.setString ( 14, (null == t_start) ? null : format_date.format ( t_end ) );
+		sql_call.setString ( 14, (null == t_end) ? null : format_date.format ( t_end ) );
 
 		sql_call.setString ( 15, UUIDFactory.makeCleanString ( a_object.getObjectId () ) );
 		sql_call.setString ( 16, UUIDFactory.makeCleanString ( a_object.getOwnerId () ) );

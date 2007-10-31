@@ -36,7 +36,7 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
     private final AssetRetriever                 om_retriever;
     
     // Should replace with a custom list-model later to avoid so many updates
-    private final DefaultListModel               omodel_children = new DefaultListModel ();
+    private final SimpleListModel<Asset>         omodel_children = new SimpleListModel ( new ArrayList<Asset> () );
         
     
     /**
@@ -55,7 +55,8 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
     protected void updateAssetUI () {
         super.updateAssetUI ();
 
-        java.util.List<Asset>        v_members = new ArrayList<Asset> ();
+        java.util.List<Asset>        v_members = omodel_children.getList ();
+        v_members.clear ();
         
         // Save the child-info for access by setLink before changing the omodel_list
         ov_childinfo = getChildInfo ();
@@ -73,10 +74,13 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
                            }
                            );
         
+        omodel_children.fireChangeEvent ();
+        /*... old DefaultListModel way ...
         omodel_children.clear ();
         for ( Asset a_child : v_members ) {
             omodel_children.addElement ( a_child );
         }        
+        ...*/
     }
     
     /**

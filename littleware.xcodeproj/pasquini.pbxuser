@@ -200,8 +200,8 @@
 	1D0E51B20B988E1D000E5B68 /* JAssetLinkList.java */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {770, 2716}}";
-			sepNavSelRange = "{4530, 0}";
-			sepNavVisRect = "{{0, 1315}, {770, 549}}";
+			sepNavSelRange = "{3319, 0}";
+			sepNavVisRect = "{{0, 1124}, {770, 549}}";
 		};
 	};
 	1D0E51EB0B98C6D2000E5B68 /* JAssetBrowser.java */ = {
@@ -505,14 +505,14 @@
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {770, 700}}";
 			sepNavSelRange = "{1080, 0}";
-			sepNavVisRect = "{{0, 112}, {770, 549}}";
+			sepNavVisRect = "{{0, 0}, {770, 549}}";
 		};
 	};
 	1D33680D0AD5D92300236F09 /* SimpleSession.java */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {770, 1148}}";
-			sepNavSelRange = "{475, 75}";
-			sepNavVisRect = "{{0, 154}, {770, 549}}";
+			sepNavSelRange = "{816, 0}";
+			sepNavVisRect = "{{0, 0}, {770, 549}}";
 		};
 	};
 	1D33681D0AD6A1E700236F09 /* ServiceType.java */ = {
@@ -524,9 +524,9 @@
 	};
 	1D3368260AD6AE6C00236F09 /* SessionInvocationHandler.java */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {948, 1092}}";
-			sepNavSelRange = "{2329, 0}";
-			sepNavVisRect = "{{0, 681}, {948, 278}}";
+			sepNavIntBoundsRect = "{{0, 0}, {770, 1092}}";
+			sepNavSelRange = "{2168, 65}";
+			sepNavVisRect = "{{0, 517}, {770, 549}}";
 		};
 	};
 	1D33684B0AD9732300236F09 /* PBXTextBookmark */ = {
@@ -611,8 +611,8 @@
 	1D38A0E60B5DFDD600B43105 /* SwingClientTester.java */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {812, 6832}}";
-			sepNavSelRange = "{10598, 0}";
-			sepNavVisRect = "{{0, 3514}, {770, 549}}";
+			sepNavSelRange = "{9722, 41}";
+			sepNavVisRect = "{{0, 2897}, {770, 549}}";
 			sepNavWindowFrame = "{{15, 156}, {1073, 671}}";
 		};
 	};
@@ -660,6 +660,7 @@
 		activeTarget = 1D26EEEB05ABBAD7009F252C /* littleTester */;
 		addToTargets = (
 			1D26EEEB05ABBAD7009F252C /* littleTester */,
+			1D839A430B4C391100976327 /* littleClient */,
 		);
 		breakpoints = (
 		);
@@ -1806,7 +1807,7 @@
 		fRef = 1D3DE0630C726079005BBAD0 /* SimpleAssetSearchManager.java */;
 		name = "SimpleAssetSearchManager.java: 234";
 		rLen = 0;
-		rLoc = 8674;
+		rLoc = 8726;
 		rType = 0;
 		vrLen = 1162;
 		vrLoc = 7732;
@@ -2086,7 +2087,7 @@
 		fRef = 1D3DE0630C726079005BBAD0 /* SimpleAssetSearchManager.java */;
 		name = "SimpleAssetSearchManager.java: 73";
 		rLen = 0;
-		rLoc = 2248;
+		rLoc = 2418;
 		rType = 0;
 		vrLen = 1450;
 		vrLoc = 997;
@@ -2989,7 +2990,7 @@
 		fRef = 1D3DE0890C72942D005BBAD0 /* DbAssetSaver.java */;
 		name = Transaction;
 		rLen = 11;
-		rLoc = 3090;
+		rLoc = 3088;
 		rType = 0;
 		vrLen = 1673;
 		vrLoc = 1907;
@@ -3221,9 +3222,9 @@
 	};
 	1D3DE0630C726079005BBAD0 /* SimpleAssetSearchManager.java */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {948, 3472}}";
-			sepNavSelRange = "{6749, 10}";
-			sepNavVisRect = "{{0, 2607}, {948, 446}}";
+			sepNavIntBoundsRect = "{{0, 0}, {770, 3472}}";
+			sepNavSelRange = "{2419, 0}";
+			sepNavVisRect = "{{0, 629}, {770, 549}}";
 		};
 	};
 	1D3DE0640C726079005BBAD0 /* SimpleCacheManager.java */ = {
@@ -3284,9 +3285,9 @@
 	};
 	1D3DE0890C72942D005BBAD0 /* DbAssetSaver.java */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {850, 1204}}";
-			sepNavSelRange = "{328, 60}";
-			sepNavVisRect = "{{0, 0}, {850, 487}}";
+			sepNavIntBoundsRect = "{{0, 0}, {770, 1204}}";
+			sepNavSelRange = "{2823, 0}";
+			sepNavVisRect = "{{0, 636}, {770, 549}}";
 		};
 	};
 	1D3DE08A0C72942D005BBAD0 /* DbAssetsByNameLoader.java */ = {
@@ -4592,9 +4593,9 @@
 	};
 	1D9C3A500BA87274002108E0 /* AbstractAssetPath.java */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {948, 2254}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRect = "{{0, 0}, {948, 446}}";
+			sepNavIntBoundsRect = "{{0, 0}, {770, 2254}}";
+			sepNavSelRange = "{734, 0}";
+			sepNavVisRect = "{{0, 1579}, {770, 549}}";
 			sepNavWindowFrame = "{{15, 156}, {1073, 671}}";
 		};
 	};
@@ -4615,14 +4616,14 @@
 	1D9C3A620BA9DA90002108E0 /* SimpleAssetPathByRootId.java */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {770, 549}}";
-			sepNavSelRange = "{449, 0}";
+			sepNavSelRange = "{518, 0}";
 			sepNavVisRect = "{{0, 0}, {770, 549}}";
 		};
 	};
 	1D9C3A8D0BAB07DE002108E0 /* SimpleAssetPathByRootName.java */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {770, 924}}";
-			sepNavSelRange = "{237, 98}";
+			sepNavSelRange = "{845, 0}";
 			sepNavVisRect = "{{0, 0}, {770, 549}}";
 		};
 	};

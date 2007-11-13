@@ -32,7 +32,7 @@ import littleware.security.LittleGroup;
 public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel> 
         implements AssetModelLibrary 
 {
-    private static final Logger   olog_generic = Logger.getLogger ( "littleware.apps.swingclient.SimpleAssetModelLibrary" );
+    private static final Logger   olog_generic = Logger.getLogger ( SimpleAssetModelLibrary.class.getName () );
     
     /**
      * Simple implementation of AssetModel interface

@@ -29,7 +29,7 @@ import littleware.base.Whatever;
  * multiple db ops over a thread stack may share the same transaction.
  */
 public class SimpleLittleTransaction implements JdbcTransaction {
-    private static final Logger    olog_generic = Logger.getLogger ( "littleware.asset.SimpleLittleTransaction" );
+    private static final Logger    olog_generic = Logger.getLogger ( SimpleLittleTransaction.class.getName () );
     private static DataSource      mdsource_db = null;
     
     

@@ -622,6 +622,8 @@
 		1D6B37530699C8AD00B623D6 /* SimpleCache.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D6B37510699C8AD00B623D6 /* SimpleCache.java */; };
 		1D6B3755069A4A4600B623D6 /* CacheTester.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D6B3754069A4A4600B623D6 /* CacheTester.java */; };
 		1D6B3756069A4A4600B623D6 /* CacheTester.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D6B3754069A4A4600B623D6 /* CacheTester.java */; };
+		1D6D64B10CDE5D7100954C93 /* VariableTagSupport.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D6D64B00CDE5D7000954C93 /* VariableTagSupport.java */; };
+		1D6D64B20CDE5D7100954C93 /* VariableTagSupport.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D6D64B00CDE5D7000954C93 /* VariableTagSupport.java */; };
 		1D746E770BA22D82006A2A1B /* DefaultsBean.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D746E760BA22D82006A2A1B /* DefaultsBean.java */; };
 		1D746E780BA22D82006A2A1B /* DefaultsBean.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D746E760BA22D82006A2A1B /* DefaultsBean.java */; };
 		1D746EB60BA5DFA0006A2A1B /* Month.java in Sources */ = {isa = PBXBuildFile; fileRef = 1D746EB50BA5DF9F006A2A1B /* Month.java */; };
@@ -1334,6 +1336,7 @@
 		1D6B374C0699C4E100B623D6 /* Cache.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Cache.java; sourceTree = "<group>"; };
 		1D6B37510699C8AD00B623D6 /* SimpleCache.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SimpleCache.java; sourceTree = "<group>"; };
 		1D6B3754069A4A4600B623D6 /* CacheTester.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = CacheTester.java; path = test/CacheTester.java; sourceTree = "<group>"; };
+		1D6D64B00CDE5D7000954C93 /* VariableTagSupport.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = VariableTagSupport.java; path = web/tags/VariableTagSupport.java; sourceTree = "<group>"; };
 		1D746E760BA22D82006A2A1B /* DefaultsBean.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = DefaultsBean.java; path = web/beans/DefaultsBean.java; sourceTree = "<group>"; };
 		1D746EB50BA5DF9F006A2A1B /* Month.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Month.java; sourceTree = "<group>"; };
 		1D746EC50BA726F5006A2A1B /* AssetPath.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = AssetPath.java; path = asset/AssetPath.java; sourceTree = "<group>"; };
@@ -1609,6 +1612,7 @@
 		1D029FEF0B655229005D0009 /* tags */ = {
 			isa = PBXGroup;
 			children = (
+				1D6D64B00CDE5D7000954C93 /* VariableTagSupport.java */,
 				1D0E4FCC0B8F5D39000E5B68 /* package.html */,
 				1DC8E9EB0B7147EC005C90BE /* CacheTagAction.java */,
 				1DC8EA000B7160DD005C90BE /* FilterTagAction.java */,
@@ -3063,6 +3067,7 @@
 				1D3C0CD80CCD5EB70018BE9B /* AssetBuilderTester.java in Sources */,
 				1D3C0DDF0CCE4BD40018BE9B /* TransactionTester.java in Sources */,
 				1D169B180CD798D6000DF381 /* SimpleListModel.java in Sources */,
+				1D6D64B10CDE5D7100954C93 /* VariableTagSupport.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3519,6 +3524,7 @@
 				1D5A26120CA4737C00C19715 /* LibraryMismatchException.java in Sources */,
 				1D3C0BDF0CCAD48E0018BE9B /* AssetBuilder.java in Sources */,
 				1D169B190CD798D7000DF381 /* SimpleListModel.java in Sources */,
+				1D6D64B20CDE5D7100954C93 /* VariableTagSupport.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

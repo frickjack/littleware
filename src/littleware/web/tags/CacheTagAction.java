@@ -106,3 +106,8 @@ public class CacheTagAction extends SimpleTagSupport {
 
 
 }
+
+
+// littleware asset management system
+// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
+

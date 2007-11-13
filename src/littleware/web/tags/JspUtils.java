@@ -16,6 +16,8 @@ import javax.servlet.jsp.JspException;
 public class JspUtils {
     /**
      * Convert a s_scope-name string to a s_scope index
+     *
+     * @exception IllegalArgumentException if invalid scope given
      */
     public static int checkScope(String s_scope) {
         if ("page".equalsIgnoreCase(s_scope)) {

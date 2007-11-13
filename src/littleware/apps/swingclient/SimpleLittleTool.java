@@ -3,6 +3,8 @@ package littleware.apps.swingclient;
 import java.util.*;
 import javax.swing.SwingUtilities;
 import java.beans.PropertyChangeSupport;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import littleware.base.AssertionFailedException;
 
@@ -12,7 +14,26 @@ import littleware.base.AssertionFailedException;
  * intended as utility for LittleTool implementation classes.
  */
 public class SimpleLittleTool extends PropertyChangeSupport implements LittleTool {
-	private List<LittleListener>  ov_listener = new ArrayList<LittleListener> ();
+    private static final Logger   olog_generic = Logger.getLogger ( SimpleLittleTool.class.getName () );
+    /**
+     * Test whether the SwingDispatchThread is available.
+     * Swing dispatch thread is not available is some environments 
+     * like J2EE app server.
+     */
+    private final static boolean  ob_swing_enabled;
+    
+    static {
+        boolean b_swing = false;
+        try {
+            SwingUtilities.isEventDispatchThread ();
+            b_swing = true;
+        } catch ( Throwable e ) {
+            olog_generic.log ( Level.INFO, "Swing not available for SimpleLittleTool event dispatch" );
+        }
+        ob_swing_enabled = b_swing;
+    }
+    
+	private List<LittleListener>  ov_listener = new ArrayList<LittleListener> ();    
 	private final Object          ox_source;
     
     
@@ -73,7 +94,10 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
         }
         
         final Runnable run_dispatch = new DispatchHandler ( event_little );
-		if ( SwingUtilities.isEventDispatchThread () ) {
+		if ( (! ob_swing_enabled)
+             || SwingUtilities.isEventDispatchThread () 
+             ) 
+        {
             run_dispatch.run ();
 		} else {
 			SwingUtilities.invokeLater ( run_dispatch );

@@ -69,7 +69,7 @@ public class PackageTestSuite extends TestSuite {
         final AssetModelLibrary  lib_asset = new SimpleAssetModelLibrary ();
         final IconLibrary        lib_icon;
         try {
-            lib_icon = new WebIconLibrary ( "localhost" );
+            lib_icon = new WebIconLibrary ( "localhost/littleware/lib/icons" );
         } catch ( RuntimeException e ) {
             throw e;
         } catch ( Exception e ) {
@@ -151,12 +151,14 @@ public class PackageTestSuite extends TestSuite {
                                      );
             }
             if ( b_run ) {
-                this.addTest ( new TrackerTester ( "testTracker"
+                this.addTest ( new TrackerTester ( "testTracker",
+                        m_helper, lib_icon
                                                          )
                                      );
             }
             if ( b_run ) {
-                this.addTest ( new TrackerTester ( "testTrackerSwing"
+                this.addTest ( new TrackerTester ( "testTrackerSwing",
+                        m_helper, lib_icon
                                                          )
                                      );
             }

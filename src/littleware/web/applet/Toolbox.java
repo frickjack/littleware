@@ -28,6 +28,21 @@ import littleware.apps.swingclient.controller.*;
 
 /**
  * Abstract applet baseclass setups a lame dependency injection mechanism.
+ * Accesses various applet parameters to define dependencies.
+ * <dl>
+ * <dt>session_uuid</dt>
+ *     <dd> required parameter specifies the session_uuid the applet
+ *               should establish an RMI connection via </dd>
+ * <dt>icon_root</dt>
+ *     <dd>specifies the path to the WebIconLibrary icon directory
+ *         structure - http://host/icon_root/lib/icons/-
+ *         </dd>
+ * <dt>session_language</dt>
+ *     <dd> specify the locale under which the applet should operate </dd>
+ * <dt>asset_uuid</dt>
+ *      <dd> specify the id of an applet that the applet should 
+ *             initially operate upon </dd>
+ * </dl>
  */
 public class Toolbox extends JApplet {
     private static final Logger  olog_generic = Logger.getLogger ( "littleware.web.applet.Toolbox" );
@@ -70,6 +85,7 @@ public class Toolbox extends JApplet {
         String         s_uuid_session = tbox_init.getParameter ( "session_uuid" );
         String         s_uuid_asset = tbox_init.getParameter ( "asset_uuid" );
         String         s_locale = tbox_init.getParameter ( "session_language" );
+        String         s_icon_root = tbox_init.getParameter( "icon_root" );
         
         olog_generic.log ( Level.INFO, "Setting up session" );
         if ( null != s_uuid_asset ) {
@@ -81,6 +97,9 @@ public class Toolbox extends JApplet {
         if ( null != s_locale ) {
             tbox_init.setLocale( new Locale ( s_locale ) );
         }   
+        if ( null == s_icon_root ) {
+            s_icon_root = "/littleware/lib/icons";
+        }
         
         UUID                  u_session = UUIDFactory.parseUUID ( s_uuid_session );
         
@@ -103,9 +122,16 @@ public class Toolbox extends JApplet {
         
 
         if ( null == olib_icon ) {
-            olib_icon = new WebIconLibrary ( url_codebase.getHost () );                
+            String s_full_icon_root = url_codebase.getHost () + s_icon_root;
+            olog_generic.log ( Level.INFO, "Setting up icon library referencing: " +
+                    s_full_icon_root
+                    );
+            olib_icon = new WebIconLibrary ( s_full_icon_root );
         }
         if ( null == om_session ) {
+            olog_generic.log ( Level.INFO, "Trying to contact RMI registry on host: " +
+                    url_codebase.getHost ()
+                    );
             om_session = SessionUtil.getSessionManager ( url_codebase.getHost (), 
                                                           SessionUtil.getRegistryPort () 
                                                            );

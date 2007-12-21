@@ -5,7 +5,7 @@
 
 package littleware.apps.lgo;
 
-import java.util.List;
+import java.util.Collection;
 
 
 /**
@@ -23,10 +23,10 @@ public interface LgoHelp {
 
     /**
      * Getter for short-name property.
-     * Idea is that caller can usually use the short name
+     * Idea is that caller can usually use the short name(s)
      * unless two commands have the same short name.
      */
-     public String getShortName();
+     public Collection<String> getShortNames();
      
     /**
      * Property getter gives brief synopsis of command use
@@ -41,11 +41,6 @@ public interface LgoHelp {
     /**
      * Property getter for list of examples.
      */
-    public List<LgoExample> getExamples();
-    
-    /**
-     * Convenience function - allows retrieval of example by name
-     */
-    public LgoExample getExample( String s_name );
+    public Collection<LgoExample> getExamples();    
      
 }

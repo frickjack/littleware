@@ -81,6 +81,8 @@ public abstract class Whatever {
             return BaseException.getStackTrace ( e );
         }
     }
+    
+    public static final String NEWLINE = System.getProperty("line.separator");
 }
 
 // littleware asset management system

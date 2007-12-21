@@ -6,6 +6,7 @@
 package littleware.apps.lgo;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 
 /**
@@ -22,17 +23,7 @@ public interface LgoCommand {
      */
     public String getName();
 
-
      
-     /**
-      * Get the id of this command within the pipe
-      */
-     public int getId ();
-     
-     /**
-      * Getter for help-info property.
-      */
-     public LgoHelp getHelpInfo();
      
      /**
       * Property for command-parameters configuring
@@ -41,21 +32,18 @@ public interface LgoCommand {
      public String[] getCommandArgs();
      public void setCommandArgs( String[] v_args );
      
-
-     /**
-      * Run the command with the given input stream      
-      */
-      public void runCommand( InputStream input  )
-              throws LgoException;
       
      /**
-      * Run the command with the given input stream      
+      * Run the command with the given input 
+      * and output streams.
+      * Mostly pass input/output to simplify testing,
+      * but also allows pipes in the future.
       * 
-      * @param input stream to pull input from
+      * @param istream  to pull input from
+      * @param ostream to send output to
       * @exception LgoBadArgumentException if arguments are invalid
       * @exception LgoBadInputException if input cannot be handled
       */
-      public void runCommand( InputStream input  )
-              throws LgoException;
+      public void runCommand() throws LgoException;
 
 }

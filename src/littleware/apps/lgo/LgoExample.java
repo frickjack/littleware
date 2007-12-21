@@ -11,12 +11,6 @@ package littleware.apps.lgo;
  */
 public interface LgoExample {
     /**
-     * Property give the example a name - should
-     * be unique within the LgoHelp instance.
-     */
-    public String getName ();
-    
-    /**
      * Title property
      */
     public String getTitle ();

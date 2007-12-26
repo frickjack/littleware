@@ -84,6 +84,7 @@ public class DbAssetPostgresManager implements DbAssetManager {
         // Setup a thread to keep us in sync
         Runnable  run_sync = new Runnable () {
             public void run () {
+                Date  t_last_error = new Date ( 0 );
                 final DbReader<Map<UUID,Asset>,String> db_sync = makeDbCacheSyncLoader ();
                 while ( true ) {
                     try {
@@ -105,10 +106,15 @@ public class DbAssetPostgresManager implements DbAssetManager {
                             }
                         }
                     } catch ( Exception e ) {
-                        olog_generic.log ( Level.WARNING, "Sync thread failed to sync cache, caught: " + e, e );
+                        Date t_now = new Date ();
+                        
+                        if ( t_now.getTime () > t_last_error.getTime () + 10000 ) {
+                            olog_generic.log ( Level.WARNING, "Sync thread failed to sync cache, caught: " + e, e );
+                            t_last_error = t_now;
+                        }
                     }
                     try {
-                        Thread.sleep ( 200 );
+                        Thread.sleep ( 500 );
                     } catch ( InterruptedException e ) {
                         olog_generic.log ( Level.INFO, "Ignoring InterruptedException: " + e );
                     }

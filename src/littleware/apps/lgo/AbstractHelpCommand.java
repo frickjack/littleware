@@ -16,7 +16,7 @@ import littleware.base.XmlResourceBundle;
  * help-string in standard format for subclasses
  * that can send the info to whatever destination.
  */
-public class AbstractHelpCommand extends AbstractLgoCommand {
+public abstract class AbstractHelpCommand extends AbstractLgoCommand {
 
     private final LgoHelpLoader          om_help;
     private final LgoCommandDictionary   om_command;
@@ -109,15 +109,30 @@ public class AbstractHelpCommand extends AbstractLgoCommand {
                 return MyResource.MissingHelp.getValue( bundle_help );
             }
             return MyResource.NoSuchCommand.getValue( bundle_help );
-        }
-        StringBuilder  sb_help = new StringBuilder( 1000 );
-        sb_help.append( MyResource.CommandListIntro.getValue( bundle_help ) )
-                .append( Whatever.NEWLINE ).append( Whatever.NEWLINE );
-       
-        for( LgoCommand command : om_command.getCommands () ) {
-            
-        }
-       
-        
+        } else {                
+            StringBuilder  sb_help = new StringBuilder( 1000 );
+            sb_help.append( MyResource.CommandListIntro.getValue( bundle_help ) )
+                    .append( Whatever.NEWLINE ).append( Whatever.NEWLINE );
+
+            for( LgoCommand command : om_command.getCommands () ) {
+                LgoHelp help = om_help.loadHelp( command.getName (), locale );
+                
+                sb_help.append( command.getName () );
+                if ( null != help ) {
+                    sb_help.append( "( " );
+                    for( String s_alias: help.getShortNames() ) {
+                        sb_help.append( s_alias ).append( ", " );
+                    }
+                    sb_help.append( ") " ).append( ":" )
+                            .append( help.getShortNames() );
+                } else {
+                    sb_help.append( ":" ).append( MyResource.MissingHelp.getValue( bundle_help ) );
+                }
+                sb_help.append( Whatever.NEWLINE );
+            }
+            return sb_help.toString ();
+        }        
     }
+    
+    public abstract void runCommand();
 }

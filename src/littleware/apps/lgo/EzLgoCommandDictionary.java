@@ -17,7 +17,6 @@ import java.util.Map;
  */
 public class EzLgoCommandDictionary implements LgoCommandDictionary {
     private final Map<String,LgoCommand>  omap_commands = new HashMap<String,LgoCommand>();
-    private final LgoHelpLoader           ohelper;
     
     
     public Collection<LgoCommand> guessCommand(String s_partial) {

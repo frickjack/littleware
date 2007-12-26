@@ -21,6 +21,7 @@
   <pathelement location="lib/commons-dbutils.jar" />
   <pathelement location="lib/commons-logging.jar" />
   <pathelement location="lib/derby.jar" />
+  <pathelement location="lib/guice-1.0.jar" />
   <pathelement location="lib/javaee.jar" />
   <pathelement location="lib/js.jar" />
   <pathelement location="lib/jython.jar" />
@@ -60,6 +61,7 @@
  <target name="clientclasses" depends="prepare">
   <javac srcdir="${srcdir.littleware}:${srcdir.wizard}" 
           destdir="${buildclient}" debug="true"
+	  target="1.5"
       >
    <exclude name="apps/calendar/**" />
    <exclude name="alarmClock/**" />
@@ -81,6 +83,7 @@
       >
   <javac srcdir="${srcdir.littleware}" 
           destdir="${buildserver}" debug="true"
+	  target="1.5"
       >
    <include name="**/server/**" />
    <include name="**/test/**" />

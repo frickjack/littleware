@@ -34,7 +34,7 @@ public class LgoCommandLine {
         
         for( LgoCommand cmd_register : 
             new LgoCommand[] {
-                new StdoutHelpCommand( m_command, m_help ),
+                //new StdoutHelpCommand( m_command, m_help ),
                 new XmlEncodeCommand ()
             }
             ) {

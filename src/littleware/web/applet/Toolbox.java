@@ -382,6 +382,9 @@ public class Toolbox extends JApplet {
             setupSession ( this );
         } catch ( Exception e ) {
             // ignore exception - let setupGUI key on this.ob_session_ok below
+            olog_generic.log( Level.SEVERE, "Failed to setup RMI session: " + e + ", " +
+                    BaseException.getStackTrace( e ) 
+                    );
             owtext_advise.setText ( "Failed to setup RMI session\nMust LOGIN to run Toolbox" );
         }
         

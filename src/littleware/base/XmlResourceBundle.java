@@ -55,32 +55,33 @@ public class XmlResourceBundle extends ResourceBundle {
 
     @Override
     public Enumeration<String> getKeys() {
-        if ( null == parent ) {            
-            return Collections.enumeration( oprops.keySet() );
-        } else {
-            Set<String> v_keys = new HashSet( oprops.keySet() );
-            for ( String s_key : parent.getKeys() ) {
-                v_keys.add ( s_key );
-            }
-            return Collections.enumeration( v_keys );
+        Set<String> v_keys = new HashSet<String> ();
+
+        for( Object x_key : oprops.keySet() ) {
+            v_keys.add( (String) x_key );
         }
+        if( null != parent ) {
+            v_keys.addAll ( parent.keySet () );
+        }
+        return Collections.enumeration( v_keys );
     }
     
     /**
      * Calls XmlResourceBundle.getBundle( s_basename, 
      *                                    locale.getDefault, 
-     *                                    ClassLoader.getDefault
+     *                                    ClassLoader.getSystemClassLoader
      * );
      * 
      * @exception MissingResourceException on failure
      */
     public static ResourceBundle getXmlBundle ( String s_basename ) 
     {
-        return XmlResourceBundle.getXmlBundle( s_basename, null, null, null );
+        return XmlResourceBundle.getXmlBundle( s_basename, Locale.getDefault (), 
+                                                ClassLoader.getSystemClassLoader() );
     }
     /**
      * Calls XmlResourceBundle.getXmlBundle( s_basename, 
-     *                                    locale, ClassLoader.getDefault 
+     *                                    locale, ClassLoader.getSystemClassLoader
      *                                    
      *      );
      * 
@@ -88,25 +89,23 @@ public class XmlResourceBundle extends ResourceBundle {
      */
     public static ResourceBundle getXmlBundle ( String s_basename, Locale locale ) 
     {
-        return XmlResourceBundle.getXmlBundle( s_basename, locale, null, null );    
+        return XmlResourceBundle.getXmlBundle( s_basename, locale, ClassLoader.getSystemClassLoader() );
     }
 
     private static Map<String,ResourceBundle>  omap_cache =
             Collections.synchronizedMap( new HashMap<String,ResourceBundle> () );
     
     /**
-     * Look for an XML, properties, or ResourceBundle class file along
+     * Look for an XML file along
      * the paths returned by getResourcePaths,
      * and load up an XmlResourceBundle if found,
      * otherwise throw MissingResourceException.
-     * Tries to setup parent relationship too.
-     * Result gets cached on hit.
      * 
      * @param s_basename of resource to lookup
-     * @param locale of resource - null indicates Locale.getDefault
-     * @param s_variant of resource - ignored if null
-     * @param classloader to search with - null indicates default loader
+     * @param locale of resource 
+     * @param classloader to search with 
      * @exception MissingResourceException on failure
+     * @exception NullPoitnerException if locale is null or classloader is null
      */
     public static ResourceBundle getXmlBundle ( String s_basename,
             Locale locale, 
@@ -114,10 +113,10 @@ public class XmlResourceBundle extends ResourceBundle {
             ) 
     {                
         if ( null == locale ) {
-            locale = Locale.getDefault ();
+            throw new NullPointerException( "null locale" );
         }
         if ( null == classloader ) {
-            classloader = ClassLoader.getSystemClassLoader();
+            throw new NullPointerException( "null classloader" );
         } 
         String s_cachekey = s_basename 
                 + "_" + locale.getLanguage() 
@@ -128,58 +127,24 @@ public class XmlResourceBundle extends ResourceBundle {
             return bundle_result;
         }
         
-        List<ResourceBundle> v_bundles = new ArrayList<ResourceBundle> ();
         for( String s_search : getResourcePaths( s_basename, locale ) ) {
-            // first try to load the class
-            ResourceBundle bundle_node = null;
-            
-            try {
-                String s_class = s_search.replaceAll( "/", "." );
-                if ( s_class.charAt(0) == '.' ) {
-                    s_class = s_class.substring( 1 );
-                }
-                bundle_node = (ResourceBundle) classloader.loadClass( s_class ).newInstance();
-                v_bundles.add( bundle_node );
-                continue;
-            } catch( Exception e ) {                
-            }
-            
-            InputStream istream = classloader.getResourceAsStream(s_search + ".properties");
+            // first try to load the class     
+            InputStream istream = classloader.getResourceAsStream(s_search + ".xml");
             if (null != istream) {
                 try {
-                    bundle_node = new PropertyResourceBundle(istream);
-                    v_bundles.add(bundle_node);
-                    continue;
-                } catch (Exception e) {
-                    olog.log(Level.WARNING, "Failed to load: " + s_search + ".properties, caught: " + e);
-                } finally {
-                    istream.close();
-                }
-            }
-                        
-            istream = classloader.getResourceAsStream(s_search + ".xml");
-            if (null != istream) {
-                try {
-                    bundle_node = new PropertyResourceBundle(istream);
-                    v_bundles.add(bundle_node);
-                    continue;
+                    bundle_result = new PropertyResourceBundle(istream);
+                    break;
                 } catch (Exception e) {
                     olog.log(Level.WARNING, "Failed to load: " + s_search + ".xml, caught: " + e);
                 } finally {
-                    istream.close();
+                    try {
+                        istream.close();
+                    } catch( IOException e ) {}
                 }
             }            
         }
-        if ( v_bundles.isEmpty () ) {
-            throw new MissingResourceException( "No resources found",                      
-                    s_basename, "" );
-        }
-        for ( int i=1; i < v_bundles.size (); ++i ) {
-            v_bundles.get( i-1 ).parent = v_bundles.get( i );
-        }
-        bundle_result = v_bundles.get(0);
-        omap_cache.put( s_cachekey, bundle_result );
-        return bundle_result;
+        omap_cache.put(s_cachekey, bundle_result);
+        return bundle_result;        
     }
     
     /**

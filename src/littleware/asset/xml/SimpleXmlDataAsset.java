@@ -2,9 +2,6 @@ package littleware.asset.xml;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
@@ -28,7 +25,7 @@ import littleware.base.AssertionFailedException;
  * XmlDataSetter handlers that map XML elements to getter and
  * setter methods on an asset instance object.
  */
-public abstract class SimpleXmlDataAsset extends SimpleAsset implements XmlDataAsset {
+public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
 
     private static Logger olog_generic = Logger.getLogger("littleware.asset.xml.SimpleXmlDataAsset");
     private HashMap<String, XmlDataSetter> ov_element_in = new HashMap<String, XmlDataSetter>();
@@ -192,6 +189,7 @@ public abstract class SimpleXmlDataAsset extends SimpleAsset implements XmlDataA
      * easily be handled via the XmlGetter/XmlSetter annotations -
      * since those annotations work best with simple types of data.
      */
+    @Override
     public String getData() {
         StringBuilder s_data = new StringBuilder();
         s_data.append('<').append(os_prefix).append(':').append(os_root).
@@ -205,27 +203,6 @@ public abstract class SimpleXmlDataAsset extends SimpleAsset implements XmlDataA
         return s_data.toString();
     }
 
-    /**
-     * Parses the supplied s_xml data, and makes up-calls to 
-     * subtype methods annotated with XmlGetter annotations.
-     * Uses a ContentHandler retrieved from getContentHandler.
-     */
-    @Override
-    public void setData(String s_xml) throws ParseException {
-        try {
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            SAXParser sax_parser = factory.newSAXParser();
-            DefaultHandler sax_handler = getSaxDataHandler();
-
-            sax_parser.parse(new InputSource(new StringReader(s_xml)),
-                    sax_handler);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ParseException("Failed to parse: " + e, e);
-        }
-    }
 
     /**
      * Return a newly allocated Handler that is aware of the XmlGetter/XmlSetter
@@ -237,6 +214,7 @@ public abstract class SimpleXmlDataAsset extends SimpleAsset implements XmlDataA
      * handler from super.getSaxDataHandler() to handle other XML elements
      * and attributes.
      */
+    @Override
     public DefaultHandler getSaxDataHandler() {
         return new XmlDataHandler();
     }
@@ -300,6 +278,7 @@ public abstract class SimpleXmlDataAsset extends SimpleAsset implements XmlDataA
             }
         }
 
+        @Override
         public void characters(char buf[], int offset, int len)
                 throws SAXException {
             os_buffer.append(buf, offset, len);
@@ -309,6 +288,7 @@ public abstract class SimpleXmlDataAsset extends SimpleAsset implements XmlDataA
     /**
      * Return a simple copy of this object
      */
+    @Override
     public SimpleXmlDataAsset clone() {
         SimpleXmlDataAsset a_xml = (SimpleXmlDataAsset) super.clone();
         a_xml.ov_element_in = (HashMap<String, XmlDataSetter>) ov_element_in.clone();

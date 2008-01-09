@@ -1,13 +1,14 @@
 package littleware.apps.swingclient;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -15,15 +16,13 @@ import littleware.apps.swingclient.event.AssetModelEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetRetriever;
+import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
+import littleware.asset.InvalidAssetTypeException;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
-import littleware.base.Cache;
 import littleware.base.SimpleCache;
 import littleware.base.Whatever;
-import littleware.security.SecurityAssetType;
-import littleware.security.AccountManager;
-import littleware.security.LittleGroup;
 
 /**
  * Simple implementation of AssetModelLibrary interface for
@@ -67,6 +66,34 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
                  ) {
                 Asset a_old = oa_data;
                 oa_data = a_data;
+                
+                // update by-name dictionary
+                if ( a_data.getAssetType().isNameUnique()
+                     && (
+                     (null == a_old)
+                     || (! a_old.getName().equals( a_data.getName() ))
+                     )
+                        ) {
+                    if ( null != a_old ) {
+                        for( AssetType atype = a_old.getAssetType();
+                             (atype != null) && atype.isNameUnique();
+                             atype = atype.getSuperType()
+                            ) {
+                            omulti_byname.get( atype ).remove( a_old.getObjectId () );
+                        }                        
+                    }
+                    for( AssetType atype = a_data.getAssetType();
+                        (null != atype) && atype.isNameUnique();
+                        atype = atype.getSuperType()
+                    ) {
+                        Map<String,UUID> map_4type = omulti_byname.get( atype );
+                        if ( null == map_4type ) {
+                            map_4type = new HashMap<String,UUID>();
+                            omulti_byname.put( atype, map_4type );
+                        }
+                        map_4type.put( a_data.getName (), a_data.getObjectId () );
+                    }
+                }
                 event_result = new AssetModelEvent ( this, AssetModel.Operation.assetUpdated );
                 this.fireLittleEvent ( event_result );
             }
@@ -112,10 +139,12 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         /**
          * Just return the hashCode for the wrapped asset
          */
+        @Override
         public int hashCode () {
             return oa_data.hashCode ();
         }
         
+        @Override
         public String toString () {
             return "AssetModel(" + oa_data.toString () + ")";
         }
@@ -128,6 +157,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         }
         
         /** Just compare the wrapped assets */
+        @Override
         public boolean equals ( Object x_other ) {
             return ((null != x_other)
                     && (x_other instanceof SimpleAssetModel)
@@ -205,21 +235,26 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
      */
     private void fireChildEvent ( Asset a_old, Asset a_new,
                                              AssetModelEvent event_cause ) {
-        if ( null == a_old ) {
+        if ( (null == a_old) && (null == a_new) ) {
             return;
         }
         if ( (a_new != null) 
+             && (null != a_old)
              && (! a_new.getObjectId ().equals ( a_old.getObjectId () ) ) 
              ) {
             throw new AssertionFailedException ( "Comparing assets with different ids" );
-        }
-        
-        // Create a place-holder asset with null references to simplify things
-        if ( null == a_new ) {
+        } else if ( null == a_new ) {
+            // Create a place-holder asset with null references to simplify things
             a_new = AssetType.GENERIC.create ();
             a_new.setFromId ( null );
             a_new.setToId ( null );
             a_new.setObjectId ( a_old.getObjectId () );
+        } else if ( null == a_old ) {
+            // Create a place-holder asset with null references to simplify things
+            a_old = AssetType.GENERIC.create ();
+            a_old.setFromId( null );
+            a_old.setToId( null );
+            a_old.setObjectId( a_new.getObjectId () );
         }
                  
         if ( ! Whatever.equalsSafe ( a_old.getFromId (), a_new.getFromId () ) ) {
@@ -229,6 +264,44 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
              
     }
     
+    private Map<AssetType,Map<String,UUID>> omulti_byname =
+            new TreeMap<AssetType,Map<String,UUID>>();
+    
+    public synchronized AssetModel getByName( String s_name, AssetType atype
+            ) throws InvalidAssetTypeException
+    {
+        if ( ! atype.isNameUnique () ) {
+            throw new InvalidAssetTypeException ( "Asset type not name-unique: " + atype );
+        }
+        Map<String,UUID> map_byname = omulti_byname.get( atype );
+        if ( null == map_byname ) {
+            return null;
+        }
+        UUID u_id = map_byname.get( s_name );
+        if ( null == u_id ) {
+            return null;
+        }
+        return get( u_id );
+    }
+    
+    public AssetModel getByName( String s_name, AssetType<? extends Asset> atype,
+            AssetSearchManager m_search
+            ) throws InvalidAssetTypeException,
+        BaseException, 
+        AssetException, GeneralSecurityException, RemoteException
+    {
+        AssetModel amodel_result = getByName( s_name, atype );
+        
+        if ( null != amodel_result ) {
+            return amodel_result;
+        }
+        Asset a_result = m_search.getByName( s_name, atype );
+        if ( null == a_result ) {
+            return null;
+        }
+        return syncAsset( a_result );
+    }
+
     
     /**
      * Constructor initializes the underlying SimpleCache with huge
@@ -278,6 +351,25 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         }
         return v_result;
     }
+    
+    @Override
+    public AssetModel remove( UUID u_remove ) {
+        AssetModel amodel_remove = super.remove( u_remove );        
+        if ( 
+             (null != amodel_remove)
+             && amodel_remove.getAsset().getAssetType().isNameUnique()             
+            ) {
+            Asset a_remove = amodel_remove.getAsset ();
+            for ( AssetType atype = a_remove.getAssetType ();
+                  (atype != null) && atype.isNameUnique();
+                  atype = atype.getSuperType()
+                ){
+                omulti_byname.get( atype ).remove( a_remove.getName () );
+            }
+        }
+        return amodel_remove;
+    }
+    
     
     public AssetModel assetDeleted ( UUID u_deleted ) {
         SimpleAssetModel amodel_deleted = (SimpleAssetModel) remove ( u_deleted );

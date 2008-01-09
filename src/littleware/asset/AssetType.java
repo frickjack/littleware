@@ -2,16 +2,10 @@ package littleware.asset;
 
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.io.Serializable;
-import java.io.ObjectStreamException;
 import java.security.AccessController;
 import java.security.Permission;
 
 import littleware.base.*;
-import littleware.security.SimpleUser;
-import littleware.security.SimpleGroup;
-import littleware.security.SimpleAccessList;
 
 /**
  * Enumerate different types of assets, and provide
@@ -106,7 +100,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
      *
      * @return super-type, or null if no super-type (this implementation returns null)
      */
-    public AssetType getSuperType () { return null; }
+    public AssetType<? extends Asset> getSuperType () { return null; }
     
     
     /**

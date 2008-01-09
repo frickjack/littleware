@@ -10,6 +10,7 @@ import littleware.asset.AssetException;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
+import littleware.asset.InvalidAssetTypeException;
 import littleware.base.BaseException;
 import littleware.base.Cache;
 
@@ -22,6 +23,37 @@ import littleware.base.Cache;
  * that periodically syncs with the backend littleware asset repository.
  */
 public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
+    /**
+     * Lookup an asset by name.
+     * 
+     * @param s_name of asset to lookup
+     * @param atype of asset to lookup - must be a name-unique asset type
+     * @return cached asset-model or null
+     * @exception InvalidAssetTypeException if atype is not name-unique
+     */
+    public AssetModel getByName( String s_name, AssetType<? extends Asset> atype
+            ) throws InvalidAssetTypeException;
+    
+    /**
+     * Retrieve asset by name - use m_search to access the asset
+     * repository of the requested asset is not in cache.
+     * 
+     * @param s_name
+     * @param atype
+     * @param m_search
+     * @return asset-model from cache first, then try repository, finally
+     *                  return null if no match
+     * @throws littleware.asset.InvalidAssetTypeException
+     * @throws littleware.base.BaseException
+     * @throws littleware.asset.AssetException
+     * @throws java.security.GeneralSecurityException
+     * @throws java.rmi.RemoteException
+     */
+    public AssetModel getByName( String s_name, AssetType<? extends Asset> atype,
+            AssetSearchManager m_search
+            ) throws InvalidAssetTypeException,
+        BaseException, 
+        AssetException, GeneralSecurityException, RemoteException;
 
     /**
      * If an AssetModel is already in the repostory,

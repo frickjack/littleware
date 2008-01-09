@@ -374,6 +374,7 @@ public class Toolbox extends JApplet {
      * Also accepts optional "session_language" applet parameter.
      * Call this first!
 	 */
+    @Override
     public void init() {	
         if ( null != om_helper ) {
             return;

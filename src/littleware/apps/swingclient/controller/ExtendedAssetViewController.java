@@ -1,5 +1,6 @@
 package littleware.apps.swingclient.controller;
 
+import com.google.inject.Inject;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;

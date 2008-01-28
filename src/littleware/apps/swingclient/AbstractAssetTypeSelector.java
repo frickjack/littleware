@@ -2,7 +2,6 @@ package littleware.apps.swingclient;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.beans.PropertyChangeListener;
 
 
 import littleware.asset.AssetType;

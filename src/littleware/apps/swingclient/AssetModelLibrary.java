@@ -1,5 +1,6 @@
 package littleware.apps.swingclient;
 
+import com.google.inject.ImplementedBy;
 import java.util.UUID;
 import java.util.Collection;
 import java.rmi.RemoteException;
@@ -22,6 +23,7 @@ import littleware.base.Cache;
  * May work in conjunction with a cache-update thread
  * that periodically syncs with the backend littleware asset repository.
  */
+@ImplementedBy(SimpleAssetModelLibrary.class)
 public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
     /**
      * Lookup an asset by name.

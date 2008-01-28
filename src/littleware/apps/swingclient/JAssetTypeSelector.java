@@ -1,5 +1,6 @@
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -60,6 +61,7 @@ public class JAssetTypeSelector extends JComboBox implements AssetTypeSelector {
      * Constructor initializes the component with
      * every available AssetType.
      */
+    @Inject
     public JAssetTypeSelector ( IconLibrary lib_icon ) {
         java.util.List<AssetType>  v_options = new ArrayList<AssetType> ();
         v_options.addAll ( AssetType.getMembers () );

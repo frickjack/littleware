@@ -1,22 +1,16 @@
 package littleware.apps.test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import junit.framework.*;
 
-import littleware.apps.filebucket.BucketManager;
-import littleware.apps.filebucket.BucketServiceType;
 import littleware.apps.swingclient.*;
-import littleware.asset.AssetManager;
-import littleware.asset.AssetSearchManager;
 import littleware.base.AssertionFailedException;
-import littleware.base.BaseException;
 import littleware.security.auth.*;
-import littleware.security.AccountManager;
-import littleware.security.LittleUser;
-import littleware.security.SecurityAssetType;
 
 /**
  * Test suite for littleware.asset package
@@ -65,83 +59,78 @@ public class PackageTestSuite extends TestSuite {
     public PackageTestSuite() {
         super("littleware.apps.test.PackageTestSuite");
 
-        final AssetModelLibrary lib_asset = new SimpleAssetModelLibrary();
-        final IconLibrary lib_icon;
         try {
-            lib_icon = new WebIconLibrary("localhost/littleware/lib/icons");
+            TypicalClientGuice.getIconLibrary ().setRoot( "localhost/littleware/lib/icons" );
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new AssertionFailedException("Failed to initialize IconLibrary", e);
         }
-        final SessionHelper m_helper = PackageTestSuite.getTestSessionHelper();
-        final AssetManager m_asset;
-        final AssetSearchManager m_search;
-        final LittleUser user_test;
-        try {
-            m_asset = m_helper.getService(ServiceType.ASSET_MANAGER);
-            m_search = m_helper.getService(ServiceType.ASSET_SEARCH);
 
-            user_test = (LittleUser) m_search.getByName("littleware.test_user",
-                    SecurityAssetType.USER);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AssertionFailedException("Failed to intialize services", e);
-        }
-        final AssetViewFactory factory_view = new SimpleAssetViewFactory(m_search, lib_icon);
-        final AssetEditorFactory factory_edit = new EditorAssetViewFactory(m_asset, m_search, lib_icon, factory_view);
+        final SessionHelper m_helper = PackageTestSuite.getTestSessionHelper();
+        final Injector     injector = Guice.createInjector( new TypicalClientGuice( m_helper ) );
+
         boolean b_run = true;
 
         if (b_run) {
-            this.addTest(new AddressBookTester("testAddressBook", m_asset, m_search, user_test));
+            TestCase test = injector.getInstance( AddressBookTester.class );
+            test.setName( "testAddressBook" );
+            this.addTest( test );
         }
         if (b_run) {
-            this.addTest(new SwingClientTester("testJSessionManager", m_helper, lib_asset, lib_icon,
-                    factory_view, factory_edit));
-            this.addTest(new SwingClientTester("testJSessionHelper", m_helper, lib_asset, lib_icon,
-                    factory_view, factory_edit));
+            TestCase test = injector.getInstance( SwingClientTester.class );
+            test.setName( "testJSessionManager" );
+            this.addTest( test );
+            test = injector.getInstance( SwingClientTester.class );
+            test.setName( "testJSessionHelper" );
+            this.addTest( test );
         }
         if (b_run) {
-            this.addTest(new SwingClientTester("testJAssetViews", m_helper, lib_asset, lib_icon,
-                    factory_view, factory_edit));
+            TestCase test = injector.getInstance( SwingClientTester.class );
+            test.setName( "testJAssetViews" );
+            this.addTest( test );
         }
         if (b_run) {
-            this.addTest(new SwingClientTester("testJAssetBrowser", m_helper, lib_asset, lib_icon,
-                    factory_view, factory_edit));
+            TestCase test = injector.getInstance( SwingClientTester.class );
+            test.setName( "testJAssetBrowser" );
+            this.addTest( test );
         }
         if (b_run) {
-            this.addTest(new SwingClientTester("testGroupFolderTool", m_helper, lib_asset, lib_icon,
-                    factory_view, factory_edit));
+            TestCase test = injector.getInstance( SwingClientTester.class );
+            test.setName( "testGroupFolderTool" );
+            this.addTest( test );
         }
         if (b_run) {
-            this.addTest(new SwingClientTester("testAssetModelLibrary", m_helper, lib_asset, lib_icon,
-                    factory_view, factory_edit));
+            TestCase test = injector.getInstance( SwingClientTester.class );
+            test.setName( "testAssetModelLibrary" );
+            this.addTest( test );
         }
         if (b_run) {
-            this.addTest(new SwingClientTester("testJEditor", m_helper, lib_asset, lib_icon,
-                    factory_view, factory_edit));
+            TestCase test = injector.getInstance( SwingClientTester.class );
+            test.setName( "testJEditor" );
+            this.addTest( test );
         }
         if (b_run) {
-            this.addTest(new SwingClientTester("testWizardCreate", m_helper, lib_asset, lib_icon,
-                    factory_view, factory_edit));
+            TestCase test = injector.getInstance( SwingClientTester.class );
+            test.setName( "testWizardCreate" );
+            this.addTest( test );
         }
 
         try {
-            BucketManager m_bucket = m_helper.getService(BucketServiceType.BUCKET_MANAGER);
-            // new littleware.apps.filebucket.server.SimpleBucketManager( m_search, m_asset );
-
             if (b_run) {
-                this.addTest(new BucketTester("testBucket",
-                        m_asset, m_search, m_bucket));
+                TestCase test = injector.getInstance( BucketTester.class );
+                test.setName( "testBucket" );
+                this.addTest( test );
             }
             if (b_run) {
-                this.addTest(new TrackerTester("testTracker",
-                        m_helper, lib_icon));
+                TestCase test = injector.getInstance( TrackerTester.class );
+                test.setName( "testTracker" );
+                this.addTest( test );
             }
             if (b_run) {
-                this.addTest(new TrackerTester("testTrackerSwing",
-                        m_helper, lib_icon));
+                TestCase test = injector.getInstance( TrackerTester.class );
+                test.setName( "testTrackerSwing" );
+                this.addTest( test );
             }
         } catch (RuntimeException e) {
             throw e;

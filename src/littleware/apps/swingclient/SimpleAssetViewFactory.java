@@ -1,5 +1,6 @@
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -20,6 +21,7 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
     /**
      * Setup the factory with an icon library and an AssetSearchManager
      */
+    @Inject
     public SimpleAssetViewFactory ( AssetSearchManager m_search, IconLibrary lib_icon ) {
         olib_icon = lib_icon;
         om_search = m_search;

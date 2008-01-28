@@ -1,5 +1,6 @@
 package littleware.apps.test;
 
+import com.google.inject.Inject;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
@@ -49,6 +50,15 @@ public class SwingClientTester extends TestCase {
         olib_icon = lib_icon;
         ofactory_view = factory_view;
         ofactory_edit = factory_edit;
+    }
+    
+    /** Inject dependencies */
+    @Inject
+    public SwingClientTester( SessionHelper m_helper,
+        AssetModelLibrary lib_asset, IconLibrary lib_icon,
+        AssetViewFactory factory_view,
+        AssetEditorFactory factory_edit) {
+        this( "", m_helper, lib_asset, lib_icon, factory_view, factory_edit );
     }
 
     /** 
@@ -377,7 +387,7 @@ public class SwingClientTester extends TestCase {
                     Wizard.FINISH_RETURN_CODE == wizard_create.showModalDialog());
             assertTrue("Asset-create wizard has asset changes",
                     ((AssetEditor) wizard_create).getHasLocalChanges());
-        } catch (Exception e) {
+        } catch ( Throwable e) {
             olog_generic.log(Level.INFO, "Caught unexpected: " + e + ", " +
                     BaseException.getStackTrace(e));
             assertTrue("Caught unexpected: " + e, false);

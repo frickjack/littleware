@@ -19,19 +19,19 @@ public interface LgoCommandDictionary {
      * @param s_partial
      * @return zero or more possible commands
      */
-    public Collection<LgoCommand> guessCommand( String s_partial );
+    public Collection<LgoCommand<?,?>> guessCommand( String s_partial );
     
     /**
      * Get a command by name (full or short)
      * 
      * @return null if no match or single match     
      */
-    public LgoCommand getCommand( String s_name );
+    public LgoCommand<?,?> getCommand( String s_name );
      
     /**
      * Associate the given provider with the given command-name
      */
-    public LgoCommand setCommand( String s_name, LgoCommand command );   
+    public LgoCommand<?,?> setCommand( String s_name, LgoCommand command );   
     
     /**
      * Get the collection of all the commands registered with
@@ -39,5 +39,5 @@ public interface LgoCommandDictionary {
      * 
      * @return collection of commands
      */
-    public Collection<LgoCommand> getCommands();
+    public Collection<LgoCommand<?,?>> getCommands();
 }

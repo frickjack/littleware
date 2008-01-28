@@ -61,7 +61,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
     }
     
     public LgoHelp loadHelp( String s_basename, Locale locale) {
-        String        s_cachekey = s_basename 
+        String        s_cachekey = s_basename + "Help"
                 + "_" + locale.getLanguage()
                 + "_" + locale.getCountry ()
                 + "_" + locale.getVariant();
@@ -157,7 +157,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                     } else {
                         os_full_name = os_not_loaded;
                         olog.log( Level.WARNING, "XML help file does not have fullname attribute set on root help:help element");
-                    }
+                    }               
                 } else if ( s_simple.equals( XmlTag.example.toString() ) ) {
                     String s_title = v_attrs.getValue( "", "title" );
                     if ( null != s_title ) {
@@ -184,6 +184,8 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
             if (s_namespace.equals(OS_XML_NAMESPACE)) {
                 if ( s_simple.equals( XmlTag.description ) ) {
                     os_description = osb_buffer.toString ();
+                } else if ( s_simple.equals( XmlTag.shortname.toString () ) ) {
+                    ov_short_names.add( osb_buffer.toString() );
                 } else if ( s_simple.equals( XmlTag.synopsis ) ) {
                     os_synopsis = osb_buffer.toString ();
                 } else if ( s_simple.equals( XmlTag.example ) ) {

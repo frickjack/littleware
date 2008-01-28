@@ -42,7 +42,8 @@ public class Editor extends JApplet {
             SessionHelper m_helper = m_session.getSessionHelper(u_session);
             AssetSearchManager m_search = m_helper.getService(ServiceType.ASSET_SEARCH);
             AssetManager m_asset = m_helper.getService(ServiceType.ASSET_MANAGER);
-            IconLibrary lib_icon = new WebIconLibrary(url_codebase.getHost() + "/littleware/lib/icons");
+            IconLibrary lib_icon = new WebIconLibrary();
+            lib_icon.setRoot( url_codebase.getHost() + "/littleware/lib/icons");
             AssetModelLibrary lib_asset = new SimpleAssetModelLibrary();
             AssetViewFactory factory_view = new SimpleAssetViewFactory(m_search, lib_icon);
             AssetViewFactory factory_editor = new EditorAssetViewFactory(m_asset, m_search, lib_icon, factory_view);

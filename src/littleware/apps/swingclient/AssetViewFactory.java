@@ -1,13 +1,12 @@
 package littleware.apps.swingclient;
 
-import java.util.UUID;
-
-import littleware.base.Cache;
+import com.google.inject.ImplementedBy;
 
 /**
  * Factory generates a view for a given AssetModel
  * based on the Asset-type and the factory type.
  */
+@ImplementedBy(SimpleAssetViewFactory.class)
 public interface AssetViewFactory {
     
 

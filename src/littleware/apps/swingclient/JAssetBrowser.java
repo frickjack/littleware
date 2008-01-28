@@ -1,5 +1,6 @@
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -75,6 +76,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
      * Add a controller after construction to resond to
      * littleware.apps.swingclient.apps.NavRequestEvents.
      */
+    @Inject
     public JAssetBrowser ( AssetViewFactory  factory_view,
                            IconLibrary       lib_icon,
                            AssetModelLibrary lib_asset,

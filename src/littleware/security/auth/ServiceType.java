@@ -37,6 +37,9 @@ import littleware.security.*;
  *
  * Note: subtypes implementing ServiceType must be in a code-base
  *     granted AccessPermission "littleware.security.resource.newtype"
+ * Note: each service-type should implement its own unique interface
+ *     to simplify the construction of Guice injection modules that key
+ *     on ServiceType like littleware.security.auth.ClientServiceModule
  */
 public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceType> implements ServiceProviderFactory<T> { 	
 	private static Logger      olog_generic = Logger.getLogger ( "littleware.security.auth.ServiceType" );

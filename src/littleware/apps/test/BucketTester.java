@@ -1,5 +1,6 @@
 package littleware.apps.test;
 
+import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -37,6 +38,14 @@ public class BucketTester extends TestCase {
         om_bucket = m_bucket;
     }
 
+    /**
+     * Inject dependencies
+     */
+    @Inject
+    public BucketTester( AssetManager m_asset, AssetSearchManager m_search, BucketManager m_bucket) {
+        this( "", m_asset, m_search, m_bucket );
+    }
+    
     /**
      * Setup a test asset.
      */

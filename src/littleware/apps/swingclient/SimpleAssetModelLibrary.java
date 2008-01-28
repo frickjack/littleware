@@ -1,5 +1,6 @@
 package littleware.apps.swingclient;
 
+import com.google.inject.Singleton;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
@@ -27,7 +28,9 @@ import littleware.base.Whatever;
 /**
  * Simple implementation of AssetModelLibrary interface for
  * in-memory asset model cache.
+ * Intended to be a singleton PER-USER.
  */
+@Singleton
 public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel> 
         implements AssetModelLibrary 
 {
@@ -364,7 +367,10 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
                   (atype != null) && atype.isNameUnique();
                   atype = atype.getSuperType()
                 ){
-                omulti_byname.get( atype ).remove( a_remove.getName () );
+                Map<String,UUID> map_byname = omulti_byname.get( atype );
+                if ( null != map_byname ) {
+                    map_byname.remove( a_remove.getName () );
+                }
             }
         }
         return amodel_remove;

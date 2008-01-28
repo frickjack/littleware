@@ -126,7 +126,8 @@ public class Toolbox extends JApplet {
             olog_generic.log ( Level.INFO, "Setting up icon library referencing: " +
                     s_full_icon_root
                     );
-            olib_icon = new WebIconLibrary ( s_full_icon_root );
+            olib_icon = new WebIconLibrary ();
+            olib_icon.setRoot( s_full_icon_root );
         }
         if ( null == om_session ) {
             olog_generic.log ( Level.INFO, "Trying to contact RMI registry on host: " +

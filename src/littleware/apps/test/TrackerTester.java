@@ -1,5 +1,6 @@
 package littleware.apps.test;
 
+import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -49,10 +50,20 @@ public class TrackerTester extends TestCase {
         om_helper = m_helper;
         olib_icon = lib_icon;
     }
+    
+    /** Inject dependencies */
+    @Inject
+    public TrackerTester(
+            SessionHelper m_helper,
+            IconLibrary lib_icon
+            ) {
+        this( "", m_helper, lib_icon );
+    }    
 
     /**
      * Setup the test folder to create test assets under.
      */
+    @Override
     public void setUp() {
         try {
             om_asset = om_helper.getService(ServiceType.ASSET_MANAGER);

@@ -1,5 +1,6 @@
 package littleware.apps.swingclient.controller;
 
+import com.google.inject.Inject;
 import java.awt.Cursor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -58,6 +59,7 @@ public class GroupFolderTool extends SimpleAssetViewController implements Proper
      * @param factory_view to supply to child browsers as necessary
      * @param wtbar_control to listen on - also listen on its connected view
      */
+    @Inject
     public GroupFolderTool ( AssetModelLibrary  lib_asset,
                             AssetManager        m_asset,
                             AssetSearchManager  m_search,

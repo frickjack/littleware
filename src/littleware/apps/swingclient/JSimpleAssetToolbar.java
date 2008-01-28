@@ -1,5 +1,6 @@
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
@@ -294,6 +295,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
      * @param m_search to resolve lookups with
      * @param s_toolbar_name to pass to super
      */
+    @Inject
     public JSimpleAssetToolbar ( AssetView view_component, 
                                  AssetModelLibrary lib_asset,
                                  IconLibrary lib_icon,

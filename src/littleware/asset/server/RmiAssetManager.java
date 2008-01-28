@@ -22,38 +22,30 @@ import littleware.security.AccessDeniedException;
  * of a base implementation class.
  */
 public class RmiAssetManager extends UnicastRemoteObject implements AssetManager {
-	private AssetManager       om_proxy = null;
-	
-	
-	public RmiAssetManager ( AssetManager m_proxy ) throws RemoteException {
-		super ();
-		om_proxy = m_proxy;
-	}
-	
 
-	public void deleteAsset ( UUID u_asset,
-							  String s_update_comment
-							  ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException
-	{
-		om_proxy.deleteAsset ( u_asset, s_update_comment );
-	}
-	
+    private AssetManager om_proxy = null;
 
-	public Asset saveAsset ( Asset a_asset,
-							String s_update_comment
-							) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException
-	{
-		return om_proxy.saveAsset ( a_asset, s_update_comment );
-	}
-    
-    public Collection<Asset>  saveAssetsInOrder ( Collection<Asset> v_assets,
-                                                  String s_update_comment
-                                                  ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException 
-    {
-        return om_proxy.saveAssetsInOrder ( v_assets, s_update_comment );
+    public RmiAssetManager(AssetManager m_proxy) throws RemoteException {
+        super();
+        om_proxy = m_proxy;
+    }
+
+    public void deleteAsset(UUID u_asset,
+            String s_update_comment) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+        om_proxy.deleteAsset(u_asset, s_update_comment);
+    }
+
+    public <T extends Asset> T saveAsset(T a_asset,
+            String s_update_comment) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+        return om_proxy.saveAsset(a_asset, s_update_comment);
+    }
+
+    public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets,
+            String s_update_comment) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+        return om_proxy.saveAssetsInOrder(v_assets, s_update_comment);
     }
 }
 

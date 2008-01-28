@@ -1,6 +1,6 @@
 package littleware.apps.swingclient;
 
-import java.beans.PropertyChangeEvent;
+import com.google.inject.Inject;
 
 import littleware.asset.*;
 import littleware.security.SecurityAssetType;
@@ -24,6 +24,7 @@ public class EditorAssetViewFactory implements AssetEditorFactory {
      *
      * @param factory_view source of read-only views for browsers launched by different editors
      */
+    @Inject
     public EditorAssetViewFactory ( AssetManager m_asset, AssetSearchManager m_search, 
                                     IconLibrary lib_icon,
                                     AssetViewFactory factory_view
@@ -44,6 +45,7 @@ public class EditorAssetViewFactory implements AssetEditorFactory {
         } else {
             //throw new UnsupportedOperationException ( "Not yet implemented for asset type: " + n_asset );
             return new JGenericAssetEditor ( model_asset, om_asset, om_search, olib_icon, ofactory_view ) {
+                @Override
                 public void eventFromModel ( LittleEvent evt_ignore ) {}
             };
         }

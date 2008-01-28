@@ -1,5 +1,6 @@
 package littleware.apps.swingclient;
 
+import com.google.inject.ImplementedBy;
 import java.util.UUID;
 
 import littleware.base.Cache;
@@ -7,6 +8,7 @@ import littleware.base.Cache;
 /**
  * Specialization of AssetViewFactory for editors.
  */
+@ImplementedBy(EditorAssetViewFactory.class)
 public interface AssetEditorFactory extends AssetViewFactory {
     
     

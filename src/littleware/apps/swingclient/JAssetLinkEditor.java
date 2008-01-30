@@ -88,17 +88,17 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
                                                              om_search
                                                              );
             
-            LittleListener  listen_control = new SimpleAssetViewController ( (AssetView) wbrowser_asset,
+            SimpleAssetViewController  listen_control = new SimpleAssetViewController ( 
                                                                              om_search,
                                                                              olib_asset
                                                                              );
-            ((AssetView) wbrowser_asset).addLittleListener ( listen_control );
-            JComponent wtoolbar_asset = new JSimpleAssetToolbar ( (AssetView) wbrowser_asset, 
+            listen_control.setControlView( (AssetView) wbrowser_asset );
+            JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar ( 
                                                                   olib_asset,
                                                                   olib_icon,
-                                                                  om_search,
-                                                                  "Browser Toolbar"
+                                                                  om_search
                                                                   );
+            wtoolbar_asset.setConnectedView( (AssetView) wbrowser_asset );
             ((LittleTool) wtoolbar_asset).addLittleListener ( listen_control );
             
             final JPanel              wpanel_buttons = new JPanel ();

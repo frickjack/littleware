@@ -229,7 +229,7 @@ public class Toolbox extends JApplet {
 
         owbrowser_asset = new JAssetBrowser ( ofactory_view, olib_icon, olib_asset, m_search );
 
-        LittleListener  listen_control = new ExtendedAssetViewController ( (AssetView) owbrowser_asset,
+        SimpleAssetViewController  listen_control = new ExtendedAssetViewController ( 
                                                                            m_search,
                                                                            m_asset,
                                                                            olib_asset,
@@ -237,13 +237,13 @@ public class Toolbox extends JApplet {
                                                                            olib_icon,
                                                                            om_helper.getSession ()
                                                                            );
-        owbrowser_asset.addLittleListener ( listen_control );
-        JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar ( owbrowser_asset,
+        listen_control.setControlView ( owbrowser_asset );
+        JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar ( 
                                                                        olib_asset,
                                                                        olib_icon,
-                                                                       m_search,
-                                                                       "Browser Toolbar"
+                                                                       m_search
                                                                        );
+        wtoolbar_asset.setConnectedView( owbrowser_asset );
         wtoolbar_asset.getButton ( JSimpleAssetToolbar.ButtonId.CREATE ).setEnabled ( true );
         wtoolbar_asset.getButton ( JSimpleAssetToolbar.ButtonId.EDIT ).setEnabled ( true );
         wtoolbar_asset.getButton ( JSimpleAssetToolbar.ButtonId.DELETE ).setEnabled ( true );

@@ -257,19 +257,20 @@ public class SwingClientTester extends TestCase {
                     olib_icon,
                     olib_asset,
                     m_search);
-            LittleListener listen_control = new ExtendedAssetViewController((AssetView) wbrowser_asset,
+            SimpleAssetViewController listen_control = new ExtendedAssetViewController(
                     m_search,
                     om_helper.getService(ServiceType.ASSET_MANAGER),
                     olib_asset,
                     ofactory_edit, ofactory_view,
                     olib_icon,
                     om_helper.getSession());
-            ((AssetView) wbrowser_asset).addLittleListener(listen_control);
-            JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar((AssetView) wbrowser_asset,
+            listen_control.setControlView((AssetView) wbrowser_asset);
+            JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar(
                     olib_asset,
                     olib_icon,
-                    m_search,
-                    "Browser Toolbar");
+                    m_search
+                    );
+            wtoolbar_asset.setConnectedView( (AssetView) wbrowser_asset );
             wtoolbar_asset.getButton(JSimpleAssetToolbar.ButtonId.CREATE).setEnabled(true);
             wtoolbar_asset.getButton(JSimpleAssetToolbar.ButtonId.EDIT).setEnabled(true);
             wtoolbar_asset.getButton(JSimpleAssetToolbar.ButtonId.DELETE).setEnabled(true);

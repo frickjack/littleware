@@ -64,15 +64,16 @@ public class Browser extends Toolbox {
             AssetViewFactory factory_view = getViewFactory();
 
             owbrowser_asset = new JAssetBrowser(factory_view, lib_icon, lib_asset, m_search);
-            LittleListener listen_control = new SimpleAssetViewController((AssetView) owbrowser_asset,
+            SimpleAssetViewController listen_control = new SimpleAssetViewController(
                     m_search,
                     lib_asset);
-            ((AssetView) owbrowser_asset).addLittleListener(listen_control);
-            owtoolbar_asset = new JSimpleAssetToolbar((AssetView) owbrowser_asset,
+            listen_control.setControlView((AssetView) owbrowser_asset );
+            owtoolbar_asset = new JSimpleAssetToolbar(
                     lib_asset,
                     lib_icon,
-                    m_search,
-                    "Browser Toolbar");
+                    m_search
+                    );
+            owtoolbar_asset.setConnectedView( owbrowser_asset );
             ((LittleTool) owtoolbar_asset).addLittleListener(listen_control);
 
             owbrowser_asset.setAssetModel(lib_asset.retrieveAssetModel(u_asset, m_search));

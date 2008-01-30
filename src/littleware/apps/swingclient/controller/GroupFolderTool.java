@@ -68,13 +68,14 @@ public class GroupFolderTool extends SimpleAssetViewController implements Proper
                             JSimpleAssetToolbar wtbar_control
                                                        )
     {
-        super ( wtbar_control.getConnectedView (), m_search, lib_asset );
+        super ( m_search, lib_asset );
         olib_asset = lib_asset;
         olib_icon = lib_icon;
         om_asset = m_asset;
         om_search = m_search;
         ofactory_view = factory_view;
         owtbar_control = wtbar_control;
+        setControlView( wtbar_control.getConnectedView () );
         owtbar_control.addLittleListener ( this );
         owtbar_control.getConnectedView ().addLittleListener ( this );
         owtbar_control.getConnectedView ().addPropertyChangeListener ( this );
@@ -151,6 +152,7 @@ public class GroupFolderTool extends SimpleAssetViewController implements Proper
         } 
     }
     
+    @Override
     public void receiveLittleEvent ( LittleEvent evt_little ) {
         super.receiveLittleEvent ( evt_little );
         if ( evt_little instanceof CreateRequestEvent ) {

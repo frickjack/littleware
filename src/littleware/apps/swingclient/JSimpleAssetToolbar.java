@@ -24,7 +24,7 @@ import littleware.base.BaseException;
  */
 public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListener, LittleTool {
     private final static Logger         olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JSimpleAssetToolbar" );
-    private final AssetView             oview_component;
+    private  AssetView             oview_component = null;
     private final AssetModelLibrary     olib_asset;
     private final IconLibrary           olib_icon;
     private final AssetSearchManager    om_search;
@@ -287,22 +287,19 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
     }
     
     /**
-     * Constructor associates toolbar with a view.
+     * Constructor just injects dependencies.
      *
-     * @param view_component to listen to 
      * @param lib_asset asset data library
      * @param lib_icon source of icons
      * @param m_search to resolve lookups with
-     * @param s_toolbar_name to pass to super
      */
     @Inject
-    public JSimpleAssetToolbar ( AssetView view_component, 
+    public JSimpleAssetToolbar ( 
                                  AssetModelLibrary lib_asset,
                                  IconLibrary lib_icon,
-                                 AssetSearchManager m_search,
-                                 String s_toolbar_name
+                                 AssetSearchManager m_search
                                  ) {
-        this ( view_component, lib_asset, lib_icon, m_search, s_toolbar_name, ov_all_buttons );
+        this ( null, lib_asset, lib_icon, m_search, "whatever", ov_all_buttons );
     }
     
     
@@ -325,18 +322,12 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                                  List<ButtonId>  v_buttons
                                  ) {
         super ( s_toolbar_name );
-        
-        oview_component = view_component;
+                
         olib_asset = lib_asset;
         olib_icon = lib_icon;
         om_search = m_search;
         buildToolbar ( v_buttons );
-        oview_component.addPropertyChangeListener ( this );
-        AssetModel model_view = oview_component.getAssetModel ();
-        if ( null != model_view ) {
-            olist_navigation.add ( model_view.getAsset ().getObjectId () );
-            oi_nav_position = olist_navigation.size ();
-        }
+        setConnectedView( view_component );
     }
     
     
@@ -364,10 +355,29 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
     
     
     /**
-     * Get the view this toolbar is watching for NavRequestEvents.
+     * Property tracks the view this toolbar is watching for 
+     * PropertyChangeEvents on change to view model.
      */
     public AssetView getConnectedView () {
         return oview_component;
+    }
+    public void setConnectedView ( AssetView view ) {
+        if ( null != oview_component ) {
+            oview_component.removePropertyChangeListener( this );
+        }
+        oview_component = view;
+        olist_navigation.clear();
+        oi_nav_position = 0;
+        if ( null != oview_component ) {
+            oview_component.addPropertyChangeListener ( this );
+
+            AssetModel model_view = oview_component.getAssetModel ();
+            if ( null != model_view ) {
+                olist_navigation.add ( model_view.getAsset ().getObjectId () );
+                oi_nav_position = olist_navigation.size ();
+            }
+        }
+
     }
         
 }

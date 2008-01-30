@@ -2,7 +2,6 @@ package littleware.apps.swingclient;
 
 import java.beans.PropertyChangeListener;
 
-import littleware.security.auth.SessionManager;
 
 /** 
  * Interface marks a UI element that allows registration of LittleListeners

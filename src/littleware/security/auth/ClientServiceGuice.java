@@ -12,6 +12,7 @@ import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 
+import littleware.asset.AssetRetriever;
 import littleware.base.AssertionFailedException;
 
 
@@ -39,11 +40,10 @@ public class ClientServiceGuice implements Module {
         return ohelper;
     }
     
-    private static <T extends Remote> void bind( final Binder binder,
+    private static <T extends Remote> Provider<T> bind( final Binder binder,
             final ServiceType<T> service, final SessionHelper helper ) 
     {
-        binder.bind( service.getServiceInterface() ).toProvider(
-                new Provider<T> () {
+        Provider<T> provider =   new Provider<T> () {
                     public T get () {
                         try {
                             return helper.getService( service );
@@ -51,8 +51,9 @@ public class ClientServiceGuice implements Module {
                             throw new littleware.base.FactoryException( "service retrieval failure", e );
                         }
                     }
-        }
-        );                
+        };
+        binder.bind( service.getServiceInterface() ).toProvider( provider );
+        return provider;
     }
     
     public void configure(Binder binder) {
@@ -71,6 +72,17 @@ public class ClientServiceGuice implements Module {
             }
         }
         );
+        binder.bind( AssetRetriever.class ).toProvider (
+                new Provider<AssetRetriever> () {
+            public AssetRetriever get () {
+                try {
+                    return ohelper.getService( ServiceType.ASSET_SEARCH );
+                } catch ( Exception e ) {
+                    throw new littleware.base.FactoryException( "service retrieval failure", e );
+                }
+            }
+        }
+                );
     }
     
 

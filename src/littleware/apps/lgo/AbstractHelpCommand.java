@@ -20,6 +20,7 @@ public abstract class AbstractHelpCommand extends AbstractLgoCommand {
 
     private final LgoHelpLoader          om_help;
     private final LgoCommandDictionary   om_command;
+    private String                       os_subcommand = null;
     
     /**
      * Resources we expect to find in the HelpCommandResources
@@ -42,6 +43,12 @@ public abstract class AbstractHelpCommand extends AbstractLgoCommand {
         }
     }
     
+    @Override
+    public void processCommandArgs( String[] v_args ) throws LgoException {
+        if ( v_args.length > 0 ) {
+            os_subcommand = v_args[0];
+        }
+    }
     
     /**
      * Inject sources for help and command data
@@ -63,12 +70,11 @@ public abstract class AbstractHelpCommand extends AbstractLgoCommand {
      * the given arguments, and return an
      * info string appropriate for the given locale.
      */
-    protected String getHelpString ( Locale locale ) {
-        String[]        v_argv = this.getCommandArgs ();
+    protected String getHelpString ( Locale locale ) {        
         ResourceBundle  bundle_help = XmlResourceBundle.getXmlBundle( getName() + "Resources" );
         
-        if ( v_argv.length > 0 ) {
-            LgoCommand command = om_command.getCommand( v_argv[0] );
+        if ( null != os_subcommand ) {
+            LgoCommand command = om_command.getCommand( os_subcommand );
             if ( null != command ) {
                 LgoHelp help = om_help.loadHelp( command.getName (), locale );
                 if ( null != help ) {

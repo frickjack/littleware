@@ -1,5 +1,6 @@
 package littleware.apps.swingclient.controller;
 
+import com.google.inject.Inject;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import java.util.UUID;
@@ -21,7 +22,7 @@ import littleware.asset.AssetRetriever;
  */
 public class SimpleAssetViewController implements LittleListener {
     private static final Logger      olog_generic = Logger.getLogger ( "littleware.apps.swingclient.controller.SimpleAssetViewController" );
-    private final AssetView          oview_control;
+    private AssetView          oview_control = null;
     private final AssetRetriever     om_retriever;
     private final AssetModelLibrary  olib_asset;
     
@@ -29,17 +30,34 @@ public class SimpleAssetViewController implements LittleListener {
     /**
      * Constructor injects needed data
      *
-     * @param view_control to setAssetModel() against for NavRequestEvents
      * @param m_retriever to resolve NavRequest UUIDs 
      * @param lib_asset to stash retrieved assets in
      */
-    public SimpleAssetViewController ( AssetView  view_control,
+    @Inject
+    public SimpleAssetViewController ( 
                                        AssetRetriever m_retriever,
                                        AssetModelLibrary  lib_asset
-                                       ) {
-        oview_control = view_control;
+                                       ) {      
         om_retriever = m_retriever;
         olib_asset = lib_asset;
+    }
+    
+    /**
+     * Property tracks the AssetView that this controller
+     * manipulates in response to events - especially
+     * view.setAssetModel on NavRequestEvent.
+     * Automatically registers this controller as a LittleListener
+     * on view too, and unregisters on pervious view if any.
+     */
+    public void setControlView( AssetView view ) {
+        if ( null != oview_control ) {
+            oview_control.removeLittleListener( this );
+        }
+        oview_control = view;
+        oview_control.addLittleListener(this);
+    }
+    public AssetView getControlView() {
+        return oview_control;
     }
 
     /**

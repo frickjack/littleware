@@ -37,7 +37,6 @@ import littleware.security.auth.LittleSession;
  */
 public class ExtendedAssetViewController extends SimpleAssetViewController {
     private static final Logger      olog_generic = Logger.getLogger ( "littleware.apps.swingclient.controller.ExtendedAssetViewController" );
-    private final AssetView          oview_control;
     private final AssetManager       om_asset;
     private final AssetSearchManager om_search;
     private final AssetModelLibrary  olib_asset;
@@ -59,7 +58,8 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
      * @param lib_icon source of icons
      * @param a_session under which this controller is operating
      */
-    public ExtendedAssetViewController ( AssetView          view_control,
+    @Inject
+    public ExtendedAssetViewController ( 
                                          AssetSearchManager m_search,
                                          AssetManager       m_asset,
                                          AssetModelLibrary  lib_asset,
@@ -68,9 +68,8 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                                          IconLibrary        lib_icon,
                                          LittleSession      a_session
                                        ) {
-        super( view_control, m_search, lib_asset );
-        
-        oview_control = view_control;
+        super( m_search, lib_asset );
+                
         om_asset = m_asset;
         om_search = m_search;
         olib_asset = lib_asset;
@@ -170,7 +169,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                     om_asset.deleteAsset ( a_delete.getObjectId (), s_reason );
                     olib_asset.assetDeleted ( a_delete.getObjectId () );
 
-                    if ( a_delete.getObjectId ().equals ( oview_control.getAssetModel ().getAsset ().getObjectId () ) ) {
+                    if ( a_delete.getObjectId ().equals ( getControlView ().getAssetModel ().getAsset ().getObjectId () ) ) {
                         /**
                          * ... then move the view to something that has not been deleted
                          */

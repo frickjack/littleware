@@ -30,8 +30,12 @@ public interface LgoCommandDictionary {
      
     /**
      * Associate the given provider with the given command-name
+     * 
+     * @param s_name alias to map command to
+     * @param command to map to s_name alias
+     * @return previous command binding to name, or null if not assigned before
      */
-    public LgoCommand<?,?> setCommand( String s_name, LgoCommand command );   
+    public LgoCommand<?,?> setCommand( String s_name, LgoCommand<?,?> command );   
     
     /**
      * Get the collection of all the commands registered with

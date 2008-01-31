@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.*;
 import java.lang.reflect.*;
 import java.security.*;
-import java.io.Serializable;
 import java.net.*;
 import littleware.base.*;
 import littleware.base.stat.*;
@@ -21,7 +20,7 @@ import littleware.base.BaseException;
  */
 public abstract class SessionUtil {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.security.auth.SessionUtil");
+    private static final Logger olog_generic = Logger.getLogger( SessionUtil.class.getName () );
     public static final int MAX_REMOTE_RETRY = 3;
     private static boolean ob_local_server = false;
     private static int oi_registry_port = 1239;

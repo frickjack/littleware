@@ -11,7 +11,6 @@ import littleware.base.*;
 import littleware.base.stat.*;
 import littleware.base.BaseException;
 
-
 /**
  * Just a little utility class that provides
  * a standard access to a SessionManager.
@@ -20,11 +19,12 @@ import littleware.base.BaseException;
  */
 public abstract class SessionUtil {
 
-    private static final Logger olog_generic = Logger.getLogger( SessionUtil.class.getName () );
+    private static final Logger olog_generic = Logger.getLogger(SessionUtil.class.getName());
     public static final int MAX_REMOTE_RETRY = 3;
     private static boolean ob_local_server = false;
     private static int oi_registry_port = 1239;
     private static String os_registry_host = "localhost";
+
     static {
         try {
             os_registry_host = InetAddress.getLocalHost().getHostName();
@@ -108,9 +108,7 @@ public abstract class SessionUtil {
             while (true) {
                 // Retry on RemoteException
                 try {
-                    SessionManager m_session = (SessionManager) Naming.lookup ( "//" + s_host + ":"
-														+ i_port + "/littleware/SessionManager"
-														);
+                    SessionManager m_session = (SessionManager) Naming.lookup("//" + s_host + ":" + i_port + "/littleware/SessionManager");
                     return new SessionManagerProxy(m_session, new URL("http://" + s_host + ":" + i_port + "/littleware/SessionManager"));
                 } catch (RemoteException e) {
                     handler_retry.handle(e);
@@ -127,12 +125,11 @@ public abstract class SessionUtil {
 
                     public SessionManager run() throws Exception {
                         ResourceBundle bundle_security = ResourceBundle.getBundle("littleware.security.server.SecurityResourceBundle");
-                        SessionManager m_session = (SessionManager) bundle_security.getObject ( "SessionManager" );
+                        SessionManager m_session = (SessionManager) bundle_security.getObject("SessionManager");
                         SubjectInvocationHandler<SessionManager> handler_session = new SubjectInvocationHandler<SessionManager>(null, m_session, olog_generic, new SimpleSampler());
-                        return (SessionManager) java.lang.reflect.Proxy.newProxyInstance ( SessionManager.class.getClassLoader (),
-																			 new Class[] { SessionManager.class },
-																			 handler_session
-																			 );
+                        return (SessionManager) java.lang.reflect.Proxy.newProxyInstance(SessionManager.class.getClassLoader(),
+                                new Class[]{SessionManager.class},
+                                handler_session);
                     }
                 };
 

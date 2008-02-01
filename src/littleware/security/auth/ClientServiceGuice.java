@@ -82,7 +82,7 @@ public class ClientServiceGuice implements Module {
                 }
             }
         }
-                );
+                );        
     }
     
 

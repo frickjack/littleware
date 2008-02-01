@@ -327,7 +327,9 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
         olib_icon = lib_icon;
         om_search = m_search;
         buildToolbar ( v_buttons );
-        setConnectedView( view_component );
+        if ( null != view_component ) {
+            setConnectedView( view_component );
+        }
     }
     
     

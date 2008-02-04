@@ -29,6 +29,12 @@ public class TypicalClientGuice extends ClientServiceGuice {
         super( helper );
     }
     
+    /** 
+     * Client must inject SessionHelper dependency 
+     * by hand via setSessionHelper
+     */
+    public TypicalClientGuice () {}
+    
     private static final IconLibrary  olib_icon  = new WebIconLibrary ();
     
     private final AssetModelLibrary   olib_asset = new SimpleAssetModelLibrary ();

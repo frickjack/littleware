@@ -9,7 +9,6 @@ import java.rmi.Remote;
 import java.util.logging.Logger;
 
 import com.google.inject.Binder;
-import com.google.inject.Module;
 import com.google.inject.Provider;
 
 import littleware.asset.AssetRetriever;
@@ -25,20 +24,30 @@ import littleware.base.AssertionFailedException;
  * from which to acquire service implementations.
  * Also binds LittleSession to helper.getSession
  */
-public class ClientServiceGuice implements Module {
+public class ClientServiceGuice implements LittleGuiceModule {
     private static final Logger    olog = Logger.getLogger( ClientServiceGuice.class.getName() );
-    private final SessionHelper    ohelper;
+    private SessionHelper    ohelper = null;
 
+    /**
+     * Inject helper dependency
+     * 
+     * @param helper
+     */
     public ClientServiceGuice( SessionHelper helper ) {
         ohelper = helper;
     }
     
     /**
-     * Get the SessionHelper backing this module     
+     * Parameterless constructor - client must inject SessionHelper
+     * dependency by hand before configuring a GUICE injector.
      */
-    public SessionHelper getHelper () {
-        return ohelper;
+    public ClientServiceGuice() {}
+    
+    public SessionHelper getSessionHelper () { return ohelper; }
+    public void setSessionHelper ( SessionHelper helper ) {
+        ohelper = helper;
     }
+
     
     private static <T extends Remote> Provider<T> bind( final Binder binder,
             final ServiceType<T> service, final SessionHelper helper ) 

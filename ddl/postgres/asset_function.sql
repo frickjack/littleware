@@ -381,7 +381,7 @@ CREATE OR REPLACE FUNCTION littleware.getAsset ( VARCHAR, INTEGER )
        i_param_src         ALIAS FOR $2;
        rec_var_result      littleware.asset%ROWTYPE;
     BEGIN
-		SELECT INTO rec_var_result 
+	SELECT INTO rec_var_result 
 				s_id                ,
 				s_name              ,
 				s_id_home           ,

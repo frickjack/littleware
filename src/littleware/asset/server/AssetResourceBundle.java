@@ -37,34 +37,32 @@ import littleware.security.auth.server.db.DbAuthManager;
 import littleware.security.auth.server.db.postgres.PostgresDbAuthManager;
 import littleware.security.server.SimpleAccountManager;
 
-
 /**
  * Resource bundle under littleware.asset package
  */
 public class AssetResourceBundle extends ListResourceBundle {
 
-    private static final Logger olog_generic = Logger.getLogger("littleware.asset.server.AssetResourceBundle");
+    private static final Logger olog_generic = Logger.getLogger(AssetResourceBundle.class.getName());
     private static boolean ob_initialized = false;
     private static AssetManager om_asset = null;
 
-/** Internal convenience for lookups into ov_contents */
+    /** Internal convenience for lookups into ov_contents */
     public enum Content {
 
         AssetDbManager, AssetRetriever, AssetManager, CacheConnection, AssetSearcher, CacheManager, CacheDbManager, AssetManagerServiceProvider, AssetSearchServiceProvider, AccountManager, AuthDbManager;
 
         /** Internal utility */
-        public void set(Object x_value) {
+        void set(Object x_value) {
             ov_contents[ordinal()][1] = x_value;
         }
     }
     private static final Object[][] ov_contents = new Object[Content.values().length][2];
+
     static {
         for (Content n_content : Content.values()) {
             ov_contents[n_content.ordinal()][0] = n_content.toString();
             n_content.set(null);
         }
-    }
-    {
     }
 
     /** Do nothing constructor */
@@ -112,7 +110,7 @@ public class AssetResourceBundle extends ListResourceBundle {
 
             {
                 final PrivilegedAction action_getresource = new GetGuardedResourceAction(SqlResourceBundle.getBundle(), SqlResourceBundle.Content.LittlewareConnectionFactory.toString());
-                final DataSource sql_pool = (DataSource) AccessController.doPrivileged ( action_getresource );
+                final DataSource sql_pool = (DataSource) AccessController.doPrivileged(action_getresource);
                 SimpleLittleTransaction.setDataSource(sql_pool);
             }
 
@@ -233,7 +231,7 @@ public class AssetResourceBundle extends ListResourceBundle {
             return obundle_singleton;
         }
 
-        obundle_singleton = (AssetResourceBundle) ResourceBundle.getBundle ( "littleware.asset.server.AssetResourceBundle" );
+        obundle_singleton = (AssetResourceBundle) ResourceBundle.getBundle("littleware.asset.server.AssetResourceBundle");
         return obundle_singleton;
     }
 

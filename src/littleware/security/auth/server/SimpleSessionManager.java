@@ -82,14 +82,19 @@ public class SimpleSessionManager extends UnicastRemoteObject implements Session
         }
 
         try {
+            om_session = new SimpleSessionManager(m_asset, m_search);
+
             if (null == ormi_registry) {
                 int i_port = SessionUtil.getRegistryPort();
 
-                olog_generic.log(Level.INFO, "Starting RMI registry on port: " + i_port);
-                ormi_registry = LocateRegistry.createRegistry(i_port);
+                try {
+                    olog_generic.log(Level.INFO, "Starting RMI registry on port: " + i_port);
+                    ormi_registry = LocateRegistry.createRegistry(i_port);
+                } catch ( Exception e ) {
+                    olog_generic.log( Level.SEVERE, "Failed to launch new RMI registry, trying to bind to existing one", e );
+                    ormi_registry = LocateRegistry.getRegistry( i_port );
+                }
             }
-
-            om_session = new SimpleSessionManager(m_asset, m_search);
 
             /**
              * Need to wrap session manager with an invocation handler,

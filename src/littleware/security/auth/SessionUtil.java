@@ -141,7 +141,7 @@ public abstract class SessionUtil {
                 throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e + ", with cause: " + e.getException(), e.getException());
             } catch (Throwable e) {
                 olog_generic.log(Level.SEVERE, "Failed setup, caught: " + e + ", " + BaseException.getStackTrace(e));
-                throw new AssertionFailedException("FRICKJACK!", e);
+                throw new AssertionFailedException("Failed SessionUtil setup, caught: " + e, e);
             }
         }
     }

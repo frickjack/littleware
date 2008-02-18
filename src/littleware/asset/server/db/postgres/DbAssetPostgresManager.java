@@ -2,11 +2,12 @@ package littleware.asset.server.db.postgres;
 
 import java.util.*;
 import java.sql.SQLException;
-import javax.sql.DataSource;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.asset.*;
+import littleware.asset.server.LittleTransaction;
+import littleware.asset.server.TransactionManager;
 import littleware.asset.server.db.*;
 import littleware.db.*;
 import littleware.base.AssertionFailedException;
@@ -86,8 +87,10 @@ public class DbAssetPostgresManager implements DbAssetManager {
             public void run () {
                 Date  t_last_error = new Date ( 0 );
                 final DbReader<Map<UUID,Asset>,String> db_sync = makeDbCacheSyncLoader ();
+                LittleTransaction trans_save = TransactionManager.getTheThreadTransaction();
                 while ( true ) {
                     try {
+                        trans_save.startDbAccess();
                         Map<UUID,Asset> v_data = db_sync.loadObject( null );
                         for ( Map.Entry<UUID,Asset> x_entry : v_data.entrySet () ) {
                             Asset a_update = x_entry.getValue ();
@@ -108,10 +111,12 @@ public class DbAssetPostgresManager implements DbAssetManager {
                     } catch ( Exception e ) {
                         Date t_now = new Date ();
                         
-                        if ( t_now.getTime () > t_last_error.getTime () + 10000 ) {
+                        if ( t_now.getTime () > t_last_error.getTime () + 60000 ) {
                             olog_generic.log ( Level.WARNING, "Sync thread failed to sync cache, caught: " + e, e );
                             t_last_error = t_now;
                         }
+                    } finally {
+                        trans_save.endDbAccess();
                     }
                     try {
                         Thread.sleep ( 500 );

@@ -56,7 +56,6 @@ public class SimpleSessionManager extends UnicastRemoteObject implements Session
         om_search = m_search;
     }
     private static SimpleSessionManager om_session = null;
-    private static Registry ormi_registry = null;
 
     /**
      * Get the SessionManager singleton.
@@ -84,16 +83,18 @@ public class SimpleSessionManager extends UnicastRemoteObject implements Session
         try {
             om_session = new SimpleSessionManager(m_asset, m_search);
 
-            if (null == ormi_registry) {
-                int i_port = SessionUtil.getRegistryPort();
+            Registry rmi_registry = null;            
+            final int i_port = SessionUtil.getRegistryPort();
 
-                try {
-                    olog_generic.log(Level.INFO, "Starting RMI registry on port: " + i_port);
-                    ormi_registry = LocateRegistry.createRegistry(i_port);
-                } catch ( Exception e ) {
-                    olog_generic.log( Level.SEVERE, "Failed to launch new RMI registry, trying to bind to existing one", e );
-                    ormi_registry = LocateRegistry.getRegistry( i_port );
-                }
+            try {
+                olog_generic.log(Level.INFO, "Looking for RMI registry on port: " + i_port);
+                rmi_registry = LocateRegistry.createRegistry(i_port);                
+            } catch ( Exception e ) {
+               olog_generic.log( Level.SEVERE, "Failed to locate or start RMI registry on port " + i_port +
+                            " running without exporting root SessionManager object to RMI universe", e
+                            );
+
+                rmi_registry = LocateRegistry.getRegistry( i_port );
             }
 
             /**
@@ -106,13 +107,18 @@ public class SimpleSessionManager extends UnicastRemoteObject implements Session
              * Context jndi_context = new InitialContext();
              * jndi_context.rebind("/littleware/SessionManager", om_session );
              */
-            ormi_registry.bind("littleware/SessionManager", om_session);
+            rmi_registry.bind("littleware/SessionManager", om_session);
         } catch (Exception e) {
-            throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
+            //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
+            olog_generic.log( Level.SEVERE, "Failed to bind to RMI registry " +
+                                " running without exporting root SessionManager object to RMI universe", 
+                                e
+                                );
+ 
         }
     }
 
-/**
+    /**
      * Privileged action creates a session-asset
      * as the user logging in.
      */

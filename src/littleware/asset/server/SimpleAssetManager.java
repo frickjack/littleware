@@ -212,7 +212,9 @@ public class SimpleAssetManager implements AssetManager {
 
                         // Need to have all the permissions to UPDATE an asset
                         if (!acl_x.checkPermission(p_caller, LittlePermission.WRITE)) {
-                            throw new AccessDeniedException("Caller " + p_caller + " does not have permission: " + LittlePermission.WRITE);
+                            throw new AccessDeniedException("Caller " + p_caller + " does not have permission: " 
+                                    + LittlePermission.WRITE + " for asset: " + a_old_asset.getObjectId()
+                                    );
                         }
                         if (!a_old_asset.getOwnerId().equals(a_asset.getOwnerId())) {
                             throw new AccessDeniedException("Caller " + p_caller + " may not change owner on " +

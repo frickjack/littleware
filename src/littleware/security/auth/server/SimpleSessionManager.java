@@ -166,7 +166,9 @@ public class SimpleSessionManager extends UnicastRemoteObject implements Session
     }
 
     public SessionHelper login(String s_name, String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        LoginContext x_login = new LoginContext("littleware.security.simplelogin", new SimpleNamePasswordCallbackHandler(s_name, s_password));
+        LoginContext x_login = new LoginContext("littleware.security.simplelogin", 
+                new SimpleNamePasswordCallbackHandler(s_name, s_password)
+                );
         x_login.login();
 
         Subject j_caller = x_login.getSubject();

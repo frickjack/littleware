@@ -340,12 +340,15 @@ public class SwingClientTester extends TestCase {
                         SecurityAssetType.ACL);
                 if (null == acl_test) {
                     acl_test = (LittleAcl) m_search.getByName(AclManager.ACL_EVERYBODY_READ,
-                            SecurityAssetType.ACL);
+                            SecurityAssetType.ACL
+                            );
                     acl_test.setObjectId(UUIDFactory.getFactory().create());
                     acl_test.setName(s_acl_name);
                     Asset a_testhome = m_search.getByName("littleware.test_home", AssetType.HOME);
                     acl_test.setHomeId(a_testhome.getObjectId());
-                    acl_test.setFromId(a_testhome.getObjectId());
+                    // - don't have WRITE permission here -- 
+                    acl_test.setFromId(null);
+                    acl_test.setAclId( null );
                     acl_test.setComment("AclEditor test acl");
                     acl_test.setOwnerId(om_helper.getSession().getOwnerId());
                     om_helper.getService(ServiceType.ASSET_MANAGER).saveAsset(acl_test, "Setting up test asset");

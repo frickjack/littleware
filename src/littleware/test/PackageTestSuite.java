@@ -14,7 +14,7 @@ import littleware.security.test.LoginTester;
  * Test suite constructor that pulls together tests from
  * every littleware.*.test package.
  */
-public abstract class PackageTestSuite {
+public class PackageTestSuite {
 
     /**
      * Setup a test suite to exercise the littleware subpackages -

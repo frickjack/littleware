@@ -13,6 +13,7 @@ import littleware.base.UUIDFactory;
 import littleware.asset.*;
 import littleware.asset.server.TransactionManager;
 import littleware.asset.server.AssetResourceBundle;
+import littleware.base.PropertiesLoader;
 
 
 /**
@@ -22,17 +23,29 @@ import littleware.asset.server.AssetResourceBundle;
  * but check all roots if bucket not found there.
  */
 public class SimpleBucketManager implements BucketManager {
-    private static final Logger   olog_generic = Logger.getLogger ( "littleware.apps.filebucket.server.SimpleBucketManager" );
+    private static final Logger   olog_generic = Logger.getLogger ( SimpleBucketManager.class.getName () );
+    
+    private static  String   os_root_root = "";
+    static {
+        try {
+            Properties prop_defaults = new Properties ();
+            prop_defaults.put( "littleware.bucket.root", "" );
+            os_root_root = PropertiesLoader.loadProperties( "littleware.properties", prop_defaults).getProperty( "littleware.bucket.root" );
+        } catch ( IOException e ) {
+            olog_generic.log( Level.SEVERE, "Caught unexpected loading littleware.bucket.root property from littleware.properties", e );
+            os_root_root = "";
+        }
+    }
     private final static String[] ov_roots = {
-        "/Library/LittlewareAssets/Volume1",
-        "/Library/LittlewareAssets/Volume2",
-        "/Library/LittlewareAssets/Volume3",
-        "/Library/LittlewareAssets/Volume4",
-        "/Library/LittlewareAssets/Volume5",
-        "/Library/LittlewareAssets/Volume6",
-        "/Library/LittlewareAssets/Volume7",
-        "/Library/LittlewareAssets/Volume8",
-        "/Library/LittlewareAssets/Volume9"
+        os_root_root + "/Library/LittlewareAssets/Volume1",
+        os_root_root + "/Library/LittlewareAssets/Volume2",
+        os_root_root + "/Library/LittlewareAssets/Volume3",
+        os_root_root + "/Library/LittlewareAssets/Volume4",
+        os_root_root + "/Library/LittlewareAssets/Volume5",
+        os_root_root + "/Library/LittlewareAssets/Volume6",
+        os_root_root + "/Library/LittlewareAssets/Volume7",
+        os_root_root + "/Library/LittlewareAssets/Volume8",
+        os_root_root + "/Library/LittlewareAssets/Volume9"
     };
     
     private final AssetSearchManager      om_search;

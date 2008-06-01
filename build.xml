@@ -63,6 +63,9 @@
           destdir="${buildclient}" debug="true"
 	  target="1.5"
       >
+      <!--
+   <compilerarg value="-Xlint:unchecked"/>
+     -->
    <exclude name="apps/calendar/**" />
    <exclude name="alarmClock/**" />
    <exclude name="apps/backup/**" />

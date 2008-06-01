@@ -80,8 +80,8 @@ public interface AssetRetriever extends java.rmi.Remote {
 	 * @exception NoSuchThingException if requested asset does not exist in the db
 	 * @exception AccessDeniedException if caller does not have permission to read
 	 *                 the specified asset
-     * @exception DataAccessException on database access/interaction failure
-     * @exception AssetException if some other failure condition
+         * @exception DataAccessException on database access/interaction failure
+         * @exception AssetException if some other failure condition
 	 */
 	public @ReadOnly Set<Asset> getAssets ( Collection<UUID> v_id ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException;

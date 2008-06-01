@@ -28,17 +28,22 @@ public abstract class PackageTestSuite {
         boolean b_run = true;
 
         if (b_run) {
-            test_suite.addTest(new BeanTester("testSessionBean"));
+            test_suite.addTest(new BeanTester("testLoginBean"));
         }
         if (b_run) {
             test_suite.addTest(new BeanTester("testDefaultsBean"));
         }
         if (b_run) {
             test_suite.addTest(new BeanTester("testNewUserBean"));
+        }
+        if ( false ) {
             test_suite.addTest(new BeanTester("testNewUserEmail"));
         }
         if (b_run) {
             test_suite.addTest(new BeanTester("testBasicSession"));
+        }
+        if (b_run) {
+            test_suite.addTest(new BeanTester("testUpdateContactBean"));
         }
         if (b_run) {
             test_suite.addTest(new PickleTester("testPickleTwice", PickleType.XML));

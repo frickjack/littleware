@@ -46,15 +46,34 @@ public class BeanTester extends TestCase {
     /**
      * Test the SessionBean
      */
-    public void testSessionBean() {
-        SessionBean bean_test = new SessionBean();
+    public void testLoginBean() {
+        LoginBean bean_test = new LoginBean ();
+        
+        bean_test.setSessionBean( new SessionBean() );
 
-        bean_test.setEnteredName("littleware.test_user");
+        bean_test.setName("littleware.test_user");
         bean_test.setPassword("bogus");
         String s_result = bean_test.authenticateAction();
 
         assertTrue("Bad password login should have failed, but got result: " + s_result,
-                s_result.equals(SessionBean.Result.FAILED.toString()));
+                ! bean_test.getLastResult().equals( ActionResult.Ok )
+                );
+    }
+
+    public void testUpdateContactBean () {
+        try {
+            UpdateContactBean bean_test = new UpdateContactBean();
+            bean_test.setSessionBean( new SessionBean () );
+	    // setting up the session should have
+	    // automatically set the update user
+	    String s_test_user = bean_test.getSessionBean ().getUser ().getName ();
+	    assertTrue( "UpdateBean's user set by session: " +
+			bean_test.getUser () + " == " + s_test_user,
+			bean_test.getUser ().equals ( s_test_user ) 
+			);
+	} catch ( Exception e ) {
+            assertTrue("Caught unexepcted: " + e, false);
+        }
     }
 
     /**
@@ -63,6 +82,7 @@ public class BeanTester extends TestCase {
     public void testNewUserBean() {
         NewUserBean bean_test = new NewUserBean();
 
+        bean_test.setSessionBean( new SessionBean () );
         bean_test.setName("littleware.test_user");
         bean_test.setEmail("bogus@bla.com");
         bean_test.setUsaState(UsaState.AL);
@@ -70,7 +90,8 @@ public class BeanTester extends TestCase {
         String s_result = bean_test.newUserAction();
 
         assertTrue("Illegal user create should have failed, but got result: " + s_result,
-                s_result.equals(NewUserBean.Result.FAILED.toString()));
+                ! bean_test.getLastResult().equals( ActionResult.Ok )
+                );
     }
 
     /**
@@ -78,11 +99,15 @@ public class BeanTester extends TestCase {
      */
     public void testNewUserEmail() {
         try {
+            NewUserBean bean_test = new NewUserBean ();
+            
+            bean_test.setSessionBean( new SessionBean () );
+            
             String s_name = "bogus";
             String s_password = "password";
             String s_to = "pasquinir@bellsouth.net";
 
-            NewUserBean.sendWelcomeMessage(s_name, s_to,
+            bean_test.sendWelcomeMessage(s_name, s_to,
                     s_password);
             olog_generic.log(Level.INFO, "Test user " + s_to + " should have just received test e-mail");
         } catch (MessagingException e) {
@@ -95,14 +120,18 @@ public class BeanTester extends TestCase {
      */
     public void testBasicSession() {
         try {
-            NewUserBean bean_new = new NewUserBean();
+            LoginBean bean_test = new LoginBean();
             SessionBean bean_session = new SessionBean();
-            bean_session.setEnteredName("littleware.test_user");
-            bean_session.setPassword("test123");
-            String s_result = bean_session.authenticateAction();
+            bean_test.setSessionBean( bean_session );
+            
+            bean_test.setName("littleware.test_user");
+            bean_test.setPassword("test123");
+            String s_result = bean_test.authenticateAction();
 
-            assertTrue("Login ok: " + s_result + ", " + bean_session.getError(),
-                    s_result.equals(SessionBean.Result.OK.toString()));
+            assertTrue("Login ok: " + s_result,
+                    bean_test.getLastResult().equals( ActionResult.Ok ) 
+                    );
+                    
             Contact contact_user = bean_session.getContact();
             assertTrue("Got a contact", contact_user != null);
             olog_generic.log(Level.INFO, "Got contact with data: " + contact_user.getData());

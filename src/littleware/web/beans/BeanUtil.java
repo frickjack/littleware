@@ -24,21 +24,23 @@ public class BeanUtil {
     private static SessionHelper om_admin = null;
     private static SessionHelper om_guest = null;
     private final static Properties oprop_mail = new Properties();
-    // web_home - should probably pull this stuff from a ResourceBundle ...
-    private final static String os_web_home = "littleware.web_home";
-    private static UUID ou_web_home = null;
-    // group of registered users
-    private final static String os_web_group = "group.littleware.web";
-    // acl granting read-permission to the freakin' WEB_GROUP
-    private final static String os_web_acl_read = "acl.littleware.web.read";
-    private static UUID ou_web_acl_read = null;
-    private static String os_webmaster_email = null;
+    private static String  os_webmaster_email = null;
+    private static UUID    ou_webhome_id = null;
     private static boolean ob_initialized = false;
+
 
     static {
         setupSession();
     }
 
+
+    /**
+     * Get the home-id for the littleware webapp
+     */
+    public static UUID getWebHomeId () {
+        return ou_webhome_id;
+    }
+    
     /**
      * Little utility to extend the timeout on a session 100 days.
      *
@@ -99,77 +101,36 @@ public class BeanUtil {
                     String s_password = prop_littleware.getProperty("web.guest.password");
 
                     if ((null == s_user) || (null == s_password)) {
-                        throw new AssertionFailedException("NULL web.guest config from littleware.properties (" +
-                                s_user + ", " + s_password + ")");
+                        olog_generic.log( Level.WARNING, "No guest user/password in littleware.properties - setting guest helper to null" );
+                        //throw new AssertionFailedException("NULL web.guest config from littleware.properties (" +
+                        //        s_user + ", " + s_password + ")");
+                    } else {
+                        om_guest = om_session.login(s_user, s_password, "reserved guest login");
+                        extendSession100Days(om_guest);
                     }
-                    om_guest = om_session.login(s_user, s_password, "reserved guest login");
-                    extendSession100Days(om_guest);
                 }
-
-
-                if (null == ou_web_home) {
-                    AssetSearchManager m_search = om_admin.getService(ServiceType.ASSET_SEARCH);
-                    ou_web_home = m_search.getByName(os_web_home,
-                            AssetType.HOME).getObjectId();
+                if ( null == ou_webhome_id ) {
+                    ou_webhome_id = om_admin.getService( ServiceType.ASSET_SEARCH ).getByName( "littleware.web_home", AssetType.HOME ).getObjectId ();
                 }
-                if (null == ou_web_acl_read) {
-                    AclManager m_acl = om_admin.getService(ServiceType.ACL_MANAGER);
-
-                    LittleAcl acl_read = m_acl.getAcl(os_web_acl_read);
-                    ou_web_acl_read = acl_read.getObjectId();
-                }
-
                 ob_initialized = true;
             } catch (RuntimeException e) {
+                olog_generic.log( Level.SEVERE, "Failed to configure session, caught: " + e
+                        + ", " + BaseException.getStackTrace( e )
+                        );
                 throw e;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 olog_generic.log(Level.INFO, "Failed to configure SessionBean, caught: " + e +
                         ", " + BaseException.getStackTrace(e));
-                throw new AssertionFailedException("Failed to configure SessionBean, caught: " + e);
+                throw new AssertionFailedException("Failed to configure SessionBean, caught: " + e, e);
             }
         }
     }
-
-    /**
-     * Get the name of the web-registered usr group
-     */
-    public static String getWebGroupName() {
-        return os_web_group;
-    }
-
+    
     /**
      * Get the webmaster e-mail address
      */
     public static String getWebMasterEmail() {
         return os_webmaster_email;
-    }
-
-    /**
-     * Get the name of the HOME-asset for this webapp
-     */
-    public static String getWebHomeName() {
-        return os_web_home;
-    }
-
-    /**
-     * Get the id of the web home
-     */
-    public static UUID getWebHomeId() {
-        return ou_web_home;
-    }
-
-    /**
-     * Get the name of the read-only ACL for web-group members
-     */
-    public static String getWebReadAclName() {
-        return os_web_acl_read;
-    }
-
-    /**
-     * Get the id of the read-only ACL for web-group members
-     */
-    public static UUID getWebReadAclId() {
-        return ou_web_acl_read;
     }
 
     /**

@@ -81,7 +81,7 @@ public interface AccountManager extends Remote {
 	 * @param p_new asset with user data initialized - object-id gets reset 
 	 * @param s_password must obey system password rules - ignored for Group type
 	 * @param s_comment to attach to account
-     * @return p_user with updates applied
+         * @return p_user with updates applied
 	 * @exception IllegalNameException if name or password are not valid
 	 * @exception DataAccessException on failure to contact data store
 	 * @exception AccessDeniedException if caller has insufficient privileges
@@ -102,7 +102,7 @@ public interface AccountManager extends Remote {
 	 * @param s_password to assign to the principal, "" to leave unchanged
 	 * @param n_status to enable/disable user login privileges
 	 * @param s_update_comment to assign, "" to leave unchanged
-     * @return p_user with updates applied
+         * @return p_user with updates applied
 	 * @exception NotOwnerException if caller does not have permission
 	 * @exception DataAccessException on failure to contact data store
 	 * @exception ManagerException on other error condition

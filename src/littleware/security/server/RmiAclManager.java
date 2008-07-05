@@ -21,35 +21,23 @@ import littleware.security.*;
  * of a base implementation class.
  */
 public class RmiAclManager extends UnicastRemoteObject implements AclManager {
-	private AclManager       om_proxy = null;
-	
-	
-	public RmiAclManager ( AclManager m_proxy ) throws RemoteException {
-		super ();
-		om_proxy = m_proxy;
-	}
-	
-	
 
+    private AclManager om_proxy = null;
 
-	public LittleAcl getAcl ( String s_name 
-							  ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException
-	{
-		return om_proxy.getAcl ( s_name );
-	}
+    public RmiAclManager(AclManager m_proxy) throws RemoteException {
+        super( littleware.security.auth.SessionUtil.getRegistryPort() );
+        om_proxy = m_proxy;
+    }
 
-	public LittleAcl getAcl( UUID u_id ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException
-	{
-		return om_proxy.getAcl ( u_id );
-	}
+    public LittleAcl getAcl(String s_name) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+        return om_proxy.getAcl(s_name);
+    }
 
-
-
-}
-
-
-// littleware asset management system
+    public LittleAcl getAcl(UUID u_id) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+        return om_proxy.getAcl(u_id);
+    }
+}// littleware asset management system
 // Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

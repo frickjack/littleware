@@ -51,7 +51,7 @@ public class SimpleSessionManager extends UnicastRemoteObject implements Session
      * by which to retrieve the session as needed.
      */
     private SimpleSessionManager(AssetManager m_asset, AssetSearchManager m_search) throws RemoteException {
-        super();
+        super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_asset = m_asset;
         om_search = m_search;
     }

@@ -26,7 +26,7 @@ public class RmiAssetManager extends UnicastRemoteObject implements AssetManager
     private AssetManager om_proxy = null;
 
     public RmiAssetManager(AssetManager m_proxy) throws RemoteException {
-        super();
+        super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_proxy = m_proxy;
     }
 

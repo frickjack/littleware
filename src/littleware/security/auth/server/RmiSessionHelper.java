@@ -31,6 +31,7 @@ public class RmiSessionHelper extends UnicastRemoteObject implements SessionHelp
      * around the given helper implementation.
      */
     public RmiSessionHelper(SessionHelper m_helper) throws RemoteException {
+        super( littleware.security.auth.SessionUtil.getRegistryPort() );        
         om_helper = m_helper;
     }
 

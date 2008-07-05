@@ -24,7 +24,7 @@ public class PackageTestSuite {
     public static Test suite() {
         TestSuite x_suite = new TestSuite("littleware.test.PackageTestSuite");
         Logger log_generic = Logger.getLogger("littleware.test");
-        boolean b_run = false;
+        boolean b_run = true;
 
         log_generic.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
@@ -48,7 +48,7 @@ public class PackageTestSuite {
                 x_suite.addTest(littleware.security.test.PackageTestSuite.suite());
             }
 
-            if (true) {
+            if (b_run) {
                 log_generic.log(Level.INFO, "Trying to setup littleware.web test suite");
                 x_suite.addTest(littleware.web.test.PackageTestSuite.suite());
             }

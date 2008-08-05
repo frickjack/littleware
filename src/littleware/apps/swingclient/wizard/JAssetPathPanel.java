@@ -16,6 +16,7 @@ import javax.swing.*;
 
 import com.nexes.wizard.Wizard;
 
+import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.SimpleAssetViewController;
 import littleware.asset.Asset;

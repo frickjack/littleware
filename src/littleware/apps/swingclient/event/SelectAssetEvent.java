@@ -1,8 +1,8 @@
 package littleware.apps.swingclient.event;
 
 import littleware.asset.Asset;
-import littleware.apps.swingclient.LittleEvent;
-import littleware.apps.swingclient.AssetModelLibrary;
+import littleware.apps.client.*;
+
 
 /**
  * Event triggered to indicate the user has selected some

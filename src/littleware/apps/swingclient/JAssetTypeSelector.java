@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
+import littleware.apps.client.*;
 import littleware.asset.AssetType;
 
 

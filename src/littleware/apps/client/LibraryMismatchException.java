@@ -1,4 +1,4 @@
-package littleware.apps.swingclient;
+package littleware.apps.client;
 
 import littleware.base.BaseRuntimeException;
 

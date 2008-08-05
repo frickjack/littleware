@@ -2,6 +2,7 @@ package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
 
+import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.security.SecurityAssetType;
 

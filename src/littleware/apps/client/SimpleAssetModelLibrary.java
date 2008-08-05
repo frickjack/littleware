@@ -1,4 +1,4 @@
-package littleware.apps.swingclient;
+package littleware.apps.client;
 
 import com.google.inject.Singleton;
 import java.rmi.RemoteException;
@@ -13,7 +13,7 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import littleware.apps.swingclient.event.AssetModelEvent;
+import littleware.apps.client.event.AssetModelEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetRetriever;

@@ -1,4 +1,4 @@
-package littleware.apps.swingclient;
+package littleware.apps.client;
 
 /**
  * Interface for handlers/controllers of LittleEvent type events

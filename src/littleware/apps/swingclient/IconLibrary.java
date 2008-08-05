@@ -13,7 +13,7 @@ import littleware.asset.AssetType;
 @ImplementedBy(WebIconLibrary.class)
 public interface IconLibrary {
 
-        /**
+    /**
      * Configure the root path from which to load the UI .gif icons.
      * A web-based icon library might expand the root out like this:
      *            http://s_url_root/apache/a.gif,

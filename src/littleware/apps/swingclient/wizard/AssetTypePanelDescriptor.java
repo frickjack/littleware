@@ -10,13 +10,14 @@ import java.util.logging.Level;
 
 import com.nexes.wizard.*;
 
+import littleware.apps.client.*;
+import littleware.apps.swingclient.*;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
-import littleware.apps.swingclient.*;
 
 /**
  * WizardController plugin for the AssetTypeSelector control

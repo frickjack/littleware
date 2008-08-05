@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.swing.JUtil;
 import littleware.apps.swingclient.event.*;

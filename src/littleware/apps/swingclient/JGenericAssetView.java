@@ -20,6 +20,7 @@ import java.util.logging.Level;
 
 import javax.swing.*;
 
+import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;

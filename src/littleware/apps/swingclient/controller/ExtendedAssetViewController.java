@@ -12,14 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import com.nexes.wizard.Wizard;
-import littleware.apps.swingclient.LittleListener;
-import littleware.apps.swingclient.LittleEvent;
-import littleware.apps.swingclient.AssetEditor;
-import littleware.apps.swingclient.AssetEditorFactory;
-import littleware.apps.swingclient.AssetModel;
-import littleware.apps.swingclient.AssetModelLibrary;
-import littleware.apps.swingclient.AssetView;
-import littleware.apps.swingclient.AssetViewFactory;
+import littleware.apps.client.*;
 import littleware.apps.swingclient.IconLibrary;
 import littleware.apps.swingclient.event.*;
 import littleware.apps.swingclient.wizard.CreateAssetWizard;

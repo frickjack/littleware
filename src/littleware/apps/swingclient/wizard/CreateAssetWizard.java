@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import com.nexes.wizard.*;
 
+import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;

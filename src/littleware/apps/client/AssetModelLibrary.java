@@ -1,4 +1,4 @@
-package littleware.apps.swingclient;
+package littleware.apps.client;
 
 import com.google.inject.ImplementedBy;
 import java.util.UUID;
@@ -22,6 +22,10 @@ import littleware.base.Cache;
  * and communicate updates/etc.
  * May work in conjunction with a cache-update thread
  * that periodically syncs with the backend littleware asset repository.
+ * Provides the only means for creating an AssetModel.
+ * The put/get methods put/get copies of the cached AssetModel,
+ * so that a client can change his object withouth corrupting the
+ * cache.  The cache is updated via the syncAsset method.
  */
 @ImplementedBy(SimpleAssetModelLibrary.class)
 public interface AssetModelLibrary extends Cache<UUID,AssetModel> {

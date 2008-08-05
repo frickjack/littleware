@@ -1,4 +1,4 @@
-package littleware.apps.swingclient;
+package littleware.apps.client;
 
 import javax.swing.SwingUtilities;
 import java.beans.PropertyChangeEvent;

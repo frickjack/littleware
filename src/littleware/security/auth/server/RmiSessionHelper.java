@@ -2,7 +2,7 @@ package littleware.security.auth.server;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+//import java.rmi.server.UnicastRemoteObject;
 import java.security.GeneralSecurityException;
 
 import littleware.asset.Asset;
@@ -13,6 +13,7 @@ import littleware.base.ReadOnlyException;
 import littleware.base.DataAccessException;
 import littleware.base.NoSuchThingException;
 import littleware.base.BaseException;
+import littleware.base.LittleRemoteObject;
 import littleware.security.auth.*;
 import littleware.security.ManagerException;
 import littleware.security.AccessDeniedException;
@@ -22,7 +23,7 @@ import littleware.security.AccessDeniedException;
  * deploys RMI-enabled managers wrapping timeout/read-only
  * aware proxies of standard Manager implementations.
  */
-public class RmiSessionHelper extends UnicastRemoteObject implements SessionHelper {
+public class RmiSessionHelper extends LittleRemoteObject implements SessionHelper {
 
     SessionHelper om_helper = null;
 
@@ -31,7 +32,7 @@ public class RmiSessionHelper extends UnicastRemoteObject implements SessionHelp
      * around the given helper implementation.
      */
     public RmiSessionHelper(SessionHelper m_helper) throws RemoteException {
-        super( littleware.security.auth.SessionUtil.getRegistryPort() );        
+        //super( littleware.security.auth.SessionUtil.getRegistryPort() );        
         om_helper = m_helper;
     }
 

@@ -18,7 +18,7 @@ import littleware.security.*;
  */
 public interface Asset extends littleware.base.CacheableObject
 {	
-	/**
+    /**
      * Enumeration listing the properties that PropertyChangeListeners
      * can listen for changes on - subtypes may include others.
      * Subtypes will have to add their own property names.

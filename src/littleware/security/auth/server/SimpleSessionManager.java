@@ -2,7 +2,7 @@ package littleware.security.auth.server;
 
 import java.rmi.*;
 import java.rmi.registry.*;
-import java.rmi.server.UnicastRemoteObject;
+//import java.rmi.server.UnicastRemoteObject;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -28,7 +28,7 @@ import littleware.security.auth.*;
  * This class ought to be registered as a Singleton and exported
  * for RMI access.
  */
-public class SimpleSessionManager extends UnicastRemoteObject implements SessionManager {
+public class SimpleSessionManager extends LittleRemoteObject implements SessionManager {
 
     private static final Logger olog_generic = Logger.getLogger("littleware.security.auth.server.SimpleSessionManager");
     private static URL ourl_local = null;
@@ -51,7 +51,7 @@ public class SimpleSessionManager extends UnicastRemoteObject implements Session
      * by which to retrieve the session as needed.
      */
     private SimpleSessionManager(AssetManager m_asset, AssetSearchManager m_search) throws RemoteException {
-        super( littleware.security.auth.SessionUtil.getRegistryPort() );
+        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_asset = m_asset;
         om_search = m_search;
     }

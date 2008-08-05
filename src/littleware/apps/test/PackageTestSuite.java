@@ -8,6 +8,7 @@ import java.util.logging.Level;
 
 import junit.framework.*;
 
+import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.base.AssertionFailedException;
 import littleware.security.auth.*;
@@ -60,7 +61,7 @@ public class PackageTestSuite extends TestSuite {
         super("littleware.apps.test.PackageTestSuite");
 
         try {
-            TypicalClientGuice.getIconLibrary ().setRoot( "localhost/littleware/lib/icons" );
+            StandardSwingGuice.getIconLibrary ().setRoot( "localhost/littleware/lib/icons" );
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -68,7 +69,11 @@ public class PackageTestSuite extends TestSuite {
         }
 
         final SessionHelper m_helper = PackageTestSuite.getTestSessionHelper();
-        final Injector     injector = Guice.createInjector( new TypicalClientGuice( m_helper ) );
+        final Injector     injector = Guice.createInjector(
+                new ClientServiceGuice( m_helper ),
+                new StandardClientGuice(),
+                new StandardSwingGuice() 
+                );
 
         boolean b_run = true;
 

@@ -9,27 +9,29 @@
  <property name="srcdir.littleware" location="src/littleware" />
  <property name="srcdir.wizard" location="src/com" />
  <property name="builddir" location="build/ant" />
+ <property name="build_rmicgi" location="${builddir}/rmicgi" />
  <property name="buildclient" location="${builddir}/client" />
  <property name="buildserver" location="${builddir}/server" />
  <property name="docdir" location="${builddir}/doc" />
+ <property name="rmicgijar" location="${builddir}/littleRmiCgi.jar" />
  <property name="clientjar" location="${builddir}/littleware.jar" />
  <property name="serverjar" location="${builddir}/littleServer.jar" />
 
  <path id="clientclasspath">
-  <pathelement location="lib/activation.jar" />
-  <pathelement location="lib/bsf.jar" />
-  <pathelement location="lib/commons-dbutils.jar" />
-  <pathelement location="lib/commons-logging.jar" />
-  <pathelement location="lib/derby.jar" />
-  <pathelement location="lib/guice-1.0.jar" />
-  <pathelement location="lib/javaee.jar" />
-  <pathelement location="lib/js.jar" />
-  <pathelement location="lib/jython.jar" />
-  <pathelement location="lib/junit.jar" />
-  <pathelement location="lib/mail.jar" />
-  <pathelement location="lib/ostermillerutils.jar" />
-  <pathelement location="lib/java-getopt.jar" />
-  <pathelement location="lib/proxool.jar" />
+ <pathelement location="../share/jar/activation.jar" />
+ <pathelement location="../share/jar/bsf.jar" />
+ <pathelement location="../share/jar/commons-dbutils.jar" />
+ <pathelement location="../share/jar/commons-logging.jar" />
+ <pathelement location="../share/jar/derby.jar" />
+ <pathelement location="../share/jar/guice-1.0.jar" />
+ <pathelement location="../share/jar/javaee.jar" />
+ <pathelement location="../share/jar/js.jar" />
+ <pathelement location="../share/jar/jython.jar" />
+ <pathelement location="../share/jar/junit3.jar" />
+ <pathelement location="../share/jar/mail.jar" />
+ <pathelement location="../share/jar/ostermillerutils_1_06_00_nognu.jar" />
+ <pathelement location="../share/jar/java-getopt-1.0.13.jar" />
+ <pathelement location="../share/jar/proxool.jar" />
  </path>
  <path id="serverclasspath">
    <path refid="clientclasspath" />
@@ -38,7 +40,7 @@
  <path id="testclasspath">
    <path refid="serverclasspath" />
    <pathelement location="${serverjar}" />
-   <pathelement location="lib/postgresql.jar" />
+   <pathelement location="../share/jar/postgresql.jar" />
  </path>
 
  <target name="teststuff">
@@ -48,6 +50,7 @@
 
  <target name="prepare">
    <mkdir dir="${builddir}" />
+   <mkdir dir="${build_rmicgi}" />
    <mkdir dir="${buildclient}" />
    <mkdir dir="${buildserver}" />
  </target>
@@ -131,6 +134,20 @@
 	level="9"
      />
  </target>
+ <target name="rmicgijar" 
+         depends="clientclasses"
+	 description="build littleRmiCgi.jar"
+      >
+    <copy todir="${build_rmicgi}/littleware/web/servlet">
+        <fileset dir="${buildclient}/littleware/web/servlet" />
+    </copy>
+    <jar id="jar_rmicgi" jarfile="${rmicgijar}"
+        basedir="${build_rmicgi}"
+        index="true"
+	level="9"
+     />
+ </target>
+
 
  <target name="serverjar" 
          depends="serverclasses"
@@ -253,7 +270,7 @@
        <include name="javaee.jar" />
        <include name="js.jar" />
        <include name="jython.jar" />
-       <include name="junit.jar" />
+       <include name="junit3.jar" />
        <include name="mail.jar" />
        <include name="ostermillerutils.jar" />
        <include name="java-getopt.jar" />

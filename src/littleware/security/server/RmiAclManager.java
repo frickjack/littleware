@@ -8,7 +8,7 @@ import java.security.acl.*;
 import javax.security.auth.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+//import java.rmi.server.UnicastRemoteObject;
 import java.lang.reflect.*;
 
 import littleware.asset.*;
@@ -20,12 +20,12 @@ import littleware.security.*;
  * Should usually wrap a SubjectInvocationHandler equiped DynamicProxy
  * of a base implementation class.
  */
-public class RmiAclManager extends UnicastRemoteObject implements AclManager {
+public class RmiAclManager extends LittleRemoteObject implements AclManager {
 
     private AclManager om_proxy = null;
 
     public RmiAclManager(AclManager m_proxy) throws RemoteException {
-        super( littleware.security.auth.SessionUtil.getRegistryPort() );
+        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_proxy = m_proxy;
     }
 

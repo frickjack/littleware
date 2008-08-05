@@ -5,7 +5,7 @@ import java.security.GeneralSecurityException;
 import java.util.UUID;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+//import java.rmi.server.UnicastRemoteObject;
 
 import littleware.base.*;
 import littleware.asset.Asset;
@@ -17,12 +17,12 @@ import littleware.apps.filebucket.*;
  * Should usually wrap a SubjectInvocationHandler equiped DynamicProxy
  * of a base implementation class.
  */
-public class RmiBucketManager extends UnicastRemoteObject implements BucketManager {
+public class RmiBucketManager extends LittleRemoteObject implements BucketManager {
 
     private BucketManager om_proxy = null;
 
     public RmiBucketManager(BucketManager m_proxy) throws RemoteException {
-        super( littleware.security.auth.SessionUtil.getRegistryPort() );
+        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_proxy = m_proxy;
     }
 

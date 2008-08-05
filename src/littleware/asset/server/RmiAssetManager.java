@@ -8,7 +8,7 @@ import java.security.acl.*;
 import javax.security.auth.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+//import java.rmi.server.UnicastRemoteObject;
 import java.lang.reflect.*;
 
 import littleware.asset.*;
@@ -21,12 +21,12 @@ import littleware.security.AccessDeniedException;
  * Should usually wrap a SubjectInvocationHandler equiped DynamicProxy
  * of a base implementation class.
  */
-public class RmiAssetManager extends UnicastRemoteObject implements AssetManager {
+public class RmiAssetManager extends LittleRemoteObject implements AssetManager {
 
     private AssetManager om_proxy = null;
 
     public RmiAssetManager(AssetManager m_proxy) throws RemoteException {
-        super( littleware.security.auth.SessionUtil.getRegistryPort() );
+        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_proxy = m_proxy;
     }
 

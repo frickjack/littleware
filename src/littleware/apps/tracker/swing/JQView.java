@@ -19,6 +19,7 @@ import littleware.base.UUIDFactory;
 import littleware.base.AssertionFailedException;
 import littleware.base.NoSuchThingException;
 import littleware.apps.tracker.*;
+import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 
 

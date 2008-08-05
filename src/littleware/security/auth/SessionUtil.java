@@ -116,10 +116,11 @@ public abstract class SessionUtil {
                     throw new AssertionFailedException("Bad host/port specified, caught: " + e, e);
                 }
             }
-        } else if (null != om_local) {
-            return om_local;
         } else {
-            // Client and server are running in the same JVM - so just use a normal object reference and bypass RMI
+            // Client and server are running in the same JVM - so just use a normal object reference and bypass RMI            
+            if (null != om_local) { // check cache
+                return om_local;
+            }
             try {
                 PrivilegedExceptionAction<SessionManager> act_setup = new PrivilegedExceptionAction<SessionManager>() {
 

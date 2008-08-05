@@ -3,7 +3,7 @@ package littleware.asset.server;
 import java.util.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+//import java.rmi.server.UnicastRemoteObject;
 import java.security.GeneralSecurityException;
 
 import littleware.asset.*;
@@ -15,12 +15,12 @@ import littleware.security.*;
  * Should usually wrap a SubjectInvocationHandler equiped DynamicProxy
  * of a base implementation class.
  */
-public class RmiSearchManager extends UnicastRemoteObject implements AssetSearchManager, Remote {
+public class RmiSearchManager extends LittleRemoteObject implements AssetSearchManager, Remote {
 
     private AssetSearchManager om_proxy = null;
 
     public RmiSearchManager(AssetSearchManager m_proxy) throws RemoteException {
-        super( littleware.security.auth.SessionUtil.getRegistryPort() );
+        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_proxy = m_proxy;
     }
 

@@ -9,6 +9,7 @@ import java.net.*;
 import junit.framework.*;
 import littleware.asset.*;
 import littleware.asset.xml.*;
+import littleware.apps.client.*;
 import littleware.apps.filebucket.*;
 import littleware.apps.swingclient.*;
 import littleware.apps.tracker.*;

@@ -14,6 +14,7 @@ import java.net.*;
 import junit.framework.*;
 import com.nexes.wizard.Wizard;
 
+import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.*;

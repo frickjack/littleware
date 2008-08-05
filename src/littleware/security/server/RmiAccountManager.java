@@ -8,7 +8,7 @@ import java.security.acl.*;
 import javax.security.auth.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
+//import java.rmi.server.UnicastRemoteObject;
 import java.lang.reflect.*;
 
 import littleware.asset.*;
@@ -20,12 +20,12 @@ import littleware.security.*;
  * Should usually wrap a SubjectInvocationHandler equiped DynamicProxy
  * of a base implementation class.
  */
-public class RmiAccountManager extends UnicastRemoteObject implements AccountManager {
+public class RmiAccountManager extends LittleRemoteObject implements AccountManager {
 
     private AccountManager om_proxy = null;
 
     public RmiAccountManager(AccountManager m_proxy) throws RemoteException {
-        super( littleware.security.auth.SessionUtil.getRegistryPort() );
+        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_proxy = m_proxy;
     }
 

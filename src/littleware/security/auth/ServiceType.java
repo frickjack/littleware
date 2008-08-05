@@ -77,24 +77,28 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
     }
 
     /**
-     * Get the call-stats sampler associated with this ServiceType
+     * Get the call-stats sampler associated with this ServiceType.
+     * Currently only used on littleware server, but may
+     * add some client-side support later.
      */
     public Sampler getCallSampler() {
         return ostat_call;
     }
 
     /**
-     * Get the logger to write call-trace to
+     * Get the logger to write call-trace to.
+     * Currently only used on littleware server.
      */
     public Logger getCallLogger() {
         return olog_call;
     }
+    
+    
 
     /**
      * Get the Class of the interface this service provider supports: T.class
      */
     public abstract Class<T> getServiceInterface();
-    static AssetSearchManager om_search = null;
 
     /** 
      * Server-side only function.
@@ -103,6 +107,15 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
      */
     public abstract T createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
+    
+    /**
+     * Client-side only function.
+     * 
+     */
+    public T buildClientProxy( T m_remote, Cache<UUID,Asset> cache ) {
+        return m_remote;
+    }
+    
     static ServiceProviderFactory<AssetManager> ofactory_asset_manager = null;
     static ServiceProviderFactory<AssetSearchManager> ofactory_search_manager = null;
     static ServiceProviderFactory<AccountManager> ofactory_account_manager = null;

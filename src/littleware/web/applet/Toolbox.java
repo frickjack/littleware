@@ -23,6 +23,7 @@ import littleware.base.*;
 import littleware.base.swing.*;
 import littleware.security.auth.*;
 import littleware.security.SecurityAssetType;
+import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.*;
 
@@ -45,7 +46,7 @@ import littleware.apps.swingclient.controller.*;
  * </dl>
  */
 public class Toolbox extends JApplet {
-    private static final Logger  olog_generic = Logger.getLogger ( "littleware.web.applet.Toolbox" );
+    private static final Logger  olog_generic = Logger.getLogger ( Toolbox.class.getName() );
     
     /**
      * Stash the session-manager.
@@ -86,6 +87,9 @@ public class Toolbox extends JApplet {
         String         s_uuid_asset = tbox_init.getParameter ( "asset_uuid" );
         String         s_locale = tbox_init.getParameter ( "session_language" );
         String         s_icon_root = tbox_init.getParameter( "icon_root" );
+        // allow override of registry port
+        String         s_server_host = tbox_init.getParameter( "server_host" );
+        String         s_server_port = tbox_init.getParameter( "server_port" );
         
         olog_generic.log ( Level.INFO, "Setting up session" );
         if ( null != s_uuid_asset ) {
@@ -128,14 +132,24 @@ public class Toolbox extends JApplet {
                     );
             olib_icon = new WebIconLibrary ();
             olib_icon.setRoot( s_full_icon_root );
+            // Force HTTP based RMI communication
+            try {
+                // Temporary - need to do own CGI-based ClientSocketFactory on the server side
+                java.rmi.server.RMISocketFactory.setSocketFactory( new sun.rmi.transport.proxy.RMIHttpToCGISocketFactory() );
+            } catch ( java.io.IOException e ) {
+                olog_generic.log( Level.WARNING, "Failure forcing RMICGISocketFactory: " + e, e );
+            }
         }
         if ( null == om_session ) {
             olog_generic.log ( Level.INFO, "Trying to contact RMI registry on host: " +
                     url_codebase.getHost ()
                     );
-            om_session = SessionUtil.getSessionManager ( url_codebase.getHost (), 
-                                                          SessionUtil.getRegistryPort () 
-                                                           );
+            if ( null == s_server_host ) {
+                s_server_host = url_codebase.getHost ();
+            }
+            int i_server_port = (null == s_server_port) ? 
+                SessionUtil.getRegistryPort():Integer.parseInt( s_server_port );
+            om_session = SessionUtil.getSessionManager ( s_server_host, i_server_port );
         }                    
 
         

@@ -9,13 +9,12 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.*;
 
+import littleware.apps.client.*;
 import littleware.security.*;
 import littleware.security.auth.*;
 import littleware.base.*;
 import littleware.asset.*;
 import littleware.apps.addressbook.*;
-import littleware.apps.swingclient.AssetModelLibrary;
-import littleware.apps.swingclient.SimpleAssetModelLibrary;
 
 /**
  * Little security-info session-tracker for jsf web-session.

@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.security.SecurityAssetType;
 import littleware.apps.tracker.TrackerAssetType;

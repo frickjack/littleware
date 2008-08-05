@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-
+import littleware.apps.client.*;
 import littleware.base.*;
 import littleware.base.swing.*;
 import littleware.security.auth.*;

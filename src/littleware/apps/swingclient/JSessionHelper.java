@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import littleware.apps.client.*;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
@@ -33,7 +34,7 @@ import littleware.security.auth.LittleSession;
  * changes via a LittleEvent event with the service-type as a result.
  * This widget notifies listeners of the results of
  * buildServiceUI () calls 
- * by sending each listener a {@link littleware.apps.swingclient.LittleEvent} with
+ * by sending each listener a {@link littleware.apps.client.LittleEvent} with
  * a &quot;launchServiceUI&quot; operation and the ServiceType result on success.
  * Need to come up with some mechanism to register new service UI later.
  */

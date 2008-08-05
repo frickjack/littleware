@@ -1,7 +1,6 @@
 package littleware.apps.swingclient.event;
 
-import littleware.apps.swingclient.LittleEvent;
-import littleware.apps.swingclient.AssetModel;
+import littleware.apps.client.*;
 
 /**
  * Event lets listeners on some object (probably an AssetModelLibrary)

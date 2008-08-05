@@ -1,4 +1,4 @@
-package littleware.apps.swingclient;
+package littleware.apps.client;
 
 import com.google.inject.ImplementedBy;
 
@@ -6,7 +6,6 @@ import com.google.inject.ImplementedBy;
  * Factory generates a view for a given AssetModel
  * based on the Asset-type and the factory type.
  */
-@ImplementedBy(SimpleAssetViewFactory.class)
 public interface AssetViewFactory {
     
 

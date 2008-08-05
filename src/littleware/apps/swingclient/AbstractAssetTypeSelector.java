@@ -3,7 +3,7 @@ package littleware.apps.swingclient;
 import java.util.List;
 import java.util.ArrayList;
 
-
+import littleware.apps.client.*;
 import littleware.asset.AssetType;
 
 

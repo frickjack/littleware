@@ -1,9 +1,7 @@
 package littleware.apps.swingclient.event;
 
 import littleware.asset.Asset;
-import littleware.apps.swingclient.LittleEvent;
-import littleware.apps.swingclient.AssetModel;
-import littleware.apps.swingclient.AssetModelLibrary;
+import littleware.apps.client.*;
 
 /**
  * Event triggered to indicate a user request to delete an asset

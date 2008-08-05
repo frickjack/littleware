@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import javax.swing.*;
 
+import littleware.apps.client.*;
 import littleware.apps.swingclient.controller.SimpleAssetViewController;
 import littleware.apps.swingclient.event.SelectAssetEvent;
 import littleware.asset.Asset;

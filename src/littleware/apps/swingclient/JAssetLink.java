@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import littleware.apps.client.*;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.TreeCellRenderer;

@@ -17,7 +17,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 
-
+import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.base.NoSuchThingException;

@@ -22,6 +22,7 @@ import littleware.base.AssertionFailedException;
 import littleware.base.NoSuchThingException;
 import littleware.base.XmlSpecial;
 import littleware.base.swing.JUtil;
+import littleware.apps.client.*;
 import littleware.apps.swingclient.event.*;
 import littleware.apps.swingclient.*;
 

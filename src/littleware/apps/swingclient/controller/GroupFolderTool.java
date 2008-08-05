@@ -17,6 +17,7 @@ import javax.swing.JDialog;
 
 import com.nexes.wizard.Wizard;
 
+import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.event.CreateRequestEvent;
 import littleware.apps.swingclient.event.EditRequestEvent;

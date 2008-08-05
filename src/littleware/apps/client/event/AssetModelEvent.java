@@ -1,7 +1,7 @@
-package littleware.apps.swingclient.event;
+package littleware.apps.client.event;
 
-import littleware.apps.swingclient.LittleEvent;
-import littleware.apps.swingclient.AssetModel;
+import littleware.apps.client.LittleEvent;
+import littleware.apps.client.AssetModel;
 
 /**
  * Event triggered by a repository changes affecting assets in the AssetModelLibrary.

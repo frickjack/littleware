@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
 
+import littleware.apps.client.*;
 import littleware.apps.swingclient.event.*;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;

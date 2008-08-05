@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import littleware.apps.client.*;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
@@ -30,7 +31,7 @@ import littleware.security.auth.SessionHelper;
  * login, or deal with the results of a login failure.
  * This widget notifies each LittleListener of the results of
  * UI triggered calls to SessionManager#login or SessionManagaer#getSessionHelper
- * by sending each listener a {@link littleware.apps.swingclient.LittleEvent} with
+ * by sending each listener a {@link littleware.apps.client.LittleEvent} with
  * a &quot;login&quot; operation and a SessionHelper result on success.
  */
 public class JSessionManager extends JPanel implements LittleTool, SessionManager {

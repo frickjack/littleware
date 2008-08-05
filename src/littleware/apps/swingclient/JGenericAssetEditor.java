@@ -22,6 +22,8 @@ import javax.swing.*;
 import javax.swing.undo.*;
 import javax.swing.event.*;
 
+import littleware.apps.client.*;
+import littleware.apps.client.event.AssetModelEvent;
 import littleware.apps.swingclient.event.*;
 import littleware.asset.*;
 import littleware.base.BaseException;

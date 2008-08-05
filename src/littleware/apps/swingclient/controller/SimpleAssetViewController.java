@@ -7,11 +7,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import littleware.apps.swingclient.LittleListener;
-import littleware.apps.swingclient.LittleEvent;
-import littleware.apps.swingclient.AssetModel;
-import littleware.apps.swingclient.AssetModelLibrary;
-import littleware.apps.swingclient.AssetView;
+import littleware.apps.client.*;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.AssetRetriever;
 

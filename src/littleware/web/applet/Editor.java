@@ -9,6 +9,7 @@ import java.net.URL;
 import littleware.base.*;
 import littleware.base.swing.*;
 import littleware.security.auth.*;
+import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.asset.*;
 

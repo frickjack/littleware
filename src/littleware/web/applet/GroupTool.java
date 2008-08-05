@@ -14,6 +14,7 @@ import javax.swing.text.JTextComponent;
 import littleware.base.*;
 import littleware.base.swing.*;
 import littleware.security.auth.*;
+import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.GroupFolderTool;
 import littleware.asset.Asset;

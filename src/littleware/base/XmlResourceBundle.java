@@ -166,12 +166,14 @@ public class XmlResourceBundle extends ResourceBundle {
             locale = Locale.getDefault();
         }
         String s_variant = locale.getVariant ();
-        List<String> v_tokens = 
+        List<String> v_tokens = new ArrayList();
+        v_tokens.addAll (
             Arrays.asList( new String[]{
                 s_basename, 
                 "_" + locale.getLanguage(), 
                 "_" + locale.getCountry()
             }
+            )
             );
         if ( null != s_variant ) {
             v_tokens.add ( "_" + s_variant );

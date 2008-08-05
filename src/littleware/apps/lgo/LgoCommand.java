@@ -13,6 +13,10 @@ import java.io.OutputStream;
 /**
  * Interface for plugins to the LittleGo app-launcher.
  * Generic I is type of input to command, O is type of output.
+ * 
+ * TODO: refactor for asynchronous invocation - various
+ * run methods should return a Handle for querying and killing
+ * the child thread.
  */
 public interface LgoCommand <InType,OutType> extends Cloneable {
     /**

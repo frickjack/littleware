@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : LgoXmlEncodeHelp.xml
+    Created on : January 7, 2008, 11:40 AM
+    Author     : RDP0004
+    Description:
+        Purpose of the document follows.
+-->
+
+<help fullname="littleware.apps.lgo.XmlEncode"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>lgo xmlencode</synopsis>
+  <description>
+      Encode the XML-special characters (ex: &amp; -&gt; &amp;amp;)
+      from STDIN.
+  </description>
+</help>

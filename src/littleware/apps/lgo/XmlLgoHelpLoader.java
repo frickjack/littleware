@@ -70,7 +70,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
         ClassLoader   cloader = ClassLoader.getSystemClassLoader();
         String        s_path = "none found";
         for( String s_check : v_paths ) {           
-            istream_help = cloader.getResourceAsStream( s_path + "Help.xml" );
+            istream_help = cloader.getResourceAsStream( s_path + ".xml" );
             if ( null != istream_help ) {
                 s_path = s_check;
                 break;

@@ -7,6 +7,7 @@ package littleware.base;
 
 import java.rmi.RemoteException;
 import java.rmi.server.RMIServerSocketFactory;
+import java.rmi.server.RMIClientSocketFactory;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -17,7 +18,7 @@ import java.rmi.server.UnicastRemoteObject;
  */
 public class LittleRemoteObject extends UnicastRemoteObject {
     private final static RMIServerSocketFactory ofactory_server = RMISocketFactory.getDefaultSocketFactory();
-    private final static RMISocketFactory       ofactory = new sun.rmi.transport.proxy.RMIHttpToCGISocketFactory();
+    private final static RMIClientSocketFactory ofactory = new LittleRMISocketFactory ();
     
     public LittleRemoteObject () throws RemoteException {
         // disable for now ... super(0, ofactory, ofactory_server );

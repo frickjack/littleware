@@ -5,13 +5,19 @@
 
 package littleware.base;
 
-import java.rmi.server.RMISocketFactory;
+import java.io.IOException;
+import java.net.Socket;
+import java.rmi.server.RMIClientSocketFactory;
 import java.io.Serializable;
 
 /**
  *
  * @author pasquini
  */
-public class LittleRMISocketFactory {
+public class LittleRMISocketFactory implements Serializable, RMIClientSocketFactory {
+    private final static RMIClientSocketFactory       ofactory = new sun.rmi.transport.proxy.RMIHttpToCGISocketFactory();
 
+    public Socket createSocket(String host, int port) throws IOException {
+        return ofactory.createSocket( host, port );
+    }
 }

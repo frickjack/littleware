@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<asset:core asset:asset_type="littleware.USER" xmlns:asset="http://www.littleware.com/xml/namespace/2006/asset">
+<asset:name>pasquini</asset:name>
+<asset:object_id>76914E542A774D56AB6E76C63C7E93AD</asset:object_id>
+<asset:home_id>F3C04056E9F24F7BB236947F246DE8D3</asset:home_id>
+<asset:creator_id>C58716683A9E4AC0A1CE13E4FB1060C2</asset:creator_id>
+<asset:updater_id>C58716683A9E4AC0A1CE13E4FB1060C2</asset:updater_id>
+<asset:create_date>2006-11-27 13:34:06</asset:create_date>
+<asset:update_date>2006-11-27 13:34:06</asset:update_date>
+<asset:asset_type>littleware.USER</asset:asset_type>
+<asset:comment></asset:comment>
+<asset:update_comment>Change password</asset:update_comment>
+<asset:value>0.0</asset:value>
+<asset:transaction>1599</asset:transaction>
+</asset:core>
+

@@ -17,10 +17,14 @@ import java.rmi.server.UnicastRemoteObject;
  * experimentation with SocketFactory.
  */
 public class LittleRemoteObject extends UnicastRemoteObject {
-    private final static RMIServerSocketFactory ofactory_server = RMISocketFactory.getDefaultSocketFactory();
+    private final static RMIServerSocketFactory ofactory_server = 
+            (null == RMISocketFactory.getSocketFactory()) ?
+                RMISocketFactory.getDefaultSocketFactory()
+                : RMISocketFactory.getSocketFactory ()
+                ;
     private final static RMIClientSocketFactory ofactory = new LittleRMISocketFactory ();
     
     public LittleRemoteObject () throws RemoteException {
-        // disable for now ... super(0, ofactory, ofactory_server );
+        super(0, ofactory, ofactory_server );
     }
 }

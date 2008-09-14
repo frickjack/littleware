@@ -6,6 +6,8 @@
      default="serverjar"
      xmlns="antlib:org.apache.tools.ant"
   >
+  <property name="jardir" 
+	     location="C:/Users/pasquini/Documents/Code/share/jar" />
  <property name="srcdir.littleware" location="src/littleware" />
  <property name="srcdir.wizard" location="src/com" />
  <property name="builddir" location="build/ant" />
@@ -18,20 +20,20 @@
  <property name="serverjar" location="${builddir}/littleServer.jar" />
 
  <path id="clientclasspath">
-	 <pathelement location="../../../share/jar/activation.jar" />
-	 <pathelement location="../../../share/jar/bsf.jar" />
-	 <pathelement location="../../../share/jar/commons-dbutils.jar" />
-	 <pathelement location="../../../share/jar/commons-logging.jar" />
-	 <pathelement location="../../../share/jar/derby.jar" />
-	 <pathelement location="../../../share/jar/guice-1.0.jar" />
-	 <pathelement location="../../../share/jar/javaee.jar" />
-	 <pathelement location="../../../share/jar/js.jar" />
-	 <pathelement location="../../../share/jar/jython.jar" />
-	 <pathelement location="../../../share/jar/junit3.jar" />
-	 <pathelement location="../../../share/jar/mail.jar" />
-	 <pathelement location="../../../share/jar/ostermillerutils_1_06_00_nognu.jar" />
-	 <pathelement location="../../../share/jar/java-getopt-1.0.13.jar" />
-	 <pathelement location="../../../share/jar/proxool.jar" />
+	 <pathelement location="${jardir}/activation.jar" />
+	 <pathelement location="${jardir}/bsf.jar" />
+	 <pathelement location="${jardir}/commons-dbutils.jar" />
+	 <pathelement location="${jardir}/commons-logging.jar" />
+	 <pathelement location="${jardir}/derby.jar" />
+	 <pathelement location="${jardir}/guice-1.0.jar" />
+	 <pathelement location="${jardir}/javaee.jar" />
+	 <pathelement location="${jardir}/js.jar" />
+	 <pathelement location="${jardir}/jython.jar" />
+	 <pathelement location="${jardir}/junit3.jar" />
+	 <pathelement location="${jardir}/mail.jar" />
+	 <pathelement location="${jardir}/ostermillerutils_1_06_00_nognu.jar" />
+	 <pathelement location="${jardir}/java-getopt-1.0.13.jar" />
+	 <pathelement location="${jardir}/proxool.jar" />
  </path>
  <path id="serverclasspath">
    <path refid="clientclasspath" />
@@ -40,7 +42,7 @@
  <path id="testclasspath">
    <path refid="serverclasspath" />
    <pathelement location="${serverjar}" />
-   <pathelement location="../../../share/jar/postgresql.jar" />
+   <pathelement location="${jardir}/postgresql.jar" />
  </path>
 
  <target name="teststuff">

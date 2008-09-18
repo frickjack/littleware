@@ -281,6 +281,25 @@
         <managed-bean-scope>session</managed-bean-scope>
     </managed-bean>
     <managed-bean>
+        <managed-bean-name>lw_login</managed-bean-name>
+        <managed-bean-class>littleware.web.beans.LoginBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <property-name>sessionBean</property-name>
+            <value>#{lw_user}</value>
+	</managed-property>        
+    </managed-bean>    
+    <managed-bean>
+        <managed-bean-name>lw_password</managed-bean-name>
+        <managed-bean-class>littleware.web.beans.UpdatePasswordBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <property-name>sessionBean</property-name>
+            <value>#{lw_user}</value>
+	</managed-property>        
+    </managed-bean>    
+    
+    <managed-bean>
         <managed-bean-name>lw_register</managed-bean-name>
         <managed-bean-class>littleware.web.beans.NewUserBean</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
@@ -295,6 +314,8 @@
             <value>cmm.w3b</value>
 	</managed-property>
     </managed-bean>
+    
+    
     <managed-bean>
         <managed-bean-name>cmm_user</managed-bean-name>
         <managed-bean-class>cmm.web.bean.UserBean</managed-bean-class>

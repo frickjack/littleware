@@ -3,6 +3,7 @@
 body { 
     background-color: #03244D; 
     font-family: helvetica,verdana;
+    min-height: 600px;
 }
 
 code { background-color: #A3A3A3;

@@ -153,16 +153,16 @@ public class ClientLoginModule implements LoginModule {
                     try {
                         Acl acl_check = (LittleAcl) m_search.getByName(s_acl_name,
                                 SecurityAssetType.ACL);
-
-                        for (LittlePermission perm_check : v_perms) {
-                            if (acl_check.checkPermission(user_active, perm_check)) {
-                                String s_role = s_acl_name + ":" + perm_check.toString();
-                                olog_generic.log(Level.INFO, "For user " + user_active.getName() +
-                                        " adding role: " + s_role);
-                                oj_subject.getPrincipals().add(new SimpleRole(s_role));
+                        if ( null != acl_check ) {
+                            for (LittlePermission perm_check : v_perms) {
+                                if (acl_check.checkPermission(user_active, perm_check)) {
+                                    String s_role = s_acl_name + ":" + perm_check.toString();
+                                    olog_generic.log(Level.INFO, "For user " + user_active.getName() +
+                                            " adding role: " + s_role);
+                                    oj_subject.getPrincipals().add(new SimpleRole(s_role));
+                                }
                             }
                         }
-
                     } catch (RuntimeException e) {
                         throw e;
                     } catch (Exception e) {

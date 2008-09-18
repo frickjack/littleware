@@ -42,7 +42,7 @@ an extention of java.security.acl.Group -
 implementing the littleware.security.SecurityAssetType.GROUP asset type.
 This applet provides tools for browsing, editing, and
 creating groups in the asset repository under the AssetPath:
-    <gen:path>/byname:home:littleware.web_home:type:littleware.USER:name:<c:out value="${lw_user.authenticatedName}" />/GroupsFolder/</gen:path>
+    <gen:path>/byname:home:littleware.web_home:type:littleware.USER:name:<c:out value="${lw_user.user.name}" />/GroupsFolder/</gen:path>
 .
 </p>
 

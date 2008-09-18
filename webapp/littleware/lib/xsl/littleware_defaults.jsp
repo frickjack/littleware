@@ -38,15 +38,15 @@
 
 <xsl:variable name="lw_doc_side_menu">
         <c:choose>
-          <c:when test="${lw_user.authenticatedName != null}">
+          <c:when test="${not lw_user.guest}">
              <p class="bordermenu">
              Welcome, <b> 
-                <h:outputText id="out1" escape="false" value="#{lw_user.authenticatedName}" /> </b>
+                <h:outputText id="out1" escape="false" value="#{lw_user.user.name}" /> </b>
              </p>
             <small> 
              <p class="bordermenu">
                 If you are not
-                <h:outputText id="out2" escape="false" value="#{lw_user.authenticatedName}" />,
+                <h:outputText id="out2" escape="false" value="#{lw_user.user.name}" />,
                 then please
                      <a href="/littleware/en/account/login.jsf"> login </a>
                        or 

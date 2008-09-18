@@ -117,15 +117,15 @@ request.setAttribute ( "s_agent", n_browser );
    <tr>
         <td class="layout" valign="top">
         <c:choose>
-          <c:when test="${lw_user.authenticatedName != null}">
+          <c:when test="${lw_user.guest}">
              <p class="bordermenu">
              Welcome, <b> 
-                <c:out value="${lw_user.authenticatedName}" /> </b>
+                <c:out value="${lw_user.user.name}" /> </b>
              </p>
             <small> 
              <p class="bordermenu">
                 If you are not
-                <c:out value="${lw_user.authenticatedName}" />,
+                <c:out value="${lw_user.user.name}" />,
                 then please
                      <a href="/littleware/en/account/logout.jsf"> logout </a>,
                      <a href="/littleware/en/account/login.jsf"> login </a>,

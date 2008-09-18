@@ -113,17 +113,15 @@ request.setAttribute ( "s_agent", n_browser );
         <c:choose>
 	<c:when test="${not lw_user.guest}">
              <p class="bordermenu">
-             Welcome, <b> Frickjack </b>
+             Welcome, <b> <c:out value="${lw_user.user.name}" /> </b>
              </p>
             <small> 
              <p class="bordermenu">
                 If you are not
-                <c:out value="Frickjack" />,
+                <c:out value="${lw_user.user.name}" />,
                 then please
                      <a href="/littleware/en/account/logout.jsf"> logout </a>,
-                     <a href="/littleware/en/account/login.jsf"> login </a>,
-                       or 
-                     <a href="/littleware/en/account/register.jsf"> register </a>.
+                     and login under your account, or register a new account.
              </p>
              </small>
            </c:when>

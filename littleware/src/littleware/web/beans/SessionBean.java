@@ -180,9 +180,9 @@ public class SessionBean {
      */
     public void setHelper(SessionHelper m_helper) throws RemoteException, AssetException,
             BaseException, GeneralSecurityException {
-        om_helper = m_helper;
         AssetSearchManager m_search = m_helper.getService(ServiceType.ASSET_SEARCH);        
-
+        ouser = m_helper.getService( ServiceType.ACCOUNT_MANAGER ).getAuthenticatedUser();
+        om_helper = m_helper;
         Contact contact_user = getContact();
         Address addr_first = contact_user.getFirstAddress();
     }
@@ -210,8 +210,16 @@ public class SessionBean {
         return ((null == om_helper) || (om_helper == om_guest));
     }
 
-    public LittleUser getUser () throws BaseException, RemoteException, GeneralSecurityException {
-        return om_helper.getService( ServiceType.ACCOUNT_MANAGER ).getAuthenticatedUser();
+    private LittleUser ouser = null;
+    
+    /**
+     * Get cached instance of the LittleUser asset to simplify access
+     * to user name, etc.
+     * 
+     * @return LittleUser object set at time of authentication
+     */
+    public LittleUser getUser () {
+        return ouser;
     }
 }
 

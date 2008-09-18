@@ -38,7 +38,7 @@
 
 <h3> Update Info </h3>
 
-<c:if test="${lw_user.authenticatedName == null}">
+<c:if test="${lw_user.guest}">
     <c:redirect url="login.jsf" />
 </c:if>
           <c:if test="${lw_user.error != null}">
@@ -56,7 +56,7 @@
        <td class="formtable"> 
           <h:outputText  value="#{lw_msgs.username}" escape="false" />
          </td>
-       <td class="formtable"> <h:outputText value="#{lw_user.authenticatedName}" /></td>
+       <td class="formtable"> <h:outputText value="#{lw_user.user.name}" /></td>
     </tr>
     <tr>
        <td class="formtable"> 

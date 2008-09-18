@@ -66,7 +66,7 @@
      >
 
 <c:choose>
-<c:when test="${lw_user.authenticatedName == null}">
+<c:when test="${lw_user.guest}">
    <gen:error>
       <p>
        Must <a href="../account/login.jsf">login</a> to use view_asset.

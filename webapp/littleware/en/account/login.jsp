@@ -57,11 +57,11 @@
 
 <h3> Please Login </h3>
 
-          <c:if test="${lw_user.error != null}">
+          <c:if test="${lw_login.lastResult != null && lw_login.lastResult != 'Ok'}">
               <hr />
                <font color="red">
                <h:outputText  id="trick1" value="#{lw_msgs.error}" escape="false" />:
-               <h:outputText id="trick2" value="#{lw_user.error}" escape="false" />
+               <h:outputText id="trick2" value="#{lw_login.lastResult}" escape="false" />
                </font>
               <hr />
           </c:if>
@@ -72,18 +72,18 @@
        <td class="formtable"> 
           <h:outputText  value="#{lw_msgs.username}" escape="false" />
          </td>
-       <td class="formtable"> <h:inputText value="#{lw_user.enteredName}" size="40" /></td>
+       <td class="formtable"> <h:inputText value="#{lw_login.name}" size="40" /></td>
     </tr>
     <tr>
        <td class="formtable"> 
           <h:outputText  value="#{lw_msgs.password}" escape="false" />
          </td>
-       <td class="formtable"> <h:inputSecret value="#{lw_user.password}" size="40" maxlength="40" /></td>
+       <td class="formtable"> <h:inputSecret value="#{lw_login.password}" size="40" maxlength="40" /></td>
     </tr>
   </table>
 
   <p>
-     <h:commandButton value="Login" action="#{lw_user.authenticateAction}" />
+     <h:commandButton value="Login" action="#{lw_login.authenticateAction}" />
   </p>
 </h:form>
 

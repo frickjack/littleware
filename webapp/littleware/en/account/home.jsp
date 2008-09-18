@@ -33,12 +33,12 @@
      >
 
 <c:choose>
-<c:when test="${lw_user.authenticatedName == null}">
+<c:when test="${lw_user.guest}">
     <h3> Must <a href="login.jsf">login</a> to view account data </h3>
 </c:when>
 <c:otherwise>
 
-<h3> Hello, <c:out value="${lw_user.authenticatedName}" /> ! </h3>
+<h3> <c:out value="${lw_user.user.name}" />  Account Setup</h3>
 
 <p>
 Welcome to your Littleware account page.

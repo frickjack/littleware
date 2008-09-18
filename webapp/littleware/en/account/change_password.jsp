@@ -38,18 +38,25 @@
 
 <h3> Change Password </h3>
 
-<c:if test="${lw_user.authenticatedName == null}">
+<c:if test="${lw_user.guest}">
     <c:redirect url="login.jsf" />
 </c:if>
 
-          <c:if test="${lw_user.error != null}">
+<c:choose>
+    <c:when test="${lw_password.lastResult == null}" />
+    <c:when test="${lw_password.lastResult != 'Ok'}">
               <hr />
                <font color="red">
                <h:outputText  id="trick1" value="#{lw_msgs.error}" escape="false" />:
-               <h:outputText id="trick2" value="#{lw_user.error}" escape="false" />
+               <h:outputText id="trick2" value="#{lw_password.lastResult}" escape="false" />
                </font>
               <hr />
-          </c:if>
+    </c:when>
+    <c:otherwise>
+        <p style="color:#00ff00;">Last password change successful ...</p>
+    </c:otherwise>
+</c:choose>
+
 
 <h:form id="changePassword"
        onsubmit="return lw_check_confirm(this, 'Passwords do not match', 'changePassword:password', 'changePassword:passwordVerify')"
@@ -57,26 +64,20 @@
    <table width="100%" class="formtable">
     <tr>
        <td class="formtable"> 
-          <h:outputText  value="#{lw_msgs.username}" escape="false" />
-         </td>
-       <td class="formtable"> <h:outputText value="#{lw_user.authenticatedName}" /></td>
-    </tr>
-    <tr>
-       <td class="formtable"> 
           <h:outputText  value="#{lw_msgs.password}" escape="false" />
          </td>
-       <td class="formtable"> <h:inputSecret id="password" value="#{lw_user.password}" /></td>
+       <td class="formtable"> <h:inputSecret id="password" value="#{lw_password.password1}" /></td>
     </tr>
     <tr>
        <td class="formtable"> 
           Verify <h:outputText  value="#{lw_msgs.password}" escape="false" />
          </td>
-       <td class="formtable"> <h:inputSecret id="passwordVerify" /></td>
+       <td class="formtable"> <h:inputSecret id="passwordVerify" value="#{lw_password.password2}" /></td>
     </tr>
   </table>
 
   <p>
-     <h:commandButton value="Submit" action="#{lw_user.updatePasswordAction}" 
+     <h:commandButton value="Submit" action="#{lw_password.updatePasswordAction}" 
                 />
   </p>
 </h:form>

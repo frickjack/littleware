@@ -109,6 +109,7 @@ if you would like to contribute, or just send us a patch.
      with the littleware codebase in the near future.
     </dd>
     <br />
+    <!--
 <dt> <b>littlego client utilities
       <a href="/littleware/lib/downloads/littlego.zip">download </a>
      </b></dt>
@@ -118,6 +119,7 @@ if you would like to contribute, or just send us a patch.
       and its dependencies, and several useful command-line tools.
       This <a href="/littleware/en/home/blogs/littleware_news/2007/release_v1_3_20070828.jsp"> blog </a> entry has more details on the latest release.
      </dd>
+       -->
 </dl>
 
 </p>

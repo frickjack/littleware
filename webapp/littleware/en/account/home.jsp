@@ -52,10 +52,15 @@ The following services are available.
 <applet 
         id="toolbox"
         code="littleware.web.applet.Toolbox.class"
+        codebase="/littleware/lib/jar" 
+        archive="littleware_v1.0a.jar,java-getopt.jar,mailapi.jar,mail.jar" 
 	width="400"
 	height="150"
       >
     <param name="session_uuid" value="${lw_user.helper.session.objectId}" />
+    <param name="server_host" value="littleware.frickjack.com" />
+    <param name="server_port" value="1239" />
+    <param name="draggable" value="true" />
   Your browser is completely ignoring the &lt;APPLET&gt; tag!
 </applet>
 

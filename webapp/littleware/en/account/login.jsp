@@ -55,7 +55,7 @@
 <f:view>
 <f:loadBundle basename="littleware.web.messages.Messages" var="lw_msgs" />
 
-<h3> Please Login </h3>
+<h3> Login </h3>
 
           <c:if test="${lw_login.lastResult != null && lw_login.lastResult != 'Ok'}">
               <hr />
@@ -66,17 +66,19 @@
               <hr />
           </c:if>
 
-<h:form>
+<c:choose>
+<c:when test="${lw_user.guest}">
+<h:form id="login">
    <table width="100%" class="formtable">
     <tr>
        <td class="formtable"> 
-          <h:outputText  value="#{lw_msgs.username}" escape="false" />
+          <h:outputText id="username"  value="#{lw_msgs.username}" escape="false" />
          </td>
        <td class="formtable"> <h:inputText value="#{lw_login.name}" size="40" /></td>
     </tr>
     <tr>
        <td class="formtable"> 
-          <h:outputText  value="#{lw_msgs.password}" escape="false" />
+          <h:outputText id="password" value="#{lw_msgs.password}" escape="false" />
          </td>
        <td class="formtable"> <h:inputSecret value="#{lw_login.password}" size="40" maxlength="40" /></td>
     </tr>
@@ -86,7 +88,14 @@
      <h:commandButton value="Login" action="#{lw_login.authenticateAction}" />
   </p>
 </h:form>
-
+</c:when>
+<c:otherwise>
+  <p>
+  You are logged in as <em><c:out value="${lw_user.user.name}" /></em>.  
+Please <a href="logout.jsf">logout</a> to login as another user.
+</p>
+</c:otherwise>
+</c:choose>
 
 </f:view>
 </gen:document>

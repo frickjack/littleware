@@ -41,7 +41,7 @@
 </xsl:template>
 
 
-<xsl:template match="xhtml:applet">
+<xsl:template match="xhtml:applet_old">
   <object 
           id="{./@id}"
           classid="clsid:CAFEEFAC-0015-0000-0000-ABCDEFFEDCBA"
@@ -50,7 +50,7 @@
        >
     <param name="code" value="{./@code}" />
     <param name="codebase" value="/littleware/lib/jar" />
-    <param name="archive" value="littleware.jar,java-getopt.jar,mailapi.jar,mail.jar" />
+    <param name="archive" value="littleware_v1_0a.jar,java-getopt.jar,mailapi.jar,mail.jar" />
     <param name="type" value="application/x-java-applet;version=1.5" />
     <param name="scriptable" value="true" />
     <xsl:apply-templates select="xhtml:param" />
@@ -61,7 +61,7 @@
            code="{./@code}"
            codebase="/littleware/lib/jar" 
            pluginspage="http://java.sun.com/javase/downloads/ea.jsp"
-           archive="littleware.jar,java-getopt.jar,mailapi.jar,mail.jar" 
+           archive="littleware_v1_0a.jar,java-getopt.jar,mailapi.jar,mail.jar" 
            scriptable="true"
           >
          <xsl:for-each select="xhtml:param">

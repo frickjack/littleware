@@ -202,7 +202,7 @@ software stack architecture illustrated below.
 </dl>
 
 <lw:filter begin="<svg" end="</svg>">
-     <c:import url="deployment_model.svg" />
+     <c:import url="/en/home/blogs/littleware_news/2007/deployment_model.svg" />
 </lw:filter>
 
 </di:section>

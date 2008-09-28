@@ -56,6 +56,7 @@
         // Replace this hard-code with call out to littleware 
         // once we get the blog-data moved behind the API
         String[] v_entry = { 
+             "/en/home/blogs/littleware_news/2008/glassfish_20080923.jsp",
              "/en/home/blogs/littleware_news/2007/release_v1_4_20070925.jsp",
              "/en/home/blogs/littleware_news/2007/release_v1_3_20070828.jsp",
              "/en/home/blogs/littleware_news/2007/release_v1_2_20070811.jsp",
@@ -63,7 +64,7 @@
              "/en/home/blogs/littleware_news/2007/mvc_20070808.jsp",
              "/en/home/blogs/littleware_news/2007/deployment_model_20070213.jsp",
              "/en/home/blogs/littleware_news/2007/macfaq.jsp",
-             "/en/home/blogs/littleware_news/2007/finally_online_20070128.jsp" 
+             "/en/home/blogs/littleware_news/2007/finally_online_20070128.jsp"
          };
         pageContext.setAttribute ( "v_entry", v_entry );
         //]]>

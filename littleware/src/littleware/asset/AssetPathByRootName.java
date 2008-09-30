@@ -1,0 +1,34 @@
+package littleware.asset;
+
+
+import littleware.asset.AssetType;
+
+
+
+/**
+ * Specialization of AssetPath that identifies its root
+ * by a (Asset-type, Asset-name) tuple, where the type must
+ * enforce name uniqueness.
+ * <p>
+ * The root format is: <br />
+ *          /byname:name:type:typename/ <br />.
+ * For example - here is the path to the asset holding the default
+ * contact information for user pasquini in the asset tree under the littleware.web_home
+ * home asset: <br />
+ *         /byname:pasquini:type:littleware.USER/contact/default <br />
+ * </p>
+ */
+public interface AssetPathByRootName extends AssetPath {    
+    /**
+     * Get the name of the asset at the root of this path
+     */
+    public String getRootName ();
+    
+    /**
+     * Get the type of the asset at the root of this path
+     */
+    public AssetType getRootType ();
+}
+
+// littleware asset management system
+// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

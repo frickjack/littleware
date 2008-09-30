@@ -1,0 +1,12 @@
+    <managed-bean>
+        <managed-bean-name>lw_user</managed-bean-name>
+        <managed-bean-class>littleware.web.beans.SessionBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <managed-bean-name>lw_register</managed-bean-name>
+        <managed-bean-class>littleware.web.beans.NewUserBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+</faces-config>
+        

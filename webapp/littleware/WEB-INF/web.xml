@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+
+  <display-name>Welcome to Littleware</display-name>
+  <description>
+     Welcome to Littleware
+  </description>
+
+  <servlet>
+     <servlet-name> Faces Servlet </servlet-name>
+     <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+     <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+       <servlet-name> Faces Servlet </servlet-name>
+       <url-pattern>*.jsf</url-pattern>
+  </servlet-mapping>
+
+
+  <filter>
+    <filter-name>SecurityFilter</filter-name>
+    <filter-class>littleware.web.servlet.SecurityFilter</filter-class>
+  </filter>
+
+   <welcome-file-list>
+        <welcome-file> index.html </welcome-file>
+   </welcome-file-list>
+
+   <error-page>
+        <error-code>500</error-code>
+        <location>/en/home/master_error.jsp</location>
+   </error-page>
+   <error-page>
+        <error-code>404</error-code>
+        <location>/en/home/master_error.jsp</location>
+   </error-page>
+   <error-page>
+        <error-code>403</error-code>
+        <location>/en/home/access_denied_error.jsp</location>
+   </error-page>
+
+  <filter-mapping>
+    <filter-name>SecurityFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>The Entire Web Application</web-resource-name>
+      <url-pattern>/Hosting/local1260/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>acl.local1260.general:littleware.READ</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Littleware Authentication</realm-name>
+  </login-config>
+
+  <security-role>
+    <description>
+      Web-read ACL
+    </description>
+    <role-name>acl.local1260.general:littleware.READ</role-name>
+  </security-role>
+
+</web-app>
+

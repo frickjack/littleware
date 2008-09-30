@@ -5,8 +5,8 @@ import java.security.*;
 import javax.security.auth.*;
 import javax.security.auth.login.*;
 import junit.framework.*;
-import com.Ostermiller.util.PasswordDialog;
 import littleware.base.BaseException;
+import littleware.base.swing.JPasswordDialog;
 import littleware.security.auth.*;
 import littleware.security.test.LoginTester;
 
@@ -89,9 +89,7 @@ public class PackageTestSuite {
                     );
 
             // Must authenticate to run test case
-            PasswordDialog w_password = new PasswordDialog(null, "Authenticate to run regression tests");
-            w_password.setName(LoginTester.OS_TEST_USER);
-            w_password.setPass(LoginTester.OS_TEST_USER_PASSWORD);
+            JPasswordDialog w_password = new JPasswordDialog( LoginTester.OS_TEST_USER, LoginTester.OS_TEST_USER_PASSWORD );
 
 
             if (!w_password.showDialog()) {
@@ -99,7 +97,7 @@ public class PackageTestSuite {
                 return;
             }
 
-            LoginContext login_context = new LoginContext("littleware.security.simplelogin", new SimpleNamePasswordCallbackHandler(w_password.getName(), w_password.getPass()));
+            LoginContext login_context = new LoginContext("littleware.security.simplelogin", new SimpleNamePasswordCallbackHandler(w_password.getUserName(), w_password.getPassword()));
             login_context.login();
 
             Subject subject_user = login_context.getSubject();

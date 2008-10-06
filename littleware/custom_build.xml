@@ -20,7 +20,6 @@
  <property name="serverjar" location="${builddir}/littleServer.jar" />
 
  <path id="clientclasspath">
-	 <pathelement location="${jardir}/activation.jar" />
 	 <pathelement location="${jardir}/bsf.jar" />
 	 <pathelement location="${jardir}/commons-dbutils.jar" />
 	 <pathelement location="${jardir}/commons-logging.jar" />

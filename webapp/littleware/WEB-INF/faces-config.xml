@@ -303,63 +303,14 @@
         <managed-bean-name>lw_register</managed-bean-name>
         <managed-bean-class>littleware.web.beans.NewUserBean</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
-        <managed-bean-name>cmm_biz</managed-bean-name>
-        <managed-bean-class>cmm.web.bean.BusinessBean</managed-bean-class>
-        <managed-bean-scope>application</managed-bean-scope>
         <managed-property>
-            <property-name>adminPassword</property-name>
-            <value>cmm.w3b</value>
-	</managed-property>
-    </managed-bean>
-    
-    
-    <managed-bean>
-        <managed-bean-name>cmm_user</managed-bean-name>
-        <managed-bean-class>cmm.web.bean.UserBean</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
+            <property-name>sessionBean</property-name>
+            <value>#{lw_user}</value>
+	</managed-property>          
         <managed-property>
-            <property-name>businessBean</property-name>
-            <value>#{cmm_biz}</value>
-	</managed-property>
-    </managed-bean>
-    <managed-bean>
-        <managed-bean-name>cmm_loginform</managed-bean-name>
-        <managed-bean-class>cmm.web.bean.LoginForm</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-        <managed-property>
-            <property-name>userBean</property-name>
-            <value>#{cmm_user}</value>
-	</managed-property>
-    </managed-bean>
-    <managed-bean>
-        <managed-bean-name>cmm_userform</managed-bean-name>
-        <managed-bean-class>cmm.web.bean.NewUserForm</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-        <managed-property>
-            <property-name>userBean</property-name>
-            <value>#{cmm_user}</value>
-	</managed-property>
-    </managed-bean>
-    <managed-bean>
-        <managed-bean-name>cmm_accform</managed-bean-name>
-        <managed-bean-class>cmm.web.bean.NewAccountForm</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-        <managed-property>
-            <property-name>userBean</property-name>
-            <value>#{cmm_user}</value>
-	</managed-property>
-    </managed-bean>
-    <managed-bean>
-        <managed-bean-name>cmm_gridform</managed-bean-name>
-        <managed-bean-class>cmm.web.bean.NewGridForm</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-        <managed-property>
-            <property-name>userBean</property-name>
-            <value>#{cmm_user}</value>
-	</managed-property>
+            <property-name>newUserGroupName</property-name>
+            <value>group.littleware.web</value>
+	</managed-property>                  
     </managed-bean>
 
 </faces-config>

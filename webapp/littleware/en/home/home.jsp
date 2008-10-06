@@ -8,6 +8,12 @@
  >
 <![CDATA[<?xml-stylesheet type="text/xsl" href="/littleware/en/home/home.xsl" ?>]]>
 
+  <jsp:directive.page 
+          contentType="text/xml;charset=UTF-8" 
+          errorPage="/en/home/master_error.jsp"
+      />
+  <jsp:output omit-xml-declaration="false" />
+
 <jsp:useBean id="lw_defaults" class="littleware.web.beans.DefaultsBean" />
 
 <jsp:scriptlet>
@@ -36,11 +42,6 @@
 ]]> */
 </jsp:scriptlet>
 
-  <jsp:directive.page 
-          contentType="text/xml;charset=UTF-8" 
-          errorPage="/en/home/master_error.jsp"
-      />
-  <jsp:output omit-xml-declaration="false" />
   <jsp:text>
 
   </jsp:text>
@@ -76,7 +77,7 @@
 <div>
 <p>
 Welcome to Littleware&apos;s home on the web.
-Functionality is still under active development, but
+We're still under active development, but
 you will find information about Littleware
 <a href="/littleware/toolbox/home.jsf">products and services</a>,
 <a href="/littleware/helpdesk/home.jsf">customer support</a>,
@@ -101,7 +102,7 @@ about any problems you come across.
 </p>
 </div>
 <div>
-	<!--
+	
  <c:catch var="frick">
  <lw:filter begin="&lt;feed" end="&lt;/feed>">
   <c:import url="blogs/littleware_news/atom_feed.jsp" charEncoding="UTF-8" />
@@ -109,7 +110,7 @@ about any problems you come across.
  </c:catch>
 
  <c:out value="${frick}" />
- -->
+ 
 
 </div>
 

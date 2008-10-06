@@ -1,8 +1,6 @@
 package littleware.web.beans;
 
 import java.security.*;
-import javax.security.auth.*;
-import javax.security.auth.login.*;
 import java.util.*;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -29,10 +27,10 @@ import littleware.apps.addressbook.*;
  */
 public class NewUserBean extends AbstractBean {
 
-    private static final Logger olog_generic = Logger.getLogger( NewUserBean.class.getName() );
-    private static SessionHelper om_admin = null;
-    private static UUID          ou_home = null;
-    private static boolean ob_initialized = false;
+    private static final Logger  olog = Logger.getLogger( NewUserBean.class.getName() );
+    private static SessionHelper ohelp_admin = null;
+    private static UUID          ou_acl_everybody = null;
+    private static boolean       ob_initialized = false;
 
     static {
         setupSession();
@@ -43,25 +41,33 @@ public class NewUserBean extends AbstractBean {
      */
     private static synchronized void setupSession() {
         if (!ob_initialized) {
-            if (null == om_admin) {
-                PrivilegedAction<SessionHelper> act_getadmin =
-                        new PrivilegedAction<SessionHelper>() {
+            try {
+                if (null == ohelp_admin) {
+                    PrivilegedAction<SessionHelper> act_getadmin =
+                            new PrivilegedAction<SessionHelper>() {
 
-                            public SessionHelper run() {
-                                return BeanUtil.getWebAdminHelper();
-                            }
-                        };
+                                public SessionHelper run() {
+                                    return BeanUtil.getWebAdminHelper();
+                                }
+                            };
 
-                om_admin = (SessionHelper) AccessController.doPrivileged(act_getadmin);
+                    ohelp_admin = (SessionHelper) AccessController.doPrivileged(act_getadmin);
+                }
+                ou_acl_everybody = ohelp_admin.getService( ServiceType.ASSET_SEARCH ).
+                        getByName( AclManager.ACL_EVERYBODY_READ, SecurityAssetType.ACL ).
+                        getObjectId();
+                ob_initialized = true;
+            } catch ( Exception ex ) {
+                olog.log( Level.SEVERE, "Failed to setup NewUserBean statics", ex );
+                throw new AssertionFailedException( "Failed NewUserBean statics setup", ex );
             }
-            ob_initialized = true;
         }
     }
     private String os_name = null;
     private String os_email = null;
     private UsaState on_state = null;
     private String os_city = null;
-    private SessionHelper om_helper = om_admin;
+    private SessionHelper om_helper = ohelp_admin;
 
     /**
      * Do-nothing constructor
@@ -69,7 +75,7 @@ public class NewUserBean extends AbstractBean {
     public NewUserBean() {
         if (null == om_helper) {
             setupSession();
-            om_helper = om_admin;
+            om_helper = ohelp_admin;
         }
     }
 
@@ -159,12 +165,15 @@ public class NewUserBean extends AbstractBean {
             quota_new.setQuotaLimit(1000);
             quota_new.setHomeId(BeanUtil.getWebHomeId());
             quota_new.setOwnerId(AccountManager.UUID_ADMIN);
+            quota_new.setAclId( ou_acl_everybody );
             quota_new = (littleware.security.Quota) m_asset.saveAsset(quota_new, "Quota for " + user_new.getName());
 
-            // Add to web group
-            LittleGroup p_web = (LittleGroup) m_account.getPrincipal( getNewUserGroupName () );
-            p_web.addMember(user_new);
-            p_web = (LittleGroup) m_asset.saveAsset(p_web, "Add new member: " + user_new.getName());
+            if ( null != getNewUserGroupName() ) {
+                // Add to web group
+                LittleGroup p_web = (LittleGroup) m_account.getPrincipal( getNewUserGroupName () );
+                p_web.addMember(user_new);
+                p_web = (LittleGroup) m_asset.saveAsset(p_web, "Add new member: " + user_new.getName());
+            }
 
             // Setup Contact info: User - Link - Contact - Address
             Asset a_link = AddressAssetType.LINK.create();
@@ -189,7 +198,7 @@ public class NewUserBean extends AbstractBean {
             try {
                 addr_bootstrap.setEmail(new InternetAddress(getEmail()));
             } catch (AddressException e) {
-                olog_generic.log(Level.WARNING, "Failure setting bogus bootstrap e-mail address, caught: " + e);
+                olog.log(Level.WARNING, "Failure setting bogus bootstrap e-mail address, caught: " + e);
             }
             addr_bootstrap.setAddressType(AddressType.HOME);
             addr_bootstrap.setOwnerId(user_new.getObjectId());
@@ -201,19 +210,19 @@ public class NewUserBean extends AbstractBean {
             setLastResult( ActionResult.Ok );
         } catch (RemoteException e) {
             // Retry the first time
-            olog_generic.log(Level.INFO, "RemoteException on login, caught: " + e + ", " +
+            olog.log(Level.INFO, "RemoteException on login, caught: " + e + ", " +
                     BaseException.getStackTrace(e)
                     );
             setLastResult(ActionResult.Failed );
         } catch (MessagingException e) {
-            olog_generic.log(Level.INFO, "Created new user, but failed to send e-mail, caught: " + e);
+            olog.log(Level.INFO, "Created new user, but failed to send e-mail, caught: " + e);
             setLastResult( ActionResult.OkNoEmail );
         } catch (IllegalNameException e) {
             setLastResult(ActionResult.BadName );            
         } catch (AlreadyExistsException e) {
             setLastResult(ActionResult.BadName );
         } catch (Exception e) {
-            olog_generic.log(Level.INFO, "Failed login for " + getName() + ", caught: " + e +
+            olog.log(Level.INFO, "Failed login for " + getName() + ", caught: " + e +
                     ", " + BaseException.getStackTrace(e));
             setLastResult(ActionResult.Failed );
         }

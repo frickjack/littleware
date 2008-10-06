@@ -81,9 +81,10 @@ public class PropertiesLoader {
                     try {
                         ResourceBundle bundle_in = ResourceBundle.getBundle( s_resource );
                         
-                        Set<String>  v_keys = bundle_in.keySet ();
-                        if ( ! v_keys.isEmpty() ) {
-                            for ( String s_key : bundle_in.keySet () ) {
+                        Enumeration<String>  v_keys = bundle_in.getKeys ();
+                        if ( v_keys.hasMoreElements() ) {
+                            while ( v_keys.hasMoreElements () ) {
+				String s_key = v_keys.nextElement ();
                                 prop_filedata.setProperty( s_key, (String) bundle_in.getObject( s_key ) );
                             }
                             return prop_filedata;

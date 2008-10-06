@@ -42,13 +42,20 @@ for our various products and services.
 
 <applet 
         id="toolbox"
+        codebase="/littleware/lib/jar" 
+        archive="littleware_v1.0b.jar,java-getopt.jar,mailapi.jar,mail.jar" 
         code="littleware.web.applet.Toolbox.class"
+        name="toolbox"
 	width="400"
 	height="150"
       >
     <param name="session_uuid" value="${lw_user.helper.session.objectId}" />
+    <!--
     <param name="server_host" value="localhost" />
+    -->
     <param name="server_port" value="1259" />
+
+    <param name="draggable" value="true" />
   Your browser is completely ignoring the &lt;APPLET&gt; tag!
 </applet>
 

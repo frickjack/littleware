@@ -68,15 +68,23 @@ e-mail address.
 <f:view>
 <f:loadBundle basename="littleware.web.messages.Messages" var="lw_msgs" />
 
-          <c:if test="${lw_register.error != null}">
+    
+    <c:choose>
+        <c:when test="${lw_register.lastResult == null}" />
+        <c:when test="${lw_register.lastResult != 'Ok'}">
               <hr />
                <font color="red">
                <h:outputText  id="trick1" value="#{lw_msgs.error}" escape="false" />:
-               <h:outputText id="trick2" value="#{lw_register.error}" escape="false" />
+               <h:outputText id="trick2" value="#{lw_register.lastResult}" escape="false" />
                </font>
               <hr />
-          </c:if>
-
+          </c:when>
+          <c:otherwise>
+              <hr />
+              <p style="color:#00ff00;">Password e-mail sent to last user registered!</p>
+          </c:otherwise>
+      </c:choose>
+      
     <h:form>
       <table border="0">
         <tr>

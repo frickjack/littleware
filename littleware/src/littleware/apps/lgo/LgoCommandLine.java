@@ -37,8 +37,8 @@ public class LgoCommandLine {
      */
     public static void main( String[] v_args ) {
         try {
-            java.rmi.server.RMISocketFactory.setSocketFactory( new sun.rmi.transport.proxy.RMIHttpToCGISocketFactory() );
-            String s_server = "localhost"; 
+            //java.rmi.server.RMISocketFactory.setSocketFactory( new sun.rmi.transport.proxy.RMIHttpToCGISocketFactory() );
+            String s_server = "littleware.frickjack.com"; 
             SessionManager m_session = SessionUtil.getSessionManager ( s_server, 1239 );
             SessionHelper helper = null;
             if ( v_args.length < 1 ) {

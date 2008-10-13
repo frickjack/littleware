@@ -36,31 +36,18 @@ public class LgoCommandLine {
      * @param v_args command-line args
      */
     public static void main( String[] v_args ) {
-        try {
-            //java.rmi.server.RMISocketFactory.setSocketFactory( new sun.rmi.transport.proxy.RMIHttpToCGISocketFactory() );
-            String s_server = "littleware.frickjack.com"; 
-            SessionManager m_session = SessionUtil.getSessionManager ( s_server, 1239 );
-            SessionHelper helper = null;
-            if ( v_args.length < 1 ) {
-                olog.log( Level.SEVERE, "Usage: lgo <username> <password>" );
-                olog.log( Level.SEVERE, "... or: lgo <session-id>");
-                System.exit( 1 );
-            } else if ( v_args.length == 1 ) {
-                helper = m_session.getSessionHelper( UUIDFactory.parseUUID( v_args[0] ) );
-            } else {
-                helper = m_session.login( v_args[0], v_args[1], "LgoCommand login" );
-            }
+        try { 
             Injector     injector = Guice.createInjector( new Module[] {
                             new EzModule(),
                             new littleware.apps.swingclient.StandardSwingGuice(),
                             new littleware.apps.client.StandardClientGuice(),
-                            new littleware.security.auth.ClientServiceGuice( helper )
+                            new littleware.security.auth.ClientServiceGuice(),
+                            littleware.base.PropertiesLoader.get()
                         }
             );
             LgoCommandDictionary m_command = injector.getInstance( LgoCommandDictionary.class );
             LgoHelpLoader        m_help = injector.getInstance( LgoHelpLoader.class );
 
-            injector.getInstance( IconLibrary.class ).setRoot( s_server + "/cmm/lib/icons" );
             for( LgoCommand cmd_register : 
                 new LgoCommand[] {
                     //new StdoutHelpCommand( m_command, m_help ),

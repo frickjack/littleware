@@ -29,8 +29,9 @@ public class PackageTestSuite extends TestSuite {
     static SessionHelper getTestSessionHelper() {
         if (null == om_helper) {
             try {
-                SessionManager m_session = SessionUtil.getSessionManager(SessionUtil.getRegistryHost(),
-                        SessionUtil.getRegistryPort());
+                // Force RMI
+                SessionUtil util = SessionUtil.get ();
+                SessionManager m_session = util.getSessionManager( util.getRegistryHost (), util.getRegistryPort () );
                 String s_test_user = "littleware.test_user";
                 String s_test_password = "test123";
 

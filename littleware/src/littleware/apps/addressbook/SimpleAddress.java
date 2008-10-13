@@ -1,25 +1,13 @@
 package littleware.apps.addressbook;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import java.io.*;
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import javax.mail.internet.InternetAddress;
 import java.util.UUID;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.net.URL;
-import java.net.MalformedURLException;
 
 import littleware.base.UsaState;
 import littleware.asset.*;
 import littleware.asset.xml.*;
-import littleware.base.BaseException;
-import littleware.base.XmlSpecial;
 import littleware.base.ParseException;
 
 

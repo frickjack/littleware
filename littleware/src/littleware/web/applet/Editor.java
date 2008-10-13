@@ -37,7 +37,8 @@ public class Editor extends JApplet {
 
         try {
             URL url_codebase = getCodeBase();
-            SessionManager m_session = SessionUtil.getSessionManager(url_codebase.getHost(), SessionUtil.getRegistryPort());
+            SessionUtil    util = SessionUtil.get();
+            SessionManager m_session = util.getSessionManager(url_codebase.getHost(), util.getRegistryPort());
             UUID u_session = UUIDFactory.parseUUID(s_uuid_session);
             UUID u_asset = UUIDFactory.parseUUID(s_uuid_asset);
             SessionHelper m_helper = m_session.getSessionHelper(u_session);

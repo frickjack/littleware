@@ -84,7 +84,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             om_session = new SimpleSessionManager(m_asset, m_search);
 
             Registry rmi_registry = null;            
-            final int i_port = SessionUtil.getRegistryPort();
+            final int i_port = SessionUtil.get ().getRegistryPort();
 
             try {
                 olog_generic.log(Level.INFO, "Looking for RMI registry on port: " + i_port);

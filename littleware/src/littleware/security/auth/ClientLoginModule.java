@@ -3,7 +3,6 @@ package littleware.security.auth;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.*;
 import java.security.acl.*;
 import javax.security.auth.*;
 import javax.security.auth.spi.*;
@@ -45,7 +44,7 @@ public class ClientLoginModule implements LoginModule {
      */
     public ClientLoginModule() {
         try {
-            om_session = SessionUtil.getSessionManager();
+            om_session = SessionUtil.get().getSessionManager();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -187,6 +186,7 @@ public class ClientLoginModule implements LoginModule {
 
         return true;
     }
+    
 
     /**
      * Phase 2 commit of login.

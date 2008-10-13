@@ -63,8 +63,7 @@ public class BeanUtil {
     private static synchronized void setupSession() {
         if (!ob_initialized) {
             try {
-                Properties prop_littleware = PropertiesLoader.loadProperties("littleware.properties",
-                        new Properties());
+                Properties prop_littleware = PropertiesLoader.get ().loadProperties();
 
                 os_webmaster_email = prop_littleware.getProperty("web.admin.email");
                 if (null == os_webmaster_email) {
@@ -81,7 +80,7 @@ public class BeanUtil {
                 }
 
                 if (null == om_session) {
-                    om_session = SessionUtil.getSessionManager();
+                    om_session = SessionUtil.get().getSessionManager();
                 }
                 if (null == om_admin) {
                     String s_user = prop_littleware.getProperty("web.admin");

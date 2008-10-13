@@ -7,7 +7,7 @@
      xmlns="antlib:org.apache.tools.ant"
   >
   <property name="jardir" 
-	     location="/home/pasquini/Code/share/jar" />
+	     location="/Users/pasquini/Documents/Code/share/jar" />
  <property name="srcdir.littleware" location="src/littleware" />
  <property name="srcdir.wizard" location="src/com" />
  <property name="builddir" location="build/ant" />
@@ -20,7 +20,6 @@
  <property name="serverjar" location="${builddir}/littleServer.jar" />
 
  <path id="clientclasspath">
-	 <pathelement location="${jardir}/activation.jar" />
 	 <pathelement location="${jardir}/bsf-2.4.0.jar" />
 	 <pathelement location="${jardir}/commons-dbutils.jar" />
 	 <pathelement location="${jardir}/commons-logging.jar" />
@@ -30,8 +29,8 @@
 	 <pathelement location="${jardir}/js.jar" />
 	 <pathelement location="${jardir}/jython.jar" />
 	 <pathelement location="${jardir}/junit3.8.jar" />
+         <pathelement location="${jardir}/littleIcons-0.0.jar" />
 	 <pathelement location="${jardir}/mail.jar" />
-	 <pathelement location="${jardir}/ostermillerutils_1_06_00_nognu.jar" />
 	 <pathelement location="${jardir}/java-getopt-1.0.13.jar" />
 	 <pathelement location="${jardir}/proxool-0.9.1.jar" />
  </path>
@@ -209,6 +208,17 @@
         <jvmarg value="-Dlittleware_jdbc.properties=properties/littleware_jdbc.properties" />
         <jvmarg value="-Dsun.rmi.transport.tcp.connectionPool=true" />
         <jvmarg value="-Djava.security.policy=properties/littleware.policy" />
+    </java>
+
+ </target>
+ 
+ <target name="lgo" 
+         description="Launch the lgo app"
+	 depends="clientjar"
+     >
+    <java classname="littleware.apps.lgo.LgoBrowserCommand" fork="true">
+        <classpath refid="serverclasspath" />
+        <jvmarg value="-Djava.util.logging.config.file=properties/logging.properties" />
     </java>
 
  </target>

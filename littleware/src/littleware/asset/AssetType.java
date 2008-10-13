@@ -29,7 +29,7 @@ import littleware.base.*;
  *     granted AccessPermission "littleware.asset.resource.newtype"
  */
 public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> implements Factory<T> {
-
+    private static final long serialVersionUID = 1111142L;
     private static final Logger olog_generic = Logger.getLogger("littleware.asset.AssetType");
     private static final AssetSpecializer ospecial_null = new NullAssetSpecializer();
 

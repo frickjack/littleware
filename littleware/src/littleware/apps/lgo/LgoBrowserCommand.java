@@ -5,15 +5,14 @@
 
 package littleware.apps.lgo;
 
+import com.google.inject.*;
+
 import java.awt.BorderLayout;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 
-import com.google.inject.Inject;
-
-import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.ExtendedAssetViewController;
@@ -103,6 +102,14 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
         return null;
     }
     
+    /**
+     * Little hook by which main() can tell the command
+     * to exit when closed.  May make this a public property
+     * in the future if it turns out to be a generally
+     * needed thing.
+     */
+    private boolean ob_exit_on_close = false;
+    
     private void createGUI () {
         if ( null == owframe ) {
             ocontrol.setControlView( obrowser );
@@ -124,9 +131,38 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
                     olog.log( Level.INFO, "Failed to load initial asset model " + getStart () +
                             ", caught: " + e, e );
                 }
-        }
-        if ( ! owframe.isVisible() ) {
-            owframe.setVisible( true );
+            }
+            if ( ob_exit_on_close ) {
+                owframe.setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE );
+            }
+            if ( ! owframe.isVisible() ) {
+                owframe.setVisible( true );
+            }
+        }    
+    }
+    
+    /**
+     * Launch a browser with the session
+     * loaded from littleware.properties.
+     * 
+     * @param v_args command-line args
+     */
+    public static void main( String[] v_args ) {
+        try {
+            Injector     injector = Guice.createInjector( new Module[] {
+                            new EzModule(),
+                            new littleware.apps.swingclient.StandardSwingGuice(),
+                            new littleware.apps.client.StandardClientGuice(),
+                            new littleware.security.auth.ClientServiceGuice(),
+                            littleware.base.PropertiesLoader.get()
+                        }
+            );
+            LgoBrowserCommand command = injector.getInstance( LgoBrowserCommand.class );
+            command.ob_exit_on_close = true;
+            command.runDynamic( "/byname:littleware.home:type:littleware.HOME/" );
+        } catch ( Exception e ) {
+            olog.log( Level.SEVERE, "Failed command, caught: " + e, e );
+            System.exit( 1 );
         }
     }    
-}}
+}

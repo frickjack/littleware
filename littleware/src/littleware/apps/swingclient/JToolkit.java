@@ -229,7 +229,7 @@ public class JToolkit implements LittleTool {
 		try {
 			final JFrame w_root = new JFrame ();
 			w_root.setDefaultCloseOperation ( JFrame.EXIT_ON_CLOSE );
-			buildToolkit ( w_root, SessionUtil.getSessionManager () );
+			buildToolkit ( w_root, SessionUtil.get ().getSessionManager () );
 			SwingUtilities.invokeLater (
 									   new Runnable () {
 										   public void run () {

@@ -153,8 +153,9 @@ public class SwingClientTester extends TestCase {
      */
     public void testJSessionManager() {
         try {
-            SessionManager m_session = SessionUtil.getSessionManager(SessionUtil.getRegistryHost(),
-                    SessionUtil.getRegistryPort());
+            // Force RMI
+            SessionUtil util = SessionUtil.get ();
+            SessionManager m_session = util.getSessionManager( util.getRegistryHost (), util.getRegistryPort () );
 
             final JSessionManager wm_session = new JSessionManager(m_session);
             wm_session.addLittleListener(

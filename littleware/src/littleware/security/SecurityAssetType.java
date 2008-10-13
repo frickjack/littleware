@@ -16,7 +16,7 @@ import littleware.security.auth.LittleSession;
  * based AssetTypes.
  */
 public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
-
+    private static final long serialVersionUID = 4444442L;
     private static AssetSpecializer om_account = null;
     private static AssetSpecializer om_acl = null;
 

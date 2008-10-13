@@ -4,7 +4,6 @@ import java.rmi.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.*;
-import java.lang.reflect.*;
 import java.security.*;
 import java.net.*;
 import littleware.base.*;
@@ -17,23 +16,23 @@ import littleware.base.BaseException;
  * Once a client has a SessionManager, the client
  * can login, and access the other remote managers.
  */
-public abstract class SessionUtil {
+public class SessionUtil {
 
-    private static final Logger olog_generic = Logger.getLogger(SessionUtil.class.getName());
+    private static final Logger olog = Logger.getLogger(SessionUtil.class.getName());
     public static final int MAX_REMOTE_RETRY = 3;
-    private static boolean ob_local_server = false;
-    private static int oi_registry_port = 1239;
-    private static String os_registry_host = "localhost";
+    private  boolean ob_local_server = false;
+    private  int oi_registry_port = 1239;
+    private  String os_registry_host = "localhost";
 
-    static {
+    {
         try {
             os_registry_host = InetAddress.getLocalHost().getHostName();
         } catch (java.io.IOException e) {
-            olog_generic.log(Level.SEVERE, "Unable to cache hostname, caught: " + e);
+            olog.log(Level.SEVERE, "Unable to cache hostname, caught: " + e);
         }
 
         try {
-            Properties prop_user = PropertiesLoader.loadProperties("littleware.properties", new Properties());
+            Properties prop_user = PropertiesLoader.get().loadProperties();
 
             String s_port_override = prop_user.getProperty("littleware.rmi_port");
 
@@ -41,7 +40,7 @@ public abstract class SessionUtil {
                 try {
                     oi_registry_port = Integer.parseInt(s_port_override);
                 } catch (NumberFormatException e) {
-                    olog_generic.log(Level.INFO, "Failure parsing littleware.rmi_port system property, caught: " + e);
+                    olog.log(Level.INFO, "Failure parsing littleware.rmi_port system property, caught: " + e);
                 }
             }
 
@@ -57,10 +56,28 @@ public abstract class SessionUtil {
                 ob_local_server = true;
             }
         } catch (java.io.IOException e) {
-            olog_generic.log(Level.SEVERE, "Unable to read server properties, caught: " + e);
+            olog.log(Level.SEVERE, "Unable to read server properties, caught: " + e);
         }
     }
 
+    /** Enforce singleton */
+    private SessionUtil () {}
+    
+    private static SessionUtil osingle = null;
+    
+    public static SessionUtil get () {
+        if ( osingle != null ) {
+            return osingle;
+        }
+        synchronized (olog) {
+            if ( osingle != null ) {
+                return osingle;
+            }
+            osingle = new SessionUtil ();
+            return osingle;
+        }
+    }
+    
     /**
      * Return true if this JVM has server code running within it,
      * so that client code may bypass RMI.
@@ -70,7 +87,7 @@ public abstract class SessionUtil {
      * Toggle to true via the littleware.rmi_server_type property in
      * the littleware.properties file (defaults to false).
      */
-    public static boolean isServerInJvm() {
+    public boolean isServerInJvm() {
         return ob_local_server;
     }
 
@@ -78,7 +95,7 @@ public abstract class SessionUtil {
      * Get the default port on which a client expects the RMI registry to listen.
      * Set to littleware.rmi_port system property if exists, otherwise 1239.
      */
-    public static int getRegistryPort() {
+    public int getRegistryPort() {
         return oi_registry_port;
     }
 
@@ -86,10 +103,10 @@ public abstract class SessionUtil {
      * Get the default port on which we expect the RMI registry to listen.
      * Set to littleware.rmi_host system property if exists, otherwise "localhost".
      */
-    public static String getRegistryHost() {
+    public String getRegistryHost() {
         return os_registry_host;
     }
-    private static SessionManager om_local = null;
+    private SessionManager om_local = null;
 
     /**
      * Do a registry lookup, and return the SessionManager.
@@ -101,7 +118,7 @@ public abstract class SessionUtil {
      * @param i_port to connect to.  If 0, then attempt to access
      *             server code local to this JVM rather than use RMI
      */
-    public static SessionManager getSessionManager(String s_host, int i_port) throws RemoteException, NotBoundException {
+    public SessionManager getSessionManager(String s_host, int i_port) throws RemoteException, NotBoundException {
         if (i_port != 0) {
             RemoteExceptionHandler handler_retry = new RemoteExceptionHandler();
 
@@ -127,7 +144,7 @@ public abstract class SessionUtil {
                     public SessionManager run() throws Exception {
                         ResourceBundle bundle_security = ResourceBundle.getBundle("littleware.security.server.SecurityResourceBundle");
                         SessionManager m_session = (SessionManager) bundle_security.getObject("SessionManager");
-                        SubjectInvocationHandler<SessionManager> handler_session = new SubjectInvocationHandler<SessionManager>(null, m_session, olog_generic, new SimpleSampler());
+                        SubjectInvocationHandler<SessionManager> handler_session = new SubjectInvocationHandler<SessionManager>(null, m_session, olog, new SimpleSampler());
                         return (SessionManager) java.lang.reflect.Proxy.newProxyInstance(SessionManager.class.getClassLoader(),
                                 new Class[]{SessionManager.class},
                                 handler_session);
@@ -138,10 +155,10 @@ public abstract class SessionUtil {
 
                 return om_local;
             } catch (PrivilegedActionException e) {
-                olog_generic.log(Level.SEVERE, "Failed setup, caught: " + e + ", with cause: " + e.getException() + ", " + BaseException.getStackTrace(e));
+                olog.log(Level.SEVERE, "Failed setup, caught: " + e + ", with cause: " + e.getException() + ", " + BaseException.getStackTrace(e));
                 throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e + ", with cause: " + e.getException(), e.getException());
             } catch (Throwable e) {
-                olog_generic.log(Level.SEVERE, "Failed setup, caught: " + e + ", " + BaseException.getStackTrace(e));
+                olog.log(Level.SEVERE, "Failed setup, caught: " + e + ", " + BaseException.getStackTrace(e));
                 throw new AssertionFailedException("Failed SessionUtil setup, caught: " + e, e);
             }
         }
@@ -151,7 +168,7 @@ public abstract class SessionUtil {
      * Get the SessionManager using the default host/port or
      * do not use RMI (access localhost/0) if isServerInJvm() is true.
      */
-    public static SessionManager getSessionManager() throws RemoteException, NotBoundException {
+    public SessionManager getSessionManager() throws RemoteException, NotBoundException {
         if (isServerInJvm()) {
             return getSessionManager("localhost", 0);
         } else {

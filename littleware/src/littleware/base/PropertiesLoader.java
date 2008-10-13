@@ -1,37 +1,193 @@
 package littleware.base;
 
+import com.google.inject.*;
+
+import com.google.inject.name.Names;
 import java.util.*;
-import java.security.*;
 import java.io.*;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 /**
- * Just provide a utility for loading properties files
+ * Guice module that sets Named attribute Guice constants corresponding
+ * to the property values loaded from a properties file.
+ * Also provides a static utility for loading and overlaying properties files
+ * along a littleware specific search path starting with the classpath,
+ * and progressing through littleware.home, user.home, etc. based locations.
  */
-public class PropertiesLoader {
+public class PropertiesLoader implements Module {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.base.PropertiesLoader");
+    private static Logger olog = Logger.getLogger("littleware.base.PropertiesLoader");
     private static Map<String, Properties> ov_cache = new HashMap<String, Properties>();
+    
+    private String os_littlehome_key = "littleware.home";
+    
+    private  File ofile_home = null;
+    
+    {
+        try {
+            String s_home = System.getProperty( os_littlehome_key );
+            if ( null == s_home ) {
+                s_home = System.getProperty ( "user.home" );
+                if ( null != s_home ) {
+                    s_home += "/.littleware";
+                }
+            }
+            if ( null != s_home ) {
+                File fh_home = new File( s_home );
+                if ( fh_home.isDirectory() && fh_home.canRead() ) {
+                    ofile_home = fh_home;
+                } else if ( ! fh_home.exists() ) {
+                    fh_home.mkdirs();
+                    ofile_home = fh_home;
+                }
+            }
+        } catch ( Exception ex ) {
+            olog.log( Level.WARNING, "Unable to access littleware.home", ex );
+        }
+    }
+    
+    /**
+     * Return System.getProperty( littleware.home ),
+     * else System.getProperty( user.home ) + ".littleware",
+     * else null
+     * 
+     * @return File referencing littleware home directory, or
+     *           null if unable to locate and create
+     */
+    public File getLittleHome () {
+        return ofile_home;
+    }
+    
+    /**
+     * Try to safely save the properties to the given file
+     * by first writing to a temp file, then doing a couple renames.
+     * 
+     * @param props to save
+     * @param fh_output destination
+     * @throws java.io.IOException
+     */
+    public void safelySave( Properties props, File fh_output ) throws IOException {
+        if ( fh_output.exists () ) {
+            if ( fh_output.isDirectory() ) {
+                throw new IOException( "Properties file is a directory: " + fh_output );
+            }
+        }
+        File fh_parent = fh_output.getParentFile();
+        File fh_temp = File.createTempFile( fh_output.getName(), null, fh_parent );
+        FileOutputStream ostream = new FileOutputStream( fh_temp );
+        try {
+            props.store(ostream, "update form littleware" );
+        } finally {
+            ostream.close ();
+        }
+        File fh_safety = new File( fh_parent, 
+                          fh_output.getName() + "." + new Date().getTime() 
+                          );
 
+        if ( fh_output.exists () ) {
+            fh_output.renameTo( fh_safety );
+        }
+        fh_temp.renameTo( fh_output );
+        fh_safety.delete();
+    }
+    
+    /**
+     * Get the default littleware properties file name
+     * 
+     * @return "littleware.properties"
+     */
+    public String  getDefaultProps () {
+        return "littleware.properties";
+    }
+    
+    private final Properties  oprop;
+    
+    
+    private static PropertiesLoader  oloader_default = null;
+    
+    /**
+     * Get the default PropertiesLoader
+     */
+    public static final PropertiesLoader get () {
+        if ( null != oloader_default ) {
+            return oloader_default;
+        }
+        synchronized ( olog ) {
+            if ( null != oloader_default ) {
+                return oloader_default;
+            }
+
+            try {
+                oloader_default = new PropertiesLoader ();
+                return oloader_default;
+            } catch ( IOException ex ) {
+                throw new AssertionFailedException( "Failed to initialize properties loader", ex );
+            }
+        }
+    }
+    
+    /**
+     * Shortcut for new PropoerteisLoader( PropertiesLoader.loadProperties( PropertiesLoader.getLittleProps () )
+     */
+    private PropertiesLoader () throws IOException {
+        oprop = loadProperties( getDefaultProps () );
+    }
+    
+    
+    
+
+    /** 
+     * Configure the GUICE binding String constants according
+     * to the constructor injected Properties.
+     */
+    public void configure( Binder binder_in ) {
+        for( String s_key : oprop.stringPropertyNames() ) {
+            binder_in.bindConstant().annotatedWith( Names.named(s_key)).to( oprop.getProperty(s_key));
+        }
+    }
+ 
+    /**
+     * If fh exists and is ledgible, then load its properties into prop_target,
+     * otherwise NOOP
+     * 
+     * @param prop_target
+     * @param fh
+     */
+    private void loadPropsFromFile( Properties prop_target, File fh ) throws IOException {
+        try {
+            if ( fh.isFile() && fh.canRead() ) {
+                InputStream istream = new FileInputStream ( fh );
+                try {
+                    prop_target.load( istream );
+                } finally {
+                    istream.close ();
+                }
+            }
+        } catch ( SecurityException ex ) {
+            olog.log ( Level.WARNING, "Insufficient privileges to scan prop file: " + fh, ex );
+        }
+    }
+    
     /**
      * Attempt to load the properties file with the given basename
      * if the codebase has permission to access the necessary files.
      * Silently log security exceptions, and continue on if possible.
+     * Overlay properties from the following files
      *
      * <ol>
-     *   <li> First - check if a System property exists with that
-     *             name, and use that system property as the path
-     *             to the properties file if it exists
-     *              </li>
+     *   <li> Properties file in the classpath </li>
      *   <li> If that system property does not exist,
      *           then next check if the file exists under
-     *           the directory referenced by the littleware.install system property
+     *           the directory referenced by the littleware.home system property
+     *          or user.home/littleware.home if littleware.home is not set
      *        </li>
-     * <li> Next check if the properties file is saved in the classpath,
-     *      and can be loaded as a ResourceBundle. </li>
-     * <li> Finally - check the current directory for the file </li>
+     *   <li> Check if a System property exists with that
+     *             name, and use that system property as the path
+     *             to the properties file if it exists.
+     *           If the System property is not set, then check
+     *           the current directory.
+     *          </li>
      * </ol>
      * If the file does not exist, then just return a new Properties
      * instance with the supplied defaults.
@@ -47,90 +203,48 @@ public class PropertiesLoader {
      * @return loaded (if possible) + defaults properties or cache under s_name
      * @exception IOException if file exists, but load fails
      */
-    public static synchronized Properties loadProperties(String s_name, Properties prop_defaults) throws IOException {
+    public synchronized Properties loadProperties(String s_name ) throws IOException {
         Properties prop_filedata = ov_cache.get(s_name);
 
-        if (null == prop_filedata) {
-            prop_filedata = new Properties();
-            ov_cache.put(s_name, prop_filedata);
-            String s_path = null;
-
-            try {
-                s_path = System.getProperty(s_name);
-            } catch (SecurityException e) {
-                olog_generic.log(Level.INFO, "Insufficient privileges to access System property: " + s_name + ", caught: " + e);
-            }
-
-            if (null == s_path) {
-                String s_workdir = null;
+        if (null != prop_filedata) {
+            return (Properties) prop_filedata.clone ();
+        }
+        prop_filedata = new Properties();
+        ov_cache.put( s_name, prop_filedata );
+        {
+            InputStream istream = PropertiesLoader.class.getClassLoader().getResourceAsStream(s_name);
+            if ( null != istream ) {
                 try {
-                    s_workdir = System.getProperty("littleware.install");
-                } catch (SecurityException e) {
-                    olog_generic.log(Level.INFO, "Insufficient privileges to access System property: littleware.install, caught: " + e);
-                }
-                if (null != s_workdir) {
-                    s_path = s_workdir + "/" + s_name;
-                    File fh_props = new File(s_path);
-                    if (!fh_props.exists()) {
-                        olog_generic.log(Level.FINE, "littleware.install path does not exist for " + fh_props.getAbsolutePath());
-                        s_path = s_name;
-                    }
-                } else if ( s_name.endsWith( ".properties" ) ) {
-                    olog_generic.log ( Level.FINE, "Trying to load as resource bundle: " + s_name );
-                    String s_resource = s_name.substring( 0, s_name.lastIndexOf( ".properties" ) );
-                    try {
-                        ResourceBundle bundle_in = ResourceBundle.getBundle( s_resource );
-                        
-                        Enumeration<String>  v_keys = bundle_in.getKeys ();
-                        if ( v_keys.hasMoreElements() ) {
-                            while ( v_keys.hasMoreElements () ) {
-				String s_key = v_keys.nextElement ();
-                                prop_filedata.setProperty( s_key, (String) bundle_in.getObject( s_key ) );
-                            }
-                            return prop_filedata;
-                        }
-                    } catch ( Exception e ) {
-                        olog_generic.log ( Level.FINE, "Unable to load as resource bundle: " + s_name );
-                        s_path = s_name;
-                    }
-                } else {                    
-                    olog_generic.log(Level.FINE, "littleware.install system property not set");
-                    s_path = s_name;
+                    prop_filedata.load(istream);
+                } finally {
+                    istream.close ();
                 }
             }
-            try {
-                File fh_props = new File(s_path);
-                if (fh_props.exists()) {
-                    InputStream io_props = null;
-                    try {
-                        io_props = new FileInputStream(fh_props);
-                        prop_filedata.load(io_props);
-                    } catch (IOException e) {
-                        olog_generic.log(Level.WARNING, "Failure loading properties file: " + s_path + ", caught: " + e);
-                        throw e;
-                    } finally {
-                        if (null != io_props) {
-                            try {
-                                io_props.close();
-                            } catch (Exception e) {
-                            }
-                        }
-                    }
-                } else {
-                    olog_generic.log(Level.INFO, "Not loading properties file that does not exist: " + s_path);
-                }
-            } catch (SecurityException e) {
-                olog_generic.log(Level.WARNING, "Security constrained environment, may not access: " + s_path + ", caught: " + e);
+        }
+        File fh_home = getLittleHome ();
+        if ( null != fh_home ) {
+            loadPropsFromFile( prop_filedata, new File( fh_home, s_name ) );
+        }
+        try {
+            String s_path = System.getProperty(s_name);
+            if ( null != s_path ) {
+                loadPropsFromFile( prop_filedata, new File( s_path ) );
             }
+        } catch (SecurityException e) {
+            olog.log(Level.INFO, "Insufficient privileges to access System property: " + s_name, e );
         }
 
-        Properties prop_result = new Properties(prop_defaults);
-        for (Enumeration r_i = prop_filedata.propertyNames(); r_i.hasMoreElements();) {
-            String s_key = (String) r_i.nextElement ();
-            prop_result.put(s_key, prop_filedata.get(s_key));
-        }
-        return prop_result;
+        return (Properties) prop_filedata.clone ();        
+    }
+
+    /**
+     * Shortcut for loadProperties( getDefaultProps )
+     * @throws java.io.IOException
+     */
+    public Properties loadProperties () throws IOException {
+        return loadProperties( getDefaultProps () );
     }
 }
+
 // littleware asset management system
 // Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

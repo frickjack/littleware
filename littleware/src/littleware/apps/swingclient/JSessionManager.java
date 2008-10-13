@@ -167,7 +167,7 @@ public class JSessionManager extends JPanel implements LittleTool, SessionManage
 	 * Constructor pulls internal SessionManager from SessionUtil.getSessionManager()
 	 */
 	public JSessionManager () throws RemoteException, NotBoundException {
-		om_session = SessionUtil.getSessionManager ();
+		om_session = SessionUtil.get ().getSessionManager ();
 		init ( true );
 	}
 	

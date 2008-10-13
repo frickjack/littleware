@@ -82,7 +82,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
          * We are only interested in regulating DynamicEnum registration on the server.
          */
         try {
-            Properties prop_littleware = PropertiesLoader.loadProperties("littleware.properties", new Properties());
+            Properties prop_littleware = PropertiesLoader.get ().loadProperties();
             String s_runtime = prop_littleware.getProperty("littleware.runtime");
             ob_is_server = ((null != s_runtime) && s_runtime.equals("server"));
         } catch (Exception e) {

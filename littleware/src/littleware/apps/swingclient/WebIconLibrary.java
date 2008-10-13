@@ -1,7 +1,8 @@
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.net.URL;
+import com.google.inject.name.Named;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
@@ -21,9 +22,11 @@ import littleware.apps.tracker.TrackerAssetType;
 
 /**
  * Icon library that builds icons from images
- * referenced off the littleware web site
+ * referenced off the littleware web site or
+ * from a jar in the classpath
  * under s_url_root.
- * Default s_url_root is littleware.frickjack.com/littleware/lib/icons
+ * Default s_url_root is http://littleware.frickjack.com/littleware/lib/icons,
+ * but little_icons.jar has icons under littleware/apps/swingclient/icons.
  */
 @Singleton
 public class WebIconLibrary implements IconLibrary {
@@ -117,7 +120,15 @@ public class WebIconLibrary implements IconLibrary {
 
     }
     
-    private String               os_url_root = "littleware.frickjack.com/littleware/lib/icons";
+    private String               os_url_root = "http://littleware.frickjack.com/littleware/lib/icons";
+    
+    /**
+     * Inject root-url for icons
+     */
+    @Inject
+    public WebIconLibrary( @Named( "icon.base_url" ) String s_url_root ) {
+        os_url_root = s_url_root;
+    }
     
     /**
      * Configure library to pull from default root url: 
@@ -131,12 +142,14 @@ public class WebIconLibrary implements IconLibrary {
     /**
      * Configure the root path from which to load the UI .gif icons.
      * A web-based icon library might expand the root out like this:
-     *            http://s_url_root/apache/a.gif,
-     *            http://s_url_root/apache/right.gif
+     *            s_url_root/apache/a.gif,
+     *            s_url_root/apache/right.gif
+     * , if the url does not start with http:, then assumed to 
+     * reference the classpath.
      *
      * @param s_root hostname/rootdir under which
      *                     the expected icon directory structure
-     *                     http://s_url_root/hierarchy
+     *                     s_url_root/hierarchy
      * @exception MalformedURLException if s_url_root leads to illegal URL
      */
     public void setRoot ( String s_url_root ) throws MalformedURLException {
@@ -153,7 +166,12 @@ public class WebIconLibrary implements IconLibrary {
         String s_url_tail = ov_asset_urls.get( n_asset );
         if ( null != s_url_tail ) {
             try {
-                URL url_icon = new URL ( "http://" + os_url_root + s_url_tail );
+                URL url_icon = null;
+                if ( os_url_root.startsWith( "http:" ) ) {
+                    url_icon = new URL ( os_url_root + s_url_tail );
+                } else {
+                    url_icon = WebIconLibrary.class.getResource( os_url_root + s_url_tail );
+                }
                 icon_result = new ImageIcon( url_icon );
             } catch ( MalformedURLException e ) {
                 olog.log( Level.WARNING, "Invalid icon root property, caught: " + e );
@@ -178,10 +196,18 @@ public class WebIconLibrary implements IconLibrary {
         }
         String s_url_tail = ov_named_urls.get( s_icon );
         if ( null == s_url_tail ) {
+            olog.log( Level.WARNING, "Request for unregistered icon: " + s_icon );
             return null;
         }
-        try {
-            URL url_icon = new URL ( "http://" + os_url_root + s_url_tail );
+        try {            
+            URL url_icon = null;
+            if ( os_url_root.startsWith( "http:" ) ) {
+                url_icon = new URL ( os_url_root + s_url_tail );
+            } else {
+                url_icon = WebIconLibrary.class.getResource( os_url_root + s_url_tail );
+            }
+            
+            olog.log( Level.FINE, "Loading icon: " + url_icon );
             icon_result = new ImageIcon( url_icon );
         } catch( MalformedURLException e ) {
             olog.log( Level.WARNING, "Failed to map icon URL, caught: " + e );

@@ -76,7 +76,7 @@ public class AssetResourceBundle extends ListResourceBundle {
             Properties prop_database_default = new Properties();
 
             prop_database_default.put("derby_workarea", "/tmp/littleware");
-            prop_database = PropertiesLoader.loadProperties("littleware_jdbc.properties", prop_database_default);
+            prop_database = PropertiesLoader.get().loadProperties("littleware_jdbc.properties");
         } catch (IOException e) {
             olog_generic.log(Level.SEVERE, "Failed properties load, caught: " + e);
             throw new AssertionFailedException("Failed to load jdbc props, caught: " + e, e);
@@ -173,7 +173,7 @@ public class AssetResourceBundle extends ListResourceBundle {
             Collections.addAll(v_load_classes, v_always);
         }
         try {
-            Properties prop_user = PropertiesLoader.loadProperties("littleware.properties", new Properties());
+            Properties prop_user = PropertiesLoader.get().loadProperties();
             String s_user_classes = prop_user.getProperty("bootstrap_classes");
 
             if (null != s_user_classes) {

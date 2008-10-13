@@ -28,9 +28,7 @@ public class SimpleBucketManager implements BucketManager {
     private static  String   os_root_root = "";
     static {
         try {
-            Properties prop_defaults = new Properties ();
-            prop_defaults.put( "littleware.bucket.root", "" );
-            os_root_root = PropertiesLoader.loadProperties( "littleware.properties", prop_defaults).getProperty( "littleware.bucket.root" );
+            os_root_root = PropertiesLoader.get ().loadProperties( ).getProperty( "littleware.bucket.root" );
         } catch ( IOException e ) {
             olog_generic.log( Level.SEVERE, "Caught unexpected loading littleware.bucket.root property from littleware.properties", e );
             os_root_root = "";

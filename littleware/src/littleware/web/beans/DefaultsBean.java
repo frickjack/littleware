@@ -32,9 +32,7 @@ public class DefaultsBean {
     private static synchronized void initialize () {
         if ( ! ob_initialized ) {
             try {
-                Properties      prop_littleware = PropertiesLoader.loadProperties ( "littleware.properties",
-                                                                            new Properties () 
-                                                                            );
+                Properties      prop_littleware = PropertiesLoader.get().loadProperties ( );
                     
                 ov_defaults.put ( "contact_email", prop_littleware.getProperty ( "web.info.email" ) );
                 ov_defaults.put ( "serverName", prop_littleware.getProperty ( "web.hostname" ) );

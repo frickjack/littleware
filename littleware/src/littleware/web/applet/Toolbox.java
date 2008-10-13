@@ -148,8 +148,8 @@ public class Toolbox extends JApplet {
                 s_server_host = url_codebase.getHost ();
             }
             int i_server_port = (null == s_server_port) ? 
-                SessionUtil.getRegistryPort():Integer.parseInt( s_server_port );
-            om_session = SessionUtil.getSessionManager ( s_server_host, i_server_port );
+                SessionUtil.get().getRegistryPort():Integer.parseInt( s_server_port );
+            om_session = SessionUtil.get().getSessionManager ( s_server_host, i_server_port );
         }                    
 
         

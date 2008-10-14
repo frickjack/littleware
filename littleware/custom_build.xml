@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project 
+     name="littleware" 
+     basedir="." 
+     default="serverjar"
+     xmlns="antlib:org.apache.tools.ant"
+  >
+  <property name="jardir" 
+	     location="/Users/pasquini/Documents/Code/share/jar" />
+ <property name="srcdir.littleware" location="src/littleware" />
+ <property name="srcdir.wizard" location="src/com" />
+ <property name="builddir" location="build/ant" />
+ <property name="build_rmicgi" location="${builddir}/rmicgi" />
+ <property name="buildclient" location="${builddir}/client" />
+ <property name="buildserver" location="${builddir}/server" />
+ <property name="docdir" location="${builddir}/doc" />
+ <property name="rmicgijar" location="${builddir}/littleRmiCgi.jar" />
+ <property name="clientjar" location="${builddir}/littleware.jar" />
+ <property name="serverjar" location="${builddir}/littleServer.jar" />
+
+ <path id="clientclasspath">
+	 <pathelement location="${jardir}/bsf-2.4.0.jar" />
+	 <pathelement location="${jardir}/commons-dbutils.jar" />
+	 <pathelement location="${jardir}/commons-logging.jar" />
+	 <pathelement location="${jardir}/derby-10.4.2.0.jar" />
+	 <pathelement location="${jardir}/guice-1.0.jar" />
+	 <pathelement location="${jardir}/javaee-1.4.jar" />
+	 <pathelement location="${jardir}/js.jar" />
+	 <pathelement location="${jardir}/jython.jar" />
+	 <pathelement location="${jardir}/junit3.8.jar" />
+         <pathelement location="${jardir}/littleIcons-0.0.jar" />
+	 <pathelement location="${jardir}/mail.jar" />
+	 <pathelement location="${jardir}/java-getopt-1.0.13.jar" />
+	 <pathelement location="${jardir}/proxool-0.9.1.jar" />
+ </path>
+ <path id="serverclasspath">
+   <path refid="clientclasspath" />
+   <pathelement location="${clientjar}" />
+ </path>
+ <path id="testclasspath">
+   <path refid="serverclasspath" />
+   <pathelement location="${serverjar}" />
+   <pathelement location="${jardir}/postgresql.jar" />
+ </path>
+
+ <target name="teststuff">
+    <property name="serverclasspath" refid="serverclasspath" />
+    <echo message="Serverclasses: ${serverclasspath}" />
+ </target>
+
+ <target name="prepare">
+   <mkdir dir="${builddir}" />
+   <mkdir dir="${build_rmicgi}" />
+   <mkdir dir="${buildclient}" />
+   <mkdir dir="${buildserver}" />
+ </target>
+
+ <target name="clean"
+         description="Clean the build area"
+      >
+  <delete dir="${builddir}"/>
+ </target>
+
+ <target name="clientclasses" depends="prepare">
+  <javac srcdir="${srcdir.littleware}:${srcdir.wizard}" 
+          destdir="${buildclient}" debug="true"
+	  target="1.5"
+      >
+      <!--
+   <compilerarg value="-Xlint:unchecked"/>
+     -->
+   <exclude name="apps/calendar/**" />
+   <exclude name="alarmClock/**" />
+   <exclude name="apps/backup/**" />
+   <exclude name="browser/**" />
+   <exclude name="calendar/**" />
+   <exclude name="cookbook/**" />
+   <exclude name="db/**" />
+   <exclude name="trash/**" />
+   <exclude name="3rdparty/**" />
+   <exclude name="**/server/**" />
+   <exclude name="**/test/**" />
+   <classpath refid="clientclasspath" />
+  </javac>
+ </target>
+
+ <target name="serverclasses" 
+          depends="clientjar"
+      >
+  <javac srcdir="${srcdir.littleware}" 
+          destdir="${buildserver}" debug="true"
+	  target="1.5"
+      >
+   <include name="**/server/**" />
+   <include name="**/test/**" />
+   <exclude name="alarmClock/**" />
+   <include name="db/**" />
+   <classpath refid="serverclasspath" />
+  </javac>
+ </target>
+
+ <target name="allclasses" depends="clientclasses,serverclasses">
+ </target>
+
+ <target name="compile" depends="allclasses">
+ </target>
+
+ <target name="clientjar" 
+         depends="clientclasses"
+	 description="build littleware.jar"
+      >
+    <copy todir="${buildclient}/littleware/base/resources">
+        <fileset dir="${srcdir.littleware}/base/resources" />
+    </copy>
+    <copy todir="${buildclient}/littleware/apps/swingclient/wizard/resources">
+        <fileset dir="${srcdir.littleware}/apps/swingclient/wizard/resources" />
+    </copy>
+    <copy todir="${buildclient}/com/nexes/wizard">
+        <fileset dir="${srcdir.wizard}/nexes/wizard" casesensitive="yes">
+           <include name="*.gif"/>
+           <include name="*.properties"/>
+         </fileset>
+    </copy>
+    <copy todir="${buildclient}/META-INF">
+        <fileset dir="${srcdir.littleware}/web/tags/META-INF" />
+    </copy>
+    <copy todir="${buildclient}/META-INF">
+        <fileset dir="${srcdir.littleware}/META-INF" />
+    </copy>
+    <jar id="jarclient" jarfile="${clientjar}"
+        basedir="${buildclient}"
+        index="true"
+        manifest="${buildclient}/META-INF/CLIENT_MANIFEST.MF"
+	level="9"
+     />
+ </target>
+ <target name="rmicgijar" 
+         depends="clientclasses"
+	 description="build littleRmiCgi.jar"
+      >
+    <copy todir="${build_rmicgi}/littleware/web/servlet">
+        <fileset dir="${buildclient}/littleware/web/servlet" />
+    </copy>
+    <jar id="jar_rmicgi" jarfile="${rmicgijar}"
+        basedir="${build_rmicgi}"
+        index="true"
+	level="9"
+     />
+ </target>
+
+
+ <target name="serverjar" 
+         depends="serverclasses"
+	 description="build littleServer.jar"
+      >
+    <jar id="jarserver" jarfile="${serverjar}"
+      basedir="${buildserver}"
+      index="true"
+      manifest="${buildclient}/META-INF/SERVER_MANIFEST.MF"
+     />
+ </target>
+
+ <target name="javadoc" 
+         description="Build javadoc pages"
+     >
+     <javadoc
+           destdir="${docdir}/api"
+           author="true"
+           version="true"
+           use="true"
+           overview="src/littleware/overview.html"
+           windowtitle="Littleware API"
+        >
+
+    <packageset dir="lib/src" defaultexcludes="yes" />
+    <packageset dir="src" defaultexcludes="yes">
+      <exclude name="littleware/apps/calendar/**" />
+      <exclude name="littleware/alarmClock/**" />
+      <exclude name="littleware/apps/backup/**" />
+      <exclude name="littleware/browser/**" />
+      <exclude name="littleware/calendar/**" />
+      <exclude name="littleware/cookbook/**" />
+      <exclude name="littleware/gradebook/**" />
+      <exclude name="littleware/trash/**" />
+      <exclude name="littleware/3rdparty/**" />
+      <exclude name="play/**" />
+    </packageset>
+
+    <doctitle><![CDATA[<h1>Test</h1>]]></doctitle>
+    <bottom><![CDATA[<i>Copyright &#169; 2007 Littleware All Rights Reserved. (LGPL2) </i>]]></bottom>
+    <link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
+    <link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/>
+  </javadoc>
+ </target>
+
+ <target name="junittest" 
+         description="Run through the entier client+server junit test suite"
+	 depends="serverjar"
+     >
+    <java classname="littleware.test.PackageTestSuite" fork="true">
+        <classpath refid="testclasspath" />
+        <jvmarg value="-Djava.security.manager"/>
+        <jvmarg value="-Djava.security.auth.login.config=properties/login.config" />
+        <jvmarg value="-Dlittleware.install=." />
+        <jvmarg value="-Djava.util.logging.config.file=properties/logging.properties" />
+        <jvmarg value="-Dlittleware.properties=properties/littleware.properties" />
+        <jvmarg value="-Dlittleware_jdbc.properties=properties/littleware_jdbc.properties" />
+        <jvmarg value="-Dsun.rmi.transport.tcp.connectionPool=true" />
+        <jvmarg value="-Djava.security.policy=properties/littleware.policy" />
+    </java>
+
+ </target>
+ 
+ <target name="lgo" 
+         description="Launch the lgo app"
+	 depends="clientjar"
+     >
+    <java classname="littleware.apps.lgo.LgoBrowserCommand" fork="true">
+        <classpath refid="serverclasspath" />
+        <jvmarg value="-Djava.util.logging.config.file=properties/logging.properties" />
+    </java>
+
+ </target>
+
+ <target name="gozip" 
+         description="Compile littlego.zip"
+	 depends="clientjar"
+     >
+   <zip destfile="littlego.zip"
+	level="9"
+      >
+     <zipfileset dir="utilities/littleware" prefix="littlego/Library/Python/littleware">
+       <exclude name="**/CVS/**" />
+       <exclude name="**/*.pyc" />
+     </zipfileset>
+     <zipfileset dir="build/ant" includes="little*.jar" prefix="littlego/Library/Java" />
+     <zipfileset dir="lib" prefix="littlego/Library/Java">
+       <include name="ostermillerutils.jar"/>
+       <include name="java-getopt.jar"/>
+       <include name="mail*.jar"/>
+     </zipfileset>
+     <zipfileset dir="utilities/XML" prefix="littlego/Library/XML" />
+     <zipfileset dir="utilities/scripts" includes="colorme.py"
+		 fullpath="littlego/Library/Bin/colorme" 
+		 />
+     <zipfileset dir="utilities" includes="README.html"
+		 fullpath="littlego/README.html" 
+		 />
+     <zipfileset dir="utilities/scripts" includes="finder_copy.py"
+		 fullpath="littlego/Library/Bin/finder_copy" 
+		 />
+     <zipfileset dir="utilities/scripts" includes="finder_trash.py"
+		 fullpath="littlego/Library/Bin/finder_trash" 
+		 />
+     <zipfileset dir="utilities/scripts" includes="littlego.py"
+		 fullpath="littlego/Library/Bin/littlego" 
+		 />
+     <zipfileset dir="utilities/scripts" includes="unix_erase.py"
+		 fullpath="littlego/Library/Scripts/Littleware/unix_erase.py" 
+		 />
+     <zipfileset dir="utilities/scripts" includes="pb_*.sh"
+		 prefix="littlego/Library/Scripts/Littleware"
+		 />
+
+   </zip>
+ </target>
+
+ <target name="distzip" 
+         description="Compile littleware_dist.zip"
+	 depends="serverjar,javadoc,gozip"
+     >
+   <zip destfile="littleware_dist.zip"
+	level="9"
+	>
+     <zipfileset dir="lib" prefix="littleware/lib">
+       <include name="activation.jar" />
+       <include name="bsf.jar" />
+       <include name="commons-dbutils.jar" />
+       <include name="commons-logging.jar" />
+       <include name="derby.jar" />
+       <include name="javaee.jar" />
+       <include name="js.jar" />
+       <include name="jython.jar" />
+       <include name="junit3.jar" />
+       <include name="mail.jar" />
+       <include name="ostermillerutils.jar" />
+       <include name="java-getopt.jar" />
+       <include name="proxool.jar" />
+   </zipfileset>
+   <zipfileset dir="src" prefix="littleware/src">
+     <exclude name="**/CVS/**" />
+     <exclude name="littleware/apps/calendar/**" />
+     <exclude name="littleware/alarmClock/**" />
+     <exclude name="littleware/apps/backup/**" />
+     <exclude name="littleware/browser/**" />
+     <exclude name="littleware/calendar/**" />
+     <exclude name="littleware/cookbook/**" />
+     <exclude name="littleware/gradebook/**" />
+     <exclude name="littleware/trash/**" />
+     <exclude name="littleware/3rdparty/**" />
+     <exclude name="play/**" />
+   </zipfileset>
+   <zipfileset dir="build/ant/doc/api" prefix="littleware/doc/api" />
+   <zipfileset dir="littleware.xcodeproj" prefix="littleware/littleware.xcodeproj" />
+   <zipfileset dir="ddl" prefix="littleware/ddl" />
+   <zipfileset dir="properties" prefix="littleware/properties" />
+   <zipfileset dir="." includes="build.xml" fullpath="littleware/build.xml" />
+   <zipfileset dir="build/ant" includes="little*.jar" prefix="littleware/lib" />
+   </zip>
+ </target>
+ 
+</project>

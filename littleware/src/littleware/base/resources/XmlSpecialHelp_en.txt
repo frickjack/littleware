@@ -1,0 +1,20 @@
+littleware.base.XmlSpecial
+
+Overview:
+   This class provides methods for encoding/decoding
+the XML special characters (<>&'") in a String for
+storing/extracting that String within an XML element.
+
+Command line:
+    java -cp littleware.jar:java-getopt.jar littleware.base.XmlSpecial
+            [-h|--help] [--version]
+            [[-e|--encode(default)]|[-d|--decode]] [stdin(default)|clipboard]
+Where
+          -e|--encode encodes XML-special characters (<>&"') - default
+          -d|--decode decodes encoded special characters (&lt;,&gt;,...)
+from the specified source.
+If 'stdin' is the source, then the result is sent to stdout.
+If 'clipboard' is the source, then the input string is pulled
+from the system clipboard, and the result-string is paisted
+back to the clipbaord.
+

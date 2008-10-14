@@ -1,0 +1,50 @@
+<body>
+General javax.swing based littleware client components.
+Implements MVC pattern.
+I do not have much experience with MVC based design,
+but here is what we have implemented.
+
+<p>
+The MVC pattern 
+maps naturally to UI design for applications
+with centrally managed data model objects that
+need to be viewed and manipulated by different
+viewers and controllers.  For example -
+a TemparatureTracker model might have many
+views and controls observing it.
+The AssetModel, JAssetView, JAssetUpdater follow
+this kind of pattern.
+</p>
+<p>
+The littleware service managers are database driven,
+side effect generating interfaces. 
+Most of the littleware.apps.swingclient widgets
+focus on providing a UI controls for manipulating
+a littleware programming interface rather than 
+implementing observers of an in-memory data model.
+These control-oriented widgets take the following
+approach to MVC - which is kind of weird.
+<ul>
+<li> Model - the various littleware service interfaces
+             define littleware access to the data model.
+			</li>
+<li> View - each class in littleware.apps.swingclient
+		   implementing the LittleTool interface
+           defines a swing based views and controls that
+		   extend a littleware service manager
+		   (SessionManager, SessionHelper, ...)
+		   for UI access.
+		    </li>
+<li> Controller - the LittleTool interface that Views implement provides methods
+          by which application controllers may register
+		  listeners for handling LittleEvent type events triggered by
+		  UI actions against littleware service manager methods.
+		  The idea is that a listening controller may update internal state
+		  or UI configuration based on the LittleEvent events resulting from
+		  littleware API calls that the view/control
+		  initialted.
+           </li>
+</ul>
+</p>
+
+</body>

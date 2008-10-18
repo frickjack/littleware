@@ -169,11 +169,12 @@
            author="true"
            version="true"
            use="true"
-           overview="src/littleware/overview.html"
            windowtitle="Littleware API"
         >
+	<!--
+           overview="src/littleware/overview.html"
+	   -->
 
-    <packageset dir="lib/src" defaultexcludes="yes" />
     <packageset dir="src" defaultexcludes="yes">
       <exclude name="littleware/apps/calendar/**" />
       <exclude name="littleware/alarmClock/**" />
@@ -188,9 +189,8 @@
     </packageset>
 
     <doctitle><![CDATA[<h1>Test</h1>]]></doctitle>
-    <bottom><![CDATA[<i>Copyright &#169; 2007 Littleware All Rights Reserved. (LGPL2) </i>]]></bottom>
-    <link href="http://java.sun.com/j2se/1.5.0/docs/api/" />
-    <link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/>
+    <bottom><![CDATA[<i>Copyright &#169; 2008 Littleware, LGPL2 licensed for general use.</i>]]></bottom>
+    <link href="http://java.sun.com/javase/6/docs/api/" />
   </javadoc>
  </target>
 

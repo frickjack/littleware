@@ -107,7 +107,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
              * Context jndi_context = new InitialContext();
              * jndi_context.rebind("/littleware/SessionManager", om_session );
              */
-            rmi_registry.bind("littleware/SessionManager", om_session);
+            rmi_registry.rebind("littleware/SessionManager", om_session);
         } catch (Exception e) {
             //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
             olog_generic.log( Level.SEVERE, "Failed to bind to RMI registry " +
@@ -197,7 +197,12 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         if (null != ref_helper) {
             SessionHelper m_helper = ref_helper.get();
             if (null != m_helper) {
-                return m_helper;
+                // Make sure the sesion hasn't expireda
+                if ( m_helper.getSession().getEndDate().getTime() < new Date().getTime () ) {
+                    return m_helper;
+                } else { 
+                    throw new SessionExpiredException ();
+                }
             }
         }
 

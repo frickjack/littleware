@@ -359,6 +359,7 @@ public class RmiTunnelServlet extends HttpServlet
      * @exception  ServletException and IOException when invoking
      *             methods of <code>req<code> or <code>res<code>.  
      */
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 	
@@ -419,6 +420,7 @@ public class RmiTunnelServlet extends HttpServlet
      * @exception  ServletException and IOException when invoking
      *             methods of <code>req<code> or <code>res<code>.
      */
+    @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 

@@ -17,7 +17,7 @@ import java.util.logging.Level;
  */
 public class PropertiesLoader implements Module {
 
-    private static Logger olog = Logger.getLogger("littleware.base.PropertiesLoader");
+    private static Logger olog = Logger.getLogger( PropertiesLoader.class.getName() );
     private static Map<String, Properties> ov_cache = new HashMap<String, Properties>();
     
     private String os_littlehome_key = "littleware.home";

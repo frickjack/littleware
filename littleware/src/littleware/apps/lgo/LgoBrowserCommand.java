@@ -8,6 +8,7 @@ package littleware.apps.lgo;
 import com.google.inject.*;
 
 import java.awt.BorderLayout;
+import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -160,8 +161,18 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
             LgoBrowserCommand command = injector.getInstance( LgoBrowserCommand.class );
             command.ob_exit_on_close = true;
             command.runDynamic( "/byname:littleware.home:type:littleware.HOME/" );
-        } catch ( Exception e ) {
-            olog.log( Level.SEVERE, "Failed command, caught: " + e, e );
+        } catch ( final Exception ex ) {
+            olog.log( Level.SEVERE, "Failed command, caught: " + ex, ex );
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+
+                    public void run() {
+                        JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage(), "Launch failed", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            } catch (Exception ex1) {
+                olog.log(Level.SEVERE, null, ex1);
+            } 
             System.exit( 1 );
         }
     }    

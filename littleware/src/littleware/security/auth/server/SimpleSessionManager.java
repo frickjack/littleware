@@ -13,6 +13,7 @@ import javax.security.auth.login.*;
 import java.lang.ref.WeakReference;
 import javax.naming.InitialContext;
 import javax.naming.Context;
+
 import java.net.URL;
 import java.net.InetAddress;
 import littleware.asset.*;
@@ -166,12 +167,28 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     }
 
     public SessionHelper login(String s_name, String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        LoginContext x_login = new LoginContext("littleware.security.simplelogin", 
-                new SimpleNamePasswordCallbackHandler(s_name, s_password)
-                );
-        x_login.login();
+        /*..
+          Avoid chicken-and-egg problem with registering our own
+          login config with our parent J2EE container.
 
+        LoginContext x_login = new LoginContext("littleware.security.simplelogin", 
+                                                new SimpleNamePasswordCallbackHandler(s_name, s_password)
+                                                );
         Subject j_caller = x_login.getSubject();
+        */
+
+        // Do a little LoginContext sim - need to clean this up
+        Subject j_caller = new Subject ();
+        javax.security.auth.spi.LoginModule module = new PasswordDbLoginModule();
+        module.initialize ( j_caller, 
+                            new SimpleNamePasswordCallbackHandler(s_name, s_password),
+                            new HashMap<String,String>(), 
+                            new HashMap<String,String>()
+                            );
+        module.login();
+        module.commit ();
+        j_caller.setReadOnly ();
+    
         PrivilegedExceptionAction act_setup_session = new SetupSessionAction(s_name, s_session_comment);
         try {
             LittleSession a_session = null;

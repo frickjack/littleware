@@ -7,7 +7,7 @@
      xmlns="antlib:org.apache.tools.ant"
   >
   <property name="jardir" 
-	     location="/Users/pasquini/Documents/Code/share/jar" />
+	     location="../../../../share/jar" />
  <property name="srcdir.littleware" location="src/littleware" />
  <property name="srcdir.wizard" location="src/com" />
  <property name="builddir" location="build/ant" />
@@ -28,7 +28,7 @@
 	 <pathelement location="${jardir}/javaee-1.4.jar" />
 	 <pathelement location="${jardir}/js.jar" />
 	 <pathelement location="${jardir}/jython.jar" />
-	 <pathelement location="${jardir}/junit3.8.jar" />
+	 <pathelement location="${jardir}/junit-3.8.1.jar" />
          <pathelement location="${jardir}/littleIcons-0.0.jar" />
 	 <pathelement location="${jardir}/mail.jar" />
 	 <pathelement location="${jardir}/java-getopt-1.0.13.jar" />

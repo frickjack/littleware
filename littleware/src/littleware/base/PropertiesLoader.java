@@ -236,6 +236,28 @@ public class PropertiesLoader implements Module {
 
         return (Properties) prop_filedata.clone ();        
     }
+    
+    
+    /**
+     * Littleware server still has a ResourceBundle based pull-injection 
+     * mechanism.  We want to migrate the server to Guice (like the client),
+     * but also want to look into OSGi, etc.  Turns out the glassfish
+     * container ResourceBundle resolver is not finding our "bundle" classes,
+     * so we use this little bundle loader as a workaround for now until
+     * we can refactor the server bootstrap to a better system.
+     * 
+     * @param s_bundle_class class name
+     * @return new instance of requested RequestBundle class
+     */
+    public ResourceBundle getBundle( String s_bundle_class ) {
+        try {
+            return (ResourceBundle) Class.forName( s_bundle_class ).newInstance();
+        } catch ( RuntimeException ex ) {            
+            throw ex;
+        } catch ( Exception ex ) {
+            throw new IllegalArgumentException( "Unable to load ResourceBundle as class: " + s_bundle_class, ex );
+        }
+    }
 
     /**
      * Shortcut for loadProperties( getDefaultProps )

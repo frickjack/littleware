@@ -142,7 +142,7 @@ public class SessionUtil {
                 PrivilegedExceptionAction<SessionManager> act_setup = new PrivilegedExceptionAction<SessionManager>() {
 
                     public SessionManager run() throws Exception {
-                        ResourceBundle bundle_security = ResourceBundle.getBundle("littleware.security.server.SecurityResourceBundle");
+                        ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
                         SessionManager m_session = (SessionManager) bundle_security.getObject("SessionManager");
                         SubjectInvocationHandler<SessionManager> handler_session = new SubjectInvocationHandler<SessionManager>(null, m_session, olog, new SimpleSampler());
                         return (SessionManager) java.lang.reflect.Proxy.newProxyInstance(SessionManager.class.getClassLoader(),

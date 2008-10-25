@@ -31,7 +31,7 @@ public class LittleRMISocketFactory implements Serializable, RMIClientSocketFact
         try {
             return ofactory_default.createSocket( s_host, i_port );
         } catch ( Exception e ) {
-            olog.log( Level.FINE, "Failed default socket connect, falling back to CGI", e );
+            olog.log( Level.FINE, "Failed default socket connect to " + s_host + ":" + i_port + ", falling back to CGI", e );
             // Otherwise, fallback to CGI
             return ofactory_cgi.createSocket( s_host, i_port );
         }

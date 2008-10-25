@@ -127,7 +127,7 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                 public AssetManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
                         GeneralSecurityException, RemoteException {
                     if (null == ofactory_asset_manager) {
-                        ResourceBundle bundle_asset = ResourceBundle.getBundle("littleware.asset.server.AssetResourceBundle");
+                        ResourceBundle bundle_asset = PropertiesLoader.get().getBundle("littleware.asset.server.AssetResourceBundle");
                         ofactory_asset_manager = (ServiceProviderFactory<AssetManager>) bundle_asset.getObject("AssetManagerServiceProvider");
                     }
                     return ofactory_asset_manager.createServiceProvider(m_helper);
@@ -144,7 +144,7 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                 public AssetSearchManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
                         GeneralSecurityException, RemoteException {
                     if (null == ofactory_search_manager) {
-                        ResourceBundle bundle_asset = ResourceBundle.getBundle("littleware.asset.server.AssetResourceBundle");
+                        ResourceBundle bundle_asset = PropertiesLoader.get().getBundle("littleware.asset.server.AssetResourceBundle");
                         ofactory_search_manager = (ServiceProviderFactory<AssetSearchManager>) bundle_asset.getObject("AssetSearchServiceProvider");
                     }
                     return ofactory_search_manager.createServiceProvider(m_helper);
@@ -175,7 +175,7 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                 public AccountManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
                         GeneralSecurityException, RemoteException {
                     if (null == ofactory_account_manager) {
-                        ResourceBundle bundle_security = ResourceBundle.getBundle("littleware.security.server.SecurityResourceBundle");
+                        ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
                         ofactory_account_manager = (ServiceProviderFactory<AccountManager>) bundle_security.getObject("AccountServiceProvider");
                     }
                     return ofactory_account_manager.createServiceProvider(m_helper);
@@ -192,7 +192,7 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                 public AclManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
                         GeneralSecurityException, RemoteException {
                     if (null == ofactory_acl_manager) {
-                        ResourceBundle bundle_security = ResourceBundle.getBundle("littleware.security.server.SecurityResourceBundle");
+                        ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
                         ofactory_acl_manager = (ServiceProviderFactory<AclManager>) bundle_security.getObject("AclServiceProvider");
                     }
                     return ofactory_acl_manager.createServiceProvider(m_helper);

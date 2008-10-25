@@ -2,6 +2,7 @@ package littleware.security;
 
 import java.util.ResourceBundle;
 import java.security.*;
+import littleware.base.PropertiesLoader;
 
 /**
  * Little PrivledgedAction implementation that attempts to
@@ -29,7 +30,7 @@ public class GetGuardedResourceAction implements PrivilegedAction<Object> {
 	 */
 	public GetGuardedResourceAction ( String s_resource_bundle,
 								String s_resource ) {
-		ox_bundle = ResourceBundle.getBundle ( s_resource_bundle );
+		ox_bundle = PropertiesLoader.get().getBundle ( s_resource_bundle );
 		os_resource = s_resource;
 	}
 	

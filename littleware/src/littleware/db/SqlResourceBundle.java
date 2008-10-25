@@ -73,7 +73,7 @@ public class SqlResourceBundle extends ListResourceBundle {
             return obundle_singleton;
         }
 
-        obundle_singleton = (SqlResourceBundle) ResourceBundle.getBundle("littleware.db.SqlResourceBundle");
+        obundle_singleton = new SqlResourceBundle(); //(SqlResourceBundle) ResourceBundle.getBundle("littleware.db.SqlResourceBundle");
         return obundle_singleton;
     }
 

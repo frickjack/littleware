@@ -221,12 +221,12 @@ public class AssetResourceBundle extends ListResourceBundle {
      * Convenience method for server-side clients
      * that can import this class.
      */
-    public static AssetResourceBundle getBundle() {
+    public static synchronized AssetResourceBundle getBundle() {
         if (null != obundle_singleton) {
             return obundle_singleton;
         }
 
-        obundle_singleton = (AssetResourceBundle) ResourceBundle.getBundle("littleware.asset.server.AssetResourceBundle");
+        obundle_singleton = new AssetResourceBundle(); //(AssetResourceBundle) ResourceBundle.getBundle("littleware.asset.server.AssetResourceBundle");
         return obundle_singleton;
     }
 

@@ -39,7 +39,8 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
     public JPasswordDialog ( String s_name, String s_password )
     {
         getContentPane ().setLayout ( new BorderLayout () );
-        
+        ow_user.setText( s_name );
+        ow_password.setText( s_password );
         
         JPanel      wpanel_buttons = new JPanel ();
         final JButton     wbutton_ok = new JButton ( "Ok" );

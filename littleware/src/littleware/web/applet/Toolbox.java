@@ -130,8 +130,7 @@ public class Toolbox extends JApplet {
             olog_generic.log ( Level.INFO, "Setting up icon library referencing: " +
                     s_full_icon_root
                     );
-            olib_icon = new WebIconLibrary ();
-            olib_icon.setRoot( s_full_icon_root );
+            olib_icon = new WebIconLibrary( s_full_icon_root );
             // Force HTTP based RMI communication
             try {
                 // Temporary - need to do own CGI-based ClientSocketFactory on the server side

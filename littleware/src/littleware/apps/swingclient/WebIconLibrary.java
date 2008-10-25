@@ -127,15 +127,17 @@ public class WebIconLibrary implements IconLibrary {
      */
     @Inject
     public WebIconLibrary( @Named( "icon.base_url" ) String s_url_root ) {
+        olog.log( Level.FINE, "Setting icon base to: " + s_url_root );
         os_url_root = s_url_root;
     }
     
     /**
      * Configure library to pull from default root url: 
      *      littleware.frickjack.com/littleware/lib/icons
-     */
+     *
     public WebIconLibrary () {
     }
+     */
     
     
     
@@ -167,12 +169,22 @@ public class WebIconLibrary implements IconLibrary {
         if ( null != s_url_tail ) {
             try {
                 URL url_icon = null;
+                String s_full_url = os_url_root + s_url_tail;
                 if ( os_url_root.startsWith( "http:" ) ) {
-                    url_icon = new URL ( os_url_root + s_url_tail );
+                    url_icon = new URL ( s_full_url );
                 } else {
-                    url_icon = WebIconLibrary.class.getResource( os_url_root + s_url_tail );
+                    url_icon = Thread.currentThread().getContextClassLoader().getResource( s_full_url );
                 }
-                icon_result = new ImageIcon( url_icon );
+                if ( null == url_icon ) { // try going to the System ClassLoader
+                    url_icon = ClassLoader.getSystemResource( s_full_url );
+                }
+                
+                if ( null != url_icon ) {
+                    icon_result = new ImageIcon( url_icon );
+                } else { 
+                    olog.log( Level.WARNING, "Unable to find asset type icon resource: " + s_full_url );
+                    icon_result = new ImageIcon();
+                }
             } catch ( MalformedURLException e ) {
                 olog.log( Level.WARNING, "Invalid icon root property, caught: " + e );
                 icon_result = new ImageIcon ();
@@ -199,17 +211,26 @@ public class WebIconLibrary implements IconLibrary {
             olog.log( Level.WARNING, "Request for unregistered icon: " + s_icon );
             return null;
         }
-        try {            
+        try {   
+            String s_full_url = os_url_root + s_url_tail;
             URL url_icon = null;
             if ( os_url_root.startsWith( "http:" ) ) {
-                url_icon = new URL ( os_url_root + s_url_tail );
+                url_icon = new URL ( s_full_url );
             } else {
-                url_icon = WebIconLibrary.class.getResource( os_url_root + s_url_tail );
+                url_icon = Thread.currentThread().getContextClassLoader().getResource( s_full_url );
+            }
+            if ( null == url_icon ) { // try going to the System ClassLoader
+                url_icon = ClassLoader.getSystemResource( s_full_url );
             }
             
             olog.log( Level.FINE, "Loading icon: " + url_icon );
-            icon_result = new ImageIcon( url_icon );
-        } catch( MalformedURLException e ) {
+            if ( null != url_icon ) {
+                icon_result = new ImageIcon( url_icon );
+            } else {
+                olog.log( Level.WARNING, "Unable to find icon resource: " + s_full_url );
+                icon_result =new ImageIcon ();
+            }
+        } catch( Exception e ) {
             olog.log( Level.WARNING, "Failed to map icon URL, caught: " + e );
             icon_result = new ImageIcon ();
         }

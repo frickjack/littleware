@@ -139,7 +139,11 @@ public class ClientServiceGuice implements LittleGuiceModule {
         
         if ( s_session_id != null ) {
             try {
-                return manager.getSessionHelper( UUIDFactory.parseUUID(s_session_id) );
+                SessionHelper helper = manager.getSessionHelper( UUIDFactory.parseUUID(s_session_id) );
+                // Make sure the session hasn't expired by retrieving a service
+                AssetRetriever search = helper.getService( ServiceType.ASSET_SEARCH );
+                // ok
+                return helper;
             } catch ( Exception ex ) {
                 olog.log( Level.INFO, "Failed to connect to session: " + s_session_id + ", continueing", ex );
             }
@@ -178,7 +182,8 @@ public class ClientServiceGuice implements LittleGuiceModule {
             } catch ( IOException ex ) {
                 throw ex;
             } catch ( Exception ex ) {
-                olog.log( Level.WARNING, "Failed to authenticate", ex );
+                olog.log( Level.WARNING, "Failed to authenticate to " + SessionUtil.get().getRegistryHost(), 
+                        ex );
                 throw new FailedLoginException( "Unable to authenticate: " + ex.getMessage() );
             }
             try {
@@ -219,7 +224,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
             try {
                 ohelper = authenticate( SessionUtil.get().getSessionManager (), ohandler, 3 );
             } catch ( Exception ex ) {
-                throw new AssertionFailedException ( "Failed to authenticate", ex );
+                throw new AssertionFailedException ( "Failed to authenticate to " + SessionUtil.get().getRegistryHost(), ex );
             }
         }
         for( ServiceType<? extends Remote> service : ServiceType.getMembers() ) {

@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.asset.AssetException;
+import littleware.base.PropertiesLoader;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.ServiceProviderFactory;
@@ -31,7 +32,7 @@ public abstract class BucketServiceType extends ServiceType {
             { 
                 if ( null == ofactory_bucket ) {
                     // Access the resource-bundle to get the BucketManager implementation on the server side
-                    ResourceBundle bundle_bucket = ResourceBundle.getBundle ( "littleware.apps.filebucket.server.BucketResourceBundle" );
+                    ResourceBundle bundle_bucket = PropertiesLoader.get().getBundle ( "littleware.apps.filebucket.server.BucketResourceBundle" );
                     ofactory_bucket = (ServiceProviderFactory<BucketManager>) bundle_bucket.getObject ( "BucketServiceProvider" ); 
                 }
                 return ofactory_bucket.createServiceProvider ( m_helper );

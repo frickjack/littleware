@@ -11,6 +11,7 @@ import junit.framework.*;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.base.AssertionFailedException;
+import littleware.base.PropertiesLoader;
 import littleware.security.auth.*;
 
 /**
@@ -61,23 +62,22 @@ public class PackageTestSuite extends TestSuite {
     public PackageTestSuite() {
         super("littleware.apps.test.PackageTestSuite");
 
-        try {
-            StandardSwingGuice.getIconLibrary ().setRoot( "localhost/littleware/lib/icons" );
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AssertionFailedException("Failed to initialize IconLibrary", e);
-        }
-
         final SessionHelper m_helper = PackageTestSuite.getTestSessionHelper();
         final Injector     injector = Guice.createInjector(
                 new ClientServiceGuice( m_helper ),
                 new StandardClientGuice(),
-                new StandardSwingGuice() 
+                new StandardSwingGuice(),
+                PropertiesLoader.get()
                 );
 
         boolean b_run = true;
 
+        // quick check
+        IconLibrary icolib = injector.getInstance( IconLibrary.class );
+        if ( ! icolib.getRoot().equals( "littleware/apps/icons" ) ) {
+            throw new AssertionFailedException( "Bad icon root: " + icolib.getRoot() );
+        }
+    
         if (b_run) {
             TestCase test = injector.getInstance( AddressBookTester.class );
             test.setName( "testAddressBook" );

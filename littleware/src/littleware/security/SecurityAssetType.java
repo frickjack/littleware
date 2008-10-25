@@ -8,6 +8,7 @@ import littleware.asset.*;
 
 import littleware.base.UUIDFactory;
 import littleware.base.FactoryException;
+import littleware.base.PropertiesLoader;
 import littleware.security.auth.SimpleSession;
 import littleware.security.auth.LittleSession;
 
@@ -22,7 +23,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
 
     private static AssetSpecializer getAccountManager() {
         if (null == om_account) {
-            ResourceBundle bundle_security = ResourceBundle.getBundle("littleware.security.server.SecurityResourceBundle");
+            ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
             om_account = (AssetSpecializer) bundle_security.getObject("AccountManager");
         }
         return om_account;
@@ -30,7 +31,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
 
     private static AssetSpecializer getAclManager() {
         if (null == om_acl) {
-            ResourceBundle bundle_security = ResourceBundle.getBundle("littleware.security.server.SecurityResourceBundle");
+            ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
             om_acl = (AssetSpecializer) bundle_security.getObject("AclManager");
         }
         return om_acl;

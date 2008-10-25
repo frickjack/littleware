@@ -114,12 +114,12 @@ public class SecurityResourceBundle extends ListResourceBundle {
      * Convenience method for server-side clients
      * that can import this class.
      */
-    public static SecurityResourceBundle getBundle() {
+    public static synchronized SecurityResourceBundle getBundle() {
         if (null != obundle_singleton) {
             return obundle_singleton;
         }
 
-        obundle_singleton = (SecurityResourceBundle) ResourceBundle.getBundle ( "littleware.security.server.SecurityResourceBundle" );
+        obundle_singleton = new SecurityResourceBundle(); //(SecurityResourceBundle) ResourceBundle.getBundle ( "littleware.security.server.SecurityResourceBundle" );
         return obundle_singleton;
     }
 

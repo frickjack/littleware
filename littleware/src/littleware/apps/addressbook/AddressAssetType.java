@@ -6,8 +6,7 @@ import littleware.asset.*;
 
 import littleware.base.UUIDFactory;
 import littleware.base.FactoryException;
-import littleware.security.auth.SimpleSession;
-import littleware.security.auth.LittleSession;
+import littleware.base.PropertiesLoader;
 
 /** 
  * AssetType specializer and bucket for littleware.apps.addressbook
@@ -18,7 +17,7 @@ public abstract class AddressAssetType<T extends Asset> extends AssetType<T> {
 	
 	private static AssetSpecializer getAddressSpecializer () {
 		if ( null == om_address ) {
-			ResourceBundle bundle_address = ResourceBundle.getBundle ( "littleware.apps.addressbook.server.AddressResourceBundle" );
+			ResourceBundle bundle_address = PropertiesLoader.get().getBundle ( "littleware.apps.addressbook.server.AddressResourceBundle" );
 			om_address = (AssetSpecializer) bundle_address.getObject ( "littleware_address_specializer" );
 		}
 		return om_address;

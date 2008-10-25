@@ -21,7 +21,8 @@ class SessionManagerProxy implements SessionManager {
     private SessionManager om_session = null;
     private URL ourl_session = null;
     /** Setup RemoteException handler */
-    private RemoteExceptionHandler ohandler_remote = new RemoteExceptionHandler() {
+    private RemoteExceptionHandler ohandler_remote = new RemoteExceptionHandler();
+    /* ...  weird code ... {
 
         public void handle(RemoteException e_remote) throws RemoteException {
             super.handle(e_remote);
@@ -39,7 +40,8 @@ class SessionManagerProxy implements SessionManager {
             }
         }
     };
-
+     ..*/
+    
     /**
      * Stash the wrapped manager and the URL it came from
      */

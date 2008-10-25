@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.1"
+      xmlns:gen="http://www.littleware.com/xml/namespace/2006/general"
+      xmlns:xhtml="http://www.w3.org/1999/xhtml"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:jsp="http://java.sun.com/JSP/Page"
+      xmlns="http://www.w3.org/1999/xhtml"
+ >
+<jsp:useBean id="lw_defaults" class="littleware.web.beans.DefaultsBean" />
+
+  <jsp:directive.page contentType="text/xml;charset=UTF-8" />
+  <!-- These pages are c:imported into others -->
+  <jsp:output omit-xml-declaration="true" />
+
+
+  <gen:sidemenu select="${param.sidemenu_select}">
+    <gen:menuitem name="home">
+       <a href="/littleware/en/toolbox/home.jsf">Toolbox Home</a>
+    </gen:menuitem>
+    <gen:menuitem name="doc">
+       <a href="/littleware/en/toolbox/doc_index.jsp">Documentation</a>
+       <gen:submenu>
+           <gen:sidemenu select="${param.submenu_select}">
+             <gen:menuitem name="api">
+              <a href="/littleware/lib/doc/api/">API javadoc</a>
+             </gen:menuitem>
+           </gen:sidemenu>
+       </gen:submenu>
+    </gen:menuitem>
+    <gen:menuitem name="src">
+       <a href="/littleware/en/toolbox/src/home.jsp">Open Source/Download</a>
+    </gen:menuitem>
+    <gen:menuitem name="web_services">
+       <a href="/littleware/en/toolbox/web_services.jsp">Web Services</a>
+       <gen:submenu>
+           <gen:sidemenu select="${param.submenu_select}">
+             <gen:menuitem name="groups">
+              <a href="/littleware/en/toolbox/services/group_admin.jsp">Group Management</a>
+             </gen:menuitem>
+           </gen:sidemenu>
+       </gen:submenu>
+    </gen:menuitem>
+    <gen:menuitem name="todo">
+       <a href="/littleware/en/toolbox/src/todo.jsp">TODO list</a>
+    </gen:menuitem>
+    <gen:menuitem name="vita">
+       <a href="/littleware/en/toolbox/vita.jsp">Reuben&apos;s résumé</a>
+    </gen:menuitem>
+    <gen:menuitem name="contact">
+       <a href="mailto:${lw_defaults.defaults['contact_email']}">Contact</a>
+    </gen:menuitem>
+  </gen:sidemenu>
+
+</jsp:root>

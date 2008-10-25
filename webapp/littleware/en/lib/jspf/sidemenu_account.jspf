@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.1"
+      xmlns:gen="http://www.littleware.com/xml/namespace/2006/general"
+      xmlns:xhtml="http://www.w3.org/1999/xhtml"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:jsp="http://java.sun.com/JSP/Page"
+      xmlns="http://www.w3.org/1999/xhtml"
+ >
+<jsp:useBean id="lw_defaults" class="littleware.web.beans.DefaultsBean" />
+
+  <jsp:directive.page contentType="text/xml;charset=UTF-8" />
+  <!-- These pages are c:imported into others -->
+  <jsp:output omit-xml-declaration="true" />
+
+
+  <gen:sidemenu select="${param.sidemenu_select}">
+    <gen:menuitem name="home">
+       <a href="/littleware/en/account/home.jsf">Account Home</a>
+    </gen:menuitem>
+    <gen:menuitem name="login">
+       <a href="/littleware/en/account/login.jsf">Issue Tracker</a>
+    </gen:menuitem>
+    <gen:menuitem name="password">
+       <a href="/littleware/en/account/change_password.jsf">Change Password</a>
+    </gen:menuitem>
+    <gen:menuitem name="update">
+       <a href="/littleware/en/account/update_contact.jsf">Update Info</a>
+    </gen:menuitem>
+    <gen:menuitem name="contact">
+       <a href="mailto:${lw_defaults.defaults['contact_email']}">Contact</a>
+    </gen:menuitem>
+  </gen:sidemenu>
+
+</jsp:root>

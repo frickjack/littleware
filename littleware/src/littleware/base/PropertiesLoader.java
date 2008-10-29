@@ -160,6 +160,7 @@ public class PropertiesLoader implements Module {
                 InputStream istream = new FileInputStream ( fh );
                 try {
                     prop_target.load( istream );
+                    olog.log( Level.INFO, "Loading " + fh );                    
                 } finally {
                     istream.close ();
                 }
@@ -223,15 +224,15 @@ public class PropertiesLoader implements Module {
         }
         File fh_home = getLittleHome ();
         if ( null != fh_home ) {
-            loadPropsFromFile( prop_filedata, new File( fh_home, s_name ) );
+            loadPropsFromFile( prop_filedata,  new File( fh_home, s_name ) );
         }
         try {
             String s_path = System.getProperty(s_name);
             if ( null != s_path ) {
                 loadPropsFromFile( prop_filedata, new File( s_path ) );
-            }
+            } 
         } catch (SecurityException e) {
-            olog.log(Level.INFO, "Insufficient privileges to access System property: " + s_name, e );
+            olog.log(Level.WARNING, "Insufficient privileges to access System property: " + s_name, e );
         }
 
         return (Properties) prop_filedata.clone ();        

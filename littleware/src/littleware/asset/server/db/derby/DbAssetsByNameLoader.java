@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.*;
 import java.sql.*;
 
+import javax.sql.DataSource;
 import littleware.db.*;
 import littleware.asset.*;
 import littleware.base.*;
@@ -20,7 +21,7 @@ import littleware.base.*;
  * asset-object cache.
  */
 class DbAssetsByNameLoader extends AbstractDerbyReader<Set<UUID>,String> {
-	private static Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.derby.DbAssetsByNameLoader" );
+	private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.derby.DbAssetsByNameLoader" );
 	
 	private final String    os_name;
 	private final AssetType on_type;
@@ -29,8 +30,9 @@ class DbAssetsByNameLoader extends AbstractDerbyReader<Set<UUID>,String> {
 	/**
 	 * Constructor registers query with super-class
 	 */
-	public DbAssetsByNameLoader ( String s_name, AssetType n_type, UUID u_home ) {
-        super ( "SELECT s_id FROM littleware.asset_cache WHERE " +
+	public DbAssetsByNameLoader ( DataSource dataSource, String s_name, AssetType n_type, UUID u_home ) {
+        super ( dataSource,
+                "SELECT s_id FROM littleware.asset_cache WHERE " +
                 "(s_pk_type=? " +
                 "  OR s_pk_type IN (SELECT s_descendent_id FROM littleware.x_asset_type_tree WHERE s_ancestor_id=?)) " +
                 " AND s_name=?" +

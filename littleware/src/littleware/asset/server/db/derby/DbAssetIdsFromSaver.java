@@ -4,13 +4,12 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import javax.sql.DataSource;
 
 import littleware.base.AssertionFailedException;
-import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
 import littleware.db.*;
 import littleware.asset.*;
-import littleware.asset.server.db.*;
 import littleware.base.UUIDFactory;
 
 /**
@@ -42,8 +41,9 @@ public class DbAssetIdsFromSaver extends AbstractDerbyWriter<Map<String, UUID>> 
      * @param n_type of return-assets - null to leave unspecified
      * @param sql_factory db connection-source
      */
-    public DbAssetIdsFromSaver(UUID u_from, AssetType n_type) {
-        super("UPDATE littleware.asset_cache SET s_name=?, s_id_from=? " +
+    public DbAssetIdsFromSaver( DataSource dataSource, UUID u_from, AssetType n_type) {
+        super( dataSource,
+                "UPDATE littleware.asset_cache SET s_name=?, s_id_from=? " +
                 ((null == n_type) ? "" : ",s_pk_type=? ") + " WHERE s_id=?",
                 false);
 

@@ -1,5 +1,6 @@
 package littleware.asset.server;
 
+import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.*;
 import java.security.acl.*;
@@ -37,15 +38,17 @@ public class SimpleAssetManager implements AssetManager {
     private static final Logger olog_generic = Logger.getLogger("littleware.asset.server.SimpleAssetManager");
     private static final ThreadLocal<LittleTransaction> othread_save_cycle = new ThreadLocal<LittleTransaction>() {
 
+        @Override
         protected LittleTransaction initialValue() {
             return new SimpleLittleTransaction();
         }
     };
     private final DbAssetManager om_db;
     private final CacheManager om_cache;
-    private final AssetRetriever om_retriever;
+    private final AssetSearchManager om_search;
     private final Factory<UUID> ofactory_uuid = UUIDFactory.getFactory();
-    private AccountManager om_account;
+    private final QuotaUtil     oquota;
+    private final AssetSpecializerRegistry  oregistry_special;
 
     /**
      * Constructor sets up internal data source.
@@ -59,22 +62,31 @@ public class SimpleAssetManager implements AssetManager {
      * @param m_account for Quota ops. - may be null,
      *              but must inject later via setAccountManager
      */
+    @Inject
     public SimpleAssetManager(
             CacheManager m_cache,
-            AssetRetriever m_retriever,
+            AssetSearchManager m_search,
             DbAssetManager m_db,
-            AccountManager m_account) {
+            QuotaUtil quota,
+            AssetSpecializerRegistry  registry_special
+            ) {
         om_cache = m_cache;
-        om_retriever = m_retriever;
+        om_search = m_search;
         om_db = m_db;
+        oquota = quota;
+        oregistry_special = registry_special;
     }
 
-    /**
-     * Allow delayed injection of AccountManager dependency
-     */
-    public void setAccountManager(AccountManager m_account) {
-        om_account = m_account;
+    /** Internal utility */
+    private LittleUser getAuthenticatedUser() throws NotAuthenticatedException {
+        LittleUser p_result = SecurityAssetType.getAuthenticatedUserOrNull();
+
+        if (null == p_result) {
+            throw new NotAuthenticatedException("No user authenticated");
+        }
+        return p_result;
     }
+
 
     /**
      * Verify that the given string is properly formatted XML
@@ -88,17 +100,17 @@ public class SimpleAssetManager implements AssetManager {
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         try {
-            LittlePrincipal p_caller = om_account.getAuthenticatedUser();
+            LittlePrincipal p_caller = this.getAuthenticatedUser();
             // Get the asset for ourselves - make sure it's a valid asset
-            Asset a_asset = om_retriever.getAsset(u_asset);
-            Owner o_asset = a_asset.getOwner(om_retriever);
+            Asset a_asset = om_search.getAsset(u_asset);
+            Owner o_asset = a_asset.getOwner(om_search);
             // add security later
             if (false && (!o_asset.isOwner(p_caller))) {
                 if (null == a_asset.getAclId()) {
                     throw new AccessDeniedException("may not delete asset without permission: " +
                             a_asset.getObjectId() + "/" + a_asset.getName());
                 }
-                Acl acl_x = a_asset.getAcl(om_retriever);
+                Acl acl_x = a_asset.getAcl(om_search);
 
                 // Need to have all the permissions to DELETE an asset
                 for (LittlePermission n_permission : LittlePermission.getMembers()) {
@@ -120,7 +132,7 @@ public class SimpleAssetManager implements AssetManager {
                 sql_writer.saveObject(a_asset);
 
                 om_cache.remove(a_asset.getObjectId());
-                a_asset.getAssetType().getSpecializer().postDeleteCallback(a_asset, this);
+                oregistry_special.getService( a_asset.getAssetType() ).postDeleteCallback(a_asset, this);
                 b_rollback = false;
             } finally {
                 trans_delete.endDbUpdate(b_rollback);
@@ -136,10 +148,7 @@ public class SimpleAssetManager implements AssetManager {
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         olog_generic.log(Level.FINE, "Check enter");
-        if (null == om_account) {
-            throw new NullPointerException("AccountManager dependency never injected");
-        }
-        LittlePrincipal p_caller = om_account.getAuthenticatedUser();
+        LittleUser p_caller = this.getAuthenticatedUser();
         // Get the asset for ourselves - make sure it's a valid asset
         Asset a_old_asset = null;
 
@@ -171,7 +180,7 @@ public class SimpleAssetManager implements AssetManager {
                 olog_generic.log(Level.WARNING, "Save cycle detected - not saving " + a_asset);
                 return a_asset;
             } else {
-                a_old_asset = om_retriever.getAssetOrNull(a_asset.getObjectId());
+                a_old_asset = om_search.getAssetOrNull(a_asset.getObjectId());
             }
 
             olog_generic.log(Level.FINE, "Check pre-save");
@@ -181,11 +190,11 @@ public class SimpleAssetManager implements AssetManager {
                     // Check the caller's quota
                     if (v_save_cycle.isEmpty()) {
                         olog_generic.log(Level.FINE, "Incrementing quota before saving: " + a_asset);
-                        om_account.incrementQuotaCount();
+                        oquota.incrementQuotaCount( p_caller, this, om_search );
                     }
                     // Only allow admins to create new users and homes, etc.
                     if (a_asset.getAssetType().mustBeAdminToCreate()) {
-                        LittleGroup p_admin_group = (LittleGroup) om_retriever.getAsset(
+                        LittleGroup p_admin_group = (LittleGroup) om_search.getAsset(
                                 AccountManager.UUID_ADMIN_GROUP);
                         if (!p_admin_group.isMember(p_caller)) {
                             throw new AccessDeniedException("Must be in ADMIN group to create asset of type: " +
@@ -206,9 +215,9 @@ public class SimpleAssetManager implements AssetManager {
 
                     olog_generic.log(Level.FINE, "Checking security");
 
-                    Owner o_old = a_old_asset.getOwner(om_retriever);
+                    Owner o_old = a_old_asset.getOwner(om_search);
                     if (!o_old.isOwner(p_caller)) {
-                        Acl acl_x = a_old_asset.getAcl(om_retriever);
+                        Acl acl_x = a_old_asset.getAcl(om_search);
 
                         // Need to have all the permissions to UPDATE an asset
                         if (!acl_x.checkPermission(p_caller, LittlePermission.WRITE)) {
@@ -229,7 +238,7 @@ public class SimpleAssetManager implements AssetManager {
                 }
 
                 olog_generic.log(Level.FINE, "Retrieving HOME");
-                Asset a_home = om_retriever.getAsset(a_asset.getHomeId());
+                Asset a_home = om_search.getAsset(a_asset.getHomeId());
                 olog_generic.log(Level.FINE, "Got HOME");
                 if (!a_home.getAssetType().equals(AssetType.HOME)) {
                     throw new HomeIdException("Home id must link to HOME type asset");
@@ -238,11 +247,11 @@ public class SimpleAssetManager implements AssetManager {
                 if ((null != a_asset.getFromId()) && ((null == a_old_asset) || (!a_asset.getFromId().equals(a_old_asset.getFromId())))) {
                     olog_generic.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
-                    Asset a_from = om_retriever.getAsset(a_asset.getFromId());
+                    Asset a_from = om_search.getAsset(a_asset.getFromId());
 
-                    Owner o_from = a_from.getOwner(om_retriever);
+                    Owner o_from = a_from.getOwner(om_search);
                     if (!o_from.isOwner(p_caller)) {
-                        Acl acl_from = a_from.getAcl(om_retriever);
+                        Acl acl_from = a_from.getAcl(om_search);
                         if ((null == acl_from) || (!acl_from.checkPermission(p_caller, LittlePermission.WRITE))) {
                             throw new AccessDeniedException("Caller " + p_caller +
                                     " may not link from asset " + a_from.getObjectId() +
@@ -259,7 +268,7 @@ public class SimpleAssetManager implements AssetManager {
                 }
                 if (null != a_asset.getToId()) {
                     // Verify have READ access to to-asset - rely on om_retriever security check
-                    Asset a_to = om_retriever.getAsset(a_asset.getToId());
+                    Asset a_to = om_search.getAsset(a_asset.getToId());
                 }
 
                 a_asset.setLastUpdateDate(new Date());
@@ -278,9 +287,9 @@ public class SimpleAssetManager implements AssetManager {
                     v_cache.put(a_asset.getObjectId(), a_asset);
 
                     if (null == a_old_asset) {
-                        a_asset.getAssetType().getSpecializer().postCreateCallback(a_asset, this);
+                        oregistry_special.getService( a_asset.getAssetType() ).postCreateCallback(a_asset, this);
                     } else {
-                        a_asset.getAssetType().getSpecializer().postUpdateCallback(a_old_asset, a_asset, this);
+                        oregistry_special.getService( a_asset.getAssetType() ).postUpdateCallback(a_old_asset, a_asset, this);
                     }
                     b_rollback = false;
                 } finally {

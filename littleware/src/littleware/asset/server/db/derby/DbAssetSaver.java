@@ -3,6 +3,7 @@ package littleware.asset.server.db.derby;
 import java.util.*;
 import java.sql.*;
 
+import javax.sql.DataSource;
 import littleware.base.*;
 import littleware.db.*;
 import littleware.asset.*;
@@ -59,8 +60,8 @@ public class DbAssetSaver extends AbstractDerbyWriter<Asset> {
     /**
      * Constructor registers query with super-class
      */
-    public DbAssetSaver() {
-        super(MS_TRANSACTION_QUERY, false);
+    public DbAssetSaver( DataSource dataSource ) {
+        super( dataSource, MS_TRANSACTION_QUERY, false);
     }
 
     /**

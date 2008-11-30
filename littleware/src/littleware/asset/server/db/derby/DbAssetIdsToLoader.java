@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.*;
 import java.sql.*;
 
+import javax.sql.DataSource;
 import littleware.db.*;
 import littleware.asset.*;
 import littleware.base.*;
@@ -17,7 +18,7 @@ import littleware.base.*;
  * that the query's data is in the cache.
  */
 public class DbAssetIdsToLoader extends AbstractDerbyReader<Set<UUID>,String> {
-	private static Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.derby.DbAssetIdsToLoader" );
+	private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.derby.DbAssetIdsToLoader" );
     
 	private final UUID       ou_to;
 	private final AssetType  on_type;
@@ -30,8 +31,8 @@ public class DbAssetIdsToLoader extends AbstractDerbyReader<Set<UUID>,String> {
      * Constructor registers query with super-class, and stashes
 	 * query arguments.
 	 */
-	public DbAssetIdsToLoader ( UUID u_to, AssetType n_type ) {
-        super( ms_query, false );
+	public DbAssetIdsToLoader ( DataSource dataSource, UUID u_to, AssetType n_type ) {
+        super( dataSource, ms_query, false );
 
 		ou_to = u_to;
 		on_type = n_type;

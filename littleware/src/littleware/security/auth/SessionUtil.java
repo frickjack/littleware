@@ -1,14 +1,12 @@
 package littleware.security.auth;
 
+import com.google.inject.Inject;
 import java.rmi.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.*;
-import java.security.*;
 import java.net.*;
 import littleware.base.*;
-import littleware.base.stat.*;
-import littleware.base.BaseException;
 
 /**
  * Just a little utility class that provides
@@ -20,7 +18,7 @@ public class SessionUtil {
 
     private static final Logger olog = Logger.getLogger(SessionUtil.class.getName());
     public static final int MAX_REMOTE_RETRY = 3;
-    private  boolean ob_local_server = false;
+
     private  int oi_registry_port = 1239;
     private  String os_registry_host = "localhost";
 
@@ -34,13 +32,13 @@ public class SessionUtil {
         try {
             Properties prop_user = PropertiesLoader.get().loadProperties();
 
-            String s_port_override = prop_user.getProperty("littleware.rmi_port");
+            String s_port_override = prop_user.getProperty("int.lw.rmi_port");
 
             if (null != s_port_override) {
                 try {
                     oi_registry_port = Integer.parseInt(s_port_override);
                 } catch (NumberFormatException e) {
-                    olog.log(Level.INFO, "Failure parsing littleware.rmi_port system property, caught: " + e);
+                    olog.log(Level.INFO, "Failure parsing int.lw.rmi_port system property, caught: " + e);
                 }
             }
 
@@ -50,18 +48,11 @@ public class SessionUtil {
                 os_registry_host = s_host_override;
             }
 
-            String s_server_type = prop_user.getProperty("littleware.rmi_server_type");
-
-            if ((null != s_server_type) && s_server_type.equals("local")) {
-                ob_local_server = true;
-            }
         } catch (java.io.IOException e) {
             olog.log(Level.SEVERE, "Unable to read server properties, caught: " + e);
         }
     }
 
-    /** Enforce singleton */
-    private SessionUtil () {}
     
     private static SessionUtil osingle = null;
     
@@ -78,22 +69,10 @@ public class SessionUtil {
         }
     }
     
-    /**
-     * Return true if this JVM has server code running within it,
-     * so that client code may bypass RMI.
-     * Return false if RMI or other RPC must be used to access the server.
-     * The default getSessionManager() (below) will pass a 0 port number
-     * through to getSessionManager( "bla", 0 ) to get a local object.
-     * Toggle to true via the littleware.rmi_server_type property in
-     * the littleware.properties file (defaults to false).
-     */
-    public boolean isServerInJvm() {
-        return ob_local_server;
-    }
 
     /**
      * Get the default port on which a client expects the RMI registry to listen.
-     * Set to littleware.rmi_port system property if exists, otherwise 1239.
+     * Set to int.lw.rmi_port system property if exists, otherwise 1239.
      */
     public int getRegistryPort() {
         return oi_registry_port;
@@ -106,6 +85,8 @@ public class SessionUtil {
     public String getRegistryHost() {
         return os_registry_host;
     }
+
+    @Inject
     private SessionManager om_local = null;
 
     /**
@@ -133,34 +114,13 @@ public class SessionUtil {
                     throw new AssertionFailedException("Bad host/port specified, caught: " + e, e);
                 }
             }
+        } else if (null != om_local) { // check cache
+            // Client and server are running in the same JVM -
+            // so just use a normal object reference and bypass RMI.
+            // om_local must be initialized externally.
+            return om_local;
         } else {
-            // Client and server are running in the same JVM - so just use a normal object reference and bypass RMI            
-            if (null != om_local) { // check cache
-                return om_local;
-            }
-            try {
-                PrivilegedExceptionAction<SessionManager> act_setup = new PrivilegedExceptionAction<SessionManager>() {
-
-                    public SessionManager run() throws Exception {
-                        ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
-                        SessionManager m_session = (SessionManager) bundle_security.getObject("SessionManager");
-                        SubjectInvocationHandler<SessionManager> handler_session = new SubjectInvocationHandler<SessionManager>(null, m_session, olog, new SimpleSampler());
-                        return (SessionManager) java.lang.reflect.Proxy.newProxyInstance(SessionManager.class.getClassLoader(),
-                                new Class[]{SessionManager.class},
-                                handler_session);
-                    }
-                };
-
-                om_local = AccessController.doPrivileged(act_setup);
-
-                return om_local;
-            } catch (PrivilegedActionException e) {
-                olog.log(Level.SEVERE, "Failed setup, caught: " + e + ", with cause: " + e.getException() + ", " + BaseException.getStackTrace(e));
-                throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e + ", with cause: " + e.getException(), e.getException());
-            } catch (Throwable e) {
-                olog.log(Level.SEVERE, "Failed setup, caught: " + e + ", " + BaseException.getStackTrace(e));
-                throw new AssertionFailedException("Failed SessionUtil setup, caught: " + e, e);
-            }
+            throw new IllegalStateException( "SessionUtil configured in local-server mode, but local SessionManager not injected" );
         }
     }
 
@@ -169,7 +129,7 @@ public class SessionUtil {
      * do not use RMI (access localhost/0) if isServerInJvm() is true.
      */
     public SessionManager getSessionManager() throws RemoteException, NotBoundException {
-        if (isServerInJvm()) {
+        if ( null != om_local ) {
             return getSessionManager("localhost", 0);
         } else {
             return getSessionManager(getRegistryHost(), getRegistryPort());

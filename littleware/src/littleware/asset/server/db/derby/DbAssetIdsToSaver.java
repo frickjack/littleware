@@ -3,8 +3,8 @@ package littleware.asset.server.db.derby;
 import java.util.*;
 import java.sql.*;
 
+import javax.sql.DataSource;
 import littleware.asset.*;
-import littleware.asset.server.db.*;
 import littleware.base.AssertionFailedException;
 import littleware.base.UUIDFactory;
 import littleware.db.*;
@@ -31,8 +31,9 @@ public class DbAssetIdsToSaver extends AbstractDerbyWriter<Set<UUID>> {
 	 * @param u_to id of parent result-assets link from
 	 * @param n_type of return-assets, null indicates any type
 	 */
-	public DbAssetIdsToSaver ( UUID u_to, AssetType n_type ) {
-        super ( "UPDATE littleware.asset_cache SET s_id_to=?, s_pk_type=? WHERE s_id=?", 
+	public DbAssetIdsToSaver ( DataSource dataSource, UUID u_to, AssetType n_type ) {
+        super ( dataSource,
+                "UPDATE littleware.asset_cache SET s_id_to=?, s_pk_type=? WHERE s_id=?",
                 false
                 );        
 		ou_to = u_to;

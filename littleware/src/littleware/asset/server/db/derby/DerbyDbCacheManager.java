@@ -1,10 +1,13 @@
 package littleware.asset.server.db.derby;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
+import javax.sql.DataSource;
 import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.UUIDFactory;
@@ -21,6 +24,13 @@ public class DerbyDbCacheManager implements DbCacheManager {
     private final static String MS_TYPE_TREE_INSERT =
             "INSERT INTO littleware.x_asset_type_tree ( s_ancestor_id, s_descendent_id ) VALUES ( ?, ? )";
     private static final Set<AssetType> mv_saved_types = new HashSet<AssetType>();
+
+    private final DataSource  odataSource;
+
+    @Inject
+    public DerbyDbCacheManager( @Named( "datasource.littlecache" ) DataSource dataSource_derby ) {
+        odataSource = dataSource_derby;
+    }
 
     /**
      * Internal to package utility
@@ -80,7 +90,7 @@ public class DerbyDbCacheManager implements DbCacheManager {
         if (!mv_query_log.contains(DbHomeIdsSaver.getQueryLogKey())) {
             return null;
         }
-        return new DbHomeIdsLoader();
+        return new DbHomeIdsLoader( odataSource );
     }
 
     public JdbcDbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID u_from, AssetType n_type) {
@@ -91,7 +101,7 @@ public class DerbyDbCacheManager implements DbCacheManager {
             // but we may not know the TYPE of those assets - UGH!
             return null;
         }
-        return new DbAssetIdsFromLoader(u_from, n_type);
+        return new DbAssetIdsFromLoader( odataSource, u_from, n_type);
     }
 
     public JdbcDbReader<Set<UUID>, String> makeDbAssetIdsToLoader(UUID u_to, AssetType n_type) {
@@ -100,31 +110,31 @@ public class DerbyDbCacheManager implements DbCacheManager {
         if (!mv_query_log.contains(s_query_key)) {
             return null;
         }
-        return new DbAssetIdsToLoader(u_to, n_type);
+        return new DbAssetIdsToLoader( odataSource, u_to, n_type);
     }
 
     public JdbcDbWriter<Set<UUID>> makeDbAssetIdsToSaver(UUID u_to, AssetType n_type) {
-        return new DbAssetIdsToSaver(u_to, n_type);
+        return new DbAssetIdsToSaver( odataSource, u_to, n_type);
     }
 
     public JdbcDbWriter<Map<String, UUID>> makeDbHomeIdsSaver() {
-        return new DbHomeIdsSaver();
+        return new DbHomeIdsSaver( odataSource );
     }
 
     public JdbcDbWriter<Map<String, UUID>> makeDbAssetIdsFromSaver(UUID u_from, AssetType n_type) {
-        return new DbAssetIdsFromSaver(u_from, n_type);
+        return new DbAssetIdsFromSaver( odataSource, u_from, n_type);
     }
 
     public JdbcDbWriter<Asset> makeDbAssetSaver() {
-        return new DbAssetSaver();
+        return new DbAssetSaver( odataSource );
     }
 
     public JdbcDbWriter<UUID> makeDbEraser() {
-        return new DbEraser();
+        return new DbEraser( odataSource );
     }
 
     public JdbcDbWriter<Set<Asset>> makeDbAssetsByNameSaver(String s_name, AssetType n_type, UUID u_home) {
-        return new DbAssetsByNameSaver(s_name, n_type, u_home);
+        return new DbAssetsByNameSaver( odataSource, s_name, n_type, u_home);
     }
 
     public JdbcDbReader<Set<UUID>, String> makeDbAssetsByNameLoader(String s_name, AssetType n_type,
@@ -134,7 +144,7 @@ public class DerbyDbCacheManager implements DbCacheManager {
         if (!mv_query_log.contains(s_query_key)) {
             return null;
         }
-        return new DbAssetsByNameLoader(s_name, n_type, u_home);
+        return new DbAssetsByNameLoader( odataSource, s_name, n_type, u_home);
     }
 }
 

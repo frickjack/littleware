@@ -2,7 +2,7 @@ package littleware.apps.test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.util.*;
+import java.io.IOException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -11,6 +11,7 @@ import junit.framework.*;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.base.AssertionFailedException;
+import littleware.base.PropertiesGuice;
 import littleware.base.PropertiesLoader;
 import littleware.security.auth.*;
 
@@ -19,7 +20,7 @@ import littleware.security.auth.*;
  */
 public class PackageTestSuite extends TestSuite {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.apps.test.PackageTestSuite");
+    private static Logger olog = Logger.getLogger("littleware.apps.test.PackageTestSuite");
     private static SessionHelper om_helper = null;
 
     /**
@@ -63,13 +64,18 @@ public class PackageTestSuite extends TestSuite {
         super("littleware.apps.test.PackageTestSuite");
 
         final SessionHelper m_helper = PackageTestSuite.getTestSessionHelper();
-        final Injector     injector = Guice.createInjector(
+        Injector     injector;
+        try {
+            injector = Guice.createInjector(
                 new ClientServiceGuice( m_helper ),
                 new StandardClientGuice(),
                 new StandardSwingGuice(),
-                PropertiesLoader.get()
+                new PropertiesGuice( PropertiesLoader.get().loadProperties() )
                 );
-
+        } catch ( IOException ex ) {
+            olog.log( Level.SEVERE, "Failed to load littleware properties", ex );
+            throw new AssertionFailedException( "Failed to load littleware properties", ex );
+        }
         boolean b_run = true;
 
         // quick check
@@ -144,7 +150,7 @@ public class PackageTestSuite extends TestSuite {
             throw new AssertionFailedException("Failed to get started");
         }
 
-        olog_generic.log(Level.INFO, "PackageTestSuite() returning ok ...");
+        olog.log(Level.INFO, "PackageTestSuite() returning ok ...");
     }
 }
 

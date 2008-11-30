@@ -1,13 +1,11 @@
 package littleware.apps.tracker;
 
+import littleware.asset.server.AssetSpecializer;
 import java.util.*;
 
 import littleware.asset.*;
 
 import littleware.base.UUIDFactory;
-import littleware.base.FactoryException;
-import littleware.security.auth.SimpleSession;
-import littleware.security.auth.LittleSession;
 
 /** 
  * AssetType specializer and bucket for littleware.apps.tracker
@@ -28,8 +26,9 @@ public abstract class TrackerAssetType<T extends Asset> extends AssetType<T> {
 																				UUIDFactory.parseUUID ( "FB8CC7B7C9324EC8953DE50A700344F3" ),
 																				"littleware.apps.tracker.COMMENT"
                                                                                 ) {
-		public AssetSpecializer getSpecializer () { return getSharedSpecializer (); }
+
 		public Comment create () { return new SimpleComment (); }
+        @Override
 		public boolean mustBeAdminToCreate () { return false; }
 	};
     
@@ -38,10 +37,11 @@ public abstract class TrackerAssetType<T extends Asset> extends AssetType<T> {
 																				UUIDFactory.parseUUID ( "489F21E1D19B49F3B923E7B45609A811" ),
 																				"littleware.apps.tracker.DEPENDENCY"
                                                                                 ) {
-		public AssetSpecializer getSpecializer () { return getSharedSpecializer (); }
+
 		public Dependency create () { 
             return new SimpleDependency ();
         }
+        @Override
 		public boolean mustBeAdminToCreate () { return false; }
 	};
     
@@ -49,8 +49,9 @@ public abstract class TrackerAssetType<T extends Asset> extends AssetType<T> {
 																				UUIDFactory.parseUUID ( "84F04E04DCE947B2A00294949DC38628" ),
 																				"littleware.apps.tracker.TASK"
 																				) {
-		public AssetSpecializer getSpecializer () { return getSharedSpecializer (); }
+
 		public Task create () { return new SimpleTask (); }
+        @Override
 		public boolean mustBeAdminToCreate () { return false; }
 	};	
     
@@ -58,10 +59,11 @@ public abstract class TrackerAssetType<T extends Asset> extends AssetType<T> {
                                                                        UUIDFactory.parseUUID ( "0FE9FBED5F6846E1865526A2BFBC5182" ),
                                                                        "littleware.apps.tracker.QUEUE"
                                                                        ) {
-		public AssetSpecializer getSpecializer () { return getSharedSpecializer (); }
+
 		public Queue create () { 
             return new SimpleQueue (); 
         }
+        @Override
 		public boolean mustBeAdminToCreate () { return false; }
 	};	
 }

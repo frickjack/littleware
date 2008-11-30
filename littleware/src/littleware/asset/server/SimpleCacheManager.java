@@ -1,11 +1,13 @@
 package littleware.asset.server;
 
+import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.sql.*;
 import java.security.*;
 
+import javax.sql.DataSource;
 import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.*;
@@ -25,7 +27,7 @@ import littleware.db.*;
  */
 public class SimpleCacheManager implements CacheManager {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.asset.server.SimpleCacheManager");
+    private static final Logger olog_generic = Logger.getLogger("littleware.asset.server.SimpleCacheManager");
     public final static int OI_MAXSIZE = 100000;
     public final static int OI_MAXSECS = 1000000; // no max age
     /**
@@ -34,32 +36,9 @@ public class SimpleCacheManager implements CacheManager {
      */
     private Set<UUID> ov_null_entries = Collections.synchronizedSet(new HashSet<UUID>());
     private Cache<UUID, Asset> ocache_asset = new SimpleCache<UUID, Asset>(OI_MAXSECS, OI_MAXSIZE);
-    private final Connection oconn_cache;
-    /** Singleton */
-    private static SimpleCacheManager om_thecache = null;
     /** DbManager action factory - access via getDbManager () method */
     private final DbCacheManager om_db;
 
-    /**
-     * Initialize the singleton - called by constructor
-     */
-    private static synchronized void setTheManager(SimpleCacheManager m_thecache) {
-        if (null != om_thecache) {
-            throw new SingletonException();
-        }
-
-        om_thecache = m_thecache;
-    }
-
-    /** 
-     * Get the singleton 
-     */
-    public static SimpleCacheManager getTheManager() {
-        if (null == om_thecache) {
-            throw new NullPointerException("Singleton not initialized");
-        }
-        return om_thecache;
-    }
 
     /** 
      * Inject dependencies - setup the singleton
@@ -68,10 +47,9 @@ public class SimpleCacheManager implements CacheManager {
      * @param m_dbcache db-manager for cache
      * @exception SingletonException after the 1st time this gets called
      */
-    public SimpleCacheManager(Connection conn_cache, DbCacheManager m_dbcache) {
-        oconn_cache = conn_cache;
+    @Inject
+    public SimpleCacheManager( DbCacheManager m_dbcache) {
         om_db = m_dbcache;
-        setTheManager(this);
     }
 
     public Cache.Policy getPolicy() {
@@ -113,7 +91,7 @@ public class SimpleCacheManager implements CacheManager {
                 Whatever.check("Key must go with value in asset-cache", a_cache.getObjectId().equals(u_key));
 
                 JdbcDbWriter<Asset> db_writer = om_db.makeDbAssetSaver();
-                db_writer.saveObject(oconn_cache, a_cache);
+                db_writer.saveObject( a_cache);
 
                 ov_null_entries.remove(u_key);
                 return ocache_asset.put(u_key, a_cache);
@@ -153,7 +131,7 @@ public class SimpleCacheManager implements CacheManager {
         }
         try {
             JdbcDbWriter<UUID> db_writer = om_db.makeDbEraser();
-            db_writer.saveObject(oconn_cache, u_key);
+            db_writer.saveObject( u_key);
         } catch (SQLException e) {
             throw new AssertionFailedException("Failure updating cache, caught: " + e, e);
         }
@@ -164,7 +142,7 @@ public class SimpleCacheManager implements CacheManager {
     public synchronized void clear() {
         try {
             JdbcDbWriter<UUID> db_writer = om_db.makeDbEraser();
-            db_writer.saveObject(oconn_cache, null);
+            db_writer.saveObject( null);
         } catch (SQLException e) {
             throw new AssertionFailedException("Failure updating cache, caught: " + e, e);
         }
@@ -256,7 +234,7 @@ public class SimpleCacheManager implements CacheManager {
             if (null == db_reader) {
                 throw new CacheMissException();
             }
-            return db_reader.loadObject(oconn_cache, null);
+            return db_reader.loadObject( "" );
         } catch (SQLException e) {
             throw new DataAccessException("frickjack: " + e, e);
         }
@@ -269,7 +247,7 @@ public class SimpleCacheManager implements CacheManager {
         }
         try {
             JdbcDbWriter<Map<String, UUID>> db_writer = om_db.makeDbHomeIdsSaver();
-            db_writer.saveObject(oconn_cache, v_home_ids);
+            db_writer.saveObject( v_home_ids);
         } catch (SQLException e) {
             Whatever.check("Data access failure: " + e, false);
         }
@@ -285,7 +263,7 @@ public class SimpleCacheManager implements CacheManager {
             if (null == db_reader) {
                 throw new CacheMissException();
             }
-            return db_reader.loadObject(oconn_cache, null);
+            return db_reader.loadObject( "" );
         } catch (SQLException e) {
             throw new DataAccessException("Data access failure", e);
         }
@@ -299,7 +277,7 @@ public class SimpleCacheManager implements CacheManager {
         }
         try {
             JdbcDbWriter<Map<String, UUID>> db_writer = om_db.makeDbAssetIdsFromSaver(u_source, n_type);
-            db_writer.saveObject(oconn_cache, v_data);
+            db_writer.saveObject( v_data);
         } catch (SQLException e) {
             Whatever.check("Data access failure: " + e, false);
         }
@@ -315,7 +293,7 @@ public class SimpleCacheManager implements CacheManager {
             if (null == db_reader) {
                 throw new CacheMissException();
             }
-            return db_reader.loadObject(oconn_cache, null);
+            return db_reader.loadObject( "" );
         } catch (SQLException e) {
             throw new DataAccessException("Data access failure", e);
         }
@@ -329,7 +307,7 @@ public class SimpleCacheManager implements CacheManager {
         }
         try {
             JdbcDbWriter<Set<UUID>> db_writer = om_db.makeDbAssetIdsToSaver(u_to, n_type);
-            db_writer.saveObject(oconn_cache, v_data);
+            db_writer.saveObject( v_data);
         } catch (SQLException e) {
             Whatever.check("Data access failure: " + e, false);
         }
@@ -350,7 +328,7 @@ public class SimpleCacheManager implements CacheManager {
                 throw new CacheMissException();
             }
 
-            Set<UUID> v_data = db_reader.loadObject(oconn_cache, null);
+            Set<UUID> v_data = db_reader.loadObject( "" );
             if (v_data.isEmpty()) {
                 return null;
             }
@@ -373,7 +351,7 @@ public class SimpleCacheManager implements CacheManager {
         }
         try {
             JdbcDbWriter<Set<Asset>> db_writer = om_db.makeDbAssetsByNameSaver(s_name, n_type, u_home);
-            db_writer.saveObject(oconn_cache, v_data);
+            db_writer.saveObject( v_data);
         } catch (SQLException e) {
             olog_generic.log(Level.WARNING, "Cache update caught unexpected: " + e +
                     ", " + BaseException.getStackTrace(e));

@@ -1,6 +1,6 @@
 package littleware.security.test;
 
-import java.util.*;
+import com.google.inject.Inject;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.security.*;
@@ -8,11 +8,9 @@ import java.security.*;
 import junit.framework.*;
 
 import littleware.asset.*;
-import littleware.asset.server.AssetResourceBundle;
 import littleware.base.AssertionFailedException;
 import littleware.security.*;
 import littleware.security.auth.*;
-import littleware.security.server.SecurityResourceBundle;
 
 
 
@@ -20,47 +18,57 @@ import littleware.security.server.SecurityResourceBundle;
  * Just little utility class that packages up a test suite
  * for the littleware.security package.
  */
-public abstract class PackageTestSuite {	
-	/**
-	 * Little utility that invokes a PriviledgedAction to
-	 * access the specified GuardedObject in the specified
-	 * resource bundle
-	 *
-	 * @param s_resource_bundle to lookup
-	 * @param s_resource that corresponds to a GuardedObject to access
-	 * @return whatever the GuardedObject is guarding - invoke Guard
-	 *                within a local PriviledgedAction
-	 */
-	private static Object getGuardedResource ( String s_resource_bundle, String s_resource ) {
-		return AccessController.doPrivileged ( new GetGuardedResourceAction ( s_resource_bundle, s_resource ) );
-	}
-	
-	
+public class PackageTestSuite {
+    private static final Logger   olog = Logger.getLogger ( PackageTestSuite.class.getName() );
+
+    private final AssetManager       om_asset;
+	private final AssetSearchManager om_search;
+    private final SessionManager     om_session;
+    private final AccountManager     om_account;
+    private final AclManager         om_acl;
+
+    /**
+     * Inject the managers to test against
+     *
+     * @param m_session
+     * @param m_search
+     * @param m_account
+     * @param m_acl
+     */
+    @Inject
+    public PackageTestSuite( SessionManager m_session,
+            AssetSearchManager m_search,
+            AssetManager m_asset,
+            AccountManager m_account,
+            AclManager m_acl
+            )
+    {
+        om_asset = m_asset;
+        om_session = m_session;
+        om_search = m_search;
+        om_account = m_account;
+        om_acl = m_acl;
+    }
+
+
     /**
 	 * Setup a test suite to exercise this package -
 	 * junit.swingui.TestRunner looks for this.
 	 */
-    public static Test suite () {
+    public TestSuite buildSuite () {
         TestSuite test_suite = new TestSuite ( "littleware.security.test.PackageTestSuite" );
-		Logger   log_generic = Logger.getLogger ( "littleware.security.test" );
-		log_generic.log ( Level.INFO, "Trying to setup littleware.security test suite" );
+		olog.log ( Level.INFO, "Trying to setup littleware.security test suite" );
 		
-		log_generic.log ( Level.INFO, "Registering littleware SimpleDbLoginConfiguration" );
-		// - set at app startup via system property: 
-		//    javax.security.auth.login.Configuration.setConfiguration ( new SimpleDbLoginConfiguration () );
-				
-		// This should get the SimpleSessionManager up and listening on the default port
-		SessionManager m_session = (SessionManager) SecurityResourceBundle.getBundle ().getObject ( SecurityResourceBundle.Content.SessionManager );
-        AssetSearchManager  m_search = (AssetSearchManager) AssetResourceBundle.getBundle ().getObject ( AssetResourceBundle.Content.AssetSearcher );
+		olog.log ( Level.INFO, "Registering littleware SimpleDbLoginConfiguration" );
 		boolean        b_run = true;
 		
 		if ( b_run ) {
 			test_suite.addTest ( new LoginTester ( "testLogin", LoginTester.OS_TEST_USER, 
-												   LoginTester.OS_TEST_USER_PASSWORD, m_session
+												   LoginTester.OS_TEST_USER_PASSWORD, om_session
 												   ) 
 								 );
             test_suite.addTest ( new LoginTester ( "testClientModuleLogin", LoginTester.OS_TEST_USER, 
-												   LoginTester.OS_TEST_USER_PASSWORD, m_session
+												   LoginTester.OS_TEST_USER_PASSWORD, om_session
 												   ) 
 								 );            
 		}
@@ -70,7 +78,7 @@ public abstract class PackageTestSuite {
 												   LoginTester.OS_TEST_USER_PASSWORD, 
 												   //LoginTester.OS_TEST_USER, 
 												   //LoginTester.OS_TEST_USER_PASSWORD,
-												   m_session
+												   om_session
 												   ) 
 								 );
 		}
@@ -78,44 +86,36 @@ public abstract class PackageTestSuite {
 			test_suite.addTest ( new LoginTester ( "testSessionUtil", 
 												   LoginTester.OS_TEST_USER, 
 												   LoginTester.OS_TEST_USER_PASSWORD, 
-												   m_session
+												   om_session
 												   )
 								 );
 		}
 		
-		SecurityResourceBundle   bundle_security = SecurityResourceBundle.getBundle ();
-		AccountManager   m_account = (AccountManager) bundle_security.getObject ( SecurityResourceBundle.Content.AccountManager );
-					
 		if ( b_run ) {
 			try {
-				Principal p_administrator = m_account.getPrincipal ( AccountManager.LITTLEWARE_ADMIN );
+				Principal p_administrator = om_account.getPrincipal ( AccountManager.LITTLEWARE_ADMIN );
 
-				test_suite.addTest ( new AclTester ( "testAcl", new SimpleAccessList (), p_administrator, m_search ) );
-				test_suite.addTest ( new AclTester ( "testAclOwner", new SimpleAccessList (), p_administrator, m_search ) );
+				test_suite.addTest ( new AclTester ( "testAcl", new SimpleAccessList (), p_administrator, om_search ) );
+				test_suite.addTest ( new AclTester ( "testAclOwner", new SimpleAccessList (), p_administrator, om_search ) );
 			} catch ( Exception e ) {
 				throw new AssertionFailedException ( "Caught unexpected during test initialization: " + e, e );
 			}
 		}			
 		
-		AssetManager m_asset = AssetResourceBundle.getAssetManager ();
-		
 		if ( b_run ) {
-			test_suite.addTest ( new AccountManagerTester ( "testGetPrincipals", m_account, m_asset ) );
-			test_suite.addTest ( new AccountManagerTester ( "testQuota", m_account, m_asset ) );
-			test_suite.addTest ( new AccountManagerTester ( "testPasswordUpdate", m_account, m_asset ) );
-			test_suite.addTest ( new AccountManagerTester ( "testGroupUpdate", m_account, m_asset ) );
+			test_suite.addTest ( new AccountManagerTester ( "testGetPrincipals", om_account, om_asset ) );
+			test_suite.addTest ( new AccountManagerTester ( "testQuota", om_account, om_asset ) );
+			test_suite.addTest ( new AccountManagerTester ( "testPasswordUpdate", om_account, om_asset ) );
+			test_suite.addTest ( new AccountManagerTester ( "testGroupUpdate", om_account, om_asset ) );
 		}
 		if ( b_run ) {
-			AclManager  m_acl = (AclManager) bundle_security.getObject ( SecurityResourceBundle.Content.AclManager );
-			test_suite.addTest ( new AclManagerTester ( "testAclLoad", m_acl, m_account, m_asset ) );
-			test_suite.addTest ( new AclManagerTester ( "testAclUpdate", m_acl, m_account, m_asset ) );
+			test_suite.addTest ( new AclManagerTester ( "testAclLoad", om_acl, om_account, om_asset ) );
+			test_suite.addTest ( new AclManagerTester ( "testAclUpdate", om_acl, om_account, om_asset ) );
 		}
 		
-		log_generic.log ( Level.INFO, "PackageTestSuite.suite () returning ok ..." );
+		olog.log ( Level.INFO, "PackageTestSuite.suite () returning ok ..." );
         return test_suite;
     }
-	
-	
 }
 
 // littleware asset management system

@@ -3,15 +3,12 @@ package littleware.asset.test;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.Principal;
 
 import junit.framework.*;
 
 import littleware.asset.*;
-import littleware.asset.server.RmiAssetManager;
 import littleware.base.*;
 import littleware.security.*;
-import littleware.security.server.SecurityResourceBundle;
 
 
 /**

@@ -11,7 +11,6 @@ import junit.framework.*;
 import littleware.asset.AssetSearchManager;
 import littleware.base.*;
 import littleware.security.*;
-import littleware.security.server.SecurityResourceBundle;
 
 /**
  * Test case for given ACL instance.
@@ -19,7 +18,7 @@ import littleware.security.server.SecurityResourceBundle;
  * checks that the ACL enforces them correctly.
  */
 public class AclTester extends TestCase {
-    private static final Logger     olog_generic = Logger.getLogger ( "littelware.security.test" );
+    private static final Logger     olog_generic = Logger.getLogger ( AclTester.class.getName() );
 
 	private final LittleAcl           oacl_test;
 	private final Principal           op_owner;
@@ -48,9 +47,11 @@ public class AclTester extends TestCase {
 	}
 	
 	/** No setup necessary */
+    @Override
 	public void setUp () {}
 	
 	/** No tearDown necessary */
+    @Override
 	public void tearDown () {}
 	
 	/** Stupid little Acl permission for use in test cases */
@@ -61,17 +62,20 @@ public class AclTester extends TestCase {
 		public BogusAclPermission ( int i_id ) { oi_id = i_id; }
 		
 		/** Equal if same class and same id */
+        @Override
 		public boolean equals ( Object x_other ) {
 			return ((null != x_other) && (x_other instanceof AclTester.BogusAclPermission)
 					&& (oi_id == ((BogusAclPermission) x_other).oi_id));
 		}
 		
 		/** Just return id number */
+        @Override
 		public String toString () {
 			return "BogusAclPermission id: " + oi_id;
 		}
 		
 		/** Return id as hash-code */
+        @Override
 		public int hashCode () { return oi_id; }
 	}
 	

@@ -1,14 +1,14 @@
 package littleware.apps.addressbook.server;
 
+import com.google.inject.Inject;
+import littleware.asset.server.AssetSpecializer;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.security.GeneralSecurityException;
 
 import littleware.apps.addressbook.*;
 import littleware.base.*;
-import littleware.security.AccessDeniedException;
 import littleware.asset.*;
 
 /** 
@@ -23,6 +23,7 @@ public class AddressSpecializer implements AssetSpecializer {
     /**
      * Inject dependency on AssetRetriever
      */
+    @Inject
     public AddressSpecializer(AssetRetriever m_retriever) {
         om_retriever = m_retriever;
     }

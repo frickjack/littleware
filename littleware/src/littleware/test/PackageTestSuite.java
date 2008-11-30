@@ -40,12 +40,14 @@ public class PackageTestSuite {
 
             if (b_run) {
                 log_generic.log(Level.INFO, "Trying to setup littleware.asset test suite");
-                x_suite.addTest(littleware.asset.test.PackageTestSuite.suite());
+                //x_suite.addTest(littleware.asset.test.PackageTestSuite.suite());
+                throw new UnsupportedOperationException( "Reconfigure TestSuite bootstrap" );
             }
 
             if (b_run) {
                 log_generic.log(Level.INFO, "Trying to setup littleware.security test suite");
-                x_suite.addTest(littleware.security.test.PackageTestSuite.suite());
+                //x_suite.addTest(littleware.security.test.PackageTestSuite.suite());
+                throw new UnsupportedOperationException( "Reconfigure TestSuite bootstrap" );
             }
 
             if (b_run) {
@@ -69,12 +71,15 @@ public class PackageTestSuite {
      * Run through the various lilttleware test cases
      */
     public static void main(String[] v_args) {
+        littleware.security.auth.server.ServerBootstrap.main( v_args );
+/*..
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
             public void run() {
                 createAndShowGUI();
             }
         });
+ */
     }
 
     /** Private handler - runs on Swing dispatch thread */

@@ -6,12 +6,10 @@ import java.util.UUID;
 import java.security.*;
 import javax.security.auth.*;
 
-import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.security.auth.*;
-import littleware.security.ManagerException;
 import littleware.security.AccessDeniedException;
 import littleware.security.SecurityAssetType;
 import littleware.security.LittleUser;
@@ -50,11 +48,15 @@ public class SimpleSessionHelper implements SessionHelper {
 		return a_session;
 	}
 	
-		
+
+    /**
+     * @TODO setup service discovery mechanism
+     */
 	public <T extends Remote> T getService ( ServiceType<T> n_type ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
 	{
-		return n_type.createServiceProvider ( this );
+		//return n_type.createServiceProvider ( this );
+        return null;
 	}
 	
 	

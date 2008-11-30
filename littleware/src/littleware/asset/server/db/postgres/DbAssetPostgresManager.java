@@ -1,5 +1,7 @@
 package littleware.asset.server.db.postgres;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import java.util.*;
 import java.sql.SQLException;
 import java.util.logging.Logger;
@@ -22,7 +24,8 @@ public class DbAssetPostgresManager implements DbAssetManager {
     /**
      * Inject DataSource dependency
      */
-    public DbAssetPostgresManager ( int i_client_id ) {
+    @Inject
+    public DbAssetPostgresManager ( @Named( "int.database_client_id" ) int i_client_id ) {
         oi_client_id = i_client_id;
     }
     

@@ -1,5 +1,7 @@
 package littleware.security.auth.server;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import java.rmi.*;
 import java.rmi.registry.*;
 //import java.rmi.server.UnicastRemoteObject;
@@ -9,15 +11,11 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.security.*;
 import javax.security.auth.*;
-import javax.security.auth.login.*;
 import java.lang.ref.WeakReference;
-import javax.naming.InitialContext;
-import javax.naming.Context;
 
 import java.net.URL;
 import java.net.InetAddress;
 import littleware.asset.*;
-import littleware.base.stat.*;
 import littleware.base.*;
 import littleware.security.*;
 import littleware.security.auth.*;
@@ -46,77 +44,20 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private final AssetManager om_asset;
     private final Map<UUID, WeakReference<SessionHelper>> ov_session_map = new HashMap<UUID, WeakReference<SessionHelper>>();
 
-    /**
-     * Constructor stashes the ID of the session with which
-     * this helper is associated, and an AssetSearchManager
-     * by which to retrieve the session as needed.
-     */
-    private SimpleSessionManager(AssetManager m_asset, AssetSearchManager m_search) throws RemoteException {
-        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
-        om_asset = m_asset;
-        om_search = m_search;
-    }
     private static SimpleSessionManager om_session = null;
 
     /**
-     * Get the SessionManager singleton.
+     * Inject dependencies
      */
-    public static synchronized SessionManager getManager() {
-        if (null == om_session) {
-            throw new NullPointerException("Singleton not initialized");
+    @Inject
+    public SimpleSessionManager(AssetManager m_asset, AssetSearchManager m_search ) throws RemoteException {
+        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
+        om_asset = m_asset;
+        om_search = m_search;
+        if ( null != om_session ) {
+            throw new IllegalStateException( "SimpleSessionManager must be a singleton" );
         }
-        return om_session;
-    }
-
-    /**
-     * Setup the singleton, inject dependencies - should be called only once.
-     * Starts RMI service.
-     *
-     * @param m_asset server side AssetManager
-     * @param m_search server side search
-     * @exception SingletonException if setup multiple times
-     */
-    public static synchronized void setupSingleton(AssetManager m_asset, AssetSearchManager m_search) {
-        if (null != om_session) {
-            throw new SingletonException();
-        }
-
-        try {
-            om_session = new SimpleSessionManager(m_asset, m_search);
-
-            Registry rmi_registry = null;            
-            final int i_port = SessionUtil.get ().getRegistryPort();
-
-            try {
-                olog_generic.log(Level.INFO, "Looking for RMI registry on port: " + i_port);
-                rmi_registry = LocateRegistry.createRegistry(i_port);                
-            } catch ( Exception e ) {
-               olog_generic.log( Level.SEVERE, "Failed to locate or start RMI registry on port " + i_port +
-                            " running without exporting root SessionManager object to RMI universe", e
-                            );
-
-                rmi_registry = LocateRegistry.getRegistry( i_port );
-            }
-
-            /**
-             * Need to wrap session manager with an invocation handler,
-             * because the RMI server thread inherits the ActivationContext
-             * of the client thread.  Frick.
-             */
-            /**
-             * Publish the reference in the Naming Service using JNDI API
-             * Context jndi_context = new InitialContext();
-             * jndi_context.rebind("/littleware/SessionManager", om_session );
-             */
-            rmi_registry.rebind("littleware/SessionManager", om_session);
-        } catch (Exception e) {
-            //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
-            olog_generic.log( Level.SEVERE, "Failed to bind to RMI registry " +
-                                " running without exporting root SessionManager object to RMI universe", 
-                                e
-                                );
- 
-        }
+        om_session = this;
     }
 
     /**

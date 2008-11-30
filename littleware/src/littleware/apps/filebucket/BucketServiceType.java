@@ -1,6 +1,5 @@
 package littleware.apps.filebucket;
 
-import java.util.UUID;
 import java.util.ResourceBundle;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
@@ -21,7 +20,8 @@ public abstract class BucketServiceType extends ServiceType {
     
     public static final ServiceType<BucketManager> BUCKET_MANAGER = 
 		new ServiceType<BucketManager> ( UUIDFactory.parseUUID ( "C09675718D7E4ABC8C825D0000CAA0C4" ),
-                                         "littleware.BUCKET_MANAGER_SERVICE"
+                                         "littleware.BUCKET_MANAGER_SERVICE",
+                                         BucketManager.class
                                          )
         {
             /**
@@ -38,6 +38,7 @@ public abstract class BucketServiceType extends ServiceType {
                 return ofactory_bucket.createServiceProvider ( m_helper );
             }
                 
+        @Override
             public Class<BucketManager> getServiceInterface () { return BucketManager.class; }	
                 
         };

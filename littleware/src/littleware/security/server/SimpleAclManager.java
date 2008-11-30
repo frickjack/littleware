@@ -1,8 +1,9 @@
 package littleware.security.server;
 
+import littleware.asset.server.NullAssetSpecializer;
+import littleware.asset.server.AssetSpecializer;
+import com.google.inject.Inject;
 import java.rmi.RemoteException;
-import java.sql.*;
-import javax.sql.*;
 import java.util.*;
 import java.security.*;
 import java.security.acl.*;
@@ -11,7 +12,6 @@ import java.util.logging.Level;
 
 import littleware.base.*;
 import littleware.asset.*;
-import littleware.db.Janitor;
 import littleware.security.*;
 
 /**
@@ -19,23 +19,22 @@ import littleware.security.*;
  */
 public class SimpleAclManager extends NullAssetSpecializer implements AclManager, AssetSpecializer {
 	
-	private Logger             olog_generic = Logger.getLogger ( "littleware.security.server.SimpleAclManager" );
-	private DataSource         osql_factory       = null;
-	private AssetManager       om_asset         = null;
-	private AssetSearchManager om_searcher     = null;
+	private static final Logger             olog = Logger.getLogger ( SimpleAclManager.class.getName() );
+
+	private final AssetManager       om_asset;
+	private final AssetSearchManager om_searcher;
 	
 	
 	/** 
 	 * Constructor injects dependencies
 	 *
-	 * @param sql_factory DataSource
 	 * @param m_asset Asset manager
 	 * @param m_searcher Asset lookup
 	 * @param m_account to access acount info through
 	 */
-	public SimpleAclManager ( DataSource sql_factory, AssetManager m_asset, 
+    @Inject
+	public SimpleAclManager ( AssetManager m_asset, 
 							  AssetSearchManager m_searcher ) {
-		osql_factory = sql_factory;
 		om_asset = m_asset;
 		om_searcher = m_searcher;
 	}
@@ -67,6 +66,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 	/**
 	 * Specialize ACL type assets
 	 */
+    @Override
 	public <T extends Asset> T narrow ( T a_in, AssetRetriever m_retriever
 						  ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -88,7 +88,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
             acl_entry.setPrincipal ( p_entry );
             
             acl_in.addEntry ( acl_entry );
-            olog_generic.log ( Level.FINE, "Just added entry for " + acl_entry.getName () +
+            olog.log ( Level.FINE, "Just added entry for " + acl_entry.getName () +
                                 " (negative: " + acl_entry.isNegative () + 
                                ") to ACL " + acl_in.getName () 
                                );
@@ -125,6 +125,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 	/**
 	 * Save a new ACL entries into the repository
 	 */
+    @Override
 	public void postCreateCallback ( Asset a_new, AssetManager m_asset  							   
 									 ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -143,6 +144,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 	}
 	
 	
+    @Override
 	public void postUpdateCallback ( Asset a_pre_update, Asset a_now, AssetManager m_asset 
 									 ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -172,6 +174,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 	}
 	
 	
+    @Override
 	public void postDeleteCallback ( Asset a_deleted, AssetManager m_asset
 									 ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException

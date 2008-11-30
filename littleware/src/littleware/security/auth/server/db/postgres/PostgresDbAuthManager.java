@@ -24,6 +24,3 @@ public class PostgresDbAuthManager implements DbAuthManager {
 		return new DbPasswordLoader ( u_user );
 	}
 }	
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

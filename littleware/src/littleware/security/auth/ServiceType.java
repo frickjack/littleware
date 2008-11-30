@@ -4,14 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.io.Serializable;
-import java.io.ObjectStreamException;
-import java.security.AccessController;
-import java.security.Permission;
 import java.security.GeneralSecurityException;
-import javax.security.auth.*;
-import java.lang.reflect.*;
 
 import littleware.asset.*;
 import littleware.base.*;
@@ -41,11 +34,13 @@ import littleware.security.*;
  *     to simplify the construction of Guice injection modules that key
  *     on ServiceType like littleware.security.auth.ClientServiceModule
  */
-public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceType> implements ServiceProviderFactory<T> {
+public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceType> {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.security.auth.ServiceType");
-    private static Logger olog_call = Logger.getLogger("littleware.security.auth.ServiceType.call_logger");
+    private static final Logger olog_generic = Logger.getLogger( ServiceType.class.getName () );
+    private static final Logger olog_call = Logger.getLogger( ServiceType.class.getName() + ".call_logger");
     private Sampler ostat_call = new SimpleSampler();
+
+    private Class<T> oclass_service = null;
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -54,11 +49,13 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
     }
 
     /**
-     * Constructor for subtypes to register a u_id/s_name
-     * for the default implementation of getObjectId() and getName()
+     * Inject u_id, s_name, and service class
+     * for the default implementation of getObjectId(), getName(),
+     * and getServiceClass.
      */
-    protected ServiceType(UUID u_id, String s_name) {
+    protected ServiceType(UUID u_id, String s_name, Class<T> class_service ) {
         super(u_id, s_name, ServiceType.class, new AccessPermission("newtype"));
+        oclass_service = class_service;
     }
 
     /** Shortcut to DynamicEnum.getMembers */
@@ -98,23 +95,9 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
     /**
      * Get the Class of the interface this service provider supports: T.class
      */
-    public abstract Class<T> getServiceInterface();
+    public Class<T> getServiceInterface() { return oclass_service; }
 
-    /** 
-     * Server-side only function.
-     * Just expose it here to make it easy for 3rd parties to dynamically add services.
-     * Subtypes should override this with a final method for security reasons.
-     */
-    public abstract T createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
     
-    /**
-     * Client-side only function.
-     * 
-     */
-    public T buildClientProxy( T m_remote, Cache<UUID,Asset> cache ) {
-        return m_remote;
-    }
     
     static ServiceProviderFactory<AssetManager> ofactory_asset_manager = null;
     static ServiceProviderFactory<AssetSearchManager> ofactory_search_manager = null;
@@ -122,7 +105,7 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
     static ServiceProviderFactory<AclManager> ofactory_acl_manager = null;
     public static final ServiceType<AssetManager> ASSET_MANAGER =
             new ServiceType<AssetManager>(UUIDFactory.parseUUID("FD4C5F5B4C904AC6BDC9ECA891C39543"),
-            "littleware.ASSET_MANAGER_SERVICE") {
+            "littleware.ASSET_MANAGER_SERVICE", AssetManager.class ) {
 
                 public AssetManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
                         GeneralSecurityException, RemoteException {
@@ -133,13 +116,10 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                     return ofactory_asset_manager.createServiceProvider(m_helper);
                 }
 
-                public Class<AssetManager> getServiceInterface() {
-                    return AssetManager.class;
-                }
-            };
+             };
     public static final ServiceType<AssetSearchManager> ASSET_SEARCH =
             new ServiceType<AssetSearchManager>(UUIDFactory.parseUUID("56A05693C0874780A716DEFA4E262F6F"),
-            "littleware.ASSET_SEARCH_SERVICE") {
+            "littleware.ASSET_SEARCH_SERVICE", AssetSearchManager.class ) {
 
                 public AssetSearchManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
                         GeneralSecurityException, RemoteException {
@@ -150,13 +130,10 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                     return ofactory_search_manager.createServiceProvider(m_helper);
                 }
 
-                public Class<AssetSearchManager> getServiceInterface() {
-                    return AssetSearchManager.class;
-                }
             };
     public static final ServiceType<SessionHelper> SESSION_HELPER =
             new ServiceType<SessionHelper>(UUIDFactory.parseUUID("BD4110EF7A3C482D9B3500DFC74829DE"),
-            "littleware.SESSION_HELPER_SERVICE") {
+            "littleware.SESSION_HELPER_SERVICE", SessionHelper.class ) {
 
                 /** Pass-through - just return the m_helper argument */
                 public SessionHelper createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
@@ -164,13 +141,10 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                     return m_helper;
                 }
 
-                public Class<SessionHelper> getServiceInterface() {
-                    return SessionHelper.class;
-                }
             };
     public static final ServiceType<AccountManager> ACCOUNT_MANAGER =
             new ServiceType<AccountManager>(UUIDFactory.parseUUID("402DD983DD8C47118232285E430611C2"),
-            "littleware.ACCOUNT_MANAGER_SERVICE") {
+            "littleware.ACCOUNT_MANAGER_SERVICE", AccountManager.class ) {
 
                 public AccountManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
                         GeneralSecurityException, RemoteException {
@@ -181,13 +155,10 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                     return ofactory_account_manager.createServiceProvider(m_helper);
                 }
 
-                public Class<AccountManager> getServiceInterface() {
-                    return AccountManager.class;
-                }
             };
     public static final ServiceType<AclManager> ACL_MANAGER =
             new ServiceType<AclManager>(UUIDFactory.parseUUID("25A9379640B94B26BBA6D0607981B070"),
-            "littleware.ACL_MANAGER_SERVICE") {
+            "littleware.ACL_MANAGER_SERVICE", AclManager.class ) {
 
                 public AclManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
                         GeneralSecurityException, RemoteException {
@@ -198,9 +169,6 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
                     return ofactory_acl_manager.createServiceProvider(m_helper);
                 }
 
-                public Class<AclManager> getServiceInterface() {
-                    return AclManager.class;
-                }
             };
 }
 // littleware asset management system

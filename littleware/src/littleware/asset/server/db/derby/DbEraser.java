@@ -3,9 +3,8 @@ package littleware.asset.server.db.derby;
 import java.util.*;
 import java.sql.*;
 
+import javax.sql.DataSource;
 import littleware.db.*;
-import littleware.asset.*;
-import littleware.asset.server.db.*;
 import littleware.base.UUIDFactory;
 
 /**
@@ -15,8 +14,8 @@ public class DbEraser extends AbstractDerbyWriter<UUID> {
 	/**
 	 * Constructor registers query with super-class
 	 */
-	public DbEraser () {
-		super ( "DELETE FROM littleware.asset_cache WHERE s_id=?",
+	public DbEraser ( DataSource dataSource ) {
+		super ( dataSource, "DELETE FROM littleware.asset_cache WHERE s_id=?",
 				false 
 				);
 	}

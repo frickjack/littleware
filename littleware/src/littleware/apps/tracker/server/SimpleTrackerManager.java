@@ -1,6 +1,7 @@
 package littleware.apps.tracker.server;
 
-import java.rmi.Remote;
+import littleware.asset.server.NullAssetSpecializer;
+import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
@@ -10,7 +11,6 @@ import java.util.*;
 import littleware.apps.tracker.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
-import littleware.base.Whatever;
 
 
 /**
@@ -21,7 +21,8 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
     
     private final AssetManager        om_asset;
     private final AssetSearchManager  om_search;
-    
+
+    @Inject
 	public SimpleTrackerManager ( AssetManager m_asset, 
 								  AssetSearchManager m_searcher ) {
 		om_asset = m_asset;
@@ -29,6 +30,7 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
 	}
     
         
+    @Override
     public <T extends Asset> T narrow ( T a_in, AssetRetriever m_retriever
 						  ) throws BaseException, AssetException, 
 	GeneralSecurityException, RemoteException
@@ -106,6 +108,7 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
         return a_in;
     }
 
+    @Override
     public void postCreateCallback ( Asset a_new, AssetManager m_asset  							   
                                      ) throws BaseException, AssetException, 
     GeneralSecurityException, RemoteException
@@ -214,6 +217,7 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
     
         
 
+    @Override
     public void postUpdateCallback ( Asset a_pre_update, Asset a_now, AssetManager m_asset 
                                      ) throws BaseException, AssetException, 
     GeneralSecurityException, RemoteException
@@ -244,6 +248,7 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
     }
 
 
+    @Override
     public void postDeleteCallback ( Asset a_deleted, AssetManager m_asset
                                      ) throws BaseException, AssetException, 
     GeneralSecurityException, RemoteException

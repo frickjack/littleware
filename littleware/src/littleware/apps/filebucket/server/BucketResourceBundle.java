@@ -8,7 +8,6 @@ import littleware.base.BaseException;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetException;
-import littleware.asset.server.AssetResourceBundle;
 import littleware.apps.filebucket.*;
 import littleware.security.auth.ServiceProviderFactory;
 import littleware.security.auth.SessionHelper;
@@ -29,11 +28,8 @@ public class BucketResourceBundle  extends ListResourceBundle {
         if ( ob_initialized ) {
             return;
         }
-        AssetResourceBundle      bundle_asset = AssetResourceBundle.getBundle ();
-        final AssetSearchManager m_search = (AssetSearchManager) bundle_asset.getObject (
-                                                                                         AssetResourceBundle.Content.AssetSearcher
-                                                                                         );
-        final AssetManager       m_asset = (AssetManager) bundle_asset.getObject ( AssetResourceBundle.Content.AssetManager );
+        final AssetSearchManager m_search = null;
+        final AssetManager       m_asset = null;
         final BucketManager m_bucket = new SimpleBucketManager ( m_search, m_asset );
         final ServiceProviderFactory<BucketManager> factory_bucket =
             new AbstractServiceProviderFactory<BucketManager> ( BucketServiceType.BUCKET_MANAGER, m_search ) {

@@ -1,7 +1,6 @@
 package littleware.asset.server;
 
 import java.rmi.RemoteException;
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -26,17 +25,21 @@ import littleware.security.*;
  */
 public class LocalAssetRetriever implements AssetRetriever {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.asset.server.LocalAssetRetriever");
-    private DbAssetManager om_db = null;
-    private CacheManager om_cache = null;
+    private static final Logger olog_generic = Logger.getLogger("littleware.asset.server.LocalAssetRetriever");
+    private final DbAssetManager om_db;
+    private final CacheManager   om_cache;
+    private final AssetSpecializerRegistry  oregistry_special;
 
     /**
      * Constructor stashes DbManager, and CacheManager
      */
     public LocalAssetRetriever(DbAssetManager m_db,
-            CacheManager m_cache) {
+            CacheManager m_cache,
+            AssetSpecializerRegistry registry_special
+            ) {
         om_db = m_db;
         om_cache = m_cache;
+        oregistry_special = registry_special;
     }
 
     public Asset getAsset(UUID u_id) throws BaseException, AssetException,
@@ -89,7 +92,7 @@ public class LocalAssetRetriever implements AssetRetriever {
         Map<UUID, Asset> v_cycle_cache = TransactionManager.getTheThreadTransaction().startDbAccess();
 
         try {
-            T a_result = a_loaded.getAssetType().getSpecializer().narrow(a_loaded, this);
+            T a_result = oregistry_special.getService( a_loaded.getAssetType() ).narrow(a_loaded, this);
 
             if (a_result.getAssetType().equals(SecurityAssetType.USER) || a_result.getAssetType().equals(SecurityAssetType.GROUP) || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER) || ( // acl-entry may be protected by its own ACL
                     a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals(a_result.getFromId()) && v_cycle_cache.containsKey(a_result.getAclId()))) {

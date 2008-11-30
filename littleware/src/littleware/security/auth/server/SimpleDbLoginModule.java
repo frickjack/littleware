@@ -1,11 +1,9 @@
 package littleware.security.auth.server;
 
+import com.google.inject.Inject;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.sql.*;
-import javax.sql.DataSource;
 import java.security.*;
 import javax.security.auth.*;
 import javax.security.auth.spi.*;
@@ -15,14 +13,11 @@ import javax.security.auth.callback.*;
 // Source the SLIDE JAAS types
 // disable for now import org.apache.slide.jaas.spi.*;
 
-import littleware.asset.server.AssetResourceBundle;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.TransactionManager;
 import littleware.base.UUIDFactory;
 import littleware.db.*;
 import littleware.security.*;
-import littleware.security.server.SecurityResourceBundle;
-import littleware.security.auth.*;
 import littleware.security.auth.server.db.DbAuthManager;
 
 /**
@@ -59,6 +54,26 @@ public class SimpleDbLoginModule implements LoginModule {
     }
 
     /**
+     * Inject the AccountManager dependency
+     *
+     * @param m_account
+     */
+    @Inject
+    public void setAccountManager( AccountManager m_account ) {
+        om_account = m_account;
+    }
+
+    /**
+     * Inject database DbAuthManager dependency
+     *
+     * @param m_dbauth
+     */
+    @Inject
+    public void setDbAuthManager( DbAuthManager m_dbauth ) {
+        om_dbauth = m_dbauth;
+    }
+
+    /**
      * Initialize the module with data from underlying
      * login context
      *
@@ -73,13 +88,6 @@ public class SimpleDbLoginModule implements LoginModule {
             Map v_options) {
         oj_subject = j_subject;
         ox_handler = x_handler;
-        om_account = SecurityResourceBundle.getAccountManager();
-
-        {
-            PrivilegedAction act_get_resource = new GetGuardedResourceAction(AssetResourceBundle.getBundle(),
-                    AssetResourceBundle.Content.AuthDbManager.toString());
-            om_dbauth = (DbAuthManager) AccessController.doPrivileged(act_get_resource);
-        }
     }
 
     /**
@@ -94,6 +102,12 @@ public class SimpleDbLoginModule implements LoginModule {
         }
         if (null == oj_subject) {
             throw new LoginException("Subject never setup");
+        }
+        if ( null == om_account ) {
+            throw new LoginException( "AccountManager dependency never injected" );
+        }
+        if ( null == om_dbauth ) {
+            throw new LoginException( "DbAuthManager dependency never injected" );
         }
 
         String s_user = null;

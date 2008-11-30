@@ -1,5 +1,7 @@
 package littleware.asset;
 
+import littleware.asset.server.NullAssetSpecializer;
+import littleware.asset.server.AssetSpecializer;
 import java.util.*;
 import java.util.logging.Logger;
 import java.security.AccessController;
@@ -31,7 +33,6 @@ import littleware.base.*;
 public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> implements Factory<T> {
     private static final long serialVersionUID = 1111142L;
     private static final Logger olog_generic = Logger.getLogger("littleware.asset.AssetType");
-    private static final AssetSpecializer ospecial_null = new NullAssetSpecializer();
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -129,13 +130,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         return false;
     }
 
-    /**
-     * Return the default NULL asset specializer - individual instances can override
-     */
-    public AssetSpecializer getSpecializer() {
-        return ospecial_null;
-    }
-
+  
     /** Noop recycle method to satisfy Factory interface */
     public void recycle(T a_whatever) {
     }
@@ -221,6 +216,8 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         a_new.setAclId(a_parent.getHomeId());
         return a_new;
     }
-}// littleware asset management system
+}
+
+// littleware asset management system
 // Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -1,11 +1,10 @@
 package littleware.asset.server.db.derby;
 
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.*;
 import java.sql.*;
 
-import littleware.db.*;
+import javax.sql.DataSource;
 import littleware.asset.*;
 import littleware.base.*;
 
@@ -17,14 +16,14 @@ import littleware.base.*;
  * that the query's data is in the cache.
  */
 public class DbHomeIdsLoader extends AbstractDerbyReader<Map<String,UUID>,String> {
-	private static Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.derby.DbHomeIdsLoader" );
+	private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.derby.DbHomeIdsLoader" );
 
 	
 	/**
 	* Constructor registers query with super-class
 	 */
-	public DbHomeIdsLoader () {
-		super ( "SELECT s_id, s_name FROM littleware.asset_cache WHERE s_pk_type='" +
+	public DbHomeIdsLoader ( DataSource dataSource ) {
+		super ( dataSource, "SELECT s_id, s_name FROM littleware.asset_cache WHERE s_pk_type='" +
 				UUIDFactory.makeCleanString ( AssetType.HOME.getObjectId () ) + "'", false );
 	}
 	

@@ -1,17 +1,16 @@
 package littleware.asset.server;
 
+import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.security.GeneralSecurityException;
 import java.sql.*;
-import javax.sql.DataSource;
 
 import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.*;
-import littleware.security.*;
 import littleware.db.*;
 
 
@@ -28,10 +27,13 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 	/**
 	 * Constructor stashes DataSource, DbManager, and CacheManager
 	 */
+    @Inject
 	public SimpleAssetSearchManager ( DbAssetManager m_db,
-								 CacheManager m_cache ) 
+								 CacheManager m_cache,
+                                 AssetSpecializerRegistry registry_special
+                                 )
 	{
-		super ( m_db, m_cache );
+		super ( m_db, m_cache, registry_special );
 		om_db = m_db;
 		om_cache = m_cache;
 	}

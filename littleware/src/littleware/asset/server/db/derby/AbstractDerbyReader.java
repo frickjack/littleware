@@ -1,23 +1,35 @@
 package littleware.asset.server.db.derby;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import littleware.db.DbSimpleReader;
 
 
 /**
- * We currently require the application to manage 
- * Derby Connections.  This base class implements
- * loadObject( x_arg ) to throw UnsupportedOperationException -
- * clients must supply a JDBC Connection or DataSource for now.
+ * Stash the derby DataSource, and call through to super
  */
 public abstract class AbstractDerbyReader<T,R> extends DbSimpleReader<T,R> {
+    private final DataSource  odataSource;
+
     /** Constructor calls through to super */
-	public AbstractDerbyReader ( String s_query, boolean b_is_function ) {
+	protected AbstractDerbyReader ( DataSource dataSource, String s_query, boolean b_is_function ) {
         super ( s_query, b_is_function );
+        odataSource = dataSource;
     }
     
-    
-	public T loadObject( R x_arg ) {
-        throw new UnsupportedOperationException ();
+
+    /**
+     * Checkout/close the SQL Connection, and call through to
+     * loadObject( conn, x_arg )
+     */
+	public T loadObject( R x_arg ) throws SQLException {
+        Connection conn = odataSource.getConnection ();
+        try {
+            return loadObject( conn, x_arg );
+        } finally {
+            conn.close ();
+        }
     }
 
 }

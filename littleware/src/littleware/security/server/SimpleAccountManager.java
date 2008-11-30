@@ -1,24 +1,24 @@
 package littleware.security.server;
 
+import littleware.asset.server.NullAssetSpecializer;
+import littleware.asset.server.AssetSpecializer;
+import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.*;
-import java.security.acl.*;
 import javax.security.auth.*;
-import java.security.GuardedObject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
 
 import littleware.base.*;
 import littleware.db.*;
 import littleware.asset.*;
+import littleware.asset.server.QuotaUtil;
 import littleware.asset.server.TransactionManager;
 import littleware.asset.server.LittleTransaction;
 import littleware.security.*;
-import littleware.security.auth.*;
 import littleware.security.auth.server.db.*;
 
 /**
@@ -30,7 +30,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     private final AssetManager om_asset;
     private final AssetSearchManager om_search;
     private final DbAuthManager om_dbauth;
-
+    private final QuotaUtil     om_quota;
     /**
      * Constructor injects dependencies
      *
@@ -38,12 +38,16 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
      * @param m_searcher asset search manager
      * @param m_dbauth access to password database handlers
      */
+    @Inject
     public SimpleAccountManager(AssetManager m_asset,
             AssetSearchManager m_searcher,
-            DbAuthManager m_dbauth) {
+            DbAuthManager m_dbauth,
+            QuotaUtil m_quota
+            ) {
         om_asset = m_asset;
         om_search = m_searcher;
         om_dbauth = m_dbauth;
+        om_quota = m_quota;
     }
 
     /**
@@ -186,12 +190,13 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
      *    <li> GROUP: save members ? </li>
      * </ul>
      */
+    @Override
     public void postCreateCallback(Asset a_new, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.USER.equals(a_new.getAssetType())) {
             // We need to setup a quota
             LittleUser p_caller = this.getAuthenticatedUser();
-            Quota a_caller_quota = this.getQuota(p_caller);
+            Quota a_caller_quota = om_quota.getQuota(p_caller, om_search);
             if (null != a_caller_quota) {
                 Quota a_quota = (Quota) a_caller_quota.clone();
 
@@ -234,6 +239,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     /**
      * Delete group-member links to/from when a group or user gets deleted
      */
+    @Override
     public void postDeleteCallback(Asset a_deleted, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.GROUP.equals(a_deleted.getAssetType()) || SecurityAssetType.USER.equals(a_deleted.getAssetType())) {
@@ -253,6 +259,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
      * @param a_pre_update may be null so that postCreateCallback
      *              can leverage this
      */
+    @Override
     public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.GROUP.equals(a_now.getAssetType())) {
@@ -299,117 +306,11 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         }
     }
 
-    /**
-     * PrivilgedAction for managing quota counter increments
-     */
-    private class QuotaCheckAction implements PrivilegedExceptionAction<Integer> {
-
-        private Quota oa_quota = null;
-        private final Date ot_now = new Date();
-
-        public QuotaCheckAction(Quota a_quota) {
-            oa_quota = a_quota;
-        }
-
-        /**
-         * Traverses the quota-chain recursively.
-         * Assumes the caller is already setuid to the administrator
-         *
-         * @return minimum ops remaining 
-         */
-        public Integer run() throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-            int i_ops_left = -1;
-            List<Quota> v_chain = new ArrayList<Quota>();
-            LittleTransaction trans_quota = TransactionManager.getTheThreadTransaction();
-
-            trans_quota.startDbAccess();
-            try {
-                for (Quota a_quota = oa_quota;
-                        null != a_quota;
-                        a_quota = (null != a_quota.getToId()) ? ((Quota) om_search.getAsset(a_quota.getToId()))
-                                : null) {
-                    v_chain.add(a_quota);
-                    if ((null != a_quota.getEndDate()) && (a_quota.getEndDate().getTime() < ot_now.getTime())) {
-                        long l_period = a_quota.getEndDate().getTime() -
-                                a_quota.getStartDate().getTime();
-
-                        if (l_period < 1000000) {
-                            l_period = 1000000;
-                        }
-                        Date t_end = new Date(l_period + ot_now.getTime());
-                        a_quota.setStartDate(ot_now);
-                        a_quota.setEndDate(t_end);
-                        a_quota.setQuotaCount(0);
-                    } else if ((a_quota.getQuotaLimit() >= 0) && (a_quota.getQuotaLimit() < a_quota.getQuotaCount())) {
-                        throw new QuotaException("Quota exceeded: " + a_quota.getQuotaLimit() +
-                                " less than " + a_quota.getQuotaCount());
-                    }
-
-                    int i_left = a_quota.getQuotaLimit() -
-                            a_quota.getQuotaCount();
-
-                    if ((i_left >= 0) && (i_left < i_ops_left)) {
-                        i_ops_left = i_left;
-                    }
-                }
-
-                for (Quota a_quota : v_chain) {
-                    a_quota.incrementQuotaCount();
-                    // don't worry about missed transactions
-                    a_quota.setTransactionCount(0);
-                    try {
-                        olog_generic.log(Level.FINE, "Incrementing quota count on " + a_quota.getObjectId());
-                        a_quota = (Quota) om_asset.saveAsset(a_quota, "update quota count");
-                    } catch (BaseException e) {
-                        throw (BaseException) e;
-                    } catch (GeneralSecurityException e) {
-                        throw (GeneralSecurityException) e;
-                    } catch (RemoteException e) {
-                        throw (RemoteException) e;
-                    } catch (Exception e) {
-                        throw new AssertionFailedException("Failed to increment quota", e);
-                    }
-                }
-                return Integer.valueOf(i_ops_left);
-            } finally {
-                trans_quota.endDbAccess();
-            }
-        }
-    }
 
     public int incrementQuotaCount() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        LittleUser p_caller = this.getAuthenticatedUser();
-        Quota a_quota = null;
-
-        a_quota = this.getQuota(p_caller);
-
-        if (null == a_quota) {
-            return -1;
-        }
-        try {
-            Integer int_result = (Integer) Subject.doAs(getAdmin(),
-                    new QuotaCheckAction(a_quota));
-            return int_result.intValue();
-        } catch (PrivilegedActionException e) {
-            try {
-                if (e.getCause() instanceof Exception) {
-                    throw (Exception) e.getCause();
-                } else {
-                    throw (Error) e.getCause();
-                }
-            } catch (DataAccessException e_cause) {
-                throw e_cause;
-            } catch (ManagerException e_cause) {
-                throw e_cause;
-            } catch (AssetException e_cause) {
-                throw e_cause;
-            } catch (Exception e_cause) {
-                throw new AssertionFailedException("Caught unexpected: " + e_cause, e_cause);
-            }
-        }
+        return om_quota.incrementQuotaCount( getAuthenticatedUser(), om_asset, om_search );
     }
-
     /**
      * Just call through to AssetSearchManager.getAsset () - 
      * the AssetSearchManager calls back to our narrow() method
@@ -494,14 +395,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
 
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        Map<String, UUID> v_quotas = om_search.getAssetIdsFrom(p_user.getObjectId(),
-                SecurityAssetType.QUOTA);
-        UUID u_child = v_quotas.get("littleware_quota");
-        if (null == u_child) {
-            return null;
-        }
-
-        return (Quota) om_search.getAssetOrNull(u_child);
+        return om_quota.getQuota( p_user, om_search );
     }
 }
 // littleware asset management system

@@ -1,5 +1,6 @@
 package littleware.security;
 
+import littleware.asset.server.AssetSpecializer;
 import java.util.*;
 import java.security.*;
 import javax.security.auth.Subject;
@@ -18,24 +19,7 @@ import littleware.security.auth.LittleSession;
  */
 public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
     private static final long serialVersionUID = 4444442L;
-    private static AssetSpecializer om_account = null;
-    private static AssetSpecializer om_acl = null;
 
-    private static AssetSpecializer getAccountManager() {
-        if (null == om_account) {
-            ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
-            om_account = (AssetSpecializer) bundle_security.getObject("AccountManager");
-        }
-        return om_account;
-    }
-
-    private static AssetSpecializer getAclManager() {
-        if (null == om_acl) {
-            ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
-            om_acl = (AssetSpecializer) bundle_security.getObject("AclManager");
-        }
-        return om_acl;
-    }
     /** 
      * PRINCIPAL asset type - with AccountManager asset specializer 
      * This asset-type is abstract - just intended for grouping
@@ -44,11 +28,6 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
     public static final AssetType<LittlePrincipal> PRINCIPAL = new AssetType<LittlePrincipal>(
             UUIDFactory.parseUUID("A7E11221-5469-49FA-AF1E-8FCC52190F1D"),
             "littleware.PRINCIPAL") {
-
-        @Override
-        public AssetSpecializer getSpecializer() {
-            return getAccountManager();
-        }
 
         /** Alwasy throws FactoryException */
         public LittlePrincipal create() throws FactoryException {
@@ -66,10 +45,6 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             UUIDFactory.parseUUID("2FAFD5D1074F4BF8A4F01753DBFF4CD5"),
             "littleware.USER") {
 
-        @Override
-        public AssetSpecializer getSpecializer() {
-            return getAccountManager();
-        }
 
         /** Get a LittleUser implementation */
         public LittleUser create() throws FactoryException {
@@ -90,11 +65,6 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
     public static final AssetType<LittleGroup> GROUP = new AssetType<LittleGroup>(
             UUIDFactory.parseUUID("FAA894CEC15B49CF8F8EC5C280062776"),
             "littleware.GROUP") {
-
-        @Override
-        public AssetSpecializer getSpecializer() {
-            return getAccountManager();
-        }
 
         /** Return a LittleGroup implementation */
         public LittleGroup create() throws FactoryException {
@@ -125,11 +95,6 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
         /** Return a LittleAcl implementation */
         public LittleAcl create() throws FactoryException {
             return new SimpleAccessList();
-        }
-
-        @Override
-        public AssetSpecializer getSpecializer() {
-            return getAclManager();
         }
 
         @Override
@@ -179,10 +144,6 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
     public static final AssetType<Quota> QUOTA = new AssetType<Quota>(
             UUIDFactory.parseUUID("0897E6CF8A4C4B128ECABD92FEF793AF"),
             "littleware.QUOTA") {
-
-        public AssetSpecializer getSpecializer() {
-            return getAccountManager();
-        }
 
         /** Return a LittleGroup implementation */
         public Quota create() throws FactoryException {

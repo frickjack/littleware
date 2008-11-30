@@ -13,7 +13,7 @@ import littleware.base.BaseException;
  * the littleware.security.auth.SessionHelper#getService
  * on the SERVER side - a client should never need to use this.
  */
-public interface ServiceProviderFactory<T extends Remote> {
+public interface ServiceProviderFactory<T> {
     /**
      * Factory returns a Remote-reference ready for the
      * server to send back to the client.
@@ -22,7 +22,7 @@ public interface ServiceProviderFactory<T extends Remote> {
      *
      * @param m_helper session handle
      */
-    public T createServiceProvider ( SessionHelper m_helper ) throws BaseException, AssetException, 
+    public T createServiceProvider ( SessionHelper m_helper ) throws BaseException, AssetException,
         GeneralSecurityException, RemoteException;
 }
 

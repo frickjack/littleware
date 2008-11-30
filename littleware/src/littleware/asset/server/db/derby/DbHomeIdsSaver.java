@@ -5,16 +5,16 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.sql.*;
 
+import javax.sql.DataSource;
 import littleware.db.*;
 import littleware.asset.*;
-import littleware.asset.server.db.*;
 import littleware.base.UUIDFactory;
 
 /**
  * DbWriter implementation for adding home-id data to the Derby cache.
  */
 public class DbHomeIdsSaver extends AbstractDerbyWriter<Map<String,UUID>> {
-	private static Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.derby.DbHomeIdsSaver" );
+	private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.derby.DbHomeIdsSaver" );
 	private static final String          MS_QUERY_HOMEIDS = "homeids";
 
 	/**
@@ -26,8 +26,8 @@ public class DbHomeIdsSaver extends AbstractDerbyWriter<Map<String,UUID>> {
 	/**
 	 * Constructor registers query with super-class
 	 */
-	public DbHomeIdsSaver () {
-		super ( "UPDATE littleware.asset_cache SET s_name=?, s_pk_type='" + 
+	public DbHomeIdsSaver ( DataSource dataSource ) {
+		super ( dataSource, "UPDATE littleware.asset_cache SET s_name=?, s_pk_type='" +
 				UUIDFactory.makeCleanString ( AssetType.HOME.getObjectId () ) +
 				"' WHERE s_id=?", 
 				false

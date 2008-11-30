@@ -1,12 +1,10 @@
-package littleware.asset;
+package littleware.asset.server;
 
+import littleware.asset.*;
 import java.rmi.RemoteException;
-import java.util.Map;
-import java.util.UUID;
 import java.security.GeneralSecurityException;
 
 import littleware.base.*;
-import littleware.security.AccessDeniedException;
 
 /**
  * Do nothing specializer.  3rd party implementations ought to 

@@ -12,7 +12,6 @@ import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.asset.*;
 import littleware.asset.server.TransactionManager;
-import littleware.asset.server.AssetResourceBundle;
 import littleware.base.PropertiesLoader;
 
 

@@ -1,8 +1,5 @@
 package littleware.base;
 
-import com.google.inject.*;
-
-import com.google.inject.name.Names;
 import java.util.*;
 import java.io.*;
 import java.util.logging.Logger;
@@ -15,9 +12,9 @@ import java.util.logging.Level;
  * along a littleware specific search path starting with the classpath,
  * and progressing through littleware.home, user.home, etc. based locations.
  */
-public class PropertiesLoader implements Module {
+public class PropertiesLoader {
 
-    private static Logger olog = Logger.getLogger( PropertiesLoader.class.getName() );
+    private static final Logger olog = Logger.getLogger( PropertiesLoader.class.getName() );
     private static Map<String, Properties> ov_cache = new HashMap<String, Properties>();
     
     private String os_littlehome_key = "littleware.home";
@@ -132,20 +129,8 @@ public class PropertiesLoader implements Module {
      */
     private PropertiesLoader () throws IOException {
         oprop = loadProperties( getDefaultProps () );
-    }
-    
-    
-    
+    }    
 
-    /** 
-     * Configure the GUICE binding String constants according
-     * to the constructor injected Properties.
-     */
-    public void configure( Binder binder_in ) {
-        for( String s_key : oprop.stringPropertyNames() ) {
-            binder_in.bindConstant().annotatedWith( Names.named(s_key)).to( oprop.getProperty(s_key));
-        }
-    }
  
     /**
      * If fh exists and is ledgible, then load its properties into prop_target,

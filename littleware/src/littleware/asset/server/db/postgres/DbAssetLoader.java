@@ -1,3 +1,16 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.asset.server.db.postgres;
 
 import java.util.logging.Logger;
@@ -7,8 +20,8 @@ import java.sql.*;
 
 import littleware.asset.server.AbstractDbReader;
 import littleware.asset.*;
+import littleware.asset.server.TransactionManager;
 import littleware.base.*;
-import littleware.db.*;
 
 
 /**
@@ -23,11 +36,11 @@ public class DbAssetLoader extends AbstractDbReader<Asset,UUID> {
 	 * Constructor registers query with super-class,
      * and stashes the local client id.
 	 */
-	public DbAssetLoader ( int i_client_id ) {
+	public DbAssetLoader ( int i_client_id, TransactionManager mgr_trans ) {
 		//super ( "{ ? = call littleware.getAsset( ? ) }", true );
 		super( "SELECT * FROM littleware.getAsset( ?, ? )", // AS " +
 			   //"( s_id                VARCHAR, s_name              VARCHAR, s_id_home           VARCHAR, l_last_transaction  BIGINT,  s_pk_type           VARCHAR, s_id_creator        VARCHAR, s_id_updater        VARCHAR, s_id_owner          VARCHAR, f_value             NUMERIC, s_id_acl            VARCHAR, s_comment           VARCHAR, s_last_change       VARCHAR, s_data              VARCHAR, s_id_from           VARCHAR, s_id_to             VARCHAR, t_created           TIMESTAMP, t_updated           TIMESTAMP, t_last_accessed     TIMESTAMP, t_start             TIMESTAMP, t_end  TIMESTAMP) ", 
-			   false );
+			   false, mgr_trans );
         oi_client_id = i_client_id;
 	}
 	
@@ -37,6 +50,7 @@ public class DbAssetLoader extends AbstractDbReader<Asset,UUID> {
 	 *
 	 * @return ResultSet from execution of query or callable statement
 	 */
+    @Override
 	public ResultSet executeStatement( PreparedStatement sql_stmt, UUID u_arg ) throws SQLException {
 		sql_stmt.setString ( 1, u_arg.toString ().replaceAll ( "-", "" ).toUpperCase () );
 		sql_stmt.setInt ( 2, oi_client_id );
@@ -112,7 +126,4 @@ public class DbAssetLoader extends AbstractDbReader<Asset,UUID> {
 		return loadObjectReady ( sql_rset );
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

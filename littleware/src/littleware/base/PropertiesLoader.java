@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.base;
 
 import java.util.*;
@@ -15,7 +27,7 @@ import java.util.logging.Level;
 public class PropertiesLoader {
 
     private static final Logger olog = Logger.getLogger( PropertiesLoader.class.getName() );
-    private static Map<String, Properties> ov_cache = new HashMap<String, Properties>();
+    private static final Map<String, Properties> ov_cache = new HashMap<String, Properties>();
     
     private String os_littlehome_key = "littleware.home";
     
@@ -254,5 +266,3 @@ public class PropertiesLoader {
     }
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

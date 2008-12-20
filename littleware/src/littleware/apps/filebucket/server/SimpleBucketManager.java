@@ -1,5 +1,19 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.filebucket.server;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import java.io.*;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -12,7 +26,6 @@ import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.asset.*;
 import littleware.asset.server.TransactionManager;
-import littleware.base.PropertiesLoader;
 
 
 /**
@@ -24,39 +37,11 @@ import littleware.base.PropertiesLoader;
 public class SimpleBucketManager implements BucketManager {
     private static final Logger   olog_generic = Logger.getLogger ( SimpleBucketManager.class.getName () );
     
-    private static  String   os_root_root = "";
-    static {
-        try {
-            os_root_root = PropertiesLoader.get ().loadProperties( ).getProperty( "littleware.bucket.root" );
-        } catch ( IOException e ) {
-            olog_generic.log( Level.SEVERE, "Caught unexpected loading littleware.bucket.root property from littleware.properties", e );
-            os_root_root = "";
-        }
-    }
-    private final static String[] ov_roots = {
-        os_root_root + "/Library/LittlewareAssets/Volume1",
-        os_root_root + "/Library/LittlewareAssets/Volume2",
-        os_root_root + "/Library/LittlewareAssets/Volume3",
-        os_root_root + "/Library/LittlewareAssets/Volume4",
-        os_root_root + "/Library/LittlewareAssets/Volume5",
-        os_root_root + "/Library/LittlewareAssets/Volume6",
-        os_root_root + "/Library/LittlewareAssets/Volume7",
-        os_root_root + "/Library/LittlewareAssets/Volume8",
-        os_root_root + "/Library/LittlewareAssets/Volume9"
-    };
-    
+    private final  String                 os_root_root;
+    private final  String[]               ov_root;
     private final AssetSearchManager      om_search;
     private final AssetManager            om_asset;
-    
-    
-    /** Constructor pulls AssetSearchManager out of the asset ResourceBundle 
-    public SimpleBucketManager () { 
-        AssetResourceBundle bundle_asset = AssetResourceBundle.getBundle ();
-        
-        om_search = (AssetSearchManager) bundle_asset.getObject ( AssetResourceBundle.Content.AssetSearcher );
-        om_asset = (AssetManager) bundle_asset.getObject ( AssetResourceBundle.Content.AssetManager );
-    }
-    */
+    private final TransactionManager      om_trans;
     
     /** 
      * Contructor takes user-suppled AssetSearchManager
@@ -64,9 +49,26 @@ public class SimpleBucketManager implements BucketManager {
      * @param m_search to lookup asset info with
      * @param m_asset to update asset when data added to bucket
      */
-    public SimpleBucketManager ( AssetSearchManager m_search, AssetManager m_asset ) {
+    @Inject
+    public SimpleBucketManager ( AssetSearchManager m_search, AssetManager m_asset,
+            TransactionManager m_trans,
+            @Named( "littleware.bucket.root" ) String s_root
+            ) {
         om_search = m_search;
         om_asset = m_asset;
+        om_trans = m_trans;
+        os_root_root = s_root;
+        ov_root = new String[] {
+            os_root_root + "/Library/LittlewareAssets/Volume1",
+            os_root_root + "/Library/LittlewareAssets/Volume2",
+            os_root_root + "/Library/LittlewareAssets/Volume3",
+            os_root_root + "/Library/LittlewareAssets/Volume4",
+            os_root_root + "/Library/LittlewareAssets/Volume5",
+            os_root_root + "/Library/LittlewareAssets/Volume6",
+            os_root_root + "/Library/LittlewareAssets/Volume7",
+            os_root_root + "/Library/LittlewareAssets/Volume8",
+            os_root_root + "/Library/LittlewareAssets/Volume9"
+            };
     }
     
     
@@ -78,12 +80,12 @@ public class SimpleBucketManager implements BucketManager {
      *            the directory may not yet exist
      */
     public  File  getBucketPath ( Asset a_in ) {
-        String s_default_root = ov_roots[ Math.abs( a_in.getObjectId ().hashCode () % ov_roots.length ) ];
+        String s_default_root = ov_root[ Math.abs( a_in.getObjectId ().hashCode () % ov_root.length ) ];
         File   file_root = new File ( s_default_root );
         
         if ( ! file_root.exists () ) { // check the other roots just 2b safe
             File  file_check = null;
-            for ( String s_root : ov_roots ) {
+            for ( String s_root : ov_root ) {
                 file_check = new File( s_root );
                 if ( file_check.exists () ) {
                     file_root = file_check;
@@ -143,7 +145,7 @@ public class SimpleBucketManager implements BucketManager {
         AssetException, IOException, RemoteException, BucketException
     {
         checkBucketPath ( s_path );
-        Map<UUID,Asset> v_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
+        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
         try {
             // increment transaction count before writing anything - verify write permission
             olog_generic.log ( Level.FINE, "Writing to bucket " + a_bucket + ", path: " + s_path );
@@ -165,7 +167,7 @@ public class SimpleBucketManager implements BucketManager {
             }
             return a_bucket;
         } finally {
-            TransactionManager.getTheThreadTransaction ().endDbAccess ( v_cache );
+            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
         }
     }
     
@@ -183,7 +185,7 @@ public class SimpleBucketManager implements BucketManager {
         AssetException, RemoteException, BucketException, IOException
     {
         checkBucketPath ( s_path );
-        Map<UUID,Asset> v_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
+        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
         try {
             Asset             a_bucket = om_search.getAsset ( u_asset );
             File              file_data = new File ( getBucketPath ( a_bucket ), s_path );
@@ -196,7 +198,7 @@ public class SimpleBucketManager implements BucketManager {
                 streamin_data.close ();
             }
         } finally {
-            TransactionManager.getTheThreadTransaction ().endDbAccess ( v_cache );
+            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
         }        
     }
     
@@ -207,7 +209,7 @@ public class SimpleBucketManager implements BucketManager {
         AssetException, RemoteException, BucketException, IOException
     {
         checkBucketPath ( s_path );
-        Map<UUID,Asset> v_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
+        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
         try {
             File              file_data = new File ( getBucketPath ( a_bucket ), s_path );
             
@@ -218,7 +220,7 @@ public class SimpleBucketManager implements BucketManager {
             file_data.delete ();
             return a_bucket;
         } finally {
-            TransactionManager.getTheThreadTransaction ().endDbAccess ( v_cache );
+            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
         }        
     }
     
@@ -230,7 +232,7 @@ public class SimpleBucketManager implements BucketManager {
     {
         checkBucketPath ( s_start_path );
         checkBucketPath ( s_rename_path );
-        Map<UUID,Asset> v_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
+        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
         try {
             File              file_data = new File ( getBucketPath ( a_bucket ), s_start_path );
             File              file_rename = new File ( getBucketPath ( a_bucket ), s_rename_path );
@@ -242,7 +244,7 @@ public class SimpleBucketManager implements BucketManager {
             file_data.renameTo ( file_rename );
             return a_bucket;
         } finally {
-            TransactionManager.getTheThreadTransaction ().endDbAccess ( v_cache );
+            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
         }                
     }
     
@@ -253,13 +255,13 @@ public class SimpleBucketManager implements BucketManager {
                              ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
     {
-        Map<UUID,Asset> v_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
+        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
         try {
             // Do a read, then a write
             byte[] v_data = readBytesFromBucket ( u_in, s_in_path );
             return writeToBucket ( a_out, s_copy_path, v_data, s_update_comment );
         } finally {
-            TransactionManager.getTheThreadTransaction ().endDbAccess ( v_cache );
+            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
         }                            
     }
 }

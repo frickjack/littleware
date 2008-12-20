@@ -1,6 +1,13 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.asset.server;
@@ -28,6 +35,7 @@ public class AssetServerGuice implements Module {
         binder.bind( AssetManager.class ).to( SimpleAssetManager.class ).in( Scopes.SINGLETON );
         binder.bind( AssetRetriever.class ).to( AssetSearchManager.class ).in( Scopes.SINGLETON );
         binder.bind( AssetSearchManager.class ).to( SimpleAssetSearchManager.class ).in( Scopes.SINGLETON );
+        binder.bind( LittleTransaction.class ).to( SimpleLittleTransaction.class );
         binder.bind( TransactionManager.class ).to( SimpleTransactionManager.class ).in( Scopes.SINGLETON );
         binder.bind( CacheManager.class ).to( SimpleCacheManager.class ).in( Scopes.SINGLETON );
         binder.bind( DbCacheManager.class ).to( DerbyDbCacheManager.class ).in( Scopes.SINGLETON );

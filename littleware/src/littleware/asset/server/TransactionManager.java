@@ -1,3 +1,16 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.asset.server;
 
 
@@ -6,30 +19,12 @@ package littleware.asset.server;
  * a reference to the LittleTransaction active on
  * the current thread stack.
  */
-public abstract class TransactionManager {
+public interface TransactionManager {
 
     /**
      * Get the LittleTransaction active on the calling thread.
      */
-    public abstract LittleTransaction getThreadTransaction ();
-    
-    /**
-     * Entry/Configuration point for clients to get the active transaction manager.
-     */
-    public static TransactionManager getManager () {
-        return SimpleTransactionManager.getManager ();
-    }
-    
-    /**
-     * Shortcut for getManager ().getThreadTransaction ()
-     */
-    public static LittleTransaction getTheThreadTransaction () {
-        return getManager ().getThreadTransaction ();
-    }
-        
+    public LittleTransaction getThreadTransaction ();        
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

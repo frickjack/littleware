@@ -9,13 +9,16 @@ import littleware.db.DbSimpleWriter;
  * its db connection from TransactionManager.getConnection.
  */
 public abstract class AbstractDbWriter<T> extends DbSimpleWriter<T> {
+    private final TransactionManager omgr_trans;
+
     /** Constructor calls through to super */
-	public AbstractDbWriter ( String s_query, boolean b_is_function ) {
+	public AbstractDbWriter ( String s_query, boolean b_is_function, TransactionManager mgr_trans ) {
         super ( s_query, b_is_function );
+        omgr_trans = mgr_trans;
     }
     
 	public void saveObject( T x_arg ) throws SQLException {
-        JdbcTransaction    ltrans_me = (JdbcTransaction) TransactionManager.getTheThreadTransaction ();
+        JdbcTransaction    ltrans_me = (JdbcTransaction) omgr_trans.getThreadTransaction ();
         boolean            b_rollback = true;
         
         ltrans_me.startDbUpdate ();

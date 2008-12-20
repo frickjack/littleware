@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.Principal;
 
 import junit.framework.*;
 
@@ -15,7 +14,6 @@ import littleware.asset.server.TransactionManager;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.JdbcTransaction;
 import littleware.base.*;
-import littleware.security.SecurityAssetType;
 
 
 /**
@@ -23,18 +21,24 @@ import littleware.security.SecurityAssetType;
  */
 public class TransactionTester extends TestCase {
 	private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.test.TransactionTester" );
-    
+
+    private final TransactionManager   omgr_trans;
+
+
     /** No setup necessary */
+    @Override
     public void setUp () {}
     
     /** No tearDown necessary */
+    @Override
     public void tearDown () {}
     
     /**
      * Just call through to super
      */
-    public TransactionTester ( String s_test_name ) {
+    public TransactionTester ( String s_test_name, TransactionManager mgr_trans ) {
         super ( s_test_name );
+        omgr_trans = mgr_trans;
     }
     
     /**
@@ -42,7 +46,7 @@ public class TransactionTester extends TestCase {
      */
     public void testTransactionManager () {
         try {
-            LittleTransaction  trans_test = TransactionManager.getTheThreadTransaction ();
+            LittleTransaction  trans_test = omgr_trans.getThreadTransaction ();
             Map<UUID,Asset>  v_cache = trans_test.startDbAccess ();
             assertTrue ( "TransactionManager maintains a singleton cache",
                          v_cache == trans_test.startDbAccess ()
@@ -69,7 +73,7 @@ public class TransactionTester extends TestCase {
      * Assumes that TransactionManager.getTheThreadTransaction returns a JdbcTranaction.
      */
     public void testSavepoint () {
-        JdbcTransaction  trans_test = (JdbcTransaction) TransactionManager.getTheThreadTransaction ();        
+        JdbcTransaction  trans_test = (JdbcTransaction) omgr_trans.getThreadTransaction ();
         try {
             trans_test.startDbUpdate ();
             try {

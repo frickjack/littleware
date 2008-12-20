@@ -1,5 +1,6 @@
 package littleware.asset.server;
 
+import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
@@ -22,6 +23,12 @@ public class SimpleQuotaUtil implements QuotaUtil {
 
     /** Cache the admin subject */
     private Subject oj_admin;
+    private final TransactionManager   omgr_trans;
+    
+    @Inject
+    public SimpleQuotaUtil( TransactionManager mgr_trans ) {
+        omgr_trans = mgr_trans;
+    }
 
     /**
      * Get a Subject representing the littleware admin
@@ -71,7 +78,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
                         public Integer run() throws Exception {
                             int i_ops_left = -1;  // quota ops left
                             List<Quota> v_chain = new ArrayList<Quota>();
-                            LittleTransaction trans_quota = TransactionManager.getTheThreadTransaction();
+                            LittleTransaction trans_quota = omgr_trans.getThreadTransaction();
                             Date t_now = new Date();
 
                             trans_quota.startDbAccess();

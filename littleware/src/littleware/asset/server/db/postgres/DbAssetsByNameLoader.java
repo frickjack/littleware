@@ -7,8 +7,8 @@ import java.sql.*;
 
 import littleware.asset.*;
 import littleware.asset.server.AbstractDbReader;
+import littleware.asset.server.TransactionManager;
 import littleware.base.*;
-import littleware.db.*;
 
 /**
  * Data loader for home asset name-id map
@@ -20,17 +20,19 @@ public class DbAssetsByNameLoader extends AbstractDbReader<Set<Asset>, String> {
     private String os_name = null;
     private UUID ou_home = null;
     private AssetType on_type = null;
+    private final TransactionManager omgr_trans;
 
     /**
      * Constructor registers query with super-class,
      * and stashes the local client id.
      */
-    public DbAssetsByNameLoader(String s_name, AssetType n_type, UUID u_home, int i_client_id) {
-        super("SELECT * FROM littleware.getAssetsByName( ?, ?, ?, ? )", false);
+    public DbAssetsByNameLoader(String s_name, AssetType n_type, UUID u_home, int i_client_id, TransactionManager mgr_trans ) {
+        super("SELECT * FROM littleware.getAssetsByName( ?, ?, ?, ? )", false, mgr_trans );
         oi_client_id = i_client_id;
         os_name = s_name;
         on_type = n_type;
         ou_home = u_home;
+        omgr_trans = mgr_trans;
     }
 
     /**
@@ -60,7 +62,7 @@ public class DbAssetsByNameLoader extends AbstractDbReader<Set<Asset>, String> {
      * @exception SQLException on failure to extract data
      */
     public Set<Asset> loadObject(ResultSet sql_rset) throws SQLException {
-        DbAssetLoader db_loader = new DbAssetLoader(oi_client_id);
+        DbAssetLoader db_loader = new DbAssetLoader(oi_client_id, omgr_trans );
         Set<Asset> v_result = new HashSet<Asset>();
 
         while (sql_rset.next()) {

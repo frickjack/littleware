@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.server;
 
 import com.google.inject.Inject;
@@ -35,12 +47,14 @@ import littleware.security.*;
  */
 public class SimpleAssetManager implements AssetManager {
 
-    private static final Logger olog_generic = Logger.getLogger("littleware.asset.server.SimpleAssetManager");
-    private static final ThreadLocal<LittleTransaction> othread_save_cycle = new ThreadLocal<LittleTransaction>() {
+    private static final Logger olog_generic = Logger.getLogger( SimpleAssetManager.class.getName() );
+
+    private final com.google.inject.Provider<LittleTransaction>    oprovide_trans;
+    private final ThreadLocal<LittleTransaction> othread_save_cycle = new ThreadLocal<LittleTransaction>() {
 
         @Override
         protected LittleTransaction initialValue() {
-            return new SimpleLittleTransaction();
+            return oprovide_trans.get();
         }
     };
     private final DbAssetManager om_db;
@@ -49,6 +63,7 @@ public class SimpleAssetManager implements AssetManager {
     private final Factory<UUID> ofactory_uuid = UUIDFactory.getFactory();
     private final QuotaUtil     oquota;
     private final AssetSpecializerRegistry  oregistry_special;
+    private final TransactionManager        omgr_trans;
 
     /**
      * Constructor sets up internal data source.
@@ -68,13 +83,17 @@ public class SimpleAssetManager implements AssetManager {
             AssetSearchManager m_search,
             DbAssetManager m_db,
             QuotaUtil quota,
-            AssetSpecializerRegistry  registry_special
+            AssetSpecializerRegistry  registry_special,
+            com.google.inject.Provider<LittleTransaction> provide_trans,
+            TransactionManager  mgr_trans
             ) {
         om_cache = m_cache;
         om_search = m_search;
         om_db = m_db;
         oquota = quota;
         oregistry_special = registry_special;
+        oprovide_trans = provide_trans;
+        omgr_trans = mgr_trans;
     }
 
     /** Internal utility */
@@ -124,7 +143,7 @@ public class SimpleAssetManager implements AssetManager {
             a_asset.setLastUpdaterId(p_caller.getObjectId());
             a_asset.setLastUpdate(s_update_comment);
 
-            LittleTransaction trans_delete = TransactionManager.getTheThreadTransaction();
+            LittleTransaction trans_delete = omgr_trans.getThreadTransaction();
             boolean b_rollback = true;
             trans_delete.startDbUpdate();
             try {
@@ -164,7 +183,7 @@ public class SimpleAssetManager implements AssetManager {
         }
 
         // Don't lookup the same asset more than once in this transaction
-        LittleTransaction trans_save = TransactionManager.getTheThreadTransaction();
+        LittleTransaction trans_save = omgr_trans.getThreadTransaction();
         Map<UUID, Asset> v_cache = trans_save.startDbAccess();
         // Don't save the same asset more than once in this transaction
         Map<UUID, Asset> v_save_cycle = othread_save_cycle.get().startDbAccess();
@@ -305,14 +324,14 @@ public class SimpleAssetManager implements AssetManager {
 
         } finally {
             othread_save_cycle.get().endDbAccess(v_save_cycle);
-            TransactionManager.getTheThreadTransaction().endDbAccess(v_cache);
+            omgr_trans.getThreadTransaction().endDbAccess(v_cache);
         }
         return a_asset;
     }
 
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets, String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        LittleTransaction trans_batch = TransactionManager.getTheThreadTransaction();
+        LittleTransaction trans_batch = omgr_trans.getThreadTransaction();
         boolean b_rollback = true;
         try {
             List<Asset> v_result = new ArrayList<Asset>();
@@ -334,7 +353,3 @@ public class SimpleAssetManager implements AssetManager {
 
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

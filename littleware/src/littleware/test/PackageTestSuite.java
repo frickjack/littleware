@@ -1,95 +1,106 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.test;
 
+import com.google.inject.Inject;
 import java.util.logging.*;
 import java.security.*;
 import javax.security.auth.*;
 import javax.security.auth.login.*;
+import javax.swing.SwingUtilities;
 import junit.framework.*;
 import littleware.base.BaseException;
 import littleware.base.swing.JPasswordDialog;
 import littleware.security.auth.*;
+import littleware.security.auth.server.ServerBootstrap;
 import littleware.security.test.LoginTester;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 /**
  * Test suite constructor that pulls together tests from
  * every littleware.*.test package.
  */
-public class PackageTestSuite {
+public class PackageTestSuite extends TestSuite implements BundleActivator {
+    private static final Logger olog = Logger.getLogger( PackageTestSuite.class.getName() );
 
-    /**
-     * Setup a test suite to exercise the littleware subpackages -
-     * sql, security, ...
-     * junit.swingui.TestRunner looks for this.
-     */
-    public static Test suite() {
-        TestSuite x_suite = new TestSuite("littleware.test.PackageTestSuite");
-        Logger log_generic = Logger.getLogger("littleware.test");
+    @Inject
+    public PackageTestSuite(
+            littleware.base.test.PackageTestSuite suite_base,
+            littleware.db.test.PackageTestSuite suite_db,
+            littleware.asset.test.PackageTestSuite suite_asset,
+            littleware.security.test.PackageTestSuite suite_security,
+            littleware.web.test.PackageTestSuite suite_web,
+            littleware.apps.test.PackageTestSuite suite_apps
+            ) {
+        super( PackageTestSuite.class.getName() );
         boolean b_run = true;
 
-        log_generic.log(Level.INFO, "Trying to setup littleware.test test suite");
+        olog.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
             if (b_run) {
-                log_generic.log(Level.INFO, "Trying to setup littleware.base test suite");
-                x_suite.addTest(littleware.base.test.PackageTestSuite.suite());
+                olog.log(Level.INFO, "Trying to setup littleware.base test suite");
+                this.addTest( suite_base );
             }
 
             if (b_run) {
-                log_generic.log(Level.INFO, "Trying to setup littleware.db test suite");
-                x_suite.addTest(littleware.db.test.PackageTestSuite.suite());
+                olog.log(Level.INFO, "Trying to setup littleware.db test suite");
+                this.addTest( suite_db );
             }
 
             if (b_run) {
-                log_generic.log(Level.INFO, "Trying to setup littleware.asset test suite");
-                //x_suite.addTest(littleware.asset.test.PackageTestSuite.suite());
-                throw new UnsupportedOperationException( "Reconfigure TestSuite bootstrap" );
+                olog.log(Level.INFO, "Trying to setup littleware.asset test suite");
+                this.addTest( suite_asset );
             }
 
             if (b_run) {
-                log_generic.log(Level.INFO, "Trying to setup littleware.security test suite");
-                //x_suite.addTest(littleware.security.test.PackageTestSuite.suite());
-                throw new UnsupportedOperationException( "Reconfigure TestSuite bootstrap" );
+                olog.log(Level.INFO, "Trying to setup littleware.security test suite");
+                this.addTest( suite_security );
             }
 
             if (b_run) {
-                log_generic.log(Level.INFO, "Trying to setup littleware.web test suite");
-                x_suite.addTest(littleware.web.test.PackageTestSuite.suite());
+                olog.log(Level.INFO, "Trying to setup littleware.web test suite");
+                this.addTest( suite_web );
             }
 
             if (b_run) {
-                log_generic.log(Level.INFO, "Trying to setup littleware.apps test suite");
-                x_suite.addTest(littleware.apps.test.PackageTestSuite.suite());
+                olog.log(Level.INFO, "Trying to setup littleware.apps test suite");
+                this.addTest( suite_apps );
             }
         } catch (RuntimeException e) {
-            log_generic.log(Level.SEVERE, "Failed to setup test suite, caught: " + e + ", " + BaseException.getStackTrace(e));
+            olog.log(Level.SEVERE, "Failed to setup test suite, caught: " + e + ", " + BaseException.getStackTrace(e));
             throw e;
         }
-        log_generic.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
-        return x_suite;
+        olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 
     /**
-     * Run through the various lilttleware test cases
+     * Boot the littleware server OSGi environment,
+     * and register this master test suite as a BundleActivator.
      */
     public static void main(String[] v_args) {
-        littleware.security.auth.server.ServerBootstrap.main( v_args );
-/*..
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-
-            public void run() {
-                createAndShowGUI();
-            }
-        });
- */
+        ServerBootstrap boot = new ServerBootstrap();
+        boot.getOSGiActivator().add( PackageTestSuite.class );
+        boot.bootstrap();
     }
 
     /** Private handler - runs on Swing dispatch thread */
-    private static void createAndShowGUI() {
-        Logger log_generic = Logger.getLogger("littleware");
-
+    private void createAndShowGUI() {
         try {
-            //log_generic.setLevel(Level.ALL); // log everything during testing
-            log_generic.log(Level.INFO, "Setting up tests");
-            log_generic.log ( Level.INFO, "Working directory: " +
+            //olog.setLevel(Level.ALL); // log everything during testing
+            olog.log(Level.INFO, "Setting up tests");
+            olog.log ( Level.INFO, "Working directory: " +
                     new java.io.File( "." ).getAbsolutePath()
                     );
 
@@ -98,7 +109,7 @@ public class PackageTestSuite {
 
 
             if (!w_password.showDialog()) {
-                log_generic.log(Level.INFO, "User selected cancel");
+                olog.log(Level.INFO, "User selected cancel");
                 return;
             }
 
@@ -118,9 +129,18 @@ public class PackageTestSuite {
             };
             Subject.doAs(subject_user, act_run);
         } catch (Exception e) {
-            log_generic.log(Level.WARNING, "Caught unexpected: " + e + ", " + littleware.base.BaseException.getStackTrace(e));
+            olog.log(Level.WARNING, "Caught unexpected: " + e + ", " + littleware.base.BaseException.getStackTrace(e));
         }
     }
+
+    public void start(BundleContext ctx) throws Exception {
+        SwingUtilities.invokeLater( new Runnable() {
+            public void run () {
+                createAndShowGUI();
+            }
+        });
+    }
+
+    public void stop(BundleContext ctx) throws Exception {
+    }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

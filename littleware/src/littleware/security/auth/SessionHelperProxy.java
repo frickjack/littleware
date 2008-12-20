@@ -167,10 +167,10 @@ class SessionHelperProxy implements SessionHelper {
         }
 
         InvocationHandler handler_retry = new RemoteRetryInvocationHandler<T>(m_service, n_type);
-        Class<T> class_service = n_type.getServiceInterface();
-        olog_generic.log(Level.FINE, "Setting up service " + n_type + " proxy with interface " +
-                class_service.toString() + " using object of class: " +
+
+        olog_generic.log(Level.FINE, "Setting up service " + n_type + " using object of class: " +
                 m_service.getClass().toString());
+        Class<T> class_service = n_type.getInterface();
         m_service = (T) Proxy.newProxyInstance(class_service.getClassLoader(),
                 new Class[]{class_service},
                 handler_retry);

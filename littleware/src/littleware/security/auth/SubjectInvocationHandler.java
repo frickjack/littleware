@@ -1,3 +1,16 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.security.auth;
 
 import java.lang.reflect.*;
@@ -6,7 +19,6 @@ import java.util.logging.Level;
 import java.security.*;
 import javax.security.auth.Subject;
 
-import littleware.base.Timer;
 import littleware.base.AssertionFailedException;
 import littleware.base.stat.Sampler;
 import littleware.base.AccessPermission;
@@ -21,8 +33,7 @@ import littleware.base.AccessPermission;
  * into the littleware- execution context.
  */
 public class SubjectInvocationHandler<T> implements InvocationHandler {
-	private static Logger  olog_generic = Logger.getLogger ( "littleware.security.auth.SubjectInvocationHandler" );
-	private Logger         olog_call = null;
+	private static final Logger  olog = Logger.getLogger ( SubjectInvocationHandler.class.getName() );
 	private Subject        oj_caller = null;
 	private T              ox_real = null;
 	private Sampler        ostat_call = null;
@@ -47,10 +58,10 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 			try {
 				return omethod_call.invoke ( ox_real, ov_args );
 			} catch ( IllegalAccessException e ) {
-				olog_generic.log ( Level.INFO, "Caught unexpected: " + e );
+				olog.log ( Level.INFO, "Caught unexpected: " + e );
 				throw new AssertionFailedException ( "Illegal access: " + e, e );
 			} catch ( InvocationTargetException e ) {
-				olog_generic.log ( Level.FINE, "FRICK: " + e );
+				olog.log ( Level.FINE, "FRICK: " + e );
 				Throwable err = e.getCause ();
 				
 				if ( err instanceof Exception ) {
@@ -105,13 +116,12 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 	 * @param log_call to log method calls to including who and how long to run
 	 * @param stat_call to report call runtime to
 	 */
-	public SubjectInvocationHandler ( Subject j_caller, T x_real, Logger log_call, Sampler stat_call ) {
+	public SubjectInvocationHandler ( Subject j_caller, T x_real, Sampler stat_call ) {
 		oj_caller = j_caller;
 		if ( null == oj_caller ) {
 			oj_caller = Subject.getSubject ( AccessController.getContext () );
 		}
 		ox_real = x_real;
-		olog_call = log_call;
 		ostat_call = stat_call;
 		
 		// Make sure the calling code has permission to setup a privileged proxy!
@@ -156,13 +166,9 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 			if ( null != oj_caller ) {
 				s_caller = oj_caller.toString ();
 			}
-			olog_call.log ( Level.FINE, method_call.toString () + " by " + s_caller +
+			olog.log ( Level.FINE, method_call.toString () + " by " + s_caller +
 							 " in " + l_runtime + "ms"
 							 );
 		}
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

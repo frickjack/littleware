@@ -1,11 +1,22 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.web.test;
 
-import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import junit.framework.*;
 import littleware.web.*;
-import littleware.security.auth.SessionManager;
 import littleware.web.pickle.*;
 
 
@@ -13,48 +24,46 @@ import littleware.web.pickle.*;
  * Just little utility class that packages up a test suite
  * for the littleware.web package.
  */
-public abstract class PackageTestSuite {
+public class PackageTestSuite extends TestSuite {
+    private static final Logger olog = Logger.getLogger( PackageTestSuite.class.getName() );
 
     /**
      * Setup a test suite to exercise this package -
      * junit.swingui.TestRunner looks for this.
      */
-    public static Test suite() {
-        TestSuite test_suite = new TestSuite("littleware.web.test.PackageTestSuite");
-        Logger log_generic = Logger.getLogger("littleware.web.test");
-        log_generic.log(Level.INFO, "Trying to setup littleware.web test suite");
+    public PackageTestSuite () {
+        super( PackageTestSuite.class.getName() );
+
+        olog.log(Level.INFO, "Trying to setup littleware.web test suite");
 
         // This should get the SimpleSessionManager up and listening on the default port
         boolean b_run = true;
 
         if (b_run) {
-            test_suite.addTest(new BeanTester("testLoginBean"));
+            this.addTest(new BeanTester("testLoginBean"));
         }
         if (b_run) {
-            test_suite.addTest(new BeanTester("testDefaultsBean"));
+            this.addTest(new BeanTester("testDefaultsBean"));
         }
         if (b_run) {
-            test_suite.addTest(new BeanTester("testNewUserBean"));
+            this.addTest(new BeanTester("testNewUserBean"));
         }
         if ( false ) {
-            test_suite.addTest(new BeanTester("testNewUserEmail"));
+            this.addTest(new BeanTester("testNewUserEmail"));
         }
         if (b_run) {
-            test_suite.addTest(new BeanTester("testBasicSession"));
+            this.addTest(new BeanTester("testBasicSession"));
         }
         if (b_run) {
-            test_suite.addTest(new BeanTester("testUpdateContactBean"));
+            this.addTest(new BeanTester("testUpdateContactBean"));
         }
         if (b_run) {
-            test_suite.addTest(new PickleTester("testPickleTwice", PickleType.XML));
+            this.addTest(new PickleTester("testPickleTwice", PickleType.XML));
         }
         if (b_run) {
-            test_suite.addTest(new BrowserTypeTester("testUserAgent"));
+            this.addTest(new BrowserTypeTester("testUserAgent"));
         }
 
-        log_generic.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
-        return test_suite;
+        olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

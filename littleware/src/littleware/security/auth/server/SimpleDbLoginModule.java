@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.*;
 import javax.security.auth.*;
 import javax.security.auth.spi.*;
 import javax.security.auth.login.*;
@@ -32,6 +31,7 @@ public class SimpleDbLoginModule implements LoginModule {
     private Subject oj_subject = null;
     private AccountManager om_account = null;
     private DbAuthManager om_dbauth = null;
+    private TransactionManager  omgr_trans = null;
     private boolean ob_check_password = false;
 
     /**
@@ -71,6 +71,14 @@ public class SimpleDbLoginModule implements LoginModule {
     @Inject
     public void setDbAuthManager( DbAuthManager m_dbauth ) {
         om_dbauth = m_dbauth;
+    }
+
+    /**
+     * Inject TransactionManager
+     */
+    @Inject
+    public void setTransactionManager( TransactionManager mgr_trans ) {
+        omgr_trans = mgr_trans;
     }
 
     /**
@@ -129,7 +137,8 @@ public class SimpleDbLoginModule implements LoginModule {
             throw new LoginException("Failure handling callbacks, caught: " + e);
         }
 
-        LittleTransaction trans_login = TransactionManager.getTheThreadTransaction();
+        // disable for now - no good way to inject TransactionManager ...
+        LittleTransaction trans_login = omgr_trans.getThreadTransaction();
         trans_login.startDbAccess();
         try {
             LittleUser p_user = (LittleUser) om_account.getPrincipal(s_user);

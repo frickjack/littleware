@@ -1,3 +1,16 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.asset.server.db.postgres;
 
 import com.google.inject.Inject;
@@ -18,53 +31,59 @@ import littleware.base.AssertionFailedException;
  * Postgres RDBMS DbAssetManager implementation
  */
 public class DbAssetPostgresManager implements DbAssetManager {
-    private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.DbAssetPostgresManager" );
+    private static final Logger olog_generic = Logger.getLogger ( DbAssetPostgresManager.class.getName() );
+
     private  int   oi_client_id = 1;
-    
+    private  final TransactionManager  om_trans;
+
+
     /**
      * Inject DataSource dependency
      */
     @Inject
-    public DbAssetPostgresManager ( @Named( "int.database_client_id" ) int i_client_id ) {
+    public DbAssetPostgresManager ( @Named( "int.database_client_id" ) int i_client_id,
+            TransactionManager m_trans
+            ) {
         oi_client_id = i_client_id;
+        om_trans = m_trans;
     }
     
 	public DbWriter<Asset> makeDbAssetSaver ()
 	{
-		return new DbAssetSaver ( getClientId () );
+		return new DbAssetSaver ( getClientId (), om_trans );
 	}
 	
 	public DbReader<Asset,UUID> makeDbAssetLoader () {
-		return new DbAssetLoader ( getClientId () );
+		return new DbAssetLoader ( getClientId (), om_trans );
 	}
 	
 	public DbWriter<Asset> makeDbAssetDeleter () {
-		return new DbAssetDeleter ( getClientId () );
+		return new DbAssetDeleter ( getClientId (), om_trans );
 	}
 	
 	public DbReader<Map<String,UUID>,String> makeDbHomeIdLoader () {
-		return new DbHomeIdLoader ( getClientId () );
+		return new DbHomeIdLoader ( getClientId (), om_trans );
 	}	
 	
 	public DbReader<Map<String,UUID>,String> makeDbAssetIdsFromLoader ( UUID u_from, AssetType n_child_type )
 	{
-		return new DbChildIdLoader ( u_from, n_child_type, getClientId () );
+		return new DbChildIdLoader ( u_from, n_child_type, getClientId (), om_trans );
 	}
 	
 	public DbReader<Set<Asset>,String> makeDbAssetsByNameLoader ( String s_name, AssetType n_type, UUID u_home )
 	{
-		return new DbAssetsByNameLoader ( s_name, n_type, u_home, getClientId () );
+		return new DbAssetsByNameLoader ( s_name, n_type, u_home, getClientId (), om_trans );
 	}
 
     
     public DbWriter<String> makeDbCacheSyncClearer ()
     {
-        return new DbCacheSyncClearer ( getClientId () );
+        return new DbCacheSyncClearer ( getClientId (), om_trans );
     }
     
     public DbReader<Map<UUID,Asset>,String> makeDbCacheSyncLoader ()
     {
-        return new DbCacheSyncLoader ( getClientId () );
+        return new DbCacheSyncLoader ( getClientId (), om_trans );
     }
     
     
@@ -90,7 +109,7 @@ public class DbAssetPostgresManager implements DbAssetManager {
             public void run () {
                 Date  t_last_error = new Date ( 0 );
                 final DbReader<Map<UUID,Asset>,String> db_sync = makeDbCacheSyncLoader ();
-                LittleTransaction trans_save = TransactionManager.getTheThreadTransaction();
+                LittleTransaction trans_save = om_trans.getThreadTransaction();
                 while ( true ) {
                     try {
                         trans_save.startDbAccess();
@@ -147,12 +166,8 @@ public class DbAssetPostgresManager implements DbAssetManager {
 
     public DbReader<Set<UUID>,String> makeDbAssetIdsToLoader ( UUID u_to, AssetType n_type )
     {
-        return new DbAssetIdsToLoader ( u_to, n_type, getClientId () );
+        return new DbAssetIdsToLoader ( u_to, n_type, getClientId (), om_trans );
     }
         
 
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

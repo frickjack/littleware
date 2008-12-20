@@ -3,9 +3,7 @@ package littleware.base;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.io.Serializable;
 import java.io.ObjectStreamException;
-import java.security.AccessController;
 import java.security.Permission;
 
 
@@ -23,10 +21,10 @@ import java.security.Permission;
  * due to RPC/etc.
  */
 public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Serializable, Comparable<T> {
+    private static final long serialVersionUID = 1111142L;
+    private static final Logger olog_generic = Logger.getLogger("littleware.base.DynamicEnum");
 
-    private static Logger olog_generic = Logger.getLogger("littleware.base.DynamicEnum");
-
-/**
+    /**
      * Little data-bucket for tracking information for each subtype
      */
     private static class SubtypeData<T extends DynamicEnum> {
@@ -64,32 +62,12 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
         private synchronized void registerMemberIfNecessary(T n_member, Permission perm_join) {
             if (!ov_id_map.containsKey(n_member.getObjectId())) {
                 Whatever.check("DynamicEnums have unique names", !ov_name_map.containsKey(n_member.getName()));
-                if ((null != perm_join) && ob_is_server) {
-                    // Disable permission check - causes mayhem in class-loaded subtypes
-                    //olog_generic.log ( Level.FINE, "Checking DynamicEnum access permissions against: " + perm_join );
-                    //AccessController.checkPermission ( perm_join );
-                }
                 ov_id_map.put(n_member.getObjectId(), n_member);
                 ov_name_map.put(n_member.getName(), n_member);
             }
         }
     }
-    private static Map<String, SubtypeData<? extends DynamicEnum>> mv_subtypes = new HashMap<String, SubtypeData<? extends DynamicEnum>>();
-    private static boolean ob_is_server = false;
-    static {
-        /**
-         * Little hack to avoid security check on clients.
-         * We are only interested in regulating DynamicEnum registration on the server.
-         */
-        try {
-            Properties prop_littleware = PropertiesLoader.get ().loadProperties();
-            String s_runtime = prop_littleware.getProperty("littleware.runtime");
-            ob_is_server = ((null != s_runtime) && s_runtime.equals("server"));
-        } catch (Exception e) {
-            olog_generic.log(Level.INFO, "Caught loading littleware.properties: " + e);
-        }
-        olog_generic.log(Level.INFO, "is_server set to: " + ob_is_server);
-    }
+    private static final Map<String, SubtypeData<? extends DynamicEnum>> mv_subtypes = new HashMap<String, SubtypeData<? extends DynamicEnum>>();
     private UUID ou_id = null;
     private String os_name = null;
     private Class<T> oc_enumtype = null;
@@ -187,13 +165,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * Constructor for subtypes to register a u_id/s_name
      * for the default implementation of getObjectId() and getName().
      * The perm_join is intended to prevent unauthorized code from
-     * introducing new enum-types (service types, asset types)
-     * to littleware servers.  The perm_join is therfore
-     * checked only if the littleware.runtime property
-     * in littleware.properties is set to <i>server</i> -
-     * so the check is not done by
-     * security-constrained clients (Applets, Weblaunch)
-     * trying to access legal enum members.
+     * introducing new enum-types (service types, asset types).
      *
      * @param u_id of the new member
      * @param s_name of the new member
@@ -201,8 +173,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      *           this must be an instanceof c_type
      * @param perm_join AccessController permission that the calling code-base must have
      *              in order to join the c_type enum-set - may be null -
-     *              ignored unless littleware.runtime is set to server.
-     *              Always ignored due to security issues with appserver class-loader
+     *              Always ignored for now - security issues with appserver class-loader
      *              and our Class.forName mechanism for registering types.  Ugh!
      */
     protected DynamicEnum(UUID u_id, String s_name, Class<T> c_type, Permission perm_join) {
@@ -231,6 +202,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Just return getName()
      */
+    @Override
     public String toString() {
         return getName();
     }
@@ -238,6 +210,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Equality is based on UUID comparison
      */
+    @Override
     public boolean equals(Object x_other) {
         return (null != x_other) && (x_other instanceof DynamicEnum) && ((DynamicEnum) x_other).getObjectId().equals(this.getObjectId());
     }
@@ -245,6 +218,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Hash on the UUID object id
      */
+    @Override
     public int hashCode() {
         return getObjectId().hashCode();
     }
@@ -261,17 +235,13 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
         }
         return getObjectId().compareTo(n_other.getObjectId());
     }
-    /** Serializable suppert */
-    private static final long serialVersionUID = 1L;
 
     /**
      * Attempt to keep us a singleton on deserialization
      */
     public Object readResolve() throws ObjectStreamException {
         try {
-            if (!ob_is_server) {
-                registerMemberIfNecessary(oc_enumtype, null);
-            }
+            registerMemberIfNecessary(oc_enumtype, null);
             return getMember(this.getObjectId(), oc_enumtype);
         } catch (NoSuchThingException e) {
             olog_generic.log(Level.WARNING, "Deserialization of asset-type: " + this + ", caught unexpected: " + e);

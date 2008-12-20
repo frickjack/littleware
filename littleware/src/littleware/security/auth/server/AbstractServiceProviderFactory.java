@@ -66,7 +66,8 @@ public abstract class AbstractServiceProviderFactory<T extends Remote> implement
 	protected  T checkAccessMakeProxy ( 
                                         SessionHelper m_helper, 
                                         boolean       b_readonly_service,
-                                        T             x_provider
+                                        T             x_provider,
+                                        Class<T>      class_interface
 										) throws BaseException, AssetException, 
         GeneralSecurityException, RemoteException
     {
@@ -85,11 +86,11 @@ public abstract class AbstractServiceProviderFactory<T extends Remote> implement
         
         Subject  j_caller = Subject.getSubject ( AccessController.getContext () );
         InvocationHandler  handler_proxy = new SessionInvocationHandler 
-            ( j_caller, x_provider, on_service.getCallLogger (), 
+            ( j_caller, x_provider, 
               on_service.getCallSampler (),
               m_helper
               );
-        Class<T> class_interface = on_service.getServiceInterface ();
+        //Class<T> class_interface = on_service.getServiceInterface ( T.class );
         T m_proxy = (T) Proxy.newProxyInstance ( class_interface.getClassLoader (),
                                                  new Class[] { class_interface },
                                                  handler_proxy

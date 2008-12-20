@@ -7,7 +7,6 @@ import java.util.logging.Level;
 import java.sql.*;
 import java.security.*;
 
-import javax.sql.DataSource;
 import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.*;
@@ -27,7 +26,7 @@ import littleware.db.*;
  */
 public class SimpleCacheManager implements CacheManager {
 
-    private static final Logger olog_generic = Logger.getLogger("littleware.asset.server.SimpleCacheManager");
+    private static final Logger olog_generic = Logger.getLogger( SimpleCacheManager.class.getName() );
     public final static int OI_MAXSIZE = 100000;
     public final static int OI_MAXSECS = 1000000; // no max age
     /**
@@ -38,18 +37,19 @@ public class SimpleCacheManager implements CacheManager {
     private Cache<UUID, Asset> ocache_asset = new SimpleCache<UUID, Asset>(OI_MAXSECS, OI_MAXSIZE);
     /** DbManager action factory - access via getDbManager () method */
     private final DbCacheManager om_db;
+    private final TransactionManager omgr_trans;
 
 
     /** 
      * Inject dependencies - setup the singleton
      *
-     * @param conn_cache derby connection
      * @param m_dbcache db-manager for cache
      * @exception SingletonException after the 1st time this gets called
      */
     @Inject
-    public SimpleCacheManager( DbCacheManager m_dbcache) {
+    public SimpleCacheManager( DbCacheManager m_dbcache, TransactionManager mgr_trans ) {
         om_db = m_dbcache;
+        omgr_trans = mgr_trans;
     }
 
     public Cache.Policy getPolicy() {
@@ -69,7 +69,7 @@ public class SimpleCacheManager implements CacheManager {
      * Defers data-save till end of transaction if LittleTransaction.isInTransaction.
      */
     public synchronized Asset put(final UUID u_key, final Asset a_value) {
-        final LittleTransaction trans_maindb = TransactionManager.getTheThreadTransaction();
+        final LittleTransaction trans_maindb = omgr_trans.getThreadTransaction();
         if (trans_maindb.isDbUpdating()) {
             // Defer saving new data till out of transaction
             trans_maindb.deferTillTransactionEnd(
@@ -103,7 +103,7 @@ public class SimpleCacheManager implements CacheManager {
 
     /** Actually returns a clone of the value if it's not null and ! LittleTransaction.isInTransaction */
     public Asset get(UUID u_key) {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             return null;
         }
         Asset a_result = ocache_asset.get(u_key);
@@ -118,7 +118,7 @@ public class SimpleCacheManager implements CacheManager {
      * Defers operation if LittleTransaction.isInTransaction
      */
     public synchronized Asset remove(final UUID u_key) {
-        LittleTransaction trans_maindb = TransactionManager.getTheThreadTransaction();
+        LittleTransaction trans_maindb = omgr_trans.getThreadTransaction();
         if (trans_maindb.isDbUpdating()) {
             trans_maindb.deferTillTransactionEnd(
                     new Runnable() {
@@ -186,7 +186,7 @@ public class SimpleCacheManager implements CacheManager {
      * @exception CacheMissException if the u_id is not in the cache
      */
     public Asset getAssetOrNull(UUID u_id) throws DataAccessException, AssetException, GeneralSecurityException {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             throw new CacheMissException("In transaction");
         }
         if (ov_null_entries.contains(u_id)) {
@@ -226,7 +226,7 @@ public class SimpleCacheManager implements CacheManager {
 
     /** Also cache miss if LittleTransaction.isInTransaction */
     public synchronized Map<String, UUID> getHomeAssetIds() throws DataAccessException, AssetException, GeneralSecurityException {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             throw new CacheMissException("In transaction");
         }
         try {
@@ -242,7 +242,7 @@ public class SimpleCacheManager implements CacheManager {
 
     /** NOOP if LittleTransaction.isInTransaction */
     public synchronized void setHomeAssetIds(Map<String, UUID> v_home_ids) {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             return;
         }
         try {
@@ -255,7 +255,7 @@ public class SimpleCacheManager implements CacheManager {
 
     public synchronized Map<String, UUID> getAssetIdsFrom(UUID u_source,
             AssetType n_type) throws DataAccessException, AssetException, GeneralSecurityException {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             throw new CacheMissException("In transaction");
         }
         try {
@@ -272,7 +272,7 @@ public class SimpleCacheManager implements CacheManager {
     public synchronized void setAssetIdsFrom(UUID u_source,
             AssetType n_type,
             Map<String, UUID> v_data) {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             return;
         }
         try {
@@ -285,7 +285,7 @@ public class SimpleCacheManager implements CacheManager {
 
     public synchronized Set<UUID> getAssetIdsTo(UUID u_to,
             AssetType n_type) throws DataAccessException, AssetException, GeneralSecurityException {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             throw new CacheMissException("In transaction");
         }
         try {
@@ -302,7 +302,7 @@ public class SimpleCacheManager implements CacheManager {
     public synchronized void setAssetIdsTo(UUID u_to,
             AssetType n_type,
             Set<UUID> v_data) {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             return;
         }
         try {
@@ -319,7 +319,7 @@ public class SimpleCacheManager implements CacheManager {
 
     public <T extends Asset> T getByName(String s_name, AssetType<T> n_type) throws DataAccessException,
             AssetException, NoSuchThingException, AccessDeniedException, GeneralSecurityException {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             throw new CacheMissException("In transaction");
         }
         try {
@@ -346,7 +346,7 @@ public class SimpleCacheManager implements CacheManager {
     }
 
     public void setAssetsByName(String s_name, AssetType n_type, UUID u_home, Set<Asset> v_data) {
-        if (TransactionManager.getTheThreadTransaction().isDbUpdating()) {
+        if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             return;
         }
         try {

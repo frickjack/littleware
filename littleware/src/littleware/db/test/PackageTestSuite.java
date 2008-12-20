@@ -11,16 +11,17 @@ import littleware.db.*;
  * Just little utility class that packages up a test suite
  * for the littleware.db package.
  */
-public abstract class PackageTestSuite {
+public class PackageTestSuite extends TestSuite {
+    private static final Logger olog = Logger.getLogger( PackageTestSuite.class.getName() );
 
     /**
      * Setup a test suite to exercise this package -
      * junit.swingui.TestRunner looks for this.
      */
-    public static Test suite() {
-        TestSuite x_suite = new TestSuite("littleware.db.test.PackageTestSuite");
-        Logger x_logger = Logger.getLogger("littleware.db.test");
-        x_logger.log(Level.INFO, "Trying to setup littleware.db test suite");
+    public PackageTestSuite() {
+        super( PackageTestSuite.class.getName() );
+        
+        olog.log(Level.INFO, "Trying to setup littleware.db test suite");
 
         try {
             ConnectionFactory x_factory = new ProxoolConnectionFactory("org.postgresql.Driver",
@@ -29,12 +30,11 @@ public abstract class PackageTestSuite {
                     "demo_user_password",
                     "demo_pool",
                     20);
-            x_suite.addTest(new ConnectionFactoryTester("testQuery", x_factory, "SELECT 'Hello'"));
+            this.addTest(new ConnectionFactoryTester("testQuery", x_factory, "SELECT 'Hello'"));
         } catch (LittleSqlException e) {
-            x_logger.log(Level.SEVERE, "Failed setting up postgres test proxool connection pool, caught: " + e);
+            olog.log(Level.SEVERE, "Failed setting up postgres test proxool connection pool, caught: " + e);
         }
-        x_logger.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
-        return x_suite;
+        olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 
     /**

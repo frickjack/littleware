@@ -1,32 +1,43 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.server.db.postgres;
 
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.*;
 import java.sql.*;
 
 import littleware.asset.*;
 import littleware.asset.server.AbstractDbReader;
+import littleware.asset.server.TransactionManager;
 import littleware.base.*;
-import littleware.db.*;
 
 
 /**
  * Data loader for to-id based search
  */
 public class DbAssetIdsToLoader extends AbstractDbReader<Set<UUID>,String> {
-	private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.postgres.DbAssetIdsToLoader" );
+	private static final Logger olog_generic = Logger.getLogger ( DbAssetIdsToLoader.class.getName() );
     private final int           oi_client_id;
 	
-	private UUID      ou_to = null;
-	private AssetType on_type = null;
+	private final UUID      ou_to;
+	private final AssetType on_type;
 	
 	/**
-        * Constructor registers query with super-class,
+     * Constructor registers query with super-class,
      * and stashes the local client id.
 	 */
-	public DbAssetIdsToLoader ( UUID u_to, AssetType n_type, int i_client_id ) {
-		super ( "SELECT * FROM littleware.getAssetIdsTo( ?, ?, ? )", false );
+	public DbAssetIdsToLoader ( UUID u_to, AssetType n_type, int i_client_id, TransactionManager mgr_trans ) {
+		super ( "SELECT * FROM littleware.getAssetIdsTo( ?, ?, ? )", false, mgr_trans );
 		ou_to = u_to;
 		on_type = n_type;
         oi_client_id = i_client_id;
@@ -39,6 +50,7 @@ public class DbAssetIdsToLoader extends AbstractDbReader<Set<UUID>,String> {
 	 * @param s_arg is ignored
 	 * @return ResultSet from execution of query or callable statement
 	 */
+    @Override
 	public ResultSet executeStatement( PreparedStatement sql_stmt, String s_arg ) throws SQLException {		
 		sql_stmt.setString ( 1, UUIDFactory.makeCleanString ( ou_to ) );
 		if ( null != on_type ) {
@@ -69,7 +81,3 @@ public class DbAssetIdsToLoader extends AbstractDbReader<Set<UUID>,String> {
         return v_result;
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.base.test;
 
 import java.util.logging.Logger;
@@ -11,46 +23,45 @@ import littleware.base.*;
  * Just little utility class that packages up a test suite
  * for the littleware.base package.
  */
-public abstract class PackageTestSuite {
-
+public class PackageTestSuite extends TestSuite {
+    private static final Logger olog = Logger.getLogger( PackageTestSuite.class.getName() );
     /**
      * Setup a test suite to exercise this package -
      * junit.swingui.TestRunner looks for this.
      */
-    public static Test suite() {
-        TestSuite x_suite = new TestSuite("littleware.base.test.PackageTestSuite");
-        Logger x_logger = Logger.getLogger("littleware.base.test");
+    public PackageTestSuite() {
+        super( PackageTestSuite.class.getName() );
+
         boolean b_run = true;
 
         if ( b_run ) {
-            x_suite.addTest( new XmlResourceBundleTester( "testBasicXmlBundle" ) );
+            this.addTest( new XmlResourceBundleTester( "testBasicXmlBundle" ) );
         }
         if (b_run) {
             int i_ageout_secs = 10;
             int i_maxsize = 100;
             Cache x_cache = new SimpleCache(i_ageout_secs, i_maxsize);
-            x_suite.addTest(new CacheTester("testGeneric", x_cache, i_ageout_secs, i_maxsize));
-            x_suite.addTest(new CacheTester("testAgeOut", x_cache, i_ageout_secs, i_maxsize));
-            x_suite.addTest(new CacheTester("testSizeLimit", x_cache, i_ageout_secs, i_maxsize));
+            this.addTest(new CacheTester("testGeneric", x_cache, i_ageout_secs, i_maxsize));
+            this.addTest(new CacheTester("testAgeOut", x_cache, i_ageout_secs, i_maxsize));
+            this.addTest(new CacheTester("testSizeLimit", x_cache, i_ageout_secs, i_maxsize));
         }
         if (b_run) {
-            x_suite.addTest(new UUIDFactoryTester("testFactory", UUIDFactory.getFactory()));
-            x_suite.addTest(new DynamicEnumTester("testEnum"));
-            x_suite.addTest(new XmlSpecialTester("testEncodeDecode"));
-            x_suite.addTest(littleware.base.stat.test.PackageTestSuite.suite());
+            this.addTest(new UUIDFactoryTester("testFactory", UUIDFactory.getFactory()));
+            this.addTest(new DynamicEnumTester("testEnum"));
+            this.addTest(new XmlSpecialTester("testEncodeDecode"));
+            this.addTest(littleware.base.stat.test.PackageTestSuite.suite());
         }
         if (b_run) {
             ScriptRunner m_script = ScriptRunnerFactory.getFactory().create();
 
-            x_suite.addTest(new ScriptTester("testCharUtil", m_script, "javascript"));
+            this.addTest(new ScriptTester("testCharUtil", m_script, "javascript"));
         }
         if (b_run) {
-            x_suite.addTest(new SwingTester("testJTextAppender"));
-            x_suite.addTest(new SwingTester("testJScriptRunner"));
-            x_suite.addTest(new SwingTester("testListModelIterator"));
+            this.addTest(new SwingTester("testJTextAppender"));
+            this.addTest(new SwingTester("testJScriptRunner"));
+            this.addTest(new SwingTester("testListModelIterator"));
         }
-        x_logger.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
-        return x_suite;
+        olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 
     /**
@@ -58,15 +69,11 @@ public abstract class PackageTestSuite {
      */
     public static void main(String[] v_args) {
         String[] v_launch_args = {"littleware.base.test.PackageTestSuite"};
-        Logger x_logger = Logger.getLogger("littleware.base.test");
 
-        x_logger.setLevel(Level.ALL);  // log everything during testing
+        olog.setLevel(Level.ALL);  // log everything during testing
         junit.swingui.TestRunner.main(v_launch_args);
-    //junit.textui.TestRunner.main( v_launch_args );
-    //junit.awtui.TestRunner.main( v_launch_args );
+        //junit.textui.TestRunner.main( v_launch_args );
     }
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -1,8 +1,20 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.security.auth;
 
 import java.lang.reflect.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.*;
 import java.security.*;
 import javax.security.auth.Subject;
@@ -32,11 +44,11 @@ public class SessionInvocationHandler<T> extends SubjectInvocationHandler<T> {
 	 * @param stat_call to report call runtime to
 	 * @param m_retriever local AssetRetriever to reload session-data with
 	 */
-	public SessionInvocationHandler ( Subject j_caller, T x_real, Logger log_call, 
+	public SessionInvocationHandler ( Subject j_caller, T x_real, 
 									  Sampler stat_call, 
 									  SessionHelper m_helper
 									  ) {
-		super ( j_caller, x_real, log_call, stat_call );
+		super ( j_caller, x_real, stat_call );
 		om_helper = m_helper;
 		if ( null == j_caller ) {
 			throw new NullPointerException ( "Caller is null" );
@@ -71,7 +83,4 @@ public class SessionInvocationHandler<T> extends SubjectInvocationHandler<T> {
 		return super.invoke ( proxy, method_call, v_args );
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

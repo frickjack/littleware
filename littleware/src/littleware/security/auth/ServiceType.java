@@ -1,10 +1,20 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.auth;
 
 import java.rmi.Remote;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.security.GeneralSecurityException;
 
 import littleware.asset.*;
 import littleware.base.*;
@@ -34,13 +44,11 @@ import littleware.security.*;
  *     to simplify the construction of Guice injection modules that key
  *     on ServiceType like littleware.security.auth.ClientServiceModule
  */
-public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceType> {
+public class ServiceType<T extends Remote> extends DynamicEnum<ServiceType> {
 
     private static final Logger olog_generic = Logger.getLogger( ServiceType.class.getName () );
-    private static final Logger olog_call = Logger.getLogger( ServiceType.class.getName() + ".call_logger");
     private Sampler ostat_call = new SimpleSampler();
-
-    private Class<T> oclass_service = null;
+    private Class<T>  oclass_service = null;
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -53,9 +61,13 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
      * for the default implementation of getObjectId(), getName(),
      * and getServiceClass.
      */
-    protected ServiceType(UUID u_id, String s_name, Class<T> class_service ) {
+    public ServiceType(UUID u_id, String s_name, Class<T> class_service ) {
         super(u_id, s_name, ServiceType.class, new AccessPermission("newtype"));
         oclass_service = class_service;
+    }
+
+    public Class<T>  getInterface() {
+        return oclass_service;
     }
 
     /** Shortcut to DynamicEnum.getMembers */
@@ -82,95 +94,25 @@ public abstract class ServiceType<T extends Remote> extends DynamicEnum<ServiceT
         return ostat_call;
     }
 
-    /**
-     * Get the logger to write call-trace to.
-     * Currently only used on littleware server.
-     */
-    public Logger getCallLogger() {
-        return olog_call;
-    }
-    
-    
-
-    /**
-     * Get the Class of the interface this service provider supports: T.class
-     */
-    public Class<T> getServiceInterface() { return oclass_service; }
-
-    
-    
-    static ServiceProviderFactory<AssetManager> ofactory_asset_manager = null;
-    static ServiceProviderFactory<AssetSearchManager> ofactory_search_manager = null;
-    static ServiceProviderFactory<AccountManager> ofactory_account_manager = null;
-    static ServiceProviderFactory<AclManager> ofactory_acl_manager = null;
+            
     public static final ServiceType<AssetManager> ASSET_MANAGER =
             new ServiceType<AssetManager>(UUIDFactory.parseUUID("FD4C5F5B4C904AC6BDC9ECA891C39543"),
-            "littleware.ASSET_MANAGER_SERVICE", AssetManager.class ) {
+            "littleware.ASSET_MANAGER_SERVICE", AssetManager.class );
 
-                public AssetManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
-                        GeneralSecurityException, RemoteException {
-                    if (null == ofactory_asset_manager) {
-                        ResourceBundle bundle_asset = PropertiesLoader.get().getBundle("littleware.asset.server.AssetResourceBundle");
-                        ofactory_asset_manager = (ServiceProviderFactory<AssetManager>) bundle_asset.getObject("AssetManagerServiceProvider");
-                    }
-                    return ofactory_asset_manager.createServiceProvider(m_helper);
-                }
-
-             };
     public static final ServiceType<AssetSearchManager> ASSET_SEARCH =
             new ServiceType<AssetSearchManager>(UUIDFactory.parseUUID("56A05693C0874780A716DEFA4E262F6F"),
-            "littleware.ASSET_SEARCH_SERVICE", AssetSearchManager.class ) {
+            "littleware.ASSET_SEARCH_SERVICE", AssetSearchManager.class );
 
-                public AssetSearchManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
-                        GeneralSecurityException, RemoteException {
-                    if (null == ofactory_search_manager) {
-                        ResourceBundle bundle_asset = PropertiesLoader.get().getBundle("littleware.asset.server.AssetResourceBundle");
-                        ofactory_search_manager = (ServiceProviderFactory<AssetSearchManager>) bundle_asset.getObject("AssetSearchServiceProvider");
-                    }
-                    return ofactory_search_manager.createServiceProvider(m_helper);
-                }
-
-            };
     public static final ServiceType<SessionHelper> SESSION_HELPER =
             new ServiceType<SessionHelper>(UUIDFactory.parseUUID("BD4110EF7A3C482D9B3500DFC74829DE"),
-            "littleware.SESSION_HELPER_SERVICE", SessionHelper.class ) {
+            "littleware.SESSION_HELPER_SERVICE", SessionHelper.class );
 
-                /** Pass-through - just return the m_helper argument */
-                public SessionHelper createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
-                        GeneralSecurityException, RemoteException {
-                    return m_helper;
-                }
-
-            };
     public static final ServiceType<AccountManager> ACCOUNT_MANAGER =
             new ServiceType<AccountManager>(UUIDFactory.parseUUID("402DD983DD8C47118232285E430611C2"),
-            "littleware.ACCOUNT_MANAGER_SERVICE", AccountManager.class ) {
+            "littleware.ACCOUNT_MANAGER_SERVICE", AccountManager.class );
 
-                public AccountManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
-                        GeneralSecurityException, RemoteException {
-                    if (null == ofactory_account_manager) {
-                        ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
-                        ofactory_account_manager = (ServiceProviderFactory<AccountManager>) bundle_security.getObject("AccountServiceProvider");
-                    }
-                    return ofactory_account_manager.createServiceProvider(m_helper);
-                }
-
-            };
     public static final ServiceType<AclManager> ACL_MANAGER =
             new ServiceType<AclManager>(UUIDFactory.parseUUID("25A9379640B94B26BBA6D0607981B070"),
-            "littleware.ACL_MANAGER_SERVICE", AclManager.class ) {
-
-                public AclManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException,
-                        GeneralSecurityException, RemoteException {
-                    if (null == ofactory_acl_manager) {
-                        ResourceBundle bundle_security = PropertiesLoader.get().getBundle("littleware.security.server.SecurityResourceBundle");
-                        ofactory_acl_manager = (ServiceProviderFactory<AclManager>) bundle_security.getObject("AclServiceProvider");
-                    }
-                    return ofactory_acl_manager.createServiceProvider(m_helper);
-                }
-
-            };
+            "littleware.ACL_MANAGER_SERVICE", AclManager.class );
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

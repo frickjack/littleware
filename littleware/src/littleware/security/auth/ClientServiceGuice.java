@@ -12,11 +12,8 @@ import com.google.inject.Binder;
 import com.google.inject.Provider;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.logging.Level;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -92,7 +89,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                         }
                     }
         };
-        binder.bind( service.getServiceInterface() ).toProvider( provider );
+        binder.bind( service.getInterface() ).toProvider( provider );
         return provider;
     }
     

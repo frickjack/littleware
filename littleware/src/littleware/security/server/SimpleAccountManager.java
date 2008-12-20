@@ -31,6 +31,8 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     private final AssetSearchManager om_search;
     private final DbAuthManager om_dbauth;
     private final QuotaUtil     om_quota;
+    private final TransactionManager omgr_trans;
+
     /**
      * Constructor injects dependencies
      *
@@ -42,12 +44,14 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     public SimpleAccountManager(AssetManager m_asset,
             AssetSearchManager m_searcher,
             DbAuthManager m_dbauth,
-            QuotaUtil m_quota
+            QuotaUtil m_quota,
+            TransactionManager mgr_trans
             ) {
         om_asset = m_asset;
         om_search = m_searcher;
         om_dbauth = m_dbauth;
         om_quota = m_quota;
+        omgr_trans = mgr_trans;
     }
 
     /**
@@ -351,7 +355,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             throw new IllegalNameException("Illegal password: " + s_password);
         }
 
-        LittleTransaction trans_update = TransactionManager.getTheThreadTransaction();
+        LittleTransaction trans_update = omgr_trans.getThreadTransaction();
 
         try {
             boolean b_rollback = true;

@@ -1,3 +1,16 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.asset.server;
 
 import java.rmi.RemoteException;
@@ -29,17 +42,20 @@ public class LocalAssetRetriever implements AssetRetriever {
     private final DbAssetManager om_db;
     private final CacheManager   om_cache;
     private final AssetSpecializerRegistry  oregistry_special;
+    private final TransactionManager        omgr_trans;
 
     /**
      * Constructor stashes DbManager, and CacheManager
      */
     public LocalAssetRetriever(DbAssetManager m_db,
             CacheManager m_cache,
-            AssetSpecializerRegistry registry_special
+            AssetSpecializerRegistry registry_special,
+            TransactionManager  mgr_trans
             ) {
         om_db = m_db;
         om_cache = m_cache;
         oregistry_special = registry_special;
+        omgr_trans = mgr_trans;
     }
 
     public Asset getAsset(UUID u_id) throws BaseException, AssetException,
@@ -57,7 +73,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             return null;
         }
 
-        Map<UUID, Asset> v_cycle_cache = TransactionManager.getTheThreadTransaction().startDbAccess();
+        Map<UUID, Asset> v_cycle_cache = omgr_trans.getThreadTransaction().startDbAccess();
 
         try {
             Asset a_result = v_cycle_cache.get(u_id);
@@ -76,7 +92,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             littleware.base.Whatever.check("Got a valid id", a_result.getObjectId() != null);
             return secureAndSpecialize(a_result);
         } finally {
-            TransactionManager.getTheThreadTransaction().endDbAccess(v_cycle_cache);
+            omgr_trans.getThreadTransaction().endDbAccess(v_cycle_cache);
         }
     }
 
@@ -89,7 +105,7 @@ public class LocalAssetRetriever implements AssetRetriever {
      */
     <T extends Asset> T secureAndSpecialize(T a_loaded) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        Map<UUID, Asset> v_cycle_cache = TransactionManager.getTheThreadTransaction().startDbAccess();
+        Map<UUID, Asset> v_cycle_cache = omgr_trans.getThreadTransaction().startDbAccess();
 
         try {
             T a_result = oregistry_special.getService( a_loaded.getAssetType() ).narrow(a_loaded, this);
@@ -140,7 +156,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             throw new DataAccessException("Failure to specialize " + a_loaded.getAssetType() + " type asset: " + a_loaded.getName() +
                     ", caught: " + e, e);
         } finally {
-            TransactionManager.getTheThreadTransaction().endDbAccess(v_cycle_cache);
+            omgr_trans.getThreadTransaction().endDbAccess(v_cycle_cache);
         }
     }
 
@@ -153,7 +169,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             return null;
         }
 
-        Map<UUID, Asset> v_cycle_cache = TransactionManager.getTheThreadTransaction().startDbAccess();
+        Map<UUID, Asset> v_cycle_cache = omgr_trans.getThreadTransaction().startDbAccess();
 
         try {
             Asset a_result = v_cycle_cache.get(u_id);
@@ -184,13 +200,13 @@ public class LocalAssetRetriever implements AssetRetriever {
 
             return a_result;
         } finally {
-            TransactionManager.getTheThreadTransaction().endDbAccess(v_cycle_cache);
+            omgr_trans.getThreadTransaction().endDbAccess(v_cycle_cache);
         }
     }
 
     public Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        Map<UUID, Asset> v_cycle_cache = TransactionManager.getTheThreadTransaction().startDbAccess();
+        Map<UUID, Asset> v_cycle_cache = omgr_trans.getThreadTransaction().startDbAccess();
 
         try {
             Set<Asset> v_result = new HashSet<Asset>();
@@ -202,7 +218,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             }
             return v_result;
         } finally {
-            TransactionManager.getTheThreadTransaction().endDbAccess(v_cycle_cache);
+            omgr_trans.getThreadTransaction().endDbAccess(v_cycle_cache);
         }
     }
 

@@ -25,6 +25,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.addressbook.server.AddressServerActivator;
+import littleware.apps.filebucket.server.BucketServerActivator;
+import littleware.apps.filebucket.server.BucketServerGuice;
 import littleware.apps.tracker.server.TrackerServerActivator;
 import littleware.asset.server.AssetServerGuice;
 import littleware.base.AssertionFailedException;
@@ -65,23 +67,28 @@ public class ServerBootstrap implements LittleBootstrap {
     private final List<Module>  ov_guice;
     {
         try {
-            ov_guice = Arrays.asList(
-                new PropertiesGuice( PropertiesLoader.get().loadProperties() ),
-                new AssetServerGuice (),
-                new AuthServerGuice(),
-                new SecurityServerGuice (),
-                new DbGuice()
+            ov_guice = new ArrayList(
+                    Arrays.asList(
+                    new PropertiesGuice( PropertiesLoader.get().loadProperties() ),
+                    new AssetServerGuice (),
+                    new AuthServerGuice(),
+                    new BucketServerGuice(),
+                    new SecurityServerGuice (),
+                    new DbGuice()
+                    )
                 );
         } catch ( IOException ex ) {
             throw new AssertionFailedException( "Failed default Guice setup", ex );
         }
     }
-    private final List<Class<? extends BundleActivator>>  ov_osgi = Arrays.asList(
-            ServerActivator.class,
-            SecurityServerActivator.class,
-            TrackerServerActivator.class,
-            AddressServerActivator.class
-            );
+    private final List<Class<? extends BundleActivator>>  ov_osgi = new ArrayList(
+            Arrays.asList(
+                ServerActivator.class,
+                SecurityServerActivator.class,
+                TrackerServerActivator.class,
+                AddressServerActivator.class,
+                BucketServerActivator.class
+            ));
 
 
     /**

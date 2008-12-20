@@ -1,20 +1,28 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.security.auth.server;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import java.rmi.*;
-import java.rmi.registry.*;
 //import java.rmi.server.UnicastRemoteObject;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.security.*;
 import javax.security.auth.*;
 import java.lang.ref.WeakReference;
 
-import java.net.URL;
-import java.net.InetAddress;
 import littleware.asset.*;
 import littleware.base.*;
 import littleware.security.*;
@@ -29,17 +37,7 @@ import littleware.security.auth.*;
  */
 public class SimpleSessionManager extends LittleRemoteObject implements SessionManager {
 
-    private static final Logger olog_generic = Logger.getLogger("littleware.security.auth.server.SimpleSessionManager");
-    private static URL ourl_local = null;
-    static {
-        try {
-            ourl_local = new URL("http://localhost/littleware/SimpleSessionManager");
-            String s_hostname = InetAddress.getLocalHost().getHostName();
-            ourl_local = new URL("http://" + s_hostname + "/littleware/SimpleSessionManager");
-        } catch (java.io.IOException e) {
-            olog_generic.log(Level.SEVERE, "Unable to cache hostname, caught: " + e);
-        }
-    }
+    private static final Logger olog_generic = Logger.getLogger( SimpleSessionManager.class.getName() );
     private final AssetSearchManager om_search;
     private final AssetManager om_asset;
     private final Map<UUID, WeakReference<SessionHelper>> ov_session_map = new HashMap<UUID, WeakReference<SessionHelper>>();
@@ -97,7 +95,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private SessionHelper setupNewHelper(LittleSession a_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         Subject j_caller = a_session.getSubject(om_search);
         SessionHelper m_helper = new SimpleSessionHelper(a_session.getObjectId(), om_search, om_asset, this);
-        InvocationHandler handler_helper = new SessionInvocationHandler(j_caller, m_helper, ServiceType.SESSION_HELPER.getCallLogger(), ServiceType.SESSION_HELPER.getCallSampler(), m_helper);
+        InvocationHandler handler_helper = new SessionInvocationHandler(j_caller, m_helper, ServiceType.SESSION_HELPER.getCallSampler(), m_helper);
         SessionHelper m_proxy = (SessionHelper) Proxy.newProxyInstance ( SessionHelper.class.getClassLoader (),
 														 new Class[] { SessionHelper.class },
 														 handler_helper
@@ -171,10 +169,4 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             throw new AccessDeniedException("Caught unexpected: " + e, e);
         }
     }
-
-    public URL getUrl() throws RemoteException {
-        return ourl_local;
-    }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

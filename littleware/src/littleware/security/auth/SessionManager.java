@@ -1,15 +1,24 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.auth;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.UUID;
 import java.security.GeneralSecurityException;
-import java.net.URL;
 
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
-import littleware.base.DataAccessException;
-import littleware.security.AccessDeniedException;
 
 
 /**
@@ -53,13 +62,5 @@ public interface SessionManager extends Remote {
 											) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException;
 	
-	/**
-	 * Get the URL of the manager we're connected to
-	 */
-	public URL getUrl () throws RemoteException;
-
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

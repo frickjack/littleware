@@ -1,12 +1,25 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.server.db.postgres;
 
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.*;
 import java.sql.*;
 
+
 import littleware.asset.server.AbstractDbReader;
 import littleware.asset.*;
+import littleware.asset.server.TransactionManager;
 import littleware.base.*;
 
 
@@ -19,16 +32,18 @@ import littleware.base.*;
  */
 public class DbCacheSyncLoader 
         extends AbstractDbReader<Map<UUID,Asset>,String> {
-	private static Logger olog_generic = Logger.getLogger ( "littleware.asset.server.db.postgres.DbCacheSyncLoader" );
+	private static final Logger olog_generic = Logger.getLogger ( DbCacheSyncLoader.class.getName() );
 	
 	private final int       oi_src;
+    private final TransactionManager  omgr_trans;
 	
 	/**
      * Constructor registers query with super-class
 	 */
-	public DbCacheSyncLoader ( int i_src ) {
-		super ( "SELECT * FROM littleware.synchCache( ? )", false );
+	public DbCacheSyncLoader ( int i_src, TransactionManager mgr_trans ) {
+		super ( "SELECT * FROM littleware.synchCache( ? )", false, mgr_trans );
 		oi_src = i_src;
+        omgr_trans = mgr_trans;
 	}
 	
 	/**
@@ -38,6 +53,7 @@ public class DbCacheSyncLoader
 	 * @param s_arg is ignored
 	 * @return ResultSet from execution of query or callable statement
 	 */
+    @Override
 	public ResultSet executeStatement( PreparedStatement sql_stmt, String s_arg ) throws SQLException {
 		sql_stmt.setInt( 1, oi_src );
         
@@ -49,7 +65,7 @@ public class DbCacheSyncLoader
      * UUID to null if asset has been deleted.
      */
 	public Map<UUID,Asset> loadObject( ResultSet sql_rset ) throws SQLException {
-		DbAssetLoader db_loader = new DbAssetLoader ( oi_src );
+		DbAssetLoader db_loader = new DbAssetLoader ( oi_src, omgr_trans );
 		Map<UUID,Asset>    v_result = new HashMap<UUID,Asset> ();
 		
 		while ( sql_rset.next () ) {
@@ -65,7 +81,4 @@ public class DbCacheSyncLoader
 		return v_result;
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

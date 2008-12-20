@@ -1,6 +1,6 @@
-package littleware.security.auth;
+package littleware.security.auth.server;
 
-import java.rmi.Remote;
+import littleware.security.auth.*;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 
@@ -22,7 +22,7 @@ public interface ServiceProviderFactory<T> {
      *
      * @param m_helper session handle
      */
-    public T createServiceProvider ( SessionHelper m_helper ) throws BaseException, AssetException,
+    public T createServiceProvider ( SessionHelper m_helper ) throws BaseException, 
         GeneralSecurityException, RemoteException;
 }
 

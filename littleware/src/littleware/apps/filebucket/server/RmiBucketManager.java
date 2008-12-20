@@ -71,6 +71,8 @@ public class RmiBucketManager extends LittleRemoteObject implements BucketManage
         return om_proxy.copyFile(u_in, s_in_path, a_out, s_copy_path,
                 s_update_comment);
     }
-}// littleware asset management system
+}
+
+// littleware asset management system
 // Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

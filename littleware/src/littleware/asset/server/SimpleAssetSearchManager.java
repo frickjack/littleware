@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.server;
 
 import com.google.inject.Inject;
@@ -18,11 +30,11 @@ import littleware.db.*;
  * Simple implementation of Asset-search interface.  
  */
 public class SimpleAssetSearchManager extends LocalAssetRetriever implements AssetSearchManager {
-	private static final Logger      olog_generic = Logger.getLogger ( "littleware.asset.server.LocalAssetRetriever" );
+	private static final Logger      olog_generic = Logger.getLogger ( LocalAssetRetriever.class.getName() );
     
 	private final DbAssetManager     om_db;
 	private final CacheManager       om_cache;
-	
+	private final TransactionManager omgr_trans;
 	
 	/**
 	 * Constructor stashes DataSource, DbManager, and CacheManager
@@ -30,12 +42,14 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     @Inject
 	public SimpleAssetSearchManager ( DbAssetManager m_db,
 								 CacheManager m_cache,
-                                 AssetSpecializerRegistry registry_special
+                                 AssetSpecializerRegistry registry_special,
+                                 TransactionManager mgr_trans
                                  )
 	{
-		super ( m_db, m_cache, registry_special );
+		super ( m_db, m_cache, registry_special, mgr_trans );
 		om_db = m_db;
 		om_cache = m_cache;
+        omgr_trans = mgr_trans;
 	}
 	
 	
@@ -58,7 +72,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         
         // cache miss
         final Set<Asset> v_load;
-        Map<UUID,Asset> v_cycle_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
+        Map<UUID,Asset> v_cycle_cache = omgr_trans.getThreadTransaction ().startDbAccess ();
         try {
             try {
                 DbReader<Set<Asset>,String> db_reader = om_db.makeDbAssetsByNameLoader ( s_name, n_type, null );
@@ -77,7 +91,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
             v_cycle_cache.put ( a_load.getObjectId (), a_load );
             return (T) secureAndSpecialize ( a_load );
         } finally {
-            TransactionManager.getTheThreadTransaction ().endDbAccess ( v_cycle_cache );
+            omgr_trans.getThreadTransaction ().endDbAccess ( v_cycle_cache );
         }
     }
         
@@ -98,7 +112,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         GeneralSecurityException, RemoteException
     {	
         // setup a cycle cache
-        Map<UUID,Asset> v_cycle_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
+        Map<UUID,Asset> v_cycle_cache = omgr_trans.getThreadTransaction ().startDbAccess ();
 		
         try {
             if ( path_asset.hasRootBacktrack () ) {
@@ -147,7 +161,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
             v_result.put ( path_asset, a_result );        
             return v_result;
         } finally {
-            TransactionManager.getTheThreadTransaction ().endDbAccess ( v_cycle_cache );
+            omgr_trans.getThreadTransaction ().endDbAccess ( v_cycle_cache );
         }
     }
     
@@ -186,7 +200,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     public Map<UUID,Long> checkTransactionCount( Map<UUID,Long> v_check
                                                            ) throws BaseException, RemoteException
     {
-        Map<UUID,Asset> v_cache = TransactionManager.getTheThreadTransaction ().startDbAccess ();
+        Map<UUID,Asset> v_cache = omgr_trans.getThreadTransaction ().startDbAccess ();
         Map<UUID,Long>  v_result = new HashMap<UUID,Long> ();
         
         try {
@@ -210,7 +224,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 }
             }
         } finally {
-            TransactionManager.getTheThreadTransaction ().endDbAccess ( v_cache );
+            omgr_trans.getThreadTransaction ().endDbAccess ( v_cache );
         }
         return v_result;
     }
@@ -243,7 +257,4 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     }        
     
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

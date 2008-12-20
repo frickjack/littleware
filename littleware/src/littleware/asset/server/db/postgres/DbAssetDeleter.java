@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.server.db.postgres;
 
 
@@ -5,8 +17,8 @@ import java.sql.*;
 
 import littleware.asset.Asset;
 import littleware.asset.server.AbstractDbWriter;
+import littleware.asset.server.TransactionManager;
 import littleware.base.UUIDFactory;
-import littleware.db.*;
 
 /**
  * Little handler for deleting assets out of the repository
@@ -18,8 +30,8 @@ public class DbAssetDeleter extends AbstractDbWriter<Asset> {
 	 * Constructor registers query with super-class,
      * and stashes the local client id.
 	 */
-	public DbAssetDeleter ( int i_client_id ) {
-		super ( "{ ? = call littleware.deleteAsset( ?, ?, ? ) }", true );
+	public DbAssetDeleter ( int i_client_id, TransactionManager mgr_trans ) {
+		super ( "{ ? = call littleware.deleteAsset( ?, ?, ? ) }", true, mgr_trans );
         oi_client_id = i_client_id;
 	}
 	
@@ -44,7 +56,4 @@ public class DbAssetDeleter extends AbstractDbWriter<Asset> {
  	}
 	
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

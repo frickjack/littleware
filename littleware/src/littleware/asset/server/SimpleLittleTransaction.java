@@ -1,5 +1,19 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.server;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import java.sql.Connection;
 import java.sql.Savepoint;
 import java.sql.SQLException;
@@ -10,10 +24,8 @@ import java.util.logging.Level;
 import javax.sql.DataSource;
 
 import littleware.asset.Asset;
-import littleware.base.Factory;
 import littleware.base.AssertionFailedException;
 import littleware.base.UUIDFactory;
-import littleware.base.Whatever;
 
 
 /** 
@@ -30,7 +42,9 @@ import littleware.base.Whatever;
  */
 public class SimpleLittleTransaction implements JdbcTransaction {
     private static final Logger    olog_generic = Logger.getLogger ( SimpleLittleTransaction.class.getName () );
-    private static DataSource      mdsource_db = null;
+
+
+    private final DataSource      odatasource;
     
     
     private final Map<UUID,Asset>  ov_cache = new HashMap<UUID,Asset> ();
@@ -46,10 +60,9 @@ public class SimpleLittleTransaction implements JdbcTransaction {
      *
      * @exception IllegalStateException if data-source not set
      */
-    public SimpleLittleTransaction () {
-        if ( null == mdsource_db ) {
-            throw new IllegalStateException ( "DataSource not yet initialized" );
-        }
+    @Inject
+    public SimpleLittleTransaction ( @Named( "datasource.littleware" ) DataSource datasource ) {
+        odatasource = datasource;
     }
     
 
@@ -65,11 +78,11 @@ public class SimpleLittleTransaction implements JdbcTransaction {
      * that will support a move to JPA later.
      *
      * @param dsource_db global data source to allocate connections with
-     */
+     *
     public static void setDataSource ( DataSource dsource_db ) {
         mdsource_db = dsource_db;
     }
-        
+      */
 
     public synchronized Map<UUID,Asset> startDbAccess () {
         Date t_now = new Date ();
@@ -143,7 +156,7 @@ public class SimpleLittleTransaction implements JdbcTransaction {
             if ( ! ostack_savept.isEmpty () ) {
                 throw new IllegalStateException ( "No savepoints should be present at this point" );
             }
-            oconn_db = mdsource_db.getConnection ();
+            oconn_db = odatasource.getConnection ();
             oconn_db.setAutoCommit ( false );
         }
         return oconn_db;
@@ -284,7 +297,4 @@ public class SimpleLittleTransaction implements JdbcTransaction {
         }
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

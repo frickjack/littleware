@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.test;
 
 import com.google.inject.Inject;
@@ -18,7 +30,7 @@ import littleware.security.auth.*;
  * Just little utility class that packages up a test suite
  * for the littleware.security package.
  */
-public class PackageTestSuite {
+public class PackageTestSuite extends TestSuite {
     private static final Logger   olog = Logger.getLogger ( PackageTestSuite.class.getName() );
 
     private final AssetManager       om_asset;
@@ -43,37 +55,31 @@ public class PackageTestSuite {
             AclManager m_acl
             )
     {
+        super( PackageTestSuite.class.getName() );
+
         om_asset = m_asset;
         om_session = m_session;
         om_search = m_search;
         om_account = m_account;
         om_acl = m_acl;
-    }
-
-
-    /**
-	 * Setup a test suite to exercise this package -
-	 * junit.swingui.TestRunner looks for this.
-	 */
-    public TestSuite buildSuite () {
-        TestSuite test_suite = new TestSuite ( "littleware.security.test.PackageTestSuite" );
+        
 		olog.log ( Level.INFO, "Trying to setup littleware.security test suite" );
 		
 		olog.log ( Level.INFO, "Registering littleware SimpleDbLoginConfiguration" );
 		boolean        b_run = true;
 		
 		if ( b_run ) {
-			test_suite.addTest ( new LoginTester ( "testLogin", LoginTester.OS_TEST_USER, 
+			this.addTest ( new LoginTester ( "testLogin", LoginTester.OS_TEST_USER,
 												   LoginTester.OS_TEST_USER_PASSWORD, om_session
 												   ) 
 								 );
-            test_suite.addTest ( new LoginTester ( "testClientModuleLogin", LoginTester.OS_TEST_USER, 
+            this.addTest ( new LoginTester ( "testClientModuleLogin", LoginTester.OS_TEST_USER,
 												   LoginTester.OS_TEST_USER_PASSWORD, om_session
 												   ) 
 								 );            
 		}
 		if ( b_run ) {
-			test_suite.addTest ( new LoginTester ( "testSessionSetup",
+			this.addTest ( new LoginTester ( "testSessionSetup",
 												   LoginTester.OS_TEST_USER, 
 												   LoginTester.OS_TEST_USER_PASSWORD, 
 												   //LoginTester.OS_TEST_USER, 
@@ -83,7 +89,7 @@ public class PackageTestSuite {
 								 );
 		}
 		if ( b_run ) {
-			test_suite.addTest ( new LoginTester ( "testSessionUtil", 
+			this.addTest ( new LoginTester ( "testSessionUtil",
 												   LoginTester.OS_TEST_USER, 
 												   LoginTester.OS_TEST_USER_PASSWORD, 
 												   om_session
@@ -95,29 +101,26 @@ public class PackageTestSuite {
 			try {
 				Principal p_administrator = om_account.getPrincipal ( AccountManager.LITTLEWARE_ADMIN );
 
-				test_suite.addTest ( new AclTester ( "testAcl", new SimpleAccessList (), p_administrator, om_search ) );
-				test_suite.addTest ( new AclTester ( "testAclOwner", new SimpleAccessList (), p_administrator, om_search ) );
+				this.addTest ( new AclTester ( "testAcl", new SimpleAccessList (), p_administrator, om_search ) );
+				this.addTest ( new AclTester ( "testAclOwner", new SimpleAccessList (), p_administrator, om_search ) );
 			} catch ( Exception e ) {
 				throw new AssertionFailedException ( "Caught unexpected during test initialization: " + e, e );
 			}
 		}			
 		
 		if ( b_run ) {
-			test_suite.addTest ( new AccountManagerTester ( "testGetPrincipals", om_account, om_asset ) );
-			test_suite.addTest ( new AccountManagerTester ( "testQuota", om_account, om_asset ) );
-			test_suite.addTest ( new AccountManagerTester ( "testPasswordUpdate", om_account, om_asset ) );
-			test_suite.addTest ( new AccountManagerTester ( "testGroupUpdate", om_account, om_asset ) );
+			this.addTest ( new AccountManagerTester ( "testGetPrincipals", om_account, om_asset ) );
+			this.addTest ( new AccountManagerTester ( "testQuota", om_account, om_asset ) );
+			this.addTest ( new AccountManagerTester ( "testPasswordUpdate", om_account, om_asset ) );
+			this.addTest ( new AccountManagerTester ( "testGroupUpdate", om_account, om_asset ) );
 		}
 		if ( b_run ) {
-			test_suite.addTest ( new AclManagerTester ( "testAclLoad", om_acl, om_account, om_asset ) );
-			test_suite.addTest ( new AclManagerTester ( "testAclUpdate", om_acl, om_account, om_asset ) );
+			this.addTest ( new AclManagerTester ( "testAclLoad", om_acl, om_account, om_asset ) );
+			this.addTest ( new AclManagerTester ( "testAclUpdate", om_acl, om_account, om_asset ) );
 		}
 		
 		olog.log ( Level.INFO, "PackageTestSuite.suite () returning ok ..." );
-        return test_suite;
     }
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

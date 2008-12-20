@@ -1,6 +1,13 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.apps.lgo;
@@ -11,12 +18,8 @@ import java.util.logging.Logger;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provider;
+import littleware.base.PropertiesGuice;
 
-import littleware.asset.Asset;
-import littleware.base.UUIDFactory;
-import littleware.security.auth.*;
-import littleware.apps.swingclient.IconLibrary;
 
 /**
  * Command-line based lgo launcher.
@@ -42,7 +45,7 @@ public class LgoCommandLine {
                             new littleware.apps.swingclient.StandardSwingGuice(),
                             new littleware.apps.client.StandardClientGuice(),
                             new littleware.security.auth.ClientServiceGuice(),
-                            littleware.base.PropertiesLoader.get()
+                            new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
                         }
             );
             LgoCommandDictionary m_command = injector.getInstance( LgoCommandDictionary.class );

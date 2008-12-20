@@ -8,7 +8,6 @@ package littleware.apps.lgo;
 import com.google.inject.*;
 
 import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +19,7 @@ import littleware.apps.swingclient.controller.ExtendedAssetViewController;
 import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
+import littleware.base.PropertiesGuice;
 import littleware.base.UUIDFactory;
 
 
@@ -155,7 +155,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
                             new littleware.apps.swingclient.StandardSwingGuice(),
                             new littleware.apps.client.StandardClientGuice(),
                             new littleware.security.auth.ClientServiceGuice(),
-                            littleware.base.PropertiesLoader.get()
+                            new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
                         }
             );
             LgoBrowserCommand command = injector.getInstance( LgoBrowserCommand.class );

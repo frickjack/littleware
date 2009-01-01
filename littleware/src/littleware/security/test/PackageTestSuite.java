@@ -67,7 +67,8 @@ public class PackageTestSuite extends TestSuite {
 		
 		olog.log ( Level.INFO, "Registering littleware SimpleDbLoginConfiguration" );
 		boolean        b_run = true;
-		
+
+        /*... deprecated tests ...
 		if ( b_run ) {
 			this.addTest ( new LoginTester ( "testLogin", LoginTester.OS_TEST_USER,
 												   LoginTester.OS_TEST_USER_PASSWORD, om_session
@@ -96,7 +97,7 @@ public class PackageTestSuite extends TestSuite {
 												   )
 								 );
 		}
-		
+		*/
 		if ( b_run ) {
 			try {
 				Principal p_administrator = om_account.getPrincipal ( AccountManager.LITTLEWARE_ADMIN );

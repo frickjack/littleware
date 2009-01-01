@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.test;
 
 import java.util.*;
@@ -39,12 +51,14 @@ public class AssetManagerTester extends TestCase {
 	/**
 	 * No setUp necessary
 	 */
+    @Override
 	public void setUp () {
 	}
 	
 	/**
 	 * Try to remove the test-assets from the asset-tree
 	 */
+    @Override
 	public void tearDown () {
 		try {
 			for ( Asset a_cleanup : ov_cleanup_list ) {
@@ -116,7 +130,4 @@ public class AssetManagerTester extends TestCase {
 	}
 
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

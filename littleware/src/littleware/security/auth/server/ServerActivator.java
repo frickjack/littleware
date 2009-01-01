@@ -23,14 +23,17 @@ import java.util.logging.Logger;
 import littleware.asset.AssetException;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.CacheManager;
 import littleware.asset.server.RmiAssetManager;
 import littleware.asset.server.RmiSearchManager;
+import littleware.asset.server.TransactionManager;
 import littleware.base.BaseException;
 import littleware.security.AccountManager;
 import littleware.security.AclManager;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;
+import littleware.security.auth.server.db.DbAuthManager;
 import littleware.security.server.RmiAccountManager;
 import littleware.security.server.RmiAclManager;
 import org.osgi.framework.BundleActivator;
@@ -44,20 +47,26 @@ public class ServerActivator implements BundleActivator {
     private static final Logger  olog = Logger.getLogger( ServerActivator.class.getName() );
 
     private final SessionManager   omgr_session;
+    private final CacheManager     omgr_cache;
     private final int              oi_registry_port;
     
     @Inject
     public ServerActivator( SessionManager mgr_session, 
             @Named( "int.lw.rmi_port" ) int i_registry_port,
             ServiceProviderRegistry reg_service,
+            final CacheManager       mgr_cache,
             final AssetSearchManager mgr_search,
             final AssetManager mgr_asset,
             final AccountManager mgr_account,
-            final AclManager     mgr_acl
+            final AclManager     mgr_acl,
+            final TransactionManager mgr_transaction,
+            final DbAuthManager      dbauth
             )
     {
         omgr_session = mgr_session;
+        omgr_cache = mgr_cache;
         oi_registry_port = i_registry_port;
+        SimpleDbLoginModule.start( mgr_account, dbauth, mgr_transaction );
         reg_service.registerService( ServiceType.ACCOUNT_MANAGER,
                 new AbstractServiceProviderFactory<AccountManager> ( ServiceType.ACCOUNT_MANAGER, mgr_search ) {
                     @Override
@@ -141,6 +150,8 @@ public class ServerActivator implements BundleActivator {
 
         }
         olog.log( Level.INFO, "littleware RMI start ok" );
+        // clear the cache at startup for now
+        omgr_cache.clear();
     }
 
     public void stop(BundleContext ctx) throws Exception {

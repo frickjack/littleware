@@ -1,3 +1,16 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.db.test;
 
 
@@ -5,6 +18,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.sql.*;
 
+import javax.sql.DataSource;
 import junit.framework.*;
 
 import littleware.db.*;
@@ -15,9 +29,9 @@ import littleware.db.*;
  */
 public class ConnectionFactoryTester extends TestCase {
 	
-	private static Logger		ox_logger = Logger.getLogger ( "littleware.db.test" );
+	private static final Logger		ox_logger = Logger.getLogger ( ConnectionFactoryTester.class.getName() );
 	
-	private ConnectionFactory   ox_factory;
+	private DataSource          odsource;
 	private String              os_test_query;
 	
 	/**
@@ -25,19 +39,21 @@ public class ConnectionFactoryTester extends TestCase {
 	 * against a checked out connection.  The supplied query should just return 'Hello'.
 	 * 
 	 * @param s_name of test method to run
-	 * @param x_factory to test against
+	 * @param dsource to test against
 	 * @param s_test_query that returns 'Hello' result
 	 */
 	public ConnectionFactoryTester ( String s_name,
-									 ConnectionFactory x_factory, String s_test_query ) {
+									 DataSource dsource, String s_test_query ) {
 		super( s_name );
-		ox_factory = x_factory;
+		odsource = dsource;
 		os_test_query = s_test_query;
 	}
 	
 	/** No setup necessary */
+    @Override
 	public void setUp () {}
 	/** No tearDown necessary */
+    @Override
 	public void tearDown () {}
 	
 	/**
@@ -48,7 +64,7 @@ public class ConnectionFactoryTester extends TestCase {
 		Statement  x_stmt = null;
 		ResultSet  x_rset = null;
 		try { 
-			x_conn = ox_factory.getConnection ();
+			x_conn = odsource.getConnection ();
 			x_stmt = x_conn.createStatement ();
 			x_rset = x_stmt.executeQuery ( os_test_query );
 			
@@ -65,11 +81,8 @@ public class ConnectionFactoryTester extends TestCase {
 			ox_logger.log ( Level.SEVERE, "Caught unexpected: " + e );
 			assertTrue ( "Caught unexpected: " + e, false );
 		} finally {
-			Janitor.cleanupSession ( x_rset, x_stmt, x_conn, ox_factory );
+			Janitor.cleanupSession ( x_rset, x_stmt, x_conn );
 		}
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

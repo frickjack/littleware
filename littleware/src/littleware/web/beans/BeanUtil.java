@@ -18,7 +18,7 @@ import littleware.asset.*;
  */
 public class BeanUtil {
 
-    private static Logger olog_generic = Logger.getLogger("spijava.littleware.web.beans.BeanUtil");
+    private static final Logger olog_generic = Logger.getLogger( BeanUtil.class.getName() );
     private static SessionManager om_session = null;
     // Need to be member of admin group to create new users
     private static SessionHelper om_admin = null;

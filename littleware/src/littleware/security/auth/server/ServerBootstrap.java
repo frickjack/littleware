@@ -34,6 +34,7 @@ import littleware.base.PropertiesGuice;
 import littleware.base.PropertiesLoader;
 import littleware.db.DbGuice;
 import littleware.security.auth.LittleBootstrap;
+import littleware.security.auth.SessionManager;
 import littleware.security.auth.SessionUtil;
 import littleware.security.server.SecurityServerActivator;
 import littleware.security.server.SecurityServerGuice;
@@ -156,6 +157,17 @@ public class ServerBootstrap implements LittleBootstrap {
                 ov_guice
                 );
 
+        // Inject the local SessionManager for clients accessing SessionUtil
+        final SessionManager mgr_session = injector.getInstance( SessionManager.class );
+        injector.injectMembers( SessionUtil.get() );
+        try {
+            if ( mgr_session != SessionUtil.get().getSessionManager() ) {
+                throw new AssertionFailedException( "What the frick!" );
+            }
+        } catch ( Exception ex ) {
+            throw new AssertionFailedException( "What the frick2!", ex );
+        }
+
         // Get Guice injected instances of the OSGi BundleActivators,
         // and bootstrap OSGi
         Map<String,Object> map_felix = new HashMap<String,Object>();
@@ -171,8 +183,6 @@ public class ServerBootstrap implements LittleBootstrap {
             throw new AssertionFailedException( "Failed to bootstrap Felix OSGi", ex );
         }
         
-        // Inject the local SessionManager for clients accessing SessionUtil
-        injector.injectMembers( SessionUtil.get() );
         ob_bootstrap = true;
     }
 

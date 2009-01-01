@@ -1,6 +1,18 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.security.auth.server;
 
-import com.google.inject.Inject;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -26,12 +38,10 @@ import littleware.security.auth.server.db.DbAuthManager;
  */
 public class SimpleDbLoginModule implements LoginModule {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.security.auth.server.SimpleDbLoginModule");
+    private static final Logger olog_generic = Logger.getLogger( SimpleDbLoginModule.class.getName() );
     private CallbackHandler ox_handler = null;
     private Subject oj_subject = null;
-    private AccountManager om_account = null;
-    private DbAuthManager om_dbauth = null;
-    private TransactionManager  omgr_trans = null;
+
     private boolean ob_check_password = false;
 
     /**
@@ -53,34 +63,20 @@ public class SimpleDbLoginModule implements LoginModule {
         ob_check_password = b_check_password;
     }
 
+    private static AccountManager om_account = null;
+    private static DbAuthManager om_dbauth = null;
+    private static TransactionManager  omgr_trans = null;
+
     /**
-     * Inject the AccountManager dependency
-     *
-     * @param m_account
+     * Inject the dependencies
      */
-    @Inject
-    public void setAccountManager( AccountManager m_account ) {
+    public static void start( AccountManager m_account, DbAuthManager m_dbauth, TransactionManager mgr_trans ) {
         om_account = m_account;
-    }
-
-    /**
-     * Inject database DbAuthManager dependency
-     *
-     * @param m_dbauth
-     */
-    @Inject
-    public void setDbAuthManager( DbAuthManager m_dbauth ) {
         om_dbauth = m_dbauth;
-    }
-
-    /**
-     * Inject TransactionManager
-     */
-    @Inject
-    public void setTransactionManager( TransactionManager mgr_trans ) {
         omgr_trans = mgr_trans;
     }
 
+    
     /**
      * Initialize the module with data from underlying
      * login context
@@ -141,16 +137,16 @@ public class SimpleDbLoginModule implements LoginModule {
         LittleTransaction trans_login = omgr_trans.getThreadTransaction();
         trans_login.startDbAccess();
         try {
-            LittleUser p_user = (LittleUser) om_account.getPrincipal(s_user);
+            LittleUser user = (LittleUser) om_account.getPrincipal(s_user);
             // Ok, user exists - now verify password if necessary
             if (ob_check_password) {
-                DbReader<Boolean, String> sql_check = om_dbauth.makeDbPasswordLoader(p_user.getObjectId());
+                DbReader<Boolean, String> sql_check = om_dbauth.makeDbPasswordLoader(user.getObjectId());
                 Boolean b_result =
                         sql_check.loadObject(s_password);
 
                 if (b_result.equals(Boolean.FALSE)) {
                     olog_generic.log(Level.WARNING, "Invalid password for user: " +
-                            s_user + " (" + UUIDFactory.makeCleanString(p_user.getObjectId()) +
+                            s_user + " (" + UUIDFactory.makeCleanString(user.getObjectId()) +
                             ") -> " + s_password);
                     throw new LoginException();
                 }
@@ -158,11 +154,11 @@ public class SimpleDbLoginModule implements LoginModule {
 
             final String s_role = "authorized";
 
-            oj_subject.getPrincipals().add(p_user);
+            oj_subject.getPrincipals().add(user);
             oj_subject.getPrincipals().add(new littleware.security.SimpleRole(s_role));
             //oj_subject.getPrincipals ().add ( new SlidePrincipal ( p_user.getName () ) );
             //oj_subject.getPrincipals ().add ( new SlideRole ( s_role ) );
-            olog_generic.log(Level.FINE, "User authenticated: " + p_user.getName());
+            olog_generic.log(Level.FINE, "User authenticated: " + user.getName());
 
         } catch (RuntimeException e) {
             throw e;
@@ -208,7 +204,4 @@ public class SimpleDbLoginModule implements LoginModule {
         return true;
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

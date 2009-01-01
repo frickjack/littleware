@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.auth;
 
 import com.google.inject.Inject;
@@ -79,6 +91,8 @@ public class SessionUtil {
     }
 
     /**
+
+
      * Get the default port on which we expect the RMI registry to listen.
      * Set to littleware.rmi_host system property if exists, otherwise "localhost".
      */
@@ -86,8 +100,19 @@ public class SessionUtil {
         return os_registry_host;
     }
 
-    @Inject
     private SessionManager om_local = null;
+
+    /**
+     * Allow an in-memory server to inject an in-memory SessionManager
+     * to the SessionUtil for client access.
+     */
+    @Inject
+    public void injectLocalManager( SessionManager m_session ) {
+        if ( null != om_local ) {
+            throw new IllegalStateException( "Local sessionManager already injected" );
+        }
+        om_local = m_session;
+    }
 
     /**
      * Do a registry lookup, and return the SessionManager.
@@ -130,11 +155,9 @@ public class SessionUtil {
      */
     public SessionManager getSessionManager() throws RemoteException, NotBoundException {
         if ( null != om_local ) {
-            return getSessionManager("localhost", 0);
+            return om_local;
         } else {
             return getSessionManager(getRegistryHost(), getRegistryPort());
         }
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

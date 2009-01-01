@@ -1,7 +1,17 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset;
 
-import littleware.asset.server.NullAssetSpecializer;
-import littleware.asset.server.AssetSpecializer;
 import java.util.*;
 import java.util.logging.Logger;
 import java.security.AccessController;
@@ -32,7 +42,7 @@ import littleware.base.*;
  */
 public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> implements Factory<T> {
     private static final long serialVersionUID = 1111142L;
-    private static final Logger olog_generic = Logger.getLogger("littleware.asset.AssetType");
+    private static final Logger olog_generic = Logger.getLogger(AssetType.class.getName() );
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -217,7 +227,4 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         return a_new;
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -7,7 +7,7 @@
      xmlns="antlib:org.apache.tools.ant"
   >
   <property name="jardir" 
-	     location="../../../../share/jar" />
+	     location="../../../../share/Local/jar" />
  <property name="srcdir.littleware" location="src/littleware" />
  <property name="srcdir.wizard" location="src/com" />
  <property name="builddir" location="build/ant" />
@@ -34,6 +34,8 @@
 	 <pathelement location="${jardir}/java-getopt-1.0.13.jar" />
 	 <pathelement location="${jardir}/proxool-0.9.1.jar" />
          <pathelement location="${jardir}/proxool-cglib.jar" />
+         <pathelement location="${jardir}/postgresql.jar" />
+         <pathelement location="${jardir}/felix-1.4.jar" />
  </path>
  <path id="serverclasspath">
    <path refid="clientclasspath" />

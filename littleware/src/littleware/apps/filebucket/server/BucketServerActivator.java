@@ -49,10 +49,8 @@ public class BucketServerActivator implements BundleActivator {
     }
 
     public void start(BundleContext arg0) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void stop(BundleContext arg0) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

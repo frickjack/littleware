@@ -105,6 +105,7 @@ public class PropertiesGuice implements Module {
             data.setUser( s_user );
             data.setPassword( s_password );
             data.setMaximumConnectionCount( 10 );
+            data.setMaximumActiveTime( 60000 );
             binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(data);
         } else if (s_url.startsWith("jndi:")) {
             DataSource data = (DataSource) new InitialContext().lookup(s_url.substring("jndi:".length()));

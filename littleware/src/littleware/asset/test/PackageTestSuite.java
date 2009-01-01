@@ -10,8 +10,6 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
-
 package littleware.asset.test;
 
 import com.google.inject.Inject;
@@ -20,6 +18,8 @@ import java.util.logging.Level;
 import java.rmi.RemoteException;
 import java.lang.reflect.*;
 
+import java.security.AccessController;
+import javax.security.auth.Subject;
 import junit.framework.*;
 
 import littleware.asset.*;
@@ -98,9 +98,10 @@ public class PackageTestSuite extends TestSuite {
 																		  handler_asset
 																		  );
 				this.addTest ( new AssetManagerTester ( "testAssetCreation", 
-                        new RmiAssetManager( m_proxy ), m_search )
+                        new RmiAssetManager( m_proxy ),
+                        m_search )
                         );
-			} catch ( RemoteException e ) {
+			} catch ( Exception e ) {
 				throw new littleware.base.AssertionFailedException ( "Failed to setup RmiAssetManager, caught: " + e, e );
 			}
 		}

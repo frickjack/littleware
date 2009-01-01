@@ -98,12 +98,12 @@ public class SimpleAssetManager implements AssetManager {
 
     /** Internal utility */
     private LittleUser getAuthenticatedUser() throws NotAuthenticatedException {
-        LittleUser p_result = SecurityAssetType.getAuthenticatedUserOrNull();
+        LittleUser user = SecurityAssetType.getAuthenticatedUserOrNull();
 
-        if (null == p_result) {
+        if (null == user) {
             throw new NotAuthenticatedException("No user authenticated");
         }
-        return p_result;
+        return user;
     }
 
 

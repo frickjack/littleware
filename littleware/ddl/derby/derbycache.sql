@@ -5,6 +5,8 @@
 -- ij> connect 'jdbc:derby:/Users/pasquini/Code/littleware/ddl/derbycache/template';
 -- 
 
+CREATE SCHEMA littleware;
+
 --
 -- AssetCore subset of postgres asset table
 --

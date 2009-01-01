@@ -101,7 +101,10 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 		 */
 		public Object run () throws Exception {
 			try {
-				return Subject.doAs ( oj_caller, oact_subject );
+                if ( null == getCaller () ) {
+                    throw new IllegalStateException( "Null caller!" );
+                }
+				return Subject.doAs ( getCaller(), oact_subject );
 			} catch ( PrivilegedActionException e ) {
 				throw e.getException ();
 			} 
@@ -111,7 +114,8 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 	/**
 	 * Stash the active Subject caller and real implementation for use at invoke() time
 	 *
-	 * @param j_caller to doAs() - pulled from AccessControlContext if null
+	 * @param j_caller to doAs() - pulled from AccessControlContext if null - try
+     *                 again at call time if null at injection time
 	 * @param x_real object to call through to
 	 * @param log_call to log method calls to including who and how long to run
 	 * @param stat_call to report call runtime to
@@ -133,6 +137,9 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 	 * Little hook for subclasses to figure out who the caller is
 	 */
 	protected Subject getCaller () {
+		if ( null == oj_caller ) {
+			oj_caller = Subject.getSubject ( AccessController.getContext () );
+		}
 		return oj_caller;
 	}
 	
@@ -155,6 +162,9 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 								  null //AccessController.doPrivileged( act_super )
 								  );
 			..*/
+            if ( null == getCaller() ) {
+                throw new IllegalStateException( "No caller set on invoke" );
+            }
 			return AccessController.doPrivileged ( new MakePrivilegedAction ( act_run ) );
 		} catch ( PrivilegedActionException e ) {
 			throw e.getCause ();
@@ -163,8 +173,8 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 			ostat_call.sample ( (float) l_runtime );
 			String s_caller = "nobody";
 			
-			if ( null != oj_caller ) {
-				s_caller = oj_caller.toString ();
+			if ( null != getCaller() ) {
+				s_caller = getCaller().toString ();
 			}
 			olog.log ( Level.FINE, method_call.toString () + " by " + s_caller +
 							 " in " + l_runtime + "ms"

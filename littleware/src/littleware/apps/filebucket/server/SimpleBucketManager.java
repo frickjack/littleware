@@ -267,6 +267,3 @@ public class SimpleBucketManager implements BucketManager {
 }
 
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

@@ -1,6 +1,5 @@
 package littleware.security;
 
-import littleware.asset.server.AssetSpecializer;
 import java.util.*;
 import java.security.*;
 import javax.security.auth.Subject;
@@ -9,7 +8,6 @@ import littleware.asset.*;
 
 import littleware.base.UUIDFactory;
 import littleware.base.FactoryException;
-import littleware.base.PropertiesLoader;
 import littleware.security.auth.SimpleSession;
 import littleware.security.auth.LittleSession;
 

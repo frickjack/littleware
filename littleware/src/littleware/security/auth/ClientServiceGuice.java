@@ -83,13 +83,18 @@ public class ClientServiceGuice implements LittleGuiceModule {
         Provider<T> provider =   new Provider<T> () {
                     public T get () {
                         try {
-                            return helper.getService( service );
+                            T result = helper.getService( service );
+                            if ( null == result ) {
+                                throw new NullPointerException( "Failure to allocate service: " + service );
+                            }
+                            return result;
                         } catch ( Exception e ) {
-                            throw new littleware.base.FactoryException( "service retrieval failure", e );
+                            throw new littleware.base.FactoryException( "service retrieval failure for service " + service, e );
                         }
                     }
         };
         binder.bind( service.getInterface() ).toProvider( provider );
+        olog.log( Level.FINE, "Just bound service " + service + " interface " + service.getInterface().getName() );
         return provider;
     }
     

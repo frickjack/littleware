@@ -1,11 +1,25 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.db.test;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
+import javax.sql.DataSource;
 import junit.framework.*;
 
-import littleware.db.*;
 
 /**
  * Just little utility class that packages up a test suite
@@ -18,39 +32,13 @@ public class PackageTestSuite extends TestSuite {
      * Setup a test suite to exercise this package -
      * junit.swingui.TestRunner looks for this.
      */
-    public PackageTestSuite() {
+    @Inject
+    public PackageTestSuite( @Named( "datasource.littleware" ) DataSource dsource ) {
         super( PackageTestSuite.class.getName() );
-        
-        olog.log(Level.INFO, "Trying to setup littleware.db test suite");
 
-        try {
-            ConnectionFactory x_factory = new ProxoolConnectionFactory("org.postgresql.Driver",
-                    "jdbc:postgresql:demo://localhost:5432",
-                    "demo_user",
-                    "demo_user_password",
-                    "demo_pool",
-                    20);
-            this.addTest(new ConnectionFactoryTester("testQuery", x_factory, "SELECT 'Hello'"));
-        } catch (LittleSqlException e) {
-            olog.log(Level.SEVERE, "Failed setting up postgres test proxool connection pool, caught: " + e);
-        }
-        olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
+        this.addTest(new ConnectionFactoryTester("testQuery", dsource, "SELECT 'Hello'"));
     }
 
-    /**
-     * Run through the various lilttleware.sql test cases
-     */
-    public static void main(String[] v_args) {
-        String[] v_launch_args = {"littleware.db.test.PackageTestSuite"};
-        Logger x_logger = Logger.getLogger("littleware.db.test");
-
-        x_logger.setLevel(Level.ALL);  // log everything during testing
-        junit.swingui.TestRunner.main(v_launch_args);
-    //junit.textui.TestRunner.main( v_launch_args );
-    //junit.awtui.TestRunner.main( v_launch_args );
-    }
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

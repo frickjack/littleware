@@ -1,3 +1,16 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.security.test;
 
 import java.util.*;
@@ -19,10 +32,12 @@ import littleware.base.BaseException;
 /**
  * Test case for active login module - just tries
  * to login the test_user user and a bogus user.
+ *
+ * @deprecated login process has been reworked - this test is no longer relevent
  */
 public class LoginTester extends TestCase {
 
-    private static Logger olog_generic = Logger.getLogger("littelware.security.test");
+    private static final Logger olog_generic = Logger.getLogger( LoginTester.class.getName() );
     public static final String OS_TEST_USER = "littleware.test_user";
     public static final String OS_TEST_USER_PASSWORD = "test123";
     public static final String OS_TEST_GROUP = "group.littleware.test_user";
@@ -52,10 +67,12 @@ public class LoginTester extends TestCase {
     }
 
     /** No setup necessary */
+    @Override
     public void setUp() {
     }
 
     /** No tearDown necessary */
+    @Override
     public void tearDown() {
     }
 
@@ -174,6 +191,5 @@ public class LoginTester extends TestCase {
             assertTrue("Caught unexpected: " + e, false);
         }
     }
-}// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
+}
 

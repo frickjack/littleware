@@ -1,20 +1,24 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.server;
 
 import java.util.*;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.security.*;
-import java.security.acl.*;
-import javax.security.auth.*;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 //import java.rmi.server.UnicastRemoteObject;
-import java.lang.reflect.*;
 
 import littleware.asset.*;
 import littleware.base.*;
-import littleware.security.LittlePrincipal;
-import littleware.security.AccessDeniedException;
 
 /**
  * RMI remote-ready wrapper around a real implementation.
@@ -48,7 +52,4 @@ public class RmiAssetManager extends LittleRemoteObject implements AssetManager 
         return om_proxy.saveAssetsInOrder(v_assets, s_update_comment);
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

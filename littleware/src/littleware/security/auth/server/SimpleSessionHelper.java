@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.auth.server;
 
 import java.rmi.Remote;
@@ -26,16 +38,19 @@ public class SimpleSessionHelper implements SessionHelper {
 	private final AssetSearchManager om_search;
 	private final AssetManager       om_asset;
     private final SessionManager     om_session;
+    private final ServiceProviderRegistry  oreg_service;
 	
 	public SimpleSessionHelper ( UUID u_session,
 								 AssetSearchManager m_search,
 								 AssetManager m_asset,
-                                 SessionManager m_session
+                                 SessionManager m_session,
+                                 ServiceProviderRegistry reg_service
                                  ) {
 		ou_session = u_session;
 		om_search = m_search;
 		om_asset = m_asset;
         om_session = m_session;
+        oreg_service = reg_service;
 	}
 	
 	public LittleSession getSession ()  throws BaseException, AssetException, 
@@ -49,14 +64,10 @@ public class SimpleSessionHelper implements SessionHelper {
 	}
 	
 
-    /**
-     * @TODO setup service discovery mechanism
-     */
 	public <T extends Remote> T getService ( ServiceType<T> n_type ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
 	{
-		//return n_type.createServiceProvider ( this );
-        return null;
+		return oreg_service.getService( n_type, this);
 	}
 	
 	
@@ -92,7 +103,4 @@ public class SimpleSessionHelper implements SessionHelper {
 		}
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

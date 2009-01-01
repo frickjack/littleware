@@ -1,7 +1,5 @@
 package littleware.apps.tracker;
 
-import littleware.asset.server.AssetSpecializer;
-import java.util.*;
 
 import littleware.asset.*;
 
@@ -12,15 +10,6 @@ import littleware.base.UUIDFactory;
  * based AssetTypes.
  */
 public abstract class TrackerAssetType<T extends Asset> extends AssetType<T> {
-	private static AssetSpecializer   om_tracker = null;
-	
-	private static AssetSpecializer getSharedSpecializer () {
-		if ( null == om_tracker ) {
-			ResourceBundle bundle_address = ResourceBundle.getBundle ( "littleware.apps.tracker.server.TrackerResourceBundle" );
-			om_tracker = (AssetSpecializer) bundle_address.getObject ( "littleware_tracker_manager" );
-		}
-		return om_tracker;
-	}
 	
 	public static final AssetType<Comment> COMMENT    = new AssetType<Comment> (
 																				UUIDFactory.parseUUID ( "FB8CC7B7C9324EC8953DE50A700344F3" ),

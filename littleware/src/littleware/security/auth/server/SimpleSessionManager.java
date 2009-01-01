@@ -40,6 +40,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private static final Logger olog_generic = Logger.getLogger( SimpleSessionManager.class.getName() );
     private final AssetSearchManager om_search;
     private final AssetManager om_asset;
+    private final ServiceProviderRegistry  oreg_service;
     private final Map<UUID, WeakReference<SessionHelper>> ov_session_map = new HashMap<UUID, WeakReference<SessionHelper>>();
 
     private static SimpleSessionManager om_session = null;
@@ -48,7 +49,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      * Inject dependencies
      */
     @Inject
-    public SimpleSessionManager(AssetManager m_asset, AssetSearchManager m_search ) throws RemoteException {
+    public SimpleSessionManager(AssetManager m_asset, AssetSearchManager m_search, ServiceProviderRegistry reg_service ) throws RemoteException {
         //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_asset = m_asset;
         om_search = m_search;
@@ -56,6 +57,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             throw new IllegalStateException( "SimpleSessionManager must be a singleton" );
         }
         om_session = this;
+        oreg_service = reg_service;
     }
 
     /**
@@ -94,7 +96,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      */
     private SessionHelper setupNewHelper(LittleSession a_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         Subject j_caller = a_session.getSubject(om_search);
-        SessionHelper m_helper = new SimpleSessionHelper(a_session.getObjectId(), om_search, om_asset, this);
+        SessionHelper m_helper = new SimpleSessionHelper(a_session.getObjectId(), om_search, om_asset, this, oreg_service );
         InvocationHandler handler_helper = new SessionInvocationHandler(j_caller, m_helper, ServiceType.SESSION_HELPER.getCallSampler(), m_helper);
         SessionHelper m_proxy = (SessionHelper) Proxy.newProxyInstance ( SessionHelper.class.getClassLoader (),
 														 new Class[] { SessionHelper.class },

@@ -116,6 +116,11 @@
     <copy todir="${buildclient}/littleware/base/resources">
         <fileset dir="${srcdir.littleware}/base/resources" />
     </copy>
+    <copy todir="${buildclient}">
+        <fileset dir="src">
+           <include name="*.properties"/>
+         </fileset>
+    </copy>
     <copy todir="${buildclient}/littleware/apps/swingclient/wizard/resources">
         <fileset dir="${srcdir.littleware}/apps/swingclient/wizard/resources" />
     </copy>

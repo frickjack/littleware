@@ -45,7 +45,6 @@ import java.util.logging.Level;
  * intended for use in the design, construction, operation or 
  * maintenance of any nuclear facility. 
  */
-
 import java.io.*;
 import java.net.*;
 import java.rmi.Naming;
@@ -117,18 +116,15 @@ import javax.servlet.*;
  * http://jserv.javasoft.com/products/java-server/documentation/
  *        webserver1.0.2/apidoc/Package-javax.servlet.http.html 
  */
-public class RmiTunnelServlet extends HttpServlet 
-    implements Runnable 
-{
-    private static final Logger olog = Logger.getLogger( RmiTunnelServlet.class.getName() );
-    /* Variables to hold optional configuration properties. */
+public class RmiTunnelServlet extends HttpServlet
+        implements Runnable {
 
+    private static final Logger olog = Logger.getLogger(RmiTunnelServlet.class.getName());
+    /* Variables to hold optional configuration properties. */
     /** codebase from which this servlet will load remote objects.*/
     protected static String initialServerCodebase = null;
-
     /** name of RMI server class to be created in init method */
     protected static String initialServerClass = null;
-
     /** name of RMI server class to be created in init method */
     protected static String initialServerBindName = null;
 
@@ -142,127 +138,123 @@ public class RmiTunnelServlet extends HttpServlet
      * interface is protected.  
      */
     protected interface RMICommandHandler {
-	
-	/**
-	 * Return the string form of the command to be recognized in the
-	 * query string.  
-	 */
-	public String getName();
-	
-	/**
-	 * Execute the command with the given string as parameter.
-	 */
-	public void execute(HttpServletRequest req, HttpServletResponse res, 
-			    String param) 
-	    throws ServletClientException, ServletServerException, IOException;
-    }
 
-    
+        /**
+         * Return the string form of the command to be recognized in the
+         * query string.
+         */
+        public String getName();
+
+        /**
+         * Execute the command with the given string as parameter.
+         */
+        public void execute(HttpServletRequest req, HttpServletResponse res,
+                String param)
+                throws ServletClientException, ServletServerException, IOException;
+    }
     /* construct table mapping command strings to handlers */
-    private static final Map<String,RMICommandHandler> ov_command =
-            new HashMap<String,RMICommandHandler>();
+    private static final Map<String, RMICommandHandler> ov_command =
+            new HashMap<String, RMICommandHandler>();
+
+
     static {
-	for( RMICommandHandler command : 	
-            new RMICommandHandler [] {
-                new ServletForwardCommand(),
-                new ServletGethostnameCommand(),
-                new ServletPingCommand(),
-                new ServletTryHostnameCommand()
-            }
-        ) {
-	    ov_command.put( command.getName(), command );
+        for (RMICommandHandler command : new RMICommandHandler[]{
+                    new ServletForwardCommand(),
+                    new ServletGethostnameCommand(),
+                    new ServletPingCommand(),
+                    new ServletTryHostnameCommand()
+                }) {
+            ov_command.put(command.getName(), command);
         }
     }
-    
-   /**
-    * Once loaded, Java Servlets continue to run until they are
-    * unloaded or the webserver is stopped.  This example takes
-    * advantage of the extended Servlet life-cycle and runs a remote
-    * object in the Servlet VM.
-    *
-    * To initialize this remote object the Servlet Administrator
-    * should specify a set of parameters which will be used to
-    * download and install an initial remote server (see readme.txt).
-    * 
-    * If configuration parameters are valid (not blank), the
-    * servlet will attempt to load and start a remote object and a
-    * registry in which the object may be bound.
-    *
-    * @param config Standard configuration object for an http servlet.
-    *
-    * @exception ServletException Calling
-    *           <code>super.init(config)</code> may cause a servlet 
-    *           exception to be thrown.  
-    */
+
+    /**
+     * Once loaded, Java Servlets continue to run until they are
+     * unloaded or the webserver is stopped.  This example takes
+     * advantage of the extended Servlet life-cycle and runs a remote
+     * object in the Servlet VM.
+     *
+     * To initialize this remote object the Servlet Administrator
+     * should specify a set of parameters which will be used to
+     * download and install an initial remote server (see readme.txt).
+     *
+     * If configuration parameters are valid (not blank), the
+     * servlet will attempt to load and start a remote object and a
+     * registry in which the object may be bound.
+     *
+     * @param config Standard configuration object for an http servlet.
+     *
+     * @exception ServletException Calling
+     *           <code>super.init(config)</code> may cause a servlet
+     *           exception to be thrown.
+     */
     @Override
     public void init(ServletConfig config) throws ServletException {
-	super.init(config);
+        super.init(config);
 
-	try {
-	    setConfigParameters(config);
+        try {
+            setConfigParameters(config);
 
-	    if (!verifyConfigParameters()) {
-		// dont export any objects.
+            if (!verifyConfigParameters()) {
+                // dont export any objects.
 
-                olog.log( Level.INFO,"Some optional parameters not set, " + 
-				   "remote object not exported; " + 
-				   "ServletHandler is runnning."
-                                   );
+                olog.log(Level.INFO, "Some optional parameters not set, " +
+                        "remote object not exported; " +
+                        "ServletHandler is runnning.");
 
-		return;
-	    }
-	    
-	    /* RMI requires that a local security manager be
+                return;
+            }
+
+            /* RMI requires that a local security manager be
              * responsible for the method invocations from remote
              * clients - we need to make sure a security manager is
              * installed.
-	     */
-	    if (System.getSecurityManager() == null) {
-		System.setSecurityManager(new RMISecurityManager());
-	    }
+             */
+            if (System.getSecurityManager() == null) {
+                System.setSecurityManager(new RMISecurityManager());
+            }
 
-	    // create a registry if one is not running already.
-	    try {
+            // create a registry if one is not running already.
+            try {
                 // Just hard code to 1239 for now - the littleware default
                 // registry port
-		java.rmi.registry.LocateRegistry.createRegistry(1239);
-	    } catch (java.rmi.server.ExportException ee) {
-		// registry already exists, we'll just use it.
-	    } catch (RemoteException re) {
-		olog.log( Level.WARNING, "Failure setting up RMI registry, caught: " + re.getMessage(), re );
-		//re.printStackTrace();
-	    }
-	    
-	    /** 
-	     * Download and create a server object in a thread so we
-	     * do not interfere with other servlets.  Allow init
-	     * method to return more quickly.
-	     */
-	    (new Thread(this)).start();
-	    
-	    olog.log( Level.INFO, "RMI Servlet Handler loaded sucessfully.");
-	    
-	} catch (Exception e) {
-	    olog.log( Level.WARNING, "Exception thrown in RMI ServletHandler: " + 
-			       e.getMessage(), e
-                               );
-	}
+                java.rmi.registry.LocateRegistry.createRegistry(1239);
+            } catch (java.rmi.server.ExportException ee) {
+                // registry already exists, we'll just use it.
+            } catch (RemoteException re) {
+                olog.log(Level.WARNING, "Failure setting up RMI registry, caught: " + re.getMessage(), re);
+            //re.printStackTrace();
+            }
+
+            /**
+             * Download and create a server object in a thread so we
+             * do not interfere with other servlets.  Allow init
+             * method to return more quickly.
+             */
+            (new Thread(this)).start();
+
+            olog.log(Level.INFO, "RMI Servlet Handler loaded sucessfully.");
+
+        } catch (Exception e) {
+            olog.log(Level.WARNING, "Exception thrown in RMI ServletHandler: " +
+                    e.getMessage(), e);
+        }
     }
 
     /**
      * Create the sample RMI server.
      */
-    public void run () {
-	try {
-	    UnicastRemoteObject server = 
-		createRemoteObjectUsingDownloadedClass();
-	    if (server != null) {
-		Naming.rebind(initialServerBindName, server);
-		olog.log( Level.INFO, "Remote object created successfully.");
-	    }
-	} catch (Exception e) {
-	    olog.log( Level.WARNING, "Exception received while intalling object:" + e, e );
-	}
+    public void run() {
+        try {
+            UnicastRemoteObject server =
+                    createRemoteObjectUsingDownloadedClass();
+            if (server != null) {
+                Naming.rebind(initialServerBindName, server);
+                olog.log(Level.INFO, "Remote object created successfully.");
+            }
+        } catch (Exception e) {
+            olog.log(Level.WARNING, "Exception received while intalling object:" + e, e);
+        }
     }
 
     /**
@@ -273,62 +265,59 @@ public class RmiTunnelServlet extends HttpServlet
      * case of this example, that location will be
      * <code>initialServerCodebase</code> 
      */
-    UnicastRemoteObject createRemoteObjectUsingDownloadedClass() 
-	throws Exception
-    {
-	UnicastRemoteObject server = null;
-	Class serverClass = null;
+    UnicastRemoteObject createRemoteObjectUsingDownloadedClass()
+            throws Exception {
+        UnicastRemoteObject server = null;
+        Class serverClass = null;
 
-	int MAX_RETRY = 5;
-	int retry = 0;
-	int sleep = 2000;
+        int MAX_RETRY = 5;
+        int retry = 0;
+        int sleep = 2000;
 
-	while ((retry < MAX_RETRY) && (serverClass == null)) {
-	    try {
-		olog.log( Level.INFO, "Attempting to load remote class..." );
-		serverClass = RMIClassLoader.
-		    loadClass(new URL(initialServerCodebase), 
-			      initialServerClass);
+        while ((retry < MAX_RETRY) && (serverClass == null)) {
+            try {
+                olog.log(Level.INFO, "Attempting to load remote class...");
+                serverClass = RMIClassLoader.loadClass(new URL(initialServerCodebase),
+                        initialServerClass);
 
-		// Before we instantiate the obj. make sure it 
-		// is a UnicastRemoteObject.
-		if (!Class.forName("java.rmi.server.UnicastRemoteObject").
-		    isAssignableFrom(serverClass)) {
-		    olog.log( Level.WARNING,
-		        "This example requires an " + 
-			" instance of UnicastRemoteObject," +
-			" remote object not exported.");
-		} else {
-		    olog.log( Level.INFO, "Server class loaded successfully...");
-		    server = ((UnicastRemoteObject) serverClass.
-			      newInstance());
-		}
+                // Before we instantiate the obj. make sure it
+                // is a UnicastRemoteObject.
+                if (!Class.forName("java.rmi.server.UnicastRemoteObject").
+                        isAssignableFrom(serverClass)) {
+                    olog.log(Level.WARNING,
+                            "This example requires an " +
+                            " instance of UnicastRemoteObject," +
+                            " remote object not exported.");
+                } else {
+                    olog.log(Level.INFO, "Server class loaded successfully...");
+                    server = ((UnicastRemoteObject) serverClass.newInstance());
+                }
 
-	    } catch (java.lang.ClassNotFoundException cnfe) {
-		retry ++;
-		
-		/**
-		 * The class for the remote object could not be
-		 * loaded, perhaps the webserver has not finished
-		 * initializing itself yet. Try to load the class a
-		 * few more times...  
-		 */
-		if (retry >= MAX_RETRY) {
-		    olog.log( Level.WARNING, "Failed to load remote server " + 
-				       " class. Remote object not " + 
-				       " exported... ");
-		} else {
-		    olog.log( Level.WARNING, "Could not load remote class, " + 
-				       "trying again...");
-		    try {
-			Thread.sleep(sleep);
-		    } catch (InterruptedException ie) {
-		    }
-		    continue;
-		}
-	    }
-	}
-	return server;
+            } catch (java.lang.ClassNotFoundException cnfe) {
+                retry++;
+
+                /**
+                 * The class for the remote object could not be
+                 * loaded, perhaps the webserver has not finished
+                 * initializing itself yet. Try to load the class a
+                 * few more times...
+                 */
+                if (retry >= MAX_RETRY) {
+                    olog.log(Level.WARNING, "Failed to load remote server " +
+                            " class. Remote object not " +
+                            " exported... ");
+                } else {
+                    olog.log(Level.WARNING, "Could not load remote class, " +
+                            "trying again...");
+                    try {
+                        Thread.sleep(sleep);
+                    } catch (InterruptedException ie) {
+                    }
+                    continue;
+                }
+            }
+        }
+        return server;
     }
 
     /* NOTE: If you are using JDK1.2Beta4 or later, it is recommended
@@ -346,7 +335,6 @@ public class RmiTunnelServlet extends HttpServlet
      * java.rmi.server.UnicastRemoteObject.
      *                 unexportObject(Remote obj, boolean force) 
      */
-
     /**
      * Execute the command given in the servlet request query string.
      * The string before the first '=' in the queryString is
@@ -361,50 +349,51 @@ public class RmiTunnelServlet extends HttpServlet
      */
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res)
-	throws ServletException, IOException {
-	
-	try {
-	    
-	    // Command and parameter for this POST request.
-	    String queryString = req.getQueryString();
-	    String command, param;
-	    int delim = queryString.indexOf("=");
-	    if (delim == -1) {
-		command = queryString;
-		param = "";
-	    } else {
-		command = queryString.substring(0, delim);
-		param = queryString.substring(delim + 1);
-	    }
-	    
-	    olog.log( Level.INFO, "command: " + command);
-	    olog.log( Level.INFO, "param: " + param );
+            throws ServletException, IOException {
 
-	    // lookup command to execute on the client's behalf
-	    RMICommandHandler handler =
-		(RMICommandHandler) ov_command.get(command);
-	    
-	    // execute the command
-	    if (handler != null)
-		try {
-		    handler.execute(req, res, param);
-		} catch (ServletClientException e) {
-		    returnClientError(res, "client error: " + 
-				      e.getMessage());
-		    e.printStackTrace();
-		} catch (ServletServerException e) {
-		    returnServerError(res, "internal server error: " + 
-				      e.getMessage());
-		    e.printStackTrace();
-		}
-	    else
-		returnClientError(res, "invalid command: " + 
-				  command);
-	} catch (Exception e) {
-	    returnServerError(res, "internal error: " + 
-			      e.getMessage());
-	    e.printStackTrace();
-	}
+        try {
+
+            // Command and parameter for this POST request.
+            String queryString = req.getQueryString();
+            String command, param;
+            int delim = queryString.indexOf("=");
+            if (delim == -1) {
+                command = queryString;
+                param = "";
+            } else {
+                command = queryString.substring(0, delim);
+                param = queryString.substring(delim + 1);
+            }
+
+            olog.log(Level.INFO, "command: " + command);
+            olog.log(Level.INFO, "param: " + param);
+
+            // lookup command to execute on the client's behalf
+            RMICommandHandler handler =
+                    (RMICommandHandler) ov_command.get(command);
+
+            // execute the command
+            if (handler != null) {
+                try {
+                    handler.execute(req, res, param);
+                } catch (ServletClientException e) {
+                    returnClientError(res, "client error: " +
+                            e.getMessage());
+                    e.printStackTrace();
+                } catch (ServletServerException e) {
+                    returnServerError(res, "internal server error: " +
+                            e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                returnClientError(res, "invalid command: " +
+                        command);
+            }
+        } catch (Exception e) {
+            returnServerError(res, "internal error: " +
+                    e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -422,23 +411,23 @@ public class RmiTunnelServlet extends HttpServlet
      */
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res)
-	throws ServletException, IOException {
+            throws ServletException, IOException {
 
-	returnClientError(res,
-			  "GET Operation not supported: " +
-			  "Can only forward POST requests.");
+        returnClientError(res,
+                "GET Operation not supported: " +
+                "Can only forward POST requests.");
     }
 
     public void doPut(HttpServletRequest req, HttpServletResponse res)
-	throws ServletException, IOException {
+            throws ServletException, IOException {
 
-	returnClientError(res,
-			  "PUT Operation not supported: " +
-			  "Can only forward POST requests.");
+        returnClientError(res,
+                "PUT Operation not supported: " +
+                "Can only forward POST requests.");
     }
 
     public String getServletInfo() {
-	return "RMI Call Forwarding Servlet Servlet.<br>\n";
+        return "RMI Call Forwarding Servlet Servlet.<br>\n";
     }
 
     /**
@@ -450,25 +439,24 @@ public class RmiTunnelServlet extends HttpServlet
      *            this servlet's methods.
      * @param message Error message to be written to client.
      */
-    private static void returnClientError(HttpServletResponse res, 
-					  String message)
-	throws IOException {
-	
-	res.sendError(HttpServletResponse.SC_BAD_REQUEST,
-		      "<HTML><HEAD>" + 
-		      "<TITLE>Java RMI Client Error</TITLE>" + 
-		      "</HEAD>" + 
-		      "<BODY>" + 
-		      "<H1>Java RMI Client Error</H1>" + 
-		      message + 
-		      "</BODY></HTML>");
+    private static void returnClientError(HttpServletResponse res,
+            String message)
+            throws IOException {
 
-	olog.log( Level.WARNING, HttpServletResponse.SC_BAD_REQUEST + 
-		      "Java RMI Client Error" + 
-		      message
-                      );
+        res.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                "<HTML><HEAD>" +
+                "<TITLE>Java RMI Client Error</TITLE>" +
+                "</HEAD>" +
+                "<BODY>" +
+                "<H1>Java RMI Client Error</H1>" +
+                message +
+                "</BODY></HTML>");
+
+        olog.log(Level.WARNING, HttpServletResponse.SC_BAD_REQUEST +
+                "Java RMI Client Error" +
+                message);
     }
-    
+
     /**
      * Return an HTML error message indicating an internal error
      * occurred here on the server.  
@@ -478,20 +466,20 @@ public class RmiTunnelServlet extends HttpServlet
      * @param message Error message to be written to servlet client.
      */
     private static void returnServerError(HttpServletResponse res,
-					  String message)
-	throws IOException {
-	
-	res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-		      "<HTML><HEAD>" + 
-		      "<TITLE>Java RMI Server Error</TITLE>" + 
-		      "</HEAD>" + 
-		      "<BODY>" + 
-		      "<H1>Java RMI Server Error</H1>" + 
-		      message + "</BODY></HTML>");
+            String message)
+            throws IOException {
 
-	olog.log( Level.WARNING, HttpServletResponse.SC_INTERNAL_SERVER_ERROR + 
-		      "Java RMI Server Error: " + 
-		      message);
+        res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                "<HTML><HEAD>" +
+                "<TITLE>Java RMI Server Error</TITLE>" +
+                "</HEAD>" +
+                "<BODY>" +
+                "<H1>Java RMI Server Error</H1>" +
+                message + "</BODY></HTML>");
+
+        olog.log(Level.WARNING, HttpServletResponse.SC_INTERNAL_SERVER_ERROR +
+                "Java RMI Server Error: " +
+                message);
     }
 
     /**
@@ -500,16 +488,13 @@ public class RmiTunnelServlet extends HttpServlet
      * @param config Standard configuration object for an HTTP servlet.
      */
     protected synchronized void setConfigParameters(ServletConfig config) {
-	try {
-	    initialServerCodebase = config.
-		getInitParameter("rmiservlethandler.initialServerCodebase");
-	    initialServerClass = config.
-		getInitParameter("rmiservlethandler.initialServerClass");
-	    initialServerBindName = config.
-		getInitParameter("rmiservlethandler.initialServerBindName");
-	} catch (Exception e) {
-	    olog.log( Level.WARNING, "Could not access init parameter:" + e, e );
-	}
+        try {
+            initialServerCodebase = config.getInitParameter("rmiservlethandler.initialServerCodebase");
+            initialServerClass = config.getInitParameter("rmiservlethandler.initialServerClass");
+            initialServerBindName = config.getInitParameter("rmiservlethandler.initialServerBindName");
+        } catch (Exception e) {
+            olog.log(Level.WARNING, "Could not access init parameter:" + e, e);
+        }
     }
 
     /** 
@@ -519,12 +504,12 @@ public class RmiTunnelServlet extends HttpServlet
      *         are valid (i.e. not "") <code>false</code> otherwise.  
      */
     protected synchronized boolean verifyConfigParameters() {
-	return ((verifyParameter("rmiservlethandler.initialServerClass ", 
-		    initialServerClass)) &&
-		(verifyParameter("rmiservlethandler.initialServerBindName ", 
-		    initialServerBindName)) &&
-		(verifyParameter("rmiservlethandler.initialServerCodebase", 
-		    initialServerCodebase)));
+        return ((verifyParameter("rmiservlethandler.initialServerClass ",
+                initialServerClass)) &&
+                (verifyParameter("rmiservlethandler.initialServerBindName ",
+                initialServerBindName)) &&
+                (verifyParameter("rmiservlethandler.initialServerCodebase",
+                initialServerCodebase)));
     }
 
     /** 
@@ -533,17 +518,16 @@ public class RmiTunnelServlet extends HttpServlet
      * @return <code>true</code> if the parameter is valid.
      */
     protected boolean verifyParameter(String parameterName, String parameter) {
-	if ((parameter == null) || (parameter.equals(""))) {
-	    olog.log( Level.WARNING, "optional parameter is invalid and " + 
-			       "will not be used: \n    " +
-			       parameterName + " = " + parameter
-                               );
-	    return false;
-	} else {
-	    olog.log( Level.INFO, parameterName + " " +
-			       "valid: " + parameter);
-	}
-	return true;
+        if ((parameter == null) || (parameter.equals(""))) {
+            olog.log(Level.WARNING, "optional parameter is invalid and " +
+                    "will not be used: \n    " +
+                    parameterName + " = " + parameter);
+            return false;
+        } else {
+            olog.log(Level.INFO, parameterName + " " +
+                    "valid: " + parameter);
+        }
+        return true;
     }
 
     /*
@@ -551,253 +535,251 @@ public class RmiTunnelServlet extends HttpServlet
      * CommandHandler subclasses, so we write the commands internal to the
      * servlet handler.
      */
-
     /**
      * Class that has an execute command to forward request body to
      * local port on the server and send server reponse back to client.  
      */
     protected static class ServletForwardCommand implements RMICommandHandler {
-	
-	public String getName() {
-	    return "forward";
-	}
-	
-	/**
-	 * Execute the forward command.  Forwards data from incoming servlet
-	 * request to a port on the local machine.  Presumably, an RMI server
-	 * will be reading the data that this method sends.
-	 *
-	 * @param req   The servlet request.
-	 * @param res   The servlet response.
-	 * @param param Port to which data will be sent.
-	 */
-	public void execute(HttpServletRequest req, HttpServletResponse res, 
-			    String param) 
-	    throws ServletClientException, ServletServerException, IOException {
-	    
-	    int port;
-	    try {
-		port = Integer.parseInt(param);
-	    } catch (NumberFormatException e) {
-		throw new ServletClientException("invalid port number: " + 
-						 param);
-	    }
-	    if (port <= 0 || port > 0xFFFF)
-		throw new ServletClientException("invalid port: " + port);
-	    if (port < 1024)
-		throw new ServletClientException("permission denied for port: " 
-						 + port);
-	    
-	    byte buffer[];
-	    Socket socket;
-	    try {
-		socket = new Socket(InetAddress.getLocalHost(), port);
-	    } catch (IOException e) {
-		throw new ServletServerException("could not connect to " +
-						 "local port");
-	    }
-	    
-	    // read client's request body
-	    DataInputStream clientIn = 
-		new DataInputStream(req.getInputStream());
-	    buffer = new byte[req.getContentLength()];
-	    try {
-		clientIn.readFully(buffer);
-	    } catch (EOFException e) {
-		throw new ServletClientException("unexpected EOF " + 
-						 "reading request body");
-	    } catch (IOException e) {
-		throw new ServletClientException("error reading request" + 
-						 " body");
-	    }
-	    
-	    DataOutputStream socketOut = null;
-	    // send to local server in HTTP
-	    try {
-		socketOut =
-		    new DataOutputStream(socket.getOutputStream());
-		socketOut.writeBytes("POST / HTTP/1.0\r\n");
-		socketOut.writeBytes("Content-length: " +
-				     req.getContentLength() + "\r\n\r\n");
-		socketOut.write(buffer);
-		socketOut.flush();
-	    } catch (IOException e) {
-		throw new ServletServerException("error writing to server");
-	    }
-	    
-	    // read response from local server
-	    DataInputStream socketIn;
-	    try {
-		socketIn = new DataInputStream(socket.getInputStream());
-	    } catch (IOException e) {
-		throw new ServletServerException("error reading from " + 
-						 "server");
-	    }
-	    String key = "Content-length:".toLowerCase();
-	    boolean contentLengthFound = false;
-	    String line;
-	    int responseContentLength = -1;
-	    do {
-		try {
-		    line = socketIn.readLine();
-		} catch (IOException e) {
-		    throw new ServletServerException("error reading from server");
-		}
-		if (line == null)
-		    throw new ServletServerException(
-		        "unexpected EOF reading server response");
-		
-		if (line.toLowerCase().startsWith(key)) {
-		    if (contentLengthFound)
-			; // what would we want to do in this case??
-		    responseContentLength =
-			Integer.parseInt(line.substring(key.length()).trim());
-		    contentLengthFound = true;
-		}
-	    } while ((line.length() != 0) &&
-		     (line.charAt(0) != '\r') && (line.charAt(0) != '\n'));
-	    
-	    if (!contentLengthFound || responseContentLength < 0)
-		throw new ServletServerException(
-		    "missing or invalid content length in server response");
-	    buffer = new byte[responseContentLength];
-	    try {
-		socketIn.readFully(buffer);
-	    } catch (EOFException e) {
-		throw new ServletServerException(
-		    "unexpected EOF reading server response");
-	    } catch (IOException e) {
-		throw new ServletServerException("error reading from server");
-	    }
-	    
-	    // send local server response back to servlet client
-	    res.setStatus(HttpServletResponse.SC_OK);
-	    res.setContentType("application/octet-stream");
-	    res.setContentLength(buffer.length);
-	    
-	    try {
-		OutputStream out = res.getOutputStream();
-		out.write(buffer);
-		out.flush();
-	    } catch (IOException e) {
-		throw new ServletServerException("error writing response");
-	    } finally {
-		socketOut.close();
-		socketIn.close();
-	    }
-	}
+
+        public String getName() {
+            return "forward";
+        }
+
+        /**
+         * Execute the forward command.  Forwards data from incoming servlet
+         * request to a port on the local machine.  Presumably, an RMI server
+         * will be reading the data that this method sends.
+         *
+         * @param req   The servlet request.
+         * @param res   The servlet response.
+         * @param param Port to which data will be sent.
+         */
+        public void execute(HttpServletRequest req, HttpServletResponse res,
+                String param)
+                throws ServletClientException, ServletServerException, IOException {
+
+            int port;
+            try {
+                port = Integer.parseInt(param);
+            } catch (NumberFormatException e) {
+                throw new ServletClientException("invalid port number: " +
+                        param);
+            }
+            if (port <= 0 || port > 0xFFFF) {
+                throw new ServletClientException("invalid port: " + port);
+            }
+            if (port < 1024) {
+                throw new ServletClientException("permission denied for port: " + port);
+            }
+
+            byte buffer[];
+            Socket socket;
+            try {
+                socket = new Socket(InetAddress.getLocalHost(), port);
+            } catch (IOException e) {
+                throw new ServletServerException("could not connect to " +
+                        "local port");
+            }
+
+            // read client's request body
+            DataInputStream clientIn =
+                    new DataInputStream(req.getInputStream());
+            buffer = new byte[req.getContentLength()];
+            try {
+                clientIn.readFully(buffer);
+            } catch (EOFException e) {
+                throw new ServletClientException("unexpected EOF " +
+                        "reading request body");
+            } catch (IOException e) {
+                throw new ServletClientException("error reading request" +
+                        " body");
+            }
+
+            DataOutputStream socketOut = null;
+            // send to local server in HTTP
+            try {
+                socketOut =
+                        new DataOutputStream(socket.getOutputStream());
+                socketOut.writeBytes("POST / HTTP/1.0\r\n");
+                socketOut.writeBytes("Content-length: " +
+                        req.getContentLength() + "\r\n\r\n");
+                socketOut.write(buffer);
+                socketOut.flush();
+            } catch (IOException e) {
+                throw new ServletServerException("error writing to server");
+            }
+
+            // read response from local server
+            DataInputStream socketIn;
+            try {
+                socketIn = new DataInputStream(socket.getInputStream());
+            } catch (IOException e) {
+                throw new ServletServerException("error reading from " +
+                        "server");
+            }
+            String key = "Content-length:".toLowerCase();
+            boolean contentLengthFound = false;
+            String line;
+            int responseContentLength = -1;
+            do {
+                try {
+                    line = socketIn.readLine();
+                } catch (IOException e) {
+                    throw new ServletServerException("error reading from server");
+                }
+                if (line == null) {
+                    throw new ServletServerException(
+                            "unexpected EOF reading server response");
+                }
+
+                if (line.toLowerCase().startsWith(key)) {
+                    if (contentLengthFound); // what would we want to do in this case??
+                    responseContentLength =
+                            Integer.parseInt(line.substring(key.length()).trim());
+                    contentLengthFound = true;
+                }
+            } while ((line.length() != 0) &&
+                    (line.charAt(0) != '\r') && (line.charAt(0) != '\n'));
+
+            if (!contentLengthFound || responseContentLength < 0) {
+                throw new ServletServerException(
+                        "missing or invalid content length in server response");
+            }
+            buffer = new byte[responseContentLength];
+            try {
+                socketIn.readFully(buffer);
+            } catch (EOFException e) {
+                throw new ServletServerException(
+                        "unexpected EOF reading server response");
+            } catch (IOException e) {
+                throw new ServletServerException("error reading from server");
+            }
+
+            // send local server response back to servlet client
+            res.setStatus(HttpServletResponse.SC_OK);
+            res.setContentType("application/octet-stream");
+            res.setContentLength(buffer.length);
+
+            try {
+                OutputStream out = res.getOutputStream();
+                out.write(buffer);
+                out.flush();
+            } catch (IOException e) {
+                throw new ServletServerException("error writing response");
+            } finally {
+                socketOut.close();
+                socketIn.close();
+            }
+        }
     }
-    
+
     /**
      * Class that has an execute method to return the host name of the
      * server as the response body.
      */
-    protected static class ServletGethostnameCommand 
-	implements RMICommandHandler 
-    {
-	
-	public String getName() {
-	    return "gethostname";
-	}
-	
-	public void execute(HttpServletRequest req, HttpServletResponse res, 
-			    String param) 
-	    throws ServletClientException, ServletServerException, IOException {
-	    
-	    byte[] getHostStringBytes = req.getServerName().getBytes();
-	    
-	    res.setStatus(HttpServletResponse.SC_OK);
-	    res.setContentType("application/octet-stream");
-	    res.setContentLength(getHostStringBytes.length);
-	    
-	    OutputStream out = res.getOutputStream();
-	    out.write(getHostStringBytes);
-	    out.flush();
-	}
+    protected static class ServletGethostnameCommand
+            implements RMICommandHandler {
+
+        public String getName() {
+            return "gethostname";
+        }
+
+        public void execute(HttpServletRequest req, HttpServletResponse res,
+                String param)
+                throws ServletClientException, ServletServerException, IOException {
+
+            byte[] getHostStringBytes = req.getServerName().getBytes();
+
+            res.setStatus(HttpServletResponse.SC_OK);
+            res.setContentType("application/octet-stream");
+            res.setContentLength(getHostStringBytes.length);
+
+            OutputStream out = res.getOutputStream();
+            out.write(getHostStringBytes);
+            out.flush();
+        }
     }
-    
+
     /**
      * Class that has an execute method to return an OK status to
      * indicate that connection was successful.  
      */
     protected static class ServletPingCommand implements RMICommandHandler {
-	
-	public String getName() {
-	    return "ping";
-	}
-	
-	public void execute(HttpServletRequest req, HttpServletResponse res, 
-			    String param) 
-	    throws ServletClientException, ServletServerException, IOException {
-	    
-	    res.setStatus(HttpServletResponse.SC_OK);
-	    res.setContentType("application/octet-stream");
-	    res.setContentLength(0);
-	}
+
+        public String getName() {
+            return "ping";
+        }
+
+        public void execute(HttpServletRequest req, HttpServletResponse res,
+                String param)
+                throws ServletClientException, ServletServerException, IOException {
+
+            res.setStatus(HttpServletResponse.SC_OK);
+            res.setContentType("application/octet-stream");
+            res.setContentLength(0);
+        }
     }
-    
+
     /**
      * Class that has an execute method to return a human readable
      * message describing which host name is available to local Java
      * VMs.  
      */
-    protected static class ServletTryHostnameCommand 
-	implements RMICommandHandler 
-    {
-	
-	public String getName() {
-	    return "hostname";
-	}
-	
+    protected static class ServletTryHostnameCommand
+            implements RMICommandHandler {
 
-	public void execute(HttpServletRequest req, HttpServletResponse res, 
-			    String param) 
-	    throws ServletClientException, ServletServerException, IOException {
-	    
-	    PrintWriter pw = res.getWriter();
-	    
-	    pw.println("");
-	    pw.println("<HTML>" +
-		       "<HEAD><TITLE>Java RMI Server Hostname Info" +
-		       "</TITLE></HEAD>" +
-		       "<BODY>");
-	    pw.println("<H1>Java RMI Server Hostname Info</H1>");
-	    pw.println("<H2>Local host name available to Java VM:</H2>");
-	    pw.print("<P>InetAddress.getLocalHost().getHostName()");
-	    try {
-		String localHostName = InetAddress.getLocalHost().getHostName();
-		
-		pw.println(" = " + localHostName);
-	    } catch (UnknownHostException e) {
-		pw.println(" threw java.net.UnknownHostException");
-	    }
-	    
-	    pw.println("<H2>Server host information obtained through Servlet " + 
-		       "interface from HTTP server:</H2>");
-	    pw.println("<P>SERVER_NAME = " + req.getServerName());
-	    pw.println("<P>SERVER_PORT = " + req.getServerPort());
-	    pw.println("</BODY></HTML>");
-	}
+        public String getName() {
+            return "hostname";
+        }
+
+        public void execute(HttpServletRequest req, HttpServletResponse res,
+                String param)
+                throws ServletClientException, ServletServerException, IOException {
+
+            PrintWriter pw = res.getWriter();
+
+            pw.println("");
+            pw.println("<HTML>" +
+                    "<HEAD><TITLE>Java RMI Server Hostname Info" +
+                    "</TITLE></HEAD>" +
+                    "<BODY>");
+            pw.println("<H1>Java RMI Server Hostname Info</H1>");
+            pw.println("<H2>Local host name available to Java VM:</H2>");
+            pw.print("<P>InetAddress.getLocalHost().getHostName()");
+            try {
+                String localHostName = InetAddress.getLocalHost().getHostName();
+
+                pw.println(" = " + localHostName);
+            } catch (UnknownHostException e) {
+                pw.println(" threw java.net.UnknownHostException");
+            }
+
+            pw.println("<H2>Server host information obtained through Servlet " +
+                    "interface from HTTP server:</H2>");
+            pw.println("<P>SERVER_NAME = " + req.getServerName());
+            pw.println("<P>SERVER_PORT = " + req.getServerPort());
+            pw.println("</BODY></HTML>");
+        }
     }
-    
+
     /**
      * ServletClientException is thrown when an error is detected
      * in a client's request.
      */
     protected static class ServletClientException extends Exception {
-	
-	public ServletClientException(String s) {
-	    super(s);
-	}
+
+        public ServletClientException(String s) {
+            super(s);
+        }
     }
-    
+
     /**
      * ServletServerException is thrown when an error occurs here on the server.
      */
     protected static class ServletServerException extends Exception {
-	
-	public ServletServerException(String s) {
-	    super(s);
-	}
+
+        public ServletServerException(String s) {
+            super(s);
+        }
     }
 }

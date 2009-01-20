@@ -178,8 +178,12 @@ public class SimpleAssetManager implements AssetManager {
         if (null == a_asset.getOwnerId()) {
             a_asset.setOwnerId(p_caller.getObjectId());
         }
-        if (null == a_asset.getHomeId()) {
-            a_asset.setHomeId(p_caller.getHomeId());
+        if ( (null == a_asset.getHomeId()) ) {
+            if ( a_asset.getAssetType().equals(AssetType.HOME) ) {
+                a_asset.setHomeId( a_asset.getObjectId() );
+            } else {
+                a_asset.setHomeId(p_caller.getHomeId());
+            }
         }
 
         // Don't lookup the same asset more than once in this transaction
@@ -190,10 +194,10 @@ public class SimpleAssetManager implements AssetManager {
 
         try {
             if (null == a_asset.getObjectId()) {
-                try {
-                    a_asset.setObjectId(ofactory_uuid.create());
-                } catch (FactoryException e) {
-                    throw new AssertionFailedException("Failed to create new UUID, caught: " + e, e);
+                a_asset.setObjectId(ofactory_uuid.create());
+                if ( a_asset.getAssetType().equals( AssetType.HOME ) ) {
+                    // HOME asset type should reference itself
+                    a_asset.setHomeId( a_asset.getObjectId() );
                 }
             } else if (v_save_cycle.containsKey(a_asset.getObjectId())) {
                 olog_generic.log(Level.WARNING, "Save cycle detected - not saving " + a_asset);
@@ -205,6 +209,7 @@ public class SimpleAssetManager implements AssetManager {
             olog_generic.log(Level.FINE, "Check pre-save");
             try {
                 if (null == a_old_asset) {
+                    // creating a new asset
                     a_asset.setCreatorId(p_caller.getObjectId());
                     // Check the caller's quota
                     if (v_save_cycle.isEmpty()) {
@@ -221,6 +226,7 @@ public class SimpleAssetManager implements AssetManager {
                         }
                     }
                 } else {
+                    // updating an existing asset
                     if (!a_old_asset.getAssetType().equals(a_asset.getAssetType())) {
                         throw new AccessDeniedException("May not change asset type");
                     }
@@ -256,14 +262,32 @@ public class SimpleAssetManager implements AssetManager {
                     }
                 }
 
-                olog_generic.log(Level.FINE, "Retrieving HOME");
-                Asset a_home = om_search.getAsset(a_asset.getHomeId());
-                olog_generic.log(Level.FINE, "Got HOME");
-                if (!a_home.getAssetType().equals(AssetType.HOME)) {
-                    throw new HomeIdException("Home id must link to HOME type asset");
+                if ( a_asset.getAssetType().equals( AssetType.HOME ) ) {
+                    a_asset.setHomeId( a_asset.getObjectId() );
+                } else {
+                    olog_generic.log(Level.FINE, "Retrieving HOME");
+                    Asset a_home = om_search.getAsset(a_asset.getHomeId());
+                    olog_generic.log(Level.FINE, "Got HOME");
+                    if (!a_home.getAssetType().equals(AssetType.HOME)) {
+                        throw new HomeIdException("Home id must link to HOME type asset");
+                    }
+                    // If from-id is null from non-home orphan asset,
+                    // then must have home-write permission to write home asset
+                    if ( (null == a_asset.getFromId())
+                            && (! a_home.getOwner( om_search ).isOwner( p_caller ))
+                            && ( 
+                                  (a_home.getAclId() == null)
+                                  || ( ! a_home.getAcl( om_search ).checkPermission(p_caller, LittlePermission.WRITE))
+                               )
+                    ) {
+                        // caller must have WRITE on Home permission to create a rootless
+                        // (null from-id) asset
+                        throw new AccessDeniedException( "Must have home-write permission to create asset with null fromId");
+                    }
                 }
 
-                if ((null != a_asset.getFromId()) && ((null == a_old_asset) || (!a_asset.getFromId().equals(a_old_asset.getFromId())))) {
+                if ((null != a_asset.getFromId())
+                        && ((null == a_old_asset) || (!a_asset.getFromId().equals(a_old_asset.getFromId())))) {
                     olog_generic.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
                     Asset a_from = om_search.getAsset(a_asset.getFromId());
@@ -277,7 +301,7 @@ public class SimpleAssetManager implements AssetManager {
                                     " without permission " + LittlePermission.WRITE);
                         }
                     }
-                    if ((!a_from.getHomeId().equals(a_asset.getHomeId()) && (!a_asset.getHomeId().equals(a_asset.getFromId())) // linking FROM HOME
+                    if ((!a_from.getHomeId().equals(a_asset.getHomeId()) 
                             )) {
                         throw new HomeIdException("May not link FROM an asset with a different HOME");
                     }

@@ -1,9 +1,20 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.test;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.Principal;
 
 import junit.framework.*;
 
@@ -15,7 +26,7 @@ import littleware.base.*;
  * Test traversal of some asset paths.
  */
 public class AssetPathTester extends TestCase {
-	private static Logger olog_generic = Logger.getLogger ( "littleware.asset.test.AssetPathTester" );
+	private static Logger olog_generic = Logger.getLogger ( AssetPathTester.class.getName() );
 	
     private final AssetManager        om_asset;
 	private final AssetSearchManager  om_search;
@@ -39,7 +50,10 @@ public class AssetPathTester extends TestCase {
 	/**
      * Setup a test asset tree under the littleware.test_home:
      *         littleware.test_home/AssetPathTester/A,Points2A/1,2,3,biggest,smallest
+     *
+     * @TODO - switch over to mock-based test
 	 */
+    @Override
 	public void setUp () {
         try {
             Asset a_home = om_search.getByName ( AssetManagerTester.MS_TEST_HOME, AssetType.HOME );
@@ -125,6 +139,7 @@ public class AssetPathTester extends TestCase {
 	/**
      * No teardown necessary
 	 */
+    @Override
 	public void tearDown () {
 	}
 	
@@ -136,16 +151,13 @@ public class AssetPathTester extends TestCase {
         List<AssetPath>  v_tests = new ArrayList<AssetPath> ();
         AssetPathFactory factory_path = AssetPathFactory.getFactory ();
 		try {
-            v_tests.add ( factory_path.createPath ( "littleware.test_home", AssetType.HOME, 
-                                                    "/AssetPathTester/A/../A/1/../1" 
+            v_tests.add ( factory_path.createPath ( "littleware.test_home/AssetPathTester/A/../A/1/../1" 
                                                     )
                           );
-            v_tests.add ( factory_path.createPath ( "littleware.test_home", AssetType.HOME,
-                                                    "/AssetPathTester/A/2/../../Points2A/2/@/2" 
+            v_tests.add ( factory_path.createPath ( "/littleware.test_home/AssetPathTester/A/2/../../Points2A/2/@/2"
                                                     )
                           );
-            v_tests.add ( factory_path.createPath ( "littleware.test_home", AssetType.HOME, 
-                                                    "/AssetPathTester/Points2A/2/@/3" 
+            v_tests.add ( factory_path.createPath ( "littleware.test_home/AssetPathTester/Points2A/2/@/3" 
                                                     )
                           );
             
@@ -196,15 +208,16 @@ public class AssetPathTester extends TestCase {
                     assertTrue ( "Smallest link resolved to asset 1: " + a_smallest.getName (),
                                  a_smallest.equals ( a_test )
                                  );
+                    assertTrue( "Get by id ok",
+                            factory_path.createPath( a_smallest.getObjectId().toString() ).getAsset( om_search ).equals( a_smallest )
+                            );
                 } else if ( i_count == v_tests.size () ) {
                     AssetPath path_biggest = factory_path.createPath( path_test.toString () + "/@/biggest" );
                     Asset     a_biggest = path_biggest.getAsset ( om_search );
                     assertTrue ( "Biggest link resolved to asset 1: " + a_biggest.getName (),
                                  a_biggest.equals ( a_test )
                                  );
-                }                    
-                    
-                    
+                }                                
             }
             
 		} catch ( Exception e ) {
@@ -216,7 +229,4 @@ public class AssetPathTester extends TestCase {
 	}
 	
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

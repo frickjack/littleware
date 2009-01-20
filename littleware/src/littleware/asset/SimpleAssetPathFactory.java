@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset;
 
 import java.util.logging.Logger;
@@ -12,14 +24,14 @@ import littleware.base.UUIDFactory;
  * Source of AssetPath objects.
  */
 public class SimpleAssetPathFactory extends AssetPathFactory {    
-    private static Logger   olog_generic = Logger.getLogger ( "littleware.asset.SimpleAssetPathFactory" );
+    private static Logger   olog = Logger.getLogger ( "littleware.asset.SimpleAssetPathFactory" );
     
     /** Do nothing constructor */
     public SimpleAssetPathFactory () {}
         
     @Override
     public  AssetPath createPath ( String s_path_with_root
-                                   ) throws AssetException, ParseException {
+                                   ) throws AssetException,ParseException {
         if ( ! s_path_with_root.startsWith ( "/" ) ) {
             throw new ParseException ( "Asset-path must start with /: " + s_path_with_root );
         }
@@ -35,23 +47,42 @@ public class SimpleAssetPathFactory extends AssetPathFactory {
             s_root = s_path_with_root.substring( 1 );
             s_subroot_path = "";
         }
-        
-        if ( s_root.startsWith ( AssetPathFactory.PathRootPrefix.ById.toString () ) ) {
-            UUID u_root = UUIDFactory.parseUUID ( s_root.substring ( AssetPathFactory.PathRootPrefix.ById.toString ().length () ) );
-            return createPath ( u_root, s_subroot_path );
-        } else if ( s_root.startsWith ( AssetPathFactory.PathRootPrefix.ByName.toString () ) ) {
-            int    i_name = AssetPathFactory.PathRootPrefix.ByName.toString ().length ();
-            int    i_type = s_root.indexOf ( ":type:" );
-            if ( i_type <= i_name ) {
-                throw new ParseException ( "Illegal asset-type root specification: " + s_root );
-            }
 
-            String s_name = s_root.substring( i_name, i_type );
-            String s_type = s_root.substring( i_type + ":type:".length (), s_root.length () );            
-            
-            return createPath ( s_name, AssetType.getMember( s_type ), s_subroot_path );
+        // byname AssetPath - default type littleware.HOME, default name s_root
+        String s_name = s_root;
+        AssetType<?>  atype = AssetType.HOME;
+        final int    i_type = s_root.indexOf ( ":type:" );
+
+        if (s_root.startsWith(AssetPathFactory.PathRootPrefix.ById.toString())) {
+            try {
+                UUID u_root = UUIDFactory.parseUUID(s_root.substring(AssetPathFactory.PathRootPrefix.ById.toString().length()));
+                return createPath(u_root, s_subroot_path);
+            } catch ( IllegalArgumentException ex ) {
+                throw new ParseException( "Invalid uuid: " + s_root, ex );
+            }
+        } else if (s_root.startsWith(AssetPathFactory.PathRootPrefix.ByName.toString())) {
+            // user specified name
+            int i_name = AssetPathFactory.PathRootPrefix.ByName.toString().length();
+
+            if (i_type < 0) {
+                s_name = s_root.substring(i_name);
+            } else {
+                s_name = s_root.substring(i_name, i_type);
+                atype = AssetType.getMember(s_root.substring(i_type + ":type:".length()));
+            }
+        } else if (i_type > 0) {
+            // user did not specify name, but specified a type
+            atype = AssetType.getMember(s_root.substring(i_type + ":type:".length()));
+        } else {
+            // user specified nothing
+            // check to make sure the name is not a UUID
+            try {
+                return createPath(UUIDFactory.parseUUID(s_name), s_subroot_path);
+            } catch (IllegalArgumentException ex) {
+                olog.log(Level.FINE, "Unspecified path is not a UUID path");
+            }
         }
-        throw new ParseException ( "Unable to parse root: " + s_root );            
+        return createPath(s_name, atype, s_subroot_path);
    }
                                        
     
@@ -78,5 +109,3 @@ public class SimpleAssetPathFactory extends AssetPathFactory {
 }
 
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

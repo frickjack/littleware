@@ -35,6 +35,7 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
     private List<LittleListener> ov_listener = new ArrayList<LittleListener>();
     private final Object ox_source;
 
+
     /**
      * Constructor stashes the source-object that the various fire* methods
      * should construct events against.

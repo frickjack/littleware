@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
@@ -7,11 +19,11 @@ import java.beans.PropertyChangeEvent;
 import javax.swing.*;
 import java.util.UUID;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.apps.client.*;
+import littleware.apps.client.event.AssetModelEvent;
 import littleware.asset.*;
 import littleware.base.swing.JUtil;
 import littleware.apps.swingclient.event.*;
@@ -33,7 +45,12 @@ public class JAssetBrowser extends JPanel implements AssetView {
     private final AbstractAssetView     oview_support = new AbstractAssetView ( this ) {
         // NOOP - active view handles events from model
         public void eventFromModel ( LittleEvent evt_model ) {
-            
+            if ( (evt_model instanceof AssetModelEvent)
+                 && AssetModel.Operation.assetsLinkingFrom.toString().equals( evt_model.getOperation() )
+                    ) {
+                // Need to update children view
+                updateChildrenWidget ();
+            }
         }
     };
 
@@ -178,24 +195,35 @@ public class JAssetBrowser extends JPanel implements AssetView {
                 omodel_history.remove( 0 );
             }
         }
-        { // update the children
-            omodel_children.clear ();
-            try {
-                Map<String,UUID> v_children = om_retriever.getAssetIdsFrom ( oview_support.getAssetModel ().getAsset ().getObjectId (), null );
-                for ( UUID u_value : v_children.values () ) {
-                    omodel_children.addElement ( u_value );
-                }
-            } catch ( Exception e ) {
-                olog_generic.log ( Level.WARNING, "Retrieving children caught unexpected: " + e );
-            }
-        }
-        
+        updateChildrenWidget();
         Component w_root = JUtil.findRoot ( this );
         w_root.validate ();
         if ( w_root instanceof Window ) {
             olog_generic.log ( Level.FINE, "Repacking window" );
             ((Window) w_root).pack ();
         }    
+    }
+
+    /**
+     * Internal utility updates view of the children linking form an asset -
+     * runs asynchronously if not on the Swing dispatch thread
+     */
+    private void updateChildrenWidget () { // update the children
+        if ( ! SwingUtilities.isEventDispatchThread() ) {
+            SwingUtilities.invokeLater( new Runnable () {
+                public void run () { updateChildrenWidget (); }
+            });
+            return;
+        }
+        omodel_children.clear();
+        try {
+            Map<String, UUID> v_children = om_retriever.getAssetIdsFrom(oview_support.getAssetModel().getAsset().getObjectId(), null);
+            for (UUID u_value : v_children.values()) {
+                omodel_children.addElement(u_value);
+            }
+        } catch (Exception e) {
+            olog_generic.log(Level.WARNING, "Retrieving children caught unexpected: " + e);
+        }
     }
 
     
@@ -217,7 +245,4 @@ public class JAssetBrowser extends JPanel implements AssetView {
 	    
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

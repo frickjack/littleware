@@ -1,3 +1,16 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.apps.swingclient;
 
 import java.awt.GridBagLayout;
@@ -5,22 +18,14 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.rmi.RemoteException;
-import java.security.acl.Acl;
 import java.security.acl.AclEntry;
 import java.security.acl.Permission;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 
 import javax.swing.*;
-import javax.swing.undo.*;
-import javax.swing.event.*;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
@@ -35,7 +40,7 @@ import littleware.security.*;
  * the view between which groups/users are granted a particular permission.
  */
 public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
-    private static final Logger       olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JAclEditor" );
+    private static final Logger       olog_generic = Logger.getLogger ( JAclEditor.class.getName() );
 
     private final AssetSearchManager        om_search;
     private final AssetManager              om_asset;

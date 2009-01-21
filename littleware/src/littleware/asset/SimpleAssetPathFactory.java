@@ -30,10 +30,11 @@ public class SimpleAssetPathFactory extends AssetPathFactory {
     public SimpleAssetPathFactory () {}
         
     @Override
-    public  AssetPath createPath ( String s_path_with_root
+    public  AssetPath createPath ( String s_path_in
                                    ) throws AssetException,ParseException {
+        String s_path_with_root = s_path_in;
         if ( ! s_path_with_root.startsWith ( "/" ) ) {
-            throw new ParseException ( "Asset-path must start with /: " + s_path_with_root );
+            s_path_with_root = "/" + s_path_in;
         }
         int i_first_slash = s_path_with_root.indexOf ( "/", 1 );
         String s_root = null;

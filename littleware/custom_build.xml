@@ -121,6 +121,12 @@
            <include name="*.properties"/>
          </fileset>
     </copy>
+    <copy todir="${buildclient}/littleware/apps/lgo">
+        <fileset dir="src/littleware/apps/lgo">
+           <include name="*.properties"/>
+           <include name="*.xml"/>
+         </fileset>
+    </copy>
     <copy todir="${buildclient}/littleware/apps/swingclient/wizard/resources">
         <fileset dir="${srcdir.littleware}/apps/swingclient/wizard/resources" />
     </copy>

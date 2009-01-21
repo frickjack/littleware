@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -18,6 +18,10 @@ import java.util.logging.Logger;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import java.util.ArrayList;
+import java.util.List;
+import littleware.apps.client.LoggerUiFeedback;
+import littleware.apps.client.UiFeedback;
 import littleware.base.PropertiesGuice;
 
 
@@ -34,7 +38,9 @@ public class LgoCommandLine {
     
     /**
      * Look at the first argument to determine 
-     * which command to launch
+     * which command to launch, process arguments up until "--",
+     * then pass pass the remaining args as a single space-separated string
+     * to the command.runCommand method.
      * 
      * @param v_args command-line args
      */
@@ -50,17 +56,22 @@ public class LgoCommandLine {
             );
             LgoCommandDictionary m_command = injector.getInstance( LgoCommandDictionary.class );
             LgoHelpLoader        m_help = injector.getInstance( LgoHelpLoader.class );
+            UiFeedback           feedback = new LoggerUiFeedback();
 
-            for( LgoCommand cmd_register : 
+            for( LgoCommand cmd_register :
+                // need to move this into a properties file
                 new LgoCommand[] {
-                    //new StdoutHelpCommand( m_command, m_help ),
+                    injector.getInstance( EzHelpCommand.class ),
                     injector.getInstance( XmlEncodeCommand.class ),
                     injector.getInstance( LgoBrowserCommand.class )
                 }
                 ) {
+
+                m_command.setCommand( cmd_register.getName(), cmd_register );
+
                 LgoHelp help = m_help.loadHelp( cmd_register.getName () );
                 if ( null != help ) {
-                    m_command.setCommand( cmd_register.getName(), cmd_register );
+
                     for( String s_alias : help.getShortNames() ) {
                         m_command.setCommand( s_alias, cmd_register );
                     }            
@@ -68,8 +79,31 @@ public class LgoCommandLine {
                     olog.log ( Level.FINE, "No help available for command: " + cmd_register.getName() );
                 }
             }
-            LgoCommand<?,?> command = m_command.getCommand( LgoBrowserCommand.class.getName () ); // injector.getInstance( LgoBrowserCommand.class ); //m_command.getCommand( LgoBrowserCommand.class.getName () );
-            command.runDynamic( "/byname:littleware.home:type:littleware.HOME/" );
+            if ( v_args.length == 0 ) { // launch help command by default
+                System.out.print( m_command.getCommand( "help" ).runCommand( feedback, "help" ).toString() );
+                return;
+            }
+            LgoCommand<?, ?> command = m_command.getCommand(v_args[0]); // injector.getInstance( LgoBrowserCommand.class ); //m_command.getCommand( LgoBrowserCommand.class.getName () );
+            if (null == command) {
+                System.out.print(m_command.getCommand("help").runCommand(feedback, "help").toString());
+                return;
+            }
+            List<String> v_process = new ArrayList<String>();
+            StringBuilder sb_in = new StringBuilder();
+
+            for (int i = 1; i < v_args.length; ++i) {
+                String s_arg = v_args[i];
+                if (s_arg.equals("--")) {
+                    // everything after -- goes into runCommand
+                    for (int j = i + 1; j < v_args.length; ++j) {
+                        sb_in.append(v_args[j]).append(" ");
+                    // Note: trim() sb_in.toString before passing to run
+                    }
+                    break;
+                }
+                v_process.add(s_arg);
+            }
+            System.out.print(command.runCommand(feedback, sb_in.toString().trim()).toString());
         } catch ( Exception e ) {
             olog.log( Level.SEVERE, "Failed command, caught: " + e, e );
         }

@@ -1,27 +1,28 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.*;
-import javax.swing.undo.*;
 import javax.swing.event.*;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
-import java.util.UUID;
-import java.util.Date;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import com.nexes.wizard.*;
 
 import littleware.asset.*;
 import littleware.base.BaseException;
-import littleware.base.UUIDFactory;
-import littleware.base.AssertionFailedException;
-import littleware.base.NoSuchThingException;
-import littleware.base.XmlSpecial;
-import littleware.base.swing.JUtil;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.event.*;
 import littleware.apps.swingclient.*;

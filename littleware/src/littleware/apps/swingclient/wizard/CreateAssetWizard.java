@@ -1,11 +1,18 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient.wizard;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.HashSet;
@@ -21,14 +28,9 @@ import littleware.apps.swingclient.*;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.AssetManager;
-import littleware.asset.AssetException;
-import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.InvalidAssetTypeException;
 import littleware.base.BaseException;
-import littleware.base.FactoryException;
-import littleware.base.AssertionFailedException;
 import littleware.security.SecurityAssetType;
 
 /**
@@ -145,6 +147,9 @@ public class CreateAssetWizard extends WizardAssetEditor {
                             setAssetModel(olib_asset.syncAsset(a_new));
                             setHasLocalChanges(true);
                         }
+                        if ( getLocalAsset().getAssetType().equals( AssetType.HOME ) ) {
+                            changeLocalAsset().setHomeId( getLocalAsset().getObjectId() );
+                        }
                     }
                 });
         this.registerWizardPanel(BasicPanel.PickName,
@@ -215,7 +220,9 @@ public class CreateAssetWizard extends WizardAssetEditor {
 
                     public void setAssetId(UUID u_asset) {
                         changeLocalAsset().setFromId(u_asset);
-                        if (null != u_asset) {
+                        if ( (null != u_asset)
+                                && (! changeLocalAsset().getAssetType().equals( AssetType.HOME ))
+                           ) {
                             // Must have same HOME when linking FROM an asset
                             try {
                                 AssetModel model_from = olib_asset.retrieveAssetModel(u_asset, om_search);

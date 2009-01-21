@@ -1,6 +1,13 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.apps.lgo;
@@ -9,6 +16,7 @@ import com.google.inject.Inject;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import littleware.apps.client.UiFeedback;
 import littleware.base.Whatever;
 import littleware.base.XmlResourceBundle;
 
@@ -16,6 +24,8 @@ import littleware.base.XmlResourceBundle;
  * Simple help-command baseclass just builds up
  * help-string in standard format for subclasses
  * that can send the info to whatever destination.
+ *
+ * @TODO process args to set Locale property
  */
 public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
 
@@ -60,37 +70,6 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
         om_help = m_help;
     }
     
-    /** help with what ? */
-    private String  os_target = "help";
-    
-    /**
-     * Just sets the target property to v_args[0]
-     * 
-     * @param v_args
-     */
-    @Override
-    public void processCommandArgs( String[] v_args ) {
-        if ( v_args.length > 0 ) {
-            os_target = v_args[0];
-        }
-    }
-    
-    /**
-     * Property tracks the help-target
-     * that the help command should present info on
-     */
-    public String getHelpTarget () {
-        return os_target;
-    }
-    /**
-     * Set the name of the command to get help on at
-     * runCommand time.
-     * 
-     * @param s_target
-     */
-    public void setHelpTarget ( String s_target ) {
-        os_target = s_target;
-    }
     
     private Locale  olocale = Locale.getDefault();
     
@@ -102,9 +81,9 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
         olocale = locale;
     }
 
-    
-    public LgoHelp runSafe( String s_ignore ) {                
-        LgoCommand<?,?> command = om_command.getCommand( os_target );
+    @Override
+    public LgoHelp runSafe( UiFeedback feedback, String s_target ) {
+        LgoCommand<?,?> command = om_command.getCommand( s_target );
         if ( null == command ) {
             return null;
         }
@@ -116,11 +95,11 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
      * the given arguments, and return an
      * info string appropriate for the given locale.
      */
-    protected String getHelpString ( Locale locale ) { 
+    protected String getHelpString ( UiFeedback feedback, Locale locale ) {
         ResourceBundle bundle_help = XmlResourceBundle.getBundle( EzHelpCommand.class.getName() + "Resources",
                 locale
                 );
-        LgoHelp  help = runSafe( null );
+        LgoHelp  help = runSafe( feedback, null );
         
         if ( null != help ) {
             StringBuilder  sb_help = new StringBuilder( 1000 );
@@ -191,20 +170,4 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
 
     }
     
-    @Override
-    public boolean equals( Object x ) {
-        return ((null != x)
-                && (x instanceof EzHelpCommand)
-                && ((EzHelpCommand) x).getHelpTarget().equals( getHelpTarget() )
-                && ((EzHelpCommand) x).getLocale().equals( getLocale() )
-                );
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 53 * hash + (this.os_target != null ? this.os_target.hashCode() : 0);
-        hash = 53 * hash + (this.olocale != null ? this.olocale.hashCode() : 0);
-        return hash;
-    }
 }

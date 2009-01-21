@@ -1,30 +1,25 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.apps.lgo;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.*;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.nio.charset.Charset;
 
+import java.util.List;
+import littleware.apps.client.UiFeedback;
 import littleware.base.AssertionFailedException;
 import littleware.base.XmlSpecial;
 
@@ -69,7 +64,7 @@ public class XmlEncodeCommand extends AbstractLgoCommand<String,String> {
      * @param vArgs
      */
     @Override
-    public void processCommandArgs( String[] v_argv ) throws LgoException {
+    public void processArgs( List<String> v_argv ) throws LgoException {
         if ( null == obundle_support ) {
             obundle_support = ResourceBundle.getBundle( XmlEncodeCommand.class.getName() + "Resources" );
         }
@@ -82,7 +77,7 @@ public class XmlEncodeCommand extends AbstractLgoCommand<String,String> {
             };
         }
         final Getopt opts = new Getopt(obundle_support.getString("appname"), 
-                v_argv, "ed", ov_longopts
+                v_argv.toArray( new String[ v_argv.size() ] ), "ed", ov_longopts
                 );
 
         boolean b_encode = true;
@@ -192,8 +187,9 @@ public class XmlEncodeCommand extends AbstractLgoCommand<String,String> {
         }        
     }            
     */
-    
-    public String runCommand( String s_in ) {
+
+    @Override
+    public String runCommand( UiFeedback feedback, String s_in ) {
         // Need to add ResourceBundle stuff ...
         switch( on_subcommand ) {
             case version:
@@ -206,8 +202,9 @@ public class XmlEncodeCommand extends AbstractLgoCommand<String,String> {
                 throw new AssertionFailedException( "Should not reach this state" );
         }
     }
-    
-    public String runSafe( String s_in ) {
-        return runCommand( s_in );
+
+    @Override
+    public String runSafe( UiFeedback feedback, String s_in ) {
+        return runCommand( feedback, s_in );
     }
 }

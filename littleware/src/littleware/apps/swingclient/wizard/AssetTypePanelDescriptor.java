@@ -1,23 +1,25 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient.wizard;
 
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.util.List;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import com.nexes.wizard.*;
 
 import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
-import littleware.asset.Asset;
 import littleware.asset.AssetType;
-import littleware.asset.AssetManager;
-import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetException;
-import littleware.base.BaseException;
 
 /**
  * WizardController plugin for the AssetTypeSelector control
@@ -56,6 +58,7 @@ public class AssetTypePanelDescriptor extends WizardPanelDescriptor {
     /**
      * Sync the display with the underlying AssetEditor localAsset
      */
+    @Override
     public void aboutToDisplayPanel () {
         AssetType       n_active = oeditor_parent.getLocalAsset ().getAssetType ();
         int             i_index = getSelector ().getIndexOf ( n_active );
@@ -74,6 +77,7 @@ public class AssetTypePanelDescriptor extends WizardPanelDescriptor {
     }
     
     /** Set the focus */
+    @Override
     public void displayingPanel () {
         getPanelComponent ().requestFocus ();
     }
@@ -81,6 +85,7 @@ public class AssetTypePanelDescriptor extends WizardPanelDescriptor {
     /**
      * Sync the editor local asset with the panel selected assetType.
      */
+    @Override
     public void aboutToHidePanel () {
         if ( ! oeditor_parent.getLocalAsset ().getAssetType ().equals ( getSelector ().getSelectedAssetType () ) ) {
             oeditor_parent.changeLocalAsset ().setAssetType ( getSelector ().getSelectedAssetType () );
@@ -90,7 +95,4 @@ public class AssetTypePanelDescriptor extends WizardPanelDescriptor {
 }
 
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

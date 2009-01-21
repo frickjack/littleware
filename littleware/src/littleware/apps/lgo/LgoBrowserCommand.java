@@ -1,6 +1,13 @@
 /*
- * Copyright 2008 Reuben Pasquini
- * All Rights Reserved
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.apps.lgo;
@@ -14,6 +21,8 @@ import java.util.logging.Logger;
 import javax.swing.*;
 
 import littleware.apps.client.AssetModelLibrary;
+import littleware.apps.client.LoggerUiFeedback;
+import littleware.apps.client.UiFeedback;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.ExtendedAssetViewController;
 import littleware.asset.Asset;
@@ -77,16 +86,14 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
      * @return where the user stops browsing
      */
     @Override
-    public UUID runSafe( String s_start_path ) {        
+    public UUID runSafe( UiFeedback feedback, String s_start_path ) {
         if ( null != s_start_path ) {
             try {
                 Asset a_start = osearch.getAssetAtPath( AssetPathFactory.getFactory ().createPath( s_start_path ) );
                 olib.syncAsset( a_start );
                 setStart( a_start.getObjectId () );
             } catch ( Exception e ) {
-                olog.log( Level.WARNING, "Unable to load asset at path: " + s_start_path + ", caught: " + e,
-                        e
-                        );
+                feedback.log( Level.WARNING, "Unable to load asset at path: " + s_start_path + ", caught: " + e );
             }
         }
         if ( SwingUtilities.isEventDispatchThread() ) {
@@ -147,6 +154,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
      * loaded from littleware.properties.
      * 
      * @param v_args command-line args
+     * @TODO setup standard feedback mechanism in StandardSwingGuice
      */
     public static void main( String[] v_args ) {
         try {
@@ -158,9 +166,10 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
                             new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
                         }
             );
+            UiFeedback        feedback = new LoggerUiFeedback();
             LgoBrowserCommand command = injector.getInstance( LgoBrowserCommand.class );
             command.ob_exit_on_close = true;
-            command.runDynamic( "/byname:littleware.home:type:littleware.HOME/" );
+            command.runDynamic( feedback, "/littleware.home/" );
         } catch ( final Exception ex ) {
             olog.log( Level.SEVERE, "Failed command, caught: " + ex, ex );
             try {

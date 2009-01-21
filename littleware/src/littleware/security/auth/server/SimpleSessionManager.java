@@ -83,6 +83,8 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
 
             a_session.setName(os_name + ", " + a_session.getStartDate().getTime());
             a_session.setComment(os_session_comment);
+            // expire the session in 1 hour
+
 
             a_session = (LittleSession) om_asset.saveAsset ( a_session, os_session_comment );
             return a_session;
@@ -155,11 +157,11 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         if (null != ref_helper) {
             SessionHelper m_helper = ref_helper.get();
             if (null != m_helper) {
-                // Make sure the sesion hasn't expireda
+                // Make sure the sesion hasn't expired
                 if ( m_helper.getSession().getEndDate().getTime() < new Date().getTime () ) {
                     return m_helper;
                 } else { 
-                    throw new SessionExpiredException ();
+                    throw new SessionExpiredException ( "Expired at: " + m_helper.getSession().getEndDate() );
                 }
             }
         }

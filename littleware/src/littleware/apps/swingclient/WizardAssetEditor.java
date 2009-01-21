@@ -35,7 +35,7 @@ import littleware.apps.swingclient.*;
  * on close() with Wizard.FINISH_RETURN_CODE.
  */
 public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
-	private final static Logger           olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JWizardAssetEditor" );
+	private final static Logger           olog_generic = Logger.getLogger ( WizardAssetEditor.class.getName() );
     protected final AbstractAssetEditor   oeditor_internal = new AbstractAssetEditor ( this ) {
         public void eventFromModel ( LittleEvent evt_model ) {
             WizardAssetEditor.this.eventFromModel ( evt_model );

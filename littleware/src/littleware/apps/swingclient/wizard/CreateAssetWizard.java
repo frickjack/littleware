@@ -39,7 +39,7 @@ import littleware.security.SecurityAssetType;
  */
 public class CreateAssetWizard extends WizardAssetEditor {
 
-    private static final Logger olog_generic = Logger.getLogger("littleware.apps.swingclient.wizard.CreateAssetWizard ");
+    private static final Logger olog_generic = Logger.getLogger( CreateAssetWizard.class.getName() );
 
     /**
      * Panel ids for the initial panels.
@@ -186,10 +186,11 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 new AssetPathPanelDescriptor(BasicPanel.PickAcl,
                 opanel_acl) {
 
+                    @Override
                     public BasicPanel getBackPanelDescriptor() {
                         return BasicPanel.PickName;
                     }
-
+                    @Override
                     public Object getNextPanelDescriptor() {
                         return BasicPanel.PickFrom;
                     }
@@ -206,10 +207,12 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 new AssetPathPanelDescriptor(BasicPanel.PickFrom,
                 opanel_from) {
 
+            @Override
                     public BasicPanel getBackPanelDescriptor() {
                         return BasicPanel.PickAcl;
                     }
 
+            @Override
                     public Object getNextPanelDescriptor() {
                         return BasicPanel.PickTo;
                     }
@@ -240,10 +243,12 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 new AssetPathPanelDescriptor(BasicPanel.PickTo,
                 opanel_to) {
 
+            @Override
                     public BasicPanel getBackPanelDescriptor() {
                         return BasicPanel.PickFrom;
                     }
 
+            @Override
                     public Object getNextPanelDescriptor() {
                         return BasicPanel.PickComment;
                     }
@@ -348,6 +353,3 @@ public class CreateAssetWizard extends WizardAssetEditor {
     protected void eventFromModel(LittleEvent evt_model) {
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

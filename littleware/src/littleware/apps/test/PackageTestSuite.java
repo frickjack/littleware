@@ -20,6 +20,7 @@ import java.util.logging.Level;
 
 import junit.framework.*;
 
+import littleware.apps.lgo.test.XmlLgoHelpTester;
 import littleware.base.AssertionFailedException;
 
 /**
@@ -54,7 +55,12 @@ public class PackageTestSuite extends TestSuite {
         }
          */
         final boolean b_run = true;
-    
+
+        if (b_run) {
+            TestCase test = new XmlLgoHelpTester();
+            this.addTest( test );
+        }
+
         if (b_run) {
             TestCase test = provide_address_test.get ();
             test.setName( "testAddressBook" );

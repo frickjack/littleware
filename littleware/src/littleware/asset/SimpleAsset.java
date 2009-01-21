@@ -1,11 +1,21 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+
 package littleware.asset;
 
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 import java.rmi.RemoteException;
-import java.security.Principal;
-import java.security.acl.Acl;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -184,7 +194,10 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 	 * @exception AssetException if given an illegal name
 	 */
 	public void        setName ( String s_name ) throws IllegalArgumentException {
-		if ( -1 < s_name.indexOf ( '/' ) ) {
+		if ( 
+                (-1 < s_name.indexOf ( '/' ))
+                || s_name.startsWith( ".." )
+                ) {
 			throw new IllegalArgumentException ( "Illegal asset name: " + s_name );
 		}
 		os_name = s_name;
@@ -222,10 +235,12 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 	/**
 	 * Return a simple copy of this object
 	 */
+    @Override
 	public SimpleAsset clone () {
 		return (SimpleAsset) super.clone ();
 	}
-	
+
+    @Override
 	public String toString () { 
 		return "Asset " + this.getAssetType () + " " + 
 			this.getName () + " (" + this.getObjectId () + ")"; 
@@ -286,7 +301,4 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
     }
     
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient.controller;
 
 import com.google.inject.Inject;
@@ -8,7 +20,6 @@ import java.util.logging.Level;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import com.nexes.wizard.Wizard;
@@ -76,6 +87,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
      * Resolve NavRequestEvents.  Client registers this controller
      * as a listener on LitttleTool that should control the views navigation.
      */
+    @Override
     public void receiveLittleEvent ( LittleEvent event_little ) {        
         if ( event_little instanceof NavRequestEvent ) {
             super.receiveLittleEvent ( event_little );
@@ -91,14 +103,6 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                 Asset              a_new = AssetType.GENERIC.create ();
                 
                 a_new.setName ( "username.new_asset" );
-                if ( null != amodel_view ) {
-                    Asset a_from = amodel_view.getAsset ();
-                    
-                    a_new.setFromId ( a_from.getObjectId () );
-                    a_new.setHomeId ( a_from.getHomeId () );
-                    a_new.setOwnerId ( oa_session.getOwnerId () );
-                    a_new.setAclId ( a_from.getAclId () );
-                }
 
                 final   AssetModel        amodel_new = olib_asset.syncAsset( a_new );
                 int                       i_create_result = Wizard.ERROR_RETURN_CODE;
@@ -112,7 +116,17 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                                                                      ofactory_view,
                                                                      null,
                                                                      amodel_new
-                                                                     );  
+                                                                     ); 
+                    // Give the asset local changes not in the AssetModelLibrary
+                    if ( null != amodel_view ) {
+                        Asset a_from = amodel_view.getAsset ();
+                        Asset a_local = wizard_create.changeLocalAsset();
+                        a_local.setFromId ( a_from.getObjectId () );
+                        a_local.setHomeId ( a_from.getHomeId () );
+                        a_local.setOwnerId ( oa_session.getOwnerId () );
+                        a_local.setAclId ( a_from.getAclId () );
+                    }
+
                     i_create_result = wizard_create.showModalDialog ();
                     
                     if ( Wizard.FINISH_RETURN_CODE != i_create_result ) {
@@ -201,8 +215,4 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
         }
     }
 }
-
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

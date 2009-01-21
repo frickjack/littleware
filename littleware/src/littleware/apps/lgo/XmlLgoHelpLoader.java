@@ -1,7 +1,15 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
+
 
 package littleware.apps.lgo;
 
@@ -48,6 +56,8 @@ import littleware.base.XmlResourceBundle;
  *           pbcopy | lgo xenc
  *     &lt;/help:example&gt;
  *     &lt;/help:help&gt;
+ *
+ * @TODO implement test case
  */
 public class XmlLgoHelpLoader implements LgoHelpLoader {
     private static final Logger olog = Logger.getLogger( XmlLgoHelpLoader.class.getName () );
@@ -60,18 +70,18 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
         help, shortname, synopsis, description, example;
     }
     
-    public LgoHelp loadHelp( String s_basename, Locale locale) {
-        String        s_cachekey = s_basename + "Help"
-                + "_" + locale.getLanguage()
-                + "_" + locale.getCountry ()
-                + "_" + locale.getVariant();
+    public LgoHelp loadHelp( String s_request, Locale locale) {
+        String        s_basename = s_request.replaceAll( "\\.", "/" ) + "Help";
         List<String>  v_paths = XmlResourceBundle.getResourcePaths( s_basename, locale );
         InputStream   istream_help = null;
-        ClassLoader   cloader = ClassLoader.getSystemClassLoader();
+        ClassLoader   cloader = XmlLgoHelpLoader.class.getClassLoader();
         String        s_path = "none found";
-        for( String s_check : v_paths ) {           
-            istream_help = cloader.getResourceAsStream( s_path + ".xml" );
+        for( String s_option : v_paths ) {
+            String s_check = s_option + ".xml";
+            olog.log( Level.FINE, "Searching for help file: " + s_check );
+            istream_help = cloader.getResourceAsStream( s_check );
             if ( null != istream_help ) {
+                olog.log( Level.FINE, "Loading help file: " + s_check );
                 s_path = s_check;
                 break;
             }
@@ -182,13 +192,13 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                 String s_qualified)
                 throws SAXException {
             if (s_namespace.equals(OS_XML_NAMESPACE)) {
-                if ( s_simple.equals( XmlTag.description ) ) {
-                    os_description = osb_buffer.toString ();
+                if ( s_simple.equals( XmlTag.description.toString () ) ) {
+                    os_description = osb_buffer.toString ().trim ();
                 } else if ( s_simple.equals( XmlTag.shortname.toString () ) ) {
                     ov_short_names.add( osb_buffer.toString() );
-                } else if ( s_simple.equals( XmlTag.synopsis ) ) {
+                } else if ( s_simple.equals( XmlTag.synopsis.toString () ) ) {
                     os_synopsis = osb_buffer.toString ();
-                } else if ( s_simple.equals( XmlTag.example ) ) {
+                } else if ( s_simple.equals( XmlTag.example.toString() ) ) {
                     LgoExample example = new EzLgoExample( os_example_title,
                             osb_buffer.toString()
                             );

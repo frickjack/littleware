@@ -71,7 +71,6 @@ public class LgoCommandLine {
 
                 LgoHelp help = m_help.loadHelp( cmd_register.getName () );
                 if ( null != help ) {
-
                     for( String s_alias : help.getShortNames() ) {
                         m_command.setCommand( s_alias, cmd_register );
                     }            
@@ -103,7 +102,7 @@ public class LgoCommandLine {
                 }
                 v_process.add(s_arg);
             }
-            System.out.print(command.runCommand(feedback, sb_in.toString().trim()).toString());
+            System.out.println(command.runCommand(feedback, sb_in.toString().trim()).toString());
         } catch ( Exception e ) {
             olog.log( Level.SEVERE, "Failed command, caught: " + e, e );
         }

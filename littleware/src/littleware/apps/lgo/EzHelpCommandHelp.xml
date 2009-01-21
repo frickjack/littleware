@@ -15,4 +15,5 @@
   <description>
       display the help info registered for the given command
   </description>
+  <shortname>help</shortname>
 </help>

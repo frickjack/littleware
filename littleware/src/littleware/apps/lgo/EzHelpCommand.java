@@ -65,7 +65,7 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
             LgoCommandDictionary m_command
             ) 
     {
-        super( "littleware.apps.lgo.HelpCommand" );
+        super( "littleware.apps.lgo.EzHelpCommand" );
         om_command = m_command;
         om_help = m_help;
     }

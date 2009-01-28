@@ -3,7 +3,6 @@ package littleware.apps.filebucket.server;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 //import java.rmi.server.UnicastRemoteObject;
 
@@ -31,13 +30,13 @@ public class RmiBucketManager extends LittleRemoteObject implements BucketManage
         return om_proxy.getBucket(u_asset);
     }
 
-    public Asset writeToBucket(Asset a_in, String s_path,
+    public <T extends Asset> T writeToBucket(T a_in, String s_path,
             String s_data, String s_update_comment) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
         return om_proxy.writeToBucket(a_in, s_path, s_data, s_update_comment);
     }
 
-    public Asset writeToBucket(Asset a_in, String s_path,
+    public <T extends Asset> T writeToBucket(T a_in, String s_path,
             byte[] v_data, String s_update_comment) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
         return om_proxy.writeToBucket(a_in, s_path, v_data, s_update_comment);
@@ -53,26 +52,23 @@ public class RmiBucketManager extends LittleRemoteObject implements BucketManage
         return om_proxy.readBytesFromBucket(u_asset, s_path);
     }
 
-    public Asset eraseFromBucket(Asset a_in, String s_path, String s_update_comment) throws BaseException, GeneralSecurityException,
+    public <T extends Asset> T eraseFromBucket(T a_in, String s_path, String s_update_comment) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
         return om_proxy.eraseFromBucket(a_in, s_path, s_update_comment);
     }
 
-    public Asset renameFile(Asset a_in, String s_start_path, String s_rename_path,
+    public <T extends Asset> T renameFile(T a_in, String s_start_path, String s_rename_path,
             String s_update_comment) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
         return om_proxy.renameFile(a_in, s_start_path, s_rename_path, s_update_comment);
     }
 
-    public Asset copyFile(UUID u_in, String s_in_path,
-            Asset a_out, String s_copy_path,
+    public <T extends Asset> T copyFile(UUID u_in, String s_in_path,
+            T a_out, String s_copy_path,
             String s_update_comment) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
         return om_proxy.copyFile(u_in, s_in_path, a_out, s_copy_path,
                 s_update_comment);
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

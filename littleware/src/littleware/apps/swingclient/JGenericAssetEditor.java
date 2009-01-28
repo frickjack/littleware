@@ -1,25 +1,27 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.UUID;
-import java.util.Date;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.*;
-import javax.swing.undo.*;
 import javax.swing.event.*;
 
 import littleware.apps.client.*;
@@ -27,12 +29,7 @@ import littleware.apps.client.event.AssetModelEvent;
 import littleware.apps.swingclient.event.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
-import littleware.base.UUIDFactory;
-import littleware.base.AssertionFailedException;
-import littleware.base.NoSuchThingException;
 import littleware.base.Whatever;
-import littleware.base.XmlSpecial;
-import littleware.base.swing.JUtil;
 
 /** 
  * Simple JPanel based asset editor.
@@ -593,11 +590,12 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
 		oeditor_util.removeLittleListener ( listen_little );
 	}
     
-    
+    @Override
     public void addPropertyChangeListener( PropertyChangeListener listen_props ) {
         oeditor_util.addPropertyChangeListener ( listen_props );
     }
     
+    @Override
     public void removePropertyChangeListener( PropertyChangeListener listen_props ) {
         oeditor_util.removePropertyChangeListener ( listen_props );
     }
@@ -607,8 +605,4 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
     }
 	
 }    
-
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

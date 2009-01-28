@@ -1,21 +1,23 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
-import java.awt.*;
-import javax.swing.*;
-import java.security.GeneralSecurityException;
+import com.google.inject.Inject;
 import java.security.Principal;
-import java.security.acl.Group;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import littleware.apps.client.*;
+import littleware.apps.misc.ThumbManager;
 import littleware.asset.*;
-import littleware.base.BaseException;
-import littleware.base.UUIDFactory;
-import littleware.base.AssertionFailedException;
-import littleware.base.NoSuchThingException;
 import littleware.security.SecurityAssetType;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
@@ -53,19 +55,21 @@ public class JGroupView extends JAssetWithChildrenView {
     /**
      * Constructor sets up the UI to view the given group
      *
-     * @param model_group to view
      * @param m_retriever to retrieve asset details with
      * @param lib_icon icon source
      * @exception IllegalArgumentException if model_asset does not reference a group
      */
-    public JGroupView( AssetModel model_group, AssetRetriever m_retriever,
-                       IconLibrary lib_icon 
+    @Inject
+    public JGroupView( AssetRetriever m_retriever,
+                       IconLibrary lib_icon,
+                       ThumbManager m_thumb,
+                       AssetModelLibrary lib_asset
                        ) {
-        super( model_group, m_retriever, lib_icon, "Group members",
+        super( m_retriever, lib_icon, m_thumb, lib_asset,
+                "Group members",
                "Group Members", lib_icon.lookupIcon ( SecurityAssetType.GROUP ),
                "View members of group"
                );
-        updateAssetUI ();
     }
         
 }

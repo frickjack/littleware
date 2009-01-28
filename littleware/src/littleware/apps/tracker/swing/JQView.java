@@ -1,5 +1,16 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.tracker.swing;
 
+import com.google.inject.Inject;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -15,11 +26,9 @@ import javax.swing.table.*;
 
 import littleware.asset.*;
 import littleware.base.BaseException;
-import littleware.base.UUIDFactory;
-import littleware.base.AssertionFailedException;
-import littleware.base.NoSuchThingException;
 import littleware.apps.tracker.*;
 import littleware.apps.client.*;
+import littleware.apps.misc.ThumbManager;
 import littleware.apps.swingclient.*;
 
 
@@ -27,7 +36,7 @@ import littleware.apps.swingclient.*;
  * Swing based AssetView for Queue type assets.
  */
 public class JQView extends JGenericAssetView {
-	private final static Logger        olog_generic = Logger.getLogger ( "littleware.apps.tracker.swing.JQView" );
+	private final static Logger        olog_generic = Logger.getLogger ( JQView.class.getName() );
     // Should use this as key into multilanguage resource bundle eventually
     private final static String[]      ov_columns = {
         "Id", 
@@ -60,6 +69,7 @@ public class JQView extends JGenericAssetView {
     private final java.util.List<AssetModel>     ov_tasks = new ArrayList<AssetModel> ();
     /** Table model hooked up with ov_tasks under the hood */
     private final AbstractTableModel       omodel_tasks = new AbstractTableModel() {
+        @Override
         public String getColumnName(int i_col) {
             return ov_columns[i_col];
         }
@@ -104,6 +114,7 @@ public class JQView extends JGenericAssetView {
             }
         }
         
+        @Override
         public Class<?> getColumnClass ( int i_column ) {
             if ( 0 == i_column ) {
                 return UUID.class;
@@ -111,6 +122,7 @@ public class JQView extends JGenericAssetView {
             return Object.class;
         }
                     
+        @Override
         public boolean isCellEditable(int row, int col) { return false; }
     };
     
@@ -140,6 +152,7 @@ public class JQView extends JGenericAssetView {
         TableCellRenderer  render_datecell = new DefaultTableCellRenderer () {
             DateFormat oformat_date = new SimpleDateFormat ( "yyyy/MM/dd" );
             
+            @Override
             public void setValue( Object x_value ) {
                 if ( null == x_value ) {
                     setText ( "" );
@@ -186,11 +199,13 @@ public class JQView extends JGenericAssetView {
      * @param lib_icon icon source
      * @exception IllegalArgumentException if model_queue does not reference a Queue
      */
-    public JQView( AssetModel model_queue, AssetSearchManager m_search,
-                       IconLibrary lib_icon 
+    @Inject
+    public JQView( AssetSearchManager m_search,
+                       IconLibrary lib_icon,
+                       ThumbManager m_thumb
                        ) throws BaseException, GeneralSecurityException, RemoteException 
     {
-        super( model_queue, m_search, lib_icon );
+        super( m_search, lib_icon, m_thumb );
         om_search = m_search;
         olib_icon = lib_icon;
         configureTable ();
@@ -244,7 +259,8 @@ public class JQView extends JGenericAssetView {
         }
         omodel_tasks.fireTableDataChanged ();
     }
- 
+
+    @Override
 	protected void eventFromModel ( LittleEvent event_from_model )
     {        
         if ( event_from_model.getSource () != getAssetModel () ) {

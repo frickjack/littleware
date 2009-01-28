@@ -44,6 +44,8 @@ import littleware.apps.swingclient.controller.*;
  *      <dd> specify the id of an applet that the applet should 
  *             initially operate upon </dd>
  * </dl>
+ *
+ * @deprecated use web-start lgo apps with Guice
  */
 public class Toolbox extends JApplet {
     private static final Logger  olog_generic = Logger.getLogger ( Toolbox.class.getName() );
@@ -158,7 +160,7 @@ public class Toolbox extends JApplet {
         AssetSearchManager    m_search = tbox_init.om_helper.getService ( ServiceType.ASSET_SEARCH );
         AssetManager          m_asset = tbox_init.om_helper.getService ( ServiceType.ASSET_MANAGER );
         
-        tbox_init.ofactory_view = new SimpleAssetViewFactory ( m_search, olib_icon );
+        tbox_init.ofactory_view = null; // TODO - Guice enable this new SimpleAssetViewFactory ( m_search, olib_icon );
         tbox_init.ofactory_editor = new EditorAssetViewFactory ( m_asset, m_search, olib_icon, tbox_init.ofactory_view );
         tbox_init.ob_session_ok = true;
         ov_cache.put ( u_session, tbox_init );

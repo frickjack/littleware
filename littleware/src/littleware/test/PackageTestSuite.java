@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -50,7 +48,8 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             littleware.security.auth.server.SimpleDbLoginConfiguration config
             ) {
         super( PackageTestSuite.class.getName() );
-        final boolean b_run = true;
+        // disable server tests
+        final boolean b_run = false;
 
         // hacky global singleton to marry OSGi bootstrap with junit TestRunner bootstrap
         if ( null != osingleton ) {
@@ -113,6 +112,7 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
         Injector     injector = Guice.createInjector( new Module[] {
                             new littleware.apps.swingclient.StandardSwingGuice(),
                             new littleware.apps.client.StandardClientGuice(),
+                            new littleware.apps.misc.StandardMiscGuice(),
                             new littleware.security.auth.ClientServiceGuice(),
                             new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
                         }

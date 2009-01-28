@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.filebucket;
 
 import java.util.UUID;
@@ -45,7 +55,7 @@ public interface BucketManager extends Remote {
      * @param s_update_comment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public Asset writeToBucket ( Asset a_in, String s_path, 
+    public <T extends Asset> T writeToBucket ( T a_in, String s_path,
                                 String s_data, String s_update_coment 
                                 ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException;
@@ -63,7 +73,7 @@ public interface BucketManager extends Remote {
      * @param s_update_comment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public Asset writeToBucket ( Asset a_in, String s_path, 
+    public <T extends Asset> T writeToBucket ( T a_in, String s_path,
                                 byte[] v_data, String s_update_comment
                                 ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException;
@@ -101,7 +111,7 @@ public interface BucketManager extends Remote {
      * @param s_update_comment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public Asset eraseFromBucket ( Asset a_in, String s_path, String s_update_comment
+    public <T extends Asset> T eraseFromBucket ( T a_in, String s_path, String s_update_comment
                                   ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException;
     
@@ -115,7 +125,7 @@ public interface BucketManager extends Remote {
      * @param s_update_comment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public Asset renameFile ( Asset a_in, String s_start_path, String s_rename_path,
+    public <T extends Asset> T renameFile ( T a_in, String s_start_path, String s_rename_path,
                               String s_update_comment
                                   ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException;
@@ -132,8 +142,8 @@ public interface BucketManager extends Remote {
      * @param s_update_comment for saving a_out
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public Asset copyFile ( UUID u_in, String s_in_path, 
-                            Asset a_out, String s_copy_path,
+    public <T extends Asset> T copyFile ( UUID u_in, String s_in_path,
+                            T a_out, String s_copy_path,
                             String s_update_comment
                              ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException;

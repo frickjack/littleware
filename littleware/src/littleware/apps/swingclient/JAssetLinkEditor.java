@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import java.awt.Dimension;
@@ -15,7 +25,6 @@ import littleware.apps.client.*;
 import littleware.apps.swingclient.controller.SimpleAssetViewController;
 import littleware.apps.swingclient.event.SelectAssetEvent;
 import littleware.asset.Asset;
-import littleware.asset.AssetType;
 import littleware.asset.AssetSearchManager;
 
 
@@ -178,11 +187,13 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
 	public void     removeLittleListener( LittleListener listen_action ) {
         otool_support.removeLittleListener ( listen_action );
     }
-    
+
+    @Override
     public void addPropertyChangeListener( PropertyChangeListener listen_props ) {
         otool_support.addPropertyChangeListener ( listen_props );
     }
-    
+
+    @Override
     public void removePropertyChangeListener( PropertyChangeListener listen_props ) {
         otool_support.removePropertyChangeListener ( listen_props );
     }

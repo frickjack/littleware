@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -22,7 +20,7 @@ import java.util.logging.Level;
  * Intended for delegation by Swing-based AssetView implementors.
  */
 public abstract class AbstractAssetView extends SimpleLittleTool implements AssetView {
-    private final static Logger    olog_generic = Logger.getLogger ( "littleware.apps.swingclient.AbstractAssetView" );
+    private final static Logger    olog_generic = Logger.getLogger (AbstractAssetView.class.getName() );
     
     private AssetModel          omodel_asset = null;
     private AssetModelLibrary   olib_asset = null;

@@ -1,5 +1,6 @@
 package littleware.base.test;
 
+import littleware.test.JLittleDialog;
 import java.awt.*;
 import java.io.PrintWriter;
 import java.util.Iterator;

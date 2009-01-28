@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -54,7 +52,7 @@ public interface ImageManager {
      * @throws IllegalArgumentException if img width/height
      *          exceed iMaxWidth or iMaxHeight.
      */
-    public Asset   saveImage( Asset a_save, BufferedImage img, String s_update_comment
+    public <T extends Asset> T   saveImage( T a_save, BufferedImage img, String s_update_comment
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException;
 
     /**
@@ -68,7 +66,15 @@ public interface ImageManager {
      * @throws java.rmi.RemoteException
      * @throws java.io.IOException
      */
-    public Asset   deleteImage( Asset a_save, String s_update_comment
+    public <T extends Asset> T   deleteImage( T a_save, String s_update_comment
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException;
 
+    /**
+     * Clear data for asset id u_asset out of the cache.
+     * Hopefully eventually automatically handled handled
+     * by an AssetModelCache synchronization mechanism.
+     * 
+     * @param u_asset id to clear out of cache if necessary
+     */
+    public void clearCache( UUID u_asset );
 }

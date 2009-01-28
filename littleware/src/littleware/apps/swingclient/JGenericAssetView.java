@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -10,9 +8,9 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -20,6 +18,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.*;
@@ -27,13 +26,14 @@ import javax.swing.*;
 import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.UUIDFactory;
+import littleware.apps.misc.ThumbManager;
 import littleware.apps.swingclient.event.*;
 
 /** 
  * Simple JPanel based view of a generic asset
  */
 public class JGenericAssetView extends JPanel implements AssetView {
-	private final static Logger        olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JGenericAssetView" );
+	private final static Logger        olog = Logger.getLogger ( JGenericAssetView.class.getName() );
 	
     private final AssetRetriever        om_retriever;
     private final AbstractAssetView     oview_util = new AbstractAssetView ( this ) {
@@ -44,6 +44,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
     };
     
     private final IconLibrary           olib_icon;
+    private final ThumbManager          om_thumb;
  
     /** Panel to stuff summary data into */
     private final JPanel     owpanel_summary = new JPanel( new GridBagLayout () );
@@ -59,6 +60,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
      * Each JLabel holds a piece of data about the asset.
      * Some of the labels act as links to other assets.
      */
+    private final JLabel      owlabel_thumb = new JLabel ();
     private final JLabel      owlabel_type = new JLabel ( "uninitialized", SwingConstants.LEFT );
     private final JLabel      owlabel_name = new JLabel ( "uninitialized", SwingConstants.LEFT );
     private final JLabel      owlabel_id = new JLabel ( "uninitialized", SwingConstants.LEFT );
@@ -203,11 +205,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
                                       );
     }
 
-    //---------------------------------------
-    
-    
-    
-    
+    //---------------------------------------   
     
     /**
      * Build the UI.
@@ -233,17 +231,35 @@ public class JGenericAssetView extends JPanel implements AssetView {
             //grid_control.gridwidth = GridBagConstraints.REMAINDER;
             grid_control.gridx = 0;
             grid_control.gridy = 0;
-            this.add ( new JLabel ( "Asset type:", SwingConstants.RIGHT ), 
+            grid_control.gridheight = 2;
+            grid_control.gridwidth = 2;
+            this.add( owlabel_thumb, grid_control );
+
+            grid_control.gridx += grid_control.gridwidth;
+            grid_control.gridheight = 1;
+            grid_control.gridwidth = 1;
+
+            this.add ( new JLabel ( "Name:", SwingConstants.RIGHT ),
+                       grid_control
+                       );
+            grid_control.gridx += grid_control.gridwidth;
+            this.add ( owlabel_name, grid_control );
+
+            grid_control.gridx -= grid_control.gridwidth;
+            grid_control.gridy += grid_control.gridheight;
+            this.add ( new JLabel ( "Asset type:", SwingConstants.RIGHT ),
                        grid_control 
                        );
             grid_control.gridx += grid_control.gridwidth;
             this.add ( owlabel_type, grid_control );
-            
+
+            /*..
             configureDataRow ( "Name:",
                                owlabel_name,
                                this,
                                grid_control
                                );
+             */
         } 
         {
             GridBagConstraints   gcontrol_summary = (GridBagConstraints) grid_control.clone ();
@@ -375,7 +391,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
         grid_control.gridy += grid_control.gridheight;
         grid_control.gridx = 0;
         grid_control.gridheight = GridBagConstraints.REMAINDER;
-        grid_control.gridwidth = 2;
+        grid_control.gridwidth = 4;
         grid_control.fill = GridBagConstraints.BOTH;        
                 
         owtab_stuff.add ( "Summary", owpanel_summary );
@@ -383,7 +399,8 @@ public class JGenericAssetView extends JPanel implements AssetView {
         
         this.add (  owtab_stuff, grid_control );
     }
-	
+
+
     
     /**
      * Inject dependencies.
@@ -391,12 +408,17 @@ public class JGenericAssetView extends JPanel implements AssetView {
      * @param model_asset to view initially
      * @param m_retriever to retrieve asset details with
      * @param lib_icon icon source
+     * @param m_thumb thumbnail source
      */
-    public JGenericAssetView (  AssetModel  model_asset,
+    @Inject
+    protected JGenericAssetView (
                                 AssetRetriever m_retriever,
-                                IconLibrary lib_icon    ) {
+                                IconLibrary lib_icon,
+                                ThumbManager m_thumb
+                                ) {
         om_retriever = m_retriever;
         olib_icon = lib_icon;
+        om_thumb = m_thumb;
         owlink_acl = new JAssetLink ( olib_icon );
         owlink_to = new JAssetLink ( olib_icon );
         owlink_from = new JAssetLink ( olib_icon );
@@ -421,8 +443,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
             }
         }
                                                );        
-        buildAssetUI ();
-        setAssetModel ( model_asset );        
+        buildAssetUI ();      
     }
 
 	
@@ -526,6 +547,11 @@ public class JGenericAssetView extends JPanel implements AssetView {
         owlabel_type.setText ( a_data.getAssetType ().toString () );
         owlabel_type.setIcon ( olib_icon.lookupIcon ( a_data.getAssetType () ) );
         
+        try {
+            owlabel_thumb.setIcon( new ImageIcon( om_thumb.loadThumb(a_data.getObjectId()).getThumb()));
+        } catch( Exception ex ) {
+            olog.log( Level.WARNING, "Failed loading thumbnail", ex );
+        }
         owlabel_name.setText ( a_data.getName () );
         owlabel_id.setText ( UUIDFactory.makeCleanString ( a_data.getObjectId () ) );
         owlabel_value.setText ( a_data.getValue ().toString () );
@@ -572,10 +598,12 @@ public class JGenericAssetView extends JPanel implements AssetView {
 	}
 	
 
+    @Override
     public void addPropertyChangeListener( PropertyChangeListener listen_props ) {
         oview_util.addPropertyChangeListener ( listen_props );
     }
     
+    @Override
     public void removePropertyChangeListener( PropertyChangeListener listen_props ) {
         oview_util.removePropertyChangeListener ( listen_props );
     }

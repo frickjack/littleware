@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -114,7 +112,7 @@ public class SimpleBucketManager implements BucketManager {
     
     
 
-    public Asset writeToBucket ( Asset a_in, String s_path, 
+    public <T extends Asset> T writeToBucket ( T a_in, String s_path,
                                   String s_data, String s_update_comment 
                                   ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
@@ -139,7 +137,7 @@ public class SimpleBucketManager implements BucketManager {
         }
     }        
 
-    public Asset writeToBucket ( Asset a_bucket, String s_path, 
+    public <T extends Asset> T writeToBucket ( T a_bucket, String s_path,
                                 byte[] v_data, String s_update_comment
                                 ) throws BaseException, GeneralSecurityException,
         AssetException, IOException, RemoteException, BucketException
@@ -203,7 +201,7 @@ public class SimpleBucketManager implements BucketManager {
     }
     
 
-    public Asset eraseFromBucket ( Asset a_bucket, String s_path,
+    public <T extends Asset> T eraseFromBucket ( T a_bucket, String s_path,
                                    String s_update_comment
                                     ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
@@ -225,7 +223,7 @@ public class SimpleBucketManager implements BucketManager {
     }
     
 
-    public Asset renameFile ( Asset a_bucket, String s_start_path, String s_rename_path,
+    public <T extends Asset> T renameFile ( T a_bucket, String s_start_path, String s_rename_path,
                                String s_update_comment
                                ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
@@ -249,8 +247,8 @@ public class SimpleBucketManager implements BucketManager {
     }
     
 
-    public Asset copyFile ( UUID u_in, String s_in_path, 
-                            Asset a_out, String s_copy_path,
+    public <T extends Asset> T copyFile ( UUID u_in, String s_in_path,
+                            T a_out, String s_copy_path,
                             String s_update_comment
                              ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException

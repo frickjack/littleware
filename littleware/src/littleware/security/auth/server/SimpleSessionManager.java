@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -66,28 +64,20 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      */
     private class SetupSessionAction implements PrivilegedExceptionAction<LittleSession> {
 
-        private String os_session_comment = "No comment";
-        private String os_name = "unknown";
+        private final String os_session_comment;
+        private final LittleSession  osession;
 
         /**
          * Stash the comment to attach to the new session asset,
          * and the name of the user creating the session.
          */
-        public SetupSessionAction(String s_name, String s_session_comment) {
-            os_name = s_name;
+        public SetupSessionAction( LittleSession session, String s_session_comment) {
+            osession = session;
             os_session_comment = s_session_comment;
         }
 
         public LittleSession run() throws Exception {
-            LittleSession a_session = (LittleSession) SecurityAssetType.SESSION.create ();
-
-            a_session.setName(os_name + ", " + a_session.getStartDate().getTime());
-            a_session.setComment(os_session_comment);
-            // expire the session in 1 hour
-
-
-            a_session = (LittleSession) om_asset.saveAsset ( a_session, os_session_comment );
-            return a_session;
+            return om_asset.saveAsset ( osession, os_session_comment );
         }
     }
 
@@ -109,6 +99,11 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         return m_rmi;
     }
 
+    /**
+     * For now just authenticate anyone with a user account
+     *
+     * @TODO re-enable JAAS authentication
+     */
     public SessionHelper login(String s_name, String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         /*..
           Avoid chicken-and-egg problem with registering our own
@@ -121,7 +116,11 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         */
 
         // Do a little LoginContext sim - need to clean this up
-        Subject j_caller = new Subject ();
+        // Who am I running as now ?  What the frick ?
+        final LittleUser user = om_search.getByName(s_name, SecurityAssetType.USER);
+        final Subject j_caller = new Subject ();
+        j_caller.getPrincipals().add( user );
+        /*... disable for now ...
         javax.security.auth.spi.LoginModule module = new PasswordDbLoginModule();
         module.initialize ( j_caller, 
                             new SimpleNamePasswordCallbackHandler(s_name, s_password),
@@ -130,17 +129,26 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                             );
         module.login();
         module.commit ();
+         */
         j_caller.setReadOnly ();
-    
-        PrivilegedExceptionAction act_setup_session = new SetupSessionAction(s_name, s_session_comment);
+        // ok - user authenticated ok by here - setup user session
+        final Subject j_admin = new Subject ();
+        j_admin.getPrincipals().add( om_search.getByName( AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER));
+        j_admin.setReadOnly();
+
+        LittleSession  session = SecurityAssetType.SESSION.create ();
+        session.setName( s_name );
+        session.setOwnerId( user.getObjectId() );
+        session.setComment( "User login" );
+
+        // Create the session asset as the admin user - session has null from-id
+        PrivilegedExceptionAction act_setup_session = new SetupSessionAction( session, s_session_comment);
         try {
-            LittleSession a_session = null;
             try {
-                a_session = (LittleSession) Subject.doAs ( j_caller, act_setup_session );
+                return setupNewHelper( (LittleSession) Subject.doAs ( j_admin, act_setup_session ) );
             } catch (PrivilegedActionException e) {
                 throw e.getException();
             }
-            return setupNewHelper(a_session);
         } catch (BaseException e) {
             throw e;
         } catch (GeneralSecurityException e) {

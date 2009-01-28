@@ -192,6 +192,15 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
      * @throws javax.security.auth.callback.UnsupportedCallbackException for unexpected callback
      */
     public void handle(Callback[] v_callbacks) throws IOException, UnsupportedCallbackException {
+       for ( Callback callback : v_callbacks ) {
+           if ( callback instanceof NameCallback) {
+               NameCallback ncb = (NameCallback) callback;
+               if ( ncb.getDefaultName () != null ) {
+                   setUserName( ncb.getDefaultName() );
+                   break;
+               }
+           }
+       }
        if ( showDialog () ) {
            for ( Callback callback : v_callbacks ) {
                 if ( callback instanceof NameCallback) {

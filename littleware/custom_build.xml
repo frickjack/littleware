@@ -29,6 +29,7 @@
 	 <pathelement location="${jardir}/js.jar" />
 	 <pathelement location="${jardir}/jython.jar" />
 	 <pathelement location="${jardir}/junit-3.8.2.jar" />
+	 <pathelement location="${jardir}/easymock-2.4.jar" />
      <pathelement location="${jardir}/littleIcons-0.0.jar" />
 	 <pathelement location="${jardir}/mail.jar" />
 	 <pathelement location="${jardir}/java-getopt-1.0.13.jar" />
@@ -113,6 +114,15 @@
          depends="clientclasses"
 	 description="build littleware.jar"
       >
+    <copy todir="${buildclient}">
+        <fileset dir="src">
+           <include name="**/*.gif" />
+           <include name="**/*.jpg" />
+           <include name="**/*.properties" />
+           <include name="**/*.xml" />
+        </fileset>
+    </copy>
+  <!--
     <copy todir="${buildclient}/littleware/base/resources">
         <fileset dir="${srcdir.littleware}/base/resources" />
     </copy>
@@ -142,10 +152,11 @@
     <copy todir="${buildclient}/META-INF">
         <fileset dir="${srcdir.littleware}/META-INF" />
     </copy>
+        manifest="${buildclient}/META-INF/CLIENT_MANIFEST.MF"
+    -->
     <jar id="jarclient" jarfile="${clientjar}"
         basedir="${buildclient}"
         index="true"
-        manifest="${buildclient}/META-INF/CLIENT_MANIFEST.MF"
 	level="9"
      />
  </target>
@@ -168,10 +179,12 @@
          depends="serverclasses"
 	 description="build littleServer.jar"
       >
+   <!--
+      manifest="${buildclient}/META-INF/SERVER_MANIFEST.MF"
+    -->
     <jar id="jarserver" jarfile="${serverjar}"
       basedir="${buildserver}"
       index="true"
-      manifest="${buildclient}/META-INF/SERVER_MANIFEST.MF"
      />
  </target>
 

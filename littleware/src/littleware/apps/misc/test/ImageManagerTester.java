@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -17,21 +15,21 @@ import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import junit.framework.TestCase;
 import littleware.apps.misc.ImageManager;
 import littleware.asset.Asset;
 import littleware.base.Maybe;
-import littleware.security.auth.SessionHelper;
+import littleware.security.auth.LittleSession;
+import littleware.test.LittleTest;
 
 /**
  * TestCase for ImageManager implementations.
  * Just tries to save and load an image under the
  * active Session for the given SessionHelper.
  */
-public class ImageManagerTester extends TestCase {
+public class ImageManagerTester extends LittleTest {
     private static final Logger olog = Logger.getLogger( ImageManagerTester.class.getName() );
 
-    private final SessionHelper ohelper;
+    private final LittleSession osession;
     private final ImageManager  omgrImage;
 
     @Override
@@ -50,21 +48,22 @@ public class ImageManagerTester extends TestCase {
      * @param mgrImage
      */
     @Inject
-    public ImageManagerTester( SessionHelper helper,
+    public ImageManagerTester( LittleSession session,
             ImageManager mgrImage
             )
     {
-        super( "testBasicImage" );
-        ohelper = helper;
+        super.setName( "testBasicImage" );
+        osession = session;
         omgrImage = mgrImage;
     }
 
     public void testBasicImage () {
         try {
             BufferedImage img = ImageIO.read(ImageManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.jpg"));
-            Asset         a_test = ohelper.getSession();
+            Asset         a_test = osession;
 
             // First try to load an image under a_test
+            a_test.setTransactionCount(-1);  // don't worry about synchronization
             final Maybe<BufferedImage> maybe_load1 = omgrImage.loadImage( a_test.getObjectId () );
             a_test = omgrImage.saveImage(a_test, img, "saving new reference image" );
             assertTrue( "Able to load image after save",
@@ -76,4 +75,23 @@ public class ImageManagerTester extends TestCase {
             assertTrue( "Exception on test", false );
         }
     }
+
+
+    /*...
+     * Too much trouble to mock out a BucketManager for now - ugh ...
+     *
+     * Return an ImageManagerTester configured to test
+     * a SimpleImageManagerTester instance injected with
+     * Mock object BucketManager and AssetSearchManager
+     * dependencies.
+     *
+     *
+    public ImageManagerTester buildMockTest () {
+        final BufferedImage img = new BufferedImage( 100, 100, BufferedImage.TYPE_INT_ARGB);
+        final LittleSession session = SecurityAssetType.SESSION.create();
+        BucketManager  mockBucket = createMock( BucketManager.class );
+
+        return null;
+    }
+     */
 }

@@ -1,31 +1,38 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.test;
 
+import littleware.test.JLittleDialog;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import javax.mail.internet.*;
-import java.net.*;
-import junit.framework.*;
 import littleware.asset.*;
-import littleware.asset.xml.*;
 import littleware.apps.client.*;
 import littleware.apps.filebucket.*;
-import littleware.apps.swingclient.*;
 import littleware.apps.tracker.*;
 import littleware.apps.tracker.swing.*;
 import littleware.base.*;
-import littleware.base.swing.*;
 import littleware.security.*;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.ServiceType;
+import littleware.test.LittleTest;
 
 
 /**
  * Tester for the task-tracking tools in
  * the littleware.apps.tracker package.
  */
-public class TrackerTester extends TestCase {
+public class TrackerTester extends LittleTest {
 
     private static final String os_test_data = "Frickjack bla bla " + (new Date()).getTime();
     private static final String os_test_folder = "TrackerTester";
@@ -36,30 +43,22 @@ public class TrackerTester extends TestCase {
     private BucketManager om_bucket = null;
     private AccountManager om_account = null;
     private final SessionHelper om_helper;
-    private final IconLibrary   olib_icon;
+    private final Provider<JQView>  oprovide_view;
     private Set<Asset> ov_test = new HashSet<Asset>();
 
     /**
      * Constructor takes test name for superclass
      * and injects a couple dependencies
      */
-    public TrackerTester(String s_test_name,
-            SessionHelper m_helper,
-            IconLibrary lib_icon
-            ) {
-        super(s_test_name);
-        om_helper = m_helper;
-        olib_icon = lib_icon;
-    }
-    
-    /** Inject dependencies */
     @Inject
     public TrackerTester(
             SessionHelper m_helper,
-            IconLibrary lib_icon
+            Provider<JQView> provide_view
             ) {
-        this( "", m_helper, lib_icon );
-    }    
+        om_helper = m_helper;
+        oprovide_view = provide_view;
+    }
+    
 
     /**
      * Setup the test folder to create test assets under.
@@ -99,6 +98,7 @@ public class TrackerTester extends TestCase {
     /**
      * Delete the test assets
      */
+    @Override
     public void tearDown() {
         for (Asset a_test : ov_test) {
             try {
@@ -211,7 +211,8 @@ public class TrackerTester extends TestCase {
         try {
             littleware.apps.tracker.Queue q_test = buildQueueAndTest();
             AssetModel model_queue = (new SimpleAssetModelLibrary()).syncAsset(q_test);
-            JQView wq_view = new JQView(model_queue, om_search, olib_icon );
+            JQView wq_view = oprovide_view.get ();
+            wq_view.setAssetModel( model_queue );
             assertTrue("User confirmed queue-viewer UI functional", JLittleDialog.showTestDialog(wq_view, "play with the queue view widget. \n" + "Hit OK when test successfully done"));
         } catch (Exception e) {
             olog_generic.log(Level.WARNING, "Caught: " + e + ", " + BaseException.getStackTrace(e));
@@ -219,5 +220,3 @@ public class TrackerTester extends TestCase {
         }
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

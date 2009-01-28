@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -12,6 +10,7 @@
 
 package littleware.apps.misc.client;
 
+import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,7 +24,6 @@ import littleware.apps.filebucket.Bucket;
 import littleware.apps.filebucket.BucketManager;
 import littleware.apps.misc.ImageManager;
 import littleware.asset.Asset;
-import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.Cache;
 import littleware.base.Maybe;
@@ -40,12 +38,11 @@ public class SimpleImageManager implements ImageManager {
     private static final Logger olog = Logger.getLogger( SimpleImageManager.class.getName() );
     private static final String osReservedPath = "Image123.jpg";
 
-    private final AssetSearchManager osearch;
     private final BucketManager      omgrBucket;
     private final Cache<UUID,Maybe<BufferedImage>>  ocache = new SimpleCache<UUID,Maybe<BufferedImage>>();
 
-    public SimpleImageManager( AssetSearchManager search, BucketManager mgrBucket ) {
-        osearch = search;
+    @Inject
+    public SimpleImageManager( BucketManager mgrBucket ) {
         omgrBucket = mgrBucket;
     }
 
@@ -67,16 +64,16 @@ public class SimpleImageManager implements ImageManager {
         return maybe_result;
     }
 
-    public Asset saveImage(Asset a_save, BufferedImage img, String s_update_comment ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
+    public <T extends Asset> T saveImage(T a_save, BufferedImage img, String s_update_comment ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ImageIO.write(img, s_update_comment, stream);
         stream.close();
-        Asset a_result = omgrBucket.writeToBucket(a_save, osReservedPath, stream.toByteArray(), s_update_comment);
+        T a_result = omgrBucket.writeToBucket(a_save, osReservedPath, stream.toByteArray(), s_update_comment);
         ocache.put( a_save.getObjectId(), new Maybe<BufferedImage>( img ) );
         return a_result;
     }
 
-    public Asset   deleteImage( Asset a_save, String s_update_comment
+    public <T extends Asset> T   deleteImage( T a_save, String s_update_comment
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
         ocache.remove( a_save.getObjectId() );
         // Check the server
@@ -87,4 +84,7 @@ public class SimpleImageManager implements ImageManager {
         return omgrBucket.eraseFromBucket(a_save, osReservedPath, s_update_comment);
     }
 
+    public void clearCache( UUID u_asset ) {
+        ocache.remove(u_asset);
+    }
 }

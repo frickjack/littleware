@@ -1,5 +1,6 @@
 package littleware.apps.test;
 
+import littleware.test.JLittleDialog;
 import com.google.inject.Inject;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
@@ -284,7 +285,7 @@ public class SwingClientTester extends TestCase {
             final JPanel wpanel_browser = new JPanel(new BorderLayout());
             wpanel_browser.add(wtoolbar_asset, BorderLayout.PAGE_START);
             wpanel_browser.add(wbrowser_asset, BorderLayout.CENTER);
-            //wpanel_browser.setPreferredSize ( new Dimension ( 1000, 700 ) );  // force big
+            wpanel_browser.setPreferredSize ( new Dimension ( 1200, 700 ) );  // force big
 
             /*.......
             javax.swing.SwingUtilities.invokeLater(new Runnable() {

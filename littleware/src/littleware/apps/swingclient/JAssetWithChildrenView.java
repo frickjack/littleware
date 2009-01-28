@@ -1,27 +1,24 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
-import java.awt.*;
-import java.beans.PropertyChangeSupport;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
-import java.security.acl.*;
+import com.google.inject.Inject;
 import javax.swing.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.apps.client.*;
+import littleware.apps.misc.ThumbManager;
 import littleware.asset.*;
-import littleware.base.BaseException;
-import littleware.base.UUIDFactory;
-import littleware.base.AssertionFailedException;
-import littleware.base.NoSuchThingException;
-import littleware.security.SecurityAssetType;
-import littleware.security.LittleGroup;
-import littleware.security.LittlePrincipal;
 
 
 /** 
@@ -99,7 +96,6 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
      * Subtype constructor should invoke updateChildren() to populate the
      * child-info list.
      *
-     * @param model_with_children to view
      * @param m_retriever to retrieve asset details with
      * @param lib_icon icon source
      * @param s_children_header label for the children-list area (ex: "Group members")
@@ -107,16 +103,19 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
      * @param icon_tab icon to label the child-tab with - may be null
      * @exception IllegalArgumentException if model_asset does not reference a group
      */
-    protected JAssetWithChildrenView( AssetModel model_with_children, AssetRetriever m_retriever,
-                                      IconLibrary lib_icon, String s_children_header,
+    @Inject
+    protected JAssetWithChildrenView( AssetRetriever m_retriever,
+                                      IconLibrary lib_icon, ThumbManager m_thumb,
+                                      AssetModelLibrary lib_asset,
+                                      String s_children_header,
                                       String s_tab_label, Icon icon_tab, String s_tab_tooltip
                        ) {
-        super( model_with_children, m_retriever, lib_icon );
+        super( m_retriever, lib_icon, m_thumb );
         om_retriever = m_retriever;
         olib_icon = lib_icon;
         owlist_members = new JAssetLinkList ( omodel_children,
                                               lib_icon,
-                                              model_with_children.getLibrary (),
+                                              lib_asset,
                                               m_retriever,
                                               s_children_header
                                               ) {
@@ -124,6 +123,7 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
              * Customize setLink to append asset-specific info from
              * getChildInfo() if available.
              */
+            @Override
             protected void setLink ( JAssetLink wlink_asset, Asset a_view ) {
                 wlink_asset.setLink ( a_view );
                 String s_value = ov_childinfo.get ( a_view );

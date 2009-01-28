@@ -1,12 +1,17 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -19,8 +24,6 @@ import javax.swing.event.*;
 
 
 import littleware.asset.*;
-import littleware.base.BaseException;
-import littleware.base.NoSuchThingException;
 import littleware.base.Whatever;
 import littleware.security.*;
 
@@ -270,11 +273,13 @@ public class JGroupListView extends JPanel {
     public ListModel  getModel () { 
         return olmodel_groups;
     }
-    
+
+    @Override
     public void addPropertyChangeListener( PropertyChangeListener listen_props ) {
         opropsupport.addPropertyChangeListener ( listen_props );
     }
-    
+
+    @Override
     public void removePropertyChangeListener( PropertyChangeListener listen_props ) {
         opropsupport.removePropertyChangeListener ( listen_props );
     }

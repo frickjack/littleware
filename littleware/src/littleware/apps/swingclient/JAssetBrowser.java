@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -36,7 +34,7 @@ import littleware.apps.swingclient.event.*;
  * when the browser navigates to view a different model.
  */
 public class JAssetBrowser extends JPanel implements AssetView {
-    private static Logger olog_generic = Logger.getLogger ( "littleware.apps.swingclient.AssetView" );
+    private static final Logger olog_generic = Logger.getLogger ( AssetView.class.getName() );
     
     private final AssetViewFactory      ofactory_view;
     private final IconLibrary           olib_icon;
@@ -49,7 +47,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
                  && AssetModel.Operation.assetsLinkingFrom.toString().equals( evt_model.getOperation() )
                     ) {
                 // Need to update children view
-                updateChildrenWidget ();
+                updateChildrenWidgetAndValidate ();
             }
         }
     };
@@ -107,28 +105,38 @@ public class JAssetBrowser extends JPanel implements AssetView {
         om_retriever = m_retriever; 
         owlist_history = new JAssetLinkList ( omodel_history, lib_icon, lib_asset, m_retriever, "History" );
         owlist_history.addLittleListener ( olisten_bridge );
-        owlist_children = new JAssetLinkList ( omodel_children, lib_icon, lib_asset, m_retriever, "Children (linking From)" );
+        owlist_children = new JAssetLinkList ( omodel_children, lib_icon, lib_asset, m_retriever, "-------- Children (linking From) --------" );
         owlist_children.addLittleListener ( olisten_bridge );
 
         GridBagConstraints grid_control = new GridBagConstraints ();
         grid_control.anchor = GridBagConstraints.FIRST_LINE_START;
         grid_control.fill = GridBagConstraints.BOTH;
-        grid_control.gridheight = 4;
+        grid_control.gridheight = GridBagConstraints.REMAINDER;
+        grid_control.gridwidth = 2;
         grid_control.gridx = 0;
         grid_control.gridy = 0;
-        //grid_control.weightx = 0.25;
+        grid_control.weightx = 0.2;
         this.add ( owlist_history, grid_control );
+
         grid_control.gridy += grid_control.gridheight;
-        this.add ( new JScrollPane( owlist_children,  JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ),
+        grid_control.gridx += grid_control.gridwidth;
+        grid_control.gridwidth = 6;
+        grid_control.gridy = 0;
+        //grid_control.gridheight = GridBagConstraints.REMAINDER;
+        //grid_control.gridwidth = GridBagConstraints.REMAINDER;
+        grid_control.weightx = 0.6;
+        this.add ( owpanel_view, grid_control );
+
+        grid_control.gridx += grid_control.gridwidth;
+        grid_control.gridwidth = 3;
+        grid_control.weightx = 0.5;
+        this.add ( //owlist_children,
+                  new JScrollPane( owlist_children,  
+                                   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                   JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED 
+                                   ),
                    grid_control
                    );
-        grid_control.gridx = 2;
-        grid_control.gridy = 0;
-        grid_control.gridheight = GridBagConstraints.REMAINDER;
-        grid_control.gridwidth = GridBagConstraints.REMAINDER;
-        grid_control.weightx = 0.8;
-        this.add ( owpanel_view, grid_control );
         
         oview_support.addPropertyChangeListener ( new PropertyChangeListener () {
             public void propertyChange ( PropertyChangeEvent evt_prop ) {
@@ -158,6 +166,8 @@ public class JAssetBrowser extends JPanel implements AssetView {
     public AssetModel getAssetModel () {
         return oview_support.getAssetModel ();
     }
+
+    private boolean  ob_in_sync = false;
     
     /**
      * Invoke when the underlying model has changed,
@@ -169,60 +179,84 @@ public class JAssetBrowser extends JPanel implements AssetView {
             olog_generic.log ( Level.WARNING, "Assetbrowser has null AssetModel" );
             return;
         }
-        // update the core view
-        if ( (null != oview_current)
-             && (null != oview_support.getAssetModel ())
-             && ofactory_view.checkView ( oview_current, oview_support.getAssetModel () ) 
-             ) {
-            olog_generic.log ( Level.FINE, "Updating current view to new model: " + oview_support.getAssetModel ().getAsset () );
-            oview_current.setAssetModel ( oview_support.getAssetModel () );
-        } else {
-            olog_generic.log ( Level.FINE, "Updating new view to new model: " + oview_support.getAssetModel ().getAsset () );
-            // else
-            AssetView view_new = ofactory_view.createView ( oview_support.getAssetModel () );
-            if ( null != oview_current ) {
-                oview_current.removeLittleListener ( olisten_bridge );
-                owpanel_view.remove ( (JComponent) oview_current );
-            }
-            view_new.addLittleListener ( olisten_bridge );
-            oview_current = view_new;
-            owpanel_view.add ( (JComponent) view_new, ogrid_control ); //, 1
+        if ( ob_in_sync ) {
+            // avoid recursive updates
+            return;
         }
-        
-        { // update the history
-            omodel_history.addElement ( oview_support.getAssetModel ().getAsset () );
-            if ( omodel_history.getSize () > oi_history_size ) {
-                omodel_history.remove( 0 );
+        try {
+            ob_in_sync = true;
+            // update the core view
+            if ( (null != oview_current)
+                 && (null != oview_support.getAssetModel ())
+                 && ofactory_view.checkView ( oview_current, oview_support.getAssetModel () ) 
+                 ) {
+                olog_generic.log ( Level.FINE, "Updating current view to new model: " + oview_support.getAssetModel ().getAsset () );
+                oview_current.setAssetModel ( oview_support.getAssetModel () );
+            } else {
+                olog_generic.log ( Level.FINE, "Updating new view to new model: " + oview_support.getAssetModel ().getAsset () );
+                // else
+                AssetView view_new = ofactory_view.createView ( oview_support.getAssetModel () );
+                if ( null != oview_current ) {
+                    oview_current.removeLittleListener ( olisten_bridge );
+                    owpanel_view.remove ( (JComponent) oview_current );
+                }
+                view_new.addLittleListener ( olisten_bridge );
+                oview_current = view_new;
+                owpanel_view.add ( (JComponent) view_new, ogrid_control ); //, 1
             }
+            
+            { // update the history
+                omodel_history.addElement ( oview_support.getAssetModel ().getAsset () );
+                if ( omodel_history.getSize () > oi_history_size ) {
+                    omodel_history.remove( 0 );
+                }
+            }
+            updateChildrenWidgetAndValidate();
+        } finally {
+            ob_in_sync = false;
         }
-        updateChildrenWidget();
-        Component w_root = JUtil.findRoot ( this );
-        w_root.validate ();
-        if ( w_root instanceof Window ) {
-            olog_generic.log ( Level.FINE, "Repacking window" );
-            ((Window) w_root).pack ();
-        }    
     }
+
+    private boolean ob_in_update = false;
 
     /**
      * Internal utility updates view of the children linking form an asset -
      * runs asynchronously if not on the Swing dispatch thread
+     * Danger of recursive updates since this call does lookup to
+     * collect child data, puts that data in the cache, and the cache
+     * throws events when those child assets come in.
      */
-    private void updateChildrenWidget () { // update the children
+    private void updateChildrenWidgetAndValidate () { // update the children
+        if ( ob_in_update ) {
+            // avoid recursive updates
+            return;
+        }
         if ( ! SwingUtilities.isEventDispatchThread() ) {
             SwingUtilities.invokeLater( new Runnable () {
-                public void run () { updateChildrenWidget (); }
+                public void run () { updateChildrenWidgetAndValidate (); }
             });
             return;
         }
-        omodel_children.clear();
         try {
-            Map<String, UUID> v_children = om_retriever.getAssetIdsFrom(oview_support.getAssetModel().getAsset().getObjectId(), null);
-            for (UUID u_value : v_children.values()) {
-                omodel_children.addElement(u_value);
+            ob_in_update = true;
+            omodel_children.clear();
+            try {
+                Map<String, UUID> v_children = om_retriever.getAssetIdsFrom(oview_support.getAssetModel().getAsset().getObjectId(), null);
+                olog_generic.log( Level.FINE, "Syncing child UI: " + v_children.size() + " children" );
+                for (UUID u_value : v_children.values()) {
+                    omodel_children.addElement(u_value);
+                }
+            } catch (Exception e) {
+                olog_generic.log(Level.WARNING, "Retrieving children caught unexpected: " + e);
             }
-        } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Retrieving children caught unexpected: " + e);
+            Component w_root = JUtil.findRoot ( this );
+            w_root.validate ();
+            if ( w_root instanceof Window ) {
+                olog_generic.log ( Level.FINE, "Repacking window" );
+                ((Window) w_root).pack ();
+            }    
+        } finally {
+            ob_in_update = false;
         }
     }
 

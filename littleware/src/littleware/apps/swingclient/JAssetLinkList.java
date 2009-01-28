@@ -1,18 +1,24 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
-import littleware.base.BaseException;
-import littleware.base.UUIDFactory;
-import littleware.base.AssertionFailedException;
-import littleware.base.NoSuchThingException;
 import littleware.base.swing.JUtil;
 import littleware.apps.swingclient.event.*;
 
@@ -21,7 +27,7 @@ import littleware.apps.swingclient.event.*;
  * Component that maintains a list of JAssetLinkList.
  */
 public class JAssetLinkList extends JPanel implements LittleTool, ListDataListener {
-	private final static Logger        olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JAssetLinkList" );
+	private final static Logger        olog_generic = Logger.getLogger ( JAssetLinkList.class.getName() );
 	
 	private UUID                        ou_asset_link = null;
     private final SimpleLittleTool      otool_handler = new SimpleLittleTool ( this );
@@ -112,7 +118,7 @@ public class JAssetLinkList extends JPanel implements LittleTool, ListDataListen
 
         final int i_widgets = ov_memberlinks.size ();
         final int i_size = omodel_list.getSize ();
-        //olog_generic.log ( Level.FINE, "Syncing UI, list size: " + i_size );
+        olog_generic.log ( Level.FINE, "Syncing UI, list size: " + i_size );
         for ( int i_count=0; i_count < i_size; ++i_count ) {
             if ( i_count >= i_widgets ) {
                 JAssetLink  wlink_new = new JAssetLink( olib_icon );
@@ -148,6 +154,7 @@ public class JAssetLinkList extends JPanel implements LittleTool, ListDataListen
             this.remove ( wlink_remove );
         } 
         
+        repaint ();
         if ( i_size != i_widgets ) {
             // repack when layout changes
             Component w_root = JUtil.findRoot ( this );
@@ -188,7 +195,3 @@ public class JAssetLinkList extends JPanel implements LittleTool, ListDataListen
         syncListUI ();
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

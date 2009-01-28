@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -22,6 +20,7 @@ import junit.framework.*;
 
 import littleware.apps.lgo.test.XmlLgoHelpTester;
 import littleware.apps.misc.test.ImageManagerTester;
+import littleware.apps.misc.test.ThumbManagerTester;
 import littleware.base.AssertionFailedException;
 
 /**
@@ -38,26 +37,16 @@ public class PackageTestSuite extends TestSuite {
             Provider<SwingClientTester> provide_swing_test,
             Provider<BucketTester> provide_bucket_test,
             Provider<TrackerTester> provide_tracker_test,
-            Provider<ImageManagerTester> provide_image_test
+            Provider<ImageManagerTester> provide_image_test,
+            Provider<ThumbManagerTester> provide_thumb_test
             ) {
         super( PackageTestSuite.class.getName() );
 
-        /*..
-        Injector     injector;
-        try {
-            injector = Guice.createInjector(
-                new ClientServiceGuice( m_helper ),
-                new StandardClientGuice(),
-                new StandardSwingGuice(),
-                new PropertiesGuice( PropertiesLoader.get().loadProperties() )
-                );
-        } catch ( IOException ex ) {
-            olog.log( Level.SEVERE, "Failed to load littleware properties", ex );
-            throw new AssertionFailedException( "Failed to load littleware properties", ex );
-        }
-         */
         final boolean b_run = true;
 
+        if ( b_run ) {
+            this.addTest( provide_thumb_test.get() );
+        }
         if (b_run) {
             TestCase test = provide_image_test.get ();
             this.addTest( test );
@@ -73,7 +62,7 @@ public class PackageTestSuite extends TestSuite {
             test.setName( "testAddressBook" );
             this.addTest( test );
         }
-        if (b_run) {
+        if (false) {
             TestCase test = provide_swing_test.get();
             test.setName( "testJSessionManager" );
             this.addTest( test );

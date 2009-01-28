@@ -1,6 +1,11 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.security.auth.server;
@@ -12,8 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.*;
 import javax.servlet.*;
-import littleware.security.auth.SessionUtil;
-import littleware.security.auth.server.ServerBootstrap;
 
 /**
  * Servlet bootstraps littleware server components

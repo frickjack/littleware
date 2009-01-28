@@ -18,6 +18,8 @@ import littleware.asset.*;
  * Expects the following applet parameters: <br />
  *     session_uuid: id of the user session to connect to <br />
  *     asset_uuid: id of asset to start browsing at <br />
+ *
+ * @deprecated use web-start lgo apps with Guice
  */
 public class Editor extends JApplet {
 
@@ -46,7 +48,7 @@ public class Editor extends JApplet {
             AssetManager m_asset = m_helper.getService(ServiceType.ASSET_MANAGER);
             IconLibrary lib_icon = new WebIconLibrary( url_codebase.getHost() + "/littleware/lib/icons");
             AssetModelLibrary lib_asset = new SimpleAssetModelLibrary();
-            AssetViewFactory factory_view = new SimpleAssetViewFactory(m_search, lib_icon);
+            AssetViewFactory factory_view = null; // TODO - GUICE enable this!  new SimpleAssetViewFactory(m_search, lib_icon);
             AssetViewFactory factory_editor = new EditorAssetViewFactory(m_asset, m_search, lib_icon, factory_view);
             AssetEditor w_editor = (AssetEditor) factory_editor.createView ( lib_asset.retrieveAssetModel ( u_asset, m_search ) );
 

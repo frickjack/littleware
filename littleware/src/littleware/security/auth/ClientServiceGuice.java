@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -29,6 +27,10 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
+
+// pull in these services -- ugh
+import littleware.apps.filebucket.BucketServiceType;
+
 import littleware.asset.AssetRetriever;
 import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesLoader;
@@ -108,7 +110,6 @@ public class ClientServiceGuice implements LittleGuiceModule {
     
     private static final String  os_propfile = "latest_session.properties";
     private static final String  os_name_key = "session.username";
-    private static final String  os_password_key = "session.password";
     private static final String  os_session_key = "session.id";
     
     /**
@@ -137,14 +138,8 @@ public class ClientServiceGuice implements LittleGuiceModule {
         } catch ( IOException ex ) {
             olog.log( Level.INFO, "Unable to load " + os_propfile + ", proceeding ..." );
         }
-        final Callback[] v_callback = {
-            new NameCallback("Enter username"),
-            new PasswordCallback("Enter password", false),
-            new TextOutputCallback( TextOutputCallback.INFORMATION, "Please login" )
-        };
-        
-        String s_name = prop_session.getProperty( os_name_key );
-        String s_password = prop_session.getProperty( os_password_key );
+
+        String s_name = prop_session.getProperty( os_name_key, "" );
         String s_session_id = prop_session.getProperty( os_session_key );
         
         if ( s_session_id != null ) {
@@ -158,31 +153,16 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 olog.log( Level.INFO, "Failed to connect to session: " + s_session_id + ", continueing", ex );
             }
         }
+
+        final Callback[] v_callback = {
+            new NameCallback("Enter username", s_name ),
+            new PasswordCallback("Enter password", false),
+            new TextOutputCallback( TextOutputCallback.INFORMATION, "Please login" )
+        };
         File fh_home = PropertiesLoader.get ().getLittleHome();        
         
-        if ( s_name != null ) {
-            ((NameCallback) v_callback[0]).setName( s_name );
-        }
-        if ( s_password != null ) {
-            try {
-                SessionHelper helper = manager.login( s_name, s_password, "generic client login" );
-                prop_session.setProperty( os_session_key, helper.getSession().getObjectId().toString () );
-                if ( null != fh_home ) {
-                    try {
-                        PropertiesLoader.get().safelySave( prop_session, 
-                                new File( fh_home, os_propfile )
-                                );
-                    } catch ( IOException ex ) {
-                        olog.log( Level.INFO, "Failed to save new session info", ex );
-                    }
-                }
-                return helper;
-            } catch ( Exception ex ) {
-                olog.log( Level.INFO, "lates_session.properties have invalid username/password, continueing", ex );
-            }
-        }
-        
         for ( int i=0; i < i_retry; ++i ) {
+            String s_password = "";
             try {
                 handler.handle( v_callback );  
                 s_name = ((NameCallback) v_callback[0]).getName ();
@@ -201,7 +181,6 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 if ( null != fh_home ) {
                     try {
                         prop_session.setProperty( os_name_key, s_name );
-                        prop_session.setProperty( os_password_key, s_password );
                         prop_session.setProperty( os_session_key, helper.getSession().getObjectId().toString () );
                         PropertiesLoader.get().safelySave( prop_session, 
                                 new File( fh_home, os_propfile )
@@ -240,6 +219,9 @@ public class ClientServiceGuice implements LittleGuiceModule {
         for( ServiceType<? extends Remote> service : ServiceType.getMembers() ) {
             bind( binder, service, ohelper );
         }
+        // Explicit BucketManager bind for now
+        bind( binder, BucketServiceType.BUCKET_MANAGER, ohelper );
+
         binder.bind( LittleSession.class ).toProvider( new Provider<LittleSession> () {
             public LittleSession get () {
                 try {

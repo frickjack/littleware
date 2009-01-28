@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -14,7 +12,9 @@ package littleware.apps.misc;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
+import com.google.inject.Scopes;
 import littleware.apps.misc.client.SimpleImageManager;
+import littleware.apps.misc.client.SimpleThumbManager;
 
 /**
  * Setup littleware.apps.misc package bindings
@@ -22,7 +22,8 @@ import littleware.apps.misc.client.SimpleImageManager;
 public class StandardMiscGuice implements Module {
 
     public void configure(Binder binder) {
-        binder.bind( ImageManager.class ).to( SimpleImageManager.class );
+        binder.bind( ImageManager.class ).to( SimpleImageManager.class ).in(Scopes.SINGLETON);
+        binder.bind( ThumbManager.class ).to( SimpleThumbManager.class ).in(Scopes.SINGLETON);
     }
 
 }

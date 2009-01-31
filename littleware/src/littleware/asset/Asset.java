@@ -1,9 +1,18 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset;
 
 import java.rmi.RemoteException;
-import java.security.Principal;
-import java.security.GeneralSecurityException;
-import java.security.acl.Acl;
 import java.util.*;
 import java.security.acl.Owner;
 import java.security.GeneralSecurityException;
@@ -27,30 +36,39 @@ public interface Asset extends littleware.base.CacheableObject
      */
     public enum Properties {
         AclId {
+            @Override
             public String toString () { return OS_INTERFACE + "AclId"; }
         },
         Comment {
+            @Override
             public String toString () { return OS_INTERFACE + "Comment"; }
         },
         Data {
+            @Override
             public String toString () { return OS_INTERFACE + "Data"; }
         },
         FromId {
+            @Override
             public String toString () { return OS_INTERFACE + "FromId"; }
         },
-        ToId { 
+        ToId {
+            @Override
             public String toString () { return OS_INTERFACE + "ToId;"; }
         },
         OwnerId {
+            @Override
             public String toString () { return OS_INTERFACE + "OwnerId"; }
         },
         Value {
+            @Override
             public String toString () { return OS_INTERFACE + "Value"; }
         },
         StartDate {
+            @Override
             public String toString () { return OS_INTERFACE + "StartDate"; }
         },
         EndDate {
+            @Override
             public String toString () { return OS_INTERFACE + "EndDate"; }
         };
         

@@ -9,7 +9,6 @@ import java.io.IOException;
 import littleware.base.BaseException;
 import littleware.asset.AssetException;
 import littleware.asset.Asset;
-import littleware.security.auth.ServiceType;
 
 /**
  * Interface for associating a directory with an asset,
@@ -141,7 +140,4 @@ public interface BucketManager extends Remote {
 
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

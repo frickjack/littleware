@@ -162,6 +162,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
                             new EzModule(),
                             new littleware.apps.swingclient.StandardSwingGuice(),
                             new littleware.apps.client.StandardClientGuice(),
+                            new littleware.apps.misc.StandardMiscGuice(),
                             new littleware.security.auth.ClientServiceGuice(),
                             new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
                         }

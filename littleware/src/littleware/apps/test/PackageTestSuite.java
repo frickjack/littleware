@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import junit.framework.*;
 
 import littleware.apps.lgo.test.XmlLgoHelpTester;
+import littleware.apps.misc.test.ImageManagerTester;
 import littleware.base.AssertionFailedException;
 
 /**
@@ -36,7 +37,8 @@ public class PackageTestSuite extends TestSuite {
     public PackageTestSuite( Provider<AddressBookTester> provide_address_test,
             Provider<SwingClientTester> provide_swing_test,
             Provider<BucketTester> provide_bucket_test,
-            Provider<TrackerTester> provide_tracker_test
+            Provider<TrackerTester> provide_tracker_test,
+            Provider<ImageManagerTester> provide_image_test
             ) {
         super( PackageTestSuite.class.getName() );
 
@@ -55,6 +57,11 @@ public class PackageTestSuite extends TestSuite {
         }
          */
         final boolean b_run = true;
+
+        if (b_run) {
+            TestCase test = provide_image_test.get ();
+            this.addTest( test );
+        }
 
         if (b_run) {
             TestCase test = new XmlLgoHelpTester();

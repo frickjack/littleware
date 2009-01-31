@@ -1,6 +1,13 @@
 /*
- * Copyright (c) 2008 Reuben Pasquini
- * All Rights Reserved
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.security.auth;
@@ -34,8 +41,9 @@ import littleware.base.swing.JPasswordDialog;
  *    ServiceType.getMembers()
  * interface class
  * to SessionHelper.getService( n_type );
- * This module must be initialized with the SessionHelper
- * from which to acquire service implementations.
+ * This module may be initialized with the SessionHelper
+ * from which to acquire service implementations,
+ * otherwise configure executes a Swing-UI based authentication.
  * Also binds LittleSession to helper.getSession
  */
 public class ClientServiceGuice implements LittleGuiceModule {

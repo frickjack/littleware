@@ -166,7 +166,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             SessionHelper m_helper = ref_helper.get();
             if (null != m_helper) {
                 // Make sure the sesion hasn't expired
-                if ( m_helper.getSession().getEndDate().getTime() < new Date().getTime () ) {
+                if ( m_helper.getSession().getEndDate().getTime() > new Date().getTime () ) {
                     return m_helper;
                 } else { 
                     throw new SessionExpiredException ( "Expired at: " + m_helper.getSession().getEndDate() );

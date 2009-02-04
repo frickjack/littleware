@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -31,7 +29,7 @@ import littleware.security.*;
 public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io.Serializable 
 {
 	private static final     Factory<UUID>  ofactory_uuid = UUIDFactory.getFactory ();
-	private static final     Logger         olog_generic = Logger.getLogger ( "littleware.asset.SimpleAsset" );
+	private static final     Logger         olog_generic = Logger.getLogger ( SimpleAsset.class.getName() );
 	
 	private UUID        ou_creator = null;
 	private UUID        ou_last_updater = null;

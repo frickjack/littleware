@@ -29,6 +29,7 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 
 // pull in these services -- ugh
+import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.BucketServiceType;
 
 import littleware.asset.AssetRetriever;
@@ -216,11 +217,17 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 throw new AssertionFailedException ( "Failed to authenticate to " + SessionUtil.get().getRegistryHost(), ex );
             }
         }
+
+        // Try to force BucketManager service-type registration
+        // Need to move over to OSGi based client-side bootstrap.  Ugh.
+        ServiceType<BucketManager> servBucket = BucketServiceType.BUCKET_MANAGER;
+
         for( ServiceType<? extends Remote> service : ServiceType.getMembers() ) {
+            olog.log( Level.FINE, "Binding service provider: " + service );
             bind( binder, service, ohelper );
         }
         // Explicit BucketManager bind for now
-        bind( binder, BucketServiceType.BUCKET_MANAGER, ohelper );
+        //bind( binder, BucketServiceType.BUCKET_MANAGER, ohelper );
 
         binder.bind( LittleSession.class ).toProvider( new Provider<LittleSession> () {
             public LittleSession get () {

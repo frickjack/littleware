@@ -44,6 +44,10 @@ public class PackageTestSuite extends TestSuite {
 
         final boolean b_run = true;
 
+        if (b_run) {
+            this.addTest( provide_swing_test.get().putName("testClientSession") );
+        }
+
         if ( b_run ) {
             this.addTest( provide_thumb_test.get() );
         }
@@ -63,42 +67,27 @@ public class PackageTestSuite extends TestSuite {
             this.addTest( test );
         }
         if (false) {
-            TestCase test = provide_swing_test.get();
-            test.setName( "testJSessionManager" );
-            this.addTest( test );
-            test = provide_swing_test.get();
-            test.setName( "testJSessionHelper" );
-            this.addTest( test );
+            this.addTest( provide_swing_test.get().putName("testJSessionManager") );
+            this.addTest( provide_swing_test.get().putName("testJSessionHelper") );
+        }
+
+        if (b_run) {
+            this.addTest( provide_swing_test.get().putName("testJAssetViews") );
         }
         if (b_run) {
-            TestCase test = provide_swing_test.get();
-            test.setName( "testJAssetViews" );
-            this.addTest( test );
+            this.addTest( provide_swing_test.get().putName("testJAssetBrowser") );
         }
         if (b_run) {
-            TestCase test = provide_swing_test.get();
-            test.setName( "testJAssetBrowser" );
-            this.addTest( test );
+            this.addTest( provide_swing_test.get().putName("testGroupFolderTool") );
         }
         if (b_run) {
-            TestCase test = provide_swing_test.get();
-            test.setName( "testGroupFolderTool" );
-            this.addTest( test );
+            this.addTest( provide_swing_test.get().putName("testAssetModelLibrary") );
         }
         if (b_run) {
-            TestCase test = provide_swing_test.get();
-            test.setName( "testAssetModelLibrary" );
-            this.addTest( test );
+            this.addTest( provide_swing_test.get().putName("testJEditor") );
         }
         if (b_run) {
-            TestCase test = provide_swing_test.get();
-            test.setName( "testJEditor" );
-            this.addTest( test );
-        }
-        if (b_run) {
-            TestCase test = provide_swing_test.get();
-            test.setName( "testWizardCreate" );
-            this.addTest( test );
+            this.addTest( provide_swing_test.get().putName("testWizardCreate") );
         }
 
         try {

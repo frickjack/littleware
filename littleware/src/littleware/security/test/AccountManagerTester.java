@@ -1,9 +1,17 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.test;
 
 import java.util.*;
-import java.sql.*;
 import java.security.*;
-import java.security.acl.*;
 import javax.security.auth.login.*;
 
 import java.util.logging.Logger;
@@ -15,8 +23,6 @@ import littleware.asset.AssetManager;
 import littleware.security.*;
 import littleware.security.auth.*;
 import littleware.base.BaseException;
-import littleware.db.Janitor;
-import littleware.db.ConnectionFactory;
 
 
 /**
@@ -24,9 +30,11 @@ import littleware.db.ConnectionFactory;
  * through their paces.
  */
 public class AccountManagerTester extends TestCase {
+    private static final Logger     olog_generic = Logger.getLogger ( AccountManagerTester.class.getName() );
+
 	private AccountManager   om_account = null;
 	private AssetManager     om_asset = null;
-	private Logger           olog_generic = Logger.getLogger ( "littelware.security.test" );
+	
 	
 	/**
 	 * Little utility that invokes a PriviledgedAction to
@@ -213,7 +221,4 @@ public class AccountManagerTester extends TestCase {
 
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

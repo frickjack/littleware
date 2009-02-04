@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.test;
 
 import littleware.test.JLittleDialog;
@@ -10,7 +20,6 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import javax.swing.*;
-import java.net.*;
 
 import junit.framework.*;
 import com.nexes.wizard.Wizard;
@@ -21,17 +30,17 @@ import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.*;
 import littleware.apps.swingclient.wizard.CreateAssetWizard;
 import littleware.base.*;
-import littleware.base.swing.*;
 import littleware.security.auth.*;
 import littleware.security.*;
+import littleware.test.LittleTest;
 
 /**
  * Tester for the SimpleXmlDataAsset Asset super class handling
  * of XML-based getData/setData via annotations.
  */
-public class SwingClientTester extends TestCase {
+public class SwingClientTester extends LittleTest {
 
-    private static final Logger olog_generic = Logger.getLogger("littleware.apps.test.SwingClientTester");
+    private static final Logger olog_generic = Logger.getLogger(SwingClientTester.class.getName());
     private final IconLibrary olib_icon;
     private final SessionHelper om_helper;
     private final AssetModelLibrary olib_asset;
@@ -46,7 +55,7 @@ public class SwingClientTester extends TestCase {
             AssetModelLibrary lib_asset, IconLibrary lib_icon,
             AssetViewFactory factory_view,
             AssetEditorFactory factory_edit) {
-        super(s_test_name);
+        super.setName(s_test_name);
         om_helper = m_helper;
         olib_asset = lib_asset;
         olib_icon = lib_icon;
@@ -74,6 +83,21 @@ public class SwingClientTester extends TestCase {
     @Override
     public void tearDown() {
 
+    }
+
+    public void testClientSession () {
+        try {
+            // assert that the login session has a non-zero duration
+            LittleSession session = om_helper.getSession();
+            assertTrue( "Session t_end (" + session.getEndDate() + ") > t_start (" +
+                    session.getStartDate() + ")",
+                    session.getEndDate().getTime() > (session.getStartDate().getTime () + 60 * 1000)
+                    );
+        } catch (Exception e) {
+            olog_generic.log(Level.WARNING, "Caught unexpected: " + e + ", " +
+                    BaseException.getStackTrace(e));
+            assertTrue("Caught unexpected: " + e, false);
+        }
     }
 
     /**
@@ -480,7 +504,4 @@ public class SwingClientTester extends TestCase {
         }
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

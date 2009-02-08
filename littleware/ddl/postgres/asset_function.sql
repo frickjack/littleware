@@ -1,3 +1,6 @@
+
+CREATE LANGUAGE plpgsql;
+
 --
 -- Get the UUID associated with the type of the given name
 --

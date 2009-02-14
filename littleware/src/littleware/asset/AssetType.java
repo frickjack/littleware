@@ -174,11 +174,13 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         }
 
         /** Always return true */
+        @Override
         public boolean mustBeAdminToCreate() {
             return true;
         }
 
         /** Always return true */
+        @Override
         public boolean isNameUnique() {
             return true;
         }

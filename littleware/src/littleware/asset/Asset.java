@@ -72,7 +72,7 @@ public interface Asset extends littleware.base.CacheableObject
             public String toString () { return OS_INTERFACE + "EndDate"; }
         };
         
-        private static final String  OS_INTERFACE = "lilttleware.apps.Asset#";
+        private static final String  OS_INTERFACE = "littleware.apps.Asset#";
         
     }
     

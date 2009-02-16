@@ -1,3 +1,15 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.addressbook;
 
 import javax.mail.internet.InternetAddress;
@@ -15,7 +27,8 @@ import littleware.base.ParseException;
  * Simple implementation of Address interface
  */
 public class SimpleAddress extends SimpleXmlDataAsset implements Address {	
-	private static Logger  olog_generic = Logger.getLogger ( "littleware.apps.addressbook.SimpleAddress" );
+	private static final Logger  olog_generic = Logger.getLogger ( SimpleAddress.class.getName() );
+    private static final long serialVersionUID = -709805384566333171L;
 	
 	private AddressType          on_address = AddressType.OTHER;
 	private String               os_phone = null;
@@ -112,6 +125,7 @@ public class SimpleAddress extends SimpleXmlDataAsset implements Address {
 	 * XML to Object mapping
 	 */
 	public static class AddressTypeSetter extends SimpleXmlDataSetter {
+        @Override
 		public void setData ( Object x_target, String s_data ) throws ParseException {
 			AddressType n_address = AddressType.parse ( s_data );
 			
@@ -139,6 +153,7 @@ public class SimpleAddress extends SimpleXmlDataAsset implements Address {
 	 * XML to Object mapping
 	 */
 	public static class EmailSetter extends SimpleXmlDataSetter {
+        @Override
 		public void setData ( Object x_target, String s_data ) throws ParseException {
 			try {
 				InternetAddress mail_addr = new InternetAddress ( s_data );
@@ -172,6 +187,7 @@ public class SimpleAddress extends SimpleXmlDataAsset implements Address {
 	 * XML to Object mapping
 	 */
 	public static class UsaStateSetter extends SimpleXmlDataSetter {
+        @Override
 		public void setData ( Object x_target, String s_data ) throws ParseException {
 			UsaState n_state = UsaState.parse ( s_data );
 			
@@ -207,6 +223,7 @@ public class SimpleAddress extends SimpleXmlDataAsset implements Address {
 	 * XML to Object mapping
 	 */
 	public static class UrlSetter extends SimpleXmlDataSetter {
+        @Override
 		public void setData ( Object x_target, String s_data ) throws ParseException {
 			try {
 				URL url_address = new URL ( s_data );
@@ -225,10 +242,12 @@ public class SimpleAddress extends SimpleXmlDataAsset implements Address {
 	/**
 	 * Return a simple copy of this object
 	 */
+    @Override
 	public SimpleAddress clone ()  {
 		return (SimpleAddress) super.clone ();
 	}	
 	
+    @Override
     public void sync ( Asset a_copy_source ) throws InvalidAssetTypeException {
         if ( this == a_copy_source ) {
             return;
@@ -250,6 +269,3 @@ public class SimpleAddress extends SimpleXmlDataAsset implements Address {
     }
 	
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

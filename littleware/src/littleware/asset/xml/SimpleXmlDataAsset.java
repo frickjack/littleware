@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.xml;
 
 import org.xml.sax.*;
@@ -8,7 +18,6 @@ import java.lang.reflect.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import littleware.asset.*;
 import littleware.base.ParseException;
 import littleware.base.XmlSpecial;
 import littleware.base.AssertionFailedException;
@@ -27,7 +36,7 @@ import littleware.base.AssertionFailedException;
  */
 public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.asset.xml.SimpleXmlDataAsset");
+    private static final Logger olog_generic = Logger.getLogger(SimpleXmlDataAsset.class.getName());
     private HashMap<String, XmlDataSetter> ov_element_in = new HashMap<String, XmlDataSetter>();
     private HashMap<String, XmlDataSetter> ov_attribute_in = new HashMap<String, XmlDataSetter>();
     private HashMap<String, XmlDataGetter> ov_element_out = new HashMap<String, XmlDataGetter>();
@@ -298,6 +307,3 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
         return a_xml;
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

@@ -1,14 +1,21 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.web.pickle.xml;
 
 import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,7 +33,7 @@ import littleware.web.pickle.*;
  * when possible.
  */
 public class PickleGeneric extends XmlTranslator<Asset> {
-	private static Logger  olog_generic = Logger.getLogger ( "littleware.web.pickle.xml.PickleGeneric" );
+	private static final Logger  olog_generic = Logger.getLogger ( PickleGeneric.class.getName() );
 
 	public static enum ParserState {
 		/** Parser is scanning for an element with an asset:asset_type attribute */
@@ -418,7 +425,4 @@ public class PickleGeneric extends XmlTranslator<Asset> {
 		io_data.write ( "</asset:core>\n" );
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

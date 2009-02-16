@@ -269,7 +269,12 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
         os_name = a_simple_source.os_name;
         of_value = a_simple_source.of_value;
         ou_owner = a_simple_source.ou_owner;
-        os_data = a_simple_source.os_data;
+        try {
+            // simplify XML-data handling
+            setData(a_simple_source.getData());
+        } catch (ParseException ex) {
+            throw new AssertionFailedException( "Unexpected exception", ex );
+        }
         
         ou_home = a_simple_source.ou_home;
         ou_from = a_simple_source.ou_from;

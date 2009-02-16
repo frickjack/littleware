@@ -1,13 +1,9 @@
 package littleware.apps.addressbook;
 
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import java.util.*;
 
 import littleware.asset.*;
 import littleware.asset.xml.*;
-import littleware.asset.AssetException;
-import littleware.base.BaseException;
 
 
 /**

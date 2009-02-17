@@ -8,7 +8,6 @@ import java.security.GeneralSecurityException;
 
 import littleware.asset.*;
 import littleware.base.*;
-import littleware.security.*;
 
 /**
  * RMI remote-ready wrapper around a real implementation.

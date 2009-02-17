@@ -12,6 +12,7 @@
 
 package littleware.security.auth;
 
+import littleware.security.auth.client.SessionManagerProxy;
 import com.google.inject.Inject;
 import java.rmi.*;
 import java.util.logging.Logger;

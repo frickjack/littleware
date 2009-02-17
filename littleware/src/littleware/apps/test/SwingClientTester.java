@@ -258,7 +258,7 @@ public class SwingClientTester extends LittleTest {
                     "play with the GroupView widget. \n" +
                     "Hit OK when test successfully done"));
 
-            LittleAcl acl_everybody = (LittleAcl) m_search.getByName(AclManager.ACL_EVERYBODY_READ,
+            LittleAcl acl_everybody = (LittleAcl) m_search.getByName(LittleAcl.ACL_EVERYBODY_READ,
                     SecurityAssetType.ACL);
             JComponent w_acl = (JComponent) ofactory_view.createView(olib_asset.syncAsset(acl_everybody));
             //w_acl.setPreferredSize ( new Dimension ( 800, 700 ) );  // force big
@@ -366,7 +366,7 @@ public class SwingClientTester extends LittleTest {
                 LittleAcl acl_test = (LittleAcl) m_search.getByName(s_acl_name,
                         SecurityAssetType.ACL);
                 if (null == acl_test) {
-                    acl_test = (LittleAcl) m_search.getByName(AclManager.ACL_EVERYBODY_READ,
+                    acl_test = (LittleAcl) m_search.getByName(LittleAcl.ACL_EVERYBODY_READ,
                             SecurityAssetType.ACL
                             );
                     acl_test.setObjectId(UUIDFactory.getFactory().create());
@@ -436,7 +436,7 @@ public class SwingClientTester extends LittleTest {
             final AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
             final AssetManager m_asset = om_helper.getService(ServiceType.ASSET_MANAGER);
 
-            final LittleAcl acl_everybody = (LittleAcl) m_search.getByName(AclManager.ACL_EVERYBODY_READ,
+            final LittleAcl acl_everybody = (LittleAcl) m_search.getByName(LittleAcl.ACL_EVERYBODY_READ,
                     SecurityAssetType.ACL);
             olib_asset.syncAsset(acl_everybody);
             final Map<String, UUID> v_homeids = m_search.getHomeAssetIds();

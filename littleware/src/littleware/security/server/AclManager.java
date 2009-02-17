@@ -1,5 +1,6 @@
-package littleware.security;
+package littleware.security.server;
 
+import littleware.security.*;
 import java.security.*;
 import java.security.acl.*;
 import java.util.*;
@@ -13,7 +14,7 @@ import littleware.asset.*;
  * Manage littleware Acl's
  */
 public interface AclManager extends Remote {
-	public final static String ACL_EVERYBODY_READ = "acl.littleware.everybody.read";
+	
 	
 		
 	
@@ -40,7 +41,4 @@ public interface AclManager extends Remote {
 		GeneralSecurityException, RemoteException;
 	
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

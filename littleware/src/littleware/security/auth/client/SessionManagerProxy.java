@@ -1,5 +1,6 @@
-package littleware.security.auth;
+package littleware.security.auth.client;
 
+import littleware.security.auth.*;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.net.URL;
@@ -15,7 +16,7 @@ import littleware.asset.AssetException;
  * Little wrapper around SessionManager to facilitate 
  * transparent reconnect attempts on RemoteException.
  */
-class SessionManagerProxy implements SessionManager {
+public class SessionManagerProxy implements SessionManager {
 
     private static Logger olog_generic = Logger.getLogger("littleware.security.auth.SessionManagerProxy");
     private SessionManager om_session = null;

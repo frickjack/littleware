@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -11,9 +9,9 @@
  */
 
 
-package littleware.security.auth;
+package littleware.security.auth.client;
 
-import java.rmi.Remote;
+import littleware.security.auth.*;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
@@ -24,6 +22,8 @@ import java.util.logging.Level;
 import java.lang.reflect.*;
 
 import littleware.asset.*;
+import littleware.asset.client.LittleService;
+import littleware.asset.client.SimpleLittleService;
 import littleware.base.*;
 
 /**
@@ -31,15 +31,22 @@ import littleware.base.*;
  * retry SessionHelper methods on RemoteException,
  * and auto-wrap Remote service interfaces returned by getServiceProvider()
  * with retry Dynamic proxies.
+ *
  * The retry code is tricky.  We assume that the 
  * remote server has died, so under the hood we trigger the
  * proxy SessionManager to reconnect (update its remote object reference),
  * then reset our own SessionHelper remote-object reference, and finally
  * the service dynamic proxy will refresh its reference.
+ *
+ * Also, SessionHelperProxy implements logic so that each LittleServiceListener
+ * registered on SessionHelperProxy is subsequently registered as a listener
+ * on LittleServices returned by getService.
  */
-class SessionHelperProxy implements SessionHelper {
+public class SessionHelperProxy extends SimpleLittleService implements SessionHelperService {
 
     private static final Logger olog_generic = Logger.getLogger( SessionHelperProxy.class.getName () );
+    private static final long serialVersionUID = -1391174273951630071L;
+
     private SessionHelper  om_real = null;
     private SessionManager om_session = null;
     private UUID           ou_session = null;
@@ -89,7 +96,7 @@ class SessionHelperProxy implements SessionHelper {
      * Retry factory for freakin' resetting remote references
      * to Service handlers.
      */
-    private class RemoteRetryInvocationHandler<T extends Remote> implements InvocationHandler {
+    private class RemoteRetryInvocationHandler<T extends LittleService> implements InvocationHandler {
 
         ServiceType<T> on_type = null;
         T om_service = null;
@@ -159,12 +166,11 @@ class SessionHelperProxy implements SessionHelper {
      * returned service handler that will attempt to reset
      * the remote-reference if a RemoteException gets thrown.
      */
-    public <T extends Remote> T getService(ServiceType<T> n_type) throws BaseException, AssetException,
+    public <T extends LittleService> T getService(ServiceType<T> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (n_type.equals(ServiceType.SESSION_HELPER)) {
             return (T) this;
         }
-
 
         T m_service = (T) ov_cache.get(n_type);
         if (null != m_service) {

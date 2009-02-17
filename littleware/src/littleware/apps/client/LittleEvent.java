@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -22,6 +20,7 @@ import java.util.EventObject;
  * various littleware API driven events.
  */
 public class LittleEvent extends EventObject {
+    private static final long serialVersionUID = 9126648263480500740L;
 	private String  os_operation = null;
 	private Object  ox_result = null;
 	private boolean ob_successful = true;

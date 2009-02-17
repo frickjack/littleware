@@ -1,7 +1,16 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security;
 
 import java.security.acl.Acl;
-import java.security.acl.AclEntry;
 import java.security.Principal;
 
 import littleware.asset.Asset;
@@ -15,6 +24,8 @@ import littleware.asset.Asset;
  * Override Acl methods with no-exception versions.
  */
 public interface LittleAcl extends Acl, Asset {
+    public final static String ACL_EVERYBODY_READ = "acl.littleware.everybody.read";
+
     /** Covariant return-type clone */
     public LittleAcl clone ();
     

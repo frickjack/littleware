@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -18,6 +16,7 @@ import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 
 import littleware.asset.*;
+import littleware.asset.client.LittleService;
 import littleware.base.*;
 
 
@@ -58,7 +57,7 @@ public interface SessionHelper extends Remote {
 	 * @exception SessionExpiredException if the session this helper is
 	 *          associated with is no longer active
 	 */
-	public @ReadOnly <T extends Remote> T getService ( ServiceType<T> n_type ) throws BaseException, AssetException, 
+	public @ReadOnly <T extends LittleService> T getService ( ServiceType<T> n_type ) throws BaseException, AssetException,
 		GeneralSecurityException, RemoteException;
 	
 	/**

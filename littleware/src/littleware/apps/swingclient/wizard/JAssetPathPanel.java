@@ -27,7 +27,7 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
-import littleware.security.AclManager;
+import littleware.security.server.AclManager;
 import littleware.security.SecurityAssetType;
 
 
@@ -229,7 +229,7 @@ public class JAssetPathPanel extends JPanel {
                 oview_asset.setAssetModel ( ((AssetView) owizard_owner).getAssetModel () );                
             } else {
                 // just start browsing around ACL_EVERYBODY
-                oview_asset.setAssetModel ( olib_asset.syncAsset ( om_search.getByName ( AclManager.ACL_EVERYBODY_READ,
+                oview_asset.setAssetModel ( olib_asset.syncAsset ( om_search.getByName ( LittleAcl.ACL_EVERYBODY_READ,
                                                                                            SecurityAssetType.ACL )
                                                                    )
                                             );

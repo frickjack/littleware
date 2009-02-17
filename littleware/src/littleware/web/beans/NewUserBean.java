@@ -54,7 +54,7 @@ public class NewUserBean extends AbstractBean {
                     ohelp_admin = (SessionHelper) AccessController.doPrivileged(act_getadmin);
                 }
                 ou_acl_everybody = ohelp_admin.getService( ServiceType.ASSET_SEARCH ).
-                        getByName( AclManager.ACL_EVERYBODY_READ, SecurityAssetType.ACL ).
+                        getByName( LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL ).
                         getObjectId();
                 ob_initialized = true;
             } catch ( Exception ex ) {

@@ -58,7 +58,7 @@ public class BucketTester extends TestCase {
                 a_folder.setFromId(u_home);
                 a_folder.setHomeId(u_home);
                 a_folder.setName(os_test_folder);
-                a_folder.setAclId(om_search.getByName(littleware.security.AclManager.ACL_EVERYBODY_READ, SecurityAssetType.ACL).getObjectId());
+                a_folder.setAclId(om_search.getByName(littleware.security.LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL).getObjectId());
                 a_folder = om_asset.saveAsset(a_folder, "setup folder for test");
                 u_test_folder = a_folder.getObjectId();
             }

@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.client;
 
 import java.util.*;
@@ -6,7 +16,6 @@ import java.beans.PropertyChangeSupport;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import littleware.base.AssertionFailedException;
 
 /** 
  * Simple implementation of LittleTool
@@ -32,6 +41,7 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
         }
         ob_swing_enabled = b_swing;
     }
+    private static final long serialVersionUID = 6774179690353597372L;
     private List<LittleListener> ov_listener = new ArrayList<LittleListener>();
     private final Object ox_source;
 
@@ -108,7 +118,4 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
         return ox_source;
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

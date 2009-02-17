@@ -27,7 +27,7 @@ import littleware.asset.server.RmiSearchManager;
 import littleware.asset.server.TransactionManager;
 import littleware.base.BaseException;
 import littleware.security.AccountManager;
-import littleware.security.AclManager;
+import littleware.security.server.AclManager;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;

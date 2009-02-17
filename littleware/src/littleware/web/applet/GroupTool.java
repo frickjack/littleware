@@ -59,7 +59,7 @@ public class GroupTool extends Toolbox {
             if ( null == a_groups ) {
                 a_groups = SecurityAssetType.GENERIC.create ();
                 a_groups.setOwnerId ( a_user.getObjectId () );
-                a_groups.setAclId ( m_search.getByName ( littleware.security.AclManager.ACL_EVERYBODY_READ, 
+                a_groups.setAclId ( m_search.getByName ( littleware.security.LittleAcl.ACL_EVERYBODY_READ, 
                                                               SecurityAssetType.ACL ).getObjectId () 
                                     );
                 a_groups.setComment ( "User folder for groups" );

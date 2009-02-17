@@ -16,7 +16,6 @@ import com.google.inject.Inject;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.security.AccountManager;
-import littleware.security.AclManager;
 import littleware.security.SecurityAssetType;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

@@ -15,26 +15,23 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import littleware.asset.*;
+import littleware.asset.client.AssetManagerService;
+import littleware.asset.client.AssetSearchService;
+import littleware.asset.client.LittleService;
 import littleware.base.*;
 import littleware.base.stat.*;
 import littleware.security.*;
+import littleware.security.auth.client.SessionHelperService;
 
 /**
  * Enumerate different types of services exported by the 
  * SessionHelper, and provide
  * factory methods to create appropriate (uninitialized)
- * Remote object or smart-proxy to support the service.
+ * smart-proxy to support the service.
  *
  * A user should be able to introduce a new ServiceType to the
- * system by adding code to the classpath that defines the
- * ServiceType and service manager for that new type,
- * and adding that class to the list of classes loaded
- * by the AssetResourceBundle at startup time in the
- * bundle config file.  The manager returned by the
- * factory method should be setup to access the session's asset
- * at method invocation time to verify that the session has not
- * expired or been made ReadOnly.  The littleware.security.auth.SessionInvocationHandler
- * facilitates this.
+ * by taking advantage of the littleware OSGi bootstrap process.
+ * Need to add documentation on that later.
  *
  * Note: subtypes implementing ServiceType must be in a code-base
  *     granted AccessPermission "littleware.security.resource.newtype"
@@ -42,11 +39,13 @@ import littleware.security.*;
  *     to simplify the construction of Guice injection modules that key
  *     on ServiceType like littleware.security.auth.ClientServiceModule
  */
-public class ServiceType<T extends Remote> extends DynamicEnum<ServiceType> {
+public class ServiceType<T extends LittleService> extends DynamicEnum<ServiceType> {
 
-    private static final Logger olog_generic = Logger.getLogger( ServiceType.class.getName () );
+    private static final Logger olog = Logger.getLogger( ServiceType.class.getName () );
+    private static final long serialVersionUID = 6228723237823231943L;
     private Sampler ostat_call = new SimpleSampler();
     private Class<T>  oclass_service = null;
+
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -93,24 +92,20 @@ public class ServiceType<T extends Remote> extends DynamicEnum<ServiceType> {
     }
 
             
-    public static final ServiceType<AssetManager> ASSET_MANAGER =
-            new ServiceType<AssetManager>(UUIDFactory.parseUUID("FD4C5F5B4C904AC6BDC9ECA891C39543"),
-            "littleware.ASSET_MANAGER_SERVICE", AssetManager.class );
+    public static final ServiceType<AssetManagerService> ASSET_MANAGER =
+            new ServiceType<AssetManagerService>(UUIDFactory.parseUUID("FD4C5F5B4C904AC6BDC9ECA891C39543"),
+            "littleware.ASSET_MANAGER_SERVICE", AssetManagerService.class );
 
-    public static final ServiceType<AssetSearchManager> ASSET_SEARCH =
-            new ServiceType<AssetSearchManager>(UUIDFactory.parseUUID("56A05693C0874780A716DEFA4E262F6F"),
-            "littleware.ASSET_SEARCH_SERVICE", AssetSearchManager.class );
+    public static final ServiceType<AssetSearchService> ASSET_SEARCH =
+            new ServiceType<AssetSearchService>(UUIDFactory.parseUUID("56A05693C0874780A716DEFA4E262F6F"),
+            "littleware.ASSET_SEARCH_SERVICE", AssetSearchService.class );
 
-    public static final ServiceType<SessionHelper> SESSION_HELPER =
-            new ServiceType<SessionHelper>(UUIDFactory.parseUUID("BD4110EF7A3C482D9B3500DFC74829DE"),
-            "littleware.SESSION_HELPER_SERVICE", SessionHelper.class );
+    public static final ServiceType<SessionHelperService> SESSION_HELPER =
+            new ServiceType<SessionHelperService>(UUIDFactory.parseUUID("BD4110EF7A3C482D9B3500DFC74829DE"),
+            "littleware.SESSION_HELPER_SERVICE", SessionHelperService.class );
 
     public static final ServiceType<AccountManager> ACCOUNT_MANAGER =
             new ServiceType<AccountManager>(UUIDFactory.parseUUID("402DD983DD8C47118232285E430611C2"),
             "littleware.ACCOUNT_MANAGER_SERVICE", AccountManager.class );
-
-    public static final ServiceType<AclManager> ACL_MANAGER =
-            new ServiceType<AclManager>(UUIDFactory.parseUUID("25A9379640B94B26BBA6D0607981B070"),
-            "littleware.ACL_MANAGER_SERVICE", AclManager.class );
 }
 

@@ -1,5 +1,6 @@
 package littleware.security.test;
 
+import littleware.security.server.AclManager;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.security.*;
@@ -57,7 +58,7 @@ public class AclManagerTester extends TestCase {
 	 */
 	public void testAclLoad () {
 		try {
-			Acl acl_everybody = om_acl.getAcl ( AclManager.ACL_EVERYBODY_READ );
+			Acl acl_everybody = om_acl.getAcl ( LittleAcl.ACL_EVERYBODY_READ );
 		} catch ( Exception e ) {
 			olog_generic.severe ( "Caught unexpected: " + 
 							   e + ", " + BaseException.getStackTrace ( e ) );

@@ -12,6 +12,7 @@
 
 package littleware.security.test;
 
+import littleware.security.server.AclManager;
 import com.google.inject.Inject;
 import java.util.logging.Logger;
 import java.util.logging.Level;

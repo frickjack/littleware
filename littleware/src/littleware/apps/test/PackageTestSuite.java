@@ -68,7 +68,6 @@ public class PackageTestSuite extends TestSuite {
         }
         if (false) {
             this.addTest( provide_swing_test.get().putName("testJSessionManager") );
-            this.addTest( provide_swing_test.get().putName("testJSessionHelper") );
         }
 
         if (b_run) {

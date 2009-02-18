@@ -56,7 +56,7 @@ public interface BucketManager extends Remote {
      * @return post-save a_in with new transaction-count and update-comment 
      */
     public <T extends Asset> T writeToBucket ( T a_in, String s_path,
-                                String s_data, String s_update_coment 
+                                String s_data, String s_update_comment
                                 ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException;
     

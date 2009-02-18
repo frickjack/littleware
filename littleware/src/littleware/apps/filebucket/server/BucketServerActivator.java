@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -13,12 +11,13 @@
 package littleware.apps.filebucket.server;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
 import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.BucketServiceType;
+import littleware.apps.filebucket.client.BucketManagerService;
+import littleware.apps.filebucket.client.SimpleBucketService;
 import littleware.asset.AssetException;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
@@ -39,10 +38,10 @@ public class BucketServerActivator implements BundleActivator {
             )
     {
         reg_service.registerService( BucketServiceType.BUCKET_MANAGER,
-                new AbstractServiceProviderFactory<BucketManager> ( BucketServiceType.BUCKET_MANAGER, mgr_search ) {
+                new AbstractServiceProviderFactory<BucketManagerService> ( BucketServiceType.BUCKET_MANAGER, mgr_search ) {
                     @Override
-                    public BucketManager createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-                        return new RmiBucketManager( this.checkAccessMakeProxy(m_helper, false, mgr_bucket, BucketManager.class ));
+                    public BucketManagerService createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+                        return new SimpleBucketService( new RmiBucketManager( this.checkAccessMakeProxy(m_helper, false, mgr_bucket, BucketManager.class )) );
                     }
                 }
         );

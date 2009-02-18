@@ -211,23 +211,6 @@ public class SwingClientTester extends LittleTest {
         }
     }
 
-    /**
-     * Popup a JSessionHelper for the tester to verify 
-     */
-    public void testJSessionHelper() {
-        try {
-            JSessionHelper wm_helper = new JSessionHelper(om_helper);
-            assertTrue("User confirmed JSesionHelper UI functional",
-                    JLittleDialog.showTestDialog(wm_helper,
-                    "play with the JSessionHelper widget. \n" +
-                    "Hit OK when test successfully done"));
-
-        } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught: " + e +
-                    ", " + BaseException.getStackTrace(e));
-            assertTrue("Caught: " + e, false);
-        }
-    }
 
     /**
      * Popup a JGenericAssetView for the tester to verify

@@ -23,6 +23,8 @@ import java.lang.ref.WeakReference;
 
 import littleware.asset.*;
 import littleware.base.*;
+import littleware.base.stat.Sampler;
+import littleware.base.stat.SimpleSampler;
 import littleware.security.*;
 import littleware.security.auth.*;
 
@@ -42,7 +44,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private final Map<UUID, WeakReference<SessionHelper>> ov_session_map = new HashMap<UUID, WeakReference<SessionHelper>>();
 
     private static SimpleSessionManager om_session = null;
-
+    private Sampler ostatSessionHelper = new SimpleSampler();
     /**
      * Inject dependencies
      */
@@ -89,7 +91,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private SessionHelper setupNewHelper(LittleSession a_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         Subject j_caller = a_session.getSubject(om_search);
         SessionHelper m_helper = new SimpleSessionHelper(a_session.getObjectId(), om_search, om_asset, this, oreg_service );
-        InvocationHandler handler_helper = new SessionInvocationHandler(j_caller, m_helper, ServiceType.SESSION_HELPER.getCallSampler(), m_helper);
+        InvocationHandler handler_helper = new SessionInvocationHandler(j_caller, m_helper, ostatSessionHelper, m_helper);
         SessionHelper m_proxy = (SessionHelper) Proxy.newProxyInstance ( SessionHelper.class.getClassLoader (),
 														 new Class[] { SessionHelper.class },
 														 handler_helper

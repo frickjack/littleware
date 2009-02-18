@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.auth.server;
 
 import java.lang.reflect.Proxy;
@@ -13,6 +23,7 @@ import javax.security.auth.Subject;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetException;
+import littleware.asset.client.LittleService;
 import littleware.base.BaseException;
 import littleware.base.ReadOnlyException;
 import littleware.security.auth.*;
@@ -25,7 +36,7 @@ import littleware.security.auth.*;
  * that the client has permissions to access the service method,
  * and does a Subject.doAs() to setup the security context.
  */
-public abstract class AbstractServiceProviderFactory<T extends Remote> implements ServiceProviderFactory<T> {
+public abstract class AbstractServiceProviderFactory<T extends LittleService> implements ServiceProviderFactory<T> {
     private final AssetSearchManager    om_search;
     private final ServiceType<T>        on_service;
 
@@ -63,11 +74,11 @@ public abstract class AbstractServiceProviderFactory<T extends Remote> implement
 	 *                a read-only session
 	 * @exception SessionExpiredException if a_session has expired
 	 */
-	protected  T checkAccessMakeProxy ( 
+	protected  <R extends Remote> R checkAccessMakeProxy ( 
                                         SessionHelper m_helper, 
                                         boolean       b_readonly_service,
-                                        T             x_provider,
-                                        Class<T>      class_interface
+                                        R             x_provider,
+                                        Class<R>      class_interface
 										) throws BaseException, AssetException, 
         GeneralSecurityException, RemoteException
     {
@@ -91,7 +102,7 @@ public abstract class AbstractServiceProviderFactory<T extends Remote> implement
               m_helper
               );
         //Class<T> class_interface = on_service.getServiceInterface ( T.class );
-        T m_proxy = (T) Proxy.newProxyInstance ( class_interface.getClassLoader (),
+        R m_proxy = (R) Proxy.newProxyInstance ( class_interface.getClassLoader (),
                                                  new Class[] { class_interface },
                                                  handler_proxy
                                                  );
@@ -108,7 +119,4 @@ public abstract class AbstractServiceProviderFactory<T extends Remote> implement
         GeneralSecurityException, RemoteException;
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

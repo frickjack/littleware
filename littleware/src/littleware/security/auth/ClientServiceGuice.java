@@ -29,10 +29,11 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 
 // pull in these services -- ugh
-import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.BucketServiceType;
 
+import littleware.apps.filebucket.client.BucketManagerService;
 import littleware.asset.AssetRetriever;
+import littleware.asset.client.LittleService;
 import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesLoader;
 import littleware.base.UUIDFactory;
@@ -88,7 +89,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
     }
 
     
-    private static <T extends Remote> Provider<T> bind( final Binder binder,
+    private static <T extends LittleService> Provider<T> bind( final Binder binder,
             final ServiceType<T> service, final SessionHelper helper ) 
     {
         Provider<T> provider =   new Provider<T> () {
@@ -220,7 +221,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
 
         // Try to force BucketManager service-type registration
         // Need to move over to OSGi based client-side bootstrap.  Ugh.
-        ServiceType<BucketManager> servBucket = BucketServiceType.BUCKET_MANAGER;
+        ServiceType<BucketManagerService> servBucket = BucketServiceType.BUCKET_MANAGER;
 
         for( ServiceType<? extends Remote> service : ServiceType.getMembers() ) {
             olog.log( Level.FINE, "Binding service provider: " + service );

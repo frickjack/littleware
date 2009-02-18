@@ -1,14 +1,23 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.auth.client;
 
 import littleware.security.auth.*;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.net.URL;
 import java.util.UUID;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.security.GeneralSecurityException;
 
+import java.util.logging.Level;
 import littleware.base.*;
 import littleware.asset.AssetException;
 
@@ -18,13 +27,17 @@ import littleware.asset.AssetException;
  */
 public class SessionManagerProxy implements SessionManager {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.security.auth.SessionManagerProxy");
+    private static final Logger olog_generic = Logger.getLogger(SessionManagerProxy.class.getName());
     private SessionManager om_session = null;
     private URL ourl_session = null;
     /** Setup RemoteException handler */
-    private RemoteExceptionHandler ohandler_remote = new RemoteExceptionHandler();
-    /* ...  weird code ... {
+    private RemoteExceptionHandler ohandler_remote = new RemoteExceptionHandler() {
 
+        /**
+         * Try to lookup the freaking SessionManager on the name server again
+         * to rebootstrap a session on a server restart.
+         */
+        @Override
         public void handle(RemoteException e_remote) throws RemoteException {
             super.handle(e_remote);
             try {
@@ -41,7 +54,6 @@ public class SessionManagerProxy implements SessionManager {
             }
         }
     };
-     ..*/
     
     /**
      * Stash the wrapped manager and the URL it came from
@@ -86,6 +98,3 @@ public class SessionManagerProxy implements SessionManager {
         return ourl_session;
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

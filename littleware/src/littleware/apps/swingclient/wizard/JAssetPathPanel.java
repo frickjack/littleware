@@ -1,7 +1,15 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient.wizard;
 
-import java.awt.event.ActionEvent;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -25,9 +33,8 @@ import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetException;
 import littleware.base.BaseException;
-import littleware.security.server.AclManager;
+import littleware.security.LittleAcl;
 import littleware.security.SecurityAssetType;
 
 
@@ -39,6 +46,7 @@ import littleware.security.SecurityAssetType;
  */
 public class JAssetPathPanel extends JPanel {
     private static final int   OI_FIELDSIZE = 60;
+    private static final long serialVersionUID = -4311442963234747531L;
 
     private final String               os_label;
     private final JTextField           owtext_info;
@@ -386,6 +394,7 @@ public class JAssetPathPanel extends JPanel {
     /**
      * Forwards focus request to text-field
      */
+    @Override
     public void requestFocus () {
         owtext_info.requestFocus ();
     }

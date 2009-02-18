@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -47,7 +45,7 @@ import littleware.security.auth.SessionHelper;
  * a &quot;login&quot; operation and a SessionHelper result on success.
  */
 public class JSessionManager extends JPanel implements LittleTool, SessionManager {
-	private static Logger olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JSessionManager" );
+	private static final Logger olog_generic = Logger.getLogger ( JSessionManager.class.getName() );
 	
 	/**
 	 * Setup the GUI to allow login via different methods 

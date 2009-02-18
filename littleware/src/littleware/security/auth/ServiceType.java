@@ -10,18 +10,16 @@
 
 package littleware.security.auth;
 
-import java.rmi.Remote;
 import java.util.*;
 import java.util.logging.Logger;
 
-import littleware.asset.*;
 import littleware.asset.client.AssetManagerService;
 import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.LittleService;
 import littleware.base.*;
 import littleware.base.stat.*;
-import littleware.security.*;
 import littleware.security.auth.client.SessionHelperService;
+import littleware.security.client.AccountManagerService;
 
 /**
  * Enumerate different types of services exported by the 
@@ -100,12 +98,14 @@ public class ServiceType<T extends LittleService> extends DynamicEnum<ServiceTyp
             new ServiceType<AssetSearchService>(UUIDFactory.parseUUID("56A05693C0874780A716DEFA4E262F6F"),
             "littleware.ASSET_SEARCH_SERVICE", AssetSearchService.class );
 
+    /*...
     public static final ServiceType<SessionHelperService> SESSION_HELPER =
             new ServiceType<SessionHelperService>(UUIDFactory.parseUUID("BD4110EF7A3C482D9B3500DFC74829DE"),
             "littleware.SESSION_HELPER_SERVICE", SessionHelperService.class );
-
-    public static final ServiceType<AccountManager> ACCOUNT_MANAGER =
-            new ServiceType<AccountManager>(UUIDFactory.parseUUID("402DD983DD8C47118232285E430611C2"),
-            "littleware.ACCOUNT_MANAGER_SERVICE", AccountManager.class );
+         ..*/
+    
+    public static final ServiceType<AccountManagerService> ACCOUNT_MANAGER =
+            new ServiceType<AccountManagerService>(UUIDFactory.parseUUID("402DD983DD8C47118232285E430611C2"),
+            "littleware.ACCOUNT_MANAGER_SERVICE", AccountManagerService.class );
 }
 

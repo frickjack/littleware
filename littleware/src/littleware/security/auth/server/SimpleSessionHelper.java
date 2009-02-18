@@ -10,7 +10,6 @@
 
 package littleware.security.auth.server;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.UUID;
 import java.security.*;
@@ -19,6 +18,7 @@ import javax.security.auth.*;
 import littleware.asset.AssetException;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.client.LittleService;
 import littleware.security.auth.*;
 import littleware.security.AccessDeniedException;
 import littleware.security.SecurityAssetType;

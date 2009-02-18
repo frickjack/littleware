@@ -12,6 +12,7 @@
 package littleware.apps.filebucket;
 
 
+import littleware.apps.filebucket.client.BucketManagerService;
 import littleware.base.UUIDFactory;
 import littleware.security.auth.ServiceType;
 
@@ -19,9 +20,10 @@ import littleware.security.auth.ServiceType;
  * Just a namespace to put the BUCKET_SERVICE_TYPE into
  */
 public class BucketServiceType extends ServiceType {
-    public static final ServiceType<BucketManager> BUCKET_MANAGER = 
-		new ServiceType<BucketManager> ( UUIDFactory.parseUUID ( "C09675718D7E4ABC8C825D0000CAA0C4" ),
+    public static final ServiceType<BucketManagerService> BUCKET_MANAGER =
+		new ServiceType<BucketManagerService> ( UUIDFactory.parseUUID ( "C09675718D7E4ABC8C825D0000CAA0C4" ),
                                          "littleware.BUCKET_MANAGER_SERVICE",
-                                         BucketManager.class
+                                         BucketManagerService.class
                                          );
+    private static final long serialVersionUID = 721309844532000264L;
 }

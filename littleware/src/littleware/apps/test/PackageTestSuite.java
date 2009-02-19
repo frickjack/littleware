@@ -95,15 +95,10 @@ public class PackageTestSuite extends TestSuite {
                 test.setName( "testBucket" );
                 this.addTest( test );
             }
-            if (b_run) {
-                TestCase test = provide_tracker_test.get();
-                test.setName( "testTracker" );
-                this.addTest( test );
-            }
-            if (b_run) {
-                TestCase test = provide_tracker_test.get();
-                test.setName( "testTrackerSwing" );
-                this.addTest( test );
+            // disable tracker tests for now
+            if (false) {
+                this.addTest( provide_tracker_test.get().putName( "testTracker" ) );
+                this.addTest( provide_tracker_test.get().putName( "testTrackerSwing" ) );
             }
         } catch (RuntimeException e) {
             throw e;

@@ -70,7 +70,7 @@ public class SimpleAccountManagerService extends SimpleLittleService implements 
     }
 
     public boolean isValidPassword(String s_password) throws RemoteException {
-        return isValidPassword( s_password );
+        return oserver.isValidPassword( s_password );
     }
 
     public LittleUser getAuthenticatedUser() throws GeneralSecurityException, RemoteException {

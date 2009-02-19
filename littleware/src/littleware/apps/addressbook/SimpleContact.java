@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.addressbook;
 
 import java.util.*;
@@ -10,6 +20,7 @@ import littleware.asset.xml.*;
  * Simple implementation of Contact interface
  */
 public class SimpleContact extends SimpleXmlDataAsset implements Contact {
+    private static final long serialVersionUID = -6466853250780135276L;
 	private String        os_first_name = null;
 	private String        os_middle_name = null;
 	private LinkedList<Address> ov_address = new LinkedList<Address> ();
@@ -126,7 +137,4 @@ public class SimpleContact extends SimpleXmlDataAsset implements Contact {
         ov_address = (LinkedList<Address>) contact_copy_source.ov_address.clone ();
     }        
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

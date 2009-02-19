@@ -23,6 +23,8 @@
 --GRANT littleware_user_group TO littleware_user;
 --GRANT littleware_user_group TO littleware;
 
+CREATE LANGUAGE plpgsql;
+
 CREATE SCHEMA littleware;
 
 GRANT USAGE ON SCHEMA littleware TO GROUP littleware_user_group;

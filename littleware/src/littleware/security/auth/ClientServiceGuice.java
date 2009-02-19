@@ -29,15 +29,22 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 
 // pull in these services -- ugh
+import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.BucketServiceType;
 
 import littleware.apps.filebucket.client.BucketManagerService;
+import littleware.asset.AssetManager;
 import littleware.asset.AssetRetriever;
+import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetManagerService;
+import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.LittleService;
 import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesLoader;
 import littleware.base.UUIDFactory;
 import littleware.base.swing.JPasswordDialog;
+import littleware.security.AccountManager;
+import littleware.security.client.AccountManagerService;
 
 
 /**
@@ -227,8 +234,13 @@ public class ClientServiceGuice implements LittleGuiceModule {
             olog.log( Level.FINE, "Binding service provider: " + service );
             bind( binder, service, ohelper );
         }
-        // Explicit BucketManager bind for now
-        //bind( binder, BucketServiceType.BUCKET_MANAGER, ohelper );
+
+        // Frick - need to bind core interfaces here explicitly
+        binder.bind( BucketManager.class ).to( BucketManagerService.class );
+        binder.bind( AssetSearchManager.class ).to( AssetSearchService.class );
+        binder.bind( AccountManager.class ).to( AccountManagerService.class );
+        binder.bind( AssetManager.class ).to( AssetManagerService.class );
+        binder.bind( SessionHelper.class ).toInstance( ohelper );
 
         binder.bind( LittleSession.class ).toProvider( new Provider<LittleSession> () {
             public LittleSession get () {

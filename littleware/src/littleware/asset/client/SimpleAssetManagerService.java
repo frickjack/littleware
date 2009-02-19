@@ -46,13 +46,13 @@ public class SimpleAssetManagerService extends SimpleLittleService implements As
     }
 
     public <T extends Asset> T saveAsset(T a_asset, String s_update_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        T result = saveAsset(a_asset, s_update_comment);
+        T result = oserver.saveAsset(a_asset, s_update_comment);
         fireServiceEvent(new AssetLoadEvent(this, result));
         return result;
     }
 
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets, String s_update_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Collection<Asset> vResult = saveAssetsInOrder(v_assets, s_update_comment);
+        Collection<Asset> vResult = oserver.saveAssetsInOrder(v_assets, s_update_comment);
         for (Asset result : vResult) {
             fireServiceEvent(new AssetLoadEvent(this, result));
         }

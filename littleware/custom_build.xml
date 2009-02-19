@@ -23,7 +23,7 @@
 	 <pathelement location="${jardir}/bsf-2.4.0.jar" />
 	 <pathelement location="${jardir}/commons-dbutils.jar" />
 	 <pathelement location="${jardir}/commons-logging.jar" />
-	 <pathelement location="${jardir}/derby-10.2.0.jar" />
+	 <pathelement location="${jardir}/derby-10.4.2.1.jar" />
 	 <pathelement location="${jardir}/guice-1.0.jar" />
 	 <pathelement location="${jardir}/javaee-1.4.jar" />
 	 <pathelement location="${jardir}/js.jar" />

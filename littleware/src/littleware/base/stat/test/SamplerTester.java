@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.base.stat.test;
 
 import java.util.*;
@@ -13,8 +23,8 @@ import littleware.base.stat.*;
  * Test case for littleware.base.stat.Sampler
  */
 public class SamplerTester extends TestCase {
-	private static Logger ox_logger = Logger.getLogger ( "littleware.base.stat.test.SamplerTester" );
-	private Sampler ostat_sampler = null;
+	private static final Logger olog = Logger.getLogger ( SamplerTester.class.getName() );
+	private final Sampler ostat_sampler;
 	
 	/**
 	 * Constructor stashes Sampler implementation to test against
@@ -28,8 +38,10 @@ public class SamplerTester extends TestCase {
 	}
 	
 	/** No setup necessary */
+    @Override
 	public void setUp () {}
 	/** No tearDown necessary */
+    @Override
 	public void tearDown () {}
 	
 	
@@ -68,7 +80,7 @@ public class SamplerTester extends TestCase {
 						 ostat_sampler.getLastSampleTime ().getTime () > t_start.getTime ()
 						 );
 			assertTrue ( "Tracked arrival max ms: " + ostat_sampler.getArrivalMaxMs (),
-						 ostat_sampler.getArrivalMaxMs () > l_sleep_ms
+						 ostat_sampler.getArrivalMaxMs () >= l_sleep_ms
 						 );
 			{
 				long l_ms = ostat_sampler.getArrivalMinMs ();
@@ -90,7 +102,3 @@ public class SamplerTester extends TestCase {
 	}
 														
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

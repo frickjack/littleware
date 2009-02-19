@@ -49,7 +49,7 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             ) {
         super( PackageTestSuite.class.getName() );
         // disable server tests
-        final boolean b_run = false;
+        final boolean b_run = true;
 
         // hacky global singleton to marry OSGi bootstrap with junit TestRunner bootstrap
         if ( null != osingleton ) {

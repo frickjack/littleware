@@ -53,7 +53,9 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
 
     public <T extends Asset> T getByName(String s_name, AssetType<T> n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         T result = oserver.getByName( s_name, n_type );
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
+        if ( null != result ) {
+            fireServiceEvent( new AssetLoadEvent( this, result ) );
+        }
         return result;
     }
 
@@ -115,7 +117,7 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     }
 
     public Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Set<Asset> vResult = getAssets( v_id );
+        Set<Asset> vResult = oserver.getAssets( v_id );
         for( Asset result : vResult ) {
             fireServiceEvent( new AssetLoadEvent( this, result ) );
         }

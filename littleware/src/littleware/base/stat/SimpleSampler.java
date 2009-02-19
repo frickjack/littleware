@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.base.stat;
 
 import java.util.Date;
@@ -9,6 +19,7 @@ import java.util.Date;
  * Assumes we're taking samples of an independent random variable.
  */
 public class SimpleSampler implements Sampler, java.io.Serializable {
+    private static final long serialVersionUID = 7088383371790722679L;
 	private Date   ot_start       =null;
 	private Date   ot_last_sample = null;
 	private float  of_last_sample = 0.0F;
@@ -165,7 +176,3 @@ public class SimpleSampler implements Sampler, java.io.Serializable {
 	public long getArrivalMinMs () { return ol_arrival_min_ms; }
 
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

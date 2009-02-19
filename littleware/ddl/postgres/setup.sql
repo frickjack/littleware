@@ -41,7 +41,7 @@ SELECT  littleware.saveAsset ( 'littleware.test_asset', littleware.getTypeId( 'l
        '00000000000000000000000000000000', NULL, 0
        );
 
-SELECT littleware.deleteAsset ( '09D46DAC73C24F00A1A1644523FF1382', 'cleanup test' );	   
+SELECT littleware.deleteAsset ( '09D46DAC73C24F00A1A1644523FF1382', 'cleanup test', 0 );
 
 
 SELECT  littleware.saveAsset ( 'littleware.administrator', littleware.getTypeId( 'littleware.user' ), 
@@ -340,9 +340,13 @@ UPDATE littleware.asset SET t_start=now (), t_end=now() + interval '1 days'
 	  
 	   	   
 -- password setup
+-- admin
 SELECT littleware.savePassword ( '00000000000000000000000000000000', 'XXXXXXXXXXXXXX' );
+-- test_user
 SELECT littleware.savePassword ( '7AC5D21049254265B224B7512EFCF0D1', 'test123' );
+-- guest
 SELECT littleware.savePassword ( 'F5F4AFD9F84D4CFFBFDEA81F39F06701', 'XXXXXXXXXXXXX' );
+-- web.admin
 SELECT littleware.savePassword ( 'C58716683A9E4AC0A1CE13E4FB1060C2', 'XXXXXXXXXXXXX' );
 
 -- Clear sync-cache

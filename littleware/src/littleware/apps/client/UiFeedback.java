@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -12,7 +10,6 @@
 
 package littleware.apps.client;
 
-import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
 
 

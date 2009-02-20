@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -152,7 +150,4 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
              AssetType<? extends Asset> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

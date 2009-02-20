@@ -11,9 +11,7 @@
 package littleware.asset.client;
 
 import java.util.*;
-import javax.swing.SwingUtilities;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 
 /**

@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -19,6 +17,7 @@ import littleware.apps.client.UiFeedback;
  * Fired to LittleListeners on UiFeedback.publish
  */
 public class UiPublishEvent extends LittleEvent {
+    private static final long serialVersionUID = -4235650543612558331L;
 
     public UiPublishEvent( UiFeedback source, Object x_result ) {
         super( source, "UiPublishEvent", x_result );

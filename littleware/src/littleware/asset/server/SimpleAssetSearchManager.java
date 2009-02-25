@@ -234,7 +234,6 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         GeneralSecurityException, RemoteException
     {
         Set<UUID> v_result = null;
-        Asset     a_to = getAsset ( u_to );
 
 		try {
 			return om_cache.getAssetIdsTo ( u_to, n_type );
@@ -244,7 +243,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 		
 		// cache miss
 		try {
-			DbReader<Set<UUID>,String> sql_reader = om_db.makeDbAssetIdsToLoader ( a_to.getObjectId (), n_type );
+			DbReader<Set<UUID>,String> sql_reader = om_db.makeDbAssetIdsToLoader ( u_to, n_type );
 			v_result = sql_reader.loadObject ( null );
 		} catch ( SQLException e ) {
 			throw new DataAccessException ( "Caught unexpected: " + e );

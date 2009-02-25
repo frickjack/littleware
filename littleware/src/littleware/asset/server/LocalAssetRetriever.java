@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -260,7 +258,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_source, n_type);
             v_result = sql_reader.loadObject(null);
         } catch (SQLException e) {
-            throw new DataAccessException("Caught unexpected: " + e);
+            throw new DataAccessException("Caught unexpected: " + e, e);
         }
 
         om_cache.setAssetIdsFrom(u_source, n_type, v_result);
@@ -272,6 +270,4 @@ public class LocalAssetRetriever implements AssetRetriever {
     }
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

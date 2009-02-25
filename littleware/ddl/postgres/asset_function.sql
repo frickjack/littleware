@@ -571,10 +571,11 @@ CREATE OR REPLACE FUNCTION littleware.getChildIdDictionary ( VARCHAR, VARCHAR, I
        i_param_src         ALIAS FOR $3;
        rec_info            littleware.name2id;
 	BEGIN
-	    PERFORM s_id FROM littleware.asset WHERE s_id=s_param_id_parent;
-		IF NOT FOUND THEN
-			RAISE EXCEPTION 'littleware(noparent): parent does not exist: %', s_param_id_parent;
-		END IF;
+        -- Don't freak out if the parent is deleted ...
+	    -- PERFORM s_id FROM littleware.asset WHERE s_id=s_param_id_parent;
+		-- IF NOT FOUND THEN
+		--	RAISE EXCEPTION 'littleware(noparent): parent does not exist: %', s_param_id_parent;
+		-- END IF;
 
         IF s_param_pk_type IS NOT NULL THEN
 		    FOR rec_info IN SELECT s_name, s_id 

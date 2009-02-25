@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.test;
 
 import java.util.*;
@@ -11,6 +21,7 @@ import junit.framework.*;
 import littleware.asset.AssetSearchManager;
 import littleware.base.*;
 import littleware.security.*;
+import littleware.test.ServerTestLauncher;
 
 /**
  * Test case for given ACL instance.
@@ -183,7 +194,7 @@ public class AclTester extends TestCase {
 			
             Owner owner_acl = oacl_test.getOwner ( om_search );
 			assertTrue ( "administrator is owner of test Acl", owner_acl.isOwner ( p_admin ) );
-			Principal p_bogus = (Principal) om_search.getByName ( LoginTester.OS_TEST_USER, SecurityAssetType.USER );
+			Principal p_bogus = (Principal) om_search.getByName ( ServerTestLauncher.OS_TEST_USER, SecurityAssetType.USER );
 			
             owner_acl.addOwner ( p_admin, p_bogus );
             assertTrue ( "ownership detected on test acl", owner_acl.isOwner ( p_bogus ) );
@@ -196,6 +207,4 @@ public class AclTester extends TestCase {
 	
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

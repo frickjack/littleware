@@ -86,7 +86,7 @@ public class SamplerTester extends TestCase {
 				long l_ms = ostat_sampler.getArrivalMinMs ();
 				
 				assertTrue ( "Tracked arrival min ms: " + l_ms, 
-							 (l_ms < ostat_sampler.getArrivalMaxMs ())
+							 (l_ms <= ostat_sampler.getArrivalMaxMs ())
 							 && (l_ms > 0)
 							 );
 			}

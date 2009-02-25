@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -22,7 +20,7 @@ import littleware.base.ParseException;
  * Source of AssetPath objects.
  */
 public abstract class AssetPathFactory {
-    private static Logger olog_generic = Logger.getLogger ( "littleware.asset.AssetPathFactory" );
+    private static final Logger olog_generic = Logger.getLogger ( AssetPathFactory.class.getName() );
     /**
      * Prefix for different types of AssetPath
      */

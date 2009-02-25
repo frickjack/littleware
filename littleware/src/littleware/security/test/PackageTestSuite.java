@@ -71,29 +71,29 @@ public class PackageTestSuite extends TestSuite {
 
         /*... deprecated tests ...
 		if ( b_run ) {
-			this.addTest ( new LoginTester ( "testLogin", LoginTester.OS_TEST_USER,
-												   LoginTester.OS_TEST_USER_PASSWORD, om_session
+			this.addTest ( new LoginTester ( "testLogin", ServerTestLauncher.OS_TEST_USER,
+												   ServerTestLauncher.OS_TEST_USER_PASSWORD, om_session
 												   ) 
 								 );
-            this.addTest ( new LoginTester ( "testClientModuleLogin", LoginTester.OS_TEST_USER,
-												   LoginTester.OS_TEST_USER_PASSWORD, om_session
+            this.addTest ( new LoginTester ( "testClientModuleLogin", ServerTestLauncher.OS_TEST_USER,
+												   ServerTestLauncher.OS_TEST_USER_PASSWORD, om_session
 												   ) 
 								 );            
 		}
 		if ( b_run ) {
 			this.addTest ( new LoginTester ( "testSessionSetup",
-												   LoginTester.OS_TEST_USER, 
-												   LoginTester.OS_TEST_USER_PASSWORD, 
-												   //LoginTester.OS_TEST_USER, 
-												   //LoginTester.OS_TEST_USER_PASSWORD,
+												   ServerTestLauncher.OS_TEST_USER, 
+												   ServerTestLauncher.OS_TEST_USER_PASSWORD, 
+												   //ServerTestLauncher.OS_TEST_USER, 
+												   //ServerTestLauncher.OS_TEST_USER_PASSWORD,
 												   om_session
 												   ) 
 								 );
 		}
 		if ( b_run ) {
 			this.addTest ( new LoginTester ( "testSessionUtil",
-												   LoginTester.OS_TEST_USER, 
-												   LoginTester.OS_TEST_USER_PASSWORD, 
+												   ServerTestLauncher.OS_TEST_USER, 
+												   ServerTestLauncher.OS_TEST_USER_PASSWORD, 
 												   om_session
 												   )
 								 );

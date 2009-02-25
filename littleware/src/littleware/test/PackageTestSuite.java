@@ -17,27 +17,21 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import java.io.IOException;
 import java.util.logging.*;
-import java.security.*;
-import javax.security.auth.*;
-import javax.security.auth.login.*;
 import javax.swing.SwingUtilities;
 import junit.framework.*;
+import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.PropertiesGuice;
-import littleware.base.swing.JPasswordDialog;
-import littleware.security.auth.*;
 import littleware.security.auth.server.ServerBootstrap;
-import littleware.security.test.LoginTester;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
  * Test suite constructor that pulls together tests from
  * every littleware.*.test package.
  */
-public class PackageTestSuite extends TestSuite implements BundleActivator {
+public class PackageTestSuite extends ServerTestLauncher {
     private static final Logger olog = Logger.getLogger( PackageTestSuite.class.getName() );
-    private static PackageTestSuite  osingleton = null;
+
 
     @Inject
     public PackageTestSuite(
@@ -45,17 +39,13 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             littleware.db.test.PackageTestSuite suite_db,
             littleware.asset.test.PackageTestSuite suite_asset,
             littleware.security.test.PackageTestSuite suite_security,
-            littleware.security.auth.server.SimpleDbLoginConfiguration config
+            littleware.security.auth.server.SimpleDbLoginConfiguration config,
+            AssetSearchManager search
             ) {
-        super( PackageTestSuite.class.getName() );
+        super( PackageTestSuite.class.getName(), search );
         // disable server tests
         final boolean b_run = true;
 
-        // hacky global singleton to marry OSGi bootstrap with junit TestRunner bootstrap
-        if ( null != osingleton ) {
-            throw new IllegalStateException( "Singleton already allocated" );
-        }
-        osingleton = this;
         
         olog.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
@@ -86,11 +76,12 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
         olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 
+    /**
+     * Just call through to ServerTestLauncher.suite() - should only
+     * invoke when this is the master SeverTestLauncher TestSuite.
+     */
     public static Test suite () {
-        if ( null == osingleton ) {
-            throw new IllegalStateException( "Singleton not initialized via OSGi startup" );
-        }
-        return osingleton;
+        return ServerTestLauncher.suite();
     }
 
     /**
@@ -135,54 +126,16 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
 
     }
 
-    /** Private handler - runs on Swing dispatch thread */
-    private void createAndShowGUI() {
-        try {
-            //olog.setLevel(Level.ALL); // log everything during testing
-            olog.log(Level.INFO, "Setting up tests");
-            olog.log ( Level.INFO, "Working directory: " +
-                    new java.io.File( "." ).getAbsolutePath()
-                    );
-
-            // Must authenticate to run test case
-            JPasswordDialog w_password = new JPasswordDialog( LoginTester.OS_TEST_USER, LoginTester.OS_TEST_USER_PASSWORD );
-
-
-            if (!w_password.showDialog()) {
-                olog.log(Level.INFO, "User selected cancel");
-                return;
-            }
-
-            LoginContext login_context = new LoginContext("littleware.security.simplelogin", new SimpleNamePasswordCallbackHandler(w_password.getUserName(), w_password.getPassword()));
-            login_context.login();
-
-            Subject subject_user = login_context.getSubject();
-
-            PrivilegedAction<Object> act_run = new PrivilegedAction<Object>() {
-
-                private String[] ov_launch_args = {"-noloading", "littleware.test.PackageTestSuite"};
-
-                public Object run() {
-                    junit.swingui.TestRunner.main(ov_launch_args);
-                    //junit.textui.TestRunner.main( v_launch_args );
-                    return null;
-                }
-            };
-            Subject.doAs(subject_user, act_run);
-        } catch (Exception e) {
-            olog.log(Level.WARNING, "Caught unexpected: " + e + ", " + littleware.base.BaseException.getStackTrace(e));
-        }
-    }
-
+    /**
+     * Override default implementation to add client test suite
+     *
+     * @param ctx
+     * @throws java.lang.Exception
+     */
+    @Override
     public void start(BundleContext ctx) throws Exception {
         addClientTests();
-        SwingUtilities.invokeLater( new Runnable() {
-            public void run () {
-                createAndShowGUI();
-            }
-        });
+        super.start( ctx );
     }
 
-    public void stop(BundleContext ctx) throws Exception {
-    }
 }

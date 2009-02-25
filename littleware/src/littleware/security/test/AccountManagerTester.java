@@ -23,6 +23,7 @@ import littleware.asset.AssetManager;
 import littleware.security.*;
 import littleware.security.auth.*;
 import littleware.base.BaseException;
+import littleware.test.ServerTestLauncher;
 
 
 /**
@@ -116,16 +117,16 @@ public class AccountManagerTester extends TestCase {
 	public void testPasswordUpdate () {
 		try {
 			LittleUser p_user  = om_account.getAuthenticatedUser ();
-			assertTrue ( "Test running as " + LoginTester.OS_TEST_USER, 
-						 LoginTester.OS_TEST_USER.equals ( LoginTester.OS_TEST_USER ) 
+			assertTrue ( "Test running as " + ServerTestLauncher.OS_TEST_USER, 
+						 ServerTestLauncher.OS_TEST_USER.equals ( ServerTestLauncher.OS_TEST_USER ) 
 						 );
-			olog_generic.log ( Level.INFO, "Changing password for " + LoginTester.OS_TEST_USER );
+			olog_generic.log ( Level.INFO, "Changing password for " + ServerTestLauncher.OS_TEST_USER );
 			
 			try {
 				String s_password = "whatever";
 				om_account.updateUser ( p_user, s_password, "change password" );
-				Principal p_login = LoginTester.runLoginTest ( LoginTester.OS_TEST_USER, s_password, this );
-				assertTrue ( "Login ok", p_login.getName ().equals ( LoginTester.OS_TEST_USER ) );
+				Principal p_login = LoginTester.runLoginTest ( ServerTestLauncher.OS_TEST_USER, s_password, this );
+				assertTrue ( "Login ok", p_login.getName ().equals ( ServerTestLauncher.OS_TEST_USER ) );
 				try {
 					LoginContext x_login = new LoginContext ( "littleware.security.simplelogin",
 															  new SimpleNamePasswordCallbackHandler ( p_user.getName (), "bogus" )
@@ -136,10 +137,10 @@ public class AccountManagerTester extends TestCase {
 					olog_generic.log ( Level.INFO, "Password check ok" );
 				}
 			} finally {
-				om_account.updateUser ( p_user, LoginTester.OS_TEST_USER_PASSWORD, "restore password" );
+				om_account.updateUser ( p_user, ServerTestLauncher.OS_TEST_USER_PASSWORD, "restore password" );
 			}
-			Principal x_user  = om_account.getPrincipal ( LoginTester.OS_TEST_USER );
-			Principal x_tmp   = om_account.getPrincipal ( "group." + LoginTester.OS_TEST_USER );
+			Principal x_user  = om_account.getPrincipal ( ServerTestLauncher.OS_TEST_USER );
+			Principal x_tmp   = om_account.getPrincipal ( "group." + ServerTestLauncher.OS_TEST_USER );
 
 		} catch ( Exception e ) {
 			olog_generic.log ( Level.WARNING, "Caught unexpected: " + e +
@@ -188,13 +189,13 @@ public class AccountManagerTester extends TestCase {
 	 */
 	public void testGroupUpdate () {
 		try {
-			LittleGroup  p_test = (LittleGroup) om_account.getPrincipal ( LoginTester.OS_TEST_GROUP );
+			LittleGroup  p_test = (LittleGroup) om_account.getPrincipal ( ServerTestLauncher.OS_TEST_GROUP );
 			LittleUser   p_caller = om_account.getAuthenticatedUser ();
 			
 			if ( p_test.removeMember ( p_caller ) ) {
 				p_test = (LittleGroup) om_asset.saveAsset ( p_test, "Removed tester " + p_caller.getName () );
 			}
-			p_test = (LittleGroup) om_account.getPrincipal ( LoginTester.OS_TEST_GROUP );
+			p_test = (LittleGroup) om_account.getPrincipal ( ServerTestLauncher.OS_TEST_GROUP );
 			assertTrue ( "Already removed caller as primary member of group",
 						 ! p_test.removeMember ( p_caller )
 						 );
@@ -203,13 +204,13 @@ public class AccountManagerTester extends TestCase {
 						 );
 			p_test = (LittleGroup) om_asset.saveAsset ( p_test, "Added tester " + p_caller.getName () );
 			
-			p_test = (LittleGroup) om_account.getPrincipal ( LoginTester.OS_TEST_GROUP );
+			p_test = (LittleGroup) om_account.getPrincipal ( ServerTestLauncher.OS_TEST_GROUP );
 			assertTrue ( "Able to remove caller " + p_caller.getName () + " from test group",
 						 p_test.removeMember ( p_caller )
 						 );
 			p_test = (LittleGroup) om_asset.saveAsset ( p_test, "Removed tester " + p_caller.getName () );
 			
-			p_test = (LittleGroup) om_account.getPrincipal ( LoginTester.OS_TEST_GROUP );
+			p_test = (LittleGroup) om_account.getPrincipal ( ServerTestLauncher.OS_TEST_GROUP );
 			assertTrue ( "Already removed caller as primary member of group 2nd time",
 						 ! p_test.removeMember ( p_caller )
 						 );

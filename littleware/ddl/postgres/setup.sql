@@ -275,7 +275,8 @@ SELECT  littleware.saveAsset ( 'littleware.service_home', littleware.getTypeId( 
        '00000000000000000000000000000000', NULL, 0
        );
 
-SELECT  littleware.saveAsset ( 'littleware.asset_manager_service', littleware.getTypeId( 'littleware.service' ), 
+SELECT  littleware.saveAsset ( 'littleware.asset_manager_service',
+        littleware.getTypeId( 'littleware.service' ),
         'EDACB6E64AD54169AC72A2490D06E6B6', NULL,
        '00000000000000000000000000000000',
         'F4CEDAA07B574FFFA27E0BA87078DC34',

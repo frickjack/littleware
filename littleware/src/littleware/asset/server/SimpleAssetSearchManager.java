@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -30,7 +28,7 @@ import littleware.db.*;
  * Simple implementation of Asset-search interface.  
  */
 public class SimpleAssetSearchManager extends LocalAssetRetriever implements AssetSearchManager {
-	private static final Logger      olog_generic = Logger.getLogger ( LocalAssetRetriever.class.getName() );
+	private static final Logger      olog_generic = Logger.getLogger ( SimpleAssetSearchManager.class.getName() );
     
 	private final DbAssetManager     om_db;
 	private final CacheManager       om_cache;

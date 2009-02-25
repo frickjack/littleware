@@ -1,12 +1,19 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset;
 
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 
-import littleware.asset.AssetException;
-import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
-import littleware.base.ParseException;
 
 
 /**
@@ -116,6 +123,3 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
     public AssetPath clone ();
     
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com

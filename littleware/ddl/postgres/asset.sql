@@ -9,12 +9,6 @@
 --
 
 --
--- Register the plpgsql procedural language with this database
--- Not necessary if create_database.sql runs ok.
---
--- CREATE LANGUAGE plpgsql;
-
---
 -- Create a postgres group of users with general access
 -- to the littleware schema.
 -- Not necessary if create_database.sql runs ok.

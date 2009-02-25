@@ -38,12 +38,9 @@ import littleware.base.BaseException;
 public class LoginTester extends TestCase {
 
     private static final Logger olog_generic = Logger.getLogger( LoginTester.class.getName() );
-    public static final String OS_TEST_USER = "littleware.test_user";
-    public static final String OS_TEST_USER_PASSWORD = "test123";
-    public static final String OS_TEST_GROUP = "group.littleware.test_user";
-    private String os_test_user;
-    private String os_test_user_password;
-    private SessionManager om_session = null;
+    private final String os_test_user;
+    private final String os_test_user_password;
+    private final SessionManager om_session;
 
     /**
      * Constructor registers the test_user login to test against.

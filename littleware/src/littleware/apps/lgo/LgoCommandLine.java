@@ -20,7 +20,7 @@ import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.UiFeedback;
 import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.LittleBootstrap;
-import littleware.security.auth.server.ServerBootstrap;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkEvent;
@@ -161,11 +161,13 @@ public class LgoCommandLine implements BundleActivator, Runnable {
      */
     public static void launch(String[] vArgs, GuiceOSGiBootstrap bootClient ) {
         ovArgs = vArgs;
+        /*... just for testing in serverless environment ...
         {
             // Try to start an internal server for now just for testing
-            GuiceOSGiBootstrap bootServer = new ServerBootstrap();
+            GuiceOSGiBootstrap bootServer = new littleware.security.auth.server.ServerBootstrap();
             bootServer.bootstrap();
         }
+        ...*/
 
         bootClient.getOSGiActivator().add( LgoCommandLine.class );
         bootClient.bootstrap();

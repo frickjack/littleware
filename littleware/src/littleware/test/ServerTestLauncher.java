@@ -14,16 +14,12 @@ import java.security.PrivilegedAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
 import javax.swing.SwingUtilities;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import littleware.asset.AssetSearchManager;
-import littleware.base.swing.JPasswordDialog;
 import littleware.security.LittleUser;
 import littleware.security.SecurityAssetType;
-import littleware.security.auth.SimpleNamePasswordCallbackHandler;
-import littleware.security.test.LoginTester;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 

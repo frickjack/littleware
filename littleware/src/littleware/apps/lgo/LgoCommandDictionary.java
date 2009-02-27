@@ -40,8 +40,28 @@ public interface LgoCommandDictionary {
      * @param command to map to s_name alias
      * @return previous command binding to name, or null if not assigned before
      */
-    public LgoCommand<?,?> setCommand( String s_name, LgoCommand<?,?> command );   
-    
+    public LgoCommand<?,?> setCommand( String s_name, LgoCommand<?,?> command );
+
+    /**
+     * Associate the given provider with the given command-name and
+     * all the command aliases provided by the help info
+     *
+     * @param help info with full name and short names to associate with the command
+     * @param command to map to info aliases
+     */
+    public void setCommand( LgoHelp help, LgoCommand<?,?> command );
+
+    /**
+     * Another utility - loads the help associated with command,
+     * and call setCommand(help,command) if help is non-null,
+     * otherwise just setCommand(command.getName(),command).
+     * 
+     * @param mgrHelp to load help info with
+     * @param command to register
+     * @return loaded help - may be null
+     */
+    public LgoHelp setCommand(LgoHelpLoader mgrHelp, LgoCommand<?, ?> command);
+
     /**
      * Get the collection of all the commands registered with
      * the dictionary.

@@ -82,8 +82,14 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
     @Override
     public LgoHelp runSafe( UiFeedback feedback, String s_target ) {
         LgoCommand<?,?> command = om_command.getCommand( s_target );
-        if ( null == command ) {
-            return null;
+        if ( (null == command) ) {
+            // try again
+            if( ! getArgs().isEmpty() ) {
+                command = om_command.getCommand( getArgs().get(0) );
+            }
+            if ( null == command ) {
+                return null;
+            }
         }
         return om_help.loadHelp( command.getName (), olocale );
     }

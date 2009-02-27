@@ -20,6 +20,8 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import littleware.apps.client.UiFeedback;
 import littleware.base.AssertionFailedException;
@@ -44,10 +46,18 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
     }
 
 
+    private List<String>  ovArgs = Collections.emptyList();
 
-    /** NOOP implementation */
-    public void processArgs( List<String> v_args) throws LgoException {
+    /** Just copy args into an internal list available to subtypes via getArgs */
+    public void processArgs( List<String> vArgs) throws LgoException {
+        List<String> vCopy = new ArrayList<String>();
+        vCopy.addAll( vArgs );
+        ovArgs = Collections.unmodifiableList( vCopy );
     }
+
+    /** Return unmodifiable copy of list passed to last call to processArgs */
+    protected List<String> getArgs() { return ovArgs; }
+
 
     /**
      * Provides a brain-dead implementation that just reads

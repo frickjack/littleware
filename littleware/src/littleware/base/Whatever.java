@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.base;
 
 import java.io.IOException;
@@ -8,6 +18,11 @@ import java.io.Reader;
  * Little assertion class.
  */
 public abstract class Whatever {
+    /** (null == sIn) || sIn.equals( "" ) */
+    public static boolean empty( String sIn ) {
+        return (null == sIn) || sIn.equals( "" );
+    }
+
 	/**
 	 * Throw a runtime AssetionFaledException if b_assert evaluates false.
 	 *
@@ -84,7 +99,3 @@ public abstract class Whatever {
     
     public static final String NEWLINE = System.getProperty("line.separator");
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

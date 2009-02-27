@@ -28,6 +28,7 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.base.PropertiesGuice;
 import littleware.base.UUIDFactory;
+import littleware.base.Whatever;
 
 
 /**
@@ -84,14 +85,18 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
      * @return where the user stops browsing
      */
     @Override
-    public UUID runSafe( UiFeedback feedback, String s_start_path ) {
-        if ( null != s_start_path ) {
+    public UUID runSafe( UiFeedback feedback, String sPathIn ) {
+        String sStartPath = sPathIn;
+        if ( Whatever.empty(sStartPath) && (! getArgs().isEmpty() ) ) {
+            sStartPath = getArgs().get(0);
+        }
+        if ( null != sStartPath ) {
             try {
-                Asset a_start = osearch.getAssetAtPath( AssetPathFactory.getFactory ().createPath( s_start_path ) );
+                Asset a_start = osearch.getAssetAtPath( AssetPathFactory.getFactory ().createPath( sStartPath ) );
                 olib.syncAsset( a_start );
                 setStart( a_start.getObjectId () );
             } catch ( Exception e ) {
-                feedback.log( Level.WARNING, "Unable to load asset at path: " + s_start_path + ", caught: " + e );
+                feedback.log( Level.WARNING, "Unable to load asset at path: " + sStartPath + ", caught: " + e );
             }
         }
         if ( SwingUtilities.isEventDispatchThread() ) {

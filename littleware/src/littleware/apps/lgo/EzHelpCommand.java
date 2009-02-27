@@ -11,9 +11,13 @@
 package littleware.apps.lgo;
 
 import com.google.inject.Inject;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import java.util.Set;
 import littleware.apps.client.UiFeedback;
 import littleware.base.Whatever;
 import littleware.base.XmlResourceBundle;
@@ -79,19 +83,63 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
         olocale = locale;
     }
 
+
     @Override
-    public LgoHelp runSafe( UiFeedback feedback, String s_target ) {
-        LgoCommand<?,?> command = om_command.getCommand( s_target );
-        if ( (null == command) ) {
-            // try again
-            if( ! getArgs().isEmpty() ) {
-                command = om_command.getCommand( getArgs().get(0) );
-            }
-            if ( null == command ) {
-                return null;
-            }
+    public LgoHelp runSafe( UiFeedback feedback, String sTargetIn ) {
+        String sTarget = sTargetIn;
+        if ( ((null == sTarget) || (sTarget.length() == 0))
+                && (getArgs().size() > 0)
+                )
+        {
+            sTarget = getArgs().get( getArgs().size() - 1 );
         }
-        return om_help.loadHelp( command.getName (), olocale );
+        LgoCommand<?,?> command = om_command.getCommand( sTarget );
+        if ( null == command ) {
+            StringBuilder sbCommands = new StringBuilder();
+            sbCommands.append( "No command: " ).append( sTarget ).append(", available commands:" ).
+                    append( Whatever.NEWLINE );
+            final Set<String> vAlready = new HashSet<String>();
+            for ( LgoCommand comIndex : om_command.getCommands() ) {
+                if ( vAlready.contains( comIndex.getName() ) ) {
+                    continue;
+                }
+                vAlready.add( comIndex.getName() );
+                sbCommands.append( "    " ).append( comIndex.getName() );
+                LgoHelp  help = om_help.loadHelp( comIndex.getName() );
+                if ( null != help ) {
+                    sbCommands.append( " [");
+                    boolean bFirst = true;
+                    for ( String sAlias : help.getShortNames() ) {
+                        if ( ! bFirst ) {
+                            sbCommands.append( ", " );
+                        } else {
+                            bFirst = false;
+                        }
+                        sbCommands.append(sAlias);
+                    }
+                    sbCommands.append( "] " ).append( help.getSynopsis() );
+                }
+                sbCommands.append( Whatever.NEWLINE );
+            }
+            final List<String> vNoAlias = Collections.emptyList();
+            final List<LgoExample> vNoExample = Collections.emptyList();
+            LgoHelp help = new EzLgoHelp( "command.not.found",
+                    vNoAlias,
+                    sbCommands.toString(),
+                    "",
+                    vNoExample
+                    );
+            return help;
+        } else {
+            LgoHelp help = om_help.loadHelp( command.getName (), olocale );
+            if ( null != help ) {
+                return help;
+            }
+            final List<String> vNoAlias = Collections.emptyList();
+            final List<LgoExample> vNoExample = Collections.emptyList();
+
+            return new EzLgoHelp( command.getName(), vNoAlias, "no help available for command", "", vNoExample );
+        }
     }
 
     /**
@@ -141,20 +189,32 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
             return sb_help.toString ();                
 
         } else {
+            // No help found - give the user a command-list
             String s_nohelp = MyResource.MissingHelp.getValue( bundle_help );
             StringBuilder  sb_help = new StringBuilder( 1000 );
             sb_help.append( s_nohelp ).append( Whatever.NEWLINE );
             sb_help.append( MyResource.CommandListIntro.getValue( bundle_help ) )
                     .append( Whatever.NEWLINE ).append( Whatever.NEWLINE );
 
+            final Set<String>  vAlready = new HashSet<String> ();  // avoid duplicate entries (same command, different alias)
             for( LgoCommand command : om_command.getCommands () ) {
+                if ( vAlready.contains( command.getName() ) ) {
+                    continue;
+                }
+                vAlready.add( command.getName() );
                 help = om_help.loadHelp( command.getName (), locale );
 
                 sb_help.append( command.getName () );
                 if ( null != help ) {
                     sb_help.append( "( " );
+                    boolean bFirst = true;
                     for( String s_alias: help.getShortNames() ) {
-                        sb_help.append( s_alias ).append( ", " );
+                        if ( ! bFirst ) {
+                            sb_help.append( ", " );
+                        } else {
+                            bFirst = false;
+                        }
+                        sb_help.append( s_alias );
                     }
                     sb_help.append( ") " ).append( ":" )
                             .append( help.getShortNames() );

@@ -23,6 +23,8 @@ import littleware.security.auth.LittleBootstrap;
 import littleware.security.auth.server.ServerBootstrap;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
 
 /**
  * Command-line based lgo launcher.
@@ -65,10 +67,23 @@ public class LgoCommandLine implements BundleActivator, Runnable {
 
     }
 
+    private boolean obRunning = false;
 
-    /** Launch worker thread */
-    public void start(BundleContext ctx) throws Exception {
-        new Thread( this ).start();
+    /** Launch worker thread once OSGi has started */
+    public void start( final BundleContext ctx) throws Exception {
+        if ( ! obRunning ) {
+            ctx.addFrameworkListener( new FrameworkListener() {
+                public void frameworkEvent(FrameworkEvent evt) {
+                    if ( (evt.getType() == FrameworkEvent.STARTED)
+                         && (! obRunning)
+                            ) {
+                        new Thread( LgoCommandLine.this ).start();
+                        obRunning = true;
+                        ctx.removeFrameworkListener(this);
+                    }
+                }
+            } );
+        }
     }
 
     public void run() {
@@ -90,12 +105,13 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             UiFeedback feedback = new LoggerUiFeedback();
 
             if (vArgs.length == 0) { // launch help command by default
-                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, "help").toString());
+                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, "").toString());
                 return;
             }
-            LgoCommand<?, ?> command = omgrCommand.getCommand(vArgs[0]); // injector.getInstance( LgoBrowserCommand.class ); //m_command.getCommand( LgoBrowserCommand.class.getName () );
+            final String     sCommand = vArgs[0];
+            LgoCommand<?, ?> command = omgrCommand.getCommand(sCommand);
             if (null == command) {
-                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, "help").toString());
+                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, "").toString());
                 return;
             }
             List<String> v_process = new ArrayList<String>();
@@ -114,8 +130,13 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                 v_process.add(s_arg);
             }
             command.processArgs(v_process);
-            Object result = command.runCommand(feedback, sb_in.toString().trim());
-            System.out.println( (null == result) ? "null" : result.toString() );
+            try {
+                Object result = command.runCommand(feedback, sb_in.toString().trim());
+                System.out.println( (null == result) ? "null" : result.toString() );
+            } catch ( LgoException ex ) {
+                System.out.println( "Command failed, caught exception: " + ex );
+                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, command.getName()).toString());
+            }
         } catch (Exception e) {
             olog.log(Level.SEVERE, "Failed command, caught: " + e, e);
         } finally {

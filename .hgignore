@@ -16,6 +16,4 @@ CVS
 ^webapp/littleware/Littleware
 ^webapp/littleware/Hosting
 \.pyc$
-\.gif$
-\.jar$
 ~$

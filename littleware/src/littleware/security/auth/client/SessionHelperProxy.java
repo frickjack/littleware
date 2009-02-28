@@ -9,6 +9,8 @@
  */
 package littleware.security.auth.client;
 
+import java.io.IOException;
+import java.io.ObjectStreamException;
 import littleware.security.auth.*;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -49,8 +51,10 @@ public class SessionHelperProxy implements SessionHelperService {
     private SessionHelper om_real = null;
     private SessionManager om_session = null;
     private UUID ou_session = null;
-    private transient RemoteExceptionHandler ohandler_remote =
-            new RemoteExceptionHandler() {
+    private transient RemoteExceptionHandler ohandler_remote;
+            
+    private void initTransient() {
+        ohandler_remote = new RemoteExceptionHandler() {
 
                 @Override
                 public void handle(RemoteException e_remote) throws RemoteException {
@@ -63,6 +67,31 @@ public class SessionHelperProxy implements SessionHelperService {
                     }
                 }
             };
+        ovListener = new ArrayList<ServiceListener>();
+    }
+
+    /**
+     * Serialization support
+     *
+     * @param in
+     * @throws java.io.IOException
+     * @throws java.lang.ClassNotFoundException
+     */
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        initTransient();
+        in.defaultReadObject();
+    }
+
+    /**
+     * Serialization support
+     *
+     * @param in
+     * @throws java.io.IOException
+     * @throws java.lang.ClassNotFoundException
+     */
+    private void readObjectNoData() throws ObjectStreamException {
+        initTransient();
+    }
 
     /**
      * Constructor stashes reference to SessionManagerProxy to
@@ -78,6 +107,7 @@ public class SessionHelperProxy implements SessionHelperService {
         om_real = m_real;
         om_session = m_session;
         ou_session = u_session;
+        initTransient();
     }
 
     public LittleSession getSession() throws BaseException, AssetException,

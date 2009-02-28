@@ -161,7 +161,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
      */
     public static void launch(String[] vArgs, GuiceOSGiBootstrap bootClient ) {
         ovArgs = vArgs;
-        /*... just for testing in serverless environment ...
+        /*... just for testing in serverless environment ... 
         {
             // Try to start an internal server for now just for testing
             GuiceOSGiBootstrap bootServer = new littleware.security.auth.server.ServerBootstrap();

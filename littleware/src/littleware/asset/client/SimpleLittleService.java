@@ -10,6 +10,8 @@
 
 package littleware.asset.client;
 
+import java.io.IOException;
+import java.io.ObjectStreamException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -28,6 +30,29 @@ public class SimpleLittleService implements LittleService {
     // Don't use final when object needs to be serializable
     private LittleService oxSource = this;
 
+
+    /**
+     * Serialization support
+     *
+     * @param in
+     * @throws java.io.IOException
+     * @throws java.lang.ClassNotFoundException
+     */
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        ovListener = new ArrayList<ServiceListener>();
+        in.defaultReadObject();
+    }
+
+    /**
+     * Serialization support
+     *
+     * @param in
+     * @throws java.io.IOException
+     * @throws java.lang.ClassNotFoundException
+     */
+    private void readObjectNoData() throws ObjectStreamException {
+        ovListener = new ArrayList<ServiceListener>();
+    }
 
     /**
      * Constructor stashes the source-object that the various fire* methods

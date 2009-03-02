@@ -120,6 +120,9 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         // Do a little LoginContext sim - need to clean this up
         // Who am I running as now ?  What the frick ?
         final LittleUser user = om_search.getByName(s_name, SecurityAssetType.USER);
+        if ( null == user ) {
+            throw new NoSuchThingException();
+        }
         final Subject j_caller = new Subject ();
         j_caller.getPrincipals().add( user );
         /*... disable for now ...

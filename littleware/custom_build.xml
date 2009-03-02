@@ -25,7 +25,7 @@
 	 <pathelement location="${jardir}/commons-logging.jar" />
 	 <pathelement location="${jardir}/derby-10.4.2.1.jar" />
 	 <pathelement location="${jardir}/guice-1.0.jar" />
-	 <pathelement location="${jardir}/javaee-1.4.jar" />
+	 <pathelement location="${jardir}/javaee5.jar" />
 	 <pathelement location="${jardir}/js.jar" />
 	 <pathelement location="${jardir}/jython.jar" />
 	 <pathelement location="${jardir}/junit-3.8.2.jar" />

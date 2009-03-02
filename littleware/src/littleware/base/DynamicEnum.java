@@ -96,7 +96,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
             x_data = (SubtypeData<T>) mv_subtypes.get ( c_class.getName () );
 
             if (null == x_data) {
-                olog_generic.log(Level.INFO, "Registering new new DynamicEnum type: " + c_class.getName());
+                olog_generic.log(Level.FINE, "Registering new new DynamicEnum type: " + c_class.getName());
                 x_data = new SubtypeData<T>();
                 mv_subtypes.put(c_class.getName(), x_data);
             }

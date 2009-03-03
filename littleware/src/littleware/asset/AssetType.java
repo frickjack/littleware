@@ -225,7 +225,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         a_new.setName(s_name);
         a_new.setFromId(a_parent.getObjectId());
         a_new.setHomeId(a_parent.getHomeId());
-        a_new.setAclId(a_parent.getHomeId());
+        a_new.setAclId(a_parent.getAclId());
         return a_new;
     }
 }

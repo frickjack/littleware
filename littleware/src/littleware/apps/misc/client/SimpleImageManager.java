@@ -66,7 +66,7 @@ public class SimpleImageManager implements ImageManager {
 
     public <T extends Asset> T saveImage(T a_save, BufferedImage img, String s_update_comment ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        ImageIO.write(img, s_update_comment, stream);
+        ImageIO.write(img, "jpg", stream);
         stream.close();
         T a_result = omgrBucket.writeToBucket(a_save, osReservedPath, stream.toByteArray(), s_update_comment);
         ocache.put( a_save.getObjectId(), new Maybe<BufferedImage>( img ) );

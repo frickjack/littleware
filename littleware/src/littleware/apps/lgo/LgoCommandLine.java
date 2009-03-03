@@ -18,6 +18,7 @@ import java.util.List;
 import littleware.apps.client.ClientBootstrap;
 import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.UiFeedback;
+import littleware.base.BaseException;
 import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.LittleBootstrap;
 
@@ -134,7 +135,9 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                 Object result = command.runCommand(feedback, sb_in.toString().trim());
                 System.out.println( (null == result) ? "null" : result.toString() );
             } catch ( LgoException ex ) {
-                System.out.println( "Command failed, caught exception: " + ex );
+                System.out.println( "Command failed, caught exception: " + ex + ", " +
+                        BaseException.getStackTrace( ex )
+                        );
                 System.out.print(omgrCommand.getCommand("help").runCommand(feedback, command.getName()).toString());
             }
         } catch (Exception e) {

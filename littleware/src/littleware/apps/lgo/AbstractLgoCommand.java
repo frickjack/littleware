@@ -22,7 +22,9 @@ import java.nio.charset.Charset;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import littleware.apps.client.UiFeedback;
 import littleware.base.AssertionFailedException;
 
@@ -41,6 +43,7 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
     }
             
     private final String os_name;
+    @Override
     public String getName() {
         return os_name;
     }
@@ -49,6 +52,7 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
     private List<String>  ovArgs = Collections.emptyList();
 
     /** Just copy args into an internal list available to subtypes via getArgs */
+    @Override
     public void processArgs( List<String> vArgs) throws LgoException {
         List<String> vCopy = new ArrayList<String>();
         vCopy.addAll( vArgs );
@@ -57,6 +61,50 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
 
     /** Return unmodifiable copy of list passed to last call to processArgs */
     protected List<String> getArgs() { return ovArgs; }
+
+
+    /**
+     * Bonehead argument parser expects args in form
+     * -*argname1 arg1value -*argname2 arg2value ...
+     * , except in case -+argname1 -+argname2 just
+     * sets argname1 to empty string in result map
+     * to allow for boolean flag detection.
+     * Caller needs to scan the result to verify presence
+     * of required arguments or whatever.
+     * Converts argnames to lowercase.
+     *
+     * @param mapDefaults read-only holds default values
+     *                    for every arg.  Copies every entry
+     *                    into the result map, then possibly
+     *                    overwrites each entry by vArgs processing
+     * @param vArgs to process
+     * @return argname.toLowerCase to argvalue map initialized by mapDefaults entries with non-null values
+     * @throws LgoException if illegal vArgs detected
+     */
+    public static Map<String, String> processArgs( Map<String,String> mapDefaults, List<String> vArgs ) throws LgoException {
+        final Map<String, String> mapResult = new HashMap<String,String>();
+
+        for ( Map.Entry<String,String> entry : mapDefaults.entrySet() ) {
+            mapResult.put( entry.getKey().toLowerCase(), entry.getValue() );
+        }
+
+        String sLastOption = null;
+        for (String sArg : vArgs) {
+            if (sArg.startsWith("-") || (sLastOption == null) ) {
+                String sClean = sArg.replaceAll("^-+", "").toLowerCase();
+                boolean bFound = false;
+                if ( ! mapResult.containsKey( sClean ) ) {
+                    throw new LgoArgException("Unable to process argument: " + sArg);
+                }
+                sLastOption = sClean;
+                mapResult.put( sClean, "" );
+            } else {
+                mapResult.put( sLastOption, sArg);
+                sLastOption = null;
+            }
+        }
+        return mapResult;
+    }
 
 
     /**

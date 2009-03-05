@@ -96,7 +96,7 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
         LgoCommand<?,?> command = om_command.getCommand( sTarget );
         if ( null == command ) {
             StringBuilder sbCommands = new StringBuilder();
-            sbCommands.append( "No command: " ).append( sTarget ).append(", available commands:" ).
+            sbCommands.append( "No help found for command: " ).append( sTarget ).append(", available commands:" ).
                     append( Whatever.NEWLINE );
             final Set<String> vAlready = new HashSet<String>();
             for ( LgoCommand comIndex : om_command.getCommands() ) {

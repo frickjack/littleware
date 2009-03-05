@@ -13,6 +13,8 @@ package littleware.apps.lgo;
 import com.google.inject.*;
 
 import java.awt.BorderLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,7 +87,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
      * @return where the user stops browsing
      */
     @Override
-    public UUID runSafe( UiFeedback feedback, String sPathIn ) {
+    public synchronized UUID runSafe( UiFeedback feedback, String sPathIn ) {
         String sStartPath = sPathIn;
         if ( Whatever.empty(sStartPath) && (! getArgs().isEmpty() ) ) {
             sStartPath = getArgs().get(0);
@@ -110,18 +112,31 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
             }
             );
         }
-        return null;
+        try {
+            wait(); // browser frame notifies us on close
+        } catch (InterruptedException ex) {
+        }
+        return ouResult;
     }
     
-    /**
-     * Little hook by which main() can tell the command
-     * to exit when closed.  May make this a public property
-     * in the future if it turns out to be a generally
-     * needed thing.
-     */
-    private boolean ob_exit_on_close = false;
+    private UUID ouResult = ou_start;
     
-    private void createGUI () {
+    /**
+     * Ste the result to the current browser view,
+     * and notify the launching thread that the browse is done.
+     */
+    private synchronized void windowClosed () {
+        if ( null != obrowser.getAssetModel() ) {
+            ouResult = obrowser.getAssetModel().getAsset().getObjectId();
+        }
+        notifyAll();
+        // cleanup in case the app wants to exit or tries to reuse this command
+        // (which it shouldn't!)
+        owframe.dispose();
+        owframe = null;
+    }
+
+    private synchronized void createGUI () {
         if ( null == owframe ) {
             ocontrol.setControlView( obrowser );
             otoolbar.setConnectedView( obrowser );
@@ -133,23 +148,39 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
             owframe.setLayout ( new BorderLayout () );
             owframe.add ( otoolbar, BorderLayout.PAGE_START );
             owframe.add ( obrowser, BorderLayout.CENTER );
-            owframe.pack (); 
-            
-            if ( null != getStart() ) {
-                try {
-                    obrowser.setAssetModel( olib.retrieveAssetModel( getStart(), osearch ) );
-                } catch ( Exception e ) {
-                    olog.log( Level.INFO, "Failed to load initial asset model " + getStart () +
-                            ", caught: " + e, e );
+            owframe.pack ();
+            //owframe.setDefaultCloseOperation( WindowConstants. );
+            owframe.addWindowListener( new WindowAdapter() {
+                @Override
+                public void windowClosing( WindowEvent ev ) {
+                    owframe.removeWindowListener(this);
+                    LgoBrowserCommand.this.windowClosed();
                 }
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    owframe.removeWindowListener(this);
+                    LgoBrowserCommand.this.windowClosed();
+                }
+            });
+        }
+            
+        if ( null != getStart() ) {
+            try {
+                obrowser.setAssetModel( olib.retrieveAssetModel( getStart(), osearch ) );
+            } catch ( Exception e ) {
+                olog.log( Level.INFO, "Failed to load initial asset model " + getStart () +
+                        ", caught: " + e, e );
             }
-            if ( ob_exit_on_close ) {
-                owframe.setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE );
-            }
-            if ( ! owframe.isVisible() ) {
-                owframe.setVisible( true );
-            }
-        }    
+        }
+        if ( ! owframe.isVisible() ) {
+            owframe.setVisible( true );
+        }
+
+    }
+
+    @Override
+    public LgoBrowserCommand clone() {
+        return (LgoBrowserCommand) super.clone();
     }
     
     /**
@@ -172,13 +203,13 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
             );
             UiFeedback        feedback = new LoggerUiFeedback();
             LgoBrowserCommand command = injector.getInstance( LgoBrowserCommand.class );
-            command.ob_exit_on_close = true;
             command.runDynamic( feedback, "/littleware.home/" );
         } catch ( final Exception ex ) {
             olog.log( Level.SEVERE, "Failed command, caught: " + ex, ex );
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
 
+                    @Override
                     public void run() {
                         JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage(), "Launch failed", JOptionPane.ERROR_MESSAGE);
                     }

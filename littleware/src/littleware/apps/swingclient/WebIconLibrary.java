@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
@@ -154,12 +164,15 @@ public class WebIconLibrary implements IconLibrary {
      *                     s_url_root/hierarchy
      * @exception MalformedURLException if s_url_root leads to illegal URL
      */
+    @Override
     public void setRoot ( String s_url_root ) throws MalformedURLException {
         os_url_root = s_url_root;        
     }
     
+    @Override
     public String getRoot() { return os_url_root; }
 
+    @Override
     public Icon  lookupIcon ( AssetType n_asset ) {
         Icon icon_result = ov_asset_icons.get ( n_asset );
         if ( icon_result != null ) {
@@ -200,7 +213,13 @@ public class WebIconLibrary implements IconLibrary {
         }
         return lookupIcon( AssetType.GENERIC );
     }
-    
+
+    @Override
+    public Icon registerIcon( AssetType n_asset, Icon icon ) {
+        return ov_asset_icons.put( n_asset, icon );
+    }
+
+    @Override
     public Icon  lookupIcon ( String s_icon ) {
         Icon icon_result = ov_named_icons.get ( s_icon );
         if ( null != icon_result ) {
@@ -237,11 +256,18 @@ public class WebIconLibrary implements IconLibrary {
         ov_named_icons.put( s_icon, icon_result );
         return icon_result;
     }
+
+    @Override
+    public Icon registerIcon( String s_name, Icon icon ) {
+        return ov_named_icons.put( s_name, icon);
+    }
     
+    @Override
     public Set<AssetType> getIconAssetTypes () {
         return Collections.unmodifiableSet( ov_asset_urls.keySet () );
     }
     
+    @Override
     public Set<String> getIconNames () {
         return Collections.unmodifiableSet ( ov_named_urls.keySet () );
     }

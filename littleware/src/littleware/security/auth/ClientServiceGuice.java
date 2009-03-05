@@ -9,7 +9,6 @@
  */
 package littleware.security.auth;
 
-import java.rmi.Remote;
 import java.util.logging.Logger;
 
 import com.google.inject.Binder;
@@ -89,10 +88,12 @@ public class ClientServiceGuice implements LittleGuiceModule {
         ohandler = handler;
     }
 
+    @Override
     public SessionHelper getSessionHelper() {
         return ohelper;
     }
 
+    @Override
     public void setSessionHelper(SessionHelper helper) {
         ohelper = helper;
     }
@@ -101,11 +102,12 @@ public class ClientServiceGuice implements LittleGuiceModule {
             final ServiceType<T> service, final SessionHelper helper) {
         Provider<T> provider = new Provider<T>() {
 
+            @Override
             public T get() {
                 try {
                     T result = helper.getService(service);
                     if (null == result) {
-                        throw new NullPointerException("Failure to allocate service: " + service);
+                        throw new AssertionFailedException("Failure to allocate service: " + service);
                     }
                     return result;
                 } catch (Exception e) {
@@ -217,6 +219,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
      * 
      * @param binder
      */
+    @Override
     public void configure(Binder binder) {
         if (null == ohelper) {
             try {
@@ -230,7 +233,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
         // Need to move over to OSGi based client-side bootstrap.  Ugh.
         ServiceType<BucketManagerService> servBucket = BucketServiceType.BUCKET_MANAGER;
 
-        for (ServiceType<? extends Remote> service : ServiceType.getMembers()) {
+        for (ServiceType<? extends LittleService> service : ServiceType.getMembers()) {
             olog.log(Level.FINE, "Binding service provider: " + service);
             bind(binder, service, ohelper);
         }

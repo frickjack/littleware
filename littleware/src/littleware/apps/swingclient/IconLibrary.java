@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import com.google.inject.ImplementedBy;
@@ -36,6 +46,14 @@ public interface IconLibrary {
      * @return the icon 
      */
     public Icon  lookupIcon ( AssetType n_asset );
+    /**
+     * Register a new icon for the given asset type
+     * 
+     * @param n_asset
+     * @param icon
+     * @return the previously registered icon or null
+     */
+    public Icon  registerIcon( AssetType n_asset, Icon icon );
     
     /**
      * Get the set of asset-types that have an icon registered
@@ -49,6 +67,12 @@ public interface IconLibrary {
      * @return the icon or null if none registered with that name
      */
     public Icon  lookupIcon ( String s_name );
+    /**
+     * Register an icon with the given name
+     *
+     * @return the previously registered icon or null
+     */
+    public Icon registerIcon( String s_name, Icon icon );
     
     /**
      * Get the set of names in the library

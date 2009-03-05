@@ -18,6 +18,7 @@ import java.util.logging.Level;
 
 import junit.framework.*;
 
+import littleware.apps.lgo.test.ArgParserTester;
 import littleware.apps.lgo.test.XmlLgoHelpTester;
 import littleware.apps.misc.test.ImageManagerTester;
 import littleware.apps.misc.test.ThumbManagerTester;
@@ -57,8 +58,8 @@ public class PackageTestSuite extends TestSuite {
         }
 
         if (b_run) {
-            TestCase test = new XmlLgoHelpTester();
-            this.addTest( test );
+            this.addTest( new XmlLgoHelpTester() );
+            this.addTest( new ArgParserTester() );
         }
 
         if (b_run) {

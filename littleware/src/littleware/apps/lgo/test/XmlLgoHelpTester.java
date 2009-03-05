@@ -19,7 +19,7 @@ import littleware.apps.lgo.LgoHelpLoader;
 import littleware.apps.lgo.XmlLgoHelpLoader;
 
 /**
- *
+ * Verify that the Xml help loader works
  */
 public class XmlLgoHelpTester extends TestCase {
     private static final Logger olog = Logger.getLogger( XmlLgoHelpTester.class.getName() );

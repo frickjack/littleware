@@ -71,9 +71,11 @@ public class LgoCommandLine implements BundleActivator, Runnable {
     private boolean obRunning = false;
 
     /** Launch worker thread once OSGi has started */
+    @Override
     public void start( final BundleContext ctx) throws Exception {
         if ( ! obRunning ) {
             ctx.addFrameworkListener( new FrameworkListener() {
+                @Override
                 public void frameworkEvent(FrameworkEvent evt) {
                     if ( (evt.getType() == FrameworkEvent.STARTED)
                          && (! obRunning)
@@ -87,6 +89,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         }
     }
 
+    @Override
     public void run() {
         String[] vArgs = getArgs();
 
@@ -135,7 +138,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                 Object result = command.runCommand(feedback, sb_in.toString().trim());
                 System.out.println( (null == result) ? "null" : result.toString() );
             } catch ( LgoException ex ) {
-                System.out.println( "Command failed, caught exception: " + ex + ", " +
+                System.out.println( "Command failed, caught exception: " +
                         BaseException.getStackTrace( ex )
                         );
                 System.out.print(omgrCommand.getCommand("help").runCommand(feedback, command.getName()).toString());
@@ -147,6 +150,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         }
     }
 
+    @Override
     public void stop(BundleContext arg0) throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }

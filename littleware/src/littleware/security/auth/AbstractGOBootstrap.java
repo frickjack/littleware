@@ -25,6 +25,7 @@ import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesGuice;
 import littleware.base.PropertiesLoader;
 import org.apache.felix.framework.Felix;
+import org.apache.felix.framework.cache.BundleCache;
 import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleException;
@@ -55,21 +56,21 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
     }
 
     private final List<Class<? extends BundleActivator>>  ovOSGi = new ArrayList<Class<? extends BundleActivator>>();
-    private final boolean obInjectSessionUtil;
+    private final boolean obServer;
     
     /**
      * Inject bootstrap environment
      * 
      * @param vAddGuice guice modules to add to littleware.properties setup
      * @param vAddOSGi OSGi bundles to boot
-     * @param bInjectSessionUtil true to inject SessionUtil with SessionManager - weird corner case,
-     *                usually set false.
+     * @param bServer true to indicate server bootstrap, false indicates client -
+     *                few small conditional code blocks
      */
     protected AbstractGOBootstrap( List<Module> vAddGuice, List<Class<? extends BundleActivator>> vAddOSGi,
-            boolean bInjectSessionUtil ) {
+            boolean bServer ) {
         ovGuice.addAll( vAddGuice );
         ovOSGi.addAll( vAddOSGi );
-        obInjectSessionUtil = bInjectSessionUtil;
+        obServer = bServer;
     }
 
     /**
@@ -81,6 +82,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      * @return list of allocated modules that the caller may modify
      *        to change bootstrap behavior
      */
+    @Override
     public List<Module>  getGuiceModule() {
         return ovGuice;
     }
@@ -92,6 +94,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      * @return list of OSGi activator classes that the caller may
      *              modify to change bootstrap behavior
      */
+    @Override
     public List<Class<? extends BundleActivator>> getOSGiActivator() {
         return ovOSGi;
     }
@@ -109,6 +112,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      * @exception IllegalStateException if bootstrap has already run
      * @exception IOException on failure to load init daa
      */
+    @Override
     public void bootstrap () {
         if ( ob_bootstrap ) {
             throw new IllegalStateException ( "Bootstrap already run" );
@@ -156,7 +160,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
                 ovGuice
                 );
 
-        if ( obInjectSessionUtil ) {
+        if ( obServer ) {
             // Inject the local SessionManager for clients accessing SessionUtil
             final SessionManager mgr_session = injector.getInstance( SessionManager.class );
             injector.injectMembers( SessionUtil.get() );
@@ -176,6 +180,11 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         for( Class<? extends BundleActivator> class_act : ovOSGi ) {
             v_activate.add( injector.getInstance( class_act ) );
         }
+        //System.setProperty( "org.osgi.framework.storage", PropertiesLoader.get().getLittleHome().toString() + "/osgi_cache" );
+        if ( ! obServer ) {
+            // setup cache under little home
+            map_felix.put( BundleCache.CACHE_ROOTDIR_PROP, PropertiesLoader.get().getLittleHome().toString() );
+        }
         map_felix.put( FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, v_activate );
         ofelix = new Felix( map_felix );
         try {
@@ -187,6 +196,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         ob_bootstrap = true;
     }
 
+    @Override
     public void shutdown() {
         try {
             olog.log( Level.FINE, "Shutting down ..." );

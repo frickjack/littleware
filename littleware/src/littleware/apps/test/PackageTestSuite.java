@@ -18,8 +18,6 @@ import java.util.logging.Level;
 
 import junit.framework.*;
 
-import littleware.apps.lgo.test.ArgParserTester;
-import littleware.apps.lgo.test.XmlLgoHelpTester;
 import littleware.apps.misc.test.ImageManagerTester;
 import littleware.apps.misc.test.ThumbManagerTester;
 import littleware.base.AssertionFailedException;
@@ -39,12 +37,16 @@ public class PackageTestSuite extends TestSuite {
             Provider<BucketTester> provide_bucket_test,
             Provider<TrackerTester> provide_tracker_test,
             Provider<ImageManagerTester> provide_image_test,
-            Provider<ThumbManagerTester> provide_thumb_test
+            Provider<ThumbManagerTester> provide_thumb_test,
+            littleware.apps.lgo.test.PackageTestSuite suiteLgo
             ) {
         super( PackageTestSuite.class.getName() );
 
         final boolean b_run = true;
 
+        if ( b_run ) {
+            this.addTest( suiteLgo );
+        }
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testClientSession") );
         }
@@ -55,11 +57,6 @@ public class PackageTestSuite extends TestSuite {
         if (b_run) {
             TestCase test = provide_image_test.get ();
             this.addTest( test );
-        }
-
-        if (b_run) {
-            this.addTest( new XmlLgoHelpTester() );
-            this.addTest( new ArgParserTester() );
         }
 
         if (b_run) {

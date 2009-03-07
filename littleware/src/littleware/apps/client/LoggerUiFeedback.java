@@ -26,6 +26,7 @@ public class LoggerUiFeedback extends NullUiFeedback {
     {
         this.addPropertyChangeListener( new PropertyChangeListener () {
 
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if ( evt.getPropertyName().equalsIgnoreCase( "progress" ) ) {
                     olog.log( Level.INFO, getTitle() + ": " + getProgress() + "%" );

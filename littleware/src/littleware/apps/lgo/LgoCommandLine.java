@@ -54,14 +54,16 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             LittleBootstrap bootstrap,
             EzHelpCommand comHelp,
             XmlEncodeCommand comXml,
-            LgoBrowserCommand comBrowse) {
+            LgoBrowserCommand comBrowse,
+            DeleteAssetCommand comDelete
+            ) {
         omgrCommand = mgrCommand;
         omgrHelp = mgrHelp;
         obootstrap = bootstrap;
 
         for (LgoCommand command : // need to move this into a properties file
                 new LgoCommand[]{
-                    comHelp, comXml, comBrowse
+                    comHelp, comXml, comBrowse, comDelete
                 }) {
             mgrCommand.setCommand( mgrHelp, command );
         }

@@ -32,6 +32,7 @@ import littleware.apps.filebucket.BucketServiceType;
 
 import littleware.apps.filebucket.client.BucketManagerService;
 import littleware.asset.AssetManager;
+import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.client.AssetManagerService;
@@ -244,9 +245,17 @@ public class ClientServiceGuice implements LittleGuiceModule {
         binder.bind(AccountManager.class).to(AccountManagerService.class);
         binder.bind(AssetManager.class).to(AssetManagerService.class);
         binder.bind(SessionHelper.class).toInstance(ohelper);
+        binder.bind( AssetPathFactory.class ).toProvider(
+                new Provider<AssetPathFactory>() {
+            @Override
+            public AssetPathFactory get() {
+                return AssetPathFactory.getFactory();
+            }
+        });
 
         binder.bind(LittleSession.class).toProvider(new Provider<LittleSession>() {
 
+            @Override
             public LittleSession get() {
                 try {
                     return ohelper.getSession();
@@ -257,16 +266,6 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 }
             }
         });
-        binder.bind(AssetRetriever.class).toProvider(
-                new Provider<AssetRetriever>() {
-
-                    public AssetRetriever get() {
-                        try {
-                            return ohelper.getService(ServiceType.ASSET_SEARCH);
-                        } catch (Exception e) {
-                            throw new littleware.base.FactoryException("service retrieval failure", e);
-                        }
-                    }
-                });
+        binder.bind(AssetRetriever.class).to( AssetSearchManager.class );
     }
 }

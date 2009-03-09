@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<help fullname="littleware.apps.lgo.ListChildrenCommand"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>List the children under a given path</synopsis>
+  <description>
+      List the children under a given path:
+
+      ls -path /path/to/parent
+  </description>
+  <shortname>ls</shortname>
+</help>

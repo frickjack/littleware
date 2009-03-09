@@ -8,7 +8,7 @@
   <description>
       Delete an asset at a given path:
 
-      lgo delete /path/to/asset
+      delete /path/to/asset
   </description>
   <shortname>delete</shortname>
   <shortname>rm</shortname>

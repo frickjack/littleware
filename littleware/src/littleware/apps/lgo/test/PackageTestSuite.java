@@ -28,7 +28,9 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
     @Inject
     public PackageTestSuite( Provider<ArgParserTester> factoryArgTester,
             Provider<DeleteAssetTester> factoryDeleteTester,
-            Provider<XmlLgoHelpTester> factoryXmlHelpTester
+            Provider<XmlLgoHelpTester> factoryXmlHelpTester,
+            Provider<SetImageTester> factoryImageTester,
+            Provider<ListChildrenTester> factoryChildrenTester
             )
     {
         super( PackageTestSuite.class.getName() );
@@ -37,6 +39,8 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
         this.addTest( factoryArgTester.get() );
         this.addTest( factoryDeleteTester.get() );
         this.addTest( factoryXmlHelpTester.get() );
+        this.addTest( factoryImageTester.get() );
+        this.addTest( factoryChildrenTester.get() );
     }
 
     /**

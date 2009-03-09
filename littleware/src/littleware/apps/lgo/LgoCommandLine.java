@@ -137,8 +137,8 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             }
             command.processArgs(v_process);
             try {
-                Object result = command.runCommand(feedback, sb_in.toString().trim());
-                System.out.println( (null == result) ? "null" : result.toString() );
+                String sResult = command.runCommandLine(feedback, sb_in.toString().trim());
+                System.out.println( (null == sResult) ? "null" : sResult );
             } catch ( LgoException ex ) {
                 System.out.println( "Command failed, caught exception: " +
                         BaseException.getStackTrace( ex )

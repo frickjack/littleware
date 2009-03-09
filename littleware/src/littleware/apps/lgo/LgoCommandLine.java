@@ -111,13 +111,13 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             UiFeedback feedback = new LoggerUiFeedback();
 
             if (vArgs.length == 0) { // launch help command by default
-                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, "").toString());
+                System.out.print(omgrCommand.getCommand("help").runCommandLine(feedback, ""));
                 return;
             }
             final String     sCommand = vArgs[0];
             LgoCommand<?, ?> command = omgrCommand.getCommand(sCommand);
             if (null == command) {
-                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, "").toString());
+                System.out.print(omgrCommand.getCommand("help").runCommandLine(feedback, ""));
                 return;
             }
             List<String> v_process = new ArrayList<String>();

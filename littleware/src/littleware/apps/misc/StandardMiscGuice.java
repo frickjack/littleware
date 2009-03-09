@@ -21,6 +21,7 @@ import littleware.apps.misc.client.SimpleThumbManager;
  */
 public class StandardMiscGuice implements Module {
 
+    @Override
     public void configure(Binder binder) {
         binder.bind( ImageManager.class ).to( SimpleImageManager.class ).in(Scopes.SINGLETON);
         binder.bind( ThumbManager.class ).to( SimpleThumbManager.class ).in(Scopes.SINGLETON);

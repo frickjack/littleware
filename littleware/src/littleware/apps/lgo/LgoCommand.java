@@ -62,6 +62,17 @@ public interface LgoCommand <InType,OutType> extends Cloneable {
       public void runCommand( UiFeedback feedback, InputStream istream,
               OutputStream ostream
               ) throws LgoException, IOException;
+
+      /**
+       * Facilitate simple command-line interaction - string and args in,
+       * formatted string out
+       *
+       * @param feedback
+       * @param s_in
+       * @return formatted string result
+       * @throws littleware.apps.lgo.LgoException
+       */
+      public String runCommandLine( UiFeedback feedback, String s_in ) throws LgoException;
       
       /**
        * Run the command with the given input String,

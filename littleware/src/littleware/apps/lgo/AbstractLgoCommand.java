@@ -116,6 +116,7 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
      * @param streamout
      * @throws littleware.apps.lgo.LgoException
      */
+    @Override
     public void runCommand( UiFeedback feedback, InputStream streamin, OutputStream streamout
             ) throws LgoException, IOException
     {        
@@ -141,16 +142,24 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
      * @return
      * @throws littleware.apps.lgo.LgoException
      */
+    @Override
     public Tout runCommand( UiFeedback feedback, String s_in ) throws LgoException
     {
         return runDynamic( feedback, s_in );
     }
 
+    /** Just calls runCommand().toString() */
+    public String runCommandLine( UiFeedback feedback, String s_in ) throws LgoException {
+        return runCommand( feedback, s_in ).toString ();
+    }
+
     /** Just does a direct cast (Tin) x_in */
+    @Override
     public Tout runDynamic ( UiFeedback feedback, Object x_in ) throws LgoException {
         return runSafe( feedback, (Tin) x_in );
     }
     
+    @Override
     public abstract Tout runSafe( UiFeedback feedback, Tin in ) throws LgoException;
     
     /** Subtypes should override via normal clone() rules */

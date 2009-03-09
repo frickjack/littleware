@@ -97,5 +97,21 @@ public abstract class Whatever {
         }
     }
     
+    /**
+     * Build string cJoin + s1 + cJoin + s2 + ...,
+     * start with cJoin, end with sLast
+     * 
+     * @param cJoin character to join strings with
+     * @param vJoin strings to append with cJoin separator
+     * @return joined string
+     */
+    public static String join( char cJoin, String ... vJoin ) {
+        StringBuilder sb = new StringBuilder ();
+        for( String sJoin : vJoin ) {
+            sb.append( cJoin ).append( sJoin );
+        }
+        return sb.toString();
+    }
+
     public static final String NEWLINE = System.getProperty("line.separator");
 }

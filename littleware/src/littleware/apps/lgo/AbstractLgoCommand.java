@@ -149,8 +149,10 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
     }
 
     /** Just calls runCommand().toString() */
+    @Override
     public String runCommandLine( UiFeedback feedback, String s_in ) throws LgoException {
-        return runCommand( feedback, s_in ).toString ();
+        Object result = runCommand( feedback, s_in );
+        return (null == result) ? null : result.toString ();
     }
 
     /** Just does a direct cast (Tin) x_in */

@@ -11,6 +11,7 @@
 package littleware.apps.lgo;
 
 import java.util.Collection;
+import littleware.base.Whatever;
 
 
 /**
@@ -66,9 +67,12 @@ public class EzLgoHelp implements LgoHelp {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder ();
-        sb.append( getFullName () ).append( ":\n    " ).
-                append( getSynopsis() ).append( "\n\n" ).
-                append( getDescription() );
+        sb.append( getFullName () ).append( ":" ).
+                append( Whatever.NEWLINE ).append( "   " ).
+                append( getSynopsis() ).append( Whatever.NEWLINE ).
+                append( Whatever.NEWLINE ).
+                append( getDescription() ).
+                append( Whatever.NEWLINE );
         return sb.toString();
     }
 }

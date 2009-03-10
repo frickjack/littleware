@@ -34,10 +34,12 @@ import littleware.apps.swingclient.event.*;
  */
 public class JGenericAssetView extends JPanel implements AssetView {
 	private final static Logger        olog = Logger.getLogger ( JGenericAssetView.class.getName() );
+    private static final long serialVersionUID = -7321436305465982373L;
 	
     private final AssetRetriever        om_retriever;
     private final AbstractAssetView     oview_util = new AbstractAssetView ( this ) {
         /** Events form the data model */
+        @Override
         public void eventFromModel ( LittleEvent evt_from_model ) {
             JGenericAssetView.this.eventFromModel ( evt_from_model );
         }
@@ -160,6 +162,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
      * to this object&apos;s listeners.
      */
     protected LittleListener olisten_bridge = new LittleListener () {
+        @Override
         public void receiveLittleEvent ( LittleEvent event_little ) {
             if ( event_little instanceof NavRequestEvent ) {
                 //event_little.setSource ( JGenericAssetView.this );
@@ -429,11 +432,13 @@ public class JGenericAssetView extends JPanel implements AssetView {
         
         oview_util.addPropertyChangeListener ( new PropertyChangeListener () {
             /** Receive events from the View model */
+            @Override
             public void propertyChange ( PropertyChangeEvent evt_prop ) {
                 if ( evt_prop.getPropertyName ().equals ( AssetView.Property.assetModel.toString () ) ) {
                     // Model has changed under us
                     SwingUtilities.invokeLater ( 
                                                  new Runnable () {
+                        @Override
                                                      public void run () {
                                                          updateAssetUI ();
                                                      }
@@ -458,6 +463,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
             // Model has changed under us
             SwingUtilities.invokeLater ( 
                                          new Runnable () {
+                @Override
                                              public void run () {
                                                  updateAssetUI ();
                                              }
@@ -577,22 +583,23 @@ public class JGenericAssetView extends JPanel implements AssetView {
         this.repaint ();        
     }
     
-    
+    @Override
     public AssetModel getAssetModel () {
         return oview_util.getAssetModel ();
     }
 
-    
+    @Override
     public void setAssetModel ( AssetModel model_asset ) {
         oview_util.setAssetModel ( model_asset );
     }
 	
-	
+	@Override
 	public void	addLittleListener( LittleListener listen_little ) {
 		oview_util.addLittleListener ( listen_little );
 	}
 	
 	
+    @Override
 	public void     removeLittleListener( LittleListener listen_little ) {
 		oview_util.removeLittleListener ( listen_little );
 	}

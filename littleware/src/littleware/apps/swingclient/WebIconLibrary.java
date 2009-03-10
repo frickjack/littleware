@@ -70,6 +70,10 @@ public class WebIconLibrary implements IconLibrary {
         ov_named_urls.put ( "littleware.forward",
                                                       "/geronimo/forwd_16.gif" 
                              );
+        ov_named_urls.put ( "littleware.up",
+                                                      "/geronimo/up_16.gif"
+                             );
+
         
         ov_named_urls.put ( "littleware.edit",
                                                       "/geronimo/edit_blogentry_16.gif" 
@@ -81,6 +85,10 @@ public class WebIconLibrary implements IconLibrary {
         ov_named_urls.put ( "littleware.apply",
                                                       "/geronimo/ref_16.gif" 
                              );
+        ov_named_urls.put ( "littleware.refresh",
+                                                      "/geronimo/ref_16.gif"
+                             );
+
         ov_named_urls.put ( "littleware.browse",
                                                       "/geronimo/srch_16.gif" 
                              );

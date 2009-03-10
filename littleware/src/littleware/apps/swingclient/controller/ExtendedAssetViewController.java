@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -89,9 +87,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
      */
     @Override
     public void receiveLittleEvent ( LittleEvent event_little ) {        
-        if ( event_little instanceof NavRequestEvent ) {
-            super.receiveLittleEvent ( event_little );
-        } else if ( 
+        if ( 
                     (event_little instanceof CreateRequestEvent)
                     || (event_little instanceof EditRequestEvent)
                     ) {
@@ -212,6 +208,8 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                                               JOptionPane.ERROR_MESSAGE
                                               );
             }                
+        } else {
+            super.receiveLittleEvent ( event_little );
         }
     }
 }

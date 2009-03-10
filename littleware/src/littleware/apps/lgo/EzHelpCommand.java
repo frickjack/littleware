@@ -186,7 +186,7 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
                         .append( example.getDescription() )
                         .append( Whatever.NEWLINE).append( Whatever.NEWLINE );
             } 
-            return sb_help.toString ();                
+            return sb_help.toString ();
 
         } else {
             // No help found - give the user a command-list

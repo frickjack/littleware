@@ -21,6 +21,7 @@ import javax.swing.*;
 
 import littleware.apps.client.*;
 import littleware.apps.swingclient.event.*;
+import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
@@ -35,6 +36,9 @@ import littleware.base.BaseException;
  */
 public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListener, LittleTool {
     private final static Logger         olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JSimpleAssetToolbar" );
+    private static final long serialVersionUID = 3427883110446003286L;
+
+
     private  AssetView             oview_component = null;
     private final AssetModelLibrary     olib_asset;
     private final IconLibrary           olib_icon;
@@ -60,6 +64,8 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
     public enum ButtonId { 
         BACK,
         FORWARD,
+        UP,
+        REFRESH,
         CREATE,
         EDIT,
         DELETE,
@@ -85,6 +91,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
             switch ( n_button ) {
                 case BACK: {
                     act_button = new AbstractAction () {
+                    @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             if ( oi_nav_position > 1 ) {
                                 --oi_nav_position;
@@ -101,12 +108,56 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                             }
                         }
                     };
+
                     act_button.setEnabled ( false );
                     act_button.putValue ( Action.SMALL_ICON, olib_icon.lookupIcon ( "littleware.back" ) );
                     act_button.putValue ( Action.SHORT_DESCRIPTION, "Navigate backward through nav history" );
                 } break;
+                case REFRESH: {
+                    act_button = new AbstractAction () {
+                        @Override
+                        public void actionPerformed ( ActionEvent ev_button ) {
+                            otool_handler.fireLittleEvent ( new RefreshRequestEvent ( JSimpleAssetToolbar.this )
+                                                                );
+                        }
+                    };
+
+                    act_button.setEnabled ( true );
+                    act_button.putValue ( Action.SMALL_ICON, olib_icon.lookupIcon ( "littleware.refresh" ) );
+                    act_button.putValue ( Action.SHORT_DESCRIPTION, "Reload the view data from the repository" );
+                } break;
+                case UP: {
+                    act_button = new AbstractAction () {
+                    @Override
+                        public void actionPerformed ( ActionEvent ev_button ) {
+                            if ( (null == oview_component)
+                                    || (null == oview_component.getAssetModel())
+                                    || (null == oview_component.getAssetModel().getAsset())
+                                    )
+                            {
+                                // do nothing
+                                return;
+                            }
+
+                            final Asset aNow = oview_component.getAssetModel().getAsset();
+                            if ( aNow.getFromId() != null ) {
+                                otool_handler.fireLittleEvent ( new NavRequestEvent ( JSimpleAssetToolbar.this,
+                                                                                      aNow.getFromId(),
+                                                                                      NavRequestEvent.NavMode.GENERIC
+                                                                                      )
+                                                                );
+                            }
+                        }
+                    };
+
+                    act_button.setEnabled ( true );
+                    act_button.putValue ( Action.SMALL_ICON, olib_icon.lookupIcon ( "littleware.up" ) );
+                    act_button.putValue ( Action.SHORT_DESCRIPTION, "Navigate up the asset tree (from-id)" );
+                } break;
+
                 case FORWARD: {
                     act_button = new AbstractAction () {
+                        @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             if ( oi_nav_position < olist_navigation.size () ) {
                                 ++oi_nav_position;
@@ -129,6 +180,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                 } break;
                 case EDIT: {
                     act_button = new AbstractAction () {
+                    @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             otool_handler.fireLittleEvent ( new EditRequestEvent ( JSimpleAssetToolbar.this,
                                                                                   oview_component.getAssetModel ()
@@ -142,6 +194,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                 } break;
                 case CREATE: {
                     act_button = new AbstractAction () {
+                    @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             otool_handler.fireLittleEvent ( new CreateRequestEvent ( JSimpleAssetToolbar.this,
                                                                                      oview_component.getAssetModel ()
@@ -155,6 +208,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                 } break;
                 case DELETE: {
                     act_button = new AbstractAction () {
+                        @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             otool_handler.fireLittleEvent ( new DeleteRequestEvent ( JSimpleAssetToolbar.this,
                                                                                      oview_component.getAssetModel ()
@@ -169,6 +223,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                 case GOTO: {
                     act_button = new AbstractAction () {
                         /** Should do this in a spun off SwingWorker once we up to jdk 1.6 */
+                    @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             String s_path = owtext_goto_path.getText ();
                             try {
@@ -229,15 +284,23 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
     /**
      * Track when the view changes models
      */
+    @Override
     public void propertyChange ( PropertyChangeEvent evt_nav ) {
         if ( evt_nav.getPropertyName ().equals ( AssetView.Property.assetModel.toString () )
              && (null != oview_component.getAssetModel ())
              ) {
-            final UUID            u_nav = oview_component.getAssetModel ().getAsset ().getObjectId ();
+            final Asset           aNav = oview_component.getAssetModel ().getAsset ();
+            final UUID            u_nav = aNav.getObjectId ();
             
             if ( null != u_nav ) {
+                if ( null == aNav.getFromId() ) {
+                    omap_button.get( ButtonId.UP ).setEnabled(false);
+                } else {
+                    omap_button.get( ButtonId.UP ).setEnabled(true);
+                }
                 if ( (null == ou_goto) || (! u_nav.equals( ou_goto )) ) {
                     SwingUtilities.invokeLater ( new Runnable () {
+                        @Override
                         public void run () {
                             ou_goto = u_nav;
                             AssetPath  path_new = ofactory_path.createPath ( u_nav );
@@ -356,12 +419,14 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
     public JButton getButton ( ButtonId n_button ) {
         return omap_button.get ( n_button );
     }
-        
+
+    @Override
     public void	addLittleListener( LittleListener listen_little ) {
         otool_handler.addLittleListener ( listen_little );
     }
     
     
+    @Override
     public void     removeLittleListener( LittleListener listen_little ) {
         otool_handler.removeLittleListener ( listen_little );
     }

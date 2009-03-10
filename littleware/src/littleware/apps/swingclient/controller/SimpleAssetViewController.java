@@ -1,6 +1,18 @@
+/*
+ * Copyright 2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient.controller;
 
 import com.google.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import java.util.UUID;
@@ -9,10 +21,11 @@ import java.util.logging.Level;
 
 import littleware.apps.client.*;
 import littleware.apps.swingclient.event.NavRequestEvent;
+import littleware.apps.swingclient.event.RefreshRequestEvent;
 import littleware.asset.AssetRetriever;
 
 /** 
- * Simple controller watches for NavRequestEvents,
+ * Simple controller watches for events (NavRequestEvent, RefreshRequestEvent),
  * then invokes setAssetModel on the constructor-supplied AssetView.
  * Popup error dialog on failure to navigate.
  */
@@ -60,6 +73,7 @@ public class SimpleAssetViewController implements LittleListener {
      * Resolve NavRequestEvents.  Client registers this controller
      * as a listener on LitttleTool that should control the views navigation.
      */
+    @Override
     public void receiveLittleEvent ( LittleEvent event_little ) {
         if ( event_little instanceof NavRequestEvent ) {
             //event_little.setSource ( JGenericAssetView.this );
@@ -88,9 +102,36 @@ public class SimpleAssetViewController implements LittleListener {
                                        ", caught: " + e 
                                        );
                 SwingUtilities.invokeLater ( new Runnable () {
+                    @Override
                     public void run () {
                         JOptionPane.showMessageDialog(null, "Could not navigate to " + u_destination +
                                               ", caught: " + e, "alert", 
+                                              JOptionPane.ERROR_MESSAGE
+                                              );
+                    }
+                }
+                                             );
+            }
+        } else if ( event_little instanceof RefreshRequestEvent ) {
+            try {
+                olog_generic.log( Level.FINE, "REFRESH!" );
+                final UUID uAsset = oview_control.getAssetModel().getAsset().getObjectId();
+                olib_asset.syncAsset(
+                        om_retriever.getAsset( uAsset )
+                        );
+                final List<UUID> vChildren = new ArrayList<UUID>();
+                vChildren.addAll(om_retriever.getAssetIdsFrom( uAsset, null ).values());
+                if ( ! vChildren.isEmpty() ) {
+                    olib_asset.syncAsset(
+                            om_retriever.getAssets( vChildren )
+                            );
+                }
+            } catch ( final Exception ex ) {
+                SwingUtilities.invokeLater(new Runnable () {
+                    @Override
+                    public void run () {
+                        JOptionPane.showMessageDialog(null,
+                                "Could not refresh view, caught: " + ex, "alert",
                                               JOptionPane.ERROR_MESSAGE
                                               );
                     }
@@ -103,7 +144,4 @@ public class SimpleAssetViewController implements LittleListener {
 }
 
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

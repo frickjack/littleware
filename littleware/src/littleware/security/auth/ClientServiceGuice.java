@@ -131,7 +131,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
      * 
      * @param manager to authenticate against
      * @param handler to prompt user username/password
-     * @param i_retry number of retries to allow the user
+     * @param  number of retries to allow the user
      * @return authenticated SessionHelper 
      * @throws javax.security.auth.login.LoginException on credential failure
      * @throws java.io.IOException if user cancels out of login prompt
@@ -202,8 +202,10 @@ public class ClientServiceGuice implements LittleGuiceModule {
                     }
                 }
                 return helper;
+                /*
             } catch (RuntimeException ex) {
                 throw ex;
+                 */
             } catch (Exception ex) {
                 olog.log(Level.INFO, "Failed login attempt " + i, ex);
             } finally {

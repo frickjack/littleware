@@ -30,7 +30,8 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             Provider<DeleteAssetTester> factoryDeleteTester,
             Provider<XmlLgoHelpTester> factoryXmlHelpTester,
             Provider<SetImageTester> factoryImageTester,
-            Provider<ListChildrenTester> factoryChildrenTester
+            Provider<ListChildrenTester> factoryChildrenTester,
+            Provider<GetAssetTester> factoryGetTester
             )
     {
         super( PackageTestSuite.class.getName() );
@@ -41,6 +42,7 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
         this.addTest( factoryXmlHelpTester.get() );
         this.addTest( factoryImageTester.get() );
         this.addTest( factoryChildrenTester.get() );
+        this.addTest( factoryGetTester.get() );
     }
 
     /**

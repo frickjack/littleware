@@ -1,45 +1,46 @@
-package littleware.web.test;
+package littleware.asset.test;
 
+import com.google.inject.Provider;
 import java.util.*;
 import java.io.*;
-import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import junit.framework.*;
 
 import littleware.base.*;
-import littleware.web.*;
-import littleware.web.pickle.*;
+import littleware.asset.pickle.*;
 import littleware.asset.*;
+import littleware.test.LittleTest;
 
 
 /**
 * TestFixture instantiates different littleware.web.beans beans,
  * and exercises them a bit.
  */
-public class PickleTester extends TestCase {
-	private static Logger           olog_generic = Logger.getLogger ( "littelware.web.test.PickleTester" );
+public class PickleTester extends LittleTest {
+	private static final Logger           olog_generic = Logger.getLogger ( PickleTester.class.getName() );
 	
-	private PickleType              on_pickle = null;
+	private final Provider<? extends PickleMaker<Asset>> oprovidePickler;
 	
 	
 	/**
 	 * Constructor stashes PickleType to test against
 	 */
-	public PickleTester ( String s_testname, PickleType n_pickle ) {
-		super ( s_testname );
-		on_pickle = n_pickle;
+	public PickleTester ( Provider<? extends PickleMaker<Asset>> providePickler ) {
+		setName ( "testPickleTwice" );
+		oprovidePickler = providePickler;
 	}
 	
 	
 	/**
 	 * No seutp necessary
 	 */
+    @Override
 	public void setUp () {
 	}
 	
 	/** No tearDown necessary  */
+    @Override
 	public void tearDown () {
 	}
 	
@@ -61,13 +62,12 @@ public class PickleTester extends TestCase {
 			a_test.setLastUpdate ( "Bla bla" );
 			
 			StringWriter io_string = new StringWriter ();
-			PickleMaker<Asset> pickle_handler = on_pickle.createPickleMaker ( a_test.getAssetType () );
-			pickle_handler.pickle ( a_test, io_string );
+			oprovidePickler.get().pickle ( a_test, io_string );
 			String s_first = io_string.toString ();
 			olog_generic.log ( Level.INFO, "First pickle of test asset got: " + s_first );
 			
 			io_string.getBuffer ().setLength ( 0 );
-			pickle_handler.pickle ( a_test, io_string );
+			oprovidePickler.get().pickle ( a_test, io_string );
 			String s_second = io_string.toString ();
 			assertTrue ( "Pickle twice, got same result", s_first.equals ( s_second ) );
 		} catch ( Exception e ) {
@@ -79,6 +79,4 @@ public class PickleTester extends TestCase {
 	}
 	
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

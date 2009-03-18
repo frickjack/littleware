@@ -1,10 +1,19 @@
-package littleware.web.pickle.xml;
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+package littleware.asset.pickle;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import littleware.web.pickle.*;
 import littleware.base.*;
 import littleware.asset.*;
 
@@ -30,6 +39,7 @@ public abstract class XmlTranslator<T> extends DefaultHandler implements PickleM
 	public abstract T   getResult () throws IllegalStateException;
 	
 	
+    @Override
 	public abstract T unpickle ( Reader io_data ) throws AssetException, BaseException,
 		GeneralSecurityException, IOException;
 	
@@ -53,11 +63,9 @@ public abstract class XmlTranslator<T> extends DefaultHandler implements PickleM
 	 *  translation rules, but should not contain any data of consequence.
 	 * </p>
 	 */
+    @Override
 	public abstract void pickle ( T x_in, Writer io_data ) throws AssetException, BaseException, 
 		GeneralSecurityException, IOException;
 	
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -13,6 +13,8 @@ package littleware.apps.client;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
+import littleware.asset.pickle.AssetHumanPickler;
+import littleware.asset.pickle.HumanPicklerProvider;
 
 
 /**
@@ -23,5 +25,7 @@ public class StandardClientGuice implements Module {
     @Override
     public void configure( Binder binder ) {
         binder.bind( AssetModelLibrary.class ).to( SimpleAssetModelLibrary.class ).in( Scopes.SINGLETON );
+        binder.bind( AssetHumanPickler.class ).toProvider( HumanPicklerProvider.class );
+        binder.bind( HumanPicklerProvider.class ).in( Scopes.SINGLETON );
     }
 }

@@ -116,7 +116,7 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
 	public String    getData () 
 	{
 		String s_data = "<asset:comment xmlns:asset=\"" 
-                        + littleware.web.pickle.xml.XmlTranslator.OS_ASSET_NAMESPACE
+                        + littleware.asset.pickle.XmlTranslator.OS_ASSET_NAMESPACE
                         + "\">\n";
 		s_data += littleware.base.XmlSpecial.encode ( getSummary () );
 		s_data += "\n</asset:comment>";

@@ -7,6 +7,7 @@ CVS
 ^littleware/doc
 ^littleware_client
 ^littleware/ddl/derbycache
+nbproject/private
 ^scratch
 ^webapp/littleware/lib/doc/api
 ^webapp/littleware/lib/icons

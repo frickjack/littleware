@@ -1,4 +1,4 @@
-package littleware.web.pickle;
+package littleware.asset.pickle;
 
 import littleware.base.BaseException;
 

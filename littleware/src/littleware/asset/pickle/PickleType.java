@@ -1,16 +1,13 @@
-package littleware.web.pickle;
+package littleware.asset.pickle;
 
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.io.IOException;
 import java.security.AccessController;
 import java.security.Permission;
 
 
 import littleware.base.*;
 import littleware.asset.*;
-import littleware.security.*;
 
 /**
  * Enumerate different types of pickle makers, and provide
@@ -23,7 +20,7 @@ import littleware.security.*;
  */
 public abstract class PickleType extends DynamicEnum<PickleType> {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.web.pickle.PickleType");
+    private static Logger olog_generic = Logger.getLogger(PickleType.class.getName());
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -107,9 +104,9 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
     static {
         Properties prop_defaults = new Properties();
         prop_defaults.setProperty(AssetType.UNKNOWN.getName(),
-                littleware.web.pickle.xml.PickleGeneric.class.getName());
+                littleware.asset.pickle.PickleXml.class.getName());
         prop_defaults.setProperty(AssetType.GENERIC.getName(),
-                littleware.web.pickle.xml.PickleGeneric.class.getName());
+                littleware.asset.pickle.PickleXml.class.getName());
         /*...
         prop_defaults.setProperty ( SecurityAssetType.QUOTA.getName (),
         littleware.web.pickle.xml.PickleQuota.class.getName ()
@@ -131,7 +128,8 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
             new PickleType(UUIDFactory.parseUUID("388054B5354A43BCB5C06FDFF4E85DB4"),
             "littleware.XML_PICKLE_MAKER") {
 
-                public PickleMaker<Asset> createPickleMaker(AssetType<? extends Asset> n_asset) throws PickleClassException {
+        @Override
+                public AssetXmlPickler createPickleMaker(AssetType<? extends Asset> n_asset) throws PickleClassException {
                     String s_classname = oprop_xml.getProperty(n_asset.getName());
 
                     if (null == s_classname) {
@@ -141,7 +139,7 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
 
                     try {
                         Class<?> class_maker = Class.forName(s_classname);
-                        return (PickleMaker<Asset>) class_maker.newInstance();
+                        return (AssetXmlPickler) class_maker.newInstance();
                     } catch (ClassNotFoundException e) {
                         throw new PickleClassException("Unable to load pickler: " + s_classname +
                                 " for asset type: " + n_asset, e);
@@ -152,7 +150,4 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
                 }
             };
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

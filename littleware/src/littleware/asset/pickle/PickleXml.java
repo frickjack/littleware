@@ -8,7 +8,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.web.pickle.xml;
+package littleware.asset.pickle;
 
 import org.xml.sax.*;
 import javax.xml.parsers.SAXParserFactory;
@@ -23,7 +23,6 @@ import java.text.SimpleDateFormat;
 import littleware.base.*;
 import littleware.asset.*;
 import littleware.asset.xml.*;
-import littleware.web.pickle.*;
 
 
 /**
@@ -32,8 +31,8 @@ import littleware.web.pickle.*;
  * handling to the appropriate specialized AssetType PickleMaker
  * when possible.
  */
-public class PickleGeneric extends XmlTranslator<Asset> {
-	private static final Logger  olog_generic = Logger.getLogger ( PickleGeneric.class.getName() );
+public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
+	private static final Logger  olog_generic = Logger.getLogger ( PickleXml.class.getName() );
 
 	public static enum ParserState {
 		/** Parser is scanning for an element with an asset:asset_type attribute */
@@ -143,6 +142,7 @@ public class PickleGeneric extends XmlTranslator<Asset> {
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				writeElement ( io_out, s_prefix, oformat_date.format ( a_data.getLastUpdateDate () ) );
 			}
+            @Override
 			public void assignElement ( String s_data, Asset a_blank ) {
 			}
 		},
@@ -263,6 +263,7 @@ public class PickleGeneric extends XmlTranslator<Asset> {
 	private XmlTranslator<? extends Asset>  opickle_chain = null;
 	private Asset                 oa_result = null;
 	
+    @Override
 	public Asset  getResult () throws IllegalStateException
 	{
 		if ( on_state.equals ( ParserState.DELEGATE ) ) {
@@ -385,6 +386,7 @@ public class PickleGeneric extends XmlTranslator<Asset> {
 	
 	
 
+    @Override
 	public Asset unpickle ( Reader io_data ) throws AssetException, BaseException,
 		GeneralSecurityException, IOException
 	{
@@ -404,6 +406,7 @@ public class PickleGeneric extends XmlTranslator<Asset> {
 		}
 	}		
 	
+    @Override
 	public void pickle ( Asset a_in, Writer io_data ) throws AssetException, BaseException, 
 		GeneralSecurityException, IOException
 	{
@@ -416,12 +419,14 @@ public class PickleGeneric extends XmlTranslator<Asset> {
 		for ( AssetElement n_element : AssetElement.values () ) {
 			n_element.writeElement ( a_in, io_data, "asset" );
 		}
-		
+
+        io_data.write ( "<asset:data>" );
 		if ( a_in instanceof XmlDataAsset ) {
-			io_data.write ( "<asset:data>\n" );
 			io_data.write ( a_in.getData () );
-			io_data.write ( "</asset:data>\n" );
-		}
+		} else {
+            io_data.write( XmlSpecial.encode( a_in.getData() ) );
+        }
+        io_data.write ( "</asset:data>\n" );
 		io_data.write ( "</asset:core>\n" );
 	}
 }

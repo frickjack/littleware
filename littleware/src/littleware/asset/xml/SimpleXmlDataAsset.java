@@ -241,6 +241,7 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
         /**
          * Callback for XML start-tag
          */
+        @Override
         public void startElement(String s_namespace,
                 String s_simple, // simple name (localName)
                 String s_qualified, // qualified name
@@ -268,6 +269,7 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
          * @param s_simple name of element
          * @param s_qualified name of element
          */
+        @Override
         public void endElement(String s_namespace,
                 String s_simple,
                 String s_qualified)

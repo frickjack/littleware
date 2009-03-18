@@ -55,7 +55,9 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             EzHelpCommand comHelp,
             XmlEncodeCommand comXml,
             LgoBrowserCommand comBrowse,
-            DeleteAssetCommand comDelete
+            DeleteAssetCommand comDelete,
+            ListChildrenCommand comLs,
+            GetAssetCommand     comGet
             ) {
         omgrCommand = mgrCommand;
         omgrHelp = mgrHelp;
@@ -63,7 +65,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
 
         for (LgoCommand command : // need to move this into a properties file
                 new LgoCommand[]{
-                    comHelp, comXml, comBrowse, comDelete
+                    comHelp, comXml, comBrowse, comDelete, comLs, comGet
                 }) {
             mgrCommand.setCommand( mgrHelp, command );
         }
@@ -152,9 +154,10 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         }
     }
 
+    /** NOOP */
     @Override
-    public void stop(BundleContext arg0) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void stop(BundleContext ctx) throws Exception {
+        
     }
 
     private static String[] getArgs() { return ovArgs; }

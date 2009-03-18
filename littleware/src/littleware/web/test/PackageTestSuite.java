@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -17,7 +15,6 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import junit.framework.*;
 import littleware.web.*;
-import littleware.web.pickle.*;
 
 
 /**
@@ -56,9 +53,6 @@ public class PackageTestSuite extends TestSuite {
         }
         if (b_run) {
             this.addTest(new BeanTester("testUpdateContactBean"));
-        }
-        if (b_run) {
-            this.addTest(new PickleTester("testPickleTwice", PickleType.XML));
         }
         if (b_run) {
             this.addTest(new BrowserTypeTester("testUserAgent"));

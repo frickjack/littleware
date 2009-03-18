@@ -78,10 +78,10 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
      *                    into the result map, then possibly
      *                    overwrites each entry by vArgs processing
      * @param vArgs to process
-     * @return argname.toLowerCase to argvalue map initialized by mapDefaults entries with non-null values
+     * @return argname.toLowerCase to argvalue map initialized by mapDefaults entries
      * @throws LgoException if illegal vArgs detected
      */
-    public static Map<String, String> processArgs( Map<String,String> mapDefaults, List<String> vArgs ) throws LgoException {
+    public static Map<String, String> processArgs( Map<String,String> mapDefaults, List<String> vArgs ) throws LgoArgException {
         final Map<String, String> mapResult = new HashMap<String,String>();
 
         for ( Map.Entry<String,String> entry : mapDefaults.entrySet() ) {
@@ -106,6 +106,22 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
         return mapResult;
     }
 
+    /**
+     * Just calls through to processArgs( mapOption, vArgs ) where
+     * vOptions specify the option keyes each with null default value
+     * 
+     * @param vArgs
+     * @param vOption possible command-line options (path, type, whatever)
+     * @return processed arguments
+     * @throws littleware.apps.lgo.LgoArgException
+     */
+    public static Map<String, String> processArgs( List<String> vArgs, String ... vOption ) throws LgoArgException {
+        final Map<String,String> mapOption = new HashMap<String,String>();
+        for ( String sOption : vOption ) {
+            mapOption.put( sOption, null );
+        }
+        return processArgs( mapOption, vArgs );
+    }
 
     /**
      * Provides a brain-dead implementation that just reads

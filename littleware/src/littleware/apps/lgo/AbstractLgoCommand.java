@@ -92,8 +92,19 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
         for (String sArg : vArgs) {
             if (sArg.startsWith("-") || (sLastOption == null) ) {
                 String sClean = sArg.replaceAll("^-+", "").toLowerCase();
-                boolean bFound = false;
-                if ( ! mapResult.containsKey( sClean ) ) {
+
+                boolean bFound = mapResult.containsKey( sClean );
+                if ( ! bFound ) {
+                    // See if any keys start with sClean
+                    for ( String sOpt: mapResult.keySet() ) {
+                        if ( sOpt.startsWith( sClean ) ) {
+                            sClean = sOpt;
+                            bFound = true;
+                            break;
+                        }
+                    }
+                }
+                if ( ! bFound ) {
                     throw new LgoArgException("Unable to process argument: " + sArg);
                 }
                 sLastOption = sClean;

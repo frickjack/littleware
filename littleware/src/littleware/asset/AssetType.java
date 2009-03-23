@@ -87,6 +87,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
     }
 
     /** Default factory method just returns a SimpleAsset */
+    @Override
     public abstract T create() throws FactoryException;
 
     /**
@@ -142,6 +143,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
 
   
     /** Noop recycle method to satisfy Factory interface */
+    @Override
     public void recycle(T a_whatever) {
     }
 
@@ -157,6 +159,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
     public static final AssetType<Asset> GENERIC = new AssetType<Asset>(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),
             "littleware.GENERIC") {
 
+        @Override
         public Asset create() {
             Asset a_result = new SimpleAsset();
             a_result.setAssetType(this);
@@ -167,6 +170,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
     public static final AssetType<Asset> HOME = new AssetType<Asset>(UUIDFactory.parseUUID("C06CC38C6BD24D48AB5E2D228612C179"),
             "littleware.HOME") {
 
+        @Override
         public Asset create() {
             Asset a_result = new SimpleAsset();
             a_result.setAssetType(this);
@@ -189,6 +193,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
     public static final AssetType<Asset> LINK = new AssetType<Asset>(UUIDFactory.parseUUID("926D122F82FE4F28A8F5C790E6733665"),
             "littleware.LINK") {
 
+        @Override
         public Asset create() {
             Asset a_result = new SimpleAsset();
             a_result.setAssetType(this);
@@ -202,6 +207,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
     public static final AssetType<Asset> UNKNOWN = new AssetType<Asset>(UUIDFactory.parseUUID("EDC97D5F816044E69BFC289F4715BA45"),
             "littleware.UNKNOWN") {
 
+        @Override
         public Asset create() {
             Asset a_result = new SimpleAsset();
             a_result.setAssetType(this);

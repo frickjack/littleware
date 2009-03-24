@@ -72,6 +72,13 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
      * @return /A/B/C if this path is /ROOT/A/B/C, / if this path is /ROOT
      */
     public String getSubRootPath ();
+
+    /**
+     * Get portion of path after rightmost /
+     *
+     * @return C if this path is /ROOT/A/B/C, ROOT if this path is /ROOT
+     */
+    public String getBasename();
     
     /**
      * Retrieve the asset referenced by this path.

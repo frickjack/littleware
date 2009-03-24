@@ -31,6 +31,7 @@ public class EzModule implements Module {
      *      </ul>
      * @param binder_in
      */
+    @Override
     public void configure( Binder binder_in ) {
         final       LgoCommandDictionary  parser = new EzLgoCommandDictionary ();
         final       LgoHelpLoader         helper = new XmlLgoHelpLoader ();

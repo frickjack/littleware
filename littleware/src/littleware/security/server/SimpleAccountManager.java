@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.security.server;
 
 import littleware.asset.server.NullAssetSpecializer;
@@ -40,7 +39,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     private final AssetManager om_asset;
     private final AssetSearchManager om_search;
     private final DbAuthManager om_dbauth;
-    private final QuotaUtil     om_quota;
+    private final QuotaUtil om_quota;
     private final TransactionManager omgr_trans;
 
     /**
@@ -55,8 +54,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             AssetSearchManager m_searcher,
             DbAuthManager m_dbauth,
             QuotaUtil m_quota,
-            TransactionManager mgr_trans
-            ) {
+            TransactionManager mgr_trans) {
         om_asset = m_asset;
         om_search = m_searcher;
         om_dbauth = m_dbauth;
@@ -245,6 +243,14 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
                     throw new AssertionFailedException("Exception of unexpected type", e_cause);
                 }
             }
+            // Give the user a password
+            try {
+                DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(a_new.getObjectId());
+                sql_password.saveObject("default_password");
+            } catch (SQLException e) {
+                throw new DataAccessException("Falure updating password, caught: " + e, e);
+            }
+
         } else if (SecurityAssetType.GROUP.equals(a_new.getAssetType())) {
             postUpdateCallback(null, a_new, m_asset);
         }
@@ -257,9 +263,17 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     public void postDeleteCallback(Asset a_deleted, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.GROUP.equals(a_deleted.getAssetType()) || SecurityAssetType.USER.equals(a_deleted.getAssetType())) {
-            Map<String, UUID> v_children = om_search.getAssetIdsFrom(a_deleted.getObjectId(),
-                    SecurityAssetType.GROUP_MEMBER);
-            Set<Asset> v_member_links = om_search.getAssets(v_children.values());
+            Set<UUID> vChildren = new HashSet<UUID>();
+            vChildren.addAll(
+                    om_search.getAssetIdsFrom(a_deleted.getObjectId(),
+                                                SecurityAssetType.GROUP_MEMBER).values()
+                    );
+            vChildren.addAll(
+                    om_search.getAssetIdsTo(a_deleted.getObjectId(),
+                            SecurityAssetType.GROUP_MEMBER)
+                    );
+
+            Set<Asset> v_member_links = om_search.getAssets( vChildren );
             for (Asset p_link : v_member_links) {
                 m_asset.deleteAsset(p_link.getObjectId(), "cleaning up deleted principal");
             }
@@ -320,11 +334,11 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         }
     }
 
-
     public int incrementQuotaCount() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return om_quota.incrementQuotaCount( getAuthenticatedUser(), om_asset, om_search );
+        return om_quota.incrementQuotaCount(getAuthenticatedUser(), om_asset, om_search);
     }
+
     /**
      * Just call through to AssetSearchManager.getAsset () - 
      * the AssetSearchManager calls back to our narrow() method
@@ -350,6 +364,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     }
     private static Factory<UUID> ofactory_uuid = UUIDFactory.getFactory();
 
+    @Override
     public LittleUser createUser(LittleUser p_new,
             String s_password) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
@@ -390,6 +405,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
 
     }
 
+    @Override
     public boolean isValidPassword(String s_password) {
         if (null == s_password) {
             return false;
@@ -409,6 +425,6 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
 
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return om_quota.getQuota( p_user, om_search );
+        return om_quota.getQuota(p_user, om_search);
     }
 }

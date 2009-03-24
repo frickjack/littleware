@@ -123,7 +123,6 @@ public class PackageTestSuite extends ServerTestLauncher {
             olog.log(Level.INFO, "Trying to setup littleware.apps test suite");
             this.addTest( injector.getInstance( littleware.apps.test.PackageTestSuite.class ) );
         }
-
     }
 
     /**

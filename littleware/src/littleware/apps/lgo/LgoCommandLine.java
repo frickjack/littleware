@@ -57,7 +57,9 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             LgoBrowserCommand comBrowse,
             DeleteAssetCommand comDelete,
             ListChildrenCommand comLs,
-            GetAssetCommand     comGet
+            GetAssetCommand     comGet,
+            CreateFolderCommand  comFolder,
+            CreateUserCommand    comUser
             ) {
         omgrCommand = mgrCommand;
         omgrHelp = mgrHelp;
@@ -65,7 +67,8 @@ public class LgoCommandLine implements BundleActivator, Runnable {
 
         for (LgoCommand command : // need to move this into a properties file
                 new LgoCommand[]{
-                    comHelp, comXml, comBrowse, comDelete, comLs, comGet
+                    comHelp, comXml, comBrowse, comDelete, comLs, comGet,
+                    comFolder, comUser
                 }) {
             mgrCommand.setCommand( mgrHelp, command );
         }

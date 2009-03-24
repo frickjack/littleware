@@ -166,6 +166,9 @@ public class AssetPathTester extends TestCase {
                 assertTrue ( "Path properly normalized: " + path_test,
                              path_test.toString ().indexOf ( ".." ) < 0
                              );
+                assertTrue( "Path has expected basename " + i_count + ": " + path_test.getBasename(),
+                        path_test.getBasename().equals( Integer.toString( i_count ) )
+                        );
                 AssetPath path_root = factory_path.createPath( path_test.getRoot ( om_search ).getObjectId (),
                                                                path_test.getSubRootPath ()
                                                                );

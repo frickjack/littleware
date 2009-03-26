@@ -69,9 +69,10 @@ public class CreateFolderTester extends LittleTest {
 
     public void testCreate() {
         try {
-            ocomTest.runCommand( new LoggerUiFeedback(),
+            Asset aNew = ocomTest.runCommand( new LoggerUiFeedback(),
                     "/" + getTestHome() + "/testCreateFolder"
                     );
+            assertTrue( "Created asset", null != aNew );
         } catch ( LgoException ex ) {
             olog.log( Level.WARNING, "Failed test", ex );
             assertTrue( "Caught exception: " + ex, false );

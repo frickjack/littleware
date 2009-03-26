@@ -13,7 +13,6 @@ package littleware.apps.lgo;
 import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import littleware.apps.client.UiFeedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
@@ -21,22 +20,25 @@ import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
+import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.Whatever;
 
 /**
  * Create a generic asset that inherits most properties from its parent
  */
-public class CreateFolderCommand extends AbstractLgoCommand<String,UUID> {
+public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
     private final AssetSearchManager osearch;
     private final AssetManager omgrAsset;
     private final AssetPathFactory ofactoryPath;
 
+
     @Inject
     public CreateFolderCommand ( AssetSearchManager search,
             AssetManager mgrAsset,
-            AssetPathFactory factoryPath
+            AssetPathFactory factoryPath,
+            HumanPicklerProvider providePickler
             ) {
-        super( CreateFolderCommand.class.getName() );
+        super( CreateFolderCommand.class.getName(), providePickler );
         osearch = search;
         omgrAsset = mgrAsset;
         ofactoryPath = factoryPath;
@@ -54,7 +56,7 @@ public class CreateFolderCommand extends AbstractLgoCommand<String,UUID> {
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public UUID runSafe(UiFeedback feedback, String sDefaultPath ) throws LgoException {
+    public Asset runSafe(UiFeedback feedback, String sDefaultPath ) throws LgoException {
         final Map<String,String> mapDefault = new HashMap<String,String>();
         mapDefault.put( Option.path.toString(), sDefaultPath );
         mapDefault.put( Option.comment.toString(), "no comment" );
@@ -86,10 +88,11 @@ public class CreateFolderCommand extends AbstractLgoCommand<String,UUID> {
                 );
         aNew.setComment( sComment );
         try {
-            return omgrAsset.saveAsset( aNew, "CreateFolderCommand" ).getObjectId();
+            return omgrAsset.saveAsset( aNew, "CreateFolderCommand" );
         } catch ( Exception ex ) {
             throw new LgoException( "Failed to save new asset " + sPath, ex );
         }
     }
+
 
 }

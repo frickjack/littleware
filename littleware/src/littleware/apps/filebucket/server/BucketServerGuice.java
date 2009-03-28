@@ -19,8 +19,10 @@ import littleware.apps.filebucket.BucketManager;
  */
 public class BucketServerGuice implements Module {
 
+    @Override
     public void configure(Binder binder) {
         binder.bind( BucketManager.class ).to( SimpleBucketManager.class );
+        binder.bind( DeleteCBProvider.class ).to( SimpleDeleteCBProvider.class );
     }
 
 }

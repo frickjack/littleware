@@ -200,6 +200,26 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
             return a_result;
         }
     };
+
+    /**
+     * Globally name-unique asset-type for setting up
+     * distributed exclusion locks.
+     * Can setup cron-job to delete old locks out of the repository.
+     */
+    public static final AssetType<Asset> LOCK =
+        new AssetType<Asset>( UUIDFactory.parseUUID("5C52B28DA10A435B957AD5EF454F01C7"),
+                    "littleware.LOCK" ) {
+        @Override
+        public Asset create() {
+            Asset aResult = new SimpleAsset();
+            aResult.setAssetType(this);
+            return aResult;
+        }
+
+        @Override
+        public boolean isNameUnique() { return true; }
+    };
+
     /**
      * UNKNOWN asset-type - place holder for asset-types that we don't have a handler for.
      * The engine refuses to save/create/update assets with UNKNOWN type.

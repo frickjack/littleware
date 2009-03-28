@@ -13,6 +13,7 @@ import littleware.base.*;
  */
 public class NullAssetSpecializer implements AssetSpecializer {
 
+    @Override
 	public <T extends Asset> T narrow ( T a_in, AssetRetriever m_retriever
 						  ) throws BaseException, AssetException, 
 	GeneralSecurityException, RemoteException

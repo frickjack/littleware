@@ -114,6 +114,7 @@ public class ServerActivator implements BundleActivator {
      * @param ctx
      * @throws java.lang.Exception
      */
+    @Override
     public void start(BundleContext ctx) throws Exception {
         try {
             Registry rmi_registry = null;
@@ -154,6 +155,7 @@ public class ServerActivator implements BundleActivator {
         omgr_cache.clear();
     }
 
+    @Override
     public void stop(BundleContext ctx) throws Exception {
         olog.log( Level.INFO, "littleware shutdown ok" );
     }

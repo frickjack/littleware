@@ -21,10 +21,12 @@ import java.util.Map;
 public class SimpleLittleRegistry<K,V> implements LittleRegistry<K,V> {
     private final Map<K,V> omap = new HashMap<K,V> ();
 
+    @Override
     public V getService(K name) {
         return omap.get( name );
     }
 
+    @Override
     public void registerService(K name, V service) {
         omap.put( name, service );
     }

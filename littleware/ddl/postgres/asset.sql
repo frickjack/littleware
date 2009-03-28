@@ -182,6 +182,10 @@ INSERT INTO littleware.x_asset_type ( s_id, s_name, s_comment, b_name_unique )
     VALUES ( '489F21E1D19B49F3B923E7B45609A811', 'littleware.dependency', 
 	          'tracker dependency asset', false );
 
+INSERT INTO littleware.x_asset_type ( s_id, s_name, s_comment, b_name_unique )
+    VALUES ( '5C52B28DA10A435B957AD5EF454F01C7', 'littleware.lock',
+	          'name-unique distributed exclusion lock', true );
+
                                                                                   
 
 --

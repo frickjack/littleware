@@ -84,7 +84,7 @@ public interface LittleTransaction {
     public void endDbUpdate ( boolean b_rollback ) throws SQLException;
     
     /**
-     * If idDbUpdate(), then defer the given Runnable action until
+     * If isDbUpdating(), then defer the given Runnable action until
      * the transaction completely ends, otherwise
      * just run it now.
      */

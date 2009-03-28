@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import littleware.apps.filebucket.server.DeleteCBProvider;
 import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.*;
@@ -62,6 +63,7 @@ public class SimpleAssetManager implements AssetManager {
     private final QuotaUtil     oquota;
     private final AssetSpecializerRegistry  oregistry_special;
     private final TransactionManager        omgr_trans;
+    private final DeleteCBProvider oprovideBucketCB;
 
     /**
      * Constructor sets up internal data source.
@@ -83,7 +85,8 @@ public class SimpleAssetManager implements AssetManager {
             QuotaUtil quota,
             AssetSpecializerRegistry  registry_special,
             com.google.inject.Provider<LittleTransaction> provide_trans,
-            TransactionManager  mgr_trans
+            TransactionManager  mgr_trans,
+            littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB
             ) {
         om_cache = m_cache;
         om_search = m_search;
@@ -92,6 +95,7 @@ public class SimpleAssetManager implements AssetManager {
         oregistry_special = registry_special;
         oprovide_trans = provide_trans;
         omgr_trans = mgr_trans;
+        oprovideBucketCB = provideBucketCB;
     }
 
     /** Internal utility */
@@ -113,6 +117,7 @@ public class SimpleAssetManager implements AssetManager {
         return true;
     }
 
+    @Override
     public void deleteAsset(UUID u_asset,
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
@@ -151,6 +156,7 @@ public class SimpleAssetManager implements AssetManager {
                 om_cache.remove(a_asset.getObjectId());
                 oregistry_special.getService( a_asset.getAssetType() ).postDeleteCallback(a_asset, this);
                 b_rollback = false;
+                trans_delete.deferTillTransactionEnd( oprovideBucketCB.build( a_asset ) );
             } finally {
                 trans_delete.endDbUpdate(b_rollback);
             }
@@ -161,6 +167,7 @@ public class SimpleAssetManager implements AssetManager {
         }
     }
 
+    @Override
     public <T extends Asset> T saveAsset(T a_asset,
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
@@ -351,6 +358,7 @@ public class SimpleAssetManager implements AssetManager {
         return a_asset;
     }
 
+    @Override
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets, String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         LittleTransaction trans_batch = omgr_trans.getThreadTransaction();

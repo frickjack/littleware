@@ -27,10 +27,26 @@ import littleware.base.Whatever;
  * Create a generic asset that inherits most properties from its parent
  */
 public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
-    private final AssetSearchManager osearch;
-    private final AssetManager omgrAsset;
-    private final AssetPathFactory ofactoryPath;
-
+    private final AssetSearchManager            osearch;
+    private final AssetManager                  omgrAsset;
+    private final AssetPathFactory              ofactoryPath;
+    private final AssetType<? extends Asset>    otypeCreate;
+    /**
+     * Allow subtypes to specialize based on asset-type
+     */
+    protected CreateFolderCommand( String sName, AssetType<? extends Asset> typeCreate,
+            AssetSearchManager search,
+            AssetManager mgrAsset,
+            AssetPathFactory factoryPath,
+            HumanPicklerProvider providePickler
+            )
+    {
+        super( sName, providePickler );
+        osearch = search;
+        omgrAsset = mgrAsset;
+        ofactoryPath = factoryPath;
+        otypeCreate = typeCreate;
+    }
 
     @Inject
     public CreateFolderCommand ( AssetSearchManager search,
@@ -38,10 +54,9 @@ public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
             AssetPathFactory factoryPath,
             HumanPicklerProvider providePickler
             ) {
-        super( CreateFolderCommand.class.getName(), providePickler );
-        osearch = search;
-        omgrAsset = mgrAsset;
-        ofactoryPath = factoryPath;
+        this( CreateFolderCommand.class.getName(), AssetType.GENERIC,
+                search, mgrAsset, factoryPath, providePickler
+                );
     }
 
     private enum Option { path, comment }
@@ -83,7 +98,7 @@ public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
             throw new LgoException ( "Failed to load parent of: " + path );
         }
         final String sComment = mapArgs.get( Option.comment.toString() );
-        Asset aNew = AssetType.createSubfolder( AssetType.GENERIC, path.getBasename(),
+        Asset aNew = AssetType.createSubfolder( otypeCreate, path.getBasename(),
                 aParent
                 );
         aNew.setComment( sComment );

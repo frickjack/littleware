@@ -31,6 +31,7 @@ import littleware.asset.server.db.postgres.DbAssetPostgresManager;
 public class AssetServerGuice implements Module {
     private static final Logger olog = Logger.getLogger( AssetServerGuice.class.getName () );
 
+    @Override
     public void configure(Binder binder) {
         binder.bind( AssetManager.class ).to( SimpleAssetManager.class ).in( Scopes.SINGLETON );
         binder.bind( AssetRetriever.class ).to( AssetSearchManager.class ).in( Scopes.SINGLETON );

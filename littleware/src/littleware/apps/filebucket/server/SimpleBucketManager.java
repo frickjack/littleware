@@ -97,6 +97,7 @@ public class SimpleBucketManager implements BucketManager {
               
 
     
+    @Override
     public Bucket getBucket ( UUID u_asset ) throws BaseException, GeneralSecurityException,
                                 AssetException, RemoteException, BucketException, IOException
     {
@@ -112,6 +113,7 @@ public class SimpleBucketManager implements BucketManager {
     
     
 
+    @Override
     public <T extends Asset> T writeToBucket ( T a_in, String s_path,
                                   String s_data, String s_update_comment 
                                   ) throws BaseException, GeneralSecurityException,
@@ -137,6 +139,7 @@ public class SimpleBucketManager implements BucketManager {
         }
     }        
 
+    @Override
     public <T extends Asset> T writeToBucket ( T a_bucket, String s_path,
                                 byte[] v_data, String s_update_comment
                                 ) throws BaseException, GeneralSecurityException,
@@ -170,6 +173,7 @@ public class SimpleBucketManager implements BucketManager {
     }
     
 
+    @Override
     public String readTextFromBucket ( UUID u_asset, String s_path 
                                        ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
@@ -178,6 +182,7 @@ public class SimpleBucketManager implements BucketManager {
     }
     
 
+    @Override
     public byte[] readBytesFromBucket ( UUID u_asset, String s_path 
                                         ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
@@ -201,6 +206,7 @@ public class SimpleBucketManager implements BucketManager {
     }
     
 
+    @Override
     public <T extends Asset> T eraseFromBucket ( T a_bucket, String s_path,
                                    String s_update_comment
                                     ) throws BaseException, GeneralSecurityException,
@@ -223,6 +229,7 @@ public class SimpleBucketManager implements BucketManager {
     }
     
 
+    @Override
     public <T extends Asset> T renameFile ( T a_bucket, String s_start_path, String s_rename_path,
                                String s_update_comment
                                ) throws BaseException, GeneralSecurityException,
@@ -247,6 +254,7 @@ public class SimpleBucketManager implements BucketManager {
     }
     
 
+    @Override
     public <T extends Asset> T copyFile ( UUID u_in, String s_in_path,
                             T a_out, String s_copy_path,
                             String s_update_comment

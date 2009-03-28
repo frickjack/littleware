@@ -35,6 +35,7 @@ import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.AssetType;
 import littleware.asset.client.AssetManagerService;
 import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.LittleService;
@@ -43,6 +44,7 @@ import littleware.base.PropertiesLoader;
 import littleware.base.UUIDFactory;
 import littleware.base.swing.JPasswordDialog;
 import littleware.security.AccountManager;
+import littleware.security.SecurityAssetType;
 import littleware.security.client.AccountManagerService;
 
 /**
@@ -269,5 +271,9 @@ public class ClientServiceGuice implements LittleGuiceModule {
             }
         });
         binder.bind(AssetRetriever.class).to( AssetSearchManager.class );
+
+        olog.log( Level.FINE, "Forcing load of SecurityAssetType and AssetType: " +
+                AssetType.HOME + ", " + SecurityAssetType.USER
+                );
     }
 }

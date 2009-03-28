@@ -11,34 +11,29 @@
 package littleware.apps.lgo;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import java.io.StringWriter;
 import littleware.apps.client.UiFeedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.pickle.AssetHumanPickler;
+import littleware.asset.pickle.HumanPicklerProvider;
 
 /**
- *
- * @author pasquini
+ * Get the asset at a given path
  */
-public class GetAssetCommand extends AbstractLgoCommand<AssetPath,Asset> {
+public class GetAssetCommand extends AbstractCreateCommand<AssetPath,Asset> {
     private final AssetSearchManager osearch;
     private final AssetPathFactory ofactoryPath;
-    private final Provider<AssetHumanPickler> oprovidePickler;
 
     @Inject
     public GetAssetCommand(
-            Provider<AssetHumanPickler> providePickler,
+            HumanPicklerProvider        providePickler,
             AssetPathFactory            factoryPath,
             AssetSearchManager          search
             ) {
-        super( GetAssetCommand.class.getName() );
+        super( GetAssetCommand.class.getName(), providePickler );
         osearch = search;
         ofactoryPath = factoryPath;
-        oprovidePickler = providePickler;
     }
 
     public AssetPath getPathFromArgs( Object xDefault ) throws LgoArgException {
@@ -83,17 +78,6 @@ public class GetAssetCommand extends AbstractLgoCommand<AssetPath,Asset> {
         }
     }
 
-    @Override
-    public String runCommandLine( UiFeedback feedback, String sIn ) throws LgoException {
-        StringWriter writer = new StringWriter();
-        try {
-            oprovidePickler.get().pickle(runCommand(feedback, sIn), writer);
-            return writer.toString();
-        } catch ( LgoException ex ) {
-            throw ex;
-        } catch ( Exception ex ) {
-            throw new LgoException( "Failed to retrieve asset", ex );
-        }
-    }
+    
 }
 

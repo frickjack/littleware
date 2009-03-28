@@ -12,7 +12,6 @@ package littleware.apps.lgo;
 
 import com.google.inject.Inject;
 import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import littleware.apps.client.UiFeedback;
 import littleware.asset.Asset;
@@ -20,6 +19,7 @@ import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
+import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.Whatever;
 import littleware.security.AccountManager;
 import littleware.security.LittleGroup;
@@ -30,7 +30,7 @@ import littleware.security.SecurityAssetType;
  * Create a new littleware.USER asset at /littleware.home/Users/name.
  * Return the new user's objectid.
  */
-public class CreateUserCommand extends AbstractLgoCommand<String,UUID> {
+public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> {
     private final AssetSearchManager osearch;
     private final AssetManager omgrAsset;
     private final AssetPathFactory ofactoryPath;
@@ -39,9 +39,10 @@ public class CreateUserCommand extends AbstractLgoCommand<String,UUID> {
     public CreateUserCommand( 
             AssetSearchManager search,
             AssetManager       mgrAsset,
-            AssetPathFactory   factoryPath
+            AssetPathFactory   factoryPath,
+            HumanPicklerProvider providePickler
             ) {
-        super( CreateUserCommand.class.getName() );
+        super( CreateUserCommand.class.getName(), providePickler );
         osearch = search;
         omgrAsset = mgrAsset;
         ofactoryPath = factoryPath;
@@ -50,7 +51,7 @@ public class CreateUserCommand extends AbstractLgoCommand<String,UUID> {
     private enum Option { name, admin };
     
     @Override
-    public UUID runSafe(UiFeedback feedback, String sDefaultName ) throws LgoException {
+    public LittleUser runSafe(UiFeedback feedback, String sDefaultName ) throws LgoException {
         final Map<String,String> mapArg = processArgs( getArgs(),
                 Option.name.toString(), Option.admin.toString()
                 );
@@ -94,7 +95,7 @@ public class CreateUserCommand extends AbstractLgoCommand<String,UUID> {
                         );
             }
         }
-        return userNew.getObjectId();
+        return userNew;  //.getObjectId();
     }
 
 }

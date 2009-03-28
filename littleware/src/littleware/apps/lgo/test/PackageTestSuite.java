@@ -32,19 +32,23 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             Provider<SetImageTester> factoryImageTester,
             Provider<ListChildrenTester> factoryChildrenTester,
             Provider<GetAssetTester> factoryGetTester,
-            Provider<CreateFolderTester> factoryCreateTester
+            Provider<CreateFolderTester> factoryCreateTester,
+            Provider<GetByNameTester> factoryByNameTester
             )
     {
         super( PackageTestSuite.class.getName() );
         osingleton = this;
 
-        this.addTest( factoryArgTester.get() );
-        this.addTest( factoryDeleteTester.get() );
-        this.addTest( factoryXmlHelpTester.get() );
-        this.addTest( factoryImageTester.get() );
-        this.addTest( factoryChildrenTester.get() );
-        this.addTest( factoryGetTester.get() );
-        this.addTest( factoryCreateTester.get() );
+        if ( true ) {
+            this.addTest( factoryArgTester.get() );
+            this.addTest( factoryDeleteTester.get() );
+            this.addTest( factoryXmlHelpTester.get() );
+            this.addTest( factoryImageTester.get() );
+            this.addTest( factoryChildrenTester.get() );
+            this.addTest( factoryGetTester.get() );
+            this.addTest( factoryCreateTester.get() );
+        }
+        this.addTest( factoryByNameTester.get() );
     }
 
     /**

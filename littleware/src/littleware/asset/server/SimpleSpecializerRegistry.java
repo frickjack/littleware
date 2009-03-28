@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
@@ -13,7 +11,6 @@
 package littleware.asset.server;
 
 import littleware.asset.AssetType;
-import littleware.asset.server.NullAssetSpecializer;
 import littleware.base.SimpleLittleRegistry;
 
 /**

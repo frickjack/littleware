@@ -13,6 +13,6 @@
       nget -name name [-type lock]
       byname -name name [-type user]
   </description>
-  <shortname>get</shortname>
-  <shortname>cat</shortname>
+  <shortname>byname</shortname>
+  <shortname>nget</shortname>
 </help>

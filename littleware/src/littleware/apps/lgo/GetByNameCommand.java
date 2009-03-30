@@ -35,7 +35,7 @@ public class GetByNameCommand extends AbstractCreateCommand<String,Asset> {
             HumanPicklerProvider        providePickler,
             AssetSearchManager          search
             ) {
-        super( GetAssetCommand.class.getName(), providePickler );
+        super( GetByNameCommand.class.getName(), providePickler );
         osearch = search;
     }
 

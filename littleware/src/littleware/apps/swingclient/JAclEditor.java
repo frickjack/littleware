@@ -11,6 +11,8 @@
 
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -39,6 +41,7 @@ import littleware.security.*;
  */
 public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
     private static final Logger       olog_generic = Logger.getLogger ( JAclEditor.class.getName() );
+    private static final long serialVersionUID = -2200951092337918748L;
 
     private final AssetSearchManager        om_search;
     private final AssetManager              om_asset;
@@ -53,13 +56,14 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
      * of an ACL
      */
     private static class JAclTabbedPane extends JTabbedPane {
+        private static final long serialVersionUID = -433335749775998619L;
         private final Map<LittlePermission, JList>      omap_perms = new HashMap<LittlePermission, JList> ();
         private final java.util.List<LittlePermission>  ov_perms;
         
         /**
          * Inject dependency on IconLibrary
          */
-        public JAclTabbedPane ( IconLibrary lib_icon ) {
+        public JAclTabbedPane ( JAssetLinkRenderer render_cell ) {
             java.util.List<LittlePermission> v_perms = new ArrayList<LittlePermission> ();
             v_perms.add ( LittlePermission.READ );
             v_perms.add ( LittlePermission.WRITE );
@@ -71,7 +75,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
                     v_perms.add ( perm_other );
                 }
             }
-            ListCellRenderer render_cell = new JAssetLink ( lib_icon );
+
             for ( LittlePermission perm_tab : v_perms ) {
                 DefaultListModel  model_memberlist = new DefaultListModel ();
                 JList             wlist_members = new JList( model_memberlist );
@@ -130,6 +134,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
     {
         owbutton_delete.addActionListener(
                                           new ActionListener () {
+            @Override
                                               public void actionPerformed(ActionEvent e) {
                                                   uiDeleteMembers ();
                                               }
@@ -151,6 +156,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
         
         owbutton_add.addActionListener(
                                        new ActionListener () {
+            @Override
                                            public void actionPerformed(ActionEvent e) {
                                                uiAddNewMember ();
                                            }
@@ -339,19 +345,25 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
      * @param lib_icon source of icons
      * @param view_factory read-only view source for browsers     
      */
+    @Inject
     public JAclEditor ( AssetModel model_view, 
                           AssetManager m_asset,
                           AssetSearchManager m_search,
-                          IconLibrary lib_icon,
-                        AssetViewFactory factory_view
+                          JAssetLinkRenderer renderLink,
+                        AssetViewFactory factory_view,
+                        JAssetLink  jLinkAcl,
+                        IconLibrary lib_icon,
+                        Provider<JAssetLink>  provideLinkView,
+                        Provider<JAssetLinkEditor> provideLinkEditor
                         ) {
-        super( model_view, m_asset, m_search, lib_icon, factory_view );
+        super( model_view, m_asset, m_search, lib_icon, factory_view,
+                provideLinkView, provideLinkEditor
+                );
         om_search = m_search;
         om_asset = m_asset;
         olib_icon = lib_icon;
-        
-        owtab_perms = new JAclTabbedPane( lib_icon );
-        owlink_acl = new JAssetLink ( lib_icon );
+        owtab_perms = new JAclTabbedPane( renderLink );
+        owlink_acl = jLinkAcl;
         addAclTab ();
         updateTab ();
     }

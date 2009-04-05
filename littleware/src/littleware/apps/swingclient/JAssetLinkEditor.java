@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -36,6 +38,7 @@ import littleware.asset.AssetSearchManager;
  * a new value.
  */
 public class JAssetLinkEditor extends JPanel implements LittleTool {
+    private static final long serialVersionUID = 4382569089890915657L;
     private final SimpleLittleTool     otool_support = new SimpleLittleTool ( this );
     private final JAssetLink           owalink_edit;
     private final AssetSearchManager   om_search;  
@@ -43,9 +46,10 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
     private final AssetModelLibrary    olib_asset;
     private final AssetViewFactory     ofactory_view;
     
-    private       AssetView            oview_browser = null;
+    private       JAssetBrowser        oview_browser = null;
     private       JDialog              owdial_browser = null;
-    private       AssetModel           oamodel_fallback = null;    
+    private       AssetModel           oamodel_fallback = null;
+    private final Provider<JAssetBrowser> oprovideBrowser;
     
     
     /**
@@ -58,24 +62,29 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
      *         browsing at if the link is set to null  
      * @param factory_view view-factory for browsing in search of new assets
      */
+    @Inject
     public JAssetLinkEditor ( AssetSearchManager m_search, 
                               AssetModelLibrary lib_asset,
                               IconLibrary lib_icon,
                               AssetModel amodel_fallback,
-                              AssetViewFactory factory_view
+                              AssetViewFactory factory_view,
+                              Provider<JAssetLink> provideLinkView,
+                              Provider<JAssetBrowser> provideBrowser
                         ) {
         super( new FlowLayout ( FlowLayout.LEFT ) );
-        owalink_edit = new JAssetLink ( lib_icon );
+        owalink_edit = provideLinkView.get();
         owalink_edit.setToolTipText ( null );
         olib_asset = lib_asset;
         olib_icon = lib_icon;
         om_search = m_search;
         oamodel_fallback = amodel_fallback;
         ofactory_view = factory_view;
+        oprovideBrowser = provideBrowser;
         
         JButton  wbutton_browse = new JButton ( lib_icon.lookupIcon ( "littleware.browse" ) );
         wbutton_browse.addActionListener (
                                           new ActionListener () {
+            @Override
                                               public void actionPerformed ( ActionEvent ev_button ) {
                                                   openBrowser ();
                                               }
@@ -92,23 +101,19 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
     private void openBrowser () {
         if ( null == owdial_browser ) {
             // build the browser
-            JComponent wbrowser_asset = new JAssetBrowser (  ofactory_view,
-                                                             olib_icon,
-                                                             olib_asset,
-                                                             om_search
-                                                             );
+            oview_browser = oprovideBrowser.get();
             
             SimpleAssetViewController  listen_control = new SimpleAssetViewController ( 
                                                                              om_search,
                                                                              olib_asset
                                                                              );
-            listen_control.setControlView( (AssetView) wbrowser_asset );
-            JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar ( 
+            listen_control.setControlView( (AssetView) oview_browser );
+            final JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar (
                                                                   olib_asset,
                                                                   olib_icon,
                                                                   om_search
                                                                   );
-            wtoolbar_asset.setConnectedView( (AssetView) wbrowser_asset );
+            wtoolbar_asset.setConnectedView( (AssetView) oview_browser );
             ((LittleTool) wtoolbar_asset).addLittleListener ( listen_control );
             
             final JPanel              wpanel_buttons = new JPanel ();
@@ -117,6 +122,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
             final JButton wbutton_select = new JButton ( "Select" );
             
             wbutton_select.addActionListener ( new ActionListener () {
+                @Override
                 public void actionPerformed( ActionEvent evt_action ) {
                     try {
                         Asset a_selected = oview_browser.getAssetModel ().getAsset ();
@@ -156,13 +162,13 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
             gcontrol_browser.gridwidth = GridBagConstraints.REMAINDER;
             gcontrol_browser.gridheight = GridBagConstraints.REMAINDER;
             gcontrol_browser.fill = GridBagConstraints.BOTH;
-            wpanel_browser.add ( wbrowser_asset, gcontrol_browser );
+            wpanel_browser.add ( oview_browser, gcontrol_browser );
             
             owdial_browser = new JDialog ();
             owdial_browser.setTitle ( "Link Editor" );
             
             owdial_browser.getContentPane ().add ( wpanel_browser );
-            oview_browser = (AssetView) wbrowser_asset;
+            //oview_browser = (AssetView) oview_browser;
             owdial_browser.setPreferredSize ( new Dimension ( 1000, 700 ) );  // force big            
             owdial_browser.pack ();            
         }
@@ -179,11 +185,13 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
         owdial_browser.setVisible ( true );
     }
 
+    @Override
 	public void	addLittleListener( LittleListener listen_action ) {
         otool_support.addLittleListener ( listen_action );
     }
 	
 
+    @Override
 	public void     removeLittleListener( LittleListener listen_action ) {
         otool_support.removeLittleListener ( listen_action );
     }
@@ -209,7 +217,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
      * @param u_id to display - may be null - ignores other args if null
      */
     public void setLink ( UUID u_id ) {
-        owalink_edit.setLink ( u_id, olib_asset, om_search );
+        owalink_edit.setLink ( u_id );
         if ( null != u_id ) {
             setFallbackAsset ( olib_asset.get ( u_id ) );
         }

@@ -1,13 +1,36 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.client;
 
-import com.google.inject.ImplementedBy;
+import com.google.inject.Provider;
+import littleware.asset.AssetType;
 
 /**
  * Factory generates a view for a given AssetModel
  * based on the Asset-type and the factory type.
  */
 public interface AssetViewFactory {
-    
+
+    /**
+     * Register a new provider - usually at OSGi startup time
+     *
+     * @param atype to register
+     * @param provider editor factory
+     * @param classOfEditor that an editor for atype must be an instance of
+     *                     to pass the checkView() test
+     */
+    public void registerProvider( AssetType atype,
+            Provider<? extends AssetView> provider,
+            Class<? extends AssetView> classOfEditor
+            );
 
     /**
      * Create a view appropriate for the 
@@ -33,7 +56,4 @@ public interface AssetViewFactory {
     public boolean checkView ( AssetView view_check, AssetModel model_asset );
     
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

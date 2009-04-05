@@ -1,26 +1,24 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.Principal;
-import java.security.acl.Group;
 
 import javax.swing.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
-import littleware.base.BaseException;
-import littleware.base.NoSuchThingException;
 import littleware.base.swing.ListModelIterator;
 import littleware.security.*;
 
@@ -33,6 +31,7 @@ import littleware.security.*;
  */
 public class JGroupsUnderParentView extends JGroupListView implements AssetView {
     private static final Logger         olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JGroupsUnderParentView" );
+    private static final long serialVersionUID = 1251881511039167615L;
     
     private final AssetModelLibrary     olib_asset;
     private final DefaultListModel      olmodel_groups;
@@ -41,12 +40,14 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
     private boolean                     ob_update_scheduled = false;
     private final AbstractAssetView     oaview_delegate = new AbstractAssetView ( this ) {
         /** Events form the data model */
+        @Override
         public void eventFromModel ( LittleEvent evt_from_model ) {
             olog_generic.log ( Level.FINE, "Got PropertyChangeEvent, update scheduled ?: " + ob_update_scheduled );
             if ( ! ob_update_scheduled ) {
                 // Since we update everything anyway - avoid doing it multiple times
                 ob_update_scheduled = true;  
                 SwingUtilities.invokeLater ( new Runnable () {
+                    @Override
                     public void run () {
                         try {
                             updateGrouplist ();
@@ -62,6 +63,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
     
     // Listen to the groups that are being displayed
     private final LittleListener  olisten_children = new LittleListener () {
+        @Override
         public void receiveLittleEvent ( LittleEvent event_groupmodel ) {
             AssetModel  amodel_source = (AssetModel) event_groupmodel.getSource ();
             LittleGroup group_source = (LittleGroup) amodel_source.getAsset ();
@@ -90,9 +92,10 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
     private JGroupsUnderParentView ( AssetModelLibrary  lib_asset,
                                      IconLibrary        lib_icon,
                                      DefaultListModel   lmodel_groups,
-                                     AssetSearchManager m_search
+                                     AssetSearchManager m_search,
+                                     JAssetLinkRenderer renderLinkCell
                                     ) {
-        super ( lib_icon, lmodel_groups );
+        super ( lib_icon, lmodel_groups, renderLinkCell );
         olib_asset = lib_asset;
         om_search = m_search;
         olmodel_groups = lmodel_groups;
@@ -107,15 +110,21 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
      */    
     public JGroupsUnderParentView ( AssetModelLibrary lib_asset,
                                     IconLibrary lib_icon,
-                                    AssetSearchManager m_search ) {
-        this ( lib_asset, lib_icon, new DefaultListModel (), m_search );
+                                    AssetSearchManager m_search,
+                                    JAssetLinkRenderer renderLinkCell
+                                    ) {
+        this ( lib_asset, lib_icon, new DefaultListModel (), m_search,
+                renderLinkCell
+                );
     }
     
+    @Override
     public void	addLittleListener( LittleListener listen_little ) {
 		oaview_delegate.addLittleListener ( listen_little );
 	}
 	
 	
+    @Override
 	public void     removeLittleListener( LittleListener listen_little ) {
 		oaview_delegate.removeLittleListener ( listen_little );
 	}
@@ -132,6 +141,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
         oaview_delegate.removePropertyChangeListener ( listen_props );
     }
     
+    @Override
     public AssetModel getAssetModel () {
         return oaview_delegate.getAssetModel ();
     }
@@ -162,6 +172,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
                 v_groups.addAll ( om_search.getAssets ( v_ids ) );
             }
             Collections.sort ( v_groups, new Comparator<Asset> () {
+                @Override
                 public int compare( Asset a_1, Asset a_2 ) {
                     return a_1.getName ().compareTo ( a_2.getName () );
                 }
@@ -185,12 +196,12 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
      * Reset the underlying JGroupListModel to the
      * GROUP children of the new model.
      */
+    @Override
     public void setAssetModel ( AssetModel model_asset ) {
         Asset a_root = model_asset.getAsset ();
         setRoot ( a_root );
         oaview_delegate.setAssetModel ( model_asset );
         updateGrouplist ();
     }
-    
-	
+    	
 }

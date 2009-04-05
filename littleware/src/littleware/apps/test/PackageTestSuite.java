@@ -16,17 +16,21 @@ import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import javax.swing.SwingUtilities;
 import junit.framework.*;
 
+import littleware.apps.client.ClientBootstrap;
 import littleware.apps.misc.test.ImageManagerTester;
 import littleware.apps.misc.test.ThumbManagerTester;
 import littleware.base.AssertionFailedException;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 /**
  * Test suite for littleware.asset package
  */
-public class PackageTestSuite extends TestSuite {
-
+public class PackageTestSuite extends TestSuite implements BundleActivator {
+    private static PackageTestSuite  osingleton = null;
     private static final Logger olog = Logger.getLogger( PackageTestSuite.class.getName() );
 
 
@@ -42,7 +46,7 @@ public class PackageTestSuite extends TestSuite {
             ) {
         super( PackageTestSuite.class.getName() );
 
-        final boolean b_run = true;
+        boolean b_run = false;
 
         if ( b_run ) {
             this.addTest( suiteLgo );
@@ -71,12 +75,11 @@ public class PackageTestSuite extends TestSuite {
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testJAssetViews") );
         }
+        b_run = true;
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testJAssetBrowser") );
         }
-        if (b_run) {
-            this.addTest( provide_swing_test.get().putName("testGroupFolderTool") );
-        }
+        b_run = false;
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testAssetModelLibrary") );
         }
@@ -86,7 +89,7 @@ public class PackageTestSuite extends TestSuite {
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testWizardCreate") );
         }
-
+        
         try {
             if (b_run) {
                 TestCase test = provide_bucket_test.get();
@@ -104,6 +107,51 @@ public class PackageTestSuite extends TestSuite {
             throw new AssertionFailedException("Failed to get started");
         }
 
-        olog.log(Level.INFO, "PackageTestSuite() returning ok ...");
+        olog.log(Level.INFO, "PackageTestSuite() ok ...");
+        osingleton = this;
     }
+
+    /**
+     * Return the singleton set by the constructor as part
+     * of the OSGi bootstrap process
+     */
+    public static Test suite() {
+        if ( null == osingleton ) {
+            throw new IllegalStateException ( "PackageTestSuite not initialized - cannot bootstrap test" );
+        }
+        return osingleton;
+    }
+
+    /**
+     * Launch the JUNIT TestRunner
+     */
+    @Override
+    public void start(BundleContext ctx) {
+        SwingUtilities.invokeLater( new Runnable () {
+
+            @Override
+            public void run() {
+                junit.swingui.TestRunner.main(
+                        new String[] { "-noloading",
+                        PackageTestSuite.class.getName()
+                }
+                );
+                //junit.textui.TestRunner.main( v_launch_args );
+            }
+        }
+        );
+    }
+
+    /** NOOP */
+    @Override
+    public void stop( BundleContext ctx ) {
+    }
+
+
+    public static void main( String[] vArgs ) {
+        ClientBootstrap bootstrap = new ClientBootstrap();
+        bootstrap.getOSGiActivator().add( PackageTestSuite.class );
+        bootstrap.bootstrap();
+    }
+
 }

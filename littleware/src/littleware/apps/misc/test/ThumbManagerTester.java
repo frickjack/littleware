@@ -11,13 +11,11 @@
 package littleware.apps.misc.test;
 
 import com.google.inject.Inject;
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import littleware.apps.misc.ImageManager;
 import littleware.apps.misc.ThumbManager;

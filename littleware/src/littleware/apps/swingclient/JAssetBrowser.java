@@ -11,6 +11,7 @@
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -35,6 +36,7 @@ import littleware.apps.swingclient.event.*;
  */
 public class JAssetBrowser extends JPanel implements AssetView {
     private static final Logger olog_generic = Logger.getLogger ( AssetView.class.getName() );
+    private static final long serialVersionUID = -5561680971560382683L;
     
     private final AssetViewFactory      ofactory_view;
     private final IconLibrary           olib_icon;
@@ -42,6 +44,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
     private final AssetRetriever        om_retriever;
     private final AbstractAssetView     oview_support = new AbstractAssetView ( this ) {
         // NOOP - active view handles events from model
+        @Override
         public void eventFromModel ( LittleEvent evt_model ) {
             if ( (evt_model instanceof AssetModelEvent)
                  && AssetModel.Operation.assetsLinkingFrom.toString().equals( evt_model.getOperation() )
@@ -62,7 +65,6 @@ public class JAssetBrowser extends JPanel implements AssetView {
         ogrid_control.gridy = 0;
     }
     private final JPanel                owpanel_view = new JPanel ( new GridBagLayout () );
-    private final JAssetLinkList        owlist_history;
     private final DefaultListModel      omodel_history = new DefaultListModel ();
     private final static int            oi_history_size = 10;
     private final JAssetLinkList        owlist_children;
@@ -73,6 +75,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
      * to this object&apos;s listeners.
      */
     protected LittleListener olisten_bridge = new LittleListener () {
+        @Override
         public void receiveLittleEvent ( LittleEvent event_little ) {
             if ( event_little instanceof NavRequestEvent ) {
                 //event_little.setSource ( JGenericAssetView.this );
@@ -86,6 +89,15 @@ public class JAssetBrowser extends JPanel implements AssetView {
         }
     };
     
+    /**
+     * Maintain a ListModel history of the assets
+     * the user visits
+     * 
+     * @return omodel_history that some other part of the UI might view
+     */
+    public ListModel  getHistoryModel () {
+        return omodel_history;
+    }
     
     /**
      * Constructor stashes some stuff to support the browser.
@@ -96,54 +108,61 @@ public class JAssetBrowser extends JPanel implements AssetView {
     public JAssetBrowser ( AssetViewFactory  factory_view,
                            IconLibrary       lib_icon,
                            AssetModelLibrary lib_asset,
-                           AssetRetriever    m_retriever
+                           AssetRetriever    m_retriever,
+                           Provider<JAssetLinkList> provideLinkListView
                            ) {
-        super( new GridBagLayout () );
+        //super( new GridBagLayout () );
+        //this.setLayout( new BoxLayout( this, BoxLayout.X_AXIS));
         ofactory_view = factory_view;
         olib_icon = lib_icon;
         olib_asset = lib_asset;
-        om_retriever = m_retriever; 
-        owlist_history = new JAssetLinkList ( omodel_history, lib_icon, lib_asset, m_retriever, "History" );
-        owlist_history.addLittleListener ( olisten_bridge );
-        owlist_children = new JAssetLinkList ( omodel_children, lib_icon, lib_asset, m_retriever, "-------- Children (linking From) --------" );
+        om_retriever = m_retriever;
+
+        /*
+        JAssetLinkList wlist_history = provideLinkListView.get();
+        wlist_history.setHeader("History" );
+        wlist_history.setModel(omodel_history);
+        wlist_history.setRenderThumbnail(false);
+        wlist_history.addLittleListener ( olisten_bridge );
+        */
+
+        owlist_children = provideLinkListView.get();
+        owlist_children.setHeader( "-------- Children (linking From) --------" );
+        owlist_children.setModel( omodel_children );
         owlist_children.addLittleListener ( olisten_bridge );
+        //owlist_children.setRenderThumbnail(false);
 
         GridBagConstraints grid_control = new GridBagConstraints ();
-        grid_control.anchor = GridBagConstraints.FIRST_LINE_START;
+        grid_control.anchor = GridBagConstraints.NORTHWEST;
         grid_control.fill = GridBagConstraints.BOTH;
-        grid_control.gridheight = GridBagConstraints.REMAINDER;
+        grid_control.gridheight = 6; //GridBagConstraints.REMAINDER;
         grid_control.gridwidth = 2;
         grid_control.gridx = 0;
         grid_control.gridy = 0;
-        grid_control.weightx = 0.2;
-        this.add ( owlist_history, grid_control );
+        //grid_control.weightx = 0.2;
+        //this.add ( wlist_history, grid_control );
 
-        grid_control.gridy += grid_control.gridheight;
-        grid_control.gridx += grid_control.gridwidth;
+        //grid_control.gridx += grid_control.gridwidth;
         grid_control.gridwidth = 6;
-        grid_control.gridy = 0;
-        //grid_control.gridheight = GridBagConstraints.REMAINDER;
-        //grid_control.gridwidth = GridBagConstraints.REMAINDER;
-        grid_control.weightx = 0.6;
+        //grid_control.weightx = 0.6;
         this.add ( owpanel_view, grid_control );
 
         grid_control.gridx += grid_control.gridwidth;
-        grid_control.gridwidth = 3;
-        grid_control.weightx = 0.5;
-        this.add ( //owlist_children,
-                  new JScrollPane( owlist_children,  
-                                   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                   JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED 
-                                   ),
-                   grid_control
+        grid_control.gridwidth = 3; //GridBagConstraints.REMAINDER;
+        //grid_control.weightx = 0.5;
+        this.add ( owlist_children
+                  //new JScrollPane( owlist_children ),
+                  , grid_control
                    );
         
         oview_support.addPropertyChangeListener ( new PropertyChangeListener () {
+            @Override
             public void propertyChange ( PropertyChangeEvent evt_prop ) {
                 if ( evt_prop.getPropertyName ().equals ( AssetView.Property.assetModel.toString () ) ) {
                     // Model has changed under us
                     SwingUtilities.invokeLater ( 
                                                  new Runnable () {
+                        @Override
                                                      public void run () {
                                                          syncAssetUI ();
                                                      }
@@ -163,6 +182,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
     
     
     
+    @Override
     public AssetModel getAssetModel () {
         return oview_support.getAssetModel ();
     }
@@ -233,6 +253,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
         }
         if ( ! SwingUtilities.isEventDispatchThread() ) {
             SwingUtilities.invokeLater( new Runnable () {
+                @Override
                 public void run () { updateChildrenWidgetAndValidate (); }
             });
             return;
@@ -249,12 +270,19 @@ public class JAssetBrowser extends JPanel implements AssetView {
             } catch (Exception e) {
                 olog_generic.log(Level.WARNING, "Retrieving children caught unexpected: " + e);
             }
+            owlist_children.setHeader( "Children of " + oview_support.getAssetModel().getAsset().getName() );
+            owlist_children.setPreferredSize(
+                    new Dimension(
+                        owlist_children.getPreferredSize().width,
+                        owpanel_view.getPreferredSize().height
+                        )
+                    );
             Component w_root = JUtil.findRoot ( this );
             w_root.validate ();
             if ( w_root instanceof Window ) {
                 olog_generic.log ( Level.FINE, "Repacking window" );
                 ((Window) w_root).pack ();
-            }    
+            }
         } finally {
             ob_in_update = false;
         }
@@ -262,17 +290,20 @@ public class JAssetBrowser extends JPanel implements AssetView {
 
     
     
+    @Override
     public void setAssetModel ( AssetModel model_asset ) {
         oview_support.setAssetModel ( model_asset );
     }
 
 	
     
+    @Override
     public void	addLittleListener( LittleListener listen_little ) {
 		oview_support.addLittleListener ( listen_little );
 	}
 	
 	
+    @Override
 	public void     removeLittleListener( LittleListener listen_little ) {
 		oview_support.removeLittleListener ( listen_little );
 	}

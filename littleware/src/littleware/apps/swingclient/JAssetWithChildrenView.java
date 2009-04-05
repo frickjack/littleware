@@ -11,6 +11,7 @@
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import javax.swing.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -27,7 +28,7 @@ import littleware.asset.*;
  * Subtypes just need to define the getChildInfo() method.
  */
 public abstract class JAssetWithChildrenView extends JGenericAssetView {
-	private final static Logger        olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JAssetWithChildrenView" );
+	private final static Logger        olog_generic = Logger.getLogger ( JAssetWithChildrenView.class.getName() );
 	
     private final IconLibrary                    olib_icon;
     private final JPanel                         owlist_members;
@@ -66,6 +67,7 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
 
         Collections.sort ( v_members, 
                            new Comparator<Asset> () {
+            @Override
                                public int compare ( Asset a_1, Asset a_2 ) {
                                    return a_1.getName ().compareTo ( a_2.getName () );
                                }
@@ -108,21 +110,23 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
                                       IconLibrary lib_icon, ThumbManager m_thumb,
                                       AssetModelLibrary lib_asset,
                                       String s_children_header,
-                                      String s_tab_label, Icon icon_tab, String s_tab_tooltip
+                                      String s_tab_label, Icon icon_tab, 
+                                      String s_tab_tooltip,
+                                      JAssetLinkList jList,
+                                      Provider<JAssetLink> provideLinkView
                        ) {
-        super( m_retriever, lib_icon, m_thumb );
+        super( m_retriever, lib_icon, m_thumb, provideLinkView );
         om_retriever = m_retriever;
         olib_icon = lib_icon;
+        jList.setModel(omodel_children);
+        owlist_members = jList;
+        /*..
         owlist_members = new JAssetLinkList ( omodel_children,
                                               lib_icon,
                                               lib_asset,
                                               m_retriever,
                                               s_children_header
                                               ) {
-            /**
-             * Customize setLink to append asset-specific info from
-             * getChildInfo() if available.
-             */
             @Override
             protected void setLink ( JAssetLink wlink_asset, Asset a_view ) {
                 wlink_asset.setLink ( a_view );
@@ -133,8 +137,8 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
             }
                         
         };
-        
-        ((JAssetLinkList) owlist_members).addLittleListener (
+        ..*/
+        jList.addLittleListener (
                                       olisten_bridge
                                       );
         

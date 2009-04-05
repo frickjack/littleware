@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -12,17 +10,18 @@
 
 package littleware.apps.swingclient.wizard;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import javax.swing.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.UUID;
 
 import com.nexes.wizard.*;
 
+import java.util.ArrayList;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.asset.Asset;
@@ -40,6 +39,7 @@ import littleware.security.SecurityAssetType;
 public class CreateAssetWizard extends WizardAssetEditor {
 
     private static final Logger olog_generic = Logger.getLogger( CreateAssetWizard.class.getName() );
+    private final Provider<JAssetPathPanel> oprovideAssetPanel;
 
     /**
      * Panel ids for the initial panels.
@@ -88,29 +88,22 @@ public class CreateAssetWizard extends WizardAssetEditor {
     /**
      * Internal utility initializes the wizard with the core
      * create-asset wizard panels 
-     *
-     * @param v_types to restrict asset-type panel to - may be null
      */
-    private void initializePanels(List<AssetType> v_types) {
+    private void initializePanels() {
         opanel_atype = new JAssetTypePanel(olib_icon);
         opanel_name = new JTextFieldPanel("Enter asset name", 1, 50);
         {
-            Set<AssetType> v_acltype = new HashSet<AssetType>();
-            v_acltype.add(SecurityAssetType.ACL);
-            opanel_acl = new JAssetPathPanel("Enter AssetPath to ACL", v_acltype,
-                    om_search, olib_asset, olib_icon,
-                    ofactory_view, this);
+            opanel_acl = oprovideAssetPanel.get();
+            opanel_acl.setInstructions( "Enter AssetPath to ACL" );
+            final List<AssetType<? extends Asset>> vLegal = new ArrayList<AssetType<? extends Asset>>();
+            vLegal.add( SecurityAssetType.ACL );
+            opanel_acl.setLegalAssetType( vLegal );
         }
-        opanel_from = new JAssetPathPanel("Enter AssetPath to FROM asset", null,
-                om_search, olib_asset, olib_icon,
-                ofactory_view, this);
-        opanel_to = new JAssetPathPanel("Enter AssetPath to TO asset", null,
-                om_search, olib_asset, olib_icon,
-                ofactory_view, this);
+        opanel_from = oprovideAssetPanel.get();
+        opanel_from.setInstructions("Enter AssetPath to FROM asset");
+        opanel_to = oprovideAssetPanel.get();
+        opanel_to.setInstructions("Enter AssetPath to TO asset");
         opanel_comment = new JTextFieldPanel("Enter comment to attach to asset", 3, 60);
-        if (null != v_types) {
-            opanel_atype.getAssetTypeSelector().setAssetTypeOptions(v_types);
-        }
 
         this.registerWizardPanel(BasicPanel.PickType,
                 new AssetTypePanelDescriptor(BasicPanel.PickType,
@@ -195,10 +188,12 @@ public class CreateAssetWizard extends WizardAssetEditor {
                         return BasicPanel.PickFrom;
                     }
 
+            @Override
                     public UUID getAssetId() {
                         return getLocalAsset().getAclId();
                     }
 
+            @Override
                     public void setAssetId(UUID u_asset) {
                         changeLocalAsset().setAclId(u_asset);
                     }
@@ -217,10 +212,12 @@ public class CreateAssetWizard extends WizardAssetEditor {
                         return BasicPanel.PickTo;
                     }
 
+            @Override
                     public UUID getAssetId() {
                         return getLocalAsset().getFromId();
                     }
 
+            @Override
                     public void setAssetId(UUID u_asset) {
                         changeLocalAsset().setFromId(u_asset);
                         if ( (null != u_asset)
@@ -253,10 +250,12 @@ public class CreateAssetWizard extends WizardAssetEditor {
                         return BasicPanel.PickComment;
                     }
 
+            @Override
                     public UUID getAssetId() {
                         return getLocalAsset().getToId();
                     }
 
+            @Override
                     public void setAssetId(UUID u_asset) {
                         changeLocalAsset().setToId(u_asset);
                     }
@@ -265,22 +264,27 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 new WizardPanelDescriptor(BasicPanel.PickComment,
                 opanel_comment) {
 
+            @Override
                     public BasicPanel getBackPanelDescriptor() {
                         return BasicPanel.PickTo;
                     }
 
+            @Override
                     public Object getNextPanelDescriptor() {
                         return WizardPanelDescriptor.FINISH;
                     }
 
+            @Override
                     public void aboutToDisplayPanel() {
                         opanel_comment.setText(getLocalAsset().getComment());
                     }
 
+            @Override
                     public void displayingPanel() {
                         opanel_comment.requestFocus();
                     }
 
+            @Override
                     public void aboutToHidePanel() {
                         if (!getLocalAsset().getComment().equals(opanel_comment.getText())) {
                             changeLocalAsset().setComment(opanel_comment.getText());
@@ -295,22 +299,22 @@ public class CreateAssetWizard extends WizardAssetEditor {
      * Setup a wizard with the various dependencies
      * it needs to setup an asset.
      *
-     * @param v_types list of AssetTypes to restrict
-     *             the new asset to - may be null
      * @param amodel_start AssetModel referencing a new asset 
      *                        placed into the AssetModelLibrary and
      *                        initialized to whatever extent possible
      */
+    @Inject
     public CreateAssetWizard(
             AssetManager m_asset,
             AssetSearchManager m_search,
             AssetModelLibrary lib_asset,
             IconLibrary lib_icon,
             AssetViewFactory factory_view,
-            List<AssetType> v_types,
-            AssetModel amodel_start) {
+            AssetModel amodel_start,
+            Provider<JAssetPathPanel> provideAssetPanel ) {
         super(m_asset, m_search, lib_asset, lib_icon);
 
+        oprovideAssetPanel = provideAssetPanel;
         olib_icon = lib_icon;
         olib_asset = lib_asset;
         om_search = m_search;
@@ -318,38 +322,25 @@ public class CreateAssetWizard extends WizardAssetEditor {
         ofactory_view = factory_view;
 
         setAssetModel(amodel_start);
-        initializePanels(v_types);
+        initializePanels();
     }
+
 
     /**
-     * Setup a wizard parented on the given frame and with the given dependencies
-     *
-     * @param wframe_owner that owns the wizard&apos;s JDialog
-     * @param v_types list of AssetTypes to restrict
-     *             the new asset to - may be null 
-     * @param amodel_start AssetModel referencing a new asset 
-     *                        placed into the AssetModelLibrary and
-     *                        initialized to whatever extent possible     
+     * Get the set of legal asset-types to restrict the user selection to.
+     * Empty implies no restrictions on type.
+     * Listed in order of display.
      */
-    public CreateAssetWizard(JFrame wframe_owner,
-            AssetManager m_asset,
-            AssetSearchManager m_search,
-            AssetModelLibrary lib_asset,
-            IconLibrary lib_icon,
-            AssetViewFactory factory_view,
-            List<AssetType> v_types,
-            AssetModel amodel_start) {
-        super(wframe_owner, m_asset, m_search, lib_asset, lib_icon);
-        olib_icon = lib_icon;
-        olib_asset = lib_asset;
-        om_search = m_search;
-        om_asset = m_asset;
-        ofactory_view = factory_view;
-
-        setAssetModel(amodel_start);
-        initializePanels(v_types);
+    public List<AssetType> getLegalAssetType () {
+        return opanel_atype.getAssetTypeSelector().getAssetTypeOptions();
+    }
+    public void setLegalAssetType ( List<AssetType> v_legal ) {
+        opanel_atype.getAssetTypeSelector().setAssetTypeOptions(v_legal);
     }
 
+
+
+    @Override
     protected void eventFromModel(LittleEvent evt_model) {
     }
 }

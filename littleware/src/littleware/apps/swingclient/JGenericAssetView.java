@@ -11,6 +11,7 @@
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -52,6 +53,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
     private final JPanel     owpanel_summary = new JPanel( new GridBagLayout () );
     /** Panel to stuff info that can be toggled visible/invisible */    
     private final JPanel      owpanel_details = new JPanel ( new GridBagLayout () );
+    private final JPanel      owpanel_update = new JPanel ( new GridBagLayout () );
     // Setup a button to toggle the detals panel visible/invisible
     private final JButton     owbutton_details = new JButton ( "+" );
     {
@@ -81,8 +83,8 @@ public class JGenericAssetView extends JPanel implements AssetView {
     private final JAssetLink      owlink_creator;
     private final JAssetLink      owlink_updater;
     
-    private final JTextArea   owtext_comment = new JTextArea ( 2, 40 );
-    private final JTextArea   owtext_update = new JTextArea ( 2, 40 );
+    private final JTextArea   owtext_comment = new JTextArea ( 5, 40 );
+    private final JTextArea   owtext_update = new JTextArea ( 5, 40 );
     private final JTextArea   owtext_data = new JTextArea ( 5, 40 );
     
     private final JTabbedPane  owtab_stuff = new JTabbedPane ();    
@@ -139,21 +141,29 @@ public class JGenericAssetView extends JPanel implements AssetView {
         grid_control.gridy += grid_control.gridheight;
         grid_control.gridwidth = 2;
         grid_control.gridheight = 4;
-        grid_control.fill = GridBagConstraints.BOTH;
-        grid_control.weightx = 0.7;
-        grid_control.weighty = 0.2;
+        grid_control.fill = GridBagConstraints.VERTICAL;
+        //grid_control.weightx = 0.7;
+        //grid_control.weighty = 0.2;
         wtext_data.setLineWrap ( true );
         wtext_data.setEditable ( false );
-        wpanel_addto.add ( new JScrollPane( wtext_data,
-                                    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
-                                    ),
+        //if ( wtext_data.getRows() > 4 ) {
+            wpanel_addto.add ( //wtext_data,
+                    new JScrollPane( wtext_data ), /*
+                                        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+                                        ), */
                    grid_control 
                    );
-
+            /*
+        } else {
+            wpanel_addto.add ( wtext_data,
+                   grid_control
+                   );
+        }
+             */
         grid_control.fill = GridBagConstraints.HORIZONTAL;
-        grid_control.weighty = 0.0;
-        grid_control.weightx = 0.0;
+        //grid_control.weighty = 0.0;
+        //grid_control.weightx = 0.0;
     }
     
     
@@ -222,7 +232,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
 
         GridBagConstraints grid_control = new GridBagConstraints();
         
-        grid_control.anchor = GridBagConstraints.FIRST_LINE_START;
+        grid_control.anchor = GridBagConstraints.NORTHWEST;
         grid_control.gridwidth = 1;
         grid_control.gridheight = 1;
         grid_control.ipadx = 1;
@@ -270,7 +280,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
             gcontrol_summary.gridwidth = 1;
             gcontrol_summary.gridx = 0;
             gcontrol_summary.gridy = 0;
-            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;            
+            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;
 
             configureAssetRow ( "Home:",
                                 owlink_home,
@@ -361,44 +371,50 @@ public class JGenericAssetView extends JPanel implements AssetView {
                                owpanel_details,
                                gcontrol_details
                                );        
-            
-            configureAssetRow ( "Last updater:",
-                                owlink_updater,
-                                owpanel_details,
-                                gcontrol_details
-                                );
-            
-            configureDataRow ( "Last update date:",
-                               owlabel_date_updated,
+
+            configureDataRow ( "Data block:",
+                               owtext_data,
                                owpanel_details,
                                gcontrol_details
                                );
             
+        }
+        {
+            GridBagConstraints   gcontrol_data = (GridBagConstraints) grid_control.clone ();
+            gcontrol_data.gridheight = 1;
+            gcontrol_data.gridwidth = 1;
+            gcontrol_data.gridx = 0;
+            gcontrol_data.gridy = 0;
+            gcontrol_data.fill = GridBagConstraints.HORIZONTAL;
+
+
+            configureAssetRow ( "Last updater:",
+                                owlink_updater,
+                                owpanel_update,
+                                gcontrol_data
+                                );
+
+            configureDataRow ( "Last update date:",
+                               owlabel_date_updated,
+                               owpanel_update,
+                               gcontrol_data
+                               );
+
             configureDataRow ( "Last update comment:",
                                owtext_update,
-                               owpanel_details,
-                               gcontrol_details 
+                               owpanel_update,
+                               gcontrol_data
                                );
-            
-            configureDataRow ( "Data block:",
-                               owtext_data,
-                               owpanel_details,
-                               gcontrol_details 
-                               );
-            
-            gcontrol_details.gridy += gcontrol_details.gridheight;
-            gcontrol_details.gridx = 0;
-            gcontrol_details.gridwidth = 1;
-            gcontrol_details.gridheight = 1;
         }
         grid_control.gridy += grid_control.gridheight;
         grid_control.gridx = 0;
-        grid_control.gridheight = GridBagConstraints.REMAINDER;
+        grid_control.gridheight = 8; //GridBagConstraints.REMAINDER;
         grid_control.gridwidth = 4;
-        grid_control.fill = GridBagConstraints.BOTH;        
+        grid_control.fill = GridBagConstraints.BOTH;
                 
         owtab_stuff.add ( "Summary", owpanel_summary );
         owtab_stuff.add ( "Details", owpanel_details );
+        owtab_stuff.add ( "Update", owpanel_update );
         
         this.add (  owtab_stuff, grid_control );
     }
@@ -417,18 +433,19 @@ public class JGenericAssetView extends JPanel implements AssetView {
     protected JGenericAssetView (
                                 AssetRetriever m_retriever,
                                 IconLibrary lib_icon,
-                                ThumbManager m_thumb
+                                ThumbManager m_thumb,
+                                Provider<JAssetLink> provideLinkView
                                 ) {
         om_retriever = m_retriever;
         olib_icon = lib_icon;
         om_thumb = m_thumb;
-        owlink_acl = new JAssetLink ( olib_icon );
-        owlink_to = new JAssetLink ( olib_icon );
-        owlink_from = new JAssetLink ( olib_icon );
-        owlink_owner = new JAssetLink ( olib_icon );
-        owlink_home = new JAssetLink ( olib_icon );
-        owlink_creator = new JAssetLink ( olib_icon );
-        owlink_updater = new JAssetLink ( olib_icon );
+        owlink_acl = provideLinkView.get();
+        owlink_to = provideLinkView.get();
+        owlink_from = provideLinkView.get();
+        owlink_owner = provideLinkView.get();
+        owlink_home = provideLinkView.get();
+        owlink_creator = provideLinkView.get();
+        owlink_updater = provideLinkView.get();
         
         oview_util.addPropertyChangeListener ( new PropertyChangeListener () {
             /** Receive events from the View model */
@@ -540,7 +557,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
      *                          asset to get its name if possible
      */
     private void updateLabelInfo ( JAssetLink wlink_depend, UUID u_depend ) { 
-        wlink_depend.setLink ( u_depend, getAssetModel ().getLibrary (), om_retriever );
+        wlink_depend.setLink ( u_depend );
     }
 
     /**

@@ -11,6 +11,7 @@
 package littleware.apps.tracker.swing;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -62,6 +63,7 @@ public class JQView extends JGenericAssetView {
         TaskStatus.IDLE,
         TaskStatus.WAITING_ON_TASK
     };
+    private static final long serialVersionUID = -3609834830696697447L;
     
     private final AssetSearchManager       om_search;
     private final IconLibrary              olib_icon;
@@ -73,8 +75,11 @@ public class JQView extends JGenericAssetView {
         public String getColumnName(int i_col) {
             return ov_columns[i_col];
         }
+        @Override
         public int getRowCount() { return ov_tasks.size (); }
+        @Override
         public int getColumnCount() { return ov_columns.length; }
+        @Override
         public Object getValueAt(int i_row, int i_col) {
             AssetModel  model_display = ov_tasks.get ( i_row );
             Task        task_display = (Task) model_display.getAsset ();
@@ -133,6 +138,7 @@ public class JQView extends JGenericAssetView {
         this.addPropertyChangeListener ( new PropertyChangeListener () {
 
                 /** Receive events from the View model */
+            @Override
                 public void propertyChange ( PropertyChangeEvent evt_prop ) {
                     if ( evt_prop.getPropertyName ().equals ( AssetView.Property.assetModel.toString () ) ) {
                         // Model has changed under us
@@ -142,6 +148,7 @@ public class JQView extends JGenericAssetView {
             }
         );              
     }
+    private final JAssetLink orenderLink;
     
     
     /**
@@ -175,7 +182,7 @@ public class JQView extends JGenericAssetView {
                 column_info.setPreferredWidth( 100 );
             }
             if ( 0 == i ) {
-                column_info.setCellRenderer ( new JAssetLink ( olib_icon, true ) );
+                column_info.setCellRenderer ( orenderLink );
             } else if ( (3 == i) || (5 == i) ) {
                 column_info.setCellRenderer ( render_datecell );
             }
@@ -202,12 +209,14 @@ public class JQView extends JGenericAssetView {
     @Inject
     public JQView( AssetSearchManager m_search,
                        IconLibrary lib_icon,
-                       ThumbManager m_thumb
+                       ThumbManager m_thumb,
+                       Provider<JAssetLink> provideLinkView
                        ) throws BaseException, GeneralSecurityException, RemoteException 
     {
-        super( m_search, lib_icon, m_thumb );
+        super( m_search, lib_icon, m_thumb, provideLinkView );
         om_search = m_search;
         olib_icon = lib_icon;
+        orenderLink = provideLinkView.get();
         configureTable ();
         updateQData ();
         {

@@ -32,6 +32,7 @@ import javax.swing.*;
  */
 public class JLittleDialog extends JDialog {  
     private static final Logger  olog_generic = Logger.getLogger ( JLittleDialog.class.getName() );
+    private static final long serialVersionUID = -3476553626952709775L;
     /** 
      * Possible test results:  <br />
      *    NORESULT = no result is ready - dialog may still be up, <br />
@@ -55,7 +56,8 @@ public class JLittleDialog extends JDialog {
      */
     public JLittleDialog ( Component wcomp_test, String s_instructions ) 
     {
-        getContentPane ().setLayout ( new BorderLayout () );
+        getContentPane().setLayout( new BorderLayout() );
+        //getContentPane ().setLayout ( new BoxLayout( getContentPane(), BoxLayout.Y_AXIS ) );
         
         JLabel      wlabel_instruct = new JLabel ( "<html><body><p>" + s_instructions + "</p></body></html>" );
         JPanel      wpanel_buttons = new JPanel ();
@@ -63,6 +65,7 @@ public class JLittleDialog extends JDialog {
         JButton     wbutton_passed = new JButton ( "Test Passed" );
         
         wbutton_failed.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed ( ActionEvent event_button ) {
                 setLastResult( Result.FAILED );
                 JLittleDialog.this.dispose ();
@@ -70,6 +73,7 @@ public class JLittleDialog extends JDialog {
         }
                                            );
         wbutton_passed.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed ( ActionEvent event_button ) {
                 setLastResult ( Result.PASSED );
                 JLittleDialog.this.dispose ();
@@ -140,6 +144,7 @@ public class JLittleDialog extends JDialog {
         if ( ! isVisible () ) {
             setLastResult ( Result.NORESULT );
             Runnable  run_dialog = new Runnable () {
+                @Override
                 public void run () {
                     setModal(false);
                     pack();

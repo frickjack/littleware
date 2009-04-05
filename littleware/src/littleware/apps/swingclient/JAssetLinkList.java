@@ -7,64 +7,68 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.UUID;
 import javax.swing.*;
-import javax.swing.event.*;
-import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
-import littleware.base.swing.JUtil;
 import littleware.apps.swingclient.event.*;
 
-
 /** 
- * Component that maintains a list of JAssetLinkList.
+ * Component specializes JList with a JListRenderer
+ *
+ * TODO: add mouse listener
  */
-public class JAssetLinkList extends JPanel implements LittleTool, ListDataListener {
-	private final static Logger        olog_generic = Logger.getLogger ( JAssetLinkList.class.getName() );
-	
-	private UUID                        ou_asset_link = null;
-    private final SimpleLittleTool      otool_handler = new SimpleLittleTool ( this );
-    private final IconLibrary           olib_icon;
-    private final ListModel             omodel_list;
-    private final AssetModelLibrary     olib_asset;
-    private final AssetRetriever        om_retriever;
-    private final GridBagConstraints    ogrid_control = new GridBagConstraints ();
-    private final java.util.List<JAssetLink>     ov_memberlinks = new ArrayList<JAssetLink> ();
+public class JAssetLinkList extends JPanel implements LittleTool {
 
-    
-    {
-        ogrid_control.anchor = GridBagConstraints.FIRST_LINE_START;
-        ogrid_control.fill = GridBagConstraints.HORIZONTAL;
-        ogrid_control.gridx = 0;
-        ogrid_control.gridy = GridBagConstraints.RELATIVE;
-        ogrid_control.insets = new Insets ( 2,2,2,2 );        
-    }
-    
+    private final static Logger olog_generic = Logger.getLogger(JAssetLinkList.class.getName());
+    private static final long serialVersionUID = -56729465687479569L;
+    private final SimpleLittleTool otool_handler = new SimpleLittleTool(this);
+    private final JLabel ojLabelHeader = new JLabel("");
+    private final JList ojList = new JList(new DefaultListModel());
+
+
+    private final JAssetLinkRenderer orenderer;
     /**
-     * Forward events from the component JAssetLinks to the listeners
-     * registered with this widget.
+     * Property tracks whether to render the thumbnail or not
+     * when available
      */
-    private LittleListener olisten_bridge = new LittleListener () {
-        public void receiveLittleEvent ( LittleEvent event_little ) {
-            if ( event_little instanceof NavRequestEvent ) {
-                //event_little.setSource ( JGenericAssetView.this );
-                NavRequestEvent event_nav = (NavRequestEvent) event_little;
-                otool_handler.fireLittleEvent ( new NavRequestEvent ( JAssetLinkList.this,
-                                                        event_nav.getDestination (),
-                                                        event_nav.getNavMode ()
-                                                        )
-                                  );
-            }
+    public boolean isRenderThumbnail() {
+        return orenderer.isRenderThumbnail();
+    }
+
+    public void setRenderThumbnail(boolean bRenderThumb) {
+        orenderer.setRenderThumbnail( bRenderThumb );
+    }
+
+
+
+    /**
+     * Set the header-label at the top of the label list.
+     */
+    public String getHeader() {
+        return ojLabelHeader.getText();
+    }
+
+    /**
+     * Set header to html-bold sHeader unless sHeader already
+     * starts with an html tag.
+     */
+    public void setHeader(String sHeader) {
+        if (sHeader.startsWith("<html>")) {
+            ojLabelHeader.setText(sHeader);
+        } else {
+            ojLabelHeader.setText("<html><b>" + sHeader + "</b></html>");
         }
-    };
-    
+    }
 
     /**
      * Little utility method that by default just calls: <br />
@@ -77,121 +81,84 @@ public class JAssetLinkList extends JPanel implements LittleTool, ListDataListen
      * @param wlink_asset widget to setup
      * @param a_view to associate with the wlink_asset widget
      */
-    protected void setLink ( JAssetLink wlink_asset, Asset a_view ) {
-        wlink_asset.setLink ( a_view );
+    protected void setLink(JAssetLink wlink_asset, Asset a_view) {
+        wlink_asset.setLink(a_view);
     }
-    
-    /**
-     * Setup the link with some handlers to retrieve data,
-     * add this as a ListModel listener,
-     * and initialize the UI to the initial state of the supplied ListModel.
-     *
-     * @param model_list list of assets to observe - may contain Asset
-     *                      and/or UUID instances
-     * @param lib_icon source of icons
-     * @param lib_asset asset-model library to sync against when given a UUID to retrieve
-     * @param m_retriever to resolve asset UUIDs with 
-     * @param s_header to put at the top of the list 
-     */
-    public JAssetLinkList ( 
-                            ListModel model_list, 
-                            IconLibrary lib_icon, 
-                            AssetModelLibrary lib_asset,
-                            AssetRetriever m_retriever,
-                            String s_header
-                            ) {
-        super( new GridBagLayout () );
-        olib_icon = lib_icon;
-        omodel_list = model_list;
-        om_retriever = m_retriever;
-        olib_asset = lib_asset;
-        this.add ( new JLabel( "<html><b>" + s_header + "</b></html>" ), ogrid_control );
-        omodel_list.addListDataListener ( this );
-    }
-    
-    /**
-     * Sync the UI list view with the contents of the 
-     * internal list model.
-     */
-    private void syncListUI () {
-        java.util.List<Asset>        v_members = new ArrayList<Asset> ();
 
-        final int i_widgets = ov_memberlinks.size ();
-        final int i_size = omodel_list.getSize ();
-        olog_generic.log ( Level.FINE, "Syncing UI, list size: " + i_size );
-        for ( int i_count=0; i_count < i_size; ++i_count ) {
-            if ( i_count >= i_widgets ) {
-                JAssetLink  wlink_new = new JAssetLink( olib_icon );
-                
-                wlink_new.addLittleListener ( olisten_bridge );
-                ov_memberlinks.add ( wlink_new );
-                this.add ( wlink_new, ogrid_control );
-            }
-            
-            JAssetLink wlink_member = ov_memberlinks.get ( i_count );
-            Object x_member = omodel_list.getElementAt ( i_count );
-            // List of Assets and UUIDs
-            if ( x_member instanceof Asset ) {
-                v_members.add ( (Asset) x_member );
-                this.setLink ( wlink_member, (Asset) x_member );
-            } else {
-                try {
-                    // Try to retrieve the asset and invoke setLink(), which may be customized 
-                    this.setLink ( wlink_member, 
-                                   olib_asset.retrieveAssetModel ( (UUID) x_member, om_retriever ).getAsset () 
-                                   );
-                } catch ( RuntimeException e ) {
-                    throw e;
-                } catch ( Exception e ) {
-                    wlink_member.setLink ( (UUID) x_member, olib_asset, om_retriever );
+    /**
+     * Inject asset-link cell renderer.
+     */
+    @Inject
+    public JAssetLinkList(
+            JAssetLinkRenderer renderer) {
+        //super(new GridBagLayout());
+        setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
+        ojList.setCellRenderer(renderer);
+        orenderer = renderer;
+        GridBagConstraints grid_control = new GridBagConstraints();
+
+        grid_control.anchor = GridBagConstraints.NORTHWEST;
+        grid_control.fill = GridBagConstraints.HORIZONTAL;
+        grid_control.gridx = 0;
+        grid_control.gridy = 0;
+        grid_control.gridheight = 1;
+        grid_control.gridwidth = 4;
+        grid_control.insets = new Insets(2, 2, 2, 2);
+        this.add(ojLabelHeader ); //, grid_control);
+
+        grid_control.gridy += grid_control.gridheight;
+        grid_control.fill = GridBagConstraints.BOTH;
+        grid_control.gridheight = GridBagConstraints.REMAINDER;
+        this.add(
+                new JScrollPane(ojList ) //, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                //JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+                //,grid_control
+                );
+
+        MouseListener mouseListener = new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int index = ojList.locationToIndex(e.getPoint());
+                    final Object xGo = getModel().getElementAt(index);
+                    if (null == xGo) {
+                        return;
+                    } else if (xGo instanceof Asset) {
+                        otool_handler.fireLittleEvent(new NavRequestEvent(JAssetLinkList.this,
+                                ((Asset) xGo).getObjectId(),
+                                NavRequestEvent.NavMode.GENERIC));
+                    } else if (xGo instanceof UUID) {
+                        otool_handler.fireLittleEvent(new NavRequestEvent(JAssetLinkList.this,
+                                (UUID) xGo,
+                                NavRequestEvent.NavMode.GENERIC));
+                    }
                 }
             }
-        }
-        
-        // Cleanup extra widgets
-        for ( int i=i_widgets; i > i_size; --i ) {
-            JAssetLink wlink_remove = ov_memberlinks.remove ( i - 1 );
-            this.remove ( wlink_remove );
-        } 
-        
-        repaint ();
-        if ( i_size != i_widgets ) {
-            // repack when layout changes
-            Component w_root = JUtil.findRoot ( this );
-            w_root.validate ();
-            
-            if ( w_root instanceof Window ) {
-                ((Window) w_root).pack ();
-            }
-            
-        }
+        };
+        ojList.addMouseListener(mouseListener);
     }
+
+
 
     /**
      * Get the model this view is watching
      */
-    public ListModel getAssetModel () {
-        return omodel_list;
+    public ListModel getModel() {
+        return ojList.getModel();
     }
-    
-    public void	addLittleListener( LittleListener listen_little ) {
-		otool_handler.addLittleListener ( listen_little );
-	}
-	
-	
-	public void     removeLittleListener( LittleListener listen_little ) {
-		otool_handler.removeLittleListener ( listen_little );
-	}
-    
-    public void contentsChanged ( ListDataEvent event_list ) {
-        syncListUI ();
+
+    public void setModel(ListModel model_list) {
+        ojList.setModel(model_list);
     }
-    
-    public void intervalAdded ( ListDataEvent event_list ) {
-        syncListUI ();
+
+    @Override
+    public void addLittleListener(LittleListener listen_little) {
+        otool_handler.addLittleListener(listen_little);
     }
-    
-    public void intervalRemoved( ListDataEvent event_list ) {
-        syncListUI ();
+
+    @Override
+    public void removeLittleListener(LittleListener listen_little) {
+        otool_handler.removeLittleListener(listen_little);
     }
 }

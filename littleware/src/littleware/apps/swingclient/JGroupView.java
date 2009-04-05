@@ -11,6 +11,7 @@
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.security.Principal;
 import java.util.*;
 import java.util.logging.Logger;
@@ -26,7 +27,8 @@ import littleware.security.LittlePrincipal;
  * Swing based AssetView for GROUP type assets.
  */
 public class JGroupView extends JAssetWithChildrenView {
-	private final static Logger        olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JGroupView" );
+	private final static Logger        olog_generic = Logger.getLogger ( JGroupView.class.getName() );
+    private static final long serialVersionUID = 8446740180654817120L;
 	
 
     /**
@@ -54,21 +56,19 @@ public class JGroupView extends JAssetWithChildrenView {
 
     /**
      * Constructor sets up the UI to view the given group
-     *
-     * @param m_retriever to retrieve asset details with
-     * @param lib_icon icon source
-     * @exception IllegalArgumentException if model_asset does not reference a group
      */
     @Inject
     public JGroupView( AssetRetriever m_retriever,
                        IconLibrary lib_icon,
                        ThumbManager m_thumb,
-                       AssetModelLibrary lib_asset
+                       AssetModelLibrary lib_asset,
+                       JAssetLinkList    jListChildren,
+                       Provider<JAssetLink> provideLinkView
                        ) {
         super( m_retriever, lib_icon, m_thumb, lib_asset,
                 "Group members",
                "Group Members", lib_icon.lookupIcon ( SecurityAssetType.GROUP ),
-               "View members of group"
+               "View members of group", jListChildren, provideLinkView
                );
     }
         

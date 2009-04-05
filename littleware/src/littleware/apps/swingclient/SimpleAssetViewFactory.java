@@ -12,6 +12,8 @@ package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -28,11 +30,25 @@ import littleware.apps.tracker.swing.JQView;
 public class SimpleAssetViewFactory implements AssetViewFactory {
     private static final Logger       olog_generic = Logger.getLogger ( SimpleAssetViewFactory.class.getName() );
 
-    private final Provider<JGenericAssetView> oprovide_generic;
-    private final Provider<JGroupView> oprovide_group;
-    private final Provider<JAclView> oprovide_acl;
-    private final Provider<JQView> oprovide_queue;
-    
+    private final Map<AssetType,Provider<? extends AssetView>> omapRegistry =
+            new HashMap<AssetType,Provider<? extends AssetView>>();
+    private final Map<AssetType,Class<? extends AssetView>> omapClassCheck =
+            new HashMap<AssetType,Class<? extends AssetView>>();
+
+    @Override
+    public void registerProvider( AssetType atype,
+            Provider<? extends AssetView> provider,
+            Class<? extends AssetView> classOfEditor
+            ) {
+        omapRegistry.put(atype, provider);
+        omapClassCheck.put( atype, classOfEditor);
+    }
+
+    /**
+     * Construct an empty factory
+     */
+    protected SimpleAssetViewFactory () {}
+
     /**
      * Setup the factory with an icon library and an AssetSearchManager
      */
@@ -42,39 +58,34 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
             Provider<JAclView> provide_acl,
             Provider<JQView>   provide_queue
             ) {
-        oprovide_generic = provide_generic;
-        oprovide_group = provide_group;
-        oprovide_acl = provide_acl;
-        oprovide_queue = provide_queue;
+        registerProvider( AssetType.GENERIC, provide_generic, JGenericAssetView.class );
+        registerProvider( SecurityAssetType.GROUP, provide_group, JGroupView.class );
+        registerProvider( SecurityAssetType.ACL, provide_acl, JAclView.class );
+        registerProvider( TrackerAssetType.QUEUE, provide_queue, JQView.class );
     }
     
+    @Override
     public AssetView createView ( AssetModel model_asset ) {
         AssetType n_asset = model_asset.getAsset ().getAssetType ();
-        AssetView view_result = null;
-        
-        if ( n_asset.equals ( SecurityAssetType.GROUP ) ) {
-            view_result = oprovide_group.get();
-        } else if ( n_asset.equals ( SecurityAssetType.ACL ) ) {
-            view_result = oprovide_acl.get();
-        } else if ( n_asset.equals ( TrackerAssetType.QUEUE ) ) {
-            view_result = oprovide_queue.get();
+        final AssetView view;
+        if ( omapRegistry.containsKey(n_asset ) ) {
+            view = omapRegistry.get( n_asset ).get();
         } else {
-            view_result = oprovide_generic.get ();
+            view = omapRegistry.get( AssetType.GENERIC ).get();
         }
-        view_result.setAssetModel( model_asset );
-        return view_result;
+        view.setAssetModel(model_asset);
+        return view;
     }
-    
+
+    @Override
     public boolean checkView ( AssetView view_check, AssetModel model_asset ) {
         AssetType n_asset = model_asset.getAsset ().getAssetType ();
-        
-        if ( n_asset.equals ( SecurityAssetType.GROUP ) ) {
-            return (view_check instanceof JGroupView);
+
+        if ( omapClassCheck.containsKey( n_asset ) ) {
+            return omapClassCheck.get( n_asset ).isInstance( view_check );
+        } else {
+            return omapClassCheck.get( AssetType.GENERIC ).isInstance( view_check );
         }
-        if ( n_asset.equals ( SecurityAssetType.ACL ) ) {
-            return (view_check instanceof JAclView);
-        }
-        return (view_check instanceof JGenericAssetView);
     }
 
 }

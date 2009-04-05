@@ -11,6 +11,7 @@
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.security.acl.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -26,7 +27,8 @@ import littleware.security.*;
  * Swing based AssetView for ACL type assets.
  */
 public class JAclView extends JAssetWithChildrenView {
-	private final static Logger        olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JAclView" );
+	private final static Logger        olog_generic = Logger.getLogger ( JAclView.class.getName() );
+    private static final long serialVersionUID = 6943919728024132915L;
 	
     
     /**
@@ -68,21 +70,18 @@ public class JAclView extends JAssetWithChildrenView {
     
     /**
      * Constructor sets up the UI to view the given acl
-     *
-     * @param model_acl to view
-     * @param m_retriever to retrieve asset details with
-     * @param lib_icon icon source
-     * @exception IllegalArgumentException if model_asset does not reference a group
      */
     @Inject
     public JAclView( AssetRetriever m_retriever,
                        IconLibrary lib_icon ,
                        ThumbManager m_thumb,
-                       AssetModelLibrary lib_asset
+                       AssetModelLibrary lib_asset,
+                       JAssetLinkList    jListChildren,
+                       Provider<JAssetLink> provideLinkView
                        ) {
         super( m_retriever, lib_icon, m_thumb, lib_asset, "ACL entries",
                "ACL Entries", lib_icon.lookupIcon( SecurityAssetType.ACL ),
-               "View ACL entries"
+               "View ACL entries", jListChildren, provideLinkView
                );
     }
     

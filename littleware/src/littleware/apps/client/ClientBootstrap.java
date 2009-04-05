@@ -39,6 +39,7 @@ public class ClientBootstrap extends AbstractGOBootstrap {
                 false);
         this.getGuiceModule().add(
                 new Module() {
+            @Override
                     public void configure(Binder binder) {
                         binder.bind(LittleBootstrap.class).toInstance(ClientBootstrap.this);
                     }

@@ -1,5 +1,16 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.MouseEvent;
@@ -7,25 +18,18 @@ import java.awt.event.MouseListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
-import java.net.MalformedURLException;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.apps.client.*;
 import javax.swing.*;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import littleware.apps.misc.ThumbManager;
 import littleware.asset.*;
-import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
-import littleware.base.AssertionFailedException;
-import littleware.base.NoSuchThingException;
 import littleware.apps.swingclient.event.*;
 
 
@@ -39,8 +43,8 @@ import littleware.apps.swingclient.event.*;
  * JAssetLink does not view an AssetModel, since the data viewed is
  * all readonly, and this is actually viewing a link - not an asset.
  */
-public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, TableCellRenderer, TreeCellRenderer {
-	private final static Logger   olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JAssetLink" );
+public class JAssetLink extends JAssetLinkRenderer implements LittleTool {
+	private final static Logger   olog_generic = Logger.getLogger ( JAssetLink.class.getName() );
     private static Clipboard      oclip_copy = null;
     
     static {
@@ -54,10 +58,10 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
             oclip_copy = new Clipboard ( "Asset link" );
         }
     }
+    private static final long serialVersionUID = -3485310186352136477L;
 
-	private UUID                        ou_asset_link = null;
     private final SimpleLittleTool      otool_handler = new SimpleLittleTool ( this );
-    private final IconLibrary           olib_icon;
+
 
     // popup menu on Cntrl-Click on JAssetLink
     private final JPopupMenu           owpopup_menu = new JPopupMenu ();
@@ -68,9 +72,10 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
                                                          KeyEvent.VK_C, ActionEvent.ALT_MASK));        
         // Copy to clipboard
         witem_copy.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed(ActionEvent e) {
-                if ( null != ou_asset_link ) {
-                    Transferable transfer_string = new StringSelection ( UUIDFactory.makeCleanString( ou_asset_link ) );
+                if ( null != getLink() ) {
+                    Transferable transfer_string = new StringSelection ( UUIDFactory.makeCleanString( getLink() ) );
                     oclip_copy.setContents ( transfer_string, null );
                 }
             }
@@ -80,6 +85,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
 
         JMenuItem  witem_copy_id = new JMenuItem ( "Copy Id" );
         witem_copy_id.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 Transferable transfer_string = new StringSelection ( getText () );
                 oclip_copy.setContents ( transfer_string, null );
@@ -90,6 +96,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
         
         JMenuItem  witem_goto = new JMenuItem ( "Open" );
         witem_goto.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 fireNavEvent ( NavRequestEvent.NavMode.GENERIC );
             }
@@ -99,6 +106,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
        
        JMenuItem  witem_goto_new = new JMenuItem ( "Open new window" );
        witem_goto_new.addActionListener ( new ActionListener () {
+            @Override
            public void actionPerformed(ActionEvent e) {
                fireNavEvent ( NavRequestEvent.NavMode.NEW_WINDOW );
            }
@@ -107,6 +115,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
        owpopup_menu.add ( witem_goto_new );
        
     }
+
 	
 
     /**
@@ -117,7 +126,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
      * @param n_mode mode to fire event with
      */
     private void fireNavEvent ( NavRequestEvent.NavMode n_mode ) {
-        UUID u_destination = ou_asset_link;
+        UUID u_destination = getLink();
         
         if ( null != u_destination ) { 
             olog_generic.log ( Level.FINE, "Firing NavRequestEvent with mode: " + n_mode );
@@ -142,15 +151,17 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
          * Get the destination asset references by the JLabel we are listening to
          */
         public UUID getDestination () { 
-            return ou_asset_link;
+            return getLink();
         }
         
         /** NOOP - handle mouseReleased instead */
+        @Override
         public void mouseClicked(MouseEvent e) {}
 
         
 
         /** Popup if appropriate */
+        @Override
         public void mousePressed(MouseEvent e) {
             ob_popup = evaluatePopup(e);
         }
@@ -158,6 +169,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
         /**
          * Popup or navigate as appropriate
          */
+        @Override
         public void mouseReleased(MouseEvent event_mouse ) {
             if ( (! evaluatePopup( event_mouse ))
                  && (! ob_popup)
@@ -192,8 +204,9 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
         /**
          * Set the JLAbel foreground CYAN
          */
+        @Override
         public void mouseEntered ( MouseEvent event_mouse ) {
-            if ( null != ou_asset_link ) {
+            if ( null != getLink() ) {
                 JLabel  wlabel_event = (JLabel) event_mouse.getSource ();
                 ocolor_old = wlabel_event.getForeground ();
                 wlabel_event.setForeground ( Color.CYAN );
@@ -203,43 +216,35 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
         /**
          * Reset the foreground
          */
+        @Override
         public void mouseExited ( MouseEvent event_mouse ) {
-            if ( null != ou_asset_link ) {
+            if ( null != getLink() ) {
                 ((JLabel) event_mouse.getSource ()).setForeground ( ocolor_old );
             }
         }
      
     }
     
-    
+    private final IconLibrary  olib_icon;
+    private final ThumbManager omgrThumb;
     
     /**
      * Setup the link with the library to render icons
      *
      * @param lib_icon source of icons
      */
-    public JAssetLink ( IconLibrary lib_icon ) {
-        super( "uninitialized",  SwingConstants.LEFT );
-        this.setForeground ( Color.BLUE );
+    @Inject
+    public JAssetLink ( IconLibrary lib_icon, ThumbManager mgrThumb,
+            AssetModelLibrary libAsset, AssetSearchManager search
+            ) {
+        super( lib_icon, mgrThumb, libAsset, search );
         olib_icon = lib_icon;
+        omgrThumb = mgrThumb;
+        this.setForeground ( Color.BLUE );
         this.addMouseListener ( new LabelMouseListener () );
         this.setToolTipText ( "Click to navigate, Ctrl-Click for menu" );
-        setLink ( null, null, null );
     }
     
-    /**
-     * Setup a JAssetLink as a List/TableCellRenderer rather than
-     * as a component to be displayed independently
-     *
-     * @param lib_icon to get icons from
-     * @param b_renderer set true if this object is just 
-     *                             acting as a cell renderer
-     */
-    public JAssetLink ( IconLibrary lib_icon, boolean b_renderer ) {
-        super( "uninitialized",  SwingConstants.LEFT );
-        olib_icon = lib_icon;
-        setLink( null, null, null );
-    }
     
     /**
      * Implement the TableCellRenderer interface so
@@ -247,6 +252,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
      *
      * @param x_value should be an Asset
      */
+    @Override
     public Component getTableCellRendererComponent ( JTable table, Object x_value, boolean isSelected, boolean hasFocus, int row, int column ) {
         setLink( (Asset) x_value );
 
@@ -268,6 +274,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
      *
      * @param x_value should be an Asset
      */
+    @Override
     public Component getListCellRendererComponent(
                                                   JList   wlist_assets,
                                                   Object  x_value,            
@@ -298,6 +305,7 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
      *
      * @param x_value should be a DefaultMutableTreeNode with Asset userObject.
      */    
+    @Override
     public Component getTreeCellRendererComponent(JTree wtree_assets,
                                            Object x_value,
                                            boolean b_selected,
@@ -327,80 +335,30 @@ public class JAssetLink extends JLabel implements LittleTool, ListCellRenderer, 
         return otreerender_default;
     }
     
-    /**
-     * Set the link info - retrieve the asset with u_id,
-     * register it with the model-library, and
-     * setup the display.  Eats checked exceptions, and just
-     * sets up the display with bomb/error info.
-     *
-     * @param u_id to display - may be null - ignores other args if null
-     * @param lib_asset to retrieve asset through
-     * @param m_retriever to use with lib_asset.retrieveAssetModel
-     */
-    public void setLink ( UUID u_id, AssetModelLibrary lib_asset, 
-                          AssetRetriever m_retriever
-                          ) {
-        this.setIcon ( null );
-        
-        ou_asset_link = u_id;
-        if ( null == u_id ) {
-            this.setForeground ( null );
-            this.setText ( "<html><i>null</i></html>" );
-        } else {
-            String s_name = u_id.toString ();
-            this.setForeground ( Color.BLUE );
-            this.setText ( s_name );
-            try {
-                Asset a_linkto = lib_asset.retrieveAssetModel ( u_id, m_retriever ).getAsset ();
-                setLink ( a_linkto );
-            } catch ( RuntimeException e ) {
-                throw e;
-            } catch ( GeneralSecurityException e ) {
-                olog_generic.log ( Level.FINE, "Eating GeneralSecurityException: " + e + ", " +
-                                   BaseException.getStackTrace ( e )
-                                   );
-                this.setIcon ( olib_icon.lookupIcon ( "littleware.bomb" ) );
-            } catch ( Exception e ) {
-                // set a tool tip later
-                this.setIcon ( olib_icon.lookupIcon ( "littleware.screw" ) );
-                olog_generic.log ( Level.WARNING, "Failed to retrieve asset info for " + u_id + ", caught: " + e );
-            }
-        }        
-        
-    }
     
     /**
      * Set the link to point at the given asset
      *
      * @param a_linkto asset to link to
      */
+    @Override
     public void setLink ( Asset a_linkto ) {
-        ou_asset_link = a_linkto.getObjectId ();
+        super.setLink( a_linkto );
         this.setForeground ( Color.BLUE );
-        this.setIcon ( olib_icon.lookupIcon ( a_linkto.getAssetType () ) );
-        this.setText ( a_linkto.getName () );
     }
     
-    /**
-     * Get the id of the asset the link points to - may be null,
-     * may be an id of a "bomb" asset the user cannot access/load.
-     */
-    public UUID getLink () {
-        return ou_asset_link;
-    }
     
+    @Override
     public void	addLittleListener( LittleListener listen_little ) {
 		otool_handler.addLittleListener ( listen_little );
 	}
 	
 	
+    @Override
 	public void     removeLittleListener( LittleListener listen_little ) {
 		otool_handler.removeLittleListener ( listen_little );
 	}
     
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

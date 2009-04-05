@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -25,7 +23,6 @@ import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.event.*;
-import littleware.apps.swingclient.*;
 
 /** 
  * Base class for a Wizard based AssetEditor.
@@ -37,6 +34,7 @@ import littleware.apps.swingclient.*;
 public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
 	private final static Logger           olog_generic = Logger.getLogger ( WizardAssetEditor.class.getName() );
     protected final AbstractAssetEditor   oeditor_internal = new AbstractAssetEditor ( this ) {
+        @Override
         public void eventFromModel ( LittleEvent evt_model ) {
             WizardAssetEditor.this.eventFromModel ( evt_model );
         }
@@ -72,22 +70,6 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
         olib_asset = lib_asset;
 	}
     
-    /**
-     * Constructor parents the Wizard to a Frame owner
-     */
-    public WizardAssetEditor (
-                               Frame  wframe_owner,
-                                AssetManager m_asset,
-                                AssetSearchManager m_search,
-                              AssetModelLibrary lib_asset,
-                                IconLibrary lib_icon ) 
-    {
-        super( wframe_owner );
-        om_asset = m_asset;
-        om_search = m_search;
-        olib_icon = lib_icon;
-        olib_asset = lib_asset;        
-    }
 
     /**
      * Constructor parents the Wizard to a Dialog owner

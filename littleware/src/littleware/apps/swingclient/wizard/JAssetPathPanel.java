@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient.wizard;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -17,12 +19,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.swing.*;
 
-import com.nexes.wizard.Wizard;
 
 import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
@@ -48,7 +49,7 @@ public class JAssetPathPanel extends JPanel {
     private static final int   OI_FIELDSIZE = 60;
     private static final long serialVersionUID = -4311442963234747531L;
 
-    private final String               os_label;
+    private final JLabel               ojLabelInstructions = new JLabel( "Instructions" );
     private final JTextField           owtext_info;
     private final AssetSearchManager   om_search;
     private final IconLibrary          olib_icon;
@@ -56,16 +57,23 @@ public class JAssetPathPanel extends JPanel {
     private final JAssetLink           owlink_asset;
     private final JToolBar             owtbar_control = new JToolBar( "Controls", SwingConstants.HORIZONTAL );
     private final AssetViewFactory     ofactory_view;
-    private final Wizard               owizard_owner;
     
     private AssetPath                  opath_current = null;
     private UUID                       ou_asset = null;
-    private Set<AssetType>             ov_legal = new HashSet<AssetType> ();
+    private List<AssetType<? extends Asset>>            ov_legal = new ArrayList<AssetType<? extends Asset>> ();
     private AssetView                  oview_asset = null;
     private JDialog                    owbrowser_root = null;
     
     private boolean                    ob_gui_built = false;
-    
+    private final Provider<JAssetBrowser> oprovideBrowser;
+
+    public String getInstructions () {
+        return ojLabelInstructions.getText();
+    }
+    public void setInstructions( String sInstructions ) {
+        ojLabelInstructions.setText( sInstructions );
+    }
+
     /**
      * Enumeration of buttons automatically setup in the toolbar.
      * Pass to getButton() to retrieve buttons to listen to.
@@ -92,7 +100,6 @@ public class JAssetPathPanel extends JPanel {
         }
         ob_gui_built = true;
         
-        final JLabel             wlabel_instruct = new JLabel ( os_label );
         final GridBagConstraints gcontrol_panel = new GridBagConstraints ();
         
         gcontrol_panel.gridx = 0;
@@ -101,7 +108,7 @@ public class JAssetPathPanel extends JPanel {
         gcontrol_panel.gridwidth = 1;
         //gcontrol_panel.fill = GridBagConstraints.HORIZONTAL;
         
-        this.add ( wlabel_instruct,
+        this.add ( ojLabelInstructions,
                    gcontrol_panel
                    );
         gcontrol_panel.gridy += 1;
@@ -114,6 +121,7 @@ public class JAssetPathPanel extends JPanel {
             switch ( n_button ) {
                 case APPLY: {
                     act_button = new AbstractAction () {
+                    @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             setAssetPathFromUI ();
                         }
@@ -124,6 +132,7 @@ public class JAssetPathPanel extends JPanel {
                 } break;
                 case BROWSE: {
                     act_button = new AbstractAction () {
+                        @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             launchBrowser ();
                         }
@@ -153,11 +162,7 @@ public class JAssetPathPanel extends JPanel {
      */
     private void launchBrowser () {
         if ( null == oview_asset ) {
-            JAssetBrowser wbrowser_asset = new JAssetBrowser (  ofactory_view,
-                                                             olib_icon,
-                                                             olib_asset,
-                                                             om_search
-                                                             );
+            JAssetBrowser wbrowser_asset = oprovideBrowser.get();
 
             SimpleAssetViewController  listen_control = new SimpleAssetViewController ( 
                                                                              om_search,
@@ -178,6 +183,7 @@ public class JAssetPathPanel extends JPanel {
             final JButton wbutton_select = new JButton ( "Select" );
             
             wbutton_select.addActionListener ( new ActionListener () {
+                @Override
                 public void actionPerformed( ActionEvent evt_action ) {
                     try {
                         UUID u_asset = oview_asset.getAssetModel ().getAsset ().getObjectId ();
@@ -223,8 +229,8 @@ public class JAssetPathPanel extends JPanel {
             
             wpanel_browser.setPreferredSize ( new Dimension ( 1000, 700 ) );  // force big
             
-            owbrowser_root = new JDialog ( owizard_owner.getDialog () );
-                        
+            owbrowser_root = new JDialog ();
+            owbrowser_root.setModal(true);
             owbrowser_root.getContentPane ().add ( wpanel_browser );
             oview_asset = (AssetView) wbrowser_asset;
             owbrowser_root.pack ();
@@ -233,8 +239,6 @@ public class JAssetPathPanel extends JPanel {
             // Where should we start browsing ?
             if ( null != getAssetId () ) {
                 oview_asset.setAssetModel ( olib_asset.retrieveAssetModel ( getAssetId (), om_search ) );
-            } else if ( owizard_owner instanceof AssetView ) {
-                oview_asset.setAssetModel ( ((AssetView) owizard_owner).getAssetModel () );                
             } else {
                 // just start browsing around ACL_EVERYBODY
                 oview_asset.setAssetModel ( olib_asset.syncAsset ( om_search.getByName ( LittleAcl.ACL_EVERYBODY_READ,
@@ -276,26 +280,22 @@ public class JAssetPathPanel extends JPanel {
      * @param v_legal set of legal asset types - may be null to leave unrestricted
      * @param factory_view AssetView component factory
      */
-    public JAssetPathPanel ( String s_short_instruction, 
-                             Set<AssetType>     v_legal,
+    @Inject
+    public JAssetPathPanel ( Provider<JAssetBrowser> provideBrowser,
                              AssetSearchManager m_search,
                              AssetModelLibrary  lib_asset,                             
                              IconLibrary        lib_icon,
                              AssetViewFactory   factory_view,
-                             Wizard             wizard_owner
+                             Provider<JAssetLink>  provideLink
                              ) {
         super( new GridBagLayout () );
-        os_label = s_short_instruction;
+        oprovideBrowser = provideBrowser;
         owtext_info = new JTextField ( OI_FIELDSIZE );
         om_search = m_search;
         olib_icon = lib_icon;
         olib_asset = lib_asset;
-        owlink_asset = new JAssetLink ( olib_icon );
+        owlink_asset = provideLink.get();
         ofactory_view = factory_view;
-        owizard_owner = wizard_owner;
-        if ( null != v_legal ) {
-            ov_legal.addAll ( v_legal );
-        }
         buildUI ();
     }
     
@@ -370,16 +370,13 @@ public class JAssetPathPanel extends JPanel {
     
     /**
      * Get the set of legal asset-types to restrict the user selection to.
-     * Empty-set implies no restrictions on type.
+     * Empty implies no restrictions on type.
+     * Listed in order of display.
      */
-    public Set<AssetType> getLegalAssetType () {
+    public List<AssetType<? extends Asset>> getLegalAssetType () {
         return ov_legal;
     }
-    
-    /**
-     * Set asset-type restrictions on subsequent calls to setAssetPath
-     */
-    public void setLegalAssetType ( Set<AssetType> v_legal ) {
+    public void setLegalAssetType ( List<AssetType<? extends Asset>> v_legal ) {
         ov_legal = v_legal;
     }
     

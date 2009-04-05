@@ -45,10 +45,12 @@ public class SimpleThumbManager implements ThumbManager {
             obFallback = bFallback;
         }
         
+        @Override
         public boolean isFallback() {
             return obFallback;
         }
 
+        @Override
         public Image getThumb() {
             return oimg;
         }
@@ -81,6 +83,7 @@ public class SimpleThumbManager implements ThumbManager {
         omgrImage = mgrImage;
     }
 
+    @Override
     public Thumb loadThumb(UUID u_asset) throws BaseException, GeneralSecurityException, IOException {
         Thumb thumbCache = ocache.get( u_asset );
         if ( null != thumbCache ) {
@@ -95,10 +98,12 @@ public class SimpleThumbManager implements ThumbManager {
         return othumbDefault;
     }
 
+    @Override
     public Image getDefault() {
         return oimgDefault;
     }
 
+    @Override
     public void setDefault( Image imgDefault) {
         oimgDefault = imgDefault;
     }

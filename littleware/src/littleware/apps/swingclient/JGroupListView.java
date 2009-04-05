@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.*;
@@ -38,6 +39,7 @@ import littleware.security.*;
  */
 public class JGroupListView extends JPanel {
     private final static Logger                  olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JGroupListView" );
+    private static final long serialVersionUID = 2279119318666666569L;
     
     private final PropertyChangeSupport          opropsupport = new PropertyChangeSupport ( this );
     private final IconLibrary                    olib_icon;
@@ -71,6 +73,7 @@ public class JGroupListView extends JPanel {
         List<? extends Principal> v_members = Collections.list ( grp_2sync.members () );
         Collections.sort ( v_members, 
                            new Comparator<Principal> () {
+            @Override
             public int compare( Principal p_1, Principal p_2 ) {
                 return p_1.getName ().compareTo ( p_2.getName () );
             }
@@ -93,6 +96,7 @@ public class JGroupListView extends JPanel {
         /**
          * Reset the tree-nodes corresponding to the group list members changed
          */
+        @Override
         public void	contentsChanged( ListDataEvent evt_list ) {
             for ( int i=evt_list.getIndex0 ();
                   i <= evt_list.getIndex1 ();
@@ -111,6 +115,7 @@ public class JGroupListView extends JPanel {
         /**
          * Insert the new groups in the list into the view tree
          */
+        @Override
         public void	intervalAdded(ListDataEvent evt_list ) {
             for ( int i=evt_list.getIndex0 ();
                   i <= evt_list.getIndex1 ();
@@ -136,6 +141,7 @@ public class JGroupListView extends JPanel {
             otmodel_groups.nodeStructureChanged ( otnode_root );
         }            
         
+        @Override
         public void	intervalRemoved(ListDataEvent evt_list ) {
             //Object[] v_removed_groups = new Object[ evt_list.getIndex1 () - evt_list.getIndex0 () + 1 ];
             
@@ -166,6 +172,7 @@ public class JGroupListView extends JPanel {
     };
     
     private final TreeSelectionListener olisten_selection = new TreeSelectionListener () {
+        @Override
         public void valueChanged(TreeSelectionEvent e) {
             DefaultMutableTreeNode tnode_asset = (DefaultMutableTreeNode)
                            owtree_groups.getLastSelectedPathComponent();
@@ -218,10 +225,12 @@ public class JGroupListView extends JPanel {
      * @param lib_icon source of icons
      * @param lmodel_grouplist DataModel underlying the view
      */
-    public JGroupListView ( IconLibrary lib_icon, ListModel lmodel_grouplist ) {
+    @Inject
+    public JGroupListView ( IconLibrary lib_icon, ListModel lmodel_grouplist,
+            JAssetLinkRenderer renderLinkCell ) {
         olib_icon = lib_icon;
         olmodel_groups = lmodel_grouplist;
-        owtree_groups.setCellRenderer ( new JAssetLink ( lib_icon, true ) );
+        owtree_groups.setCellRenderer ( renderLinkCell );
         
         olmodel_groups.addListDataListener ( olisten_model );
         if ( olmodel_groups.getSize () > 0 ) {
@@ -246,8 +255,10 @@ public class JGroupListView extends JPanel {
      * @param lib_icon source of icons
      * @param v_groups to initialize view to
      */
-    public JGroupListView ( IconLibrary lib_icon, List<Group> v_groups ) {
-        this( lib_icon, new DefaultListModel () );
+    public JGroupListView ( IconLibrary lib_icon, List<Group> v_groups,
+            JAssetLinkRenderer renderLinkCell
+            ) {
+        this( lib_icon, new DefaultListModel (), renderLinkCell );
         
         int i_position = 0;
         for ( Group group_add : v_groups ) {

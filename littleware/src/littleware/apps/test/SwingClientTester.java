@@ -12,16 +12,14 @@ package littleware.apps.test;
 
 import littleware.test.JLittleDialog;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import javax.swing.*;
 
-import junit.framework.*;
 import com.nexes.wizard.Wizard;
 
 import littleware.apps.client.*;
@@ -46,30 +44,29 @@ public class SwingClientTester extends LittleTest {
     private final AssetModelLibrary olib_asset;
     private final AssetViewFactory ofactory_view;
     private final AssetEditorFactory ofactory_edit;
+    private final Provider<CreateAssetWizard> oprovideWizard;
+    private final Provider<JAssetBrowser> oprovideBrowser;
+    private final Provider<ExtendedAssetViewController> oprovideController;
 
-    /**
-     * Do nothing constructor - just pass the test-name through to super,
-     * and stash managers needed for test.
-     */
-    public SwingClientTester(String s_test_name, SessionHelper m_helper,
-            AssetModelLibrary lib_asset, IconLibrary lib_icon,
-            AssetViewFactory factory_view,
-            AssetEditorFactory factory_edit) {
-        super.setName(s_test_name);
-        om_helper = m_helper;
-        olib_asset = lib_asset;
-        olib_icon = lib_icon;
-        ofactory_view = factory_view;
-        ofactory_edit = factory_edit;
-    }
     
     /** Inject dependencies */
     @Inject
     public SwingClientTester( SessionHelper m_helper,
         AssetModelLibrary lib_asset, IconLibrary lib_icon,
         AssetViewFactory factory_view,
-        AssetEditorFactory factory_edit) {
-        this( "", m_helper, lib_asset, lib_icon, factory_view, factory_edit );
+        AssetEditorFactory factory_edit,
+        Provider<CreateAssetWizard> provideWizard,
+        Provider<JAssetBrowser> provideBrowser,
+        Provider<ExtendedAssetViewController>  provideController
+        ) {
+        om_helper = m_helper;
+        olib_asset = lib_asset;
+        olib_icon = lib_icon;
+        ofactory_view = factory_view;
+        ofactory_edit = factory_edit;
+        oprovideWizard = provideWizard;
+        oprovideBrowser = provideBrowser;
+        oprovideController = provideController;
     }
 
     /** 
@@ -149,6 +146,7 @@ public class SwingClientTester extends LittleTest {
 
             final AssetEditor edit_bogus = new AbstractAssetEditor(this) {
 
+                @Override
                 public void eventFromModel(LittleEvent event_property) {
                     // just do something - anything
                     olog_generic.log( Level.INFO, "Test editor received event from model, setting value to 5" );
@@ -186,6 +184,7 @@ public class SwingClientTester extends LittleTest {
             wm_session.addLittleListener(
                     new LittleListener() {
 
+                @Override
                         public void receiveLittleEvent(LittleEvent event_little) {
                             String s_session_info = null;
                             if (event_little.isSuccessful()) {
@@ -263,17 +262,8 @@ public class SwingClientTester extends LittleTest {
         try {
             AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
             AssetModel model_asset = olib_asset.syncAsset(om_helper.getSession());
-            JComponent wbrowser_asset = new JAssetBrowser(ofactory_view,
-                    olib_icon,
-                    olib_asset,
-                    m_search);
-            SimpleAssetViewController listen_control = new ExtendedAssetViewController(
-                    m_search,
-                    om_helper.getService(ServiceType.ASSET_MANAGER),
-                    olib_asset,
-                    ofactory_edit, ofactory_view,
-                    olib_icon,
-                    om_helper.getSession());
+            JComponent wbrowser_asset = oprovideBrowser.get();
+            SimpleAssetViewController listen_control = oprovideController.get();
             listen_control.setControlView((AssetView) wbrowser_asset);
             JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar(
                     olib_asset,
@@ -290,9 +280,10 @@ public class SwingClientTester extends LittleTest {
             ((AssetView) wbrowser_asset).setAssetModel(model_asset);
 
             final JPanel wpanel_browser = new JPanel(new BorderLayout());
-            wpanel_browser.add(wtoolbar_asset, BorderLayout.PAGE_START);
+            //wpanel_browser.setLayout( new BoxLayout( wpanel_browser, BoxLayout.Y_AXIS ) );
+            wpanel_browser.add(wtoolbar_asset, BorderLayout.NORTH);
             wpanel_browser.add(wbrowser_asset, BorderLayout.CENTER);
-            wpanel_browser.setPreferredSize ( new Dimension ( 1200, 700 ) );  // force big
+            //wpanel_browser.setPreferredSize ( new Dimension ( 1200, 700 ) );  // force big
 
             /*.......
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -389,14 +380,8 @@ public class SwingClientTester extends LittleTest {
 
         try {
             AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
-            Wizard wizard_create = new CreateAssetWizard(
-                    om_helper.getService(ServiceType.ASSET_MANAGER),
-                    om_helper.getService(ServiceType.ASSET_SEARCH),
-                    olib_asset,
-                    olib_icon,
-                    ofactory_view,
-                    null,
-                    olib_asset.syncAsset(a_new));
+            final CreateAssetWizard wizard_create = oprovideWizard.get();
+            wizard_create.setAssetModel( olib_asset.syncAsset(a_new));
             assertTrue("User closed create-asset wizard ok",
                     Wizard.FINISH_RETURN_CODE == wizard_create.showModalDialog());
             assertTrue("Asset-create wizard has asset changes",
@@ -412,7 +397,7 @@ public class SwingClientTester extends LittleTest {
 
     /**
      * Popup the JGroupsUnderParent tool
-     */
+     *
     public void testGroupFolderTool() {
         try {
             final Factory<UUID> factory_uuid = UUIDFactory.getFactory();
@@ -486,5 +471,6 @@ public class SwingClientTester extends LittleTest {
             assertTrue("Caught unexpected: " + e, false);
         }
     }
+     */
 }
 

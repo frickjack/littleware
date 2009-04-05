@@ -11,6 +11,7 @@
 package littleware.apps.swingclient.controller;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -46,6 +47,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
     private final LittleSession      oa_session;
     private final AssetEditorFactory ofactory_edit;
     private final AssetViewFactory   ofactory_view;
+    private final Provider<CreateAssetWizard> oprovideWizard;
 
     
     
@@ -68,7 +70,8 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                                          AssetEditorFactory factory_edit,
                                          AssetViewFactory   factory_view,
                                          IconLibrary        lib_icon,
-                                         LittleSession      a_session
+                                         LittleSession      a_session,
+                                         Provider<CreateAssetWizard> provideWizard
                                        ) {
         super( m_search, lib_asset );
                 
@@ -79,6 +82,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
         ofactory_view = factory_view;
         olib_icon = lib_icon;
         oa_session = a_session;
+        oprovideWizard = provideWizard;
     }
         
     /**
@@ -102,17 +106,9 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
 
                 final   AssetModel        amodel_new = olib_asset.syncAsset( a_new );
                 int                       i_create_result = Wizard.ERROR_RETURN_CODE;
-                final   CreateAssetWizard wizard_create;
+                final   CreateAssetWizard wizard_create = oprovideWizard.get();
                 try {
-                    wizard_create = new CreateAssetWizard ( 
-                                                                     om_asset,
-                                                                     om_search,
-                                                                     olib_asset,
-                                                                     olib_icon,
-                                                                     ofactory_view,
-                                                                     null,
-                                                                     amodel_new
-                                                                     ); 
+                    wizard_create.setAssetModel(amodel_new );
                     // Give the asset local changes not in the AssetModelLibrary
                     if ( null != amodel_view ) {
                         Asset a_from = amodel_view.getAsset ();

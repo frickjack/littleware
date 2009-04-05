@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,9 +39,11 @@ import littleware.base.Whatever;
  * Fires a SaveRequestEvent when the user requests to save his edits
  * by pressing the save button.
  */
-public abstract class JGenericAssetEditor extends JPanel implements AssetEditor {
-	private final static Logger           olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JGenericAssetEditor" );
+public class JGenericAssetEditor extends JPanel implements AssetEditor {
+	private final static Logger           olog_generic = Logger.getLogger ( JGenericAssetEditor.class.getName() );
+    private static final long serialVersionUID = 2345027233175367562L;
     protected final AbstractAssetEditor   oeditor_util = new AbstractAssetEditor ( this ) {
+        @Override
         public void eventFromModel ( LittleEvent evt_from_model ) {
             JGenericAssetEditor.this.eventFromModel ( evt_from_model );
         }
@@ -74,6 +78,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
     {
         owbutton_save.setToolTipText ( "Save locally applied changes to the asset repository" );
         owbutton_save.addActionListener ( new ActionListener () {
+            @Override
                 public void actionPerformed(ActionEvent event_button) {
                     if ( applyDataFromSummaryUI () ) {
                         oeditor_util.fireLittleEvent ( 
@@ -92,6 +97,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
         
         owbutton_reset.setToolTipText ( "Discard all local changes" );
         owbutton_reset.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed ( ActionEvent event_button ) {
                 clearLocalChanges ();
                 updateAssetUI ();
@@ -103,11 +109,13 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
     {
         /** Update UI in response to property changes on this object */
         addPropertyChangeListener ( new PropertyChangeListener () {
+            @Override
             public void propertyChange ( PropertyChangeEvent evt_prop ) {
                 if ( evt_prop.getPropertyName ().equals ( AssetView.Property.assetModel.toString () ) ) {
                     // Model has changed under us
                     SwingUtilities.invokeLater ( 
                                                  new Runnable () {
+                        @Override
                                                      public void run () {
                                                          updateAssetUI ();
                                                      }
@@ -279,6 +287,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                                                          );
             wbutton_apply.setToolTipText ( "Apply data to local asset, but do not Save to repository" );
             wbutton_apply.addActionListener ( new ActionListener () {
+                @Override
                 public void actionPerformed ( ActionEvent event_button ) {
                     applyDataFromSummaryUI ();
                 }
@@ -288,6 +297,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
             final JButton  wbutton_sync = new JButton ( "Resync Local" );
             wbutton_sync.setToolTipText ( "Sync basic editor with local asset" );
             wbutton_sync.addActionListener ( new ActionListener () {
+                @Override
                 public void actionPerformed ( ActionEvent event_button ) {
                     updateBasicUI ();
                 }
@@ -366,12 +376,15 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
      * Public constructor
      * builds the UI, and sets the model to view
      */
+    @Inject
     public JGenericAssetEditor (
                                 AssetModel   model_view,
                                 AssetManager m_asset,
                                 AssetSearchManager m_search,
                                 IconLibrary lib_icon,
-                                AssetViewFactory factory_view
+                                AssetViewFactory factory_view,
+                                Provider<JAssetLink>  provideLinkView,
+                                Provider<JAssetLinkEditor> provideLinkEditor
                                 ) 
     {
         super ( new GridBagLayout () );
@@ -380,32 +393,17 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
         olib_icon = lib_icon;   
         olib_asset = model_view.getLibrary ();
         ofactory_view = factory_view;
-        owlink_asset = new JAssetLink ( lib_icon );
+        owlink_asset = provideLinkView.get();
         
-        owalink_to = new JAssetLinkEditor ( m_search, olib_asset,
-                                             lib_icon, 
-                                             model_view,
-                                             factory_view
-                                             );
-        owalink_from = new JAssetLinkEditor ( m_search, olib_asset,
-                                             lib_icon, 
-                                             model_view,
-                                             factory_view
-                                             );
+        owalink_to = provideLinkEditor.get();
+        owalink_from = provideLinkEditor.get();
         
-        owalink_acl = new JAssetLinkEditor ( m_search, olib_asset,
-                                             lib_icon, 
-                                             model_view,
-                                             factory_view
-                                             );
+        owalink_acl = provideLinkEditor.get();
 
-        owalink_owner = new JAssetLinkEditor ( m_search, olib_asset,
-                                             lib_icon, 
-                                             model_view,
-                                             factory_view
-                                             );
+        owalink_owner = provideLinkEditor.get();
 
         owalink_owner.addLittleListener ( new LittleListener () {
+            @Override
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
                     owalink_owner.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
@@ -415,6 +413,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                                         );
         
         owalink_acl.addLittleListener ( new LittleListener () {
+            @Override
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
                     owalink_acl.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
@@ -424,6 +423,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                                           );
         
         owalink_to.addLittleListener ( new LittleListener () {
+            @Override
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
                     owalink_to.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
@@ -433,6 +433,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                                         );
 
         owalink_from.addLittleListener ( new LittleListener () {
+            @Override
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
                     owalink_from.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
@@ -493,30 +494,36 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
         updateBasicUI ();
     }        
  
+    @Override
     public AssetModel getAssetModel () {
         return oeditor_util.getAssetModel ();
     }
     
 
+    @Override
     public void setAssetModel ( AssetModel model_view ) {
         oeditor_util.setAssetModel ( model_view );
     }
     
     
     
+    @Override
     public Asset getLocalAsset () {
         return oeditor_util.getLocalAsset ();
     }
     
     
+    @Override
     public void setHasLocalChanges ( boolean b_changed ) {
         oeditor_util.setHasLocalChanges ( b_changed );
     }
     
+    @Override
     public void clearLocalChanges () {
         oeditor_util.clearLocalChanges ();
         SwingUtilities.invokeLater ( 
                                      new Runnable () {
+            @Override
                                          public void run () {
                                              updateAssetUI ();
                                          }
@@ -524,10 +531,12 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
                                      );                 
     }
     
+    @Override
     public boolean getHasLocalChanges () {
         return oeditor_util.getHasLocalChanges ();
     }
     
+    @Override
     public void saveLocalChanges ( AssetManager m_asset, String s_message 
                                    ) throws BaseException, AssetException, 
         RemoteException, GeneralSecurityException
@@ -536,10 +545,12 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
     }
     
     
+    @Override
 	public void	addUndoableEditListener( UndoableEditListener listen_edit ) {
         oeditor_util.addUndoableEditListener ( listen_edit );
     }
 	
+    @Override
 	public void     removeUndoableEditListener( UndoableEditListener listen_edit ) {
         oeditor_util.removeUndoableEditListener ( listen_edit );
     }
@@ -560,6 +571,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
             // Model has changed under us
             SwingUtilities.invokeLater ( 
                                          new Runnable () {
+                @Override
                                              public void run () {
                                                  updateAssetUI ();
                                              }
@@ -581,11 +593,13 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
     }
     
     
+    @Override
     public void	addLittleListener( LittleListener listen_little ) {
 		oeditor_util.addLittleListener ( listen_little );
 	}
 	
 	
+    @Override
 	public void     removeLittleListener( LittleListener listen_little ) {
 		oeditor_util.removeLittleListener ( listen_little );
 	}
@@ -600,6 +614,7 @@ public abstract class JGenericAssetEditor extends JPanel implements AssetEditor 
         oeditor_util.removePropertyChangeListener ( listen_props );
     }
     
+    @Override
     public Asset changeLocalAsset () {
         return oeditor_util.changeLocalAsset ();
     }

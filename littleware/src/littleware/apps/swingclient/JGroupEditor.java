@@ -1,19 +1,25 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.security.Principal;
 import javax.swing.*;
-import javax.swing.undo.*;
-import javax.swing.event.*;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
@@ -25,8 +31,9 @@ import littleware.security.*;
 /**
  * AssetEditor customized for editing group membership.
  */
-public class JGroupEditor extends JGenericAssetEditor implements AssetEditor {
+public class JGroupEditor extends JGenericAssetEditor  {
     private static final Logger       olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JGroupEditor" );
+    private static final long serialVersionUID = -8409677586957318871L;
 
     private final AssetSearchManager        om_search;
     private final AssetManager              om_asset;
@@ -40,6 +47,7 @@ public class JGroupEditor extends JGenericAssetEditor implements AssetEditor {
     {
         owbutton_delete.addActionListener(
                                        new ActionListener () {
+            @Override
                                            public void actionPerformed(ActionEvent e) {
                                                uiDeleteMembers ();
                                            }
@@ -66,6 +74,7 @@ public class JGroupEditor extends JGenericAssetEditor implements AssetEditor {
         
         owbutton_add.addActionListener(
                                   new ActionListener () {
+            @Override
                                       public void actionPerformed(ActionEvent e) {
                                           uiAddNewMember ();
                                       }
@@ -234,18 +243,23 @@ public class JGroupEditor extends JGenericAssetEditor implements AssetEditor {
      * @param lib_icon source of icons
      * @param view_factory read-only view source for browsers
      */
+    @Inject
     public JGroupEditor ( AssetModel model_view, 
                           AssetManager m_asset,
                           AssetSearchManager m_search,
                           IconLibrary lib_icon,
-                          AssetViewFactory view_factory
+                          AssetViewFactory view_factory,
+                                Provider<JAssetLink>  provideLinkView,
+                                Provider<JAssetLinkEditor> provideLinkEditor
+
                           ) {
-        super( model_view, m_asset, m_search, lib_icon, view_factory );
+        super( model_view, m_asset, m_search, lib_icon, view_factory, provideLinkView,
+                provideLinkEditor );
         om_search = m_search;
         om_asset = m_asset;
         olib_icon = lib_icon;
-        owlist_members.setCellRenderer ( new JAssetLink( lib_icon ) );
-        owlink_group = new JAssetLink ( lib_icon );
+        owlist_members.setCellRenderer ( provideLinkView.get() );
+        owlink_group = provideLinkView.get();
         buildTab ();
         updateTab ();
     }
@@ -255,6 +269,7 @@ public class JGroupEditor extends JGenericAssetEditor implements AssetEditor {
      * Reset the entire UI to match the data in getLocalAsset().
      * Disables GROUP tab if underlying AssetModel is not a Group.
      */
+    @Override
     protected void updateAssetUI () {
         super.updateAssetUI ();
         updateTab ();
@@ -291,6 +306,7 @@ public class JGroupEditor extends JGenericAssetEditor implements AssetEditor {
         }
         Collections.sort ( v_members, 
                            new Comparator<LittlePrincipal> () {
+            @Override
                                public int compare ( LittlePrincipal p_1, LittlePrincipal p_2 ) {
                                    return p_1.getName ().compareTo ( p_2.getName () );
                                }

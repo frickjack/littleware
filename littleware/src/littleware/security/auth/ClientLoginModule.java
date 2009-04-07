@@ -68,6 +68,7 @@ public class ClientLoginModule implements LoginModule {
      * @param v_shared_state map shared with other login modules
      * @param v_options login options - currently only look for acl_check
      */
+    @Override
     public void initialize(Subject j_subject,
             CallbackHandler x_handler,
             Map v_shared_state,
@@ -96,6 +97,7 @@ public class ClientLoginModule implements LoginModule {
      * @return true if authentication succeeds, false to ignore this module
      * @exception LoginException if authentication fails
      */
+    @Override
     public boolean login() throws LoginException {
         if (null == ox_handler) {
             throw new LoginException("No CallbackHandler registered with module");
@@ -195,6 +197,7 @@ public class ClientLoginModule implements LoginModule {
      *
      * @exception LoginException if commit fails
      */
+    @Override
     public boolean commit() throws LoginException {
         return true;
     }
@@ -205,6 +208,7 @@ public class ClientLoginModule implements LoginModule {
      *
      * @exception LoginException if abort fails
      */
+    @Override
     public boolean abort() {
         return true;
     }
@@ -216,6 +220,7 @@ public class ClientLoginModule implements LoginModule {
      * @return true if logout ok, false to ignore this module
      * @exception LoginException if logout fails
      */
+    @Override
     public boolean logout() throws LoginException {
         return true;
     }

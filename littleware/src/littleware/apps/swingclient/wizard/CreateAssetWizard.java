@@ -134,6 +134,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                             a_new.setFromId(a_old.getFromId());
                             a_new.setAclId(a_old.getAclId());
                             a_new.setToId(a_old.getToId());
+                            a_new.setHomeId( a_old.getHomeId() );
                             a_new.setComment(a_old.getComment());
                             a_new.setObjectId(a_old.getObjectId());
                             a_new.setName(a_old.getName());

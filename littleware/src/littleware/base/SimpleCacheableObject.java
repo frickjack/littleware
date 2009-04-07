@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.base;
 
 import java.util.UUID;
@@ -24,16 +34,19 @@ public abstract class SimpleCacheableObject implements CacheableObject {
 	 * Set the global id associated with the master object
 	 * this object is a copy of.
 	 */
+    @Override
 	public void setObjectId ( UUID u_id ) { ou_id = u_id; }
 	
 	/**
 	 * Get the object id
 	 */
+    @Override
 	public UUID getObjectId () { return ou_id; }
 	
 	/**
 	 * Reset the transaction counter
 	 */
+    @Override
 	public void setTransactionCount ( long l_transaction ) {
 		ol_transaction = l_transaction;
 	}
@@ -41,11 +54,13 @@ public abstract class SimpleCacheableObject implements CacheableObject {
 	/**
 	 * Get the transaction count
 	 */
+    @Override
 	public long getTransactionCount () { return ol_transaction; }
 	
 	/**
 	 * Comparable interface
 	 */
+    @Override
 	public int compareTo ( CacheableObject x_other ) {
 		if ( (null == ou_id) || (null == x_other) || (null == x_other.getObjectId ()) ) {
 			throw new NullPointerException ( "Cannot compare CacheAbleObjects without a valid ObjectId" );
@@ -53,6 +68,7 @@ public abstract class SimpleCacheableObject implements CacheableObject {
 		return ou_id.compareTo ( x_other.getObjectId () );
 	}
 	
+    @Override
 	public boolean equals ( Object x_other ) {
 		if ( (null == ou_id) || (null == x_other) 
 			 || (! (x_other instanceof CacheableObject))
@@ -67,11 +83,13 @@ public abstract class SimpleCacheableObject implements CacheableObject {
 	/**
 	 * Just return this.getObjectId ().hashCode ()
 	 */
+    @Override
 	public int hashCode () { return this.getObjectId ().hashCode (); }
 	
 	/**
 	 * Return a simple copy of this object
 	 */
+    @Override
 	public CacheableObject clone () {
 		try {
 			return (CacheableObject) super.clone ();
@@ -81,7 +99,4 @@ public abstract class SimpleCacheableObject implements CacheableObject {
 	}
 	
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

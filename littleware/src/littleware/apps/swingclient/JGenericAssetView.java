@@ -45,6 +45,27 @@ public class JGenericAssetView extends JPanel implements AssetView {
             JGenericAssetView.this.eventFromModel ( evt_from_model );
         }
     };
+    {
+        // Should only happen on call to setAssetModel ...
+        oview_util.addPropertyChangeListener ( new PropertyChangeListener () {
+            /** Receive events from the View model */
+            @Override
+            public void propertyChange ( PropertyChangeEvent evt_prop ) {
+                if ( evt_prop.getPropertyName ().equals ( AssetView.Property.assetModel.toString () ) ) {
+                    // Model has changed under us
+                    SwingUtilities.invokeLater (
+                                                 new Runnable () {
+                        @Override
+                                                     public void run () {
+                                                         updateAssetUI ();
+                                                     }
+                                                 }
+                                                 );
+                }
+            }
+        }
+                                               );
+    }
     
     private final IconLibrary           olib_icon;
     private final ThumbManager          om_thumb;
@@ -447,24 +468,6 @@ public class JGenericAssetView extends JPanel implements AssetView {
         owlink_creator = provideLinkView.get();
         owlink_updater = provideLinkView.get();
         
-        oview_util.addPropertyChangeListener ( new PropertyChangeListener () {
-            /** Receive events from the View model */
-            @Override
-            public void propertyChange ( PropertyChangeEvent evt_prop ) {
-                if ( evt_prop.getPropertyName ().equals ( AssetView.Property.assetModel.toString () ) ) {
-                    // Model has changed under us
-                    SwingUtilities.invokeLater ( 
-                                                 new Runnable () {
-                        @Override
-                                                     public void run () {
-                                                         updateAssetUI ();
-                                                     }
-                                                 }
-                                                 );                
-                }
-            }
-        }
-                                               );        
         buildAssetUI ();      
     }
 

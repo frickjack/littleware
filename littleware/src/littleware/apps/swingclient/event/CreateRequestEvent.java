@@ -17,6 +17,7 @@ import littleware.apps.client.*;
  */
 public class CreateRequestEvent extends LittleEvent {
     private static final String   OS_OPERATION = "CreateRequestEvent";
+    private static final long serialVersionUID = -5621375774508626054L;
     
     private final AssetModel  oamodel_view;
 	
@@ -38,6 +39,4 @@ public class CreateRequestEvent extends LittleEvent {
 	public AssetModel getAssetModel () { return oamodel_view; }
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

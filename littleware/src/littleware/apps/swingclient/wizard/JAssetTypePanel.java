@@ -11,6 +11,7 @@ import littleware.apps.swingclient.*;
  * Simple wizard panel for selecting an asset type
  */
 public class JAssetTypePanel extends JPanel {
+    private static final long serialVersionUID = -7891643355703793674L;
 
     private final JAssetTypeSelector  owselector_atype;
     

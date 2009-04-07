@@ -166,12 +166,18 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
                 b_expanded, b_leaf, i_row,
                 b_hasFocus);
         if ((null != x_value) && (x_value instanceof DefaultMutableTreeNode)) { // add this check - necessary at bootstrap
-            Asset a_link = (Asset) ((DefaultMutableTreeNode) x_value).getUserObject();
-            if (null != a_link) {
-                otreerender_default.setIcon(olib_icon.lookupIcon(a_link.getAssetType()));
-                otreerender_default.setText(a_link.getName());
-            } else {
+            Object x_link = ((DefaultMutableTreeNode) x_value).getUserObject();
+            if (null == x_link) {
                 otreerender_default.setText("null");
+            } else if ( x_link instanceof UUID ) {
+                configureLabel( (UUID) x_link, otreerender_default );
+            } else if ( x_link instanceof Asset ) {
+                configureLabel( (Asset) x_link, otreerender_default );
+            } else if ( x_link instanceof String ) {
+                otreerender_default.setText( (String) x_link );
+            } else {
+                olog_generic.log( Level.WARNING, "Object of unknown type: " + x_link );
+                otreerender_default.setText( "ERR - wrong type: " + x_link );
             }
         }
         return otreerender_default;
@@ -184,31 +190,36 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
      * sets up the display with bomb/error info.
      *
      * @param u_id to display - may be null - ignores other args if null
+     * @param jLabelRender label subtype to display info to
      */
-    public final void setLink(UUID u_id) {
-        this.setIcon(null);
-
+    public final void setLink(UUID u_id ) {
         ou_asset_link = u_id;
+        configureLabel( u_id, this );
+    }
+
+    private void configureLabel(UUID u_id, JLabel jLabelRender ) {
+        jLabelRender.setIcon(null);
+        
         if (null == u_id) {
-            this.setForeground(null);
-            this.setText("<html><i>null</i></html>");
+            jLabelRender.setForeground(null);
+            jLabelRender.setText("<html><i>null</i></html>");
             return;
         }
         String s_name = u_id.toString();
-        this.setForeground(Color.BLUE);
-        this.setText(s_name);
+        jLabelRender.setForeground(Color.BLUE);
+        jLabelRender.setText(s_name);
         try {
             Asset a_linkto = olibAsset.retrieveAssetModel(u_id, osearch).getAsset();
-            setLink(a_linkto);
+            configureLabel(a_linkto, jLabelRender );
         } catch (RuntimeException e) {
             throw e;
         } catch (GeneralSecurityException e) {
             olog_generic.log(Level.FINE, "Eating GeneralSecurityException: " + e + ", " +
                     BaseException.getStackTrace(e));
-            this.setIcon(olib_icon.lookupIcon("littleware.bomb"));
+            jLabelRender.setIcon(olib_icon.lookupIcon("littleware.bomb"));
         } catch (Exception e) {
             // set a tool tip later
-            this.setIcon(olib_icon.lookupIcon("littleware.screw"));
+            jLabelRender.setIcon(olib_icon.lookupIcon("littleware.screw"));
             olog_generic.log(Level.WARNING, "Failed to retrieve asset info for " + u_id + ", caught: " + e);
         }
     }
@@ -219,17 +230,22 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
      * @param a_linkto asset to link to
      */
     public void setLink(Asset a_linkto) {
+        ou_asset_link = a_linkto.getObjectId();
+        configureLabel( a_linkto, this );
+    }
+
+    private void configureLabel( Asset a_linkto, JLabel jLabelRender ) {
         if (null == a_linkto) {
-            this.setForeground(null);
-            this.setText("<html><i>null</i></html>");
+            jLabelRender.setForeground(null);
+            jLabelRender.setText("<html><i>null</i></html>");
             return;
         }
-        ou_asset_link = a_linkto.getObjectId();
+        
         final Icon iconType = olib_icon.lookupIcon(a_linkto.getAssetType());
         
         if (obRenderThumb) {
             try {
-                Thumb thumb = omgrThumb.loadThumb(ou_asset_link);
+                Thumb thumb = omgrThumb.loadThumb(a_linkto.getObjectId());
                 if (!thumb.isFallback()) {
                     final ImageIcon iconThumb = new ImageIcon(thumb.getThumb()) {
 
@@ -243,19 +259,19 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
                             }
                         }
                     };
-                    this.setIcon(iconThumb);
+                    jLabelRender.setIcon(iconThumb);
                 } else {
-                    setIcon(iconType);
+                    jLabelRender.setIcon(iconType);
                 }
             } catch (Exception ex) {
-                setIcon(iconType);
-                olog_generic.log(Level.WARNING, "Failed to load thumbnail for asset " + ou_asset_link);
+                jLabelRender.setIcon(iconType);
+                olog_generic.log(Level.WARNING, "Failed to load thumbnail for asset " + a_linkto.getObjectId());
             }
         } else {
-            setIcon(iconType);
+            jLabelRender.setIcon(iconType);
         }
 
-        this.setText(a_linkto.getName());
+        jLabelRender.setText(a_linkto.getName());
     }
 
     /**

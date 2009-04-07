@@ -42,7 +42,8 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             Provider<TrackerTester> provide_tracker_test,
             Provider<ImageManagerTester> provide_image_test,
             Provider<ThumbManagerTester> provide_thumb_test,
-            littleware.apps.lgo.test.PackageTestSuite suiteLgo
+            littleware.apps.lgo.test.PackageTestSuite suiteLgo,
+            Provider<JAssetFamilyTester> provideFamilyTest
             ) {
         super( PackageTestSuite.class.getName() );
 
@@ -78,6 +79,10 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
         b_run = true;
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testJAssetBrowser") );
+        }
+
+        if ( b_run ) {
+            this.addTest( provideFamilyTest.get() );
         }
         b_run = false;
         if (b_run) {

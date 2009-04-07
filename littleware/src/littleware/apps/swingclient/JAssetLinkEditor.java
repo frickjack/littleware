@@ -169,7 +169,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
             
             owdial_browser.getContentPane ().add ( wpanel_browser );
             //oview_browser = (AssetView) oview_browser;
-            owdial_browser.setPreferredSize ( new Dimension ( 1000, 700 ) );  // force big            
+            //owdial_browser.setPreferredSize ( new Dimension ( 1000, 700 ) );  // force big
             owdial_browser.pack ();            
         }
         if ( null != getLink () ) {

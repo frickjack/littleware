@@ -65,9 +65,13 @@ public class JAssetBrowser extends JPanel implements AssetView {
         ogrid_control.gridy = 0;
     }
     private final JPanel                owpanel_view = new JPanel ( new GridBagLayout () );
+    {
+        owpanel_view.setPreferredSize( new Dimension( 600, 600 ) );
+    }
     private final DefaultListModel      omodel_history = new DefaultListModel ();
     private final static int            oi_history_size = 10;
     private final JAssetLinkList        owlist_children;
+    private final JAssetFamilyView      owfamily;
     private final DefaultListModel      omodel_children = new DefaultListModel ();
     
     /**
@@ -109,7 +113,8 @@ public class JAssetBrowser extends JPanel implements AssetView {
                            IconLibrary       lib_icon,
                            AssetModelLibrary lib_asset,
                            AssetRetriever    m_retriever,
-                           Provider<JAssetLinkList> provideLinkListView
+                           JAssetLinkList    jListChildren,
+                           final JAssetFamilyView  jFamilyView
                            ) {
         //super( new GridBagLayout () );
         //this.setLayout( new BoxLayout( this, BoxLayout.X_AXIS));
@@ -117,6 +122,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
         olib_icon = lib_icon;
         olib_asset = lib_asset;
         om_retriever = m_retriever;
+        owfamily = jFamilyView;
 
         /*
         JAssetLinkList wlist_history = provideLinkListView.get();
@@ -126,11 +132,38 @@ public class JAssetBrowser extends JPanel implements AssetView {
         wlist_history.addLittleListener ( olisten_bridge );
         */
 
-        owlist_children = provideLinkListView.get();
+        owlist_children = jListChildren;
         owlist_children.setHeader( "-------- Children (linking From) --------" );
         owlist_children.setModel( omodel_children );
         owlist_children.addLittleListener ( olisten_bridge );
         //owlist_children.setRenderThumbnail(false);
+
+        jFamilyView.addLittleListener(olisten_bridge);
+
+        oview_support.addPropertyChangeListener ( new PropertyChangeListener () {
+            @Override
+            public void propertyChange ( PropertyChangeEvent evt_prop ) {
+                if ( evt_prop.getPropertyName ().equals ( AssetView.Property.assetModel.toString () ) ) {
+                    // Model has changed under us
+                    jFamilyView.setAssetModel( (AssetModel) evt_prop.getNewValue() );
+                    SwingUtilities.invokeLater (
+                                                 new Runnable () {
+                        @Override
+                                                     public void run () {
+                                                         syncAssetUI ();
+                                                     }
+                                                 }
+                                                 );
+                }
+                // Propagate to listeners on this object
+                firePropertyChange ( evt_prop.getPropertyName (),
+                                     evt_prop.getOldValue (),
+                                     evt_prop.getNewValue ()
+                                     );
+            }
+        }
+                                    );
+
 
         GridBagConstraints grid_control = new GridBagConstraints ();
         grid_control.anchor = GridBagConstraints.NORTHWEST;
@@ -142,42 +175,20 @@ public class JAssetBrowser extends JPanel implements AssetView {
         //grid_control.weightx = 0.2;
         //this.add ( wlist_history, grid_control );
 
+        this.add( jFamilyView );
+
         //grid_control.gridx += grid_control.gridwidth;
         grid_control.gridwidth = 6;
         //grid_control.weightx = 0.6;
-        this.add ( owpanel_view, grid_control );
+        this.add ( owpanel_view ); //, grid_control );
 
         grid_control.gridx += grid_control.gridwidth;
         grid_control.gridwidth = 3; //GridBagConstraints.REMAINDER;
         //grid_control.weightx = 0.5;
-        this.add ( owlist_children
+        //this.add ( owlist_children
                   //new JScrollPane( owlist_children ),
-                  , grid_control
-                   );
-        
-        oview_support.addPropertyChangeListener ( new PropertyChangeListener () {
-            @Override
-            public void propertyChange ( PropertyChangeEvent evt_prop ) {
-                if ( evt_prop.getPropertyName ().equals ( AssetView.Property.assetModel.toString () ) ) {
-                    // Model has changed under us
-                    SwingUtilities.invokeLater ( 
-                                                 new Runnable () {
-                        @Override
-                                                     public void run () {
-                                                         syncAssetUI ();
-                                                     }
-                                                 }
-                                                 );                
-                }
-                // Propagate to listeners on this object
-                firePropertyChange ( evt_prop.getPropertyName (),
-                                     evt_prop.getOldValue (),
-                                     evt_prop.getNewValue ()
-                                     );
-            }
-        }
-                                    );
-        
+                  //, grid_control
+          //         );
     }
     
     
@@ -239,6 +250,13 @@ public class JAssetBrowser extends JPanel implements AssetView {
 
     private boolean ob_in_update = false;
 
+    private static int max( int a, int b ) {
+        if ( a < b ) {
+            return b;
+        }
+        return a;
+    }
+
     /**
      * Internal utility updates view of the children linking form an asset -
      * runs asynchronously if not on the Swing dispatch thread
@@ -277,12 +295,24 @@ public class JAssetBrowser extends JPanel implements AssetView {
                         owpanel_view.getPreferredSize().height
                         )
                     );
+            /*..
+            owfamily.setPreferredSize(
+                    new Dimension(
+                        (int)( owfamily.getPreferredSize().width * 2),
+                        (int)(owpanel_view.getPreferredSize().height)
+                        )
+                    );
+                  */
+            this.revalidate();
+                        /*..
             Component w_root = JUtil.findRoot ( this );
             w_root.validate ();
+
             if ( w_root instanceof Window ) {
                 olog_generic.log ( Level.FINE, "Repacking window" );
                 ((Window) w_root).pack ();
             }
+            ..*/
         } finally {
             ob_in_update = false;
         }

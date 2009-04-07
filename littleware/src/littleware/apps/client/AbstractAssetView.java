@@ -27,6 +27,7 @@ public abstract class AbstractAssetView extends SimpleLittleTool implements Asse
     
     /** Bridge propagate events from AssetModel */
     private final LittleListener olisten_bridge = new LittleListener () {
+        @Override
         public void receiveLittleEvent ( LittleEvent evt_model ) {
             olog_generic.log ( Level.FINE, "Propogating event: " + evt_model.getOperation () );
             eventFromModel ( evt_model );
@@ -40,6 +41,7 @@ public abstract class AbstractAssetView extends SimpleLittleTool implements Asse
         super ( x_sourcebean );
     }
     
+    @Override
     public AssetModel getAssetModel () {
         return omodel_asset;
     }
@@ -51,6 +53,7 @@ public abstract class AbstractAssetView extends SimpleLittleTool implements Asse
      * to the listeners registered with this class.
      * NOOP if model_asset is NULL or same as already assigned AssetModel.
      */
+    @Override
     public void setAssetModel ( AssetModel model_asset ) {
         if ( (null == model_asset)
              || (model_asset == omodel_asset)

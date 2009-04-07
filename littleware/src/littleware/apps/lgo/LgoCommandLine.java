@@ -101,6 +101,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
     @Override
     public void run() {
         String[] vArgs = getArgs();
+        int iExitStatus = 0;
 
         try {
             /*..
@@ -147,15 +148,18 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                 String sResult = command.runCommandLine(feedback, sb_in.toString().trim());
                 System.out.println( (null == sResult) ? "null" : sResult );
             } catch ( LgoException ex ) {
+                iExitStatus = 1;
                 System.out.println( "Command failed, caught exception: " +
                         BaseException.getStackTrace( ex )
                         );
                 System.out.print(omgrCommand.getCommand("help").runCommand(feedback, command.getName()).toString());
             }
         } catch (Exception e) {
+            iExitStatus = 1;
             olog.log(Level.SEVERE, "Failed command, caught: " + e, e);
         } finally {
             obootstrap.shutdown();
+            System.exit( iExitStatus );
         }
     }
 

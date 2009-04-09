@@ -148,7 +148,7 @@ public class JQView extends JGenericAssetView {
             }
         );              
     }
-    private final JAssetLink orenderLink;
+    private final JAssetLinkRenderer orenderLink;
     
     
     /**
@@ -210,13 +210,14 @@ public class JQView extends JGenericAssetView {
     public JQView( AssetSearchManager m_search,
                        IconLibrary lib_icon,
                        ThumbManager m_thumb,
-                       Provider<JAssetLink> provideLinkView
+                       Provider<JAssetLink> provideLinkView,
+                       Provider<JAssetLinkRenderer> provideRenderer
                        ) throws BaseException, GeneralSecurityException, RemoteException 
     {
         super( m_search, lib_icon, m_thumb, provideLinkView );
         om_search = m_search;
         olib_icon = lib_icon;
-        orenderLink = provideLinkView.get();
+        orenderLink = provideRenderer.get();
         configureTable ();
         updateQData ();
         {

@@ -250,15 +250,15 @@ public class JGroupEditor extends JGenericAssetEditor  {
                           IconLibrary lib_icon,
                           AssetViewFactory view_factory,
                                 Provider<JAssetLink>  provideLinkView,
-                                Provider<JAssetLinkEditor> provideLinkEditor
-
+                                Provider<JAssetLinkEditor> provideLinkEditor,
+                                Provider<JAssetLinkRenderer> provideRender
                           ) {
         super( model_view, m_asset, m_search, lib_icon, view_factory, provideLinkView,
                 provideLinkEditor );
         om_search = m_search;
         om_asset = m_asset;
         olib_icon = lib_icon;
-        owlist_members.setCellRenderer ( provideLinkView.get() );
+        owlist_members.setCellRenderer ( provideRender.get() );
         owlink_group = provideLinkView.get();
         buildTab ();
         updateTab ();

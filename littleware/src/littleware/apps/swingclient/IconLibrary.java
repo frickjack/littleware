@@ -11,9 +11,11 @@
 package littleware.apps.swingclient;
 
 import com.google.inject.ImplementedBy;
+import com.google.inject.Provider;
 import java.util.Set;
 import javax.swing.Icon;
 
+import littleware.asset.Asset;
 import littleware.asset.AssetType;
 
 
@@ -22,6 +24,13 @@ import littleware.asset.AssetType;
  */
 @ImplementedBy(WebIconLibrary.class)
 public interface IconLibrary {
+    /**
+     * Utility interface - allows us to register an IconProvider
+     * that return an icon based on icon-state.
+     */
+    public interface IconProvider extends Provider<Icon> {
+        public Icon get( Asset aNeedsIcon );
+    }
 
     /**
      * Configure the root path from which to load the UI .gif icons.
@@ -46,6 +55,18 @@ public interface IconLibrary {
      * @return the icon 
      */
     public Icon  lookupIcon ( AssetType n_asset );
+
+    /**
+     * Get a reference to the most specific mini-icon available for the given asset's
+     * asset type - return the generic asset icon if nothing specific available.
+     * Allows selection of icon based on asset-state in addition to asset-type.
+     * In simple case might just call through to lookupIcon( asset.getAssetType() ).
+     *
+     * @param asset to lookup
+     * @return the icon
+     */
+    public Icon  lookupIcon ( Asset asset );
+
     /**
      * Register a new icon for the given asset type
      * 
@@ -53,10 +74,16 @@ public interface IconLibrary {
      * @param icon
      * @return the previously registered icon or null
      */
-    public Icon  registerIcon( AssetType n_asset, Icon icon );
+    public void  registerIcon( AssetType n_asset, IconProvider provideIcon );
+    /**
+     * Equivalent to registering and IconProvider that always returns
+     * the same icon.
+     */
+    public void  registerIcon( AssetType n_asset, Icon  icon );
     
     /**
-     * Get the set of asset-types that have an icon registered
+     * Get the set of asset-types that have an icon or
+     * icon-provider registered
      */
     public Set<AssetType> getIconAssetTypes ();
     
@@ -72,7 +99,7 @@ public interface IconLibrary {
      *
      * @return the previously registered icon or null
      */
-    public Icon registerIcon( String s_name, Icon icon );
+    public void registerIcon( String s_name, Icon icon );
     
     /**
      * Get the set of names in the library

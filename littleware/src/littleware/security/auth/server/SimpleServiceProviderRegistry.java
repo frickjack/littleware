@@ -10,7 +10,6 @@
 
 package littleware.security.auth.server;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import littleware.asset.client.LittleService;
@@ -28,6 +27,7 @@ public class SimpleServiceProviderRegistry
         extends SimpleLittleRegistry<ServiceType<?>,ServiceProviderFactory<?>>
         implements ServiceProviderRegistry {
 
+    @Override
     public <T extends LittleService> T getService(ServiceType<T> servtype, SessionHelper helper) throws BaseException,
         GeneralSecurityException, RemoteException {
         ServiceProviderFactory<?> factory = getService( servtype );

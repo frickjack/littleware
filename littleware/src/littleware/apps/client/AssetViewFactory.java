@@ -24,12 +24,12 @@ public interface AssetViewFactory {
      *
      * @param atype to register
      * @param provider editor factory
-     * @param classOfEditor that an editor for atype must be an instance of
+     * @param classOfView that a view for atype must be an instance of
      *                     to pass the checkView() test
      */
     public void registerProvider( AssetType atype,
             Provider<? extends AssetView> provider,
-            Class<? extends AssetView> classOfEditor
+            Class<? extends AssetView> classOfView
             );
 
     /**

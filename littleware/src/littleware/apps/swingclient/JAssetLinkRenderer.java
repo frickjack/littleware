@@ -19,6 +19,7 @@ import java.util.logging.Level;
 
 import littleware.apps.client.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -34,7 +35,7 @@ import littleware.base.BaseException;
  * Implements ListCellRenderer, TableCellRenderer, and TreeCellRenderer.
  * Displays the asset-name, thumbnail, and an asset-type based icon.
  */
-public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, TableCellRenderer, TreeCellRenderer {
+public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, TreeCellRenderer {
 
     private final static Logger olog_generic = Logger.getLogger(JAssetLinkRenderer.class.getName());
     private static Clipboard oclip_copy = null;
@@ -51,12 +52,20 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
         }
     }
     private static final long serialVersionUID = 4817821870438116270L;
-    private UUID ou_asset_link = null;
+
     private final IconLibrary olib_icon;
     private final ThumbManager omgrThumb;
     private final AssetSearchManager osearch;
     private final AssetModelLibrary olibAsset;
+    private final JLabel     ojLabel = new JLabel ("uninitialized", SwingConstants.LEFT);
+    {
+        ojLabel.setForeground(Color.BLUE);
+    }
     private boolean obRenderThumb = true;
+
+    private final DefaultTreeCellRenderer orenderTree = new DefaultTreeCellRenderer();
+    private final DefaultListCellRenderer orenderList = new DefaultListCellRenderer();
+    private final DefaultTableCellRenderer orenderTable = new DefaultTableCellRenderer();
 
     /**
      * Property tracks whether to render the thumbnail or not
@@ -78,13 +87,32 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
     @Inject
     public JAssetLinkRenderer(IconLibrary lib_icon, ThumbManager mgrThumb,
             AssetModelLibrary libAsset, AssetSearchManager search) {
-        super("uninitialized", SwingConstants.LEFT);
-        this.setForeground(Color.BLUE);
         olib_icon = lib_icon;
         omgrThumb = mgrThumb;
         osearch = search;
         olibAsset = libAsset;
-        setLink((UUID) null);
+    }
+
+    /**
+     * Internal utility determines type of xValue, then
+     * invokes configureLabel
+     *
+     * @param xValue
+     */
+    private void configureUnknown(Object xValue, JLabel jLabel) {
+        if (null == xValue) {
+            jLabel.setText("null");
+            jLabel.setIcon(null);
+        } else if (xValue instanceof UUID) {
+            configureLabel((UUID) xValue, jLabel);
+        } else if (xValue instanceof Asset) {
+            configureLabel((Asset) xValue, jLabel);
+        } else if (xValue instanceof String) {
+            jLabel.setText((String) xValue);
+        } else {
+            olog_generic.log(Level.WARNING, "Object of unknown type: " + xValue);
+            jLabel.setText("ERR - wrong type: " + xValue);
+        }
     }
 
     /**
@@ -95,8 +123,10 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
      */
     @Override
     public Component getTableCellRendererComponent(JTable table, Object x_value, boolean isSelected, boolean hasFocus, int row, int column) {
-        setLink((Asset) x_value);
-
+        orenderTable.getTableCellRendererComponent( table, x_value, isSelected, hasFocus, row, column );
+        configureUnknown( x_value, orenderTable );
+        return orenderTable;
+        /*..
         if (isSelected) {
             setBackground(table.getSelectionBackground());
         } else {
@@ -106,6 +136,7 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
         setOpaque(true);
         setToolTipText(null);
         return this;
+         */
     }
 
     /**
@@ -121,16 +152,12 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
             int i_index,
             boolean b_selected,
             boolean b_hasfocus) {
-        if (x_value instanceof UUID) {
-            setLink((UUID) x_value);
-        } else if (x_value instanceof Asset) {
-            setLink((Asset) x_value);
-        } else if (null == x_value) {
-            setLink((UUID) null);
-        } else {
-            olog_generic.log(Level.WARNING, "Given object of unexpected type: " + x_value.getClass());
-            setLink((UUID) null);
-        }
+        orenderList.getListCellRendererComponent( wlist_assets, x_value, i_index,
+                b_selected, b_hasfocus
+                );
+        configureUnknown( x_value, orenderList );
+        return orenderList;
+        /*..
         if (b_selected) {
             setBackground(wlist_assets.getSelectionBackground());
             setForeground(wlist_assets.getSelectionForeground());
@@ -142,8 +169,9 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
         setFont(wlist_assets.getFont());
         setOpaque(true);
         return this;
+         */
     }
-    private DefaultTreeCellRenderer otreerender_default = null;
+
 
     /**
      * This is the only method defined by TableCellRenderer.
@@ -159,43 +187,17 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
             boolean b_leaf,
             int i_row,
             boolean b_hasFocus) {
-        if (null == otreerender_default) {
-            otreerender_default = new DefaultTreeCellRenderer();
-        }
-        otreerender_default.getTreeCellRendererComponent(wtree_assets, "bla", b_selected,
+        orenderTree.getTreeCellRendererComponent(wtree_assets, "bla", b_selected,
                 b_expanded, b_leaf, i_row,
                 b_hasFocus);
         if ((null != x_value) && (x_value instanceof DefaultMutableTreeNode)) { // add this check - necessary at bootstrap
-            Object x_link = ((DefaultMutableTreeNode) x_value).getUserObject();
-            if (null == x_link) {
-                otreerender_default.setText("null");
-            } else if ( x_link instanceof UUID ) {
-                configureLabel( (UUID) x_link, otreerender_default );
-            } else if ( x_link instanceof Asset ) {
-                configureLabel( (Asset) x_link, otreerender_default );
-            } else if ( x_link instanceof String ) {
-                otreerender_default.setText( (String) x_link );
-            } else {
-                olog_generic.log( Level.WARNING, "Object of unknown type: " + x_link );
-                otreerender_default.setText( "ERR - wrong type: " + x_link );
-            }
+            configureUnknown( ((DefaultMutableTreeNode) x_value).getUserObject(), orenderTree );
+        } else {
+            configureUnknown( x_value, orenderTree );
         }
-        return otreerender_default;
+        return orenderTree;
     }
 
-    /**
-     * Set the link info - retrieve the asset with u_id,
-     * register it with the model-library, and
-     * setup the display.  Eats checked exceptions, and just
-     * sets up the display with bomb/error info.
-     *
-     * @param u_id to display - may be null - ignores other args if null
-     * @param jLabelRender label subtype to display info to
-     */
-    public final void setLink(UUID u_id ) {
-        ou_asset_link = u_id;
-        configureLabel( u_id, this );
-    }
 
     private void configureLabel(UUID u_id, JLabel jLabelRender ) {
         jLabelRender.setIcon(null);
@@ -224,24 +226,15 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
         }
     }
 
-    /**
-     * Set the link to point at the given asset
-     *
-     * @param a_linkto asset to link to
-     */
-    public void setLink(Asset a_linkto) {
-        ou_asset_link = a_linkto.getObjectId();
-        configureLabel( a_linkto, this );
-    }
 
-    private void configureLabel( Asset a_linkto, JLabel jLabelRender ) {
+    public void configureLabel( Asset a_linkto, JLabel jLabelRender ) {
         if (null == a_linkto) {
             jLabelRender.setForeground(null);
             jLabelRender.setText("<html><i>null</i></html>");
             return;
         }
         
-        final Icon iconType = olib_icon.lookupIcon(a_linkto.getAssetType());
+        final Icon iconType = olib_icon.lookupIcon(a_linkto);
         
         if (obRenderThumb) {
             try {
@@ -274,13 +267,6 @@ public class JAssetLinkRenderer extends JLabel implements ListCellRenderer, Tabl
         jLabelRender.setText(a_linkto.getName());
     }
 
-    /**
-     * Get the id of the asset the link points to - may be null,
-     * may be an id of a "bomb" asset the user cannot access/load.
-     */
-    public final UUID getLink() {
-        return ou_asset_link;
-    }
 }
 
 

@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import littleware.asset.Asset;
 import littleware.base.AssertionFailedException;
 import littleware.asset.AssetType;
 import littleware.security.SecurityAssetType;
@@ -44,8 +45,10 @@ public class WebIconLibrary implements IconLibrary {
     private static final Map<AssetType,String>   ov_asset_urls= new HashMap<AssetType,String> ();
     private static final Map<String,String>      ov_named_urls = new HashMap<String,String> ();
     
-    private Map<AssetType,Icon>  ov_asset_icons = new HashMap<AssetType,Icon> ();
-    private Map<String,Icon>     ov_named_icons = new HashMap<String,Icon> ();
+    private final Map<AssetType,IconLibrary.IconProvider>  ov_asset_icons =
+            new HashMap<AssetType,IconLibrary.IconProvider> ();
+    private final Map<String,Icon>     ov_named_icons =
+            new HashMap<String,Icon> ();
     
     static {                
         ov_named_urls.put ( "littleware.bomb",                              
@@ -180,13 +183,32 @@ public class WebIconLibrary implements IconLibrary {
     @Override
     public String getRoot() { return os_url_root; }
 
-    @Override
-    public Icon  lookupIcon ( AssetType n_asset ) {
-        Icon icon_result = ov_asset_icons.get ( n_asset );
-        if ( icon_result != null ) {
-            return icon_result;
+    private static class DefaultProvider implements IconLibrary.IconProvider {
+        private final Icon oicon;
+        public DefaultProvider( Icon icon ) {
+            oicon = icon;
         }
-        String s_url_tail = ov_asset_urls.get( n_asset );
+
+        @Override
+        public Icon get(Asset aNeedsIcon) {
+            return oicon;
+        }
+
+        @Override
+        public Icon get() {
+            return oicon;
+        }
+    }
+
+    /**
+     * Internal method maintains the icon-provider cache
+     */
+    private IconLibrary.IconProvider lookupProvider( AssetType atype ) {
+        IconLibrary.IconProvider provider = ov_asset_icons.get ( atype );
+        if ( provider != null ) {
+            return provider;
+        }
+        String s_url_tail = ov_asset_urls.get( atype );
         if ( null != s_url_tail ) {
             try {
                 URL url_icon = null;
@@ -199,32 +221,37 @@ public class WebIconLibrary implements IconLibrary {
                 if ( null == url_icon ) { // try going to the System ClassLoader
                     url_icon = ClassLoader.getSystemResource( s_full_url );
                 }
-                
+
                 if ( null != url_icon ) {
-                    icon_result = new ImageIcon( url_icon );
-                } else { 
+                    provider = new DefaultProvider( new ImageIcon( url_icon ) );
+                } else {
                     olog.log( Level.WARNING, "Unable to find asset type icon resource: " + s_full_url );
-                    icon_result = new ImageIcon();
+                    provider = new DefaultProvider( new ImageIcon() );
                 }
             } catch ( MalformedURLException e ) {
                 olog.log( Level.WARNING, "Invalid icon root property, caught: " + e );
-                icon_result = new ImageIcon ();
+                provider = new DefaultProvider( new ImageIcon () );
             }
-            ov_asset_icons.put( n_asset, icon_result );
-            return icon_result;
+            ov_asset_icons.put( atype, provider );
+            return provider;
         }
-        if ( n_asset.isA ( AssetType.LINK ) ) {
-            return lookupIcon( AssetType.LINK );
+        if ( atype.isA ( AssetType.LINK ) ) {
+            return lookupProvider( AssetType.LINK );
         }
-        if ( n_asset.equals( AssetType.GENERIC ) ) {
+        if ( atype.equals( AssetType.GENERIC ) ) {
             throw new AssertionFailedException( "No icon registered for Generic asset type?" );
         }
-        return lookupIcon( AssetType.GENERIC );
+        return lookupProvider( AssetType.GENERIC );
     }
 
     @Override
-    public Icon registerIcon( AssetType n_asset, Icon icon ) {
-        return ov_asset_icons.put( n_asset, icon );
+    public Icon  lookupIcon ( AssetType n_asset ) {
+        return lookupProvider( n_asset ).get();
+    }
+
+    @Override
+    public void registerIcon( AssetType n_asset, Icon icon ) {
+        ov_asset_icons.put( n_asset, new DefaultProvider( icon ) );
     }
 
     @Override
@@ -266,8 +293,8 @@ public class WebIconLibrary implements IconLibrary {
     }
 
     @Override
-    public Icon registerIcon( String s_name, Icon icon ) {
-        return ov_named_icons.put( s_name, icon);
+    public void registerIcon( String s_name, Icon icon ) {
+        ov_named_icons.put( s_name, icon);
     }
     
     @Override
@@ -278,6 +305,16 @@ public class WebIconLibrary implements IconLibrary {
     @Override
     public Set<String> getIconNames () {
         return Collections.unmodifiableSet ( ov_named_urls.keySet () );
+    }
+
+    @Override
+    public Icon lookupIcon(Asset asset) {
+        return lookupProvider( asset.getAssetType() ).get( asset );
+    }
+
+    @Override
+    public void registerIcon(AssetType n_asset, IconLibrary.IconProvider provideIcon) {
+        ov_asset_icons.put( n_asset, provideIcon );
     }
     
 }

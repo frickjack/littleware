@@ -98,7 +98,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                 int selRow = ojTree.getRowForLocation(e.getX(), e.getY());
                 TreePath selPath = ojTree.getPathForLocation(e.getX(), e.getY());
                 if (selRow != -1) {
-                    if (e.getClickCount() == 2) {
+                    if (e.getClickCount() > 0) {
                         //myDoubleClick(selRow, selPath);
                         final Object data = ((DefaultMutableTreeNode) selPath.getLastPathComponent()).getUserObject();
                         if (null == data) {

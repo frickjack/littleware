@@ -117,7 +117,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
                            final JAssetFamilyView  jFamilyView
                            ) {
         //super( new GridBagLayout () );
-        //this.setLayout( new BoxLayout( this, BoxLayout.X_AXIS));
+        this.setLayout( new BoxLayout( this, BoxLayout.X_AXIS));
         ofactory_view = factory_view;
         olib_icon = lib_icon;
         olib_asset = lib_asset;
@@ -175,6 +175,9 @@ public class JAssetBrowser extends JPanel implements AssetView {
         //grid_control.weightx = 0.2;
         //this.add ( wlist_history, grid_control );
 
+        jFamilyView.setAlignmentY( Component.CENTER_ALIGNMENT );
+        owpanel_view.setAlignmentY( Component.CENTER_ALIGNMENT );
+        
         this.add( jFamilyView );
 
         //grid_control.gridx += grid_control.gridwidth;

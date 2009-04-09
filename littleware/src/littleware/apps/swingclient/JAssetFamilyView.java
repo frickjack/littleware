@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -156,6 +157,8 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     private final AssetModelLibrary olibAsset;
 
     private void buildUI() {
+        this.setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
+        ojTree.setBackground( null );
         final JScrollPane scrollTree = new JScrollPane( ojTree );
         scrollTree.setPreferredSize( new Dimension( 500, 500 ) );
         this.add( scrollTree );

@@ -1,25 +1,22 @@
+/*
+ * Copyright 2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient.wizard;
 
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import javax.swing.*;
-import javax.swing.event.*;
-import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import com.nexes.wizard.*;
 
-import littleware.asset.Asset;
-import littleware.asset.AssetType;
-import littleware.asset.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetException;
-import littleware.base.BaseException;
-import littleware.apps.swingclient.*;
 
 
 /** 
@@ -58,6 +55,7 @@ public abstract class AssetPathPanelDescriptor extends WizardPanelDescriptor {
         opanel_path = panel_path;
     }
     
+    @Override
     public void aboutToDisplayPanel () {
         UUID u_acl = getAssetId ();
         try {
@@ -78,10 +76,12 @@ public abstract class AssetPathPanelDescriptor extends WizardPanelDescriptor {
     }
     
     /** Set the focus */
+    @Override
     public void displayingPanel () {
         opanel_path.requestFocus ();
     }
     
+    @Override
     public void aboutToHidePanel () {
         try {
             opanel_path.setAssetPath ( opanel_path.getText () );

@@ -227,7 +227,7 @@ public class JAssetPathPanel extends JPanel {
             wpanel_browser.add ( wbrowser_asset, gcontrol_browser );
             
             
-            wpanel_browser.setPreferredSize ( new Dimension ( 1000, 700 ) );  // force big
+            //wpanel_browser.setPreferredSize ( new Dimension ( 1000, 700 ) );
             
             owbrowser_root = new JDialog ();
             owbrowser_root.setModal(true);

@@ -37,8 +37,8 @@ public class StandardSwingGuice implements Module {
     
     @Override
     public void configure( Binder binder ) {
-        binder.bind( AssetViewFactory.class ).to( SimpleAssetViewFactory.class );
-        binder.bind( AssetEditorFactory.class ).to( EditorAssetViewFactory.class );
+        binder.bind( AssetViewFactory.class ).to( SimpleAssetViewFactory.class ).in( Scopes.SINGLETON );
+        binder.bind( AssetEditorFactory.class ).to( EditorAssetViewFactory.class ).in( Scopes.SINGLETON );
         binder.bind( IconLibrary.class ).to( WebIconLibrary.class ).in( Scopes.SINGLETON );
         binder.bind( ListModel.class ).to( DefaultListModel.class );
     }

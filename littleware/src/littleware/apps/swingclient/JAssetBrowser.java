@@ -59,14 +59,16 @@ public class JAssetBrowser extends JPanel implements AssetView {
     private AssetView                   oview_current = null;
     private final GridBagConstraints    ogrid_control = new GridBagConstraints ();
     {
-        ogrid_control.anchor = GridBagConstraints.FIRST_LINE_START;
+        ogrid_control.anchor = GridBagConstraints.NORTHWEST;
         ogrid_control.fill = GridBagConstraints.BOTH;
         ogrid_control.gridx = 0;
         ogrid_control.gridy = 0;
+        ogrid_control.gridwidth = GridBagConstraints.REMAINDER;
+        ogrid_control.gridheight = GridBagConstraints.REMAINDER;
     }
     private final JPanel                owpanel_view = new JPanel ( new GridBagLayout () );
     {
-        owpanel_view.setPreferredSize( new Dimension( 600, 600 ) );
+        owpanel_view.setPreferredSize( new Dimension( 700, 600 ) );
     }
     private final DefaultListModel      omodel_history = new DefaultListModel ();
     private final static int            oi_history_size = 10;

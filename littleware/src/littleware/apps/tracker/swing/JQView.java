@@ -209,12 +209,11 @@ public class JQView extends JGenericAssetView {
     @Inject
     public JQView( AssetSearchManager m_search,
                        IconLibrary lib_icon,
-                       ThumbManager m_thumb,
                        Provider<JAssetLink> provideLinkView,
                        Provider<JAssetLinkRenderer> provideRenderer
                        ) throws BaseException, GeneralSecurityException, RemoteException 
     {
-        super( m_search, lib_icon, m_thumb, provideLinkView );
+        super( m_search, lib_icon, provideLinkView );
         om_search = m_search;
         olib_icon = lib_icon;
         orenderLink = provideRenderer.get();

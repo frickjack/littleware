@@ -17,9 +17,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.Date;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.*;
@@ -27,8 +27,8 @@ import javax.swing.*;
 import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.UUIDFactory;
-import littleware.apps.misc.ThumbManager;
 import littleware.apps.swingclient.event.*;
+import littleware.base.swing.GridBagWrap;
 
 /** 
  * Simple JPanel based view of a generic asset
@@ -68,7 +68,6 @@ public class JGenericAssetView extends JPanel implements AssetView {
     }
     
     private final IconLibrary           olib_icon;
-    private final ThumbManager          om_thumb;
  
     /** Panel to stuff summary data into */
     private final JPanel     owpanel_summary = new JPanel( new GridBagLayout () );
@@ -85,9 +84,8 @@ public class JGenericAssetView extends JPanel implements AssetView {
      * Each JLabel holds a piece of data about the asset.
      * Some of the labels act as links to other assets.
      */
-    private final JLabel      owlabel_thumb = new JLabel ();
     private final JLabel      owlabel_type = new JLabel ( "uninitialized", SwingConstants.LEFT );
-    private final JLabel      owlabel_name = new JLabel ( "uninitialized", SwingConstants.LEFT );
+    private final JAssetLink      owlink_name;
     private final JLabel      owlabel_id = new JLabel ( "uninitialized", SwingConstants.LEFT );
     private final JLabel      owlabel_value = new JLabel ( "uninitialized", SwingConstants.LEFT );
     private final JLabel      owlabel_date_created = new JLabel ( "uninitialized", SwingConstants.LEFT );
@@ -107,92 +105,29 @@ public class JGenericAssetView extends JPanel implements AssetView {
     private final JTextArea   owtext_comment = new JTextArea ( 5, 40 );
     private final JTextArea   owtext_update = new JTextArea ( 5, 40 );
     private final JTextArea   owtext_data = new JTextArea ( 5, 40 );
-    
-    private final JTabbedPane  owtab_stuff = new JTabbedPane ();    
-    
-    /**
-     * Internal utility to configure a row in the UI that displays generic String data
-     *
-     * @param s_label to prefix the data with
-     * @param wlabel_data label referencing an asset by name or id
-     * @param wpanel_addto the panel to add to
-     * @param grid_control IN/OUT paramter to reference and update -
-     *             advances to column 0 of next row before adding widgets to this     
-     */
-    private void configureDataRow ( String s_label,
-                                    JLabel wlabel_data,
-                                      JPanel wpanel_addto,
-                                    GridBagConstraints grid_control
-                                    ) 
-    { 
-        grid_control.gridx = 0;
-        grid_control.gridy += grid_control.gridheight;
-        grid_control.gridheight = 1;
-        grid_control.gridwidth = 1;
-
-        wpanel_addto.add ( new JLabel ( s_label, SwingConstants.RIGHT ),
-                   grid_control
-                   );
-        grid_control.gridx += grid_control.gridwidth;
-        wpanel_addto.add ( wlabel_data, grid_control );
-    }
-    
-    /**
-     * Internal utility to configure a row in the UI that displays generic 
-     * String data within a text area.
-     *
-     * @param s_label to prefix the data with
-     * @param wtext_data label referencing an asset by name or id
-     * @param wpanel_addto the panel to add to
-     * @param grid_control IN/OUT paramter to reference and update -
-     *             advances to column 0 of next row before adding widgets to this     
-     */
-    private void configureDataRow ( String s_label,
-                                    JTextArea wtext_data,
-                                      JPanel wpanel_addto,
-                                    GridBagConstraints grid_control
-                                    ) 
-    {         
-        grid_control.gridx = 0;
-        grid_control.gridy += grid_control.gridheight;
-        grid_control.gridheight = 1;
-        grid_control.gridwidth = 1;
-        grid_control.fill = GridBagConstraints.HORIZONTAL;
-        wpanel_addto.add ( new JLabel ( s_label ), grid_control );
-        grid_control.gridy += grid_control.gridheight;
-        grid_control.gridwidth = 2;
-        grid_control.gridheight = 4;
-        grid_control.fill = GridBagConstraints.VERTICAL;
-        //grid_control.weightx = 0.7;
-        //grid_control.weighty = 0.2;
-        wtext_data.setLineWrap ( true );
-        wtext_data.setEditable ( false );
-        //if ( wtext_data.getRows() > 4 ) {
-            wpanel_addto.add ( //wtext_data,
-                    new JScrollPane( wtext_data ), /*
-                                        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
-                                        ), */
-                   grid_control 
-                   );
-            /*
-        } else {
-            wpanel_addto.add ( wtext_data,
-                   grid_control
-                   );
+    {
+        for ( JTextArea jarea : Arrays.asList( owtext_comment, owtext_update, owtext_data ) ) {
+            jarea.setLineWrap ( true );
+            jarea.setEditable ( false );
         }
-             */
-        grid_control.fill = GridBagConstraints.HORIZONTAL;
-        //grid_control.weighty = 0.0;
-        //grid_control.weightx = 0.0;
     }
     
+    private final JTabbedPane  owtab_stuff = new JTabbedPane ();
+    
+    
+    /**
+     * Return a listener that just propagates whatever events it
+     * receives to the listeners registered on this view.
+     */
+    protected LittleListener getListenBridge () {
+        return olisten_bridge;
+    }
     
     /**
      * Listener just propogates NavRequestEvents from JAssetLink through
      * to this object&apos;s listeners.
      */
-    protected LittleListener olisten_bridge = new LittleListener () {
+    private LittleListener olisten_bridge = new LittleListener () {
         @Override
         public void receiveLittleEvent ( LittleEvent event_little ) {
             if ( event_little instanceof NavRequestEvent ) {
@@ -208,236 +143,117 @@ public class JGenericAssetView extends JPanel implements AssetView {
     };
 
     
-    /**
-     * Internal utility to help configure a row of the UI with info referencing
-     * an asset.  
-     * 
-     * @param s_label to prefix the data with
-     * @param wlink_data label referencing an asset by name or id
-     * @param wpanel_addto the panel to add to
-     * @param grid_control IN/OUT paramter to reference and update -
-     *             advances to column 0 of next row before adding widgets to wpanel_addto
-     */
-    private void configureAssetRow ( 
-                                       String s_label,
-                                       JAssetLink wlink_data,
-                                       JPanel wpanel_addto,
-                                       GridBagConstraints grid_control
-                                       ) 
-    {         
-        grid_control.gridx = 0;
-        grid_control.gridy += grid_control.gridheight;
-        grid_control.gridheight = 1;
-        grid_control.gridwidth = 1;
-        wpanel_addto.add ( new JLabel ( s_label, SwingConstants.RIGHT ),
-                   grid_control
-                   );
-        grid_control.gridx += grid_control.gridwidth;
-        wpanel_addto.add ( wlink_data, grid_control );
-        wlink_data.addLittleListener (
-                                     olisten_bridge
-                                      );
-    }
 
-    //---------------------------------------   
+    /** Little pair class */
+    private static class NameWidget {
+        private final String osName;
+        private final Component ojWidget;
+        public NameWidget( String sName, Component jWidget ) {
+            osName = sName;
+            ojWidget = jWidget;
+        }
+        public String getName() { return osName; }
+        public Component getWidget() { return ojWidget; }
+    }
     
     /**
      * Build the UI.
      * Subtypes may override or extend.
      */
     protected void buildAssetUI () {
-		this.setBorder( BorderFactory.createEmptyBorder(30, 30, 10, 30) );
+		//this.setBorder( BorderFactory.createEmptyBorder(30, 30, 10, 30) );
 		this.setLayout ( new GridBagLayout () );
                 
-		owpanel_details.setBorder( BorderFactory.createEmptyBorder(30, 30, 10, 30) );
+		//owpanel_details.setBorder( BorderFactory.createEmptyBorder(30, 30, 10, 30) );
 
-        GridBagConstraints grid_control = new GridBagConstraints();
-        
-        grid_control.anchor = GridBagConstraints.NORTHWEST;
-        grid_control.gridwidth = 1;
-        grid_control.gridheight = 1;
-        grid_control.ipadx = 1;
-        grid_control.ipady = 1;
-        grid_control.insets = new Insets ( 2,2,2,2 );
-        grid_control.fill = GridBagConstraints.HORIZONTAL;
-        
-        { // Asset type and icon
-            //grid_control.gridwidth = GridBagConstraints.REMAINDER;
-            grid_control.gridx = 0;
-            grid_control.gridy = 0;
-            grid_control.gridheight = 2;
-            grid_control.gridwidth = 2;
-            this.add( owlabel_thumb, grid_control );
-
-            grid_control.gridx += grid_control.gridwidth;
-            grid_control.gridheight = 1;
-            grid_control.gridwidth = 1;
-
-            this.add ( new JLabel ( "Name:", SwingConstants.RIGHT ),
-                       grid_control
-                       );
-            grid_control.gridx += grid_control.gridwidth;
-            this.add ( owlabel_name, grid_control );
-
-            grid_control.gridx -= grid_control.gridwidth;
-            grid_control.gridy += grid_control.gridheight;
-            this.add ( new JLabel ( "Asset type:", SwingConstants.RIGHT ),
-                       grid_control 
-                       );
-            grid_control.gridx += grid_control.gridwidth;
-            this.add ( owlabel_type, grid_control );
-
-            /*..
-            configureDataRow ( "Name:",
-                               owlabel_name,
-                               this,
-                               grid_control
-                               );
-             */
-        } 
+        for ( JAssetLink jlink :
+                Arrays.asList( owlink_home, owlink_from, owlink_to,
+                                owlink_owner, owlink_acl, owlink_updater,
+                                owlink_creator )
+                                )
         {
-            GridBagConstraints   gcontrol_summary = (GridBagConstraints) grid_control.clone ();
-            gcontrol_summary.gridheight = 1;
-            gcontrol_summary.gridwidth = 1;
-            gcontrol_summary.gridx = 0;
-            gcontrol_summary.gridy = 0;
-            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;
+            jlink.addLittleListener(olisten_bridge);
+        }
 
-            configureAssetRow ( "Home:",
-                                owlink_home,
-                                owpanel_summary,
-                                gcontrol_summary
-                                );
-            configureAssetRow ( "From:",
-                                owlink_from,
-                                owpanel_summary,
-                                gcontrol_summary
-                                );
-            configureAssetRow ( "To:",
-                                owlink_to,
-                                owpanel_summary,
-                                gcontrol_summary
-                                );
-            
-                            
-            configureAssetRow ( "Owner:",
-                                owlink_owner,
-                                owpanel_summary,
-                                gcontrol_summary
-                                );
-            
-            configureAssetRow ( "Acl:",
-                                owlink_acl,
-                                owpanel_summary,
-                                gcontrol_summary
-                                );
-            configureDataRow ( "Comment:",
-                               owtext_comment,
-                               owpanel_summary,
-                               gcontrol_summary
-                               );
+        {
+            GridBagWrap gw = GridBagWrap.wrap( owpanel_summary );
+            for( NameWidget pair : Arrays.asList(
+                    new NameWidget( "Home", owlink_home ),
+                    new NameWidget( "From", owlink_from ),
+                    new NameWidget( "To", owlink_to ),
+                    new NameWidget( "Owner", owlink_owner ),
+                    new NameWidget( "Acl", owlink_acl )
+                    )
+                    ) {
+                gw.add( new JLabel( pair.getName() + ":", SwingConstants.RIGHT ) ).
+                        nextCol().remainderX().fillX().
+                        add( pair.getWidget() ).
+                        fillNone().gridwidth(1).newRow();
+            }
+            final JScrollPane wScroll = new JScrollPane( owtext_comment );
+            wScroll.setPreferredSize( new Dimension( 500, 100 ) );
+            gw.add( new JLabel( "Comment:", SwingConstants.RIGHT ) ).
+                    newRow().fillBoth().remainderX().remainderY().
+                    add( wScroll );
         }
         
         { // Fill in the details panel
-            GridBagConstraints   gcontrol_details = (GridBagConstraints) grid_control.clone ();
-            gcontrol_details.gridheight = 1;
-            gcontrol_details.gridwidth = 1;
-            gcontrol_details.gridx = 0;
-            gcontrol_details.gridy = 0;
-            gcontrol_details.fill = GridBagConstraints.HORIZONTAL;
-            configureDataRow ( "Start:",
-                               owlabel_start,
-                               owpanel_details,
-                               gcontrol_details
-                               );
-            
-            configureDataRow ( "End:",
-                               owlabel_end,
-                               owpanel_details,
-                               gcontrol_details
-                               );
-            configureDataRow ( "Transaction:",
-                               owlabel_transaction,
-                               owpanel_details,
-                               gcontrol_details
-                               );
-            
-            configureDataRow ( "Id:",
-                               owlabel_id,
-                               owpanel_details,
-                               gcontrol_details
-                               );
-            
-            configureDataRow ( "Value:",
-                               owlabel_value,
-                               owpanel_details,
-                               gcontrol_details
-                               );
-            
-            /*..
-                configureDataRow ( "Comment:",
-                                   owtext_comment,
-                                   owpanel_details,
-                                   gcontrol_details
-                                   );
-            ..*/
-            configureAssetRow ( "Creator:",
-                                owlink_creator,
-                                owpanel_details,
-                                gcontrol_details
-                                );
-            
-            configureDataRow ( "Create date:",
-                               owlabel_date_created,
-                               owpanel_details,
-                               gcontrol_details
-                               );        
+            GridBagWrap gw = GridBagWrap.wrap( owpanel_details );
+            for( NameWidget pair : Arrays.asList(
+                    new NameWidget( "Start", owlabel_start ),
+                    new NameWidget( "End", owlabel_end ),
+                    new NameWidget( "Transaction", owlabel_transaction ),
+                    new NameWidget( "Id", owlabel_id ),
+                    new NameWidget( "Value", owlabel_value ),
+                    new NameWidget( "Creator", owlink_creator ),
+                    new NameWidget( "Create date", owlabel_date_created )
+                    )
+                    ) {
+                gw.add( new JLabel( pair.getName() + ":", SwingConstants.RIGHT ) ).
+                        nextCol().remainderX().fillX().
+                        add( pair.getWidget() ).
+                        fillNone().gridwidth(1).newRow();
+            }
+            final JScrollPane wScroll = new JScrollPane( owtext_data );
+            wScroll.setPreferredSize( new Dimension( 500, 100 ) );
 
-            configureDataRow ( "Data block:",
-                               owtext_data,
-                               owpanel_details,
-                               gcontrol_details
-                               );
-            
+            gw.add( new JLabel( "Data block: " ) ).
+                    newRow().fillBoth().remainderX().remainderY().
+                    add( wScroll );
         }
         {
-            GridBagConstraints   gcontrol_data = (GridBagConstraints) grid_control.clone ();
-            gcontrol_data.gridheight = 1;
-            gcontrol_data.gridwidth = 1;
-            gcontrol_data.gridx = 0;
-            gcontrol_data.gridy = 0;
-            gcontrol_data.fill = GridBagConstraints.HORIZONTAL;
+            GridBagWrap gw = GridBagWrap.wrap( owpanel_update );
+            for( NameWidget pair : Arrays.asList(
+                    new NameWidget( "Last updater", owlink_updater ),
+                    new NameWidget( "Last update date", owlabel_date_updated )
+                    )
+                    ) {
+                gw.add( new JLabel( pair.getName() + ":", SwingConstants.RIGHT ) ).
+                        nextCol().remainderX().fillX().
+                        add( pair.getWidget() ).
+                        fillNone().gridwidth(1).newRow();
+            }
+            final JScrollPane wScroll = new JScrollPane( owtext_update );
+            wScroll.setPreferredSize( new Dimension( 500, 100 ) );
 
-
-            configureAssetRow ( "Last updater:",
-                                owlink_updater,
-                                owpanel_update,
-                                gcontrol_data
-                                );
-
-            configureDataRow ( "Last update date:",
-                               owlabel_date_updated,
-                               owpanel_update,
-                               gcontrol_data
-                               );
-
-            configureDataRow ( "Last update comment:",
-                               owtext_update,
-                               owpanel_update,
-                               gcontrol_data
-                               );
+            gw.add( new JLabel( "Last update comment: " ) ).
+                    newRow().fillBoth().remainderX().remainderY().
+                    add( wScroll );
         }
-        grid_control.gridy += grid_control.gridheight;
-        grid_control.gridx = 0;
-        grid_control.gridheight = 8; //GridBagConstraints.REMAINDER;
-        grid_control.gridwidth = 4;
-        grid_control.fill = GridBagConstraints.BOTH;
-                
+
         owtab_stuff.add ( "Summary", owpanel_summary );
         owtab_stuff.add ( "Details", owpanel_details );
         owtab_stuff.add ( "Update", owpanel_update );
-        
-        this.add (  owtab_stuff, grid_control );
+
+        // Asset type and icon
+        //grid_control.gridwidth = GridBagConstraints.REMAINDER;
+        GridBagWrap gw = GridBagWrap.wrap(this);
+        gw.fillBoth().remainderX().add(owlink_name).
+                newRow().gridheight(1).
+                add( owlabel_type );
+        gw.newRow().remainderX().remainderY().
+                fillBoth().
+                add( owtab_stuff );
     }
 
 
@@ -454,12 +270,11 @@ public class JGenericAssetView extends JPanel implements AssetView {
     protected JGenericAssetView (
                                 AssetRetriever m_retriever,
                                 IconLibrary lib_icon,
-                                ThumbManager m_thumb,
                                 Provider<JAssetLink> provideLinkView
                                 ) {
+        owlink_name = provideLinkView.get();
         om_retriever = m_retriever;
         olib_icon = lib_icon;
-        om_thumb = m_thumb;
         owlink_acl = provideLinkView.get();
         owlink_to = provideLinkView.get();
         owlink_from = provideLinkView.get();
@@ -526,13 +341,22 @@ public class JGenericAssetView extends JPanel implements AssetView {
      * @param b_enable set true to enable, false to disable
      */
     protected void setTabEnabled ( Component w_tab, boolean b_enable ) {
-        int i_index = owtab_stuff.indexOfComponent ( w_tab );
-        if ( i_index > -1 ) {
-            owtab_stuff.setEnabledAt ( i_index, b_enable );
+        final int i_index = owtab_stuff.indexOfComponent ( w_tab );
+        if ( i_index < 0 ) {
+            return;
+        }
+        owtab_stuff.setEnabledAt ( i_index, b_enable );
+        if ((!b_enable) && (i_index == owtab_stuff.getSelectedIndex())) {
+            for (int i = 1; i < owtab_stuff.getTabCount(); ++i) {
+                final int iTab = (i_index + i) % owtab_stuff.getTabCount();
+                if (owtab_stuff.isEnabledAt(iTab)) {
+                    owtab_stuff.setSelectedIndex(iTab);
+                    return;
+                }
+            }
         }
     }
-    
-    
+        
     
     /**
      * Update a label holding Date info
@@ -571,14 +395,9 @@ public class JGenericAssetView extends JPanel implements AssetView {
         // Reconfigure the UI
         Asset a_data = getAssetModel ().getAsset ();
         owlabel_type.setText ( a_data.getAssetType ().toString () );
-        owlabel_type.setIcon ( olib_icon.lookupIcon ( a_data.getAssetType () ) );
+        owlabel_type.setIcon ( olib_icon.lookupIcon ( a_data ) );
         
-        try {
-            owlabel_thumb.setIcon( new ImageIcon( om_thumb.loadThumb(a_data.getObjectId()).getThumb()));
-        } catch( Exception ex ) {
-            olog.log( Level.WARNING, "Failed loading thumbnail", ex );
-        }
-        owlabel_name.setText ( a_data.getName () );
+        owlink_name.setLink(a_data);
         owlabel_id.setText ( UUIDFactory.makeCleanString ( a_data.getObjectId () ) );
         owlabel_value.setText ( a_data.getValue ().toString () );
         owlabel_transaction.setText ( Long.toString ( a_data.getTransactionCount () ) );

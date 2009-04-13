@@ -47,7 +47,7 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             ) {
         super( PackageTestSuite.class.getName() );
 
-        boolean b_run = false;
+        boolean b_run = true;
 
         if ( b_run ) {
             this.addTest( suiteLgo );
@@ -76,7 +76,6 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testJAssetViews") );
         }
-        b_run = true;
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testJAssetBrowser") );
         }
@@ -84,7 +83,6 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
         if ( b_run ) {
             this.addTest( provideFamilyTest.get() );
         }
-        b_run = false;
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testAssetModelLibrary") );
         }

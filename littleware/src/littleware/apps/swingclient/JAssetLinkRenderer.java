@@ -230,26 +230,60 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
     public void configureLabel( Asset a_linkto, JLabel jLabelRender ) {
         if (null == a_linkto) {
             jLabelRender.setForeground(null);
+            jLabelRender.setIcon( null );
             jLabelRender.setText("<html><i>null</i></html>");
             return;
         }
         
-        final Icon iconType = olib_icon.lookupIcon(a_linkto);
+        Icon iconType = olib_icon.lookupIcon(a_linkto);
+        UUID uThumb = a_linkto.getObjectId();
+
+        if ( a_linkto.getAssetType().isA( AssetType.LINK )
+              && (null != a_linkto.getToId() )
+             ) {
+            try {
+                // Try to incorporate the "to" asset info
+                final Icon iconBase = iconType;
+                final Icon iconTo = olib_icon.lookupIcon( a_linkto.getToAsset(osearch));
+
+                iconType = new Icon() {
+                    @Override
+                    public int getIconWidth () {
+                        return iconBase.getIconWidth() + iconTo.getIconHeight();
+                    }
+
+                    @Override
+                    public void paintIcon(Component c, Graphics g, int x, int y) {
+                        iconBase.paintIcon(c, g, x, y);
+                        iconTo.paintIcon(c, g, x + iconBase.getIconWidth(), y );
+                    }
+
+                    @Override
+                    public int getIconHeight() {
+                        if ( iconBase.getIconHeight() > iconTo.getIconHeight () ) {
+                            return iconBase.getIconHeight();
+                        } else {
+                            return iconTo.getIconHeight();
+                        }
+                    }
+                };
+                uThumb = a_linkto.getToId();
+            } catch ( Exception ex ) {
+                olog_generic.log( Level.WARNING, "Dangling to asset - failed to retrieve " + a_linkto.getObjectId() );
+            }
+        }
         
         if (obRenderThumb) {
             try {
-                Thumb thumb = omgrThumb.loadThumb(a_linkto.getObjectId());
+                Thumb thumb = omgrThumb.loadThumb( uThumb );
                 if (!thumb.isFallback()) {
+                    final Icon iconBase = iconType;
                     final ImageIcon iconThumb = new ImageIcon(thumb.getThumb()) {
 
                         @Override
                         public void paintIcon(Component c, Graphics g, int x, int y) {
                             super.paintIcon(c, g, x, y);
-                            if ( x < iconType.getIconWidth()
-                                    && y < iconType.getIconHeight()
-                                    ) {
-                                iconType.paintIcon(c, g, x, y);
-                            }
+                            iconBase.paintIcon(c, g, x, y);
                         }
                     };
                     jLabelRender.setIcon(iconThumb);

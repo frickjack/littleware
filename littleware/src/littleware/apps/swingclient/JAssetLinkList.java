@@ -109,8 +109,10 @@ public class JAssetLinkList extends JPanel implements LittleTool {
         grid_control.gridy += grid_control.gridheight;
         grid_control.fill = GridBagConstraints.BOTH;
         grid_control.gridheight = GridBagConstraints.REMAINDER;
+        JScrollPane  jScroll = new JScrollPane( ojList );
+        jScroll.setPreferredSize( new Dimension( 200, 200 ) );
         this.add(
-                new JScrollPane(ojList ) //, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                jScroll
                 //JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
                 //,grid_control
                 );

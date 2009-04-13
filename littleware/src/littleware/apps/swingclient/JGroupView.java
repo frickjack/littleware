@@ -60,12 +60,11 @@ public class JGroupView extends JAssetWithChildrenView {
     @Inject
     public JGroupView( AssetRetriever m_retriever,
                        IconLibrary lib_icon,
-                       ThumbManager m_thumb,
                        AssetModelLibrary lib_asset,
                        JAssetLinkList    jListChildren,
                        Provider<JAssetLink> provideLinkView
                        ) {
-        super( m_retriever, lib_icon, m_thumb, lib_asset,
+        super( m_retriever, lib_icon, lib_asset,
                 "Group members",
                "Group Members", lib_icon.lookupIcon ( SecurityAssetType.GROUP ),
                "View members of group", jListChildren, provideLinkView

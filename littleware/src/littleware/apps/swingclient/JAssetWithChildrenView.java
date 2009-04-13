@@ -107,7 +107,7 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
      */
     @Inject
     protected JAssetWithChildrenView( AssetRetriever m_retriever,
-                                      IconLibrary lib_icon, ThumbManager m_thumb,
+                                      IconLibrary lib_icon, 
                                       AssetModelLibrary lib_asset,
                                       String s_children_header,
                                       String s_tab_label, Icon icon_tab, 
@@ -115,7 +115,7 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
                                       JAssetLinkList jList,
                                       Provider<JAssetLink> provideLinkView
                        ) {
-        super( m_retriever, lib_icon, m_thumb, provideLinkView );
+        super( m_retriever, lib_icon, provideLinkView );
         om_retriever = m_retriever;
         olib_icon = lib_icon;
         jList.setModel(omodel_children);
@@ -139,7 +139,7 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
         };
         ..*/
         jList.addLittleListener (
-                                      olisten_bridge
+                                      getListenBridge()
                                       );
         
         insertTab ( s_tab_label, icon_tab,

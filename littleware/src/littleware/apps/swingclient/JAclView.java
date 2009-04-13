@@ -74,12 +74,11 @@ public class JAclView extends JAssetWithChildrenView {
     @Inject
     public JAclView( AssetRetriever m_retriever,
                        IconLibrary lib_icon ,
-                       ThumbManager m_thumb,
                        AssetModelLibrary lib_asset,
                        JAssetLinkList    jListChildren,
                        Provider<JAssetLink> provideLinkView
                        ) {
-        super( m_retriever, lib_icon, m_thumb, lib_asset, "ACL entries",
+        super( m_retriever, lib_icon, lib_asset, "ACL entries",
                "ACL Entries", lib_icon.lookupIcon( SecurityAssetType.ACL ),
                "View ACL entries", jListChildren, provideLinkView
                );

@@ -25,6 +25,7 @@ public class GridBagWrap {
     {
         ogb.gridx = 0;
         ogb.gridy = 0;
+        ogb.anchor = GridBagConstraints.NORTHWEST;
         ogb.gridheight = 1;
         ogb.gridwidth = 1;
         ogb.insets = new Insets( 2,2,2,2 );
@@ -199,10 +200,11 @@ public class GridBagWrap {
      * with a simple check to make sure don't add 2 components
      * at the same position.
      *
+     * @return this
      * @exception IllegalArgumentException if attempt to
      *     place component at same position as last addition
      */
-     public void add( Component wcomp ) {
+     public GridBagWrap add( Component wcomp ) {
          if ( (oiLastX >= 0)
                  && (oiLastY >= 0)
                  && (oiLastX != GridBagConstraints.RELATIVE)
@@ -218,5 +220,6 @@ public class GridBagWrap {
          owcontainer.add( wcomp, ogb );
          oiLastX = gridx();
          oiLastY = gridy();
+         return this;
      }
 }

@@ -190,14 +190,15 @@ public class WebIconLibrary implements IconLibrary {
         }
 
         @Override
-        public Icon get(Asset aNeedsIcon) {
+        public Icon getIcon(Asset aNeedsIcon) {
             return oicon;
         }
 
         @Override
-        public Icon get() {
+        public Icon getIcon(AssetType atypeNeedsIcon) {
             return oicon;
         }
+
     }
 
     /**
@@ -246,7 +247,7 @@ public class WebIconLibrary implements IconLibrary {
 
     @Override
     public Icon  lookupIcon ( AssetType n_asset ) {
-        return lookupProvider( n_asset ).get();
+        return lookupProvider( n_asset ).getIcon( n_asset );
     }
 
     @Override
@@ -309,7 +310,7 @@ public class WebIconLibrary implements IconLibrary {
 
     @Override
     public Icon lookupIcon(Asset asset) {
-        return lookupProvider( asset.getAssetType() ).get( asset );
+        return lookupProvider( asset.getAssetType() ).getIcon( asset );
     }
 
     @Override

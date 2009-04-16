@@ -15,6 +15,8 @@ import com.google.inject.Provider;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 import java.util.UUID;
@@ -23,6 +25,7 @@ import java.util.logging.Level;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -32,6 +35,7 @@ import littleware.apps.swingclient.event.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.base.Whatever;
+import littleware.base.swing.GridBagWrap;
 
 /** 
  * Simple JPanel based asset editor.
@@ -54,7 +58,6 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
     private final AssetManager          om_asset;
     private final IconLibrary           olib_icon;
     private final AssetModelLibrary     olib_asset;
-    private final AssetViewFactory      ofactory_view;
     
     private boolean                       ob_changed = false;
     private AssetModel                    omodel_view = null;
@@ -62,13 +65,30 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
     
     private final JAssetLink              owlink_asset;
     private final JTextField              owtext_name = new JTextField ( 60 );
+    private final JTextArea               owtext_comment = new JTextArea ( 2, 60 );
+    {
+        final FocusListener listener =new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                applyDataFromSummaryUI();
+            }
+
+        };
+
+        owtext_name.addFocusListener( listener );
+        owtext_comment.addFocusListener( listener );
+    }
     
     private final JAssetLinkEditor        owalink_to;
     private final JAssetLinkEditor        owalink_from;
     private final JAssetLinkEditor        owalink_acl;
     private final JAssetLinkEditor        owalink_owner;
     
-    private final JTextArea               owtext_comment = new JTextArea ( 2, 60 );
     private final JTextArea               owtext_update = new JTextArea ( 2, 60 );
     private final JTabbedPane             owtab_stuff = new JTabbedPane ();
     
@@ -159,9 +179,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             owtab_stuff.setEnabledAt ( i_index, b_enable );
         }
     }
-            
-    
-    
+                    
                                     
     /**
      * Build the UI - initialized to a null asset.  
@@ -172,149 +190,47 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
      * @param wpanel_build to build into - usually this
      */
     private void buildAssetUI () {
-        GridBagConstraints gcontrol_main = new GridBagConstraints ();
-        
-        gcontrol_main.gridx = 0;
-        gcontrol_main.gridy = 0;
-        gcontrol_main.gridwidth = 1;
-        gcontrol_main.gridheight = 1;
-        
-        this.add ( owlink_asset, gcontrol_main );
-        gcontrol_main.gridy += gcontrol_main.gridheight;
-        gcontrol_main.gridwidth = 4;
-        gcontrol_main.gridheight = 5;
-        gcontrol_main.fill = GridBagConstraints.BOTH;
-        this.add ( owtab_stuff, gcontrol_main );
-        
-        gcontrol_main.gridy += gcontrol_main.gridheight;        
-        gcontrol_main.gridheight = 1;
-        gcontrol_main.fill = GridBagConstraints.HORIZONTAL;
-        this.add ( new JSeparator (), gcontrol_main );
-        gcontrol_main.gridy += gcontrol_main.gridheight;
-        this.add ( new JLabel ( "Update note:" ), gcontrol_main );
-        
-        gcontrol_main.gridy += gcontrol_main.gridheight; 
-        gcontrol_main.fill = GridBagConstraints.BOTH;
-        gcontrol_main.gridheight = 2;
-        this.add ( owtext_update, gcontrol_main );
-
-        gcontrol_main.gridy += gcontrol_main.gridheight; 
-        gcontrol_main.fill = GridBagConstraints.NONE;
-        gcontrol_main.gridx = 0;
-        gcontrol_main.gridwidth = 1;
-        gcontrol_main.gridheight = 1;
-        this.add ( owbutton_reset, gcontrol_main );
-        gcontrol_main.gridx += gcontrol_main.gridwidth;
-        this.add ( owbutton_save, gcontrol_main );
-
         {
             JPanel wpanel_build = new JPanel ();
-            wpanel_build.setBorder( BorderFactory.createEmptyBorder(30, 30, 10, 30) );
+            //wpanel_build.setBorder( BorderFactory.createEmptyBorder(30, 30, 10, 30) );
             wpanel_build.setLayout ( new GridBagLayout () );
-            
-            GridBagConstraints gcontrol_summary = new GridBagConstraints();
-            gcontrol_summary.gridx = 0;
-            gcontrol_summary.gridy = 0;
-            gcontrol_summary.gridwidth = 1;
-            gcontrol_summary.gridheight = 1;
-            
-            wpanel_build.add ( new JLabel ( "Name: " ), gcontrol_summary );
-            gcontrol_summary.gridx += gcontrol_summary.gridwidth;
-            gcontrol_summary.gridwidth = 3;
-            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;
-            wpanel_build.add ( owtext_name, gcontrol_summary );
-            
-            gcontrol_summary.gridx = 0;
-            gcontrol_summary.gridwidth = 1;
-            gcontrol_summary.fill = GridBagConstraints.NONE;
-            gcontrol_summary.gridy += gcontrol_summary.gridheight;
-            wpanel_build.add ( new JLabel ( "To: " ), gcontrol_summary );
-            gcontrol_summary.gridx += gcontrol_summary.gridwidth;
-            gcontrol_summary.gridwidth = 3;
-            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;            
-            wpanel_build.add ( owalink_to, gcontrol_summary );
-            
-            gcontrol_summary.gridx = 0;
-            gcontrol_summary.gridwidth = 1;
-            gcontrol_summary.fill = GridBagConstraints.NONE;
-            gcontrol_summary.gridy += gcontrol_summary.gridheight;
-            wpanel_build.add ( new JLabel ( "ACL: " ), gcontrol_summary );
-            gcontrol_summary.gridx += gcontrol_summary.gridwidth;
-            gcontrol_summary.gridwidth = 3;
-            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;            
-            wpanel_build.add ( owalink_acl, gcontrol_summary );
 
-            gcontrol_summary.gridx = 0;
-            gcontrol_summary.gridwidth = 1;
-            gcontrol_summary.fill = GridBagConstraints.NONE;
-            gcontrol_summary.gridy += gcontrol_summary.gridheight;
-            wpanel_build.add ( new JLabel ( "Owner: " ), gcontrol_summary );
-            gcontrol_summary.gridx += gcontrol_summary.gridwidth;
-            gcontrol_summary.gridwidth = 3;
-            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;            
-            wpanel_build.add ( owalink_owner, gcontrol_summary );
-                        
-            gcontrol_summary.gridx = 0;
-            gcontrol_summary.gridwidth = 1;
-            gcontrol_summary.fill = GridBagConstraints.NONE;
-            gcontrol_summary.gridy += gcontrol_summary.gridheight;
-            wpanel_build.add ( new JLabel ( "From: " ), gcontrol_summary );
-            gcontrol_summary.gridx += gcontrol_summary.gridwidth;
-            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;            
-            gcontrol_summary.gridwidth = 3;
-            wpanel_build.add ( owalink_from, gcontrol_summary );
-            
-            gcontrol_summary.gridx = 0;
-            gcontrol_summary.gridwidth = 1;
-            gcontrol_summary.gridy += gcontrol_summary.gridheight;
-            gcontrol_summary.fill = GridBagConstraints.NONE;            
-            wpanel_build.add ( new JLabel ( "Comment: " ), gcontrol_summary );        
-            gcontrol_summary.gridx = 0;
-            gcontrol_summary.gridy += gcontrol_summary.gridheight;
-            gcontrol_summary.gridwidth = 4;
-            gcontrol_summary.gridheight = 2;
-            gcontrol_summary.fill = GridBagConstraints.BOTH;            
-            wpanel_build.add ( owtext_comment, gcontrol_summary );
-            
-            gcontrol_summary.gridy += gcontrol_summary.gridheight;
-            gcontrol_summary.gridheight = 1;
-            gcontrol_summary.fill = GridBagConstraints.HORIZONTAL;            
-            wpanel_build.add ( new JSeparator (), gcontrol_summary );
-            
-            // Button to apply GUI summary data to the LOCAL asset (does not do a save)
-            final JButton  wbutton_apply = new JButton ( "Apply Changes",
-                                                         olib_icon.lookupIcon ( "littleware.apply" )
-                                                         );
-            wbutton_apply.setToolTipText ( "Apply data to local asset, but do not Save to repository" );
-            wbutton_apply.addActionListener ( new ActionListener () {
-                @Override
-                public void actionPerformed ( ActionEvent event_button ) {
-                    applyDataFromSummaryUI ();
-                }
+            final GridBagWrap gb = GridBagWrap.wrap( wpanel_build );
+            for( NameWidget<JComponent> pair: Arrays.asList(
+                    new NameWidget<JComponent>( "Name", owtext_name ),
+                    new NameWidget<JComponent>( "To", owalink_to ),
+                    new NameWidget<JComponent>( "ACL", owalink_acl ),
+                    new NameWidget<JComponent>( "Owner", owalink_owner ),
+                    new NameWidget<JComponent>( "From", owalink_from )
+                    )) {
+                gb.add ( new JLabel ( pair.getName() + ": " ) ).nextCol().
+                    remainderX().fillX().add( pair.getComp() ).
+                    newRow().fillNone().gridwidth(1);
             }
-            );
 
-            final JButton  wbutton_sync = new JButton ( "Resync Local" );
-            wbutton_sync.setToolTipText ( "Sync basic editor with local asset" );
-            wbutton_sync.addActionListener ( new ActionListener () {
-                @Override
-                public void actionPerformed ( ActionEvent event_button ) {
-                    updateBasicUI ();
-                }
-            }
-            );
+            final JScrollPane wScrollComment = new JScrollPane( owtext_comment );
+            wScrollComment.setPreferredSize(
+                    new Dimension( 400, 100 )
+                    );
+            gb.add( new JLabel( "Comment: " ) ).newRow().
+                    remainderX().fillBoth().remainderY().
+                    add( wScrollComment );
 
-            gcontrol_summary.fill = GridBagConstraints.NONE;            
-            gcontrol_summary.gridy += gcontrol_summary.gridheight;
-            gcontrol_summary.gridx = 0;            
-            gcontrol_summary.gridheight = 1;
-            gcontrol_summary.gridwidth = 1;
-            wpanel_build.add ( wbutton_sync, gcontrol_summary );
-            gcontrol_summary.gridx += gcontrol_summary.gridwidth;
-            wpanel_build.add ( wbutton_apply, gcontrol_summary );
-            
             owtab_stuff.add ( "BasicEdit", wpanel_build );
         }
+        
+        this.add ( owlink_asset, BorderLayout.NORTH );
+        this.add ( owtab_stuff, BorderLayout.CENTER );
+        final JPanel jPanelButtons = new JPanel ( new GridBagLayout () );
+        jPanelButtons.setBorder( BorderFactory.createLineBorder(Color.black) );
+        final GridBagWrap  gb = GridBagWrap.wrap( jPanelButtons );
+        gb.fillNone().gridwidth( 1 ).gridheight( 1 ).
+                add( owbutton_reset ).nextCol().
+                add( owbutton_save ).newRow();
+        gb.add ( new JLabel ( "Update note:" ) ).nextCol().//newRow().
+                fillBoth().remainderX().remainderY().
+                add( owtext_update );
+        this.add( jPanelButtons, BorderLayout.SOUTH );
     }
     
 
@@ -325,17 +241,12 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
      *
      * @return true on success applying all changes, false on failure
      */
-    public boolean applyDataFromSummaryUI () {
+    private boolean applyDataFromSummaryUI () {
         AssetPathFactory factory_apath = AssetPathFactory.getFactory ();
         try {
-            String     s_name = owtext_name.getText ();
-            String     s_comment = owtext_comment.getText ();
-            UUID       u_to = owalink_to.getLink ();
-            UUID       u_from = owalink_from.getLink ();
-            UUID       u_acl = owalink_acl.getLink ();
-            UUID       u_owner = owalink_owner.getLink ();
-
-            Asset      a_local = getLocalAsset ();
+            final String     s_name = owtext_name.getText ();
+            final String     s_comment = owtext_comment.getText ();
+            final Asset      a_local = getLocalAsset ();
             
             if ( ! a_local.getName ().equals ( s_name ) ) {
                 a_local.setName ( s_name );
@@ -345,23 +256,6 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
                 a_local.setComment ( s_comment );
                 setHasLocalChanges ( true );
             }
-            if ( ! Whatever.equalsSafe ( a_local.getToId (), u_to ) ) {
-                a_local.setToId ( u_to );
-                setHasLocalChanges ( true );
-            }
-            if ( ! Whatever.equalsSafe ( a_local.getFromId (), u_from ) ) {
-                a_local.setFromId ( u_from );
-                setHasLocalChanges ( true );
-            }
-            if ( ! Whatever.equalsSafe ( a_local.getAclId (), u_acl ) ) {
-                a_local.setAclId ( u_acl );
-                setHasLocalChanges ( true );
-            }
-            if ( ! Whatever.equalsSafe ( a_local.getOwnerId (), u_owner ) ) {
-                a_local.setOwnerId ( u_owner );
-                setHasLocalChanges ( true );
-            }            
-            
             return true;
         } catch ( Exception e ) {
             olog_generic.log ( Level.WARNING, "Failed save, caught: " + e );
@@ -378,21 +272,19 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
      */
     @Inject
     public JGenericAssetEditor (
-                                AssetModel   model_view,
+                                AssetModelLibrary libAsset,
                                 AssetManager m_asset,
                                 AssetSearchManager m_search,
                                 IconLibrary lib_icon,
-                                AssetViewFactory factory_view,
                                 Provider<JAssetLink>  provideLinkView,
                                 Provider<JAssetLinkEditor> provideLinkEditor
                                 ) 
     {
-        super ( new GridBagLayout () );
+        super ( new BorderLayout () );
         om_asset = m_asset;
         om_search = m_search;
         olib_icon = lib_icon;   
-        olib_asset = model_view.getLibrary ();
-        ofactory_view = factory_view;
+        olib_asset = libAsset;
         owlink_asset = provideLinkView.get();
         
         owalink_to = provideLinkEditor.get();
@@ -406,7 +298,11 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             @Override
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
-                    owalink_owner.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
+                    final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset ();
+                    if ( ! Whatever.equalsSafe( aSelect.getObjectId(), getLocalAsset().getOwnerId() ) ) {
+                        changeLocalAsset().setOwnerId( aSelect.getObjectId() );
+                        owalink_owner.setLink ( aSelect.getObjectId() );
+                    }
                 }
             }
         }
@@ -416,7 +312,11 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             @Override
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
-                    owalink_acl.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
+                    final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset ();
+                    if ( ! Whatever.equalsSafe(aSelect.getObjectId() , getLocalAsset().getAclId() )) {
+                        changeLocalAsset().setAclId( aSelect.getObjectId() );
+                        owalink_acl.setLink ( aSelect.getObjectId() );
+                    }
                 }
             }
         }
@@ -426,7 +326,11 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             @Override
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
-                    owalink_to.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
+                    final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset ();
+                    if ( ! Whatever.equalsSafe( aSelect.getObjectId() , getLocalAsset().getToId() ) ){
+                        changeLocalAsset().setToId( aSelect.getObjectId() );
+                        owalink_to.setLink ( aSelect.getObjectId() );
+                    }
                 }
             }
         }
@@ -436,15 +340,17 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             @Override
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
-                    owalink_from.setLink ( ((SelectAssetEvent) event_edit).getSelectedAsset () );
+                    final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset ();
+                    if ( ! Whatever.equalsSafe(aSelect.getObjectId(), getLocalAsset().getFromId() )) {
+                        changeLocalAsset().setFromId( aSelect.getObjectId() );
+                        owalink_from.setLink ( aSelect.getObjectId() );
+                    }
                 }
             }
         }
                                         );
         
-        
         buildAssetUI ();
-        setAssetModel( model_view );
     }
     
     /**

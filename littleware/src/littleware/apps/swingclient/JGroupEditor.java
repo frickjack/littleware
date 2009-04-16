@@ -244,16 +244,15 @@ public class JGroupEditor extends JGenericAssetEditor  {
      * @param view_factory read-only view source for browsers
      */
     @Inject
-    public JGroupEditor ( AssetModel model_view, 
+    public JGroupEditor (  AssetModelLibrary libAsset,
                           AssetManager m_asset,
                           AssetSearchManager m_search,
                           IconLibrary lib_icon,
-                          AssetViewFactory view_factory,
                                 Provider<JAssetLink>  provideLinkView,
                                 Provider<JAssetLinkEditor> provideLinkEditor,
                                 Provider<JAssetLinkRenderer> provideRender
                           ) {
-        super( model_view, m_asset, m_search, lib_icon, view_factory, provideLinkView,
+        super( libAsset, m_asset, m_search, lib_icon, provideLinkView,
                 provideLinkEditor );
         om_search = m_search;
         om_asset = m_asset;
@@ -261,7 +260,6 @@ public class JGroupEditor extends JGenericAssetEditor  {
         owlist_members.setCellRenderer ( provideRender.get() );
         owlink_group = provideLinkView.get();
         buildTab ();
-        updateTab ();
     }
     
  

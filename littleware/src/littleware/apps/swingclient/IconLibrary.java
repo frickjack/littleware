@@ -28,8 +28,9 @@ public interface IconLibrary {
      * Utility interface - allows us to register an IconProvider
      * that return an icon based on icon-state.
      */
-    public interface IconProvider extends Provider<Icon> {
-        public Icon get( Asset aNeedsIcon );
+    public interface IconProvider {
+        public Icon getIcon( Asset aNeedsIcon );
+        public Icon getIcon( AssetType<? extends Asset> atypeNeedsIcon );
     }
 
     /**

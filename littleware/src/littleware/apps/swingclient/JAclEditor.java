@@ -346,17 +346,16 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
      * @param view_factory read-only view source for browsers     
      */
     @Inject
-    public JAclEditor ( AssetModel model_view, 
+    public JAclEditor ( AssetModelLibrary libAsset,
                           AssetManager m_asset,
                           AssetSearchManager m_search,
                           JAssetLinkRenderer renderLink,
-                        AssetViewFactory factory_view,
                         JAssetLink  jLinkAcl,
                         IconLibrary lib_icon,
                         Provider<JAssetLink>  provideLinkView,
                         Provider<JAssetLinkEditor> provideLinkEditor
                         ) {
-        super( model_view, m_asset, m_search, lib_icon, factory_view,
+        super( libAsset, m_asset, m_search, lib_icon,
                 provideLinkView, provideLinkEditor
                 );
         om_search = m_search;
@@ -365,7 +364,6 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
         owtab_perms = new JAclTabbedPane( renderLink );
         owlink_acl = jLinkAcl;
         addAclTab ();
-        updateTab ();
     }
     
     

@@ -1,7 +1,15 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.client;
 
-import java.util.*;
-import javax.swing.SwingUtilities;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.UndoableEditSupport;
 import java.beans.PropertyChangeEvent;
@@ -34,6 +42,7 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
     }
     
         
+    @Override
     public Asset getLocalAsset () {
         return oa_local;
     }
@@ -59,6 +68,7 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
     }
         
         
+    @Override
     public void setHasLocalChanges ( boolean b_changed ) {
         if ( b_changed != ob_changed ) {
             ob_changed = b_changed;
@@ -71,15 +81,18 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
         }
     }
         
+    @Override
     public boolean getHasLocalChanges () {
         return ob_changed;
     }
     
+    @Override
     public Asset changeLocalAsset () {
         setHasLocalChanges ( true );
         return getLocalAsset ();
     }
     
+    @Override
     public void clearLocalChanges () {
         Asset a_clean = getAssetModel ().getAsset ();
         try {
@@ -91,6 +104,7 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
         setHasLocalChanges ( false );
     }
         
+    @Override
     public void saveLocalChanges ( AssetManager m_asset, String s_message 
                                        ) throws BaseException, AssetException, 
         RemoteException, GeneralSecurityException
@@ -104,16 +118,16 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
     }
 
 
+    @Override
     public void	addUndoableEditListener( UndoableEditListener listen_edit ) {
         oundo_handler.addUndoableEditListener ( listen_edit );
     }
 
+    @Override
     public void     removeUndoableEditListener( UndoableEditListener listen_edit ) {
         oundo_handler.removeUndoableEditListener ( listen_edit );
     }
 
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

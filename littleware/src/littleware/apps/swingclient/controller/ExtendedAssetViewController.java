@@ -22,6 +22,8 @@ import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
 
 import com.nexes.wizard.Wizard;
+import java.awt.Dimension;
+import javax.swing.BoxLayout;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.IconLibrary;
 import littleware.apps.swingclient.event.*;
@@ -146,8 +148,12 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
             if ( null != amodel_edit ) {
                 final AssetEditor edit_asset = ofactory_edit.createView ( amodel_edit );
                 final JFrame      wframe_edit = new JFrame ();
+                wframe_edit.getContentPane().setLayout(
+                        new BoxLayout( wframe_edit.getContentPane(), BoxLayout.Y_AXIS )
+                        );
                 
                 edit_asset.addLittleListener ( this );
+                //((JComponent) edit_asset).setPreferredSize( new Dimension( 700, 700 ) );
                 wframe_edit.setDefaultCloseOperation ( WindowConstants.DISPOSE_ON_CLOSE );
                 wframe_edit.getContentPane().add ( (JComponent) edit_asset );
                 wframe_edit.pack ();

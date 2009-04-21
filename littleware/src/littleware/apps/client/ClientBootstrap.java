@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import littleware.apps.lgo.EzModule;
 import littleware.security.auth.AbstractGOBootstrap;
 import littleware.security.auth.LittleBootstrap;
+import littleware.security.auth.client.ClientCache;
 import org.osgi.framework.BundleActivator;
 
 /**
@@ -34,7 +35,8 @@ public class ClientBootstrap extends AbstractGOBootstrap {
                 new littleware.apps.swingclient.StandardSwingGuice(),
                 new littleware.apps.client.StandardClientGuice(),
                 new littleware.apps.misc.StandardMiscGuice(),
-                new littleware.security.auth.ClientServiceGuice()),
+                new littleware.security.auth.ClientServiceGuice()
+                ),
                 new ArrayList<Class<? extends BundleActivator>>(),
                 false);
         this.getGuiceModule().add(
@@ -44,5 +46,7 @@ public class ClientBootstrap extends AbstractGOBootstrap {
                         binder.bind(LittleBootstrap.class).toInstance(ClientBootstrap.this);
                     }
                 });
+        this.getOSGiActivator().add( AssetModelServiceListener.class );
+        this.getOSGiActivator().add( ClientCache.class );
     }
 }

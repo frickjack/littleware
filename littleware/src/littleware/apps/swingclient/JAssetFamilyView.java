@@ -32,11 +32,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import littleware.apps.client.AbstractAssetView;
 import littleware.apps.client.AssetModel;
@@ -47,7 +47,6 @@ import littleware.apps.client.LittleListener;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
-import littleware.base.AssertionFailedException;
 import littleware.base.swing.JUtil;
 
 /**
@@ -168,10 +167,21 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     public JAssetFamilyView(JAssetLinkRenderer render,
             AssetModelLibrary libAsset,
             AssetSearchManager search) {
+        render.setRenderThumbnail(false );
         ojTree.setCellRenderer(render);
         osearch = search;
         olibAsset = libAsset;
         buildUI();
+    }
+
+    /**
+     * The renderer for the underlying JTree
+     */
+    public void setCellRenderer( TreeCellRenderer render ) {
+        ojTree.setCellRenderer( render );
+    }
+    public TreeCellRenderer getCellRenderer() {
+        return ojTree.getCellRenderer();
     }
 
     /**
@@ -198,34 +208,34 @@ public class JAssetFamilyView extends JPanel implements AssetView {
      * @param uParent
      * @return mapping of children to the node in the tree
      */
-    private Map<UUID, DefaultMutableTreeNode> addChildren(DefaultMutableTreeNode nodeParent,
+    protected Map<UUID, DefaultMutableTreeNode> addChildren(DefaultMutableTreeNode nodeParent,
             UUID uParent) {
         final Map<UUID, DefaultMutableTreeNode> mapNode =
                 new HashMap<UUID, DefaultMutableTreeNode>();
         try {
-            final List<Asset> vCousin = new ArrayList<Asset>();
-            for (UUID uCousin : osearch.getAssetIdsFrom(uParent, null).values()) {
-                final AssetModel modCous = olibAsset.retrieveAssetModel(uCousin, osearch);
-                if (null != modCous) {
-                    vCousin.add(modCous.getAsset());
+            final List<Asset> vChildren = new ArrayList<Asset>();
+            for (UUID uChild : osearch.getAssetIdsFrom(uParent, null).values()) {
+                final AssetModel modChild = olibAsset.retrieveAssetModel(uChild, osearch);
+                if (null != modChild) {
+                    vChildren.add(modChild.getAsset());
                 }
             }
-            if (vCousin.isEmpty()) {
+            if (vChildren.isEmpty()) {
                 nodeParent.setAllowsChildren(false);
                 return mapNode;
             }
-            Collections.sort(vCousin, new Comparator<Asset>() {
+            Collections.sort(vChildren, new Comparator<Asset>() {
 
                 @Override
                 public int compare(Asset o1, Asset o2) {
                     return o1.getName().compareTo(o2.getName());
                 }
             });
-            for (Asset aCous : vCousin) {
-                final DefaultMutableTreeNode node = new DefaultMutableTreeNode(aCous);
-                olog.log(Level.FINE, "Adding node " + aCous.getName());
+            for (Asset aChild : vChildren) {
+                final DefaultMutableTreeNode node = new DefaultMutableTreeNode(aChild);
+                olog.log(Level.FINE, "Adding node " + aChild.getName());
                 nodeParent.add(node);
-                mapNode.put(aCous.getObjectId(), node);
+                mapNode.put(aChild.getObjectId(), node);
             }
         } catch (Exception ex) {
             olog.log(Level.WARNING, "Failed populated family tree", ex);

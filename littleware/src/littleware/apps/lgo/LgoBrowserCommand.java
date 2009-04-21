@@ -13,14 +13,22 @@ package littleware.apps.lgo;
 import com.google.inject.*;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.MenuItem;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 
 import littleware.apps.client.AssetModelLibrary;
+import littleware.apps.client.AssetView;
 import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.UiFeedback;
 import littleware.apps.swingclient.*;
@@ -136,6 +144,32 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
         owframe = null;
     }
 
+
+    /**
+     * Allow subtypes to specialize the menu
+     *
+     * @return menubar to attach to the browser frame
+     */
+    protected JMenuBar  buildMenuBar () {
+        final JMenuBar  jBar = new JMenuBar ();
+        final JMenu     jMenuFile = new JMenu( "File" );
+
+        final JMenuItem jMenItemQuit = new JMenuItem( new AbstractAction( "Quit" ) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                windowClosed();
+            }
+
+        });
+        jMenItemQuit.setMnemonic( KeyEvent.VK_Q );
+        jMenuFile.add( jMenItemQuit );
+        jMenuFile.setMnemonic( KeyEvent.VK_F );
+        jBar.add( jMenuFile );
+
+        return jBar;
+    }
+
     private synchronized void createGUI () {
         if ( null == owframe ) {
             ocontrol.setControlView( obrowser );
@@ -146,20 +180,40 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
             otoolbar.addLittleListener( ocontrol );
             owframe = new JFrame( "Asset Browser" );
             owframe.setLayout ( new BorderLayout () );
-            owframe.add ( otoolbar, BorderLayout.PAGE_START );
+            owframe.add ( otoolbar, BorderLayout.NORTH );
             owframe.add ( obrowser, BorderLayout.CENTER );
+            final JButton jButtonSelect = new JButton( "Select" );
+            jButtonSelect.addActionListener( new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    windowClosed();
+                }
+            
+            }
+            );
+            final JPanel  jPanelButton = new JPanel( new FlowLayout( FlowLayout.RIGHT ));
+            jPanelButton.add( jButtonSelect );
+            owframe.add( jPanelButton, BorderLayout.PAGE_END );
+            owframe.setJMenuBar(buildMenuBar() );
             owframe.pack ();
             //owframe.setDefaultCloseOperation( WindowConstants. );
-            owframe.addWindowListener( new WindowAdapter() {
+            owframe.addWindowListener(new WindowAdapter() {
+
                 @Override
-                public void windowClosing( WindowEvent ev ) {
-                    owframe.removeWindowListener(this);
-                    LgoBrowserCommand.this.windowClosed();
+                public void windowClosing(WindowEvent ev) {
+                    if (null != owframe) {
+                        owframe.removeWindowListener(this);
+                        LgoBrowserCommand.this.windowClosed();
+                    }
                 }
+
                 @Override
                 public void windowClosed(WindowEvent e) {
-                    owframe.removeWindowListener(this);
-                    LgoBrowserCommand.this.windowClosed();
+                    if (null != owframe) {
+                        owframe.removeWindowListener(this);
+                        LgoBrowserCommand.this.windowClosed();
+                    }
                 }
             });
         }

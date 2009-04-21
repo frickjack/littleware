@@ -40,17 +40,20 @@ public class SimpleAssetManagerService extends SimpleLittleService implements As
         }
     }
 
+    @Override
     public void deleteAsset(UUID u_asset, String s_update_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         oserver.deleteAsset(u_asset, s_update_comment);
         fireServiceEvent(new AssetDeleteEvent(this, u_asset));
     }
 
+    @Override
     public <T extends Asset> T saveAsset(T a_asset, String s_update_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         T result = oserver.saveAsset(a_asset, s_update_comment);
         fireServiceEvent(new AssetLoadEvent(this, result));
         return result;
     }
 
+    @Override
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets, String s_update_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         Collection<Asset> vResult = oserver.saveAssetsInOrder(v_assets, s_update_comment);
         for (Asset result : vResult) {

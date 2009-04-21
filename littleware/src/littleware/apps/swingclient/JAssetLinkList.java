@@ -44,7 +44,6 @@ public class JAssetLinkList extends JPanel implements LittleTool {
     public boolean isRenderThumbnail() {
         return orenderer.isRenderThumbnail();
     }
-
     public void setRenderThumbnail(boolean bRenderThumb) {
         orenderer.setRenderThumbnail( bRenderThumb );
     }

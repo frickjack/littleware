@@ -74,7 +74,6 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
     public boolean isRenderThumbnail() {
         return obRenderThumb;
     }
-
     public void setRenderThumbnail(boolean bRenderThumb) {
         obRenderThumb = bRenderThumb;
     }

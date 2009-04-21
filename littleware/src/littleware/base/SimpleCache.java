@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -58,6 +56,7 @@ public class SimpleCache<K,V> implements Cache<K,V> {
 		public void    markOutOfCache () { ob_in_cache = false; }
 		
 		/** Equals operation only true if exactly the same object */
+        @Override
 		public boolean equals ( Object x_other ) {
 			return ((null != x_other)
 					&& (x_other instanceof SimpleCache.CacheEntry)
@@ -65,6 +64,7 @@ public class SimpleCache<K,V> implements Cache<K,V> {
 					);
 		}
         
+        @Override
         public int hashCode () {
             return ox_key.hashCode ();
         }

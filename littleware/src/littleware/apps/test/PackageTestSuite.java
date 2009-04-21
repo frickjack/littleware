@@ -38,6 +38,7 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
     @Inject
     public PackageTestSuite( Provider<AddressBookTester> provide_address_test,
             Provider<SwingClientTester> provide_swing_test,
+            Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
             Provider<TrackerTester> provide_tracker_test,
             Provider<ImageManagerTester> provide_image_test,
@@ -84,7 +85,10 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             this.addTest( provideFamilyTest.get() );
         }
         if (b_run) {
-            this.addTest( provide_swing_test.get().putName("testAssetModelLibrary") );
+            this.addTest( provide_model_test.get() );
+        }
+        if ( b_run ) {
+            this.addTest( provide_model_test.get().putName( "testSessionHookup" ) );
         }
         if (b_run) {
             this.addTest( provide_swing_test.get().putName("testJEditor") );

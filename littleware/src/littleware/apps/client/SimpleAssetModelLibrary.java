@@ -46,6 +46,15 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         implements AssetModelLibrary 
 {
     private static final Logger   olog_generic = Logger.getLogger ( SimpleAssetModelLibrary.class.getName () );
+
+    @Override
+    public Asset retrieveAsset(UUID u_id, AssetRetriever retriever) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        AssetModel model = retrieveAssetModel( u_id, retriever );
+        if ( null == model ) {
+            return null;
+        }
+        return model.getAsset();
+    }
     
     /**
      * Simple implementation of AssetModel interface

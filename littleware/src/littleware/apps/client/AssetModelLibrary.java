@@ -99,6 +99,11 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      */
     public AssetModel retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException, 
         AssetException, GeneralSecurityException, RemoteException;
+    /**
+     * Convenience dereferences model, or returns null if model is null
+     */
+    public Asset retrieveAsset( UUID u_id, AssetRetriever retriever ) throws BaseException,
+        AssetException, GeneralSecurityException, RemoteException;
     
     /**
      * Convenience method - retrieves the asset from the library if

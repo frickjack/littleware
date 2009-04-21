@@ -261,6 +261,7 @@ public class SessionHelperProxy implements SessionHelperService {
         return m_service;
     }
 
+    @Override
     public SessionHelper createNewSession(String s_session_comment)
             throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {

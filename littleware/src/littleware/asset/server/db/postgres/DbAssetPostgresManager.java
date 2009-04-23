@@ -46,39 +46,47 @@ public class DbAssetPostgresManager implements DbAssetManager {
         om_trans = m_trans;
     }
     
+    @Override
 	public DbWriter<Asset> makeDbAssetSaver ()
 	{
 		return new DbAssetSaver ( getClientId (), om_trans );
 	}
 	
+    @Override
 	public DbReader<Asset,UUID> makeDbAssetLoader () {
 		return new DbAssetLoader ( getClientId (), om_trans );
 	}
 	
+    @Override
 	public DbWriter<Asset> makeDbAssetDeleter () {
 		return new DbAssetDeleter ( getClientId (), om_trans );
 	}
 	
+    @Override
 	public DbReader<Map<String,UUID>,String> makeDbHomeIdLoader () {
 		return new DbHomeIdLoader ( getClientId (), om_trans );
 	}	
 	
+    @Override
 	public DbReader<Map<String,UUID>,String> makeDbAssetIdsFromLoader ( UUID u_from, AssetType n_child_type )
 	{
 		return new DbChildIdLoader ( u_from, n_child_type, getClientId (), om_trans );
 	}
 	
+    @Override
 	public DbReader<Set<Asset>,String> makeDbAssetsByNameLoader ( String s_name, AssetType n_type, UUID u_home )
 	{
 		return new DbAssetsByNameLoader ( s_name, n_type, u_home, getClientId (), om_trans );
 	}
 
     
+    @Override
     public DbWriter<String> makeDbCacheSyncClearer ()
     {
         return new DbCacheSyncClearer ( getClientId (), om_trans );
     }
     
+    @Override
     public DbReader<Map<UUID,Asset>,String> makeDbCacheSyncLoader ()
     {
         return new DbCacheSyncLoader ( getClientId (), om_trans );
@@ -89,7 +97,13 @@ public class DbAssetPostgresManager implements DbAssetManager {
     private static boolean ob_cachesync = false;
     
     
-    
+    /**
+     * TODO - split this out as an OSGi service
+     *
+     * @param m_cache
+     * @throws java.sql.SQLException
+     */
+    @Override
     public void launchCacheSyncThread ( 
                                         final CacheManager m_cache 
                                         ) throws SQLException
@@ -104,6 +118,7 @@ public class DbAssetPostgresManager implements DbAssetManager {
         db_clear.saveObject ( null );
         // Setup a thread to keep us in sync
         Runnable  run_sync = new Runnable () {
+            @Override
             public void run () {
                 Date  t_last_error = new Date ( 0 );
                 final DbReader<Map<UUID,Asset>,String> db_sync = makeDbCacheSyncLoader ();
@@ -153,15 +168,18 @@ public class DbAssetPostgresManager implements DbAssetManager {
     
 
     
+    @Override
     public int getClientId () {
         return oi_client_id;
     }
     
 
+    @Override
     public void setClientId ( int i_id ) {
         oi_client_id = i_id;
     }
 
+    @Override
     public DbReader<Set<UUID>,String> makeDbAssetIdsToLoader ( UUID u_to, AssetType n_type )
     {
         return new DbAssetIdsToLoader ( u_to, n_type, getClientId (), om_trans );

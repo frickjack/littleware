@@ -331,7 +331,7 @@ INSERT INTO x_cache_status ( i_id, s_comment ) VALUES ( 2, 'asset in cache delet
 --
 CREATE TABLE littleware.client_cache (
     i_src               INTEGER NOT NULL,
-	s_asset_id          VARCHAR NOT NULL,
+	s_asset_id          VARCHAR(32) NOT NULL,
     i_status            INTEGER REFERENCES littleware.x_cache_status( i_id ) NOT NULL,
     PRIMARY KEY ( i_src, s_asset_id )
 );

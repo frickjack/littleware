@@ -215,7 +215,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             gb.add( new JLabel( "Comment: " ) ).newRow().
                     remainderX().fillBoth().remainderY().
                     add( wScrollComment );
-
+            wpanel_build.setPreferredSize( new Dimension( 500, 400 ) );
             owtab_stuff.add ( "BasicEdit", wpanel_build );
         }
         

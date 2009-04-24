@@ -70,23 +70,6 @@ public class ClientServiceGuice implements LittleGuiceModule {
      */
     public ClientServiceGuice(SessionHelper helper) {
         ohelper = helper;
-
-        if ( ! SwingUtilities.isEventDispatchThread() ) {
-            try {
-                SwingUtilities.invokeAndWait(
-                        new Runnable() {
-                    @Override
-                    public void run () {
-                        ohandler = new JPasswordDialog("", "");
-                    }
-                }
-                    );
-            } catch ( Exception ex ) {
-                throw new AssertionFailedException ( "Failed swing dialog init" ,ex );
-            }
-        } else {
-            ohandler = new JPasswordDialog("", "");
-        }
     }
 
     /**
@@ -99,7 +82,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
      */
     public ClientServiceGuice() {
     }
-    private CallbackHandler ohandler;
+    private CallbackHandler ohandler = new JPasswordDialog("", "");
 
     /**
      * Allow the user to inject a CallbackHandler, otherwise

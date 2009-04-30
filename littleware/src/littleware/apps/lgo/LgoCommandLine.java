@@ -13,11 +13,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import javax.swing.SwingUtilities;
 import littleware.apps.client.ClientBootstrap;
 import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.UiFeedback;
+import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.LittleBootstrap;
@@ -39,10 +46,9 @@ public class LgoCommandLine implements BundleActivator, Runnable {
 
     private static final Logger olog = Logger.getLogger(LgoCommandLine.class.getName());
     private static String[] ovArgs;
-
     private final LgoCommandDictionary omgrCommand;
-    private final LgoHelpLoader        omgrHelp;
-    private final LittleBootstrap      obootstrap;
+    private final LgoHelpLoader omgrHelp;
+    private final LittleBootstrap obootstrap;
 
     /**
      * Inject dependencies
@@ -57,12 +63,11 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             LgoBrowserCommand comBrowse,
             DeleteAssetCommand comDelete,
             ListChildrenCommand comLs,
-            GetAssetCommand     comGet,
-            CreateFolderCommand  comFolder,
-            CreateUserCommand    comUser,
-            CreateLockCommand    comLock,
-            GetByNameCommand     comNameGet
-            ) {
+            GetAssetCommand comGet,
+            CreateFolderCommand comFolder,
+            CreateUserCommand comUser,
+            CreateLockCommand comLock,
+            GetByNameCommand comNameGet) {
         omgrCommand = mgrCommand;
         omgrHelp = mgrHelp;
         obootstrap = bootstrap;
@@ -72,29 +77,107 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                     comHelp, comXml, comBrowse, comDelete, comLs, comGet,
                     comFolder, comUser, comLock, comNameGet
                 }) {
-            mgrCommand.setCommand( mgrHelp, command );
+            mgrCommand.setCommand(mgrHelp, command);
         }
 
     }
-
     private boolean obRunning = false;
 
     /** Launch worker thread once OSGi has started */
     @Override
-    public void start( final BundleContext ctx) throws Exception {
-        if ( ! obRunning ) {
-            ctx.addFrameworkListener( new FrameworkListener() {
+    public void start(final BundleContext ctx) throws Exception {
+        if (!obRunning) {
+            ctx.addFrameworkListener(new FrameworkListener() {
+
                 @Override
                 public void frameworkEvent(FrameworkEvent evt) {
-                    if ( (evt.getType() == FrameworkEvent.STARTED)
-                         && (! obRunning)
-                            ) {
-                        new Thread( LgoCommandLine.this ).start();
+                    if ((evt.getType() == FrameworkEvent.STARTED) && (!obRunning)) {
+                        new Thread(LgoCommandLine.this).start();
                         obRunning = true;
                         ctx.removeFrameworkListener(this);
                     }
                 }
-            } );
+            });
+        }
+    }
+
+    /**
+     * Issue the given command
+     *
+     * @param sCommand to lookup and run
+     * @param vProcess argument to pass to processArgs
+     * @param sArg to pass to command.runCommandLine
+     * @param feedback to pass to command.runCommandLine
+     * @return command exit-status
+     */
+    private int processCommand(String sCommand, List<String> vProcess, String sArg, UiFeedback feedback) {
+        LgoCommand<?, ?> command = omgrCommand.getCommand(sCommand);
+        try {
+            if (null == command) {
+                System.out.print(omgrCommand.getCommand("help").runCommandLine(feedback, ""));
+                return 1;
+            }
+
+            command.processArgs(vProcess);
+
+            String sResult = command.runCommandLine(feedback, sArg);
+            System.out.println((null == sResult) ? "null" : sResult);
+        } catch (LgoException ex) {
+            System.out.println("Command failed, caught exception: " +
+                    BaseException.getStackTrace(ex));
+            try {
+                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, command.getName()).toString());
+            } catch (LgoException ex2) {
+                throw new AssertionFailedException("Help command should not fail", ex2);
+            }
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * Read command-lines from StdIn.
+     * Command has form:
+     *      name  args* [ -- arg]
+     * Treat "exit" command as special escape.
+     */
+    private void processPipe(UiFeedback feedback) throws IOException {
+        final BufferedReader reader;
+        try {
+            reader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+        } catch (UnsupportedEncodingException ex) {
+            throw new AssertionFailedException("What the frick?", ex);
+        }
+
+        final StringBuilder sb = new StringBuilder();
+        System.out.println( "LGO>>" );
+        for (String sLine = reader.readLine(); null != sLine; sLine = reader.readLine()) {
+            String sClean = sLine.trim();
+            if (sClean.length() == 0) {
+                continue;
+            }
+            String sCommand = sClean;
+            final List<String> vProcess = new ArrayList<String>();
+            String sArg = "";
+            final int iFirstSpace = sClean.indexOf(" ");
+
+            if (iFirstSpace > 0) {
+                sCommand = sClean.substring(0, iFirstSpace);
+                sClean = sClean.substring(iFirstSpace);
+
+                final int iDashDash = sClean.indexOf(" -- ");
+                if (iDashDash >= 0) {
+                    sArg = sClean.substring(iDashDash + 3).trim();
+                    sClean = sClean.substring(0, iDashDash).trim();
+                }
+                // TODO - add some smarter parsing
+                Collections.addAll(vProcess, sClean.split("\\s+"));
+            }
+            if (sCommand.equalsIgnoreCase("exit")) {
+                break;
+            }
+            processCommand(sCommand, vProcess, sArg, feedback);
+            System.out.println( "LGO>>" );
         }
     }
 
@@ -104,31 +187,18 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         int iExitStatus = 0;
 
         try {
-            /*..
-            Injector     injector = Guice.createInjector(
-            new EzModule(),
-            new littleware.apps.swingclient.StandardSwingGuice(),
-            new littleware.apps.client.StandardClientGuice(),
-            new littleware.apps.misc.StandardMiscGuice(),
-            new littleware.security.auth.ClientServiceGuice(),
-            new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
-            );
-            LgoCommandDictionary m_command = injector.getInstance( LgoCommandDictionary.class );
-            LgoHelpLoader        m_help = injector.getInstance( LgoHelpLoader.class );
-             */
             UiFeedback feedback = new LoggerUiFeedback();
 
             if (vArgs.length == 0) { // launch help command by default
                 System.out.print(omgrCommand.getCommand("help").runCommandLine(feedback, ""));
                 return;
             }
-            final String     sCommand = vArgs[0];
-            LgoCommand<?, ?> command = omgrCommand.getCommand(sCommand);
-            if (null == command) {
-                System.out.print(omgrCommand.getCommand("help").runCommandLine(feedback, ""));
+            final String sCommand = vArgs[0];
+            if (sCommand.equalsIgnoreCase("pipe")) {
+                processPipe(feedback);
                 return;
             }
-            List<String> v_process = new ArrayList<String>();
+            List<String> vProcess = new ArrayList<String>();
             StringBuilder sb_in = new StringBuilder();
 
             for (int i = 1; i < vArgs.length; ++i) {
@@ -141,62 +211,60 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                     }
                     break;
                 }
-                v_process.add(s_arg);
+                vProcess.add(s_arg);
             }
-            command.processArgs(v_process);
-            try {
-                String sResult = command.runCommandLine(feedback, sb_in.toString().trim());
-                System.out.println( (null == sResult) ? "null" : sResult );
-            } catch ( LgoException ex ) {
-                iExitStatus = 1;
-                System.out.println( "Command failed, caught exception: " +
-                        BaseException.getStackTrace( ex )
-                        );
-                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, command.getName()).toString());
-            }
+
+            iExitStatus = processCommand(sCommand, vProcess, sb_in.toString().trim(), feedback);
         } catch (Exception e) {
             iExitStatus = 1;
             olog.log(Level.SEVERE, "Failed command, caught: " + e, e);
         } finally {
             obootstrap.shutdown();
-            System.exit( iExitStatus );
+            System.exit(iExitStatus);
         }
     }
 
     /** NOOP */
     @Override
     public void stop(BundleContext ctx) throws Exception {
-        
     }
 
-    private static String[] getArgs() { return ovArgs; }
+    private static String[] getArgs() {
+        return ovArgs;
+    }
 
     /**
      * Look at the first argument to determine 
      * which command to launch, process arguments up until "--",
      * then pass pass the remaining args as a single space-separated string
      * to the command.runCommand method.
+     * Should run on event-dispatch thread.
      * 
      * @param vArgs command-line args
      * @param bootClient to add LittleCommandLine.class to and bootstrap()
      */
-    public static void launch(String[] vArgs, GuiceOSGiBootstrap bootClient ) {
+    public static void launch(String[] vArgs, GuiceOSGiBootstrap bootClient) {
         ovArgs = vArgs;
         /*... just for testing in serverless environment ... 
         {
-            // Try to start an internal server for now just for testing
-            GuiceOSGiBootstrap bootServer = new littleware.security.auth.server.ServerBootstrap();
-            bootServer.bootstrap();
+        // Try to start an internal server for now just for testing
+        GuiceOSGiBootstrap bootServer = new littleware.security.auth.server.ServerBootstrap();
+        bootServer.bootstrap();
         }
         ...*/
 
-        bootClient.getOSGiActivator().add( LgoCommandLine.class );
+        bootClient.getOSGiActivator().add(LgoCommandLine.class);
         bootClient.bootstrap();
     }
 
-    /** Just launch( vArgs, new ClientBootstrap() ); */
-    public static void main( String[] vArgs ) {
-        launch( vArgs, new ClientBootstrap() );
+    /** Just launch( vArgs, new ClientBootstrap() ); on the event-dispatch thread */
+    public static void main(final String[] vArgs) {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                launch(vArgs, new ClientBootstrap());
+            }
+        });
     }
-    
 }

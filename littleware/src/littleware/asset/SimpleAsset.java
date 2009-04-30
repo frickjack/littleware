@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.security.acl.Owner;
 import java.security.GeneralSecurityException;
 
+
 import littleware.base.*;
 import littleware.security.*;
 
@@ -60,11 +61,13 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
     
     private transient PropertyChangeSupport    osupport_props = new PropertyChangeSupport ( this );
     
+    @Override
     public void addPropertyChangeListener(
                                           PropertyChangeListener listen_props )
     {
         osupport_props.addPropertyChangeListener( listen_props );
     }
+    @Override
     public void removePropertyChangeListener(
                                              PropertyChangeListener listen_props )
     {
@@ -90,29 +93,48 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		}
 	}
 	
+    @Override
 	public String      getName () { return os_name; }
+    @Override
 	public UUID        getCreatorId () { return ou_creator; }
+    @Override
 	public UUID        getLastUpdaterId () { return ou_last_updater; }
+    @Override
 	public UUID        getAclId () { return ou_acl; }
+    @Override
 	public AssetType   getAssetType () { return on_type; }
+    @Override
 	public String      getComment () { return os_comment; }
+    @Override
 	public String      getLastUpdate () { return os_last_update; }
+    @Override
 	public String      getData () { return os_data; }
 	
+    @Override
 	public UUID        getFromId () { return ou_from; }
+    @Override
 	public UUID        getToId () { return ou_to; }
+    @Override
 	public UUID        getHomeId () { return ou_home; }
+    @Override
 	public UUID        getOwnerId () { return ou_owner; }
 	
+    @Override
 	public Date        getStartDate () { return ot_start; }
+    @Override
 	public Date        getEndDate () { return ot_end; }
+    @Override
 	public Date        getCreateDate () { return ot_create_date; }
+    @Override
 	public Date        getLastUpdateDate () { return ot_update_date; }
+    @Override
 	public Date        getLastAccessDate () { return ot_access_date; }
 	
+    @Override
 	public Float       getValue () { return of_value; }
 	
 
+    @Override
 	public Asset getHome ( AssetRetriever m_retriever ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException {
 		if ( null == ou_home ) {
@@ -121,6 +143,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		return m_retriever.getAsset ( ou_home );
 	}
 
+    @Override
 	public Owner getOwner ( AssetRetriever m_retriever ) 
 		throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -136,6 +159,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
                                  );
 	}
 
+    @Override
 	public LittleAcl getAcl ( AssetRetriever m_retriever ) 
 		throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -146,6 +170,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		return (LittleAcl) m_retriever.getAsset ( ou_acl );
 	}
 
+    @Override
 	public LittleUser getCreator ( AssetRetriever m_retriever ) 
 		throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -156,6 +181,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		return (LittleUser) m_retriever.getAsset ( ou_creator );
 	}
 
+    @Override
 	public LittleUser getLastUpdater ( AssetRetriever m_retriever ) 
 	    throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -166,6 +192,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		return (LittleUser) m_retriever.getAsset ( ou_last_updater );
 	}
 
+    @Override
 	public Asset getFromAsset ( AssetRetriever m_retriever ) 
 		throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -176,6 +203,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		return m_retriever.getAsset ( ou_from );
 	}
 
+    @Override
 	public Asset getToAsset ( AssetRetriever m_retriever ) 
 	    throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -191,6 +219,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 	 *
 	 * @exception AssetException if given an illegal name
 	 */
+    @Override
 	public void        setName ( String s_name ) throws IllegalArgumentException {
 		if ( 
                 (-1 < s_name.indexOf ( '/' ))
@@ -201,16 +230,24 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		os_name = s_name;
 	}
 	
+    @Override
 	public void        setCreatorId ( UUID u_creator ) {  ou_creator = u_creator; }
+    @Override
 	public void        setLastUpdaterId ( UUID u_last_updater ) {  ou_last_updater = u_last_updater; }
+    @Override
 	public void        setAclId ( UUID u_acl ) {  ou_acl = u_acl; }
 	/** Create a new owner object with x_owner as the only non-admin member */
+    @Override
 	public void        setOwnerId ( UUID u_owner ) {
 		ou_owner = u_owner;
 	}
+    @Override
 	public void        setAssetType ( AssetType n_type ) {  on_type = n_type; }
+    @Override
 	public void        setComment ( String s_comment ) { os_comment = s_comment; }
+    @Override
 	public void        setLastUpdate ( String s_last_update ) { os_last_update = s_last_update; }
+    @Override
 	public void        setData ( String s_data ) throws ParseException { 
 		if ( s_data.length () > OI_DATA_LIMIT ) {
 			throw new TooBigException ( "Data exceeds 1024 characters" );
@@ -218,16 +255,25 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		os_data = s_data; 
 	}
 	
+    @Override
 	public void        setHomeId ( UUID u_home ) { ou_home = u_home; }
+    @Override
 	public void        setFromId ( UUID u_from ) { ou_from = u_from; }
+    @Override
 	public void        setToId ( UUID u_to ) { ou_to = u_to; }
 	
+    @Override
 	public void        setStartDate ( Date t_start ) { ot_start = t_start; }
+    @Override
 	public void        setEndDate ( Date t_end ) { ot_end = t_end; }
+    @Override
 	public void        setCreateDate ( Date t_create_date ) {  ot_create_date = t_create_date; }
+    @Override
 	public void        setLastUpdateDate ( Date t_update_date ) {  ot_update_date = t_update_date; }
+    @Override
 	public void        setLastAccessDate ( Date t_access_date ) {  ot_access_date = t_access_date; }
 	
+    @Override
 	public void        setValue ( float f_value ) { of_value = f_value; }
 	
 	/**
@@ -245,6 +291,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 	}
     
 
+    @Override
     public void sync ( Asset a_copy_source ) throws InvalidAssetTypeException {
         if ( this == a_copy_source ) {
             return;
@@ -289,6 +336,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
     }
     
     
+    @Override
     public void save ( AssetManager m_asset, String s_update_comment
                        ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -296,6 +344,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
         this.sync ( m_asset.saveAsset ( this, s_update_comment ) );
     }
 
+    @Override
     public void sync ( AssetRetriever m_retriever 
                        ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException

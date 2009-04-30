@@ -156,6 +156,11 @@ public class ClientServiceGuice implements LittleGuiceModule {
         String s_name = prop_session.getProperty(os_name_key, 
                 System.getProperty( "user.name", "username" )
                 );
+        if ( null == s_name ) {
+            s_name = "";
+        } else {
+            s_name = s_name.toLowerCase();
+        }
         String s_session_id = prop_session.getProperty(os_session_key);
 
         if (s_session_id != null) {
@@ -179,18 +184,22 @@ public class ClientServiceGuice implements LittleGuiceModule {
 
         for (int i = 0; i < i_retry; ++i) {
             String s_password = "";
-            try {
-                handler.handle(v_callback);
-                s_name = ((NameCallback) v_callback[0]).getName();
-                s_password = new String(((PasswordCallback) v_callback[1]).getPassword());
-            } catch (RuntimeException ex) {
-                throw ex;
-            } catch (IOException ex) {
-                throw ex;
-            } catch (Exception ex) {
-                olog.log(Level.WARNING, "Failed to authenticate to " + SessionUtil.get().getRegistryHost(),
-                        ex);
-                throw new FailedLoginException("Unable to authenticate: " + ex.getMessage());
+            if ( 0 != i ) {
+                // First time through just check if can login
+                // as default user with null password
+                try {
+                    handler.handle(v_callback);
+                    s_name = ((NameCallback) v_callback[0]).getName();
+                    s_password = new String(((PasswordCallback) v_callback[1]).getPassword());
+                } catch (RuntimeException ex) {
+                    throw ex;
+                } catch (IOException ex) {
+                    throw ex;
+                } catch (Exception ex) {
+                    olog.log(Level.WARNING, "Failed to authenticate to " + SessionUtil.get().getRegistryHost(),
+                            ex);
+                    throw new FailedLoginException("Unable to authenticate: " + ex.getMessage());
+                }
             }
             try {
                 SessionHelper helper = manager.login(s_name, s_password, "client login");
@@ -215,7 +224,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 v_callback[2] = new TextOutputCallback(TextOutputCallback.ERROR, "Login Failed");
             }
         }
-        throw new FailedLoginException("Retires expended");
+        throw new FailedLoginException("Retries expended");
     }
 
     /**

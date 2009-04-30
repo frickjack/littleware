@@ -8,8 +8,9 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.asset;
+package littleware.asset.server;
 
+import littleware.asset.*;
 import java.util.*;
 import java.security.GeneralSecurityException;
 

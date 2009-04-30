@@ -11,6 +11,7 @@
 
 package littleware.asset.server.db.postgres;
 
+import littleware.asset.server.CacheManager;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import java.util.*;

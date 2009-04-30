@@ -1,5 +1,6 @@
 package littleware.asset.test;
 
+import littleware.asset.server.CacheManager;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;

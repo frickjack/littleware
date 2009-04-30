@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -64,14 +62,17 @@ public class SimpleCacheManager implements CacheManager {
         omgr_trans = mgr_trans;
     }
 
+    @Override
     public Cache.Policy getPolicy() {
         return ocache_asset.getPolicy();
     }
 
+    @Override
     public int getMaxSize() {
         return ocache_asset.getMaxSize();
     }
 
+    @Override
     public int getMaxEntryAgeSecs() {
         return ocache_asset.getMaxEntryAgeSecs();
     }
@@ -80,6 +81,7 @@ public class SimpleCacheManager implements CacheManager {
      * Actually clone()s a copy of a_value, and puts that in the cache.
      * Defers data-save till end of transaction if LittleTransaction.isInTransaction.
      */
+    @Override
     public synchronized Asset put(final UUID u_key, final Asset a_value) {
         final LittleTransaction trans_maindb = omgr_trans.getThreadTransaction();
         if (trans_maindb.isDbUpdating()) {
@@ -87,6 +89,7 @@ public class SimpleCacheManager implements CacheManager {
             trans_maindb.deferTillTransactionEnd(
                     new Runnable() {
 
+                @Override
                         public void run() {
                             put(u_key, a_value);
                         }
@@ -114,6 +117,7 @@ public class SimpleCacheManager implements CacheManager {
     }
 
     /** Actually returns a clone of the value if it's not null and ! LittleTransaction.isInTransaction */
+    @Override
     public Asset get(UUID u_key) {
         if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             return null;
@@ -129,12 +133,14 @@ public class SimpleCacheManager implements CacheManager {
     /**
      * Defers operation if LittleTransaction.isInTransaction
      */
+    @Override
     public synchronized Asset remove(final UUID u_key) {
         LittleTransaction trans_maindb = omgr_trans.getThreadTransaction();
         if (trans_maindb.isDbUpdating()) {
             trans_maindb.deferTillTransactionEnd(
                     new Runnable() {
 
+                @Override
                         public void run() {
                             remove(u_key);
                         }
@@ -151,6 +157,7 @@ public class SimpleCacheManager implements CacheManager {
         return ocache_asset.remove(u_key);
     }
 
+    @Override
     public synchronized void clear() {
         try {
             JdbcDbWriter<UUID> db_writer = om_db.makeDbEraser();
@@ -163,18 +170,22 @@ public class SimpleCacheManager implements CacheManager {
         ov_null_entries.clear();
     }
 
+    @Override
     public int size() {
         return ocache_asset.size();
     }
 
+    @Override
     public boolean isEmpty() {
         return ocache_asset.isEmpty();
     }
 
+    @Override
     public Map<UUID, Asset> cacheContents() {
         return ocache_asset.cacheContents();
     }
 
+    @Override
     public Asset getAsset(UUID u_id) throws DataAccessException, AssetException, NoSuchThingException, GeneralSecurityException {
         Asset a_result = getAssetOrNull(u_id);
         if (null == a_result) {
@@ -197,6 +208,7 @@ public class SimpleCacheManager implements CacheManager {
      * @return the asset or null if the u_id is in the cache
      * @exception CacheMissException if the u_id is not in the cache
      */
+    @Override
     public Asset getAssetOrNull(UUID u_id) throws DataAccessException, AssetException, GeneralSecurityException {
         if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             throw new CacheMissException("In transaction");
@@ -221,6 +233,7 @@ public class SimpleCacheManager implements CacheManager {
      * Throws a CacheMissException if any of the requested ID's are not
      * in cache.
      */
+    @Override
     public Set<Asset> getAssets(Collection<UUID> v_id) throws DataAccessException, AssetException, GeneralSecurityException {
         Set<Asset> v_result = new HashSet<Asset>();
         Set<UUID> v_done = new HashSet<UUID>();
@@ -237,6 +250,7 @@ public class SimpleCacheManager implements CacheManager {
     }
 
     /** Also cache miss if LittleTransaction.isInTransaction */
+    @Override
     public synchronized Map<String, UUID> getHomeAssetIds() throws DataAccessException, AssetException, GeneralSecurityException {
         if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             throw new CacheMissException("In transaction");
@@ -253,6 +267,7 @@ public class SimpleCacheManager implements CacheManager {
     }
 
     /** NOOP if LittleTransaction.isInTransaction */
+    @Override
     public synchronized void setHomeAssetIds(Map<String, UUID> v_home_ids) {
         if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             return;
@@ -265,6 +280,7 @@ public class SimpleCacheManager implements CacheManager {
         }
     }
 
+    @Override
     public synchronized Map<String, UUID> getAssetIdsFrom(UUID u_source,
             AssetType n_type) throws DataAccessException, AssetException, GeneralSecurityException {
         if (omgr_trans.getThreadTransaction().isDbUpdating()) {
@@ -281,6 +297,7 @@ public class SimpleCacheManager implements CacheManager {
         }
     }
 
+    @Override
     public synchronized void setAssetIdsFrom(UUID u_source,
             AssetType n_type,
             Map<String, UUID> v_data) {
@@ -295,6 +312,7 @@ public class SimpleCacheManager implements CacheManager {
         }
     }
 
+    @Override
     public synchronized Set<UUID> getAssetIdsTo(UUID u_to,
             AssetType n_type) throws DataAccessException, AssetException, GeneralSecurityException {
         if (omgr_trans.getThreadTransaction().isDbUpdating()) {
@@ -311,6 +329,7 @@ public class SimpleCacheManager implements CacheManager {
         }
     }
 
+    @Override
     public synchronized void setAssetIdsTo(UUID u_to,
             AssetType n_type,
             Set<UUID> v_data) {
@@ -325,10 +344,12 @@ public class SimpleCacheManager implements CacheManager {
         }
     }
 
+    @Override
     public String getSourceName() {
         return "cache";
     }
 
+    @Override
     public <T extends Asset> T getByName(String s_name, AssetType<T> n_type) throws DataAccessException,
             AssetException, NoSuchThingException, AccessDeniedException, GeneralSecurityException {
         if (omgr_trans.getThreadTransaction().isDbUpdating()) {
@@ -351,12 +372,14 @@ public class SimpleCacheManager implements CacheManager {
 
     }
 
+    @Override
     public List<Asset> getAssetHistory(UUID u_id, java.util.Date t_start, java.util.Date t_end)
             throws NoSuchThingException, AccessDeniedException, GeneralSecurityException,
             DataAccessException, AssetException {
         throw new CacheMissException();
     }
 
+    @Override
     public void setAssetsByName(String s_name, AssetType n_type, UUID u_home, Set<Asset> v_data) {
         if (omgr_trans.getThreadTransaction().isDbUpdating()) {
             return;
@@ -372,24 +395,28 @@ public class SimpleCacheManager implements CacheManager {
     }
 
     /** Not yet implemented */
+    @Override
     public Asset getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
             GeneralSecurityException {
         throw new CacheMissException();
     }
 
     /** Not yet implemented */
+    @Override
     public Asset getAssetFromOrNull(UUID u_from, String s_name) throws BaseException, AssetException,
             GeneralSecurityException {
         throw new CacheMissException();
     }
 
     /** Not yet implemented */
+    @Override
     public Map<AssetPath, Asset> getAssetsAlongPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException {
         throw new CacheMissException();
     }
 
     /** Not yet implemented */
+    @Override
     public Asset getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException {
         throw new CacheMissException();
@@ -398,11 +425,9 @@ public class SimpleCacheManager implements CacheManager {
     /**
      * Not implemented in CacheManager
      */
+    @Override
     public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> v_check) throws BaseException {
         throw new CacheMissException();
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

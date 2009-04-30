@@ -10,6 +10,7 @@
 
 package littleware.asset.test;
 
+import littleware.asset.server.CacheManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.logging.Logger;

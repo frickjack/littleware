@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -67,6 +65,7 @@ public class SimpleLittleTransaction implements JdbcTransaction {
     
 
     /** Return the id associated with this transaction */
+    @Override
     public UUID getId () { return ou_id; }
     
     /**
@@ -84,6 +83,7 @@ public class SimpleLittleTransaction implements JdbcTransaction {
     }
       */
 
+    @Override
     public synchronized Map<UUID,Asset> startDbAccess () {
         Date t_now = new Date ();
         
@@ -105,6 +105,7 @@ public class SimpleLittleTransaction implements JdbcTransaction {
     
         
 
+    @Override
     public synchronized void endDbAccess ( Map<UUID,Asset> v_cache ) {
         if ( (null != v_cache)
              && (v_cache != ov_cache)
@@ -141,12 +142,14 @@ public class SimpleLittleTransaction implements JdbcTransaction {
     }
     
 
+    @Override
     public void endDbAccess () {
         endDbAccess ( null );
     }
 
     
 
+    @Override
     public synchronized Connection getConnection () throws SQLException {
         if ( oi_count < 1 ) {
             throw new SQLException ( "Must setup transaction block before accessing SimpleLittleTransaction.getConnection" );
@@ -234,16 +237,19 @@ public class SimpleLittleTransaction implements JdbcTransaction {
     private LinkedList<MySavepoint>    ostack_savept = new LinkedList<MySavepoint> ();
     private List<Runnable>             ov_deferred_actions = new ArrayList<Runnable> ();
     
+    @Override
     public synchronized void startDbUpdate () throws SQLException {
         startDbAccess ();
         ostack_savept.add ( new MySavepoint () );
     }
     
+    @Override
     public synchronized boolean isDbUpdating () {
         return (! ostack_savept.isEmpty ());
     }
     
     
+    @Override
     public synchronized void endDbUpdate ( boolean b_rollback ) throws SQLException {
         MySavepoint  savept_trans = ostack_savept.removeLast ();
         
@@ -287,6 +293,7 @@ public class SimpleLittleTransaction implements JdbcTransaction {
     private boolean ob_running_deferred = false;
     
     
+    @Override
     public void deferTillTransactionEnd ( Runnable run_later ) {
         if ( isDbUpdating () ) {
             ov_deferred_actions.add ( run_later );

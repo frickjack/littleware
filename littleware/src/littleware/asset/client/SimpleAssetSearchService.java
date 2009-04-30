@@ -73,7 +73,12 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
 
     @Override
     public Asset getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Asset result = oserver.getAssetAtPath( path_asset );
+        final Cache<String,Object> cache = ClientCache.getSingleton().getCache();
+        final String sKey = "path:" + path_asset;
+        Asset result = (Asset) cache.get( sKey );
+        if ( null == result ) {
+            result = oserver.getAssetAtPath( path_asset );
+        }
         fireServiceEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
@@ -109,19 +114,38 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
 
     @Override
     public Set<UUID> getAssetIdsTo(UUID u_to, AssetType<? extends Asset> n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return oserver.getAssetIdsTo( u_to, n_type );
+        final Cache<String,Object> cache = ClientCache.getSingleton().getCache();
+        final String sKey = u_to.toString() + "idsTo" + n_type;
+        Set<UUID> setResult = (Set<UUID>) cache.get( sKey );
+        if ( null == setResult ) {
+            setResult = oserver.getAssetIdsTo( u_to, n_type );
+            cache.put( sKey, setResult );
+        }
+
+        return setResult;
     }
 
     @Override
     public Asset getAsset(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Asset result = oserver.getAsset( u_id );
+        final ClientCache cache = ClientCache.getSingleton();
+
+        Asset result = cache.get( u_id );
+        if ( null == result ) {
+            result = oserver.getAsset( u_id );
+        }
         fireServiceEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
 
     @Override
     public Asset getAssetOrNull(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Asset result = oserver.getAsset( u_id );
+        final ClientCache cache = ClientCache.getSingleton();
+
+        Asset result = cache.get( u_id );
+        if ( null == result ) {
+            result = oserver.getAssetOrNull( u_id );
+        }
+
         if ( null != result ) {
             fireServiceEvent( new AssetLoadEvent( this, result ) );
         }

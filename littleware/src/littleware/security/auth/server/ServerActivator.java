@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 import littleware.asset.AssetException;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.CacheManager;
+import littleware.asset.server.CacheManager;
 import littleware.asset.client.AssetManagerService;
 import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.SimpleAssetManagerService;

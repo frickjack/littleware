@@ -11,6 +11,7 @@
 package littleware.asset.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
@@ -33,11 +34,11 @@ public class SimpleQuotaUtil implements QuotaUtil {
 
     /** Cache the admin subject */
     private Subject oj_admin;
-    private final TransactionManager   omgr_trans;
+    private final Provider<LittleTransaction>   oprovideTrans;
     
     @Inject
-    public SimpleQuotaUtil( TransactionManager mgr_trans ) {
-        omgr_trans = mgr_trans;
+    public SimpleQuotaUtil( Provider<LittleTransaction> provideTrans ) {
+        oprovideTrans = provideTrans;
     }
 
     /**
@@ -62,6 +63,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
         return oj_admin;
     }
 
+    @Override
     public Quota getQuota(LittleUser p_user, AssetSearchManager m_search ) throws BaseException,
             GeneralSecurityException, RemoteException {
         Map<String, UUID> v_quotas = m_search.getAssetIdsFrom(p_user.getObjectId(),
@@ -75,6 +77,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
     }
 
 
+    @Override
     public int incrementQuotaCount( final LittleUser p_user,
             final AssetManager m_asset,
             final AssetSearchManager m_search
@@ -85,10 +88,11 @@ public class SimpleQuotaUtil implements QuotaUtil {
             return Subject.doAs(getAdmin(m_search),
                     new PrivilegedExceptionAction<Integer>() {
 
+                @Override
                         public Integer run() throws Exception {
                             int i_ops_left = -1;  // quota ops left
-                            List<Quota> v_chain = new ArrayList<Quota>();
-                            LittleTransaction trans_quota = omgr_trans.getThreadTransaction();
+                            final List<Quota> v_chain = new ArrayList<Quota>();
+                            final LittleTransaction trans_quota = oprovideTrans.get();
                             Date t_now = new Date();
 
                             trans_quota.startDbAccess();

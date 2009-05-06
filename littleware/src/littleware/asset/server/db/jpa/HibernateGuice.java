@@ -15,7 +15,7 @@ import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import javax.activation.DataSource;
+import javax.sql.DataSource;
 import javax.persistence.EntityManagerFactory;
 import org.hibernate.ejb.Ejb3Configuration;
 
@@ -24,7 +24,7 @@ import org.hibernate.ejb.Ejb3Configuration;
  * custom Hibernate bootstrap.  Currently just used
  * for isolated unit tests.
  */
-public class HibernateGuice implements Module {
+public class HibernateGuice extends AbstractGuice {
 
     @Singleton
     public static class FactoryProvider implements Provider<EntityManagerFactory> {
@@ -41,11 +41,13 @@ public class HibernateGuice implements Module {
         public EntityManagerFactory get() {
             if (null == ofactory) {
                 final Ejb3Configuration config = new org.hibernate.ejb.Ejb3Configuration(). //addAnnotatedClass( classOf[SimpleProqUpload] ).
-                        //addAnnotatedClass( classOf[SimpleEtdStub] ).
+                        addAnnotatedClass( AssetEntity.class ).
+                        addAnnotatedClass( TransactionEntity.class ).
                         setProperty("hibernate.dialect",
-                        "org.hibernate.dialect.DerbyDialect");
+                                    "org.hibernate.dialect.MySQLDialect"
+                                        );
 
-                config.setDataSource(null);
+                config.setDataSource(odsource);
                 ofactory = config.buildEntityManagerFactory();
             }
             return ofactory;
@@ -54,6 +56,7 @@ public class HibernateGuice implements Module {
 
     @Override
     public void configure(Binder binder) {
+        super.configure( binder );
         binder.bind(EntityManagerFactory.class).toProvider( FactoryProvider.class );
     }
 }

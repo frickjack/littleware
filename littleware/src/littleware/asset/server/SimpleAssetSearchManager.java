@@ -11,6 +11,7 @@
 package littleware.asset.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -32,7 +33,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     
 	private final DbAssetManager     om_db;
 	private final CacheManager       om_cache;
-	private final TransactionManager omgr_trans;
+	private final Provider<LittleTransaction> oprovideTrans;
 	
 	/**
 	 * Constructor stashes DataSource, DbManager, and CacheManager
@@ -41,17 +42,18 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 	public SimpleAssetSearchManager ( DbAssetManager m_db,
 								 CacheManager m_cache,
                                  AssetSpecializerRegistry registry_special,
-                                 TransactionManager mgr_trans
+                                 Provider<LittleTransaction> provideTrans
                                  )
 	{
-		super ( m_db, m_cache, registry_special, mgr_trans );
+		super ( m_db, m_cache, registry_special, provideTrans );
 		om_db = m_db;
 		om_cache = m_cache;
-        omgr_trans = mgr_trans;
+        oprovideTrans = provideTrans;
 	}
 	
 	
 	
+    @Override
     public <T extends Asset> T getByName ( String s_name, AssetType<T> n_type
                                             ) throws BaseException, AssetException,
         GeneralSecurityException, RemoteException
@@ -70,7 +72,8 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         
         // cache miss
         final Set<Asset> v_load;
-        Map<UUID,Asset> v_cycle_cache = omgr_trans.getThreadTransaction ().startDbAccess ();
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID,Asset> v_cycle_cache = trans.startDbAccess ();
         try {
             try {
                 DbReader<Set<Asset>,String> db_reader = om_db.makeDbAssetsByNameLoader ( s_name, n_type, null );
@@ -89,7 +92,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
             v_cycle_cache.put ( a_load.getObjectId (), a_load );
             return (T) secureAndSpecialize ( a_load );
         } finally {
-            omgr_trans.getThreadTransaction ().endDbAccess ( v_cycle_cache );
+            trans.endDbAccess ( v_cycle_cache );
         }
     }
         
@@ -97,6 +100,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 
 									  
 
+    @Override
 	public List<Asset> getAssetHistory ( UUID u_id, java.util.Date t_start, java.util.Date t_end )
 		throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -105,12 +109,14 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 	}
 	
     
+    @Override
     public SortedMap<AssetPath,Asset> getAssetsAlongPath ( AssetPath path_asset
                                                            ) throws BaseException, AssetException,
         GeneralSecurityException, RemoteException
     {	
         // setup a cycle cache
-        Map<UUID,Asset> v_cycle_cache = omgr_trans.getThreadTransaction ().startDbAccess ();
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID,Asset> v_cycle_cache = trans.startDbAccess ();
 		
         try {
             if ( path_asset.hasRootBacktrack () ) {
@@ -159,7 +165,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
             v_result.put ( path_asset, a_result );        
             return v_result;
         } finally {
-            omgr_trans.getThreadTransaction ().endDbAccess ( v_cycle_cache );
+            trans.endDbAccess ( v_cycle_cache );
         }
     }
     
@@ -195,11 +201,13 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     }
     
     /** Need to code this guy up */
+    @Override
     public Map<UUID,Long> checkTransactionCount( Map<UUID,Long> v_check
                                                            ) throws BaseException, RemoteException
     {
-        Map<UUID,Asset> v_cache = omgr_trans.getThreadTransaction ().startDbAccess ();
-        Map<UUID,Long>  v_result = new HashMap<UUID,Long> ();
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
+        final Map<UUID,Long>  v_result = new HashMap<UUID,Long> ();
         
         try {
             for ( Map.Entry<UUID,Long> entry_x : v_check.entrySet () ) {
@@ -222,7 +230,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 }
             }
         } finally {
-            omgr_trans.getThreadTransaction ().endDbAccess ( v_cache );
+            trans.endDbAccess ( v_cache );
         }
         return v_result;
     }

@@ -36,11 +36,6 @@ public class AssetServerGuice implements Module {
         binder.bind( AssetManager.class ).to( SimpleAssetManager.class ).in( Scopes.SINGLETON );
         binder.bind( AssetRetriever.class ).to( AssetSearchManager.class ).in( Scopes.SINGLETON );
         binder.bind( AssetSearchManager.class ).to( SimpleAssetSearchManager.class ).in( Scopes.SINGLETON );
-        binder.bind( LittleTransaction.class ).to( SimpleLittleTransaction.class );
-        binder.bind( TransactionManager.class ).to( SimpleTransactionManager.class ).in( Scopes.SINGLETON );
-        binder.bind( CacheManager.class ).to( NullCacheManager.class ).in( Scopes.SINGLETON );
-        //binder.bind( DbCacheManager.class ).to( DerbyDbCacheManager.class ).in( Scopes.SINGLETON );
-        binder.bind( DbAssetManager.class ).to( DbAssetPostgresManager.class ).in( Scopes.SINGLETON );
         binder.bind( QuotaUtil.class ).to( SimpleQuotaUtil.class ).in( Scopes.SINGLETON );
         binder.bind( AssetSpecializerRegistry.class ).to( SimpleSpecializerRegistry.class ).in( Scopes.SINGLETON );
     }

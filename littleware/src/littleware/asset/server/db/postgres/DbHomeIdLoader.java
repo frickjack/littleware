@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -13,12 +11,13 @@
 
 package littleware.asset.server.db.postgres;
 
+import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.*;
 import java.sql.*;
 
 import littleware.asset.server.AbstractDbReader;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.JdbcTransaction;
 import littleware.base.*;
 
 
@@ -34,8 +33,8 @@ public class DbHomeIdLoader extends AbstractDbReader<Map<String,UUID>,String> {
 	 * Constructor registers query with super-class,
      * and stashes the local client id.
 	 */
-	public DbHomeIdLoader ( int i_client_id, TransactionManager mgr_trans ) {
-		super ( "SELECT * FROM littleware.getHomeIdDictionary(?)", false, mgr_trans );
+	public DbHomeIdLoader ( int i_client_id, Provider<JdbcTransaction> provideTrans ) {
+		super ( "SELECT * FROM littleware.getHomeIdDictionary(?)", false, provideTrans );
         oi_client_id = i_client_id;
 	}
 	
@@ -53,6 +52,7 @@ public class DbHomeIdLoader extends AbstractDbReader<Map<String,UUID>,String> {
 	 * @return Asset or null if no data
 	 * @exception SQLException on failure to extract data
 	 */
+    @Override
 	public Map<String,UUID> loadObject( ResultSet sql_rset ) throws SQLException {
 		Map<String,UUID> v_result = new HashMap<String,UUID> ();
 		

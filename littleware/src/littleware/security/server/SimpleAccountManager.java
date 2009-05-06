@@ -12,8 +12,12 @@ package littleware.security.server;
 import littleware.asset.server.NullAssetSpecializer;
 import littleware.asset.server.AssetSpecializer;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.rmi.RemoteException;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.Principal;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import javax.security.auth.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -25,7 +29,6 @@ import littleware.base.*;
 import littleware.db.*;
 import littleware.asset.*;
 import littleware.asset.server.QuotaUtil;
-import littleware.asset.server.TransactionManager;
 import littleware.asset.server.LittleTransaction;
 import littleware.security.*;
 import littleware.security.auth.server.db.*;
@@ -40,7 +43,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     private final AssetSearchManager om_search;
     private final DbAuthManager om_dbauth;
     private final QuotaUtil om_quota;
-    private final TransactionManager omgr_trans;
+    private final Provider<LittleTransaction> oprovideTrans;
 
     /**
      * Constructor injects dependencies
@@ -52,14 +55,14 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     @Inject
     public SimpleAccountManager(AssetManager m_asset,
             AssetSearchManager m_searcher,
-            DbAuthManager m_dbauth,
+            //DbAuthManager m_dbauth,
             QuotaUtil m_quota,
-            TransactionManager mgr_trans) {
+            Provider<LittleTransaction> provideTrans ) {
         om_asset = m_asset;
         om_search = m_searcher;
-        om_dbauth = m_dbauth;
+        om_dbauth = null; //m_dbauth;
         om_quota = m_quota;
-        omgr_trans = mgr_trans;
+        oprovideTrans = provideTrans;
     }
 
     /**
@@ -136,7 +139,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         if (null == oj_admin) {
             try {
                 LittleUser p_admin = (LittleUser) this.getPrincipal(AccountManager.LITTLEWARE_ADMIN);
-                Set<Principal> v_users = new HashSet<Principal>();
+                final Set<Principal> v_users = new HashSet<Principal>();
 
                 v_users.add(p_admin);
                 oj_admin = new Subject(true, v_users, new HashSet<Object>(), new HashSet<Object>());
@@ -189,6 +192,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         }
 
         /** Create a GROUP_MEMBER asset linking this action's group and new member */
+        @Override
         public Asset run() throws BaseException, AssetException,
                 GeneralSecurityException, RemoteException {
             return addMemberToGroup(op_group, op_member, om_asset);
@@ -244,12 +248,14 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
                 }
             }
             // Give the user a password
+            /*... Disable for now - moving to JPA, and don't want to deal with this now ...
             try {
                 DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(a_new.getObjectId());
                 sql_password.saveObject("default_password");
             } catch (SQLException e) {
                 throw new DataAccessException("Falure updating password, caught: " + e, e);
             }
+             */
 
         } else if (SecurityAssetType.GROUP.equals(a_new.getAssetType())) {
             postUpdateCallback(null, a_new, m_asset);
@@ -334,6 +340,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         }
     }
 
+    @Override
     public int incrementQuotaCount() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_quota.incrementQuotaCount(getAuthenticatedUser(), om_asset, om_search);
@@ -345,11 +352,13 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
      * since the active AccountManager (should be this)
      * is registered as the AssetSpecializer for USER and GROUP type assets.
      */
+    @Override
     public LittlePrincipal getPrincipal(UUID u_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return (LittlePrincipal) om_search.getAsset(u_id);
     }
 
+    @Override
     public LittlePrincipal getPrincipal(String s_name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         LittleUser user_result = om_search.getByName(s_name, SecurityAssetType.USER);
@@ -373,14 +382,17 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         return updateUser(p_new, s_password, "new user");
     }
 
+    @Override
     public LittleUser updateUser(LittleUser p_update, String s_password,
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
+        throw new UnsupportedOperationException( "Disabled for now - moving to JPA, AD, OpenID ...");
+        /*...
         if (!isValidPassword(s_password)) {
             throw new IllegalNameException("Illegal password: " + s_password);
         }
 
-        LittleTransaction trans_update = omgr_trans.getThreadTransaction();
+        final LittleTransaction trans_update = oprovideTrans.get();
 
         try {
             boolean b_rollback = true;
@@ -402,7 +414,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         } catch (SQLException e) {
             throw new DataAccessException("Unexpected SQLException", e);
         }
-
+           ... */
     }
 
     @Override

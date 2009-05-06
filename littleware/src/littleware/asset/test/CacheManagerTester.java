@@ -1,19 +1,26 @@
+/*
+ * Copyright 2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.test;
 
+import com.google.inject.Inject;
 import littleware.asset.server.CacheManager;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.Principal;
 
 import junit.framework.*;
 
 import littleware.asset.*;
-import littleware.asset.server.TransactionManager;
-import littleware.asset.server.LittleTransaction;
 import littleware.base.*;
 import littleware.security.SecurityAssetType;
-import littleware.asset.server.TransactionManager;
 
 
 /**
@@ -34,8 +41,9 @@ public class CacheManagerTester extends TestCase {
 	 * @param m_cache to test against - gets cleared out as a side effect of tests
 	 * @param m_asset that does not access or add data to m_cache under the hood
 	 */
-	public CacheManagerTester ( String s_test_name, CacheManager m_cache, AssetRetriever m_asset ) {
-		super( s_test_name );
+    @Inject
+	public CacheManagerTester ( CacheManager m_cache, AssetRetriever m_asset ) {
+		setName( "testCache" );
 		om_cache = m_cache;
 		om_asset = m_asset;
 	}
@@ -43,6 +51,7 @@ public class CacheManagerTester extends TestCase {
 	/**
      * Clear the cache
 	 */
+    @Override
 	public void setUp () {
 		om_cache.clear ();
 	}
@@ -50,6 +59,7 @@ public class CacheManagerTester extends TestCase {
 	/**
 	 * call setup
 	 */
+    @Override
 	public void tearDown () {
 		setUp ();
 	}
@@ -123,7 +133,4 @@ public class CacheManagerTester extends TestCase {
 	}
     
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

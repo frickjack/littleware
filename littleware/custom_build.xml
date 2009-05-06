@@ -36,6 +36,7 @@
 	 <pathelement location="${jardir}/proxool-0.9.1.jar" />
      <pathelement location="${jardir}/proxool-cglib.jar" />
      <pathelement location="${jardir}/postgresql-8.3-603.jdbc4.jar" />
+     <pathelement location="${jardir}/mysql-connector-java-3.1.14-bin.jar" />
      <pathelement location="${jardir}/felix-1.4.jar" />
  </path>
  <path id="serverclasspath">

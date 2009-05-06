@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -10,16 +8,16 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
 package littleware.security.auth.server.db.postgres;
 
+import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.UUID;
 import java.sql.*;
 
 import littleware.asset.server.AbstractDbWriter;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.JdbcTransaction;
 import littleware.base.UUIDFactory;
 
 
@@ -39,8 +37,8 @@ public class DbPasswordSaver extends AbstractDbWriter<String> {
 	 *
 	 * @param u_user id to stash
 	 */
-	public DbPasswordSaver ( UUID u_user, TransactionManager mgr_trans ) {
-		super ( os_query, true, mgr_trans );
+	public DbPasswordSaver ( UUID u_user, Provider<JdbcTransaction> provideTrans ) {
+		super ( os_query, true, provideTrans );
 		ou_user = u_user;
 	}
 	
@@ -54,6 +52,7 @@ public class DbPasswordSaver extends AbstractDbWriter<String> {
 	 * @return result of sql_stmt.execute()
 	 * @exception SQLException pass through exceptions thrown by sql_stmt access
 	 */
+    @Override
 	public boolean saveObject ( PreparedStatement sql_stmt, String s_password ) throws SQLException {
 		if ( (null == s_password) 
 			 || (s_password.length () < 6)

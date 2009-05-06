@@ -18,10 +18,11 @@ import javax.persistence.Persistence;
  * EntityManager Guice injection when run within a J2EE container
  * that manages our PersistenceManager setup for us.
  */
-public class J2EEGuice implements Module {
+public class J2EEGuice extends AbstractGuice {
 
     @Override
     public void configure(Binder binder) {
+        super.configure( binder );
         binder.bind(EntityManagerFactory.class).toInstance(
                 Persistence.createEntityManagerFactory("littlewarePU"));
     }

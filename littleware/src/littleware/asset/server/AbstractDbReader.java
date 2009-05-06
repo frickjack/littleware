@@ -1,5 +1,6 @@
 package littleware.asset.server;
 
+import com.google.inject.Provider;
 import java.sql.SQLException;
 
 import littleware.db.DbSimpleReader;
@@ -9,17 +10,18 @@ import littleware.db.DbSimpleReader;
  * its db connection from TransactionManager.getConnection.
  */
 public abstract class AbstractDbReader<T,R> extends DbSimpleReader<T,R> {
-    private final TransactionManager   omgr_trans;
+    private final Provider<JdbcTransaction> oprovideTrans;
 
     /** Constructor calls through to super */
-	public AbstractDbReader ( String s_query, boolean b_is_function, TransactionManager mgr_trans ) {
+	public AbstractDbReader ( String s_query, boolean b_is_function, Provider<JdbcTransaction> provideTrans ) {
         super ( s_query, b_is_function );
-        omgr_trans = mgr_trans;
+        oprovideTrans = provideTrans;
     }
     
 	
+    @Override
     public T loadObject( R x_arg ) throws SQLException {
-        JdbcTransaction  trans_me = (JdbcTransaction) omgr_trans.getThreadTransaction ();
+        JdbcTransaction  trans_me = oprovideTrans.get();
         trans_me.startDbAccess ();
         try {
             return loadObject ( trans_me.getConnection (),

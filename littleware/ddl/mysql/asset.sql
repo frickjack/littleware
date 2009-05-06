@@ -10,6 +10,20 @@
 
 
 --
+-- Homebrew transaction counter.
+-- Single-row table - should be accessed/updated from
+-- within a transaction.
+--
+CREATE TABLE littleware.littleTran (
+	i_id          INTEGER PRIMARY KEY,
+	l_transaction BIGINT
+);
+
+INSERT INTO littleware.littleTran( i_id, l_transaction ) VALUES ( 0, 1 );
+
+GRANT SELECT, UPDATE ON littleware.littleTran TO littleware_user;
+
+--
 -- Record the id's associated with the
 --    littleware.security.LittlePermission
 -- dynamic enum here too for convenience.

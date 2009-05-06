@@ -97,6 +97,7 @@ public abstract class ServerTestLauncher extends TestSuite implements BundleActi
 
         if ( ! SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater( new Runnable() {
+                @Override
                 public void run() {
                     createAndShowGUI();
                 }
@@ -111,29 +112,37 @@ public abstract class ServerTestLauncher extends TestSuite implements BundleActi
                     );
 
             // Create a bogus LittleUser
-            LittleUser userTest = osearch.getByName(OS_TEST_USER, SecurityAssetType.USER );
-            final Subject subject = new Subject();
-            subject.getPrincipals().add( userTest );
+            LittleUser userTest = null; //osearch.getByName(OS_TEST_USER, SecurityAssetType.USER );
+            //userTest.setName( "littleware.test_user" );
+            //userTest.setObjectId( UUIDFactory.parseUUID( "7AC5D21049254265B224B7512EFCF0D1"));
+                    //
+            final Subject subject = null; //new Subject();
+            //subject.getPrincipals().add( userTest );
 
             final String[] ov_launch_args = {"-noloading", this.getClass().getName() };
 
             PrivilegedAction<Object> action = new PrivilegedAction<Object>() {
 
+                @Override
                 public Object run() {
                     junit.swingui.TestRunner.main(ov_launch_args);
                     //junit.textui.TestRunner.main( v_launch_args );
                     return null;
                 }
             };
-            Subject.doAs(subject, action);
+            // Hard code for simple test case
+            action.run();
+            //Subject.doAs(subject, action);
         } catch (Exception e) {
             olog.log(Level.SEVERE, "Caught unexpected: " + e + ", " + littleware.base.BaseException.getStackTrace(e));
         }
     }
 
     
+    @Override
     public void start(BundleContext ctx) throws Exception {
         SwingUtilities.invokeLater( new Runnable() {
+            @Override
             public void run () {
                 createAndShowGUI();
             }
@@ -141,6 +150,7 @@ public abstract class ServerTestLauncher extends TestSuite implements BundleActi
     }
 
     /** NOOP default implementation */
+    @Override
     public void stop(BundleContext ctx) throws Exception {
     }
 }

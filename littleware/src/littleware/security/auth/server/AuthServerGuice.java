@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
@@ -25,9 +23,10 @@ import littleware.security.auth.server.db.postgres.PostgresDbAuthManager;
  */
 public class AuthServerGuice implements Module {
 
+    @Override
     public void configure(Binder binder) {
         binder.bind( SessionManager.class ).to( SimpleSessionManager.class ).in( Scopes.SINGLETON );
-        binder.bind( DbAuthManager.class ).to( PostgresDbAuthManager.class ).in( Scopes.SINGLETON );
+        //binder.bind( DbAuthManager.class ).to( PostgresDbAuthManager.class ).in( Scopes.SINGLETON );
         binder.bind( ServiceProviderRegistry.class ).to( SimpleServiceProviderRegistry.class ).in( Scopes.SINGLETON );
     }
 

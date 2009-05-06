@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -13,13 +11,14 @@
 
 package littleware.asset.server.db.postgres;
 
+import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.*;
 import java.sql.*;
 
 import littleware.asset.server.AbstractDbReader;
 import littleware.asset.*;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.JdbcTransaction;
 import littleware.base.*;
 import littleware.db.*;
 
@@ -33,19 +32,19 @@ public class DbChildIdLoader extends AbstractDbReader<Map<String,UUID>,String> {
 	
 	private UUID      ou_from = null;
 	private AssetType on_type = null;
-    private final TransactionManager  omgr_trans;
+    private final Provider<JdbcTransaction>  oprovideTrans;
 
 
 	/**
      * Constructor registers query with super-class,
      * and stashes the local client id.
 	 */
-	public DbChildIdLoader ( UUID u_from, AssetType n_type, int i_client_id, TransactionManager mgr_trans ) {
-		super ( "SELECT * FROM littleware.getChildIdDictionary( ?, ?, ? )", false, mgr_trans );
+	public DbChildIdLoader ( UUID u_from, AssetType n_type, int i_client_id, Provider<JdbcTransaction> provideTrans ) {
+		super ( "SELECT * FROM littleware.getChildIdDictionary( ?, ?, ? )", false, provideTrans );
 		ou_from = u_from;
 		on_type = n_type;
         oi_client_id = i_client_id;
-        omgr_trans = mgr_trans;
+        oprovideTrans = provideTrans;
 	}
 	
 	/**
@@ -75,8 +74,9 @@ public class DbChildIdLoader extends AbstractDbReader<Map<String,UUID>,String> {
 	 * @return name to id map
 	 * @exception SQLException on failure to extract data
 	 */
+    @Override
 	public Map<String,UUID> loadObject( ResultSet sql_rset ) throws SQLException {
-		JdbcDbReader<Map<String,UUID>,String> db_home_reader = new DbHomeIdLoader ( oi_client_id, omgr_trans );
+		JdbcDbReader<Map<String,UUID>,String> db_home_reader = new DbHomeIdLoader ( oi_client_id, oprovideTrans );
 		return db_home_reader.loadObject ( sql_rset );
 	}
 }

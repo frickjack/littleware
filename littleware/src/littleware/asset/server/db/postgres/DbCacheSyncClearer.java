@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -13,10 +11,11 @@
 package littleware.asset.server.db.postgres;
 
 
+import com.google.inject.Provider;
 import java.sql.*;
 
 import littleware.asset.server.AbstractDbWriter;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.JdbcTransaction;
 
 
 /**
@@ -34,8 +33,8 @@ public class DbCacheSyncClearer
      *
      * @param i_client_id
 	 */
-	public DbCacheSyncClearer ( int i_client_id, TransactionManager mgr_trans ) {
-		super ( "{ ? = call littleware.clearCache( ? ) }", true, mgr_trans );
+	public DbCacheSyncClearer ( int i_client_id, Provider<JdbcTransaction> provideTrans ) {
+		super ( "{ ? = call littleware.clearCache( ? ) }", true, provideTrans );
         oi_client_id = i_client_id;
 	}
 	
@@ -49,6 +48,7 @@ public class DbCacheSyncClearer
 	 * @return result of sql_stmt.execute()
 	 * @exception SQLException pass through exceptions thrown by sql_stmt access
 	 */
+    @Override
 	public boolean saveObject ( PreparedStatement sql_stmt, String s_ignore ) throws SQLException {
 		CallableStatement sql_call = (CallableStatement) sql_stmt;
 		sql_call.registerOutParameter ( 1, Types.INTEGER );

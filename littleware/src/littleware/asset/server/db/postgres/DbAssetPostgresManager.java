@@ -13,6 +13,7 @@ package littleware.asset.server.db.postgres;
 
 import littleware.asset.server.CacheManager;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import java.util.*;
 import java.sql.SQLException;
@@ -20,8 +21,8 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.asset.*;
+import littleware.asset.server.JdbcTransaction;
 import littleware.asset.server.LittleTransaction;
-import littleware.asset.server.TransactionManager;
 import littleware.asset.server.db.*;
 import littleware.db.*;
 import littleware.base.AssertionFailedException;
@@ -33,7 +34,7 @@ public class DbAssetPostgresManager implements DbAssetManager {
     private static final Logger olog_generic = Logger.getLogger ( DbAssetPostgresManager.class.getName() );
 
     private  int   oi_client_id = 1;
-    private  final TransactionManager  om_trans;
+    private  final Provider<JdbcTransaction>  oprovideTrans;
 
 
     /**
@@ -41,56 +42,56 @@ public class DbAssetPostgresManager implements DbAssetManager {
      */
     @Inject
     public DbAssetPostgresManager ( @Named( "int.database_client_id" ) int i_client_id,
-            TransactionManager m_trans
+            Provider<JdbcTransaction> provideTrans
             ) {
         oi_client_id = i_client_id;
-        om_trans = m_trans;
+        oprovideTrans = provideTrans;
     }
     
     @Override
 	public DbWriter<Asset> makeDbAssetSaver ()
 	{
-		return new DbAssetSaver ( getClientId (), om_trans );
+		return new DbAssetSaver ( getClientId (), oprovideTrans );
 	}
 	
     @Override
 	public DbReader<Asset,UUID> makeDbAssetLoader () {
-		return new DbAssetLoader ( getClientId (), om_trans );
+		return new DbAssetLoader ( getClientId (), oprovideTrans );
 	}
 	
     @Override
 	public DbWriter<Asset> makeDbAssetDeleter () {
-		return new DbAssetDeleter ( getClientId (), om_trans );
+		return new DbAssetDeleter ( getClientId (), oprovideTrans );
 	}
 	
     @Override
 	public DbReader<Map<String,UUID>,String> makeDbHomeIdLoader () {
-		return new DbHomeIdLoader ( getClientId (), om_trans );
+		return new DbHomeIdLoader ( getClientId (), oprovideTrans );
 	}	
 	
     @Override
 	public DbReader<Map<String,UUID>,String> makeDbAssetIdsFromLoader ( UUID u_from, AssetType n_child_type )
 	{
-		return new DbChildIdLoader ( u_from, n_child_type, getClientId (), om_trans );
+		return new DbChildIdLoader ( u_from, n_child_type, getClientId (), oprovideTrans );
 	}
 	
     @Override
 	public DbReader<Set<Asset>,String> makeDbAssetsByNameLoader ( String s_name, AssetType n_type, UUID u_home )
 	{
-		return new DbAssetsByNameLoader ( s_name, n_type, u_home, getClientId (), om_trans );
+		return new DbAssetsByNameLoader ( s_name, n_type, u_home, getClientId (), oprovideTrans );
 	}
 
     
     @Override
     public DbWriter<String> makeDbCacheSyncClearer ()
     {
-        return new DbCacheSyncClearer ( getClientId (), om_trans );
+        return new DbCacheSyncClearer ( getClientId (), oprovideTrans );
     }
     
     @Override
     public DbReader<Map<UUID,Asset>,String> makeDbCacheSyncLoader ()
     {
-        return new DbCacheSyncLoader ( getClientId (), om_trans );
+        return new DbCacheSyncLoader ( getClientId (), oprovideTrans );
     }
     
     
@@ -123,7 +124,7 @@ public class DbAssetPostgresManager implements DbAssetManager {
             public void run () {
                 Date  t_last_error = new Date ( 0 );
                 final DbReader<Map<UUID,Asset>,String> db_sync = makeDbCacheSyncLoader ();
-                LittleTransaction trans_save = om_trans.getThreadTransaction();
+                final LittleTransaction trans_save = oprovideTrans.get();
                 while ( true ) {
                     try {
                         trans_save.startDbAccess();
@@ -183,7 +184,7 @@ public class DbAssetPostgresManager implements DbAssetManager {
     @Override
     public DbReader<Set<UUID>,String> makeDbAssetIdsToLoader ( UUID u_to, AssetType n_type )
     {
-        return new DbAssetIdsToLoader ( u_to, n_type, getClientId (), om_trans );
+        return new DbAssetIdsToLoader ( u_to, n_type, getClientId (), oprovideTrans );
     }
         
 

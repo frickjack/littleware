@@ -25,6 +25,7 @@ public class DbGuice implements Module {
     private static final Logger olog = Logger.getLogger( DbGuice.class.getName() );
 
 
+    @Override
     public void configure(Binder binder) {
         try {
             Properties props = PropertiesLoader.get().loadProperties( "littleware_jdbc.properties" );

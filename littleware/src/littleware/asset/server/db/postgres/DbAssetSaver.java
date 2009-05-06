@@ -11,13 +11,14 @@
 
 package littleware.asset.server.db.postgres;
 
+import com.google.inject.Provider;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import littleware.asset.*;
 import littleware.asset.server.AbstractDbWriter;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.JdbcTransaction;
 import littleware.base.*;
 
 /**
@@ -30,8 +31,8 @@ public class DbAssetSaver extends AbstractDbWriter<Asset> {
 	 * Constructor registers query with super-class,
      * and stashes the local client id.
 	 */
-	public DbAssetSaver ( int i_client_id, TransactionManager mgr_trans ) {
-		super ( "{ ? = call littleware.saveAsset( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) }", true, mgr_trans );
+	public DbAssetSaver ( int i_client_id, Provider<JdbcTransaction> provideTrans ) {
+		super ( "{ ? = call littleware.saveAsset( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) }", true, provideTrans );
         oi_client_id = i_client_id;
 	}
 	
@@ -46,6 +47,7 @@ public class DbAssetSaver extends AbstractDbWriter<Asset> {
 	 * @return result of sql_stmt.execute()
 	 * @exception SQLException pass through exceptions thrown by sql_stmt access
 	 */
+    @Override
 	public boolean saveObject ( PreparedStatement sql_stmt, Asset a_object ) throws SQLException {
 		CallableStatement sql_call = (CallableStatement) sql_stmt;
 		sql_call.registerOutParameter ( 1, Types.BIGINT );

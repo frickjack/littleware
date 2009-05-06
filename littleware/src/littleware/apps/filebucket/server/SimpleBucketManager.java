@@ -11,6 +11,7 @@
 package littleware.apps.filebucket.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import java.io.*;
 import java.rmi.RemoteException;
@@ -23,7 +24,7 @@ import littleware.apps.filebucket.*;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.asset.*;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.LittleTransaction;
 
 
 /**
@@ -39,7 +40,7 @@ public class SimpleBucketManager implements BucketManager {
     private final  String[]               ov_root;
     private final AssetSearchManager      om_search;
     private final AssetManager            om_asset;
-    private final TransactionManager      om_trans;
+    private final Provider<LittleTransaction>      oprovideTrans;
     
     /** 
      * Contructor takes user-suppled AssetSearchManager
@@ -49,12 +50,12 @@ public class SimpleBucketManager implements BucketManager {
      */
     @Inject
     public SimpleBucketManager ( AssetSearchManager m_search, AssetManager m_asset,
-            TransactionManager m_trans,
+            Provider<LittleTransaction> provideTrans,
             @Named( "littleware.bucket.root" ) String s_root
             ) {
         om_search = m_search;
         om_asset = m_asset;
-        om_trans = m_trans;
+        oprovideTrans = provideTrans;
         os_root_root = s_root;
         ov_root = new String[] {
             os_root_root + "/Library/LittlewareAssets/Volume1",
@@ -146,7 +147,8 @@ public class SimpleBucketManager implements BucketManager {
         AssetException, IOException, RemoteException, BucketException
     {
         checkBucketPath ( s_path );
-        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
         try {
             // increment transaction count before writing anything - verify write permission
             olog_generic.log ( Level.FINE, "Writing to bucket " + a_bucket + ", path: " + s_path );
@@ -168,7 +170,7 @@ public class SimpleBucketManager implements BucketManager {
             }
             return a_bucket;
         } finally {
-            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
+            trans.endDbAccess ( v_cache );
         }
     }
     
@@ -188,7 +190,8 @@ public class SimpleBucketManager implements BucketManager {
         AssetException, RemoteException, BucketException, IOException
     {
         checkBucketPath ( s_path );
-        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
         try {
             Asset             a_bucket = om_search.getAsset ( u_asset );
             File              file_data = new File ( getBucketPath ( a_bucket ), s_path );
@@ -201,7 +204,7 @@ public class SimpleBucketManager implements BucketManager {
                 streamin_data.close ();
             }
         } finally {
-            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
+            trans.endDbAccess ( v_cache );
         }        
     }
     
@@ -213,7 +216,8 @@ public class SimpleBucketManager implements BucketManager {
         AssetException, RemoteException, BucketException, IOException
     {
         checkBucketPath ( s_path );
-        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
         try {
             File              file_data = new File ( getBucketPath ( a_bucket ), s_path );
             
@@ -224,7 +228,7 @@ public class SimpleBucketManager implements BucketManager {
             file_data.delete ();
             return a_bucket;
         } finally {
-            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
+            trans.endDbAccess ( v_cache );
         }        
     }
     
@@ -237,7 +241,8 @@ public class SimpleBucketManager implements BucketManager {
     {
         checkBucketPath ( s_start_path );
         checkBucketPath ( s_rename_path );
-        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
         try {
             File              file_data = new File ( getBucketPath ( a_bucket ), s_start_path );
             File              file_rename = new File ( getBucketPath ( a_bucket ), s_rename_path );
@@ -249,7 +254,7 @@ public class SimpleBucketManager implements BucketManager {
             file_data.renameTo ( file_rename );
             return a_bucket;
         } finally {
-            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
+            trans.endDbAccess ( v_cache );
         }                
     }
     
@@ -261,13 +266,14 @@ public class SimpleBucketManager implements BucketManager {
                              ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
     {
-        Map<UUID,Asset> v_cache = om_trans.getThreadTransaction ().startDbAccess ();
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
         try {
             // Do a read, then a write
             byte[] v_data = readBytesFromBucket ( u_in, s_in_path );
             return writeToBucket ( a_out, s_copy_path, v_data, s_update_comment );
         } finally {
-            om_trans.getThreadTransaction ().endDbAccess ( v_cache );
+            trans.endDbAccess ( v_cache );
         }                            
     }
 }

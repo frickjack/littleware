@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -13,12 +11,12 @@
 
 package littleware.security.auth.server.db.postgres;
 
+import com.google.inject.Provider;
 import java.sql.*;
 import java.util.UUID;
 
 import littleware.asset.server.AbstractDbReader;
-import littleware.asset.server.TransactionManager;
-import littleware.db.*;
+import littleware.asset.server.JdbcTransaction;
 import littleware.base.UUIDFactory;
 
 /**
@@ -35,8 +33,8 @@ public class DbPasswordLoader extends AbstractDbReader<Boolean,String> {
 	 * 
 	 * @param u_user id of user to check password
 	 */
-	public DbPasswordLoader ( UUID u_user, TransactionManager mgr_trans ) {
-		super ( os_query, false, mgr_trans );
+	public DbPasswordLoader ( UUID u_user, Provider<JdbcTransaction> provideTrans ) {
+		super ( os_query, false, provideTrans );
 		ou_user = u_user;
 	}
 		
@@ -47,6 +45,7 @@ public class DbPasswordLoader extends AbstractDbReader<Boolean,String> {
 	 * @param s_password to check
 	 * @return ResultSet from execution of query or callable statement
 	 */
+    @Override
 	public ResultSet executeStatement( PreparedStatement sql_stmt, String s_password ) throws SQLException {
 		sql_stmt.setString ( 1, UUIDFactory.makeCleanString ( ou_user ) );
 		sql_stmt.setString ( 2, s_password );
@@ -58,6 +57,7 @@ public class DbPasswordLoader extends AbstractDbReader<Boolean,String> {
 	 * 
 	 * @return true if password check succeeds, false otherwise
 	 */
+    @Override
 	public Boolean loadObject ( ResultSet sql_rset ) throws SQLException {
 		if ( ! sql_rset.next () ) {
 			return Boolean.FALSE;

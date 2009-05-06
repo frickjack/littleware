@@ -1,5 +1,17 @@
+/*
+ * Copyright 2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.test;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.sql.Connection;
 import java.sql.Savepoint;
 import java.sql.SQLException;
@@ -10,19 +22,19 @@ import java.util.logging.Level;
 import junit.framework.*;
 
 import littleware.asset.*;
-import littleware.asset.server.TransactionManager;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.JdbcTransaction;
 import littleware.base.*;
+import littleware.test.LittleTest;
 
 
 /**
  * Test littleware.asset.server.TransactionManager and supporting classes
  */
-public class TransactionTester extends TestCase {
+public class TransactionTester extends LittleTest {
 	private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.test.TransactionTester" );
 
-    private final TransactionManager   omgr_trans;
+    private final Provider<LittleTransaction>   oprovideTrans;
 
 
     /** No setup necessary */
@@ -36,9 +48,10 @@ public class TransactionTester extends TestCase {
     /**
      * Just call through to super
      */
-    public TransactionTester ( String s_test_name, TransactionManager mgr_trans ) {
-        super ( s_test_name );
-        omgr_trans = mgr_trans;
+    @Inject
+    public TransactionTester ( Provider<LittleTransaction> provideTrans ) {
+        setName ( "testTransactionManager" );
+        oprovideTrans = provideTrans;
     }
     
     /**
@@ -46,7 +59,7 @@ public class TransactionTester extends TestCase {
      */
     public void testTransactionManager () {
         try {
-            LittleTransaction  trans_test = omgr_trans.getThreadTransaction ();
+            final LittleTransaction  trans_test = oprovideTrans.get ();
             Map<UUID,Asset>  v_cache = trans_test.startDbAccess ();
             assertTrue ( "TransactionManager maintains a singleton cache",
                          v_cache == trans_test.startDbAccess ()
@@ -73,7 +86,7 @@ public class TransactionTester extends TestCase {
      * Assumes that TransactionManager.getTheThreadTransaction returns a JdbcTranaction.
      */
     public void testSavepoint () {
-        JdbcTransaction  trans_test = (JdbcTransaction) omgr_trans.getThreadTransaction ();
+        JdbcTransaction  trans_test = (JdbcTransaction) oprovideTrans.get ();
         try {
             trans_test.startDbUpdate ();
             try {
@@ -89,7 +102,4 @@ public class TransactionTester extends TestCase {
         }
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -13,6 +11,7 @@
 
 package littleware.asset.server.db.postgres;
 
+import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.UUID;
@@ -20,7 +19,7 @@ import java.sql.*;
 
 import littleware.asset.server.AbstractDbReader;
 import littleware.asset.*;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.JdbcTransaction;
 import littleware.base.*;
 
 
@@ -36,11 +35,11 @@ public class DbAssetLoader extends AbstractDbReader<Asset,UUID> {
 	 * Constructor registers query with super-class,
      * and stashes the local client id.
 	 */
-	public DbAssetLoader ( int i_client_id, TransactionManager mgr_trans ) {
+	public DbAssetLoader ( int i_client_id, Provider<JdbcTransaction> provideTrans ) {
 		//super ( "{ ? = call littleware.getAsset( ? ) }", true );
 		super( "SELECT * FROM littleware.getAsset( ?, ? )", // AS " +
 			   //"( s_id                VARCHAR, s_name              VARCHAR, s_id_home           VARCHAR, l_last_transaction  BIGINT,  s_pk_type           VARCHAR, s_id_creator        VARCHAR, s_id_updater        VARCHAR, s_id_owner          VARCHAR, f_value             NUMERIC, s_id_acl            VARCHAR, s_comment           VARCHAR, s_last_change       VARCHAR, s_data              VARCHAR, s_id_from           VARCHAR, s_id_to             VARCHAR, t_created           TIMESTAMP, t_updated           TIMESTAMP, t_last_accessed     TIMESTAMP, t_start             TIMESTAMP, t_end  TIMESTAMP) ", 
-			   false, mgr_trans );
+			   false, provideTrans );
         oi_client_id = i_client_id;
 	}
 	
@@ -119,6 +118,7 @@ public class DbAssetLoader extends AbstractDbReader<Asset,UUID> {
 	 * @return Asset or null if no data
 	 * @exception SQLException on failure to extract data
 	 */
+    @Override
 	public Asset loadObject( ResultSet sql_rset ) throws SQLException {
 		if ( ! sql_rset.next () ) {
 			return null;

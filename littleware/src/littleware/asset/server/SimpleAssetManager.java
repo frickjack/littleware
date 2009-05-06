@@ -11,8 +11,10 @@
 package littleware.asset.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.rmi.RemoteException;
-import java.security.*;
+
+import java.security.GeneralSecurityException;
 import java.security.acl.*;
 import java.sql.SQLException;
 import java.util.*;
@@ -62,7 +64,7 @@ public class SimpleAssetManager implements AssetManager {
     private final Factory<UUID> ofactory_uuid = UUIDFactory.getFactory();
     private final QuotaUtil     oquota;
     private final AssetSpecializerRegistry  oregistry_special;
-    private final TransactionManager        omgr_trans;
+    private final Provider<LittleTransaction>        oprovideTrans;
     private final DeleteCBProvider oprovideBucketCB;
 
     /**
@@ -85,7 +87,7 @@ public class SimpleAssetManager implements AssetManager {
             QuotaUtil quota,
             AssetSpecializerRegistry  registry_special,
             com.google.inject.Provider<LittleTransaction> provide_trans,
-            TransactionManager  mgr_trans,
+            Provider<LittleTransaction>  provideTrans,
             littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB
             ) {
         om_cache = m_cache;
@@ -94,7 +96,7 @@ public class SimpleAssetManager implements AssetManager {
         oquota = quota;
         oregistry_special = registry_special;
         oprovide_trans = provide_trans;
-        omgr_trans = mgr_trans;
+        oprovideTrans = provideTrans;
         oprovideBucketCB = provideBucketCB;
     }
 
@@ -146,7 +148,7 @@ public class SimpleAssetManager implements AssetManager {
             a_asset.setLastUpdaterId(p_caller.getObjectId());
             a_asset.setLastUpdate(s_update_comment);
 
-            LittleTransaction trans_delete = omgr_trans.getThreadTransaction();
+            final LittleTransaction trans_delete = oprovideTrans.get();
             boolean b_rollback = true;
             trans_delete.startDbUpdate();
             try {
@@ -192,7 +194,7 @@ public class SimpleAssetManager implements AssetManager {
         }
 
         // Don't lookup the same asset more than once in this transaction
-        LittleTransaction trans_save = omgr_trans.getThreadTransaction();
+        final LittleTransaction trans_save = oprovideTrans.get();
         Map<UUID, Asset> v_cache = trans_save.startDbAccess();
         // Don't save the same asset more than once in this transaction
         Map<UUID, Asset> v_save_cycle = othread_save_cycle.get().startDbAccess();
@@ -330,7 +332,6 @@ public class SimpleAssetManager implements AssetManager {
                     sql_writer.saveObject(a_asset);
                     om_cache.put(a_asset.getObjectId(), a_asset);
 
-
                     v_save_cycle.put(a_asset.getObjectId(), a_asset);
                     v_cache.put(a_asset.getObjectId(), a_asset);
 
@@ -353,7 +354,7 @@ public class SimpleAssetManager implements AssetManager {
 
         } finally {
             othread_save_cycle.get().endDbAccess(v_save_cycle);
-            omgr_trans.getThreadTransaction().endDbAccess(v_cache);
+            trans_save.endDbAccess(v_cache);
         }
         return a_asset;
     }
@@ -361,7 +362,7 @@ public class SimpleAssetManager implements AssetManager {
     @Override
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets, String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        LittleTransaction trans_batch = omgr_trans.getThreadTransaction();
+        final LittleTransaction trans_batch = oprovideTrans.get();
         boolean b_rollback = true;
         try {
             List<Asset> v_result = new ArrayList<Asset>();

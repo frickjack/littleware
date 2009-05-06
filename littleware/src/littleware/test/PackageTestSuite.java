@@ -36,7 +36,7 @@ public class PackageTestSuite extends ServerTestLauncher {
     @Inject
     public PackageTestSuite(
             littleware.base.test.PackageTestSuite suite_base,
-            littleware.db.test.PackageTestSuite suite_db,
+            //littleware.db.test.PackageTestSuite suite_db,
             littleware.asset.test.PackageTestSuite suite_asset,
             littleware.security.test.PackageTestSuite suite_security,
             littleware.security.auth.server.SimpleDbLoginConfiguration config,
@@ -44,7 +44,7 @@ public class PackageTestSuite extends ServerTestLauncher {
             ) {
         super( PackageTestSuite.class.getName(), search );
         // disable server tests
-        final boolean b_run = true;
+        final boolean b_run = false;
 
         
         olog.log(Level.INFO, "Trying to setup littleware.test test suite");
@@ -56,10 +56,11 @@ public class PackageTestSuite extends ServerTestLauncher {
 
             if (b_run) {
                 olog.log(Level.INFO, "Trying to setup littleware.db test suite");
-                this.addTest( suite_db );
+                olog.log( Level.INFO, "Test disabled ... does not apply when running with JPA");
+                //this.addTest( suite_db );
             }
 
-            if ( b_run ) {
+            if ( true ) {
                 olog.log(Level.INFO, "Trying to setup littleware.asset test suite");
                 this.addTest( suite_asset );
             }
@@ -133,7 +134,7 @@ public class PackageTestSuite extends ServerTestLauncher {
      */
     @Override
     public void start(BundleContext ctx) throws Exception {
-        addClientTests();
+        //addClientTests();
         super.start( ctx );
     }
 

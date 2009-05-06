@@ -28,7 +28,6 @@ import littleware.asset.client.SimpleAssetManagerService;
 import littleware.asset.client.SimpleAssetSearchService;
 import littleware.asset.server.RmiAssetManager;
 import littleware.asset.server.RmiSearchManager;
-import littleware.asset.server.TransactionManager;
 import littleware.base.BaseException;
 import littleware.security.AccountManager;
 import littleware.security.server.AclManager;
@@ -61,15 +60,14 @@ public class ServerActivator implements BundleActivator {
             final AssetSearchManager mgr_search,
             final AssetManager mgr_asset,
             final AccountManager mgr_account,
-            final AclManager     mgr_acl,
-            final TransactionManager mgr_transaction,
-            final DbAuthManager      dbauth
+            final AclManager     mgr_acl
+            //final DbAuthManager      dbauth
             )
     {
         omgr_session = mgr_session;
         omgr_cache = mgr_cache;
         oi_registry_port = i_registry_port;
-        SimpleDbLoginModule.start( mgr_account, dbauth, mgr_transaction );
+        //SimpleDbLoginModule.start( mgr_account, dbauth, mgr_transaction );
         reg_service.registerService( ServiceType.ACCOUNT_MANAGER,
                 new AbstractServiceProviderFactory<AccountManagerService> ( ServiceType.ACCOUNT_MANAGER, mgr_search ) {
                     @Override

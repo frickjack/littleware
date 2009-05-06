@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -12,13 +10,14 @@
 
 package littleware.asset.server.db.postgres;
 
+import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.*;
 import java.sql.*;
 
 import littleware.asset.*;
 import littleware.asset.server.AbstractDbReader;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.JdbcTransaction;
 import littleware.base.*;
 
 
@@ -36,8 +35,8 @@ public class DbAssetIdsToLoader extends AbstractDbReader<Set<UUID>,String> {
      * Constructor registers query with super-class,
      * and stashes the local client id.
 	 */
-	public DbAssetIdsToLoader ( UUID u_to, AssetType n_type, int i_client_id, TransactionManager mgr_trans ) {
-		super ( "SELECT * FROM littleware.getAssetIdsTo( ?, ?, ? )", false, mgr_trans );
+	public DbAssetIdsToLoader ( UUID u_to, AssetType n_type, int i_client_id, Provider<JdbcTransaction> provideTrans ) {
+		super ( "SELECT * FROM littleware.getAssetIdsTo( ?, ?, ? )", false, provideTrans );
 		ou_to = u_to;
 		on_type = n_type;
         oi_client_id = i_client_id;
@@ -70,6 +69,7 @@ public class DbAssetIdsToLoader extends AbstractDbReader<Set<UUID>,String> {
 	 * @return name to id map
 	 * @exception SQLException on failure to extract data
 	 */
+    @Override
 	public Set<UUID> loadObject( ResultSet sql_rset ) throws SQLException {
         Set<UUID> v_result = new HashSet<UUID> ();
         

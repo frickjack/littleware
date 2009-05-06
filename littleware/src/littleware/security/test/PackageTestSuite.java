@@ -67,38 +67,8 @@ public class PackageTestSuite extends TestSuite {
 		olog.log ( Level.INFO, "Trying to setup littleware.security test suite" );
 		
 		olog.log ( Level.INFO, "Registering littleware SimpleDbLoginConfiguration" );
-		boolean        b_run = true;
+		boolean        b_run = false;
 
-        /*... deprecated tests ...
-		if ( b_run ) {
-			this.addTest ( new LoginTester ( "testLogin", ServerTestLauncher.OS_TEST_USER,
-												   ServerTestLauncher.OS_TEST_USER_PASSWORD, om_session
-												   ) 
-								 );
-            this.addTest ( new LoginTester ( "testClientModuleLogin", ServerTestLauncher.OS_TEST_USER,
-												   ServerTestLauncher.OS_TEST_USER_PASSWORD, om_session
-												   ) 
-								 );            
-		}
-		if ( b_run ) {
-			this.addTest ( new LoginTester ( "testSessionSetup",
-												   ServerTestLauncher.OS_TEST_USER, 
-												   ServerTestLauncher.OS_TEST_USER_PASSWORD, 
-												   //ServerTestLauncher.OS_TEST_USER, 
-												   //ServerTestLauncher.OS_TEST_USER_PASSWORD,
-												   om_session
-												   ) 
-								 );
-		}
-		if ( b_run ) {
-			this.addTest ( new LoginTester ( "testSessionUtil",
-												   ServerTestLauncher.OS_TEST_USER, 
-												   ServerTestLauncher.OS_TEST_USER_PASSWORD, 
-												   om_session
-												   )
-								 );
-		}
-		*/
 		if ( b_run ) {
 			try {
 				Principal p_administrator = om_account.getPrincipal ( AccountManager.LITTLEWARE_ADMIN );

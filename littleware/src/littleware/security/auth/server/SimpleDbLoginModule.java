@@ -13,6 +13,7 @@
 
 package littleware.security.auth.server;
 
+import com.google.inject.Provider;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -25,7 +26,6 @@ import javax.security.auth.callback.*;
 // disable for now import org.apache.slide.jaas.spi.*;
 
 import littleware.asset.server.LittleTransaction;
-import littleware.asset.server.TransactionManager;
 import littleware.base.UUIDFactory;
 import littleware.db.*;
 import littleware.security.*;
@@ -65,15 +65,15 @@ public class SimpleDbLoginModule implements LoginModule {
 
     private static AccountManager om_account = null;
     private static DbAuthManager om_dbauth = null;
-    private static TransactionManager  omgr_trans = null;
+    private static Provider<LittleTransaction>  oprovideTrans = null;
 
     /**
      * Inject the dependencies
      */
-    public static void start( AccountManager m_account, DbAuthManager m_dbauth, TransactionManager mgr_trans ) {
+    public static void start( AccountManager m_account, DbAuthManager m_dbauth, Provider<LittleTransaction> provideTrans ) {
         om_account = m_account;
         om_dbauth = m_dbauth;
-        omgr_trans = mgr_trans;
+        oprovideTrans = provideTrans;
     }
 
     
@@ -86,6 +86,7 @@ public class SimpleDbLoginModule implements LoginModule {
      * @param v_shared_state map shared with other login modules
      * @param v_options login options
      */
+    @Override
     public void initialize(Subject j_subject,
             CallbackHandler x_handler,
             Map v_shared_state,
@@ -100,6 +101,7 @@ public class SimpleDbLoginModule implements LoginModule {
      * @return true if authentication succeeds, false to ignore this module
      * @exception LoginException if authentication fails
      */
+    @Override
     public boolean login() throws LoginException {
         if (null == ox_handler) {
             throw new LoginException("No CallbackHandler registered with module");
@@ -134,7 +136,7 @@ public class SimpleDbLoginModule implements LoginModule {
         }
 
         // disable for now - no good way to inject TransactionManager ...
-        LittleTransaction trans_login = omgr_trans.getThreadTransaction();
+        final LittleTransaction trans_login = oprovideTrans.get();
         trans_login.startDbAccess();
         try {
             LittleUser user = (LittleUser) om_account.getPrincipal(s_user);
@@ -181,6 +183,7 @@ public class SimpleDbLoginModule implements LoginModule {
      *
      * @exception LoginException if commit fails
      */
+    @Override
     public boolean commit() throws LoginException {
         return true;
     }
@@ -190,6 +193,7 @@ public class SimpleDbLoginModule implements LoginModule {
      *
      * @exception LoginException if abort fails
      */
+    @Override
     public boolean abort() {
         return true;
     }
@@ -200,6 +204,7 @@ public class SimpleDbLoginModule implements LoginModule {
      * @return true if logout ok, false to ignore this module
      * @exception LoginException if logout fails
      */
+    @Override
     public boolean logout() throws LoginException {
         return true;
     }

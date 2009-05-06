@@ -23,12 +23,10 @@ import littleware.asset.*;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.asset.pickle.PickleMaker;
 import littleware.asset.pickle.PickleType;
-import littleware.asset.server.db.*;
 import littleware.asset.server.db.test.*;
 import littleware.asset.server.RmiAssetManager;
 import littleware.asset.server.SimpleAssetManager;
 import littleware.asset.server.SimpleAssetSearchManager;
-import littleware.asset.server.TransactionManager;
 import littleware.base.stat.*;
 
 /**
@@ -42,12 +40,16 @@ public class PackageTestSuite extends TestSuite {
      * Inject dependencies necessary to setup the TestSuite
      */
     @Inject
-    public PackageTestSuite(DbAssetManager m_dbasset, CacheManager m_cache,
+    public PackageTestSuite(
+            CacheManager m_cache,
             SimpleAssetManager m_asset,
             SimpleAssetSearchManager m_search,
-            TransactionManager mgr_trans) {
+            Provider<CacheManagerTester> provideCacheTester,
+            Provider<TransactionTester> provideTransTester,
+            Provider<DbAssetManagerTester> provideDbTester
+            ) {
         super(PackageTestSuite.class.getName());
-        boolean b_run = true;
+        boolean b_run = false;
 
         if (b_run) {
             this.addTest(new PickleTester(new HumanPicklerProvider()));
@@ -61,21 +63,23 @@ public class PackageTestSuite extends TestSuite {
                     }));
         }
 
-        if (b_run) {
-            this.addTest(new DbAssetManagerTester("testLoad", m_dbasset));
+        if (true) {
+            this.addTest( provideDbTester.get() );
+            this.addTest( provideDbTester.get().putName( "testCreateUpdateDelete" ) );
         }
 
         if (b_run) {
-            this.addTest(new CacheManagerTester("testCache",
-                    m_cache,
-                    m_search));
+            this.addTest( provideCacheTester.get() );
 
             // Test the non-cacheing AssetRetriever while we're at it
             this.addTest(new AssetRetrieverTester("testLoad", m_search));
         }
         if (b_run) {
-            this.addTest(new TransactionTester("testTransactionManager", mgr_trans));
-            this.addTest(new TransactionTester("testSavepoint", mgr_trans));
+            this.addTest( provideTransTester.get() );
+        }
+        if ( false ) {
+            // this test only applies for JdbcLittleTransaction db implementation
+            this.addTest(provideTransTester.get().putName("testSavepoint") );
         }
 
         //AssetRetriever     m_retriever = new LocalAssetRetriever ( om_dbasset, om_cache, oregistry_special );

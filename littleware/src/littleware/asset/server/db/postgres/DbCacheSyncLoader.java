@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -12,6 +10,7 @@
 
 package littleware.asset.server.db.postgres;
 
+import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.*;
 import java.sql.*;
@@ -19,7 +18,7 @@ import java.sql.*;
 
 import littleware.asset.server.AbstractDbReader;
 import littleware.asset.*;
-import littleware.asset.server.TransactionManager;
+import littleware.asset.server.JdbcTransaction;
 import littleware.base.*;
 
 
@@ -35,15 +34,15 @@ public class DbCacheSyncLoader
 	private static final Logger olog_generic = Logger.getLogger ( DbCacheSyncLoader.class.getName() );
 	
 	private final int       oi_src;
-    private final TransactionManager  omgr_trans;
+    private final Provider<JdbcTransaction>  oprovideTrans;
 	
 	/**
      * Constructor registers query with super-class
 	 */
-	public DbCacheSyncLoader ( int i_src, TransactionManager mgr_trans ) {
-		super ( "SELECT * FROM littleware.synchCache( ? )", false, mgr_trans );
+	public DbCacheSyncLoader ( int i_src, Provider<JdbcTransaction> provideTrans ) {
+		super ( "SELECT * FROM littleware.synchCache( ? )", false, provideTrans );
 		oi_src = i_src;
-        omgr_trans = mgr_trans;
+        oprovideTrans = provideTrans;
 	}
 	
 	/**
@@ -64,8 +63,9 @@ public class DbCacheSyncLoader
      * Return mapping from UUID of changed assets to changed assets,
      * UUID to null if asset has been deleted.
      */
+    @Override
 	public Map<UUID,Asset> loadObject( ResultSet sql_rset ) throws SQLException {
-		DbAssetLoader db_loader = new DbAssetLoader ( oi_src, omgr_trans );
+		DbAssetLoader db_loader = new DbAssetLoader ( oi_src, oprovideTrans );
 		Map<UUID,Asset>    v_result = new HashMap<UUID,Asset> ();
 		
 		while ( sql_rset.next () ) {

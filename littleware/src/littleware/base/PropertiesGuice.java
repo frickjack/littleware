@@ -43,6 +43,7 @@ public class PropertiesGuice implements Module {
         oprop = prop;
     }
 
+    @Override
     public void configure( Binder binder_in ) {
         for( String s_key : oprop.stringPropertyNames() ) {
             String s_value = oprop.getProperty(s_key);
@@ -106,6 +107,10 @@ public class PropertiesGuice implements Module {
             data.setPassword( s_password );
             data.setMaximumConnectionCount( 10 );
             data.setMaximumActiveTime( 60000 );
+            binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(data);
+        } else if (s_url.startsWith("jdbc:mysql:")) {
+            com.mysql.jdbc.jdbc2.optional.MysqlDataSource data = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
+            data.setURL(s_url);
             binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(data);
         } else if (s_url.startsWith("jndi:")) {
             DataSource data = (DataSource) new InitialContext().lookup(s_url.substring("jndi:".length()));

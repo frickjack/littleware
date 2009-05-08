@@ -69,7 +69,7 @@ public interface DbAssetManager {
     /**
      * Create assets by name loader handler
      */
-    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(String s_name, AssetType n_type, UUID u_home);
+    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(String s_name, AssetType n_type );
 
     /**
      * Create database cache-data clearer.  Want to do this once at boot time.

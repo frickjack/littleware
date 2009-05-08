@@ -50,14 +50,6 @@ public class SimpleAssetManager implements AssetManager {
 
     private static final Logger olog_generic = Logger.getLogger( SimpleAssetManager.class.getName() );
 
-    private final com.google.inject.Provider<LittleTransaction>    oprovide_trans;
-    private final ThreadLocal<LittleTransaction> othread_save_cycle = new ThreadLocal<LittleTransaction>() {
-
-        @Override
-        protected LittleTransaction initialValue() {
-            return oprovide_trans.get();
-        }
-    };
     private final DbAssetManager om_db;
     private final CacheManager om_cache;
     private final AssetSearchManager om_search;
@@ -65,7 +57,31 @@ public class SimpleAssetManager implements AssetManager {
     private final QuotaUtil     oquota;
     private final AssetSpecializerRegistry  oregistry_special;
     private final Provider<LittleTransaction>        oprovideTrans;
+    private final Provider<LittleTransaction>        oprovideSaveCycle =
+            new ThreadLocalProvider<LittleTransaction> () {
+
+        @Override
+        protected LittleTransaction build() {
+            return new AbstractLittleTransaction() {
+
+                @Override
+                protected void endDbAccess(int iLevel) {
+
+                }
+
+                @Override
+                protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) throws SQLException {
+
+                }
+
+            };
+        }
+
+    };
+
     private final DeleteCBProvider oprovideBucketCB;
+
+    private int  olLastTransaction = 0;
 
     /**
      * Constructor sets up internal data source.
@@ -86,7 +102,6 @@ public class SimpleAssetManager implements AssetManager {
             DbAssetManager m_db,
             QuotaUtil quota,
             AssetSpecializerRegistry  registry_special,
-            com.google.inject.Provider<LittleTransaction> provide_trans,
             Provider<LittleTransaction>  provideTrans,
             littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB
             ) {
@@ -95,7 +110,6 @@ public class SimpleAssetManager implements AssetManager {
         om_db = m_db;
         oquota = quota;
         oregistry_special = registry_special;
-        oprovide_trans = provide_trans;
         oprovideTrans = provideTrans;
         oprovideBucketCB = provideBucketCB;
     }
@@ -195,9 +209,9 @@ public class SimpleAssetManager implements AssetManager {
 
         // Don't lookup the same asset more than once in this transaction
         final LittleTransaction trans_save = oprovideTrans.get();
-        Map<UUID, Asset> v_cache = trans_save.startDbAccess();
+        final Map<UUID, Asset> v_cache = trans_save.startDbAccess();
         // Don't save the same asset more than once in this transaction
-        Map<UUID, Asset> v_save_cycle = othread_save_cycle.get().startDbAccess();
+        final Map<UUID, Asset> v_save_cycle = oprovideSaveCycle.get().startDbAccess();
 
         try {
             if (null == a_asset.getObjectId()) {
@@ -216,6 +230,13 @@ public class SimpleAssetManager implements AssetManager {
             olog_generic.log(Level.FINE, "Check pre-save");
             try {
                 if (null == a_old_asset) {
+                    if ( a_asset.getAssetType().isNameUnique() ) {
+                        final Asset aAlready = om_search.getByName( a_asset.getName(), a_asset.getAssetType() );
+                        if ( null != aAlready ) {
+                            throw new AlreadyExistsException( "Asset of type " + aAlready.getAssetType() + " with name " + a_asset.getName() + " already exists" );
+                        }
+                    }
+                        // Check name-unique asset types
                     // creating a new asset
                     a_asset.setCreatorId(p_caller.getObjectId());
                     // Check the caller's quota
@@ -236,6 +257,12 @@ public class SimpleAssetManager implements AssetManager {
                     // updating an existing asset
                     if (!a_old_asset.getAssetType().equals(a_asset.getAssetType())) {
                         throw new AccessDeniedException("May not change asset type");
+                    }
+                    if ( (! a_asset.getName().equals( a_old_asset.getName())) && a_asset.getAssetType().isNameUnique() ) {
+                        final Asset aAlready = om_search.getByName( a_asset.getName(), a_asset.getAssetType() );
+                        if ( null != aAlready ) {
+                            throw new AlreadyExistsException( "Asset of type " + a_asset.getAssetType() + " with name " + a_asset.getName() + " already exists" );
+                        }
                     }
                     if (!a_old_asset.getCreatorId().equals(a_asset.getCreatorId())) {
                         throw new AccessDeniedException("May not change asset creator");
@@ -353,7 +380,7 @@ public class SimpleAssetManager implements AssetManager {
             }
 
         } finally {
-            othread_save_cycle.get().endDbAccess(v_save_cycle);
+            oprovideSaveCycle.get().endDbAccess(v_save_cycle);
             trans_save.endDbAccess(v_cache);
         }
         return a_asset;

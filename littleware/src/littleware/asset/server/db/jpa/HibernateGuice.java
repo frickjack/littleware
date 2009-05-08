@@ -11,7 +11,6 @@ package littleware.asset.server.db.jpa;
 
 import com.google.inject.Binder;
 import com.google.inject.Inject;
-import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -26,6 +25,11 @@ import org.hibernate.ejb.Ejb3Configuration;
  */
 public class HibernateGuice extends AbstractGuice {
 
+    /**
+     * Subtypes can specialize and rebind this frickjack to add
+     * additional entity types
+     * for testing.
+     */
     @Singleton
     public static class FactoryProvider implements Provider<EntityManagerFactory> {
 
@@ -43,6 +47,8 @@ public class HibernateGuice extends AbstractGuice {
                 final Ejb3Configuration config = new org.hibernate.ejb.Ejb3Configuration(). //addAnnotatedClass( classOf[SimpleProqUpload] ).
                         addAnnotatedClass( AssetEntity.class ).
                         addAnnotatedClass( TransactionEntity.class ).
+                        addAnnotatedClass( AssetTypeEntity.class ).
+                        setProperty("hibernate.show_sql", "true").
                         setProperty("hibernate.dialect",
                                     "org.hibernate.dialect.MySQLDialect"
                                         );

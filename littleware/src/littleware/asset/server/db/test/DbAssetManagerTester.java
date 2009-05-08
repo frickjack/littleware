@@ -62,7 +62,7 @@ public class DbAssetManagerTester extends LittleTest {
 			assertTrue ( "Asset is of proper type", 
                     a_result.getAssetType().equals( AssetType.HOME )
                     );
-			
+            assertTrue( "Asset has right id", a_result.getObjectId().equals( ouTestHome ) );
 			// Verify that looking up a non-existent thing does not throw an exceptioon
 			final UUID uTest = UUIDFactory.getFactory().create ();
 			a_result = db_reader.loadObject ( uTest );
@@ -96,8 +96,9 @@ public class DbAssetManagerTester extends LittleTest {
                 dbDelete.saveObject(aTest);
             }
             aTest = AssetType.createSubfolder( AssetType.GENERIC, "DbAssetTester", aHome );
-            aTest.setObjectId( UUID.randomUUID() );
+            aTest.setObjectId( ouTestCreate );
             aTest.setCreatorId( aHome.getCreatorId() );
+            aTest.setOwnerId( aHome.getOwnerId() );
             aTest.setLastUpdaterId( aHome.getCreatorId() );
             aTest.setComment( "Just a test" );
             aTest.setLastUpdate( "Testing asset setup" );
@@ -107,6 +108,13 @@ public class DbAssetManagerTester extends LittleTest {
             dbSaver.saveObject( aTest );
             assertTrue( "Transaction progress on save",
                     aTest.getTransactionCount() > lNewTransaction
+                    );
+            aTest = omgrDb.makeDbAssetLoader().loadObject( aTest.getObjectId() );
+            assertTrue( "From preserved on load", aTest.getFromId().equals( aHome.getObjectId() ) );
+            // Test from-loader
+            final Map<String,UUID> mapChildren = omgrDb.makeDbAssetIdsFromLoader(ouTestHome, AssetType.GENERIC ).loadObject("");
+            assertTrue( "Able to load children: " + mapChildren.size(),
+                    ! mapChildren.isEmpty()
                     );
 			omgrDb.makeDbAssetDeleter().saveObject(aTest);
 		} catch ( Exception e ) {

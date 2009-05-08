@@ -38,6 +38,7 @@ import littleware.security.auth.*;
 public class SimpleSessionManager extends LittleRemoteObject implements SessionManager {
 
     private static final Logger olog_generic = Logger.getLogger( SimpleSessionManager.class.getName() );
+    private static final long serialVersionUID = 8144056326046717141L;
     private final AssetSearchManager om_search;
     private final AssetManager om_asset;
     private final ServiceProviderRegistry  oreg_service;
@@ -78,6 +79,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             os_session_comment = s_session_comment;
         }
 
+        @Override
         public LittleSession run() throws Exception {
             return om_asset.saveAsset ( osession, os_session_comment );
         }
@@ -106,6 +108,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      *
      * @TODO re-enable JAAS authentication
      */
+    @Override
     public SessionHelper login(String s_name, String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         /*..
           Avoid chicken-and-egg problem with registering our own
@@ -163,6 +166,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         }
     }
 
+    @Override
     public SessionHelper getSessionHelper(UUID u_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         // Note that the SessionHelper will take care of doing SessionExpired checks, etc.
         WeakReference<SessionHelper> ref_helper = ov_session_map.get(u_session);

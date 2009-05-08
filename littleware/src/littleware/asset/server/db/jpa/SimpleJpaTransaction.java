@@ -55,7 +55,7 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
 
     @Override
     protected void endDbAccess(int iLevel) {
-        if ( 0 == iLevel ) {
+        if ( (0 == iLevel) && (null != oentMgr) ) {
             oentMgr.close();
             oentMgr = null;
         }

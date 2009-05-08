@@ -74,10 +74,10 @@ public class AssetManagerTester extends TestCase {
 	 */
 	public void testAssetCreation () {
             try {
-                Asset       a_home = om_search.getByName ( MS_TEST_HOME, AssetType.HOME );
-                Asset       a_acl = null;
+                final Asset       home = om_search.getByName ( MS_TEST_HOME, AssetType.HOME );
+                final Asset       acl = null;
 		
-                olog_generic.log ( Level.INFO, "Running with test home: " + a_home );
+                olog_generic.log ( Level.INFO, "Running with test home: " + home );
 		
                 LittleUser user = SecurityAssetType.getAuthenticatedUserOrNull ();
                 assertTrue ( "Have an authenticated user", null != user );
@@ -90,7 +90,8 @@ public class AssetManagerTester extends TestCase {
                 a_test.setToId ( null );
                 a_test.setFromId ( user.getObjectId () );
                 a_test.setOwnerId ( user.getObjectId () );
-                a_test.setEndDate ( new Date( t_now.getTime() + 1000*60*60L ) );
+                // Round end-date off to nearest second
+                a_test.setEndDate ( new Date( t_now.getTime() - t_now.getTime() % 1000 + 1000*60*60L ) );
 		
                 olog_generic.log ( Level.INFO, "Saving new asset" );
                 a_test = om_asset.saveAsset ( a_test, "new asset" );
@@ -116,7 +117,7 @@ public class AssetManagerTester extends TestCase {
                 a_test = om_asset.saveAsset ( a_test, "data update" );
                 
                 a_test = om_search.getAssetOrNull ( a_test.getObjectId () );
-                assertTrue ( "Able to load new asset",
+                assertTrue ( "Able to load new asset and data matches",
                              a_test.equals ( a_clone )
                              && a_clone.getName ().equals ( a_test.getName () )
                              && a_clone.getAssetType ().equals ( a_test.getAssetType () )

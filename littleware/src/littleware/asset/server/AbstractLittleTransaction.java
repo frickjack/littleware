@@ -90,7 +90,9 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
         if ( (0 == oi_count) && (! ostack_savept.isEmpty ()) ) {
             throw new IllegalStateException ( "Non-empty savepoint stack at dbaccess end" );
         }
-
+        if ( 0 == oi_count ) {
+            ov_cache.clear();
+        }
         endDbAccess( oi_count );
     }
 

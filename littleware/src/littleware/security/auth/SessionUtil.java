@@ -110,7 +110,11 @@ public class SessionUtil {
         if ( null != om_local ) {
             throw new IllegalStateException( "Local sessionManager already injected" );
         }
-        om_local = m_session;
+        try {
+            om_local = new SessionManagerProxy(m_session, new URL("http://localManager"));
+        } catch (MalformedURLException ex) {
+            throw new AssertionFailedException( "URL should be ok", ex );
+        }
     }
 
     /**

@@ -110,6 +110,7 @@ public class SessionHelperProxy implements SessionHelperService {
         initTransient();
     }
 
+    @Override
     public LittleSession getSession() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         while (true) {
@@ -140,6 +141,7 @@ public class SessionHelperProxy implements SessionHelperService {
             }
         }
 
+        @Override
         public Object invoke(Object proxy, Method method_call, Object[] v_args) throws Throwable {
             // Try to reset service reference on RemoteException
             RemoteExceptionHandler handler_retry = new RemoteExceptionHandler() {
@@ -207,6 +209,7 @@ public class SessionHelperProxy implements SessionHelperService {
      * returned service handler that will attempt to reset
      * the remote-reference if a RemoteException gets thrown.
      */
+    @Override
     public <T extends LittleService> T getService(ServiceType<T> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         /*..
@@ -281,6 +284,7 @@ public class SessionHelperProxy implements SessionHelperService {
      *
      * @param listener
      */
+    @Override
     public void addServiceListener(ServiceListener listener) {
         if (!ovListener.contains(listener)) {
             ovListener.add(listener);
@@ -290,6 +294,7 @@ public class SessionHelperProxy implements SessionHelperService {
         }
     }
 
+    @Override
     public void removeServiceListener(ServiceListener listener) {
         ovListener.remove( listener );
         for ( LittleService service: ov_cache.values() ) {

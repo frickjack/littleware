@@ -8,7 +8,6 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
 package littleware.asset.server.db.postgres;
 
 import littleware.asset.server.CacheManager;
@@ -76,9 +75,9 @@ public class DbAssetPostgresManager implements DbAssetManager {
 	}
 	
     @Override
-	public DbReader<Set<Asset>,String> makeDbAssetsByNameLoader ( String s_name, AssetType n_type, UUID u_home )
+	public DbReader<Set<Asset>,String> makeDbAssetsByNameLoader ( String s_name, AssetType n_type )
 	{
-		return new DbAssetsByNameLoader ( s_name, n_type, u_home, getClientId (), oprovideTrans );
+		return new DbAssetsByNameLoader ( s_name, n_type, getClientId (), oprovideTrans );
 	}
 
     

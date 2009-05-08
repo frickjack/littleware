@@ -49,7 +49,7 @@ public class PackageTestSuite extends TestSuite {
             Provider<DbAssetManagerTester> provideDbTester
             ) {
         super(PackageTestSuite.class.getName());
-        boolean b_run = false;
+        boolean b_run = true;
 
         if (b_run) {
             this.addTest(new PickleTester(new HumanPicklerProvider()));
@@ -63,12 +63,12 @@ public class PackageTestSuite extends TestSuite {
                     }));
         }
 
-        if (true) {
+        if (b_run) {
             this.addTest( provideDbTester.get() );
             this.addTest( provideDbTester.get().putName( "testCreateUpdateDelete" ) );
         }
 
-        if (b_run) {
+        if (false) { // Disable these test - running with NullCacheManager now ...
             this.addTest( provideCacheTester.get() );
 
             // Test the non-cacheing AssetRetriever while we're at it

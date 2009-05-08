@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.util.logging.*;
 import javax.swing.SwingUtilities;
 import junit.framework.*;
+import littleware.apps.client.AssetModelServiceListener;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.PropertiesGuice;
+import littleware.security.auth.client.ClientCache;
 import littleware.security.auth.server.ServerBootstrap;
 import org.osgi.framework.BundleContext;
 
@@ -44,7 +46,7 @@ public class PackageTestSuite extends ServerTestLauncher {
             ) {
         super( PackageTestSuite.class.getName(), search );
         // disable server tests
-        final boolean b_run = false;
+        final boolean b_run = true;
 
         
         olog.log(Level.INFO, "Trying to setup littleware.test test suite");
@@ -60,7 +62,7 @@ public class PackageTestSuite extends ServerTestLauncher {
                 //this.addTest( suite_db );
             }
 
-            if ( true ) {
+            if ( b_run ) {
                 olog.log(Level.INFO, "Trying to setup littleware.asset test suite");
                 this.addTest( suite_asset );
             }
@@ -109,6 +111,10 @@ public class PackageTestSuite extends ServerTestLauncher {
                             new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
                         }
             );
+        // Hack to setup client-side service listeners -
+        //         normally done by client-side OSGi
+        injector.getInstance( AssetModelServiceListener.class );
+        injector.getInstance( ClientCache.class );
 
         final boolean b_run = true;
 
@@ -134,7 +140,7 @@ public class PackageTestSuite extends ServerTestLauncher {
      */
     @Override
     public void start(BundleContext ctx) throws Exception {
-        //addClientTests();
+        addClientTests();
         super.start( ctx );
     }
 

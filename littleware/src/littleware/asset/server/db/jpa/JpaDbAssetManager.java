@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.server.db.jpa;
 
 import com.google.inject.Inject;
@@ -18,7 +17,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.transaction.TransactionManager;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.server.CacheManager;
@@ -30,23 +28,28 @@ import littleware.db.DbWriter;
  * JPA implementation of DbAssetManager
  */
 public class JpaDbAssetManager implements DbAssetManager {
-    private static final Logger      olog = Logger.getLogger( JpaDbAssetManager.class.getName() );
+
+    private static final Logger olog = Logger.getLogger(JpaDbAssetManager.class.getName());
     private final Provider<DbAssetLoader> oprovideLoader;
-    private final Provider<DbAssetSaver>  oprovideSaver;
+    private final Provider<DbAssetSaver> oprovideSaver;
     private final Provider<DbAssetDeleter> oprovideDeleter;
+    private final Provider<JpaLittleTransaction> oprovideTrans;
+    private Provider<DbHomeLoader> oprovideHomeLoader;
 
     @Inject
-    public JpaDbAssetManager (
+    public JpaDbAssetManager(
+            Provider<JpaLittleTransaction> provideTrans,
             Provider<DbAssetLoader> provideLoader,
-            Provider<DbAssetSaver>  provideSaver,
-            Provider<DbAssetDeleter>  provideDeleter
-            )
-    {
+            Provider<DbAssetSaver> provideSaver,
+            Provider<DbAssetDeleter> provideDeleter,
+            Provider<DbHomeLoader> provideHomeLoader) {
         oprovideLoader = provideLoader;
         oprovideSaver = provideSaver;
         oprovideDeleter = provideDeleter;
+        oprovideTrans = provideTrans;
+        oprovideHomeLoader = provideHomeLoader;
     }
-    
+
     @Override
     public int getClientId() {
         return 0;
@@ -54,7 +57,7 @@ public class JpaDbAssetManager implements DbAssetManager {
 
     @Override
     public void setClientId(int i_id) {
-        olog.log( Level.INFO, "JpaDbAssetManager ignores clientId property" );
+        olog.log(Level.INFO, "JpaDbAssetManager ignores clientId property");
     }
 
     @Override
@@ -74,22 +77,22 @@ public class JpaDbAssetManager implements DbAssetManager {
 
     @Override
     public DbReader<Map<String, UUID>, String> makeDbHomeIdLoader() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return oprovideHomeLoader.get();
     }
 
     @Override
-    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID u_from, AssetType n_child_type) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, AssetType atype) {
+        return new DbIdsFromLoader(oprovideTrans, uFrom, atype);
     }
 
     @Override
-    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(UUID u_from, AssetType n_child_type) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(UUID uTo, AssetType atype) {
+        return new DbIdsToLoader(oprovideTrans, uTo, atype);
     }
 
     @Override
-    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(String s_name, AssetType n_type, UUID u_home) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(String sName, AssetType aType) {
+        return new DbByNameLoader(oprovideTrans, sName, aType);
     }
 
     @Override
@@ -104,7 +107,6 @@ public class JpaDbAssetManager implements DbAssetManager {
 
     @Override
     public void launchCacheSyncThread(CacheManager m_cache) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // NOOP
     }
-
 }

@@ -164,13 +164,6 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
             // Inject the local SessionManager for clients accessing SessionUtil
             final SessionManager mgr_session = injector.getInstance( SessionManager.class );
             injector.injectMembers( SessionUtil.get() );
-            try {
-                if ( mgr_session != SessionUtil.get().getSessionManager() ) {
-                    throw new AssertionFailedException( "What the frick!" );
-                }
-            } catch ( Exception ex ) {
-                throw new AssertionFailedException( "What the frick2!", ex );
-            }
         }
         
         // Get Guice injected instances of the OSGi BundleActivators,

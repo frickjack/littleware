@@ -63,6 +63,7 @@ public class SessionManagerProxy implements SessionManager {
         ourl_session = url_session;
     }
 
+    @Override
     public SessionHelper login(String s_name,
             String s_password,
             String s_session_comment) throws BaseException, AssetException,

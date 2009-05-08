@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.server;
 
 import littleware.asset.server.NullAssetSpecializer;
@@ -41,6 +51,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 
 	
 
+    @Override
 	public LittleAcl getAcl( UUID u_id ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
 	{
@@ -48,6 +59,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 	}
 
 	
+    @Override
 	public LittleAcl getAcl ( String s_name )
 		throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
@@ -74,17 +86,17 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 		LittleAcl   acl_in = (LittleAcl) a_in;
 
         acl_in.clearEntries ();  // clear cloned entry list and rebuild
-		Map<String,UUID>  v_links = m_retriever.getAssetIdsFrom ( acl_in.getObjectId (),
+		final Map<String,UUID>  v_links = m_retriever.getAssetIdsFrom ( acl_in.getObjectId (),
 																  SecurityAssetType.ACL_ENTRY
 																  );
 		
-		Set<Asset> v_link_assets = m_retriever.getAssets ( v_links.values () );
+		final Set<Asset> v_link_assets = m_retriever.getAssets ( v_links.values () );
 		
         for ( Asset a_link : v_link_assets ) {
-            UUID             u_principal = a_link.getToId ();
-            LittleAclEntry   acl_entry = (LittleAclEntry) a_link;
+            final UUID             u_principal = a_link.getToId ();
+            final LittleAclEntry   acl_entry = (LittleAclEntry) a_link;
 
-            Principal p_entry = (Principal) m_retriever.getAsset ( u_principal );
+            final Principal p_entry = (Principal) m_retriever.getAsset ( u_principal );
             acl_entry.setPrincipal ( p_entry );
             
             acl_in.addEntry ( acl_entry );
@@ -192,7 +204,4 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 	
 
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

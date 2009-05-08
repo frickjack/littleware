@@ -76,7 +76,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         final Map<UUID,Asset> v_cycle_cache = trans.startDbAccess ();
         try {
             try {
-                DbReader<Set<Asset>,String> db_reader = om_db.makeDbAssetsByNameLoader ( s_name, n_type, null );
+                DbReader<Set<Asset>,String> db_reader = om_db.makeDbAssetsByNameLoader ( s_name, n_type );
                 
                 v_load = db_reader.loadObject ( null );
                 om_cache.setAssetsByName ( s_name, n_type, null, v_load );

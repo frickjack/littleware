@@ -71,6 +71,7 @@ public class AddressBookTester extends TestCase {
     /**
      * Make sure the test_user contact was torn down by the last test.
      */
+    @Override
     public void setUp() {
         tearDown();
     }
@@ -81,7 +82,7 @@ public class AddressBookTester extends TestCase {
     @Override
     public void tearDown() {
         try {
-            UUID u_contact = om_search.getAssetIdsFrom(osession.getOwnerId(),
+            UUID u_contact = om_search.getAssetIdsFrom(osession.getObjectId(),
                     AddressAssetType.CONTACT).get(os_test_name);
             if (null != u_contact) {
                 Contact contact_old = (Contact) om_search.getAsset(u_contact);
@@ -94,6 +95,11 @@ public class AddressBookTester extends TestCase {
                     om_asset.deleteAsset(addr_old.getObjectId(), "test cleanup");
                 }
                 om_asset.deleteAsset(contact_old.getObjectId(), "test_cleanup");
+            } else {
+                olog_generic.log( Level.FINE, "tearDown did not find " + UUIDFactory.makeCleanString( osession.getObjectId() ) + " child with name: " + os_test_name );
+                for( Map.Entry<String,UUID> entry : om_search.getAssetIdsFrom( osession.getObjectId(), AddressAssetType.CONTACT ).entrySet() ) {
+                    olog_generic.log( Level.FINE, "tearDown found child with name: " + entry.getKey() );
+                }
             }
         } catch (Exception e) {
             olog_generic.log(Level.WARNING, "Failed tearDown, caught: " + e + ", " +

@@ -86,6 +86,7 @@ public class AssetEntity implements Serializable {
 	public String        getTypeId () { return osTypeId; }
     public void          setTypeId( String sTypeId ) { osTypeId = sTypeId; }
 
+
     @Column( name="l_last_transaction" )
     public long          getLastTransaction() {
         return olTransaction;
@@ -195,6 +196,7 @@ public class AssetEntity implements Serializable {
         final Asset     aNew = AssetType.getMember( UUIDFactory.parseUUID( getTypeId() ) ).create();
 
         try {
+            aNew.setObjectId( UUIDFactory.parseUUID( getObjectId() ) );
             aNew.setName( getName() );
             aNew.setValue( getValue() );
             aNew.setData( getData() );
@@ -238,7 +240,7 @@ public class AssetEntity implements Serializable {
         entity.setComment(aImport.getComment());
         entity.setCreatorId(stringOrNull(aImport.getCreatorId()));
         entity.setLastUpdaterId(stringOrNull(aImport.getLastUpdaterId()));
-        entity.setOwnerId( UUIDFactory.makeCleanString( aImport.getObjectId() ) );
+        entity.setOwnerId( UUIDFactory.makeCleanString( aImport.getOwnerId() ) );
         entity.setLastChange( aImport.getLastUpdate() );
         entity.setHomeId( UUIDFactory.makeCleanString( aImport.getHomeId() ) );
         entity.setTimeCreated(aImport.getCreateDate());

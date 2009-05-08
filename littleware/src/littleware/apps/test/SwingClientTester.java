@@ -313,7 +313,7 @@ public class SwingClientTester extends LittleTest {
      */
     public void testJEditor() {
         try {
-            AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
+            final AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
 
             olib_asset.syncAsset(om_helper.getSession());
 
@@ -321,7 +321,14 @@ public class SwingClientTester extends LittleTest {
                 LittleGroup group_everybody = (LittleGroup) m_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                         SecurityAssetType.GROUP);
                 LittleGroup group_test = (LittleGroup) m_search.getByName("group.littleware.test_user",
-                        SecurityAssetType.GROUP);
+                                                        SecurityAssetType.GROUP
+                                                        );
+                if ( null == group_test ) {
+                    final AssetManager saver = om_helper.getService( ServiceType.ASSET_MANAGER );
+                    group_test = saver.saveAsset( AssetType.createSubfolder( SecurityAssetType.GROUP, "group.littleware.test_user", getTestHome( m_search) ),
+                            "Setup test asset"
+                            );
+                }
                 group_test.addMember(group_everybody);
 
                 assertTrue("Test group " + group_test.getName() + " has members",

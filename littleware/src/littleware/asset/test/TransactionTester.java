@@ -60,7 +60,7 @@ public class TransactionTester extends LittleTest {
     public void testTransactionManager () {
         try {
             final LittleTransaction  trans_test = oprovideTrans.get ();
-            Map<UUID,Asset>  v_cache = trans_test.startDbAccess ();
+            final Map<UUID,Asset>  v_cache = trans_test.startDbAccess ();
             assertTrue ( "TransactionManager maintains a singleton cache",
                          v_cache == trans_test.startDbAccess ()
                          );

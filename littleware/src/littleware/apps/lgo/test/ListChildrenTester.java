@@ -37,7 +37,7 @@ public class ListChildrenTester extends LittleTest {
             final String sResult = ocomTest.runCommandLine( new LoggerUiFeedback(), getTestHome() );
             olog.log( Level.INFO, "List children under " + getTestHome() + " + got: " + sResult );
             assertTrue( "Found some children under " + getTestHome(),
-                    sResult.split( "\n" ).length > 1
+                    sResult.split( "\n" ).length > 0
                     );
         } catch ( LgoException ex ) {
             olog.log( Level.WARNING, "Failed test", ex );

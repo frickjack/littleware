@@ -111,7 +111,7 @@ public class LocalAssetRetriever implements AssetRetriever {
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 
         try {
-            T a_result = oregistry_special.getService( a_loaded.getAssetType() ).narrow(a_loaded, this);
+            final T a_result = oregistry_special.getService( a_loaded.getAssetType() ).narrow(a_loaded, this);
 
             if (a_result.getAssetType().equals(SecurityAssetType.USER) || a_result.getAssetType().equals(SecurityAssetType.GROUP) || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER) || ( // acl-entry may be protected by its own ACL
                     a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals(a_result.getFromId()) && v_cycle_cache.containsKey(a_result.getAclId()))) {
@@ -122,7 +122,7 @@ public class LocalAssetRetriever implements AssetRetriever {
                 return a_result;
             }
 
-            LittleUser p_caller = SecurityAssetType.getAuthenticatedUserOrNull();
+            final LittleUser p_caller = SecurityAssetType.getAuthenticatedUserOrNull();
 
             if (null == p_caller) {
 
@@ -137,13 +137,13 @@ public class LocalAssetRetriever implements AssetRetriever {
                 throw new AccessDeniedException("Unauthenticated caller");
             }
 
-            Owner owner_asset = a_result.getOwner(this);
+            final Owner owner_asset = a_result.getOwner(this);
             if ((null != owner_asset) && (owner_asset.isOwner(p_caller))) {
                 // Owner can read his own freakin' asset
                 return a_result;
             }
             // Need to check ACL
-            LittleAcl acl_asset = a_result.getAcl(this);
+            final LittleAcl acl_asset = a_result.getAcl(this);
             if (null == acl_asset) {
                 throw new AccessDeniedException("Caller " + p_caller.getName() +
                         " does not have permission to access null-acl asset " +
@@ -151,7 +151,8 @@ public class LocalAssetRetriever implements AssetRetriever {
             }
             if (!acl_asset.checkPermission(p_caller, LittlePermission.READ)) {
                 throw new AccessDeniedException("Caller " + p_caller.getName() + " does not have permission to access asset " +
-                        a_result.getObjectId());
+                        a_result.getName() + "(" + a_result.getObjectId() + ")"
+                        );
             }
 
             return a_result;

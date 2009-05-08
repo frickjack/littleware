@@ -112,16 +112,19 @@ public abstract class ServerTestLauncher extends TestSuite implements BundleActi
                     );
 
             // Create a bogus LittleUser
-            LittleUser userTest = null; //osearch.getByName(OS_TEST_USER, SecurityAssetType.USER );
+            final LittleUser userTest = osearch.getByName(OS_TEST_USER, SecurityAssetType.USER );
+            if( null == userTest ) {
+                throw new NullPointerException( "Failed to setup test user session" );
+            }
             //userTest.setName( "littleware.test_user" );
             //userTest.setObjectId( UUIDFactory.parseUUID( "7AC5D21049254265B224B7512EFCF0D1"));
                     //
-            final Subject subject = null; //new Subject();
-            //subject.getPrincipals().add( userTest );
+            final Subject subject = new Subject();
+            subject.getPrincipals().add( userTest );
 
             final String[] ov_launch_args = {"-noloading", this.getClass().getName() };
 
-            PrivilegedAction<Object> action = new PrivilegedAction<Object>() {
+            final PrivilegedAction<Object> action = new PrivilegedAction<Object>() {
 
                 @Override
                 public Object run() {
@@ -131,8 +134,7 @@ public abstract class ServerTestLauncher extends TestSuite implements BundleActi
                 }
             };
             // Hard code for simple test case
-            action.run();
-            //Subject.doAs(subject, action);
+            Subject.doAs(subject, action);
         } catch (Exception e) {
             olog.log(Level.SEVERE, "Caught unexpected: " + e + ", " + littleware.base.BaseException.getStackTrace(e));
         }

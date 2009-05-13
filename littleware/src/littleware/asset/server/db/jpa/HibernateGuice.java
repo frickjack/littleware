@@ -10,13 +10,7 @@
 package littleware.asset.server.db.jpa;
 
 import com.google.inject.Binder;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-import com.google.inject.name.Named;
-import javax.sql.DataSource;
 import javax.persistence.EntityManagerFactory;
-import org.hibernate.ejb.Ejb3Configuration;
 
 /**
  * Standalone EntityManagerFactory injection with
@@ -25,44 +19,10 @@ import org.hibernate.ejb.Ejb3Configuration;
  */
 public class HibernateGuice extends AbstractGuice {
 
-    /**
-     * Subtypes can specialize and rebind this frickjack to add
-     * additional entity types
-     * for testing.
-     */
-    @Singleton
-    public static class FactoryProvider implements Provider<EntityManagerFactory> {
-
-        private final DataSource odsource;
-        private EntityManagerFactory ofactory = null;
-
-        @Inject
-        FactoryProvider(@Named("datasource.littleware") DataSource dsource) {
-            odsource = dsource;
-        }
-
-        @Override
-        public EntityManagerFactory get() {
-            if (null == ofactory) {
-                final Ejb3Configuration config = new org.hibernate.ejb.Ejb3Configuration(). //addAnnotatedClass( classOf[SimpleProqUpload] ).
-                        addAnnotatedClass( AssetEntity.class ).
-                        addAnnotatedClass( TransactionEntity.class ).
-                        addAnnotatedClass( AssetTypeEntity.class ).
-                        setProperty("hibernate.show_sql", "true").
-                        setProperty("hibernate.dialect",
-                                    "org.hibernate.dialect.MySQLDialect"
-                                        );
-
-                config.setDataSource(odsource);
-                ofactory = config.buildEntityManagerFactory();
-            }
-            return ofactory;
-        }
-    }
 
     @Override
     public void configure(Binder binder) {
         super.configure( binder );
-        binder.bind(EntityManagerFactory.class).toProvider( FactoryProvider.class );
+        binder.bind(EntityManagerFactory.class).toProvider( HibernateProvider.class );
     }
 }

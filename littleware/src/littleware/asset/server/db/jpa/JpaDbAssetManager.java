@@ -34,7 +34,7 @@ public class JpaDbAssetManager implements DbAssetManager {
     private final Provider<DbAssetSaver> oprovideSaver;
     private final Provider<DbAssetDeleter> oprovideDeleter;
     private final Provider<JpaLittleTransaction> oprovideTrans;
-    private Provider<DbHomeLoader> oprovideHomeLoader;
+    private final Provider<DbHomeLoader> oprovideHomeLoader;
 
     @Inject
     public JpaDbAssetManager(
@@ -42,7 +42,9 @@ public class JpaDbAssetManager implements DbAssetManager {
             Provider<DbAssetLoader> provideLoader,
             Provider<DbAssetSaver> provideSaver,
             Provider<DbAssetDeleter> provideDeleter,
-            Provider<DbHomeLoader> provideHomeLoader) {
+            Provider<DbHomeLoader> provideHomeLoader
+            )
+    {
         oprovideLoader = provideLoader;
         oprovideSaver = provideSaver;
         oprovideDeleter = provideDeleter;

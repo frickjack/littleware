@@ -32,7 +32,7 @@ public class DbAssetSaver implements DbWriter<Asset> {
     @Override
     public void saveObject(Asset asset) throws SQLException {
         final EntityManager entMgr = oprovideTrans.get().getEntityManager();
-        final TransactionEntity trans = entMgr.find( TransactionEntity.class, new Integer(0) );
+        final TransactionEntity trans = entMgr.find( TransactionEntity.class, new Integer(1) );
         trans.setTransaction( trans.getTransaction() + 1 );
         asset.setTransactionCount( trans.getTransaction() );
         final AssetEntity entity = AssetEntity.buildEntity(asset);

@@ -24,7 +24,7 @@ import javax.persistence.Table;
 public class TransactionEntity implements Serializable {
     private static final long serialVersionUID = -7258744014535464437L;
     private long olTransaction = 0;
-    private int  oiId = 0;
+    private int  oiId = 1;
 
     @Id
     @Column( name="i_id")

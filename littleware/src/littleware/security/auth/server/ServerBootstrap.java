@@ -19,6 +19,7 @@ import littleware.apps.filebucket.server.BucketServerGuice;
 import littleware.apps.tracker.server.TrackerServerActivator;
 import littleware.asset.server.AssetServerGuice;
 import littleware.asset.server.db.jpa.HibernateGuice;
+import littleware.asset.server.db.jpa.J2EEGuice;
 import littleware.asset.server.db.postgres.PostgresGuice;
 import littleware.db.DbGuice;
 import littleware.security.auth.AbstractGOBootstrap;
@@ -52,7 +53,8 @@ public class ServerBootstrap extends AbstractGOBootstrap {
         super(
                   Arrays.asList(
                   //new PostgresGuice(),
-                  new HibernateGuice(),
+                  //new HibernateGuice(),
+                  new J2EEGuice(),
                     new AssetServerGuice (),
                     new AuthServerGuice(),
                     new BucketServerGuice(),

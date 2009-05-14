@@ -43,6 +43,7 @@
    <path refid="clientclasspath" />
    <pathelement location="${clientjar}" />
    <pathelement location="${jardir}/hibernate-entitymanager-3.4.0.GA/hibernate-entitymanager.jar" />
+   <pathelement location="${jardir}/hibernate-entitymanager-3.4.0.GA/lib/hibernate-core.jar" />
  </path>
  <path id="testclasspath">
    <path refid="serverclasspath" />

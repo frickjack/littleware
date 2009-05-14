@@ -19,7 +19,7 @@ CREATE TABLE littleware.littleTran (
 	l_transaction BIGINT
 );
 
-INSERT INTO littleware.littleTran( i_id, l_transaction ) VALUES ( 0, 1 );
+INSERT INTO littleware.littleTran( i_id, l_transaction ) VALUES ( 1, 1 );
 
 GRANT SELECT, UPDATE ON littleware.littleTran TO littleware_user;
 

@@ -56,6 +56,24 @@ public class ArgParserTester extends LittleTest {
                             );
                 }
             }
+            {
+                for ( int i=0; i < 10; ++i ) {
+                    mapDefault.put( Integer.toString( i ), null );
+                }
+
+                final Map<String, String> mapResult = AbstractLgoCommand.processArgs(mapDefault,
+                        Arrays.asList( "-1", "1000", "-2", "2000", "-3", "3000")
+                        );
+                assertTrue( "Got expected null result: " + mapResult.get( "4" ),
+                        mapResult.get( "4" ) == null
+                        );
+                for ( int i=1; i < 4; ++i ) {
+                    assertTrue( "Got expected arg value " + i + ": " +
+                            mapResult.get( Integer.toString( i ) ),
+                            Integer.toString( 1000 * i ).equals( mapResult.get( Integer.toString( i ) ))
+                            );
+                }
+            }
 
         } catch (LgoException ex) {
             Logger.getLogger(ArgParserTester.class.getName()).log(Level.SEVERE, null, ex);

@@ -64,9 +64,13 @@ public class ArgParserTester extends LittleTest {
                 final Map<String, String> mapResult = AbstractLgoCommand.processArgs(mapDefault,
                         Arrays.asList( "-1", "1000", "-2", "2000", "-3", "3000")
                         );
-                assertTrue( "Got expected null result: " + mapResult.get( "4" ),
-                        mapResult.get( "4" ) == null
-                        );
+                for ( int i=4; i < 10; ++i ) {
+                    final String sI =  Integer.toString( i );
+                    assertTrue( "Got expected null arg value " + i + ": " + mapResult.get( sI ),
+                            null == mapResult.get( sI )
+                            );
+                }
+
                 for ( int i=1; i < 4; ++i ) {
                     assertTrue( "Got expected arg value " + i + ": " +
                             mapResult.get( Integer.toString( i ) ),
@@ -74,7 +78,19 @@ public class ArgParserTester extends LittleTest {
                             );
                 }
             }
-
+            {
+                // another test
+                mapDefault.clear();
+                for ( String sOpt : new String[] {
+                    "path", "diskpath", "pipeline", "facility", "comment", "state"
+                }) {
+                    mapDefault.put( sOpt, null );
+                }
+                final Map<String,String> mapTest = AbstractLgoCommand.processArgs( mapDefault,
+                        Arrays.asList( "", "-path", "/KungFu/Episodes/Episode0/", "-state", "Ready", "-facility", "Paprika", "-pipeline", "Tx", "" )
+);
+                assertTrue( "Diskpath unset: " + mapTest.get( "diskpath" ), null == mapTest.get( "diskpath" ) );
+            }
         } catch (LgoException ex) {
             Logger.getLogger(ArgParserTester.class.getName()).log(Level.SEVERE, null, ex);
         }

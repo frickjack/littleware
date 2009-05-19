@@ -13,11 +13,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.SwingUtilities;
@@ -58,28 +60,28 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             LgoCommandDictionary mgrCommand,
             LgoHelpLoader mgrHelp,
             LittleBootstrap bootstrap,
-            EzHelpCommand comHelp,
-            XmlEncodeCommand comXml,
-            LgoBrowserCommand comBrowse,
-            DeleteAssetCommand comDelete,
-            ListChildrenCommand comLs,
-            GetAssetCommand comGet,
-            CreateFolderCommand comFolder,
-            CreateUserCommand comUser,
-            CreateLockCommand comLock,
-            GetByNameCommand comNameGet,
-            SetImageCommand  comSetImage
+            Provider<EzHelpCommand> comHelp,
+            Provider<XmlEncodeCommand> comXml,
+            Provider<LgoBrowserCommand> comBrowse,
+            Provider<DeleteAssetCommand> comDelete,
+            Provider<ListChildrenCommand> comLs,
+            Provider<GetAssetCommand> comGet,
+            Provider<CreateFolderCommand> comFolder,
+            Provider<CreateUserCommand> comUser,
+            Provider<CreateLockCommand> comLock,
+            Provider<GetByNameCommand> comNameGet,
+            Provider<SetImageCommand>  comSetImage
             ) {
         omgrCommand = mgrCommand;
         omgrHelp = mgrHelp;
         obootstrap = bootstrap;
 
-        for (LgoCommand command : // need to move this into a properties file
-                new LgoCommand[]{
+        for (Provider<? extends LgoCommand<?,?>> command : // need to move this into a properties file
+                Arrays.asList(
                     comHelp, comXml, comBrowse, comDelete, comLs, comGet,
                     comFolder, comUser, comLock, comNameGet, comSetImage
-                }) {
-            mgrCommand.setCommand(mgrHelp, command);
+        )) {
+            mgrCommand.setCommand(mgrHelp, (Provider<LgoCommand<?,?>>) command);
         }
 
     }
@@ -113,10 +115,10 @@ public class LgoCommandLine implements BundleActivator, Runnable {
      * @return command exit-status
      */
     private int processCommand(String sCommand, List<String> vProcess, String sArg, UiFeedback feedback) {
-        LgoCommand<?, ?> command = omgrCommand.getCommand(sCommand);
+        LgoCommand<?, ?> command = omgrCommand.buildCommand(sCommand);
         try {
             if (null == command) {
-                System.out.print(omgrCommand.getCommand("help").runCommandLine(feedback, ""));
+                System.out.print(omgrCommand.buildCommand("help").runCommandLine(feedback, ""));
                 return 1;
             }
 
@@ -128,7 +130,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             System.out.println("Command failed, caught exception: " +
                     BaseException.getStackTrace(ex));
             try {
-                System.out.print(omgrCommand.getCommand("help").runCommand(feedback, command.getName()).toString());
+                System.out.print(omgrCommand.buildCommand("help").runCommand(feedback, command.getName()).toString());
             } catch (LgoException ex2) {
                 throw new AssertionFailedException("Help command should not fail", ex2);
             }
@@ -173,7 +175,11 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                     sClean = sClean.substring(0, iDashDash).trim();
                 }
                 // TODO - add some smarter parsing
-                Collections.addAll(vProcess, sClean.split("\\s+"));
+                for( String sProcess : sClean.split("\\s+")) {
+                    if ( sProcess.trim().length() > 0 ) {
+                        vProcess.add( sProcess );
+                    }
+                }
             }
             if (sCommand.equalsIgnoreCase("exit")) {
                 break;
@@ -192,7 +198,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             UiFeedback feedback = new LoggerUiFeedback();
 
             if (vArgs.length == 0) { // launch help command by default
-                System.out.print(omgrCommand.getCommand("help").runCommandLine(feedback, ""));
+                System.out.print(omgrCommand.buildCommand("help").runCommandLine(feedback, ""));
                 return;
             }
             final String sCommand = vArgs[0];

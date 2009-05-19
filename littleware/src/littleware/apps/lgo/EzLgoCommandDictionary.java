@@ -10,6 +10,7 @@
 package littleware.apps.lgo;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,10 +25,11 @@ import java.util.logging.Logger;
  */
 public class EzLgoCommandDictionary implements LgoCommandDictionary {
     private static final Logger   olog = Logger.getLogger( EzLgoCommandDictionary.class.getName() );
-    private final Map<String, LgoCommand<?, ?>> omap_commands = new HashMap<String, LgoCommand<?, ?>>();
+    private final Map<String, Provider<? extends LgoCommand<?, ?>>> omapCommand = new HashMap<String, Provider<? extends LgoCommand<?, ?>>>();
 
+    @Override
     public Collection<LgoCommand<?, ?>> guessCommand(String s_partial) {
-        LgoCommand<?, ?> command = getCommand(s_partial);
+        final LgoCommand<?, ?> command = buildCommand(s_partial);
 
         if (null == command) {
             return Collections.EMPTY_LIST;
@@ -38,33 +40,49 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
         }
     }
 
-    public LgoCommand<?, ?> getCommand(String s_name) {
-        return omap_commands.get(s_name);
-    }
-
-    public LgoCommand<?, ?> setCommand(String s_name, LgoCommand<?, ?> command) {
-        return omap_commands.put(s_name, command);
-    }
-
-    public Collection<LgoCommand<?, ?>> getCommands() {
-        return omap_commands.values();
-    }
-
-    public void setCommand(LgoHelp help, LgoCommand<?, ?> command) {
-        setCommand(help.getFullName(), command);
-        for (String sName : help.getShortNames()) {
-            setCommand(sName, command);
+    @Override
+    public LgoCommand<?, ?> buildCommand(String s_name) {
+        final Provider<? extends LgoCommand<?,?>> provider = omapCommand.get(s_name);
+        if ( null == provider ) {
+            return null;
+        } else {
+            return provider.get();
         }
     }
 
-    public LgoHelp setCommand(LgoHelpLoader mgrHelp, LgoCommand<?, ?> command) {
-        LgoHelp help = mgrHelp.loadHelp(command.getName());
+    @Override
+    public void setCommand(String s_name, Provider<? extends LgoCommand<?, ?>> provideCommand) {
+        omapCommand.put(s_name, provideCommand);
+    }
+
+    @Override
+    public Collection<Provider<? extends LgoCommand<?, ?>>> getCommands() {
+        return omapCommand.values();
+    }
+
+    @Override
+    public void setCommand(LgoHelp help, Provider<? extends LgoCommand<?, ?>> provideCommand) {
+        setCommand(help.getFullName(), provideCommand);
+        for (String sName : help.getShortNames()) {
+            setCommand(sName, provideCommand);
+        }
+    }
+
+    @Override
+    public LgoHelp setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand<?, ?>> provideCommand) {
+        final LgoCommand<?,?> command = provideCommand.get();
+        final LgoHelp help = mgrHelp.loadHelp( command.getName());
         if (null != help) {
-            this.setCommand(help, command);
+            this.setCommand(help, provideCommand);
         } else {
             olog.log(Level.FINE, "No help available for command: " + command.getName());
-            this.setCommand(command.getName(), command);
+            this.setCommand(command.getName(), provideCommand);
         }
         return help;
+    }
+
+    @Override
+    public Provider<? extends LgoCommand<?, ?>> getProvider(String s_name) {
+        return omapCommand.get( s_name );
     }
 }

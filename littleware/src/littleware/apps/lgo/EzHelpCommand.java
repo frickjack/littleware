@@ -11,6 +11,7 @@
 package littleware.apps.lgo;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -93,13 +94,14 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
         {
             sTarget = getArgs().get( getArgs().size() - 1 );
         }
-        LgoCommand<?,?> command = om_command.getCommand( sTarget );
+        final LgoCommand<?,?> command = om_command.buildCommand( sTarget );
         if ( null == command ) {
             StringBuilder sbCommands = new StringBuilder();
             sbCommands.append( "No help found for command: " ).append( sTarget ).append(", available commands:" ).
                     append( Whatever.NEWLINE );
             final Set<String> vAlready = new HashSet<String>();
-            for ( LgoCommand comIndex : om_command.getCommands() ) {
+            for ( Provider<? extends LgoCommand<?,?>> provider : om_command.getCommands() ) {
+                final LgoCommand comIndex = provider.get();
                 if ( vAlready.contains( comIndex.getName() ) ) {
                     continue;
                 }
@@ -197,7 +199,8 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
                     .append( Whatever.NEWLINE ).append( Whatever.NEWLINE );
 
             final Set<String>  vAlready = new HashSet<String> ();  // avoid duplicate entries (same command, different alias)
-            for( LgoCommand command : om_command.getCommands () ) {
+            for( Provider<? extends LgoCommand<?,?>> provider : om_command.getCommands () ) {
+                final LgoCommand<?,?> command = provider.get();
                 if ( vAlready.contains( command.getName() ) ) {
                     continue;
                 }

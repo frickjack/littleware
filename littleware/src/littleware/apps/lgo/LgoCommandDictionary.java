@@ -10,6 +10,7 @@
 
 package littleware.apps.lgo;
 
+import com.google.inject.Provider;
 import java.util.Collection;
 
 /**
@@ -27,20 +28,27 @@ public interface LgoCommandDictionary {
     public Collection<LgoCommand<?,?>> guessCommand( String s_partial );
     
     /**
-     * Get a command by name (full or short)
+     * Build a command by name (full or short)
      * 
      * @return null if no match or single match     
      */
-    public LgoCommand<?,?> getCommand( String s_name );
+    public LgoCommand<?,?> buildCommand( String s_name );
+    
+    /**
+     * Get the provider of a command if any
+     * 
+     * @param s_name
+     * @return provider if registered or null if none
+     */
+    public Provider<? extends LgoCommand<?,?>> getProvider( String s_name );
      
     /**
      * Associate the given provider with the given command-name
      * 
      * @param s_name alias to map command to
      * @param command to map to s_name alias
-     * @return previous command binding to name, or null if not assigned before
      */
-    public LgoCommand<?,?> setCommand( String s_name, LgoCommand<?,?> command );
+    public void setCommand( String s_name, Provider<? extends LgoCommand<?,?>> provideCommand );
 
     /**
      * Associate the given provider with the given command-name and
@@ -49,7 +57,7 @@ public interface LgoCommandDictionary {
      * @param help info with full name and short names to associate with the command
      * @param command to map to info aliases
      */
-    public void setCommand( LgoHelp help, LgoCommand<?,?> command );
+    public void setCommand( LgoHelp help, Provider<? extends LgoCommand<?,?>> provideCommand );
 
     /**
      * Another utility - loads the help associated with command,
@@ -60,7 +68,7 @@ public interface LgoCommandDictionary {
      * @param command to register
      * @return loaded help - may be null
      */
-    public LgoHelp setCommand(LgoHelpLoader mgrHelp, LgoCommand<?, ?> command);
+    public LgoHelp setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand<?,?>> provideCommand );
 
     /**
      * Get the collection of all the commands registered with
@@ -68,5 +76,5 @@ public interface LgoCommandDictionary {
      * 
      * @return collection of commands
      */
-    public Collection<LgoCommand<?,?>> getCommands();
+    public Collection<Provider<? extends LgoCommand<?,?>>> getCommands();
 }

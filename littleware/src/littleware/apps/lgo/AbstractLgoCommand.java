@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import littleware.apps.client.UiFeedback;
 import littleware.base.AssertionFailedException;
 
@@ -33,6 +35,7 @@ import littleware.base.AssertionFailedException;
  * Handy LgoCommand baseclass
  */
 public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tout> {
+    private static final Logger olog = Logger.getLogger( AbstractLgoCommand.class.getName() );
     /**
      * Subtypes must initialize the name property.
      * 
@@ -85,13 +88,21 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
         final Map<String, String> mapResult = new HashMap<String,String>();
 
         for ( Map.Entry<String,String> entry : mapDefaults.entrySet() ) {
+            olog.log( Level.FINE, "Placing default " + entry.getKey () + " -to- " + entry.getValue() );
             mapResult.put( entry.getKey().toLowerCase(), entry.getValue() );
         }
 
         String sLastOption = null;
         for (String sArg : vArgs) {
+            if ( null == sArg ) {
+                continue;
+            }
+            olog.log( Level.FINE, "Processing arg: " + sArg );
             if (sArg.startsWith("-") || (sLastOption == null) ) {
-                String sClean = sArg.replaceAll("^-+", "").toLowerCase();
+                String sClean = sArg.trim().replaceAll("^-+", "").toLowerCase();
+                if ( sClean.length() == 0 ) {
+                    continue;
+                }
 
                 boolean bFound = mapResult.containsKey( sClean );
                 if ( ! bFound ) {
@@ -108,9 +119,11 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
                     throw new LgoArgException("Unable to process argument: " + sArg);
                 }
                 sLastOption = sClean;
+                olog.log( Level.FINE, "Set " + sClean + " -to- empty" );
                 mapResult.put( sClean, "" );
             } else {
                 mapResult.put( sLastOption, sArg);
+                olog.log( Level.FINE, "Set " + sLastOption + " -to- " + sArg );
                 sLastOption = null;
             }
         }

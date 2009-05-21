@@ -16,11 +16,14 @@ import java.rmi.*;
 //import java.rmi.server.UnicastRemoteObject;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.security.*;
 import javax.security.auth.*;
 import java.lang.ref.WeakReference;
 
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import littleware.asset.*;
 import littleware.base.*;
 import littleware.base.stat.Sampler;
@@ -45,7 +48,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private final Map<UUID, WeakReference<SessionHelper>> ov_session_map = new HashMap<UUID, WeakReference<SessionHelper>>();
 
     private static SimpleSessionManager om_session = null;
-    private Sampler ostatSessionHelper = new SimpleSampler();
+    private final Sampler ostatSessionHelper = new SimpleSampler();
     /**
      * Inject dependencies
      */
@@ -59,6 +62,17 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         }
         om_session = this;
         oreg_service = reg_service;
+    }
+
+    /**
+     * Little auto-create user routine.
+     *
+     *
+     * @param s_name
+     * @return
+     */
+    private LittleUser createUser(String s_name) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     /**
@@ -109,24 +123,59 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      * @TODO re-enable JAAS authentication
      */
     @Override
-    public SessionHelper login(String s_name, String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        /*..
-          Avoid chicken-and-egg problem with registering our own
-          login config with our parent J2EE container.
-
-        LoginContext x_login = new LoginContext("littleware.security.simplelogin", 
+    public SessionHelper login( final String s_name, final String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        LoginContext x_login = null;
+        try {
+            x_login = new LoginContext("littleware.login",
                                                 new SimpleNamePasswordCallbackHandler(s_name, s_password)
                                                 );
-        Subject j_caller = x_login.getSubject();
-        */
+        } catch ( LoginException ex ) {
+            olog_generic.log( Level.INFO, "Assuming pass-through login - no littleware.login context available", ex );
+        }
+
+        final Subject j_caller = (null != x_login) ? x_login.getSubject() : new Subject();
+        if ( null == j_caller ) {
+            throw new LoginException( "Failed to authenticate" );
+        }
+
+        final Subject j_admin = new Subject ();
+        j_admin.getPrincipals().add( om_search.getByName( AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER));
+        j_admin.setReadOnly();
 
         // Do a little LoginContext sim - need to clean this up
         // Who am I running as now ?  What the frick ?
-        final LittleUser user = om_search.getByName(s_name, SecurityAssetType.USER);
+        LittleUser user = om_search.getByName(s_name, SecurityAssetType.USER);
         if ( null == user ) {
-            throw new NoSuchThingException();
+            try {
+                user = (LittleUser) Subject.doAs ( j_admin, new PrivilegedExceptionAction () {
+
+                @Override
+                public LittleUser run() throws BaseException, GeneralSecurityException, RemoteException {
+                    final Asset aHome = om_search.getByName("littleware.home", AssetType.HOME);
+                    Asset  aUsers = om_search.getAssetFromOrNull( aHome.getObjectId(), "Users" );
+                    if ( null == aUsers ) {
+                        aUsers = om_asset.saveAsset( AssetType.createSubfolder( AssetType.GENERIC, "Users", aHome ), "setup user folder" );
+                    }
+                    return om_asset.saveAsset( AssetType.createSubfolder( SecurityAssetType.USER, s_name, aUsers ), "setup new user" );
+                }
+            } );
+            } catch (PrivilegedActionException ex) {
+                olog_generic.log(Level.INFO, "Failed to setup new user", ex);
+                try {
+                    throw ex.getCause();
+                } catch ( BaseException ex2 ) {
+                    throw ex2;
+                } catch ( GeneralSecurityException ex2 ) {
+                    throw ex2;
+                } catch ( RuntimeException ex2 ) {
+                    throw ex2;
+                } catch ( Throwable ex2 ) {
+                    throw new AssertionFailedException( "Unexpected exception", ex2 );
+                }
+            }
+            
         }
-        final Subject j_caller = new Subject ();
+        
         j_caller.getPrincipals().add( user );
         /*... disable for now ...
         javax.security.auth.spi.LoginModule module = new PasswordDbLoginModule();
@@ -140,10 +189,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
          */
         j_caller.setReadOnly ();
         // ok - user authenticated ok by here - setup user session
-        final Subject j_admin = new Subject ();
-        j_admin.getPrincipals().add( om_search.getByName( AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER));
-        j_admin.setReadOnly();
-
         LittleSession  session = SecurityAssetType.SESSION.create ();
         session.setName( s_name );
         session.setOwnerId( user.getObjectId() );

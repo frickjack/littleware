@@ -9,6 +9,7 @@
  */
 package littleware.security.auth;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
 import com.google.inject.Binder;
@@ -62,6 +63,24 @@ public class ClientServiceGuice implements LittleGuiceModule {
 
     private static final Logger olog = Logger.getLogger(ClientServiceGuice.class.getName());
     private SessionHelper ohelper = null;
+    private CallbackHandler ohandler = null;
+    {
+        if ( SwingUtilities.isEventDispatchThread() ) {
+            ohandler = new JPasswordDialog("", "");
+        } else {
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        ohandler = new JPasswordDialog("", "");
+                    }
+                });
+            } catch (Exception ex) {
+                throw new AssertionFailedException( "Failed to init dialog callback handler", ex );
+            }
+        }
+    }
 
     /**
      * Inject helper dependency
@@ -71,6 +90,8 @@ public class ClientServiceGuice implements LittleGuiceModule {
     public ClientServiceGuice(SessionHelper helper) {
         ohelper = helper;
     }
+
+
 
     /**
      * Parameterless constructor - client must inject
@@ -82,7 +103,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
      */
     public ClientServiceGuice() {
     }
-    private CallbackHandler ohandler = new JPasswordDialog("", "");
+
 
     /**
      * Allow the user to inject a CallbackHandler, otherwise

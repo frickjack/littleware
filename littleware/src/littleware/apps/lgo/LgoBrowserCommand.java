@@ -14,21 +14,17 @@ import com.google.inject.*;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 
 import littleware.apps.client.AssetModelLibrary;
-import littleware.apps.client.AssetView;
 import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.UiFeedback;
 import littleware.apps.swingclient.*;
@@ -36,6 +32,7 @@ import littleware.apps.swingclient.controller.ExtendedAssetViewController;
 import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
+import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesGuice;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
@@ -46,9 +43,9 @@ import littleware.base.Whatever;
  */
 public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
     private final static  Logger  olog = Logger.getLogger( LgoBrowserCommand.class.getName () );
-    private final JAssetBrowser                obrowser;
-    private final ExtendedAssetViewController  ocontrol;
-    private final JSimpleAssetToolbar          otoolbar;
+    private  JAssetBrowser        obrowser       = null;
+    private  ExtendedAssetViewController  ocontrol;
+    private  JSimpleAssetToolbar          otoolbar = null;
     private JFrame                       owframe = null;
     private final AssetSearchManager           osearch;
     private final AssetModelLibrary            olib;
@@ -56,22 +53,41 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
     /**
      * Inject the browser that this command launches,
      * and the controller to attach to it.
+     * Inject providers - Swing widgets will be allocated
+     * and initialized on the Swing dispatch thread;
+     * the LgoBrowserCommand may be allocated
+     * and bootstrap on an lgo shell worker thread.
      * 
-     * @param browser to launch on run
+     * @param provideBrowser to launch on run
      * @param control to view browser
-     * @param toolbar to connect to the browser
+     * @param provideToolbar to connect to the browser
      */
     @Inject
-    public LgoBrowserCommand( JAssetBrowser browser,
-            ExtendedAssetViewController control,
-            JSimpleAssetToolbar    toolbar,
+    public LgoBrowserCommand( 
+            final Provider<JAssetBrowser> provideBrowser,
+            final Provider<ExtendedAssetViewController> provideControl,
+            final Provider<JSimpleAssetToolbar>    provideToolbar,
             AssetSearchManager     search,
             AssetModelLibrary      lib
             ) {
         super( LgoBrowserCommand.class.getName() );
-        obrowser = browser;
-        ocontrol = control;
-        otoolbar = toolbar;        
+        final Runnable runner = new Runnable () {
+            @Override
+            public void run() {
+                obrowser = provideBrowser.get();
+                otoolbar = provideToolbar.get();
+                ocontrol = provideControl.get();
+            }
+        };
+        if ( SwingUtilities.isEventDispatchThread() ) {
+            runner.run();
+        } else {
+            try {
+                SwingUtilities.invokeAndWait(runner);
+            } catch (Exception ex) {
+                throw new AssertionFailedException( "Failed to init LgoBrowserCommand", ex );
+            }
+        }
         osearch = search;
         olib = lib;
     }
@@ -110,7 +126,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
             }
         }
         if ( SwingUtilities.isEventDispatchThread() ) {
-            createGUI ();
+            throw new IllegalStateException( "Cannot launch browser-command from Swing dispatch thread" );
         } else {
             SwingUtilities.invokeLater( new Runnable () {
                 @Override
@@ -119,10 +135,10 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
                 }
             }
             );
-        }
-        try {
-            wait(); // browser frame notifies us on close
-        } catch (InterruptedException ex) {
+            try {
+                wait(); // browser frame notifies us on close
+            } catch (InterruptedException ex) {
+            }
         }
         return ouResult;
     }
@@ -261,13 +277,19 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
         } catch ( final Exception ex ) {
             olog.log( Level.SEVERE, "Failed command, caught: " + ex, ex );
             try {
-                SwingUtilities.invokeAndWait(new Runnable() {
+                final Runnable runner = new Runnable() {
 
                     @Override
                     public void run() {
                         JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage(), "Launch failed", JOptionPane.ERROR_MESSAGE);
                     }
-                });
+                };
+                if ( SwingUtilities.isEventDispatchThread() ) {
+                    runner.run();
+                } else {
+                    olog.log( Level.INFO, "Waiting for user input ..." );
+                    SwingUtilities.invokeAndWait( runner );
+                }
             } catch (Exception ex1) {
                 olog.log(Level.SEVERE, null, ex1);
             } 

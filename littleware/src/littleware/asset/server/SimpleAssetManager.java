@@ -188,7 +188,7 @@ public class SimpleAssetManager implements AssetManager {
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         olog_generic.log(Level.FINE, "Check enter");
-        LittleUser p_caller = this.getAuthenticatedUser();
+        final LittleUser userCaller = this.getAuthenticatedUser();
         // Get the asset for ourselves - make sure it's a valid asset
         Asset a_old_asset = null;
 
@@ -197,13 +197,13 @@ public class SimpleAssetManager implements AssetManager {
             throw new IllegalArgumentException("May not save an asset with a null name");
         }
         if (null == a_asset.getOwnerId()) {
-            a_asset.setOwnerId(p_caller.getObjectId());
+            a_asset.setOwnerId(userCaller.getObjectId());
         }
         if ( (null == a_asset.getHomeId()) ) {
             if ( a_asset.getAssetType().equals(AssetType.HOME) ) {
                 a_asset.setHomeId( a_asset.getObjectId() );
             } else {
-                a_asset.setHomeId(p_caller.getHomeId());
+                a_asset.setHomeId(userCaller.getHomeId());
             }
         }
 
@@ -212,6 +212,13 @@ public class SimpleAssetManager implements AssetManager {
         final Map<UUID, Asset> v_cache = trans_save.startDbAccess();
         // Don't save the same asset more than once in this transaction
         final Map<UUID, Asset> v_save_cycle = oprovideSaveCycle.get().startDbAccess();
+        final boolean          bCallerIsAdmin;
+        {
+            final LittleGroup groupAdmin = (LittleGroup) om_search.getAsset(
+                                                    AccountManager.UUID_ADMIN_GROUP
+                                                    );
+            bCallerIsAdmin = groupAdmin.isMember(userCaller);
+        }
 
         try {
             if (null == a_asset.getObjectId()) {
@@ -238,20 +245,16 @@ public class SimpleAssetManager implements AssetManager {
                     }
                         // Check name-unique asset types
                     // creating a new asset
-                    a_asset.setCreatorId(p_caller.getObjectId());
+                    a_asset.setCreatorId(userCaller.getObjectId());
                     // Check the caller's quota
                     if (v_save_cycle.isEmpty()) {
                         olog_generic.log(Level.FINE, "Incrementing quota before saving: " + a_asset);
-                        oquota.incrementQuotaCount( p_caller, this, om_search );
+                        oquota.incrementQuotaCount( userCaller, this, om_search );
                     }
                     // Only allow admins to create new users and homes, etc.
-                    if (a_asset.getAssetType().mustBeAdminToCreate()) {
-                        LittleGroup p_admin_group = (LittleGroup) om_search.getAsset(
-                                AccountManager.UUID_ADMIN_GROUP);
-                        if (!p_admin_group.isMember(p_caller)) {
-                            throw new AccessDeniedException("Must be in ADMIN group to create asset of type: " +
+                    if (a_asset.getAssetType().mustBeAdminToCreate() && (! bCallerIsAdmin)) {
+                        throw new AccessDeniedException("Must be in ADMIN group to create asset of type: " +
                                     a_asset.getAssetType());
-                        }
                     }
                 } else {
                     // updating an existing asset
@@ -274,22 +277,22 @@ public class SimpleAssetManager implements AssetManager {
 
                     olog_generic.log(Level.FINE, "Checking security");
 
-                    Owner o_old = a_old_asset.getOwner(om_search);
-                    if (!o_old.isOwner(p_caller)) {
-                        Acl acl_x = a_old_asset.getAcl(om_search);
+                    final Owner ownerOld = a_old_asset.getOwner(om_search);
+                    if ( (!bCallerIsAdmin) && (!ownerOld.isOwner(userCaller)) ) {
+                        final Acl aclOld = a_old_asset.getAcl(om_search);
 
                         // Need to have all the permissions to UPDATE an asset
-                        if (!acl_x.checkPermission(p_caller, LittlePermission.WRITE)) {
-                            throw new AccessDeniedException("Caller " + p_caller + " does not have permission: " 
+                        if (!aclOld.checkPermission(userCaller, LittlePermission.WRITE)) {
+                            throw new AccessDeniedException("Caller " + userCaller + " does not have permission: "
                                     + LittlePermission.WRITE + " for asset: " + a_old_asset.getObjectId()
                                     );
                         }
                         if (!a_old_asset.getOwnerId().equals(a_asset.getOwnerId())) {
-                            throw new AccessDeniedException("Caller " + p_caller + " may not change owner on " +
+                            throw new AccessDeniedException("Caller " + userCaller + " may not change owner on " +
                                     a_old_asset.getObjectId() + " unless he is the owner");
                         }
                         if (((a_old_asset.getAclId() == null) && (a_asset.getAclId() != null)) || (!a_old_asset.getAclId().equals(a_asset.getAclId()))) {
-                            throw new AccessDeniedException("Caller " + p_caller +
+                            throw new AccessDeniedException("Caller " + userCaller +
                                     " may not change ACL on asset it does not own " +
                                     a_old_asset.getObjectId());
                         }
@@ -308,10 +311,10 @@ public class SimpleAssetManager implements AssetManager {
                     // If from-id is null from non-home orphan asset,
                     // then must have home-write permission to write home asset
                     if ( (null == a_asset.getFromId())
-                            && (! a_home.getOwner( om_search ).isOwner( p_caller ))
+                            && (! a_home.getOwner( om_search ).isOwner( userCaller ))
                             && ( 
                                   (a_home.getAclId() == null)
-                                  || ( ! a_home.getAcl( om_search ).checkPermission(p_caller, LittlePermission.WRITE))
+                                  || ( ! a_home.getAcl( om_search ).checkPermission(userCaller, LittlePermission.WRITE))
                                )
                     ) {
                         // caller must have WRITE on Home permission to create a rootless
@@ -327,10 +330,10 @@ public class SimpleAssetManager implements AssetManager {
                     Asset a_from = om_search.getAsset(a_asset.getFromId());
 
                     Owner o_from = a_from.getOwner(om_search);
-                    if (!o_from.isOwner(p_caller)) {
+                    if (!o_from.isOwner(userCaller)) {
                         Acl acl_from = a_from.getAcl(om_search);
-                        if ((null == acl_from) || (!acl_from.checkPermission(p_caller, LittlePermission.WRITE))) {
-                            throw new AccessDeniedException("Caller " + p_caller +
+                        if ((null == acl_from) || (!acl_from.checkPermission(userCaller, LittlePermission.WRITE))) {
+                            throw new AccessDeniedException("Caller " + userCaller +
                                     " may not link from asset " + a_from.getObjectId() +
                                     " without permission " + LittlePermission.WRITE);
                         }
@@ -349,7 +352,7 @@ public class SimpleAssetManager implements AssetManager {
                 }
 
                 a_asset.setLastUpdateDate(new Date());
-                a_asset.setLastUpdaterId(p_caller.getObjectId());
+                a_asset.setLastUpdaterId(userCaller.getObjectId());
                 a_asset.setLastUpdate(s_update_comment);
 
                 boolean b_rollback = true;

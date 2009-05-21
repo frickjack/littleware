@@ -155,6 +155,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         }
         
         
+        @Override
         public AssetModelLibrary getLibrary () {
             return SimpleAssetModelLibrary.this;
         }

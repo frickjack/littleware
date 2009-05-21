@@ -47,8 +47,11 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
         final JButton     wbutton_cancel = new JButton ( "Cancel" );
         
         KeyListener klisten = new KeyListener() {
+            @Override
             public void keyTyped(KeyEvent e) {}
+            @Override
             public void keyPressed(KeyEvent e) {}
+            @Override
             public void keyReleased(KeyEvent ev) {
                 //olog.log( Level.FINE, "Got key: " + ev.getKeyCode () );
                 if ( (ev.getKeyCode() == 10) || (ev.getKeyCode() == 13) ) {
@@ -64,6 +67,7 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
         wbutton_cancel.addKeyListener( klisten );
         wbutton_ok.addKeyListener ( klisten );
         wbutton_ok.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed ( ActionEvent event_button ) {
                 ob_ok = true;
                 JPasswordDialog.this.dispose ();
@@ -83,6 +87,7 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
         }
                                            );
         wbutton_cancel.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed ( ActionEvent event_button ) {
                 JPasswordDialog.this.dispose ();
             }
@@ -162,6 +167,7 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
         if ( ! isVisible () ) {
             ob_ok = false;
             Runnable  run_dialog = new Runnable () {
+                @Override
                 public void run () {
                     setModal(true);
                     pack();
@@ -191,6 +197,7 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
      * @throws java.io.IOException if user cancels out of dialog
      * @throws javax.security.auth.callback.UnsupportedCallbackException for unexpected callback
      */
+    @Override
     public void handle(Callback[] v_callbacks) throws IOException, UnsupportedCallbackException {
        for ( Callback callback : v_callbacks ) {
            if ( callback instanceof NameCallback) {

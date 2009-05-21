@@ -85,47 +85,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 
 -- ......
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
-	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
-	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
-	t_created, t_updated, t_last_accessed,
-	t_start, t_end
-) VALUES (
-       'BD46E5588F9D4F41A6310100FE68DCB4',
-       'littleware.home',
-       'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.home' ),
-       '00000000000000000000000000000000',
-       '00000000000000000000000000000000',
-       '00000000000000000000000000000000',
-       0.0, 'F4CEDAA07B574FFFA27E0BA87078DC34',
-       'littleware home', 'create littleware home',
-       '', NULL, NULL,
-       now(), now(), now(),
-       NULL, NULL
-      );
 
--- ......
-
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
-	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
-	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
-	t_created, t_updated, t_last_accessed,
-	t_start, t_end
-) VALUES (
-       '00000000000000000000000000000000',
-       'littleware.administrator',
-       'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.user' ),
-       '00000000000000000000000000000000',
-       '00000000000000000000000000000000',
-       '00000000000000000000000000000000',
-       0.0, 'F4CEDAA07B574FFFA27E0BA87078DC34',
-       'littleware admin', 'create littleware admin',
-       '', 'BD46E5588F9D4F41A6310100FE68DCB4', NULL,
-       now(), now(), now(),
-       NULL, NULL
-      );
 
 -- ......
 

@@ -20,7 +20,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import littleware.apps.client.ClientBootstrap;
@@ -94,11 +93,13 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             ctx.addFrameworkListener(new FrameworkListener() {
 
                 @Override
-                public void frameworkEvent(FrameworkEvent evt) {
+                public synchronized void frameworkEvent(FrameworkEvent evt) {
                     if ((evt.getType() == FrameworkEvent.STARTED) && (!obRunning)) {
-                        new Thread(LgoCommandLine.this).start();
                         obRunning = true;
                         ctx.removeFrameworkListener(this);
+                        // launch onto dispatch thread
+                        //SwingUtilities.invokeLater( LgoCommandLine.this );
+                        new Thread(LgoCommandLine.this).start();
                     }
                 }
             });
@@ -191,6 +192,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
 
     @Override
     public void run() {
+        olog.log( Level.FINE, "Running on Swing dispatch thread" );
         String[] vArgs = getArgs();
         int iExitStatus = 0;
 
@@ -267,6 +269,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
 
     /** Just launch( vArgs, new ClientBootstrap() ); on the event-dispatch thread */
     public static void main(final String[] vArgs) {
+        /*..
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
@@ -274,5 +277,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                 launch(vArgs, new ClientBootstrap());
             }
         });
+         */
+        launch(vArgs, new ClientBootstrap());
     }
 }

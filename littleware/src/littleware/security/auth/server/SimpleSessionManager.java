@@ -124,16 +124,17 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      */
     @Override
     public SessionHelper login( final String s_name, final String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        LoginContext x_login = null;
+        Subject j_caller = null;
         try {
-            x_login = new LoginContext("littleware.login",
+            LoginContext x_login = new LoginContext("littleware.login",
                                                 new SimpleNamePasswordCallbackHandler(s_name, s_password)
                                                 );
+            x_login.login();
+            j_caller = x_login.getSubject();
         } catch ( LoginException ex ) {
             olog_generic.log( Level.INFO, "Assuming pass-through login - no littleware.login context available", ex );
         }
 
-        final Subject j_caller = (null != x_login) ? x_login.getSubject() : new Subject();
         if ( null == j_caller ) {
             throw new LoginException( "Failed to authenticate" );
         }

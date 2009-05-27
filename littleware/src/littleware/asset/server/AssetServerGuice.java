@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -19,10 +17,6 @@ import com.google.inject.Scopes;
 import java.util.logging.Logger;
 
 import littleware.asset.*;
-import littleware.asset.server.db.DbAssetManager;
-import littleware.asset.server.db.DbCacheManager;
-import littleware.asset.server.db.derby.DerbyDbCacheManager;
-import littleware.asset.server.db.postgres.DbAssetPostgresManager;
 
 
 /**
@@ -38,6 +32,7 @@ public class AssetServerGuice implements Module {
         binder.bind( AssetSearchManager.class ).to( SimpleAssetSearchManager.class ).in( Scopes.SINGLETON );
         binder.bind( QuotaUtil.class ).to( SimpleQuotaUtil.class ).in( Scopes.SINGLETON );
         binder.bind( AssetSpecializerRegistry.class ).to( SimpleSpecializerRegistry.class ).in( Scopes.SINGLETON );
+        binder.bind( AssetPathFactory.class ).to( SimpleAssetPathFactory.class );
     }
 
 }

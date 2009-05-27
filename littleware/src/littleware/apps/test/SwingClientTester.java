@@ -22,6 +22,7 @@ import javax.swing.*;
 
 import com.nexes.wizard.Wizard;
 
+import java.security.acl.AclEntry;
 import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.apps.swingclient.*;
@@ -347,18 +348,15 @@ public class SwingClientTester extends LittleTest {
                 LittleAcl acl_test = (LittleAcl) m_search.getByName(s_acl_name,
                         SecurityAssetType.ACL);
                 if (null == acl_test) {
-                    acl_test = (LittleAcl) m_search.getByName(LittleAcl.ACL_EVERYBODY_READ,
-                            SecurityAssetType.ACL
-                            );
-                    acl_test.setObjectId(UUIDFactory.getFactory().create());
-                    acl_test.setName(s_acl_name);
-                    Asset a_testhome = m_search.getByName("littleware.test_home", AssetType.HOME);
-                    acl_test.setHomeId(a_testhome.getObjectId());
-                    // - don't have WRITE permission here -- 
-                    acl_test.setFromId(null);
-                    acl_test.setAclId( null );
+                    final Asset a_testhome = m_search.getByName("littleware.test_home", AssetType.HOME);
+                    final LittleGroup groupEverbody = m_search.getByName( "group.littleware.everybody", SecurityAssetType.GROUP );
+                    acl_test = AssetType.createSubfolder(SecurityAssetType.ACL, s_acl_name, a_testhome);
+                    acl_test.setAclId( acl_test.getObjectId() );
                     acl_test.setComment("AclEditor test acl");
                     acl_test.setOwnerId(om_helper.getSession().getOwnerId());
+                    final LittleAclEntry entry = SecurityAssetType.ACL_ENTRY.create();
+                    entry.setPrincipal(groupEverbody);
+                    acl_test.addEntry( entry );
                     om_helper.getService(ServiceType.ASSET_MANAGER).saveAsset(acl_test, "Setting up test asset");
                 }
                 AssetModel model_test = olib_asset.syncAsset(acl_test);

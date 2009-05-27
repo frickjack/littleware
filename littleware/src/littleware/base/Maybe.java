@@ -10,6 +10,7 @@
 
 package littleware.base;
 
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 
 
@@ -47,5 +48,15 @@ public class Maybe<T> implements java.io.Serializable {
         } else {
             return call.call ();
         }
+    }
+
+    /**
+     * Get the value if set, otherwise throw NoSuchElementException
+     */
+    public T get () {
+        if ( ! ob_set ) {
+            throw new NoSuchElementException();
+        }
+        return oval;
     }
 }

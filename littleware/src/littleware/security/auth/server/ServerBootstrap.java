@@ -10,6 +10,7 @@
 
 package littleware.security.auth.server;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,11 +51,19 @@ public class ServerBootstrap extends AbstractGOBootstrap {
     private static final Logger olog = Logger.getLogger( ServerBootstrap.class.getName() );
 
     public ServerBootstrap() {
+        this( false );
+    }
+
+    /**
+     * Constructor allows user to specify custom hibernate JPA
+     * initialization - just used for running regression tests.
+     */
+    @VisibleForTesting
+    public ServerBootstrap( boolean bHibernate ) {
         super(
                   Arrays.asList(
                   //new PostgresGuice(),
-                  //new HibernateGuice(),
-                  new J2EEGuice(),
+                  bHibernate ? new HibernateGuice() : new J2EEGuice(),
                     new AssetServerGuice (),
                     new AuthServerGuice(),
                     new BucketServerGuice(),

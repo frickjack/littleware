@@ -133,6 +133,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             j_caller = x_login.getSubject();
         } catch ( LoginException ex ) {
             olog_generic.log( Level.INFO, "Assuming pass-through login - no littleware.login context available", ex );
+            j_caller = new Subject();
         }
 
         if ( null == j_caller ) {

@@ -92,7 +92,7 @@ public class PackageTestSuite extends ServerTestLauncher {
      * and register this master test suite as a BundleActivator.
      */
     public static void main(String[] v_args) {
-        ServerBootstrap boot = new ServerBootstrap();
+        ServerBootstrap boot = new ServerBootstrap( true );
         boot.getOSGiActivator().add( PackageTestSuite.class );
         boot.bootstrap();
     }

@@ -145,14 +145,12 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
     
     // Add member controls
     private final JTextField                owtext_add = new JTextField ( 40 );
-    private final JComboBox                 owcombo_ptype; // principal type
     private final JButton                   owbutton_add    = new JButton ( "Add" );
     {
         AssetType[] v_ptype = {
             SecurityAssetType.USER,
             SecurityAssetType.GROUP
         };
-        owcombo_ptype = new JComboBox ( v_ptype );
         
         owbutton_add.addActionListener(
                                        new ActionListener () {
@@ -175,12 +173,11 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
      */
     private void uiAddNewMember () {
         try {
-            AssetType         n_type = (AssetType) owcombo_ptype.getSelectedItem ();
             String            s_name = owtext_add.getText ();
-            LittlePrincipal   p_new = (LittlePrincipal) om_search.getByName ( s_name, n_type );
+            LittlePrincipal   p_new = (LittlePrincipal) om_search.getByName ( s_name, SecurityAssetType.PRINCIPAL );
             
             if ( null == p_new ) {
-                throw new NoSuchThingException ( "No " + n_type + " asset with name " + s_name + " in repository" );
+                throw new NoSuchThingException ( "No principal with name " + s_name + " in repository" );
             }
             LittleAcl         acl_local = (LittleAcl) this.getLocalAsset ();
             AssetModelLibrary lib_asset = getAssetModel ().getLibrary ();
@@ -321,8 +318,8 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
             owpanel_build.add ( owtext_add, grid_control );
             grid_control.fill = GridBagConstraints.NONE;            
             grid_control.weightx = 0.0;
-            grid_control.gridx += grid_control.gridwidth;
-            owpanel_build.add ( owcombo_ptype, grid_control );
+            //grid_control.gridx += grid_control.gridwidth;
+            //owpanel_build.add ( owcombo_ptype, grid_control );
             grid_control.gridx += grid_control.gridwidth;
             owpanel_build.add ( owbutton_add, grid_control );
             grid_control.gridx = 0;

@@ -11,6 +11,8 @@
 package littleware.asset.server.db.jpa;
 
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import littleware.asset.AssetType;
 import littleware.base.UUIDFactory;
 
@@ -18,6 +20,7 @@ import littleware.base.UUIDFactory;
  * Simple POJO to fascilitate JPLQ queries that return (name,id) pairs.
  */
 public class NameIdType {
+    private static final Logger olog = Logger.getLogger( NameIdType.class.getName() );
     private final String osName;
     private final UUID   ouId;
     private AssetType oatype;
@@ -31,7 +34,9 @@ public class NameIdType {
         try {
             oatype = AssetType.getMember( UUIDFactory.parseUUID( sTypeId ) );
         } catch ( Exception ex ) {
-            throw new IllegalArgumentException( "Invalid asset type", ex );
+            // Don't freak out! ... throw new IllegalArgumentException( "Invalid asset type", ex );
+            olog.log( Level.WARNING, "Loading unknown type as AssetType.GENERIC: " + sTypeId );
+            oatype = AssetType.GENERIC;
         }
     }
 

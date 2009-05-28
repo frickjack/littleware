@@ -52,7 +52,7 @@ public class HibernateProvider implements Provider<EntityManagerFactory> {
                     addAnnotatedClass(AssetEntity.class).
                     addAnnotatedClass(TransactionEntity.class).
                     addAnnotatedClass(AssetTypeEntity.class).
-                    setProperty("hibernate.show_sql", "true").
+                    //setProperty("hibernate.show_sql", "true").
                     setProperty("hibernate.dialect",
                     "org.hibernate.dialect.MySQLDialect");
             for (Class<?> entityClass : ovExtraEntity) {

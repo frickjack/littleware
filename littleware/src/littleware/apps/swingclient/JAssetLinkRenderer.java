@@ -29,6 +29,7 @@ import littleware.apps.misc.ThumbManager;
 import littleware.apps.misc.ThumbManager.Thumb;
 import littleware.asset.*;
 import littleware.base.BaseException;
+import littleware.security.SecurityAssetType;
 
 /**
  * Specialization of a JLabel for rendering a link to an Asset.
@@ -237,7 +238,12 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         Icon iconType = olib_icon.lookupIcon(a_linkto);
         UUID uThumb = a_linkto.getObjectId();
 
-        if ( a_linkto.getAssetType().isA( AssetType.LINK )
+        if ( 
+                (
+                a_linkto.getAssetType().isA( AssetType.LINK )
+                || a_linkto.getAssetType().isA( SecurityAssetType.GROUP_MEMBER)
+                || a_linkto.getAssetType().isA( SecurityAssetType.ACL_ENTRY)
+                )
               && (null != a_linkto.getToId() )
              ) {
             try {

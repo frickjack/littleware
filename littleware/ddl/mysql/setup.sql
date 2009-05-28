@@ -231,7 +231,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 	t_start, t_end
 ) VALUES (
        'A20FF0A0829A433FBA7CF90B128F4FDF',
-       'read.group.littleware.everybody',
+       'group.littleware.everybody.positive',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
        littleware.getTypeId( 'littleware.acl_entry' ),
        '00000000000000000000000000000000',

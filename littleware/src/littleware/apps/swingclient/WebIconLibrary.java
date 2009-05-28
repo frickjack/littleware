@@ -114,9 +114,17 @@ public class WebIconLibrary implements IconLibrary {
         ov_asset_urls.put ( SecurityAssetType.GROUP,
                                                 "/geronimo/group_16.gif" 
                              );
+        ov_asset_urls.put ( SecurityAssetType.GROUP_MEMBER,
+                                            "/geronimo/link_16.gif"
+                             );
+
         ov_asset_urls.put ( SecurityAssetType.ACL,
                                               "/geronimo/lock_16.gif" 
                              );
+        ov_asset_urls.put ( SecurityAssetType.ACL_ENTRY,
+                                            "/geronimo/link_16.gif"
+                             );
+
         ov_asset_urls.put ( AssetType.HOME,
                                                "/geronimo/home_16.gif" 
                              );

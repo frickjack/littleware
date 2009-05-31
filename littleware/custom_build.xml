@@ -30,6 +30,7 @@
 	 <pathelement location="${jardir}/jython.jar" />
 	 <pathelement location="${jardir}/junit-3.8.2.jar" />
 	 <pathelement location="${jardir}/easymock-2.4.jar" />
+	 <pathelement location="${jardir}/google-collect-1.0-rc1/google-collect-1.0-rc1.jar" />
      <pathelement location="${jardir}/littleIcons-0.0.jar" />
 	 <pathelement location="${jardir}/mail.jar" />
 	 <pathelement location="${jardir}/java-getopt-1.0.13.jar" />

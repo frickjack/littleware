@@ -21,10 +21,13 @@ import java.util.UUID;
 
 import com.nexes.wizard.*;
 
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.*;
 import littleware.asset.Asset;
+import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
@@ -343,5 +346,17 @@ public class CreateAssetWizard extends WizardAssetEditor {
 
     @Override
     protected void eventFromModel(LittleEvent evt_model) {
+    }
+
+    /** Verify that the comment from the last panel is set */
+    @Override
+    public void saveLocalChanges ( AssetManager m_asset, String s_message
+                                       ) throws BaseException, AssetException,
+                                               RemoteException, GeneralSecurityException
+    {
+        if (!getLocalAsset().getComment().equals(opanel_comment.getText())) {
+            changeLocalAsset().setComment(opanel_comment.getText());
+        }
+        super.saveLocalChanges( m_asset, s_message );
     }
 }

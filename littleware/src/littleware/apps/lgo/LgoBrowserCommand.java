@@ -170,7 +170,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
         final JMenuBar  jBar = new JMenuBar ();
         final JMenu     jMenuFile = new JMenu( "File" );
 
-        final JMenuItem jMenItemQuit = new JMenuItem( new AbstractAction( "Quit" ) {
+        final JMenuItem jMenItemQuit = new JMenuItem( new AbstractAction( "Exit" ) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -178,7 +178,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
             }
 
         });
-        jMenItemQuit.setMnemonic( KeyEvent.VK_Q );
+        jMenItemQuit.setMnemonic( KeyEvent.VK_X );
         jMenuFile.add( jMenItemQuit );
         jMenuFile.setMnemonic( KeyEvent.VK_F );
         jBar.add( jMenuFile );

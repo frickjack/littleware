@@ -1,3 +1,13 @@
+/*
+ * Copyright 2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.base.swing;
 
 import java.awt.*;
@@ -18,6 +28,7 @@ public class JTextAppender extends JPanel implements Appendable {
     public static final int OI_DEFAULT_WIDTH = 40;
     /** Default buffer size (in characters) */
     public static final int OI_DEFAULT_BUFFER = 10240;
+    private static final long serialVersionUID = -5568368380279258459L;
 
     /**
      * Append mode
@@ -75,6 +86,7 @@ public class JTextAppender extends JPanel implements Appendable {
                     new ActionListener() {
 
                         /** Listens to the combo box. */
+                @Override
                         public void actionPerformed(ActionEvent e) {
                             Mode n_mode = (Mode) ow_mode.getSelectedItem();
                             setMode(n_mode);
@@ -87,6 +99,7 @@ public class JTextAppender extends JPanel implements Appendable {
             w_button.addActionListener(
                     new ActionListener() {
 
+                @Override
                         public void actionPerformed(ActionEvent e) {
                             JTextAppender.this.clear();
                         }
@@ -155,6 +168,7 @@ public class JTextAppender extends JPanel implements Appendable {
         SwingUtilities.invokeLater(
                 new Runnable() {
 
+            @Override
                     public void run() {
                         ow_mode.setSelectedIndex(on_mode.ordinal());
                         int i_length = ow_text.getDocument().getLength();
@@ -167,6 +181,7 @@ public class JTextAppender extends JPanel implements Appendable {
                 });
     }
 
+    @Override
     public Appendable append(char c) {
         return this.append("" + c);
     }
@@ -182,6 +197,7 @@ public class JTextAppender extends JPanel implements Appendable {
             os_new = s_in;
         }
 
+        @Override
         public void run() {
             ow_text.append(os_new);
 
@@ -199,6 +215,7 @@ public class JTextAppender extends JPanel implements Appendable {
      * Streams the CharSequence off to the Swing dispatch thread
      * asynchronously via SwingUtilities.invokeLater
      */
+    @Override
     public Appendable append(CharSequence s_in) {
         if (!on_mode.equals(Mode.PAUSE)) {
             Runnable run_handler = new AppendAction(s_in.toString());
@@ -209,6 +226,7 @@ public class JTextAppender extends JPanel implements Appendable {
         return this;
     }
 
+    @Override
     public Appendable append(CharSequence s_in, int i_start, int i_end) {
         return this.append(s_in.subSequence(i_start, i_end));
     }
@@ -220,6 +238,7 @@ public class JTextAppender extends JPanel implements Appendable {
         SwingUtilities.invokeLater(
                 new Runnable() {
 
+            @Override
                     public void run() {
                         ow_text.replaceRange("", 0, ow_text.getDocument().getLength());
                     }
@@ -246,6 +265,7 @@ public class JTextAppender extends JPanel implements Appendable {
                 write_appender,
                 new Runnable() {
 
+            @Override
                     public void run() {
                         JOptionPane.showMessageDialog(w_root,
                                 "End of input reached",
@@ -269,11 +289,10 @@ public class JTextAppender extends JPanel implements Appendable {
      */
     public static void main(String[] v_argv) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 createAndShowGUI();
             }
         });
     }
-}// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-
+}

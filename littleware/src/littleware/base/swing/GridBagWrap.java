@@ -15,6 +15,8 @@ import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Little utility wrapper around a GridBagConstraint
@@ -116,6 +118,18 @@ public class GridBagWrap {
     }
     public int gridx() { return ogb.gridx; }
 
+    public double weightx() { return ogb.weightx; }
+    public GridBagWrap weightx( double dWeight ) {
+        ogb.weightx = dWeight;
+        return this;
+    }
+
+    public double weighty() { return ogb.weighty; }
+    public GridBagWrap weighty( double dWeight ) {
+        ogb.weighty = dWeight;
+        return this;
+    }
+
     /**
      * Get/set internal GridBagConstraints gridx property
      */
@@ -194,6 +208,7 @@ public class GridBagWrap {
 
     private int oiLastX = -1;
     private int oiLastY = -1;
+    private final List<Component>   ovCheck = new ArrayList<Component>();
 
     /**
      * Shortcut for getContainer().add( wcomp, getConstraints() )
@@ -215,8 +230,19 @@ public class GridBagWrap {
                  && (gridy() == oiLastY)
                  )
          {
-             throw new IllegalArgumentException ( "Adding overlapping widget: " + wcomp.getName() );
+             throw new IllegalArgumentException ( "Adding overlapping widget at position (" +
+                     gridx() + ", " + gridy() + "): " + wcomp.getName()
+                     );
          }
+
+         // provide a check that we do not accidentally
+         // add the same component more than once
+         for ( Component wcheck : ovCheck ) {
+             if ( wcheck == wcomp ) {
+                 throw new IllegalArgumentException( "Component has already been added to the grid" );
+             }
+         }
+         ovCheck.add( wcomp );
          owcontainer.add( wcomp, ogb );
          oiLastX = gridx();
          oiLastY = gridy();

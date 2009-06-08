@@ -156,7 +156,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
             throw new AssertionFailedException( "Unable to load littleware.properties", ex );
         }
 
-        Injector injector = Guice.createInjector(
+        final Injector injector = Guice.createInjector(
                 ovGuice
                 );
 

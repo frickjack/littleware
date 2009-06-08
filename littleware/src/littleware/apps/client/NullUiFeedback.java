@@ -25,10 +25,12 @@ public class NullUiFeedback implements UiFeedback {
 
     private int oi_progress = 0;
 
+    @Override
     public int getProgress() {
         return oi_progress;
     }
 
+    @Override
     public void setProgress(int i_progress) {
         int i_clean = i_progress;
         if ( i_clean < 0 ) {
@@ -43,46 +45,56 @@ public class NullUiFeedback implements UiFeedback {
         }
     }
 
+    @Override
     public void setProgress(int i_progress, int i_max) {
         setProgress( (int) ((float) i_progress / (float) i_max) );
     }
 
     private String os_title = "";
 
+    @Override
     public String getTitle() {
         return os_title;
     }
 
+    @Override
     public void setTitle(String s_title) {
         String s_old = os_title;
         os_title = s_title;
         osupport.firePropertyChange( "title", s_old, s_title );
     }
 
+    @Override
     public void publish( Object x_result ) {
         osupport.fireLittleEvent( new UiPublishEvent( this, x_result ) );
     }
     
+    @Override
     public void log(Level level, String s_info) {
         osupport.fireLittleEvent( new UiMessageEvent( this, level, s_info ) );
     }
 
+    @Override
     public void info(String s_info) {
         this.log( Level.INFO, s_info );
     }
 
+    @Override
     public void addLittleListener(LittleListener listen_action) {
         osupport.addLittleListener( listen_action );
     }
 
+    @Override
     public void removeLittleListener(LittleListener listen_action) {
         osupport.removeLittleListener( listen_action );
     }
 
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listen_props) {
         osupport.addPropertyChangeListener( listen_props );
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listen_props) {
         osupport.removePropertyChangeListener( listen_props );
     }

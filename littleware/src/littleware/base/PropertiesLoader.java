@@ -219,7 +219,7 @@ public class PropertiesLoader {
                 }
             }
         }
-        File fh_home = getLittleHome ();
+        final File fh_home = getLittleHome ();
         if ( null != fh_home ) {
             loadPropsFromFile( prop_filedata,  new File( fh_home, s_name ) );
         }

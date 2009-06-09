@@ -133,7 +133,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                     }
                         
                 } catch ( Exception e ) {
-                    olog_generic.log ( Level.WARNING, "Asset-create caught unexpected: " + e );
+                    olog_generic.log ( Level.WARNING, "Asset-create caught unexpected", e );
                     olib_asset.remove ( a_new.getObjectId () );
                     JOptionPane.showMessageDialog(null, "Could not create new asset, caught: " + e,
                                                   "alert", 
@@ -189,7 +189,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                         super.receiveLittleEvent ( event_nav );
                     }
                 } catch ( Exception e ) {
-                    olog_generic.log ( Level.WARNING, "Asset-delete caught unexpected: " + e );
+                    olog_generic.log ( Level.WARNING, "Asset-delete caught unexpected", e );
                     JOptionPane.showMessageDialog(null, "Could not delete asset, caught: " + e,
                                                   "alert", 
                                                   JOptionPane.ERROR_MESSAGE
@@ -204,7 +204,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
             try {
                 event_save.doSave ( om_asset );
             } catch ( Exception e ) {
-                olog_generic.log ( Level.WARNING, "Asset-save caught unexpected: " + e );
+                olog_generic.log ( Level.WARNING, "Asset-save caught unexpected", e );
                 JOptionPane.showMessageDialog(null, "Could not save asset, caught: " + e,
                                               "alert", 
                                               JOptionPane.ERROR_MESSAGE

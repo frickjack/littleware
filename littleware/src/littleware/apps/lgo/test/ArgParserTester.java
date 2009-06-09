@@ -87,7 +87,7 @@ public class ArgParserTester extends LittleTest {
                     mapDefault.put( sOpt, null );
                 }
                 final Map<String,String> mapTest = AbstractLgoCommand.processArgs( mapDefault,
-                        Arrays.asList( "", "-path", "/KungFu/Episodes/Episode0/", "-state", "Ready", "-facility", "Paprika", "-pipeline", "Tx", "" )
+                        Arrays.asList( "", "-path", "/KungFu/Episodes/Episode0/", "-state", "Ready", "-facility", "Paprikaas", "-pipeline", "Tx", "" )
 );
                 assertTrue( "Diskpath unset: " + mapTest.get( "diskpath" ), null == mapTest.get( "diskpath" ) );
             }

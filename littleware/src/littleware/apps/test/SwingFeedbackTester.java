@@ -37,6 +37,7 @@ public class SwingFeedbackTester extends LittleTest {
     @Inject
     public SwingFeedbackTester( SwingFeedbackBuilder builder ) {
         obuilder = builder;
+        setName( "testSwingFeedback" );
     }
 
     public void testSwingFeedback() {

@@ -26,6 +26,7 @@ import javax.servlet.*;
  */
 public class BootstrapServlet extends HttpServlet {
     private static final Logger olog = Logger.getLogger( BootstrapServlet.class.getName() );
+    private static final long serialVersionUID = 513807516080701142L;
 
     private Exception        oex_error = null;
     private littleware.security.auth.server.ServerBootstrap  obootstrap = null;

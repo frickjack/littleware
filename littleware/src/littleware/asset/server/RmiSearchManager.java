@@ -25,6 +25,7 @@ import littleware.base.*;
  * of a base implementation class.
  */
 public class RmiSearchManager extends LittleRemoteObject implements AssetSearchManager, Remote {
+    private static final long serialVersionUID = 3426911488683486233L;
 
     private AssetSearchManager om_proxy = null;
 
@@ -33,71 +34,85 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
         om_proxy = m_proxy;
     }
 
+    @Override
     public Asset getByName(String s_name, AssetType n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getByName(s_name, n_type);
     }
 
+    @Override
     public List<Asset> getAssetHistory(UUID u_id, Date t_start, Date t_end)
             throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetHistory(u_id, t_start, t_end);
     }
 
+    @Override
     public Asset getAsset(UUID u_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAsset(u_id);
     }
 
+    @Override
     public Asset getAssetOrNull(UUID u_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetOrNull(u_id);
     }
 
+    @Override
     public Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssets(v_id);
     }
 
+    @Override
     public Map<String, UUID> getHomeAssetIds() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getHomeAssetIds();
     }
 
+    @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_from,
             AssetType n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetIdsFrom(u_from, n_type);
     }
 
+    @Override
     public String getSourceName() throws RemoteException {
         return om_proxy.getSourceName();
     }
 
+    @Override
     public Map<AssetPath, Asset> getAssetsAlongPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetsAlongPath(path_asset);
     }
 
+    @Override
     public Asset getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetAtPath(path_asset);
     }
 
+    @Override
     public Asset getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetFrom(u_from, s_name);
     }
 
+    @Override
     public Asset getAssetFromOrNull(UUID u_from, String s_name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetFromOrNull(u_from, s_name);
     }
 
+    @Override
     public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> v_check) throws BaseException, RemoteException {
         return om_proxy.checkTransactionCount(v_check);
     }
 
+    @Override
     public Set<UUID> getAssetIdsTo(UUID u_to,
             AssetType n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {

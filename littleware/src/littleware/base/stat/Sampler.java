@@ -10,10 +10,13 @@
 
 package littleware.base.stat;
 
+import com.google.inject.ImplementedBy;
+
 /**
  * Little random variable sampler interface
  * extends MBean interface withs etters.
  */
+@ImplementedBy(SimpleSampler.class)
 public interface Sampler extends SamplerMBean {
 	/**
 	 * Add a variable sample to the data

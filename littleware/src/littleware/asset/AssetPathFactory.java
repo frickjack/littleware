@@ -10,6 +10,7 @@
 
 package littleware.asset;
 
+import com.google.inject.ImplementedBy;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -19,6 +20,7 @@ import littleware.base.ParseException;
 /**
  * Source of AssetPath objects.
  */
+@ImplementedBy(SimpleAssetPathFactory.class )
 public abstract class AssetPathFactory {
     private static final Logger olog_generic = Logger.getLogger ( AssetPathFactory.class.getName() );
     /**

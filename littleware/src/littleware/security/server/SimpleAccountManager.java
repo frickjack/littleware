@@ -426,6 +426,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         return (s_password.length() > 5);
     }
 
+    @Override
     public LittleUser getAuthenticatedUser() throws NotAuthenticatedException, ManagerException {
         LittleUser p_result = SecurityAssetType.getAuthenticatedUserOrNull();
 
@@ -435,6 +436,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         return p_result;
     }
 
+    @Override
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_quota.getQuota(p_user, om_search);

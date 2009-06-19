@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -54,6 +52,7 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 		/**
 		 * PrivilegedExceptionAction.run for Subject.doAs
 		 */
+        @Override
 		public Object run () throws Exception {
 			try {
 				return omethod_call.invoke ( ox_real, ov_args );
@@ -99,6 +98,7 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 		 * executing in a privileged execution context: 
 		 *         oj_caller.doAs ( act_subject )
 		 */
+        @Override
 		public Object run () throws Exception {
 			try {
                 if ( null == getCaller () ) {
@@ -143,6 +143,7 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 		return oj_caller;
 	}
 	
+    @Override
 	public Object	invoke( Object proxy, Method method_call, Object[] v_args) throws Throwable {			
 		littleware.base.Timer  timer_run = new littleware.base.Timer ();
 		

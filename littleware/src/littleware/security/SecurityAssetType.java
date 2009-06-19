@@ -158,6 +158,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             return new SimpleQuota();
         }
 
+        @Override
         public boolean mustBeAdminToCreate() {
             return true;
         }

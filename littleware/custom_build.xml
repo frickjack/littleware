@@ -24,7 +24,8 @@
 	 <pathelement location="${jardir}/commons-dbutils.jar" />
 	 <pathelement location="${jardir}/commons-logging.jar" />
 	 <pathelement location="${jardir}/derby-10.4.2.1.jar" />
-	 <pathelement location="${jardir}/guice-1.0.jar" />
+	 <pathelement location="${jardir}/guice-2.0/aopalliance.jar" />
+	 <pathelement location="${jardir}/guice-2.0/guice-2.0.jar" />
 	 <pathelement location="${jardir}/javaee5.jar" />
 	 <pathelement location="${jardir}/js.jar" />
 	 <pathelement location="${jardir}/jython.jar" />

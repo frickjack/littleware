@@ -59,4 +59,23 @@ public class Maybe<T> implements java.io.Serializable {
         }
         return oval;
     }
+
+    @Override
+    public boolean equals( final Object other ) {
+        if ( other instanceof Maybe ) {
+            final Maybe<?> maybe = (Maybe<?>) other;
+            return (isSet() == maybe.isSet()) &&
+                    (isSet() ? get().equals( maybe.get() ) : true);
+        } else {
+            return isSet() && get().equals( other );
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 37 * hash + (this.ob_set ? 1 : 0);
+        hash = 37 * hash + (this.oval != null ? this.oval.hashCode() : 0);
+        return hash;
+    }
 }

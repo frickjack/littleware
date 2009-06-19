@@ -238,7 +238,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
     /**
      * Utility creates an asset with the given type and name
      * linking FROM the given parent asset, and intialized
-     * with the same HOME and ACL as the parent.
+     * with the same HOME and ACL as the parent and set with a random object id.
      *
      * @param atype_new type of asset to create
      * @param s_name to give the new asset
@@ -252,6 +252,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         a_new.setFromId(a_parent.getObjectId());
         a_new.setHomeId(a_parent.getHomeId());
         a_new.setAclId(a_parent.getAclId());
+        a_new.setObjectId( UUID.randomUUID() );
         return a_new;
     }
 }

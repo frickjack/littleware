@@ -22,6 +22,7 @@ import java.security.*;
 import javax.security.auth.*;
 import java.lang.ref.WeakReference;
 
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import littleware.asset.*;
@@ -131,6 +132,8 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                                                 );
             x_login.login();
             j_caller = x_login.getSubject();
+        } catch ( FailedLoginException ex ) {
+            throw ex;
         } catch ( LoginException ex ) {
             olog_generic.log( Level.INFO, "Assuming pass-through login - no littleware.login context available", ex );
             j_caller = new Subject();

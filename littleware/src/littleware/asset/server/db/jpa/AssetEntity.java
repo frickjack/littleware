@@ -214,6 +214,7 @@ public class AssetEntity implements Serializable {
             aNew.setStartDate( getStart() );
             aNew.setLastUpdateDate( getTimeUpdated() );
             aNew.setLastAccessDate( getTimeAccessed() );
+            aNew.setTransactionCount( getLastTransaction() );
             return aNew;
         } catch ( Exception ex ) {
             throw new AssetBuildException( "Not enough data to build asset", ex );
@@ -248,6 +249,7 @@ public class AssetEntity implements Serializable {
         entity.setStart(aImport.getStartDate());
         entity.setTimeUpdated(aImport.getLastUpdateDate());
         entity.setTimeAccessed(aImport.getLastAccessDate());
+        entity.setLastTransaction( aImport.getTransactionCount() );
         return entity;
     }
 }

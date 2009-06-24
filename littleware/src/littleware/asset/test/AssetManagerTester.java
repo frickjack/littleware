@@ -102,20 +102,23 @@ public class AssetManagerTester extends TestCase {
                              && a_test.getName ().equals ( s_name )
                              && a_test.getAssetType ().equals ( AssetType.GENERIC )
                              && t_now.getTime() < a_test.getEndDate().getTime()
+                             && a_test.getTransactionCount() > 0
                              );
-                
                 
                 Asset a_clone = a_test.clone ();
                 assertTrue ( "Able to clone new asset",
                              a_test.equals ( a_clone )
                              && a_clone.getName ().equals ( a_test.getName () )
                              && a_clone.getAssetType ().equals ( a_test.getAssetType () )
+                             && a_clone.getTransactionCount() == a_test.getTransactionCount()
                              );
                 
                 // Try to update the asset
                 a_test.setData ( "<data> some data </data>" );
                 a_test = om_asset.saveAsset ( a_test, "data update" );
-                
+                assertTrue( "Transaction count increases: " + a_test.getTransactionCount(),
+                        a_test.getTransactionCount() > a_clone.getTransactionCount()
+                        );
                 a_test = om_search.getAsset ( a_test.getObjectId () ).get();
                 assertTrue ( "Able to load new asset and data matches",
                              a_test.equals ( a_clone )

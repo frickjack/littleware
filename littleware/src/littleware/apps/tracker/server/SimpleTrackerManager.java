@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.tracker.server;
 
 import littleware.asset.server.NullAssetSpecializer;
@@ -51,6 +61,7 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
             }
             
             Collections.sort ( v_children, new Comparator<Task> () {
+                @Override
                 public int compare ( Task task_a, Task task_b ) {
                     return task_a.getCreateDate ().compareTo ( task_b.getCreateDate () );
                 }
@@ -97,7 +108,7 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
             task_in.getTaskComments ().addAll ( v_comments );
         }
         if ( a_in.getAssetType ().equals ( TrackerAssetType.QUEUE ) ) {
-            littleware.apps.tracker.Queue q_in = (littleware.apps.tracker.Queue) a_in;
+            littleware.apps.tracker.Queue q_in = a_in.narrow(littleware.apps.tracker.Queue.class);
             Set<Asset> v_tasks = om_search.getAssets ( om_search.getAssetIdsTo ( a_in.getObjectId (),
                                                                                       TrackerAssetType.TASK )
                                                           );
@@ -154,7 +165,7 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
         if ( null == u_id ) {
             return false;
         }
-        Asset a_save = om_search.getAssetOrNull ( u_id );
+        Asset a_save = om_search.getAsset ( u_id ).getOr( null );
         if ( (null != a_save)
              && ( (null == n_type)
                   || a_save.getAssetType ().equals ( n_type )
@@ -257,8 +268,4 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
     }
 
 }
-
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

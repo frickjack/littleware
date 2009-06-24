@@ -93,7 +93,7 @@ public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
         try {
             aParent = osearch.getAssetAtPath(
                 path.getParent()
-                );
+                ).get();
         } catch ( Exception ex ) {
             throw new LgoException ( "Failed to load parent of: " + path );
         }

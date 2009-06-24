@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
@@ -37,7 +35,7 @@ public class SecurityServerActivator implements BundleActivator {
      */
     @Inject
     public SecurityServerActivator ( AssetSpecializerRegistry registry,
-            AccountManager mgr_account, AclManager mgr_acl
+            AccountManager mgr_account, AclSpecializer mgr_acl
             )
     {
         registry.registerService( SecurityAssetType.PRINCIPAL, (AssetSpecializer) mgr_account );
@@ -51,10 +49,12 @@ public class SecurityServerActivator implements BundleActivator {
      * NOOP for now - might want to later setup a littleware-authenticate
      * service in JNDI.
      */
+    @Override
     public void start(BundleContext ctx) throws Exception {
     }
 
     /** NOOP for now */
+    @Override
     public void stop(BundleContext ctx) throws Exception {
     }
 

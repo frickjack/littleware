@@ -120,8 +120,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
 
     /**
      * For now just authenticate anyone with a user account
-     *
-     * @TODO re-enable JAAS authentication
      */
     @Override
     public SessionHelper login( final String s_name, final String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
@@ -144,24 +142,24 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         }
 
         final Subject j_admin = new Subject ();
-        j_admin.getPrincipals().add( om_search.getByName( AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER));
+        j_admin.getPrincipals().add( om_search.getByName( AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get() );
         j_admin.setReadOnly();
 
         // Do a little LoginContext sim - need to clean this up
         // Who am I running as now ?  What the frick ?
-        LittleUser user = om_search.getByName(s_name, SecurityAssetType.USER);
-        if ( null == user ) {
+        Maybe<LittleUser> maybeUser = om_search.getByName(s_name, SecurityAssetType.USER);
+        if ( ! maybeUser.isSet() ) {
             try {
-                user = (LittleUser) Subject.doAs ( j_admin, new PrivilegedExceptionAction () {
+                maybeUser = (Maybe<LittleUser>) Subject.doAs ( j_admin, new PrivilegedExceptionAction<Maybe<LittleUser>> () {
 
                 @Override
-                public LittleUser run() throws BaseException, GeneralSecurityException, RemoteException {
-                    final Asset aHome = om_search.getByName("littleware.home", AssetType.HOME);
-                    Asset  aUsers = om_search.getAssetFromOrNull( aHome.getObjectId(), "Users" );
-                    if ( null == aUsers ) {
-                        aUsers = om_asset.saveAsset( AssetType.createSubfolder( AssetType.GENERIC, "Users", aHome ), "setup user folder" );
+                public Maybe<LittleUser> run() throws BaseException, GeneralSecurityException, RemoteException {
+                    final Asset aHome = om_search.getByName("littleware.home", AssetType.HOME).get();
+                    Maybe<Asset>  maybeParent = om_search.getAssetFrom( aHome.getObjectId(), "Users" );
+                    if ( ! maybeParent.isSet() ) {
+                        maybeParent = Maybe.something( om_asset.saveAsset( AssetType.createSubfolder( AssetType.GENERIC, "Users", aHome ), "setup user folder" ) );
                     }
-                    return om_asset.saveAsset( AssetType.createSubfolder( SecurityAssetType.USER, s_name, aUsers ), "setup new user" );
+                    return Maybe.something( om_asset.saveAsset( AssetType.createSubfolder( SecurityAssetType.USER, s_name, maybeParent.get() ), "setup new user" ) );
                 }
             } );
             } catch (PrivilegedActionException ex) {
@@ -181,7 +179,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             
         }
         
-        j_caller.getPrincipals().add( user );
+        j_caller.getPrincipals().add( maybeUser.get() );
         /*... disable for now ...
         javax.security.auth.spi.LoginModule module = new PasswordDbLoginModule();
         module.initialize ( j_caller, 
@@ -196,7 +194,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         // ok - user authenticated ok by here - setup user session
         LittleSession  session = SecurityAssetType.SESSION.create ();
         session.setName( s_name );
-        session.setOwnerId( user.getObjectId() );
+        session.setOwnerId( maybeUser.get().getObjectId() );
         session.setComment( "User login" );
 
         // Create the session asset as the admin user - session has null from-id
@@ -234,7 +232,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         }
 
         try {
-            LittleSession a_session = (LittleSession) om_search.getAsset ( u_session );
+            final LittleSession a_session = om_search.getAsset ( u_session ).get().narrow(LittleSession.class);
             return setupNewHelper(a_session);
         } catch (GeneralSecurityException e) {
             throw new AccessDeniedException("Caught unexpected: " + e, e);

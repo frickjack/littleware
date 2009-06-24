@@ -79,12 +79,7 @@ public class IfAclAccessAction extends ConditionalTagSupport {
                 return false;
             }
         
-            Acl  acl_check = (Acl) m_search.getByName ( os_acl, SecurityAssetType.ACL );
-            if ( null == acl_check ) {
-                olog_generic.log ( Level.INFO, "Request ACL does not exist: " + os_acl );
-                return false;
-            }
-            
+            final Acl  acl_check = m_search.getByName ( os_acl, SecurityAssetType.ACL ).get();
             return acl_check.checkPermission ( p_caller, operm_access );
         } catch ( RuntimeException e ) {
             throw e;

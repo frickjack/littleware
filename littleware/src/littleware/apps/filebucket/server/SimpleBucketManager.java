@@ -102,7 +102,7 @@ public class SimpleBucketManager implements BucketManager {
     public Bucket getBucket ( UUID u_asset ) throws BaseException, GeneralSecurityException,
                                 AssetException, RemoteException, BucketException, IOException
     {
-        Asset        a_bucket = om_search.getAsset ( u_asset );
+        Asset        a_bucket = om_search.getAsset ( u_asset ).get();
         File         file_bucket = getBucketPath ( a_bucket );
         SortedSet<String> v_members = new TreeSet<String> ();
         
@@ -193,7 +193,7 @@ public class SimpleBucketManager implements BucketManager {
         final LittleTransaction trans = oprovideTrans.get();
         final Map<UUID,Asset> v_cache = trans.startDbAccess ();
         try {
-            Asset             a_bucket = om_search.getAsset ( u_asset );
+            Asset             a_bucket = om_search.getAsset ( u_asset ).get();
             File              file_data = new File ( getBucketPath ( a_bucket ), s_path );
             FileInputStream  streamin_data = new FileInputStream ( file_data );
             try {

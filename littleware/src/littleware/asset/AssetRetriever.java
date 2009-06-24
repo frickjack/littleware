@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset;
 
 import java.util.*;
@@ -17,7 +16,6 @@ import java.rmi.RemoteException;
 
 import littleware.base.*;
 import littleware.security.AccessDeniedException;
-
 
 /**
  * Interface for retrieving assets from various sources -
@@ -42,100 +40,76 @@ import littleware.security.AccessDeniedException;
  * ready for a Remote mixin.
  */
 public interface AssetRetriever extends java.rmi.Remote {
-	/**
-	 * Get the asset with the specified id.
-	 * 
-	 * @param u_id of asset to retrieve
-	 * @return fully initialized asset.
-	 *           If the asset is a PRIINCIPAL or ACL AssetType, 
-	 *           then the returned object will implent the Principal
-	 *           and Acl interfaces respectively.
-	 * @exception NoSuchThingException if requested asset does not exist in the db
-	 * @exception AccessDeniedException if caller does not have permission to read
-	 *                 the specified asset
-	 * @exception DataAccessException on database access/interaction failure
-	 * @exception AssetException some other failure condition
-	 */
-	public @ReadOnly Asset getAsset ( UUID u_id ) throws BaseException, AssetException, 
-	GeneralSecurityException, RemoteException;
 
-		
-	/**
-	 * Get the asset with the specified id, or return NULL if
-	 * it doesn't exist on this server.
-	 * 
-	 * @param u_id of asset to retrieve - return null if u_id is null
-	 * @return fully initialized asset.
-	 *           If the asset is a PRIINCIPAL or ACL AssetType, 
-	 *           then the returned object will implent the Principal
-	 *           and Acl interfaces respectively.
-	 * @exception AccessDeniedException if caller does not have permission to read
-	 *                 the specified asset
-	 * @exception DataAccessException on database access/interaction failure
-	 * @exception AssetException some other failure condition
-	 */
-	public @ReadOnly Asset getAssetOrNull ( UUID u_id ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
-	
-
-	
-	/**
-	 * Get as many of the assets in the given set of ids as possible.
-	 * 
-	 * @param v_id set of asset ids to retrieve
-	 * @return set of fully initialized assets (no duplicates).
-	 *           If the asset is a PRIINCIPAL or ACL AssetType, 
-	 *           then the returned object will implent the Principal
-	 *           and Acl interfaces respectively.
-	 * @exception NoSuchThingException if requested asset does not exist in the db
-	 * @exception AccessDeniedException if caller does not have permission to read
-	 *                 the specified asset
-         * @exception DataAccessException on database access/interaction failure
-         * @exception AssetException if some other failure condition
-	 */
-	public @ReadOnly Set<Asset> getAssets ( Collection<UUID> v_id ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
-	
-
-	/**
-	 * Get the Home assets this server has access to
-	 * for open-ended searches.
-	 *
-	 * @return mapping from home name to UUID.
-	 * @exception DataAccessException on database access/interaction failure
-	 * @exception AccessDeniedException if caller is not an administrator
-	 */
-	public @ReadOnly Map<String,UUID> getHomeAssetIds () throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
-	
-	
-	/**
-	 * Get the links (assets with a_source as their FROM-asset)
-	 * out of the given asset-id of the given type.
-	 * Caller must have READ-access to the source asset.
-	 *
-	 * @param u_from asset - result&apos;s FROM-asset
-	 * @param n_type to limit search to - may be null
-	 * @return mapping from child-name to child-id
-	 * @exception AccessDeniedException if caller does not have read access
-	 *                to a_source
-	 * @exception DataAccessException on database access/interaction failure
-	 * @exception IllegalArgumentExcetion if limit is out of bounds
-	 * @exception AssetException if limit is too large 
+    /**
+     * Get the asset with the specified id.
+     *
+     * @param u_id of asset to retrieve
+     * @return fully initialized asset.
+     *           If the asset is a PRIINCIPAL or ACL AssetType,
+     *           then the returned object will implent the Principal
+     *           and Acl interfaces respectively.
+     * @exception AccessDeniedException if caller does not have permission to read
+     *                 the specified asset
+     * @exception DataAccessException on database access/interaction failure
+     * @exception AssetException some other failure condition
      */
-	public @ReadOnly Map<String,UUID> getAssetIdsFrom ( UUID u_from,
-										AssetType<? extends Asset> n_type
-														) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
-	
-	
-	
-	/**
-	 * Get the unique name for the database from which this retriever is
-	 * pulling data from.
-	 *
-	 * @return data-source name
-	 */
-	public @ReadOnly String getSourceName () throws RemoteException;
+    public
+    @ReadOnly
+    Maybe<Asset> getAsset(UUID u_id) throws BaseException,
+            GeneralSecurityException, RemoteException;
+
+    /**
+     * Get as many of the assets in the given set of ids as possible.
+     *
+     * @param v_id set of asset ids to retrieve
+     * @return set of fully initialized assets (no duplicates).
+     *           If the asset is a PRIINCIPAL or ACL AssetType,
+     *           then the returned object will implent the Principal
+     *           and Acl interfaces respectively.
+     * @exception NoSuchThingException if requested asset does not exist in the db
+     * @exception AccessDeniedException if caller does not have permission to read
+     *                 the specified asset
+     * @exception DataAccessException on database access/interaction failure
+     * @exception AssetException if some other failure condition
+     */
+    public
+    @ReadOnly
+    Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
+    /**
+     * Get the Home assets this server has access to
+     * for open-ended searches.
+     *
+     * @return mapping from home name to UUID.
+     * @exception DataAccessException on database access/interaction failure
+     * @exception AccessDeniedException if caller is not an administrator
+     */
+    public
+    @ReadOnly
+    Map<String, UUID> getHomeAssetIds() throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
+    /**
+     * Get the links (assets with a_source as their FROM-asset)
+     * out of the given asset-id of the given type.
+     * Caller must have READ-access to the source asset.
+     *
+     * @param u_from asset - result&apos;s FROM-asset
+     * @param n_type to limit search to - may be null
+     * @return mapping from child-name to child-id
+     * @exception AccessDeniedException if caller does not have read access
+     *                to a_source
+     * @exception DataAccessException on database access/interaction failure
+     * @exception IllegalArgumentExcetion if limit is out of bounds
+     * @exception AssetException if limit is too large
+     */
+    public
+    @ReadOnly
+    Map<String, UUID> getAssetIdsFrom(UUID u_from,
+            AssetType<? extends Asset> n_type) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
 }
 

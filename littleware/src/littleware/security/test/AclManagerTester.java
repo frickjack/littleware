@@ -1,27 +1,34 @@
+/*
+ * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.test;
 
-import littleware.security.server.AclManager;
+import com.google.inject.Inject;
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.security.*;
 import java.security.acl.*;
-import java.util.*;
 
-import junit.framework.*;
 
 import littleware.asset.AssetManager;
+import littleware.asset.AssetSearchManager;
 import littleware.security.*;
 import littleware.base.*;
+import littleware.test.LittleTest;
 
 
 /**
- * Run AclManager implementations through basic test.
+ * Run ACL implementations through basic test.
  */
-public class AclManagerTester extends TestCase {
-	private static final Logger         olog_generic = Logger.getLogger ( "littleware.security.test.AclManagerTester" );
-	private final AclManager     om_acl;
-	private final AccountManager om_account;
-	private final AssetManager   om_asset;
+public class AclManagerTester extends LittleTest {
+	private static final Logger         olog_generic = Logger.getLogger ( AclManagerTester.class.getName() );
+	private final AssetSearchManager osearch;
+	private final AssetManager       om_asset;
 	
 	
 	/**
@@ -31,34 +38,23 @@ public class AclManagerTester extends TestCase {
 	 * @param m_account to pull test_user test-user from
 	 * @param m_asset to do save/delete tests with
 	 */
-	public AclManagerTester ( String s_test_name, AclManager m_acl, 
-							  AccountManager m_account,
+    @Inject
+	public AclManagerTester ( 
+							  AssetSearchManager search,
 							  AssetManager   m_asset
 							  ) {
-		super ( s_test_name );
-		om_acl = m_acl;
-		om_account = m_account;		
+		osearch = search;
         om_asset = m_asset;
+        setName( "testAclLoad");
 	}
 	
-	/** Do nothing */
-	public void setUp () {
-
-	}
-	
-	/**
-	 * Just call setUp ()
-	 */
-	public void tearDown () {
-		setUp ();
-	}
 	
 	/**
 	 * Just try to load an ACL
 	 */
 	public void testAclLoad () {
 		try {
-			Acl acl_everybody = om_acl.getAcl ( LittleAcl.ACL_EVERYBODY_READ );
+			final Acl acl_everybody = osearch.getByName ( LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL ).get();
 		} catch ( Exception e ) {
 			olog_generic.severe ( "Caught unexpected: " + 
 							   e + ", " + BaseException.getStackTrace ( e ) );
@@ -66,20 +62,5 @@ public class AclManagerTester extends TestCase {
 		}
 	}
 
-	/**
-	 * Try to do some simle updates to the reserved test ACL
-	 */
-	public void testAclUpdate () {
-		try {
-			Acl acl_test = om_acl.getAcl ( "acl.littleware.test_acl" );
-		} catch ( Exception e ) {
-			olog_generic.severe ( "Caught unexpected: " + 
-								  e + ", " + BaseException.getStackTrace ( e ) );
-			assertTrue ( "Caught unexpected: " + e, false );
-		}
-	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

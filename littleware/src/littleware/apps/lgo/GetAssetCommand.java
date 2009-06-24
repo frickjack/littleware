@@ -68,7 +68,7 @@ public class GetAssetCommand extends AbstractCreateCommand<AssetPath,Asset> {
 
     private Asset runInternal( UiFeedback feedback, AssetPath in ) throws LgoException {
         try {
-            return osearch.getAssetAtPath(in);
+            return osearch.getAssetAtPath(in).get();
         } catch ( RuntimeException ex ) {
             throw ex;
         } catch ( LgoException ex ) {

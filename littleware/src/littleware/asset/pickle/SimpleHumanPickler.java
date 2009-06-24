@@ -117,7 +117,7 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         // Go ahead and add some special handling of GROUP type assets here.
         // Can move out to separate registered handler later if we want
         if ( aIn.getAssetType().isA( SecurityAssetType.GROUP ) ) {
-            final LittleGroup group = (LittleGroup) aIn;
+            final LittleGroup group = aIn.narrow( LittleGroup.class );
             for( Enumeration<? extends Principal> member = group.members();
                 member.hasMoreElements();
             ) {

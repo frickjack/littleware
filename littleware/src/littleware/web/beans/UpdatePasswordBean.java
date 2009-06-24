@@ -1,6 +1,11 @@
 /*
- * Copyright (c) 2007,2008 Reuben Pasquini
- * All Rights Reserved
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.web.beans;
@@ -8,9 +13,11 @@ package littleware.web.beans;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.security.AccountManager;
 import littleware.security.LittleUser;
+import littleware.security.SecurityAssetType;
 import littleware.security.auth.ServiceType;
 
 /**
@@ -88,9 +95,10 @@ public class UpdatePasswordBean extends AbstractBean {
         }
         String s_user = getUser();
         try {            
-            AccountManager m_account = getSessionBean ().getHelper().getService(ServiceType.ACCOUNT_MANAGER);
-            LittleUser user = (null == s_user) ? m_account.getAuthenticatedUser()
-                    : (LittleUser) m_account.getPrincipal(s_user);
+            final AccountManager m_account = getSessionBean ().getHelper().getService(ServiceType.ACCOUNT_MANAGER);
+            final AssetSearchManager search = getSessionBean ().getHelper().getService(ServiceType.ASSET_SEARCH );
+            final LittleUser user = (null == s_user) ? m_account.getAuthenticatedUser()
+                    : search.getByName(s_user, SecurityAssetType.USER ).get();
             s_user = user.getName();
             os_user = s_user;
             m_account.updateUser( user,

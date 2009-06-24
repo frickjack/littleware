@@ -54,7 +54,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 	
 	
     @Override
-    public <T extends Asset> T getByName ( String s_name, AssetType<T> n_type
+    public <T extends Asset> Maybe<T> getByName ( String s_name, AssetType<T> n_type
                                             ) throws BaseException, AssetException,
         GeneralSecurityException, RemoteException
     {
@@ -63,11 +63,11 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         }
         
         try {
-            T a_result = om_cache.getByName ( s_name, n_type );
-            if ( null == a_result ) {
-                return a_result;
+            final Maybe<T> maybeResult = om_cache.getByName ( s_name, n_type );
+            if ( ! maybeResult.isSet() ) {
+                return maybeResult;
             }
-            return (T) secureAndSpecialize ( a_result );
+            return Maybe.something( (T) secureAndSpecialize ( maybeResult.get() ) );
         } catch ( CacheMissException e ) {}
         
         // cache miss
@@ -88,9 +88,9 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
             if ( v_load.isEmpty () ) {
                 return null;
             }
-            Asset a_load = v_load.iterator ().next ();
+            final Asset a_load = v_load.iterator ().next ();
             v_cycle_cache.put ( a_load.getObjectId (), a_load );
-            return (T) secureAndSpecialize ( a_load );
+            return Maybe.something( (T) secureAndSpecialize ( a_load ) );
         } finally {
             trans.endDbAccess ( v_cycle_cache );
         }
@@ -109,8 +109,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 	}
 	
     
-    @Override
-    public SortedMap<AssetPath,Asset> getAssetsAlongPath ( AssetPath path_asset
+    public SortedMap<AssetPath,Maybe<Asset>> getAssetsAlongPath ( AssetPath path_asset
                                                            ) throws BaseException, AssetException,
         GeneralSecurityException, RemoteException
     {	
@@ -123,82 +122,83 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 return getAssetsAlongPath ( path_asset.normalizePath( this ) );
             }
 
-            SortedMap<AssetPath,Asset> v_result = null;
+            SortedMap<AssetPath,Maybe<Asset>> mapResult = null;
             String                     s_path = path_asset.toString ();
-            Asset                      a_result = null;
+            Maybe<Asset>               maybeResult = null;
 
             if ( path_asset.hasParent () ) {
                 // else get parent
-                v_result = getAssetsAlongPath ( path_asset.getParent () );
+                // recursion!
+                mapResult = getAssetsAlongPath ( path_asset.getParent () );
                 
-                if ( v_result.size () > 20 ) {
+                if ( mapResult.size () > 20 ) {
                     throw new TraverseTooLongException ( "Path traversal (" + path_asset + 
                                                          ") exceeds 20 assets at " + s_path
                                                          );
                 }            
                 
-                Asset   a_parent = v_result.get( v_result.lastKey () );
+                final Maybe<Asset>   maybeParent = mapResult.get( mapResult.lastKey () );
                 String  s_name   = s_path.substring ( s_path.lastIndexOf ( "/" ) + 1 );
                 
-                if ( s_name.equals ( "@" ) ) {
-                    a_result = a_parent.getToAsset ( this );
+                if ( ! maybeParent.isSet() ) {
+                    maybeResult = maybeParent;
+                } else if ( s_name.equals ( "@" ) ) {
+                    if ( null == maybeParent.get().getToId() ) {
+                        maybeResult = Maybe.empty( "Link parent has null to-id: " + s_path );
+                    } else {
+                        maybeResult = getAsset( maybeParent.get().getToId () );
+                    }
                 } else {
-                    a_result = getAssetFrom( a_parent.getObjectId (), s_name );
+                    maybeResult = getAssetFrom( maybeParent.get().getObjectId (), s_name );
                 }
                 
             } else {
-                v_result = new TreeMap ();
-                a_result = path_asset.getRoot( this );
+                mapResult = new TreeMap ();
+                maybeResult = path_asset.getRoot( this );
             } 
 
 
             for ( int i_link_count = 0;
-                  a_result.getAssetType ().equals ( AssetType.LINK );
+                  maybeResult.isSet()
+                  && maybeResult.get().getAssetType ().equals ( AssetType.LINK )
+                  && (maybeResult.get().getToId() != null);
                   ++i_link_count
                   ) {
                 if ( i_link_count > 5 ) {
                     throw new LinkLimitException ( "Traversal exceeded 5 link limit at " + s_path );
                 }
-                a_result = a_result.getToAsset( this );
+                maybeResult = getAsset( maybeResult.get().getToId() );
             }
 
-            v_result.put ( path_asset, a_result );        
-            return v_result;
+            mapResult.put ( path_asset, maybeResult );
+            return mapResult;
         } finally {
             trans.endDbAccess ( v_cycle_cache );
         }
     }
     
 
-    public Asset getAssetAtPath ( AssetPath path_asset
+    @Override
+    public Maybe<Asset> getAssetAtPath ( AssetPath path_asset
                                   ) throws BaseException, AssetException,
         GeneralSecurityException, RemoteException
     {
-        SortedMap<AssetPath,Asset> v_path = getAssetsAlongPath ( path_asset );
+        final SortedMap<AssetPath,Maybe<Asset>> v_path = getAssetsAlongPath ( path_asset );
         return v_path.get ( v_path.lastKey () );
 	}
 
-    public Asset getAssetFrom ( UUID u_from, String s_name 	
+    @Override
+    public Maybe<Asset> getAssetFrom ( UUID u_from, String s_name
                                 ) throws BaseException, AssetException, 
         GeneralSecurityException, RemoteException
     {
         UUID u_id = getAssetIdsFrom ( u_from, null ).get ( s_name );
         if ( null == u_id ) {
-            throw new NoSuchThingException ( "Asset " + u_from + " has no child named " + s_name );
+            return Maybe.empty( "Asset " + u_from + " has no child named " + s_name );
         }
         return getAsset( u_id );
     }
     
-    public Asset getAssetFromOrNull ( UUID u_from, String s_name 	
-                                ) throws BaseException, AssetException, 
-        GeneralSecurityException, RemoteException
-    {
-        UUID u_id = getAssetIdsFrom ( u_from, null ).get ( s_name );
-        if ( null == u_id ) {
-            return null;
-        }
-        return getAssetOrNull( u_id );
-    }
     
     /** Need to code this guy up */
     @Override
@@ -236,6 +236,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     }
     
     
+    @Override
     public Set<UUID> getAssetIdsTo ( UUID u_to,
                                       AssetType<? extends Asset> n_type
                                       ) throws BaseException, AssetException, 

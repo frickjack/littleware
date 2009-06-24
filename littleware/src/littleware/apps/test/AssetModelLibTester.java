@@ -72,7 +72,7 @@ public class AssetModelLibTester extends LittleTest {
 
             final AssetModel amodel_everybody =
                     olibAsset.syncAsset( osearch.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP )
+                                                        SecurityAssetType.GROUP ).get()
                     );
             assertTrue( "ModelLibrary getByName inheritance aware 1",
                     olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,

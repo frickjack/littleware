@@ -117,7 +117,7 @@ public class SimpleAssetViewController implements LittleListener {
                 olog_generic.log( Level.FINE, "REFRESH!" );
                 final UUID uAsset = oview_control.getAssetModel().getAsset().getObjectId();
                 olib_asset.syncAsset(
-                        om_retriever.getAsset( uAsset )
+                        om_retriever.getAsset( uAsset ).get()
                         );
                 final List<UUID> vChildren = new ArrayList<UUID>();
                 vChildren.addAll(om_retriever.getAssetIdsFrom( uAsset, null ).values());

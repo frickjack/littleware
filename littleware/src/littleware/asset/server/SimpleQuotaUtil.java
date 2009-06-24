@@ -48,10 +48,10 @@ public class SimpleQuotaUtil implements QuotaUtil {
             GeneralSecurityException, RemoteException {
         if (null == oj_admin) {
             try {
-                LittleUser p_admin = (LittleUser) m_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER);
+                final LittleUser admin = m_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get();
                 Set<Principal> v_users = new HashSet<Principal>();
 
-                v_users.add(p_admin);
+                v_users.add(admin);
                 oj_admin = new Subject(true, v_users, new HashSet<Object>(), new HashSet<Object>());
             } catch (NoSuchThingException e) {
                 throw new AssertionFailedException("LITTLEWARE_ADMIN should exist, caught: " + e, e);
@@ -73,7 +73,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
             return null;
         }
 
-        return (Quota) m_search.getAssetOrNull(u_child);
+        return (Quota) m_search.getAsset(u_child).getOr( null );
     }
 
 
@@ -99,7 +99,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
                             try {
                                 for (Quota a_quota = getQuota(p_user, m_search);
                                         null != a_quota;
-                                        a_quota = (null != a_quota.getToId()) ? ((Quota) m_search.getAsset(a_quota.getToId()))
+                                        a_quota = (null != a_quota.getToId()) ? ((Quota) m_search.getAsset(a_quota.getToId()).getOr(null))
                                                 : null) {
                                     v_chain.add(a_quota);
                                     if ((null != a_quota.getEndDate()) && (a_quota.getEndDate().getTime() < t_now.getTime())) {

@@ -98,7 +98,7 @@ public class SetImageCommand extends AbstractLgoCommand<String,Boolean> {
         }
         final Asset aImage;
         try {
-           aImage = osearch.getAssetAtPath(path);
+           aImage = osearch.getAssetAtPath(path).get();
         } catch ( Exception ex ) {
             throw new LgoArgException( "Unable to load asset at path: " + path, ex );
         }

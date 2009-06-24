@@ -46,7 +46,7 @@ public class JAclView extends JAssetWithChildrenView {
         }
         setTabEnabled ( true );
         
-        LittleAcl acl_view = (LittleAcl) model_view.getAsset ();
+        LittleAcl acl_view = model_view.getAsset ().narrow( LittleAcl.class );
 
         StringBuilder    sb_perms = new StringBuilder( 128 );
         for ( Enumeration<AclEntry> enum_members = acl_view.entries ();

@@ -51,7 +51,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
         final Map<String,UUID> mapChildren;
         try {
             mapChildren = osearch.getAssetIdsFrom(
-                    osearch.getAssetAtPath(path).getObjectId(),
+                    osearch.getAssetAtPath(path).get().getObjectId(),
                     null
                     );
         } catch ( Exception ex ) {

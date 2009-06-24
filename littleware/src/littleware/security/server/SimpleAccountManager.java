@@ -22,11 +22,8 @@ import javax.security.auth.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.sql.SQLException;
-
 
 import littleware.base.*;
-import littleware.db.*;
 import littleware.asset.*;
 import littleware.asset.server.QuotaUtil;
 import littleware.asset.server.LittleTransaction;
@@ -83,7 +80,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         olog_generic.log(Level.FINE, "Narrowing group: " + a_in.getName());
 
         // It's a GROUP - need to populate it
-        LittleGroup grp_result = (LittleGroup) a_in;
+        LittleGroup grp_result = a_in.narrow(LittleGroup.class);
         grp_result.clearMembers();   // clear cloned member list and rebuild
         Map<String, UUID> v_links = m_retriever.getAssetIdsFrom(grp_result.getObjectId(),
                 SecurityAssetType.GROUP_MEMBER);
@@ -116,15 +113,15 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             olog_generic.log(Level.FINE, "adding " + a_member.getName() + " to " +
                     grp_result.getName());
             if (SecurityAssetType.USER.equals(a_member.getAssetType())) {
-                grp_result.addMember((LittleUser) a_member);
+                grp_result.addMember( a_member.narrow( LittleUser.class ) );
             } else {
-                grp_result.addMember((LittleGroup) a_member);
+                grp_result.addMember(a_member.narrow(LittleGroup.class));
             }
         }
 
         if (grp_result.getName().equals(AccountManager.LITTLEWARE_ADMIN_GROUP)) {
             // then add the admin principal
-            grp_result.addMember((LittleUser) m_retriever.getAsset(AccountManager.UUID_ADMIN));
+            grp_result.addMember(m_retriever.getAsset(AccountManager.UUID_ADMIN).get().narrow(LittleUser.class) );
         }
 
         return a_in;
@@ -138,7 +135,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             GeneralSecurityException, RemoteException {
         if (null == oj_admin) {
             try {
-                LittleUser p_admin = (LittleUser) this.getPrincipal(AccountManager.LITTLEWARE_ADMIN);
+                final LittleUser p_admin = om_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER ).get();
                 final Set<Principal> v_users = new HashSet<Principal>();
 
                 v_users.add(p_admin);
@@ -224,11 +221,11 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             }
             // Add this frickjack to the everybody group
             {
-                LittleGroup p_everybody = (LittleGroup) this.getPrincipal(AccountManager.LITTLEWARE_EVERYBODY_GROUP);
+                final LittleGroup everybody = om_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP ).get();
 
                 try {
-                    PrivilegedExceptionAction act_add2group = new AddToGroupAction(p_everybody,
-                            (LittlePrincipal) a_new,
+                    PrivilegedExceptionAction act_add2group = new AddToGroupAction(everybody,
+                            a_new.narrow(LittlePrincipal.class),
                             m_asset);
                     Subject j_admin = getAdmin();
 
@@ -297,8 +294,8 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.GROUP.equals(a_now.getAssetType())) {
-            LittleGroup p_before = (LittleGroup) a_pre_update;
-            LittleGroup p_after = (LittleGroup) a_now;
+            final LittleGroup p_before = a_pre_update.narrow(LittleGroup.class);
+            final LittleGroup p_after = a_now.narrow(LittleGroup.class);
 
             Set<Principal> v_before = new HashSet<Principal>();
 
@@ -312,11 +309,11 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             // Get the list of new group members that need added
             for (Enumeration<? extends Principal> enum_new = p_after.members();
                     enum_new.hasMoreElements();) {
-                LittlePrincipal p_new = (LittlePrincipal) enum_new.nextElement();
+                final LittlePrincipal p_new = (LittlePrincipal) enum_new.nextElement();
 
                 v_members.add(p_new.getObjectId());
                 if (!v_before.remove(p_new)) {
-                    v_add.add((LittlePrincipal) p_new);
+                    v_add.add( p_new);
                 }
             }
 
@@ -346,31 +343,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         return om_quota.incrementQuotaCount(getAuthenticatedUser(), om_asset, om_search);
     }
 
-    /**
-     * Just call through to AssetSearchManager.getAsset () - 
-     * the AssetSearchManager calls back to our narrow() method
-     * since the active AccountManager (should be this)
-     * is registered as the AssetSpecializer for USER and GROUP type assets.
-     */
-    @Override
-    public LittlePrincipal getPrincipal(UUID u_id) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        return (LittlePrincipal) om_search.getAsset(u_id);
-    }
 
-    @Override
-    public LittlePrincipal getPrincipal(String s_name) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        LittleUser user_result = om_search.getByName(s_name, SecurityAssetType.USER);
-        if (null != user_result) {
-            return user_result;
-        }
-        LittleGroup group_result = om_search.getByName(s_name, SecurityAssetType.GROUP);
-        if (null != group_result) {
-            return group_result;
-        }
-        throw new NoSuchThingException("No principal by name: " + s_name);
-    }
     private static Factory<UUID> ofactory_uuid = UUIDFactory.getFactory();
 
     @Override
@@ -399,7 +372,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
 
             trans_update.startDbUpdate();
             try {
-                p_update = (LittleUser) om_asset.saveAsset(p_update, s_update_comment);
+                p_update = om_asset.saveAsset(p_update, s_update_comment);
                 try {
                     DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(p_update.getObjectId());
                     sql_password.saveObject(s_password);

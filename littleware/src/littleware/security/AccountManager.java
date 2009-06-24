@@ -41,33 +41,6 @@ public interface AccountManager extends Remote {
 
 	
 
-	/**
-	 * Retrieve the principal with the given name
-	 *
-	 * @param s_name to retrieve
-	 * @return Principal might be a Group
-	 * @exception NoSuchThingException if prinicipal with that name does not exist on this server
-	 * @exception DataAccessException on failure to contact data store
-	 * @exception AccessDeniedException if caller has insufficient privileges
-	 * @exception ManagerException on other error condition
-	 */
-	public @ReadOnly LittlePrincipal getPrincipal ( String s_name
-													) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
-
-	
-	/**
-	 * Retrieve the principal with the given id
-	 *
-	 * @param u_id to retrieve
-	 * @return Principal might be a Group
-	 * @exception NoSuchThingException if prinipal does not exist
-	 * @exception DataAccessException on failure to contact data store
-	 * @exception AccessDeniedException if caller has insufficient privileges
-	 * @exception ManagerException on other error condition
-	 */	
-	public @ReadOnly LittlePrincipal getPrincipal ( UUID u_id ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
 	
 	
 	/**

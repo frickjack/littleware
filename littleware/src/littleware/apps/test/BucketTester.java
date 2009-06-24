@@ -1,14 +1,21 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.test;
 
 import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import javax.mail.internet.*;
-import java.net.*;
 import junit.framework.*;
 import littleware.asset.*;
-import littleware.asset.xml.*;
 import littleware.apps.filebucket.*;
 import littleware.base.*;
 import littleware.security.*;
@@ -49,6 +56,7 @@ public class BucketTester extends TestCase {
     /**
      * Setup a test asset.
      */
+    @Override
     public void setUp() {
         try {
             UUID u_home = om_search.getHomeAssetIds().get( "littleware.test_home" );
@@ -58,7 +66,7 @@ public class BucketTester extends TestCase {
                 a_folder.setFromId(u_home);
                 a_folder.setHomeId(u_home);
                 a_folder.setName(os_test_folder);
-                a_folder.setAclId(om_search.getByName(littleware.security.LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL).getObjectId());
+                a_folder.setAclId(om_search.getByName(littleware.security.LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL).get().getObjectId());
                 a_folder = om_asset.saveAsset(a_folder, "setup folder for test");
                 u_test_folder = a_folder.getObjectId();
             }
@@ -78,6 +86,7 @@ public class BucketTester extends TestCase {
     /**
      * Delete the test asset
      */
+    @Override
     public void tearDown() {
         try {
             om_asset.deleteAsset(oa_test.getObjectId(), "Cleanup after test");
@@ -126,5 +135,4 @@ public class BucketTester extends TestCase {
         }
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
+

@@ -10,20 +10,21 @@
 
 package littleware.asset.test;
 
+import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import junit.framework.*;
 
 import littleware.asset.*;
 import littleware.base.*;
+import littleware.test.LittleTest;
 
 
 /**
  * Test traversal of some asset paths.
  */
-public class AssetPathTester extends TestCase {
+public class AssetPathTester extends LittleTest {
 	private static Logger olog_generic = Logger.getLogger ( AssetPathTester.class.getName() );
 	
     private final AssetManager        om_asset;
@@ -37,12 +38,13 @@ public class AssetPathTester extends TestCase {
 	 * @param m_search to test against
      * @param m_asset to setup test assets with if necessary
 	 */
-	public AssetPathTester ( String s_test_name, AssetSearchManager m_search,
+    @Inject
+	public AssetPathTester ( AssetSearchManager m_search,
                              AssetManager m_asset
                              ) {
-		super( s_test_name );
 		om_search = m_search;
         om_asset = m_asset;
+        setName( "testPathTraverse" );
 	}
 	
 	/**
@@ -54,8 +56,8 @@ public class AssetPathTester extends TestCase {
     @Override
 	public void setUp () {
         try {
-            Asset a_home = om_search.getByName ( AssetManagerTester.MS_TEST_HOME, AssetType.HOME );
-            Asset a_test = om_search.getAssetFromOrNull ( a_home.getObjectId (), "AssetPathTester" );
+            final Asset a_home = getTestHome(om_search);
+            Asset a_test = om_search.getAssetFrom( a_home.getObjectId (), "AssetPathTester" ).getOr(null);
             if ( null == a_test ) {
                 a_test = AssetType.GENERIC.create ();
                 a_test.setName ( "AssetPathTester" );
@@ -64,8 +66,8 @@ public class AssetPathTester extends TestCase {
                 a_test.setHomeId ( a_home.getObjectId () );
                 a_test = om_asset.saveAsset ( a_test, "Setting up AssetPathTester test area" );
             }
-            Asset a_A = om_search.getAssetFromOrNull ( a_test.getObjectId (), "A" );
-            Asset a_pointer = om_search.getAssetFromOrNull ( a_test.getObjectId (), "Points2A" );
+            Asset a_A = om_search.getAssetFrom( a_test.getObjectId (), "A" ).getOr(null);
+            Asset a_pointer = om_search.getAssetFrom ( a_test.getObjectId (), "Points2A" ).getOr( null );
             if ( null == a_A ) {
                 a_A = AssetType.GENERIC.create ();
                 a_A.setName ( "A" );
@@ -91,7 +93,8 @@ public class AssetPathTester extends TestCase {
             Asset[] v_number = new Asset[3];
             for ( int i=1; i < 4; ++i ) {
                 String s_name = Integer.toString( i );
-                Asset  a_number = om_search.getAssetFromOrNull ( a_A.getObjectId (), s_name );
+                Asset  a_number = om_search.getAssetFrom ( a_A.getObjectId (), s_name )
+                        .getOr(null);
                 if ( null == a_number ) {
                     a_number = AssetType.GENERIC.create ();
                     a_number.setName ( s_name );
@@ -103,7 +106,7 @@ public class AssetPathTester extends TestCase {
                 }
                 v_number[ i-1 ] = a_number;
             }
-            Asset a_smallest = om_search.getAssetFromOrNull ( a_A.getObjectId (), "smallest" );
+            Asset a_smallest = om_search.getAssetFrom ( a_A.getObjectId (), "smallest" ).getOr( null );
             if ( null == a_smallest ) {
                 a_smallest = AssetType.LINK.create ();
                 a_smallest.setName ( "smallest" );
@@ -113,7 +116,7 @@ public class AssetPathTester extends TestCase {
                 a_smallest.setComment ( "link to smallest number" );
                 a_smallest = om_asset.saveAsset ( a_smallest, "Setting up AssetPathTester" );
             }
-            Asset a_biggest = om_search.getAssetFromOrNull ( a_A.getObjectId (), "biggest" );
+            Asset a_biggest = om_search.getAssetFrom( a_A.getObjectId (), "biggest" ).getOr( null );
             if ( null == a_biggest ) {
                 a_biggest = AssetType.LINK.create ();
                 a_biggest.setName ( "biggest" );
@@ -169,7 +172,7 @@ public class AssetPathTester extends TestCase {
                 assertTrue( "Path has expected basename " + i_count + ": " + path_test.getBasename(),
                         path_test.getBasename().equals( Integer.toString( i_count ) )
                         );
-                AssetPath path_root = factory_path.createPath( path_test.getRoot ( om_search ).getObjectId (),
+                AssetPath path_root = factory_path.createPath( path_test.getRoot ( om_search ).get().getObjectId (),
                                                                path_test.getSubRootPath ()
                                                                );
                 assertTrue ( "SubRoot paths match: " + path_test.getSubRootPath () + " == " +
@@ -177,7 +180,7 @@ public class AssetPathTester extends TestCase {
                              path_test.getSubRootPath ().equals ( path_root.getSubRootPath () )
                              );
                 AssetPath path_name_string = factory_path.createPath ( path_test.toString () );
-                AssetPath path_id_string = factory_path.createPath( path_root.getRoot ( om_search ).getObjectId (),
+                AssetPath path_id_string = factory_path.createPath( path_root.getRoot ( om_search ).get().getObjectId (),
                                                                path_root.getSubRootPath ()
                                                                );
                 
@@ -187,9 +190,9 @@ public class AssetPathTester extends TestCase {
                 assertTrue ( path_id_string.toString () + " == " + path_root.toString (),
                              path_id_string.equals ( path_root )
                              );
-                Asset a_test = path_test.getAsset( om_search );
+                Asset a_test = path_test.getAsset( om_search ).get();
                 assertTrue ( "Got the same asset from " + path_test + " and " + path_root,
-                             a_test.equals ( path_root.getAsset ( om_search ) )
+                             a_test.equals ( path_root.getAsset ( om_search ).get() )
                              );
                 AssetPath  path_parent = path_test.getParent ();
                 assertTrue ( "Path has parent: " + path_test,
@@ -205,7 +208,7 @@ public class AssetPathTester extends TestCase {
                 
                 if ( 1 == i_count ) {
                     AssetPath path_smallest = factory_path.createPath( path_test.toString () + "/@/smallest" );
-                    Asset     a_smallest = path_smallest.getAsset ( om_search );
+                    Asset     a_smallest = path_smallest.getAsset ( om_search ).get();
                     assertTrue ( "Smallest link resolved to asset 1: " + a_smallest.getName (),
                                  a_smallest.equals ( a_test )
                                  );
@@ -214,7 +217,7 @@ public class AssetPathTester extends TestCase {
                             );
                 } else if ( i_count == v_tests.size () ) {
                     AssetPath path_biggest = factory_path.createPath( path_test.toString () + "/@/biggest" );
-                    Asset     a_biggest = path_biggest.getAsset ( om_search );
+                    Asset     a_biggest = path_biggest.getAsset ( om_search ).get();
                     assertTrue ( "Biggest link resolved to asset 1: " + a_biggest.getName (),
                                  a_biggest.equals ( a_test )
                                  );

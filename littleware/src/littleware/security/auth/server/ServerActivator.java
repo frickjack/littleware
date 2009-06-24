@@ -30,11 +30,9 @@ import littleware.asset.server.RmiAssetManager;
 import littleware.asset.server.RmiSearchManager;
 import littleware.base.BaseException;
 import littleware.security.AccountManager;
-import littleware.security.server.AclManager;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;
-import littleware.security.auth.server.db.DbAuthManager;
 import littleware.security.client.AccountManagerService;
 import littleware.security.client.SimpleAccountManagerService;
 import littleware.security.server.RmiAccountManager;
@@ -59,8 +57,8 @@ public class ServerActivator implements BundleActivator {
             final CacheManager       mgr_cache,
             final AssetSearchManager mgr_search,
             final AssetManager mgr_asset,
-            final AccountManager mgr_account,
-            final AclManager     mgr_acl
+            final AccountManager mgr_account
+            //final AclManager     mgr_acl
             //final DbAuthManager      dbauth
             )
     {

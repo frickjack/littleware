@@ -46,8 +46,8 @@ public class DeleteAssetTester extends LittleTest {
     @Override
     public void setUp() {
         try {
-            Asset aHome = osearch.getByName( osHome, AssetType.HOME );
-            oaDelete = osearch.getAssetFromOrNull( aHome.getObjectId(), osName );
+            final Asset aHome = osearch.getByName( osHome, AssetType.HOME ).get();
+            oaDelete = osearch.getAssetFrom( aHome.getObjectId(), osName ).getOr( null );
             if ( null == oaDelete ) {
                 Asset aNew = AssetType.createSubfolder( AssetType.GENERIC, osName, aHome);
                 oaDelete = omgrAsset.saveAsset( aNew, "Setup test asset" );

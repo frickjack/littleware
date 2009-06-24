@@ -12,14 +12,12 @@ package littleware.security.client;
 
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
-import java.util.UUID;
 import littleware.asset.AssetException;
 import littleware.asset.client.AssetLoadEvent;
 import littleware.asset.client.LittleService;
 import littleware.asset.client.SimpleLittleService;
 import littleware.base.BaseException;
 import littleware.security.AccountManager;
-import littleware.security.LittlePrincipal;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
 
@@ -41,44 +39,39 @@ public class SimpleAccountManagerService extends SimpleLittleService implements 
         oserver = server;
     }
 
-    public LittlePrincipal getPrincipal(String s_name) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        LittlePrincipal result = oserver.getPrincipal( s_name );
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
-        return result;
-    }
 
-    public LittlePrincipal getPrincipal(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        LittlePrincipal result = oserver.getPrincipal( u_id );
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
-        return result;
-    }
-
+    @Override
     public int incrementQuotaCount() throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return oserver.incrementQuotaCount();
     }
 
+    @Override
     public LittleUser createUser(LittleUser p_user, String s_password) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         LittleUser result = oserver.createUser( p_user, s_password );
         fireServiceEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
 
+    @Override
     public LittleUser updateUser(LittleUser p_update, String s_password, String s_update_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         LittleUser result = oserver.updateUser( p_update, s_password, s_update_comment );
         fireServiceEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
 
+    @Override
     public boolean isValidPassword(String s_password) throws RemoteException {
         return oserver.isValidPassword( s_password );
     }
 
+    @Override
     public LittleUser getAuthenticatedUser() throws GeneralSecurityException, RemoteException {
         LittleUser result = oserver.getAuthenticatedUser();
         fireServiceEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
 
+    @Override
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         Quota result = oserver.getQuota( p_user );
         fireServiceEvent( new AssetLoadEvent( this, result ) );

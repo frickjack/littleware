@@ -46,17 +46,6 @@ public class AssetSearchManagerTester extends TestCase {
 		om_search = m_search;
 	}
 	
-	/**
-	 * No setUp necessary
-	 */
-	public void setUp () {
-	}
-	
-	/**
-	 * No teardown necessary
-	 */
-	public void tearDown () {
-	}
 	
 	/**
 	 * Just load some test assets.
@@ -65,12 +54,12 @@ public class AssetSearchManagerTester extends TestCase {
 		try {
 			Asset a_lookup = om_search.getByName ( AssetManagerTester.MS_TEST_HOME,
 															  AssetType.HOME
-                                                        );
+                                                        ).get();
 			assertTrue ( "Got some home-by-name data", null != a_lookup );
             
-            LittleGroup group_everybody = (LittleGroup) om_search.getByName ( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+            final LittleGroup group_everybody = om_search.getByName ( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                                                                                    SecurityAssetType.GROUP
-                                                                                   );
+                                                                                   ).get();
             for ( Enumeration<? extends Principal> enum_members = group_everybody.members ();
                   enum_members.hasMoreElements ();
                   ) {

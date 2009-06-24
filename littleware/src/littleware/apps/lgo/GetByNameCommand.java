@@ -49,8 +49,8 @@ public class GetByNameCommand extends AbstractCreateCommand<String,Asset> {
         final Map<String,String> mapArg = processArgs( mapDefault, getArgs() );
         final String sName = mapArg.get( Option.name.toString() );
         final String sType = mapArg.get( Option.type.toString() ).toLowerCase();
-        AssetType  type = AssetType.UNKNOWN;
-        for( AssetType possible : AssetType.getMembers() ) {
+        AssetType<? extends Asset>  type = AssetType.UNKNOWN;
+        for( AssetType<? extends Asset> possible : AssetType.getMembers() ) {
             String sPossible = possible.toString().toLowerCase();
             olog.log( Level.FINE, "Scanning type argument " + sType + " ?= " + sPossible );
             if ( sType.equals( sPossible )
@@ -67,7 +67,7 @@ public class GetByNameCommand extends AbstractCreateCommand<String,Asset> {
             throw new LgoArgException( "Type is not name unique: " + type );
         }
         try {
-            return osearch.getByName(sName, type);
+            return osearch.getByName(sName, type).get();
         } catch ( Exception ex ) {
             throw new LgoArgException( "Failed to retrieve asset with name " + sName +
                     ", type " + type, ex );

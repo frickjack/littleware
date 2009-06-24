@@ -112,7 +112,7 @@ public abstract class ServerTestLauncher extends TestSuite implements BundleActi
                     );
 
             // Create a bogus LittleUser
-            final LittleUser userTest = osearch.getByName(OS_TEST_USER, SecurityAssetType.USER );
+            final LittleUser userTest = osearch.getByName(OS_TEST_USER, SecurityAssetType.USER ).get();
             if( null == userTest ) {
                 throw new NullPointerException( "Failed to setup test user session" );
             }

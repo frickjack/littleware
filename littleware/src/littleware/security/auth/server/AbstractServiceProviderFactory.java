@@ -20,7 +20,6 @@ import java.util.Date;
 
 import javax.security.auth.Subject;
 
-import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetException;
 import littleware.asset.client.LittleService;
@@ -93,7 +92,7 @@ public abstract class AbstractServiceProviderFactory<T extends LittleService> im
         }
         
         // Service is accessible
-        Asset a_service = om_search.getAssetOrNull ( on_service.getObjectId () );
+        om_search.getAsset ( on_service.getObjectId () );
         
         Subject  j_caller = Subject.getSubject ( AccessController.getContext () );
         InvocationHandler  handler_proxy = new SessionInvocationHandler 
@@ -115,6 +114,7 @@ public abstract class AbstractServiceProviderFactory<T extends LittleService> im
      * checkAccessMakeProxy to get a secure proxy,
      * then wraps the proxy in an Rmi-able wrapper.
      */
+    @Override
     public abstract T createServiceProvider ( SessionHelper m_helper ) throws BaseException, AssetException, 
         GeneralSecurityException, RemoteException;
 }

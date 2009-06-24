@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -65,7 +63,7 @@ public class BeanUtil {
         Date t_end = new Date();
         t_end.setTime(t_end.getTime() + 100 * 24 * 60 * 60 * 1000L);
         a_session.setEndDate(t_end);
-        a_session = (LittleSession) m_asset.saveAsset(a_session, "extend session 100 days");
+        a_session =  m_asset.saveAsset(a_session, "extend session 100 days");
     }
 
     /**
@@ -120,7 +118,7 @@ public class BeanUtil {
                     }
                 }
                 if ( null == ou_webhome_id ) {
-                    ou_webhome_id = om_admin.getService( ServiceType.ASSET_SEARCH ).getByName( "littleware.web_home", AssetType.HOME ).getObjectId ();
+                    ou_webhome_id = om_admin.getService( ServiceType.ASSET_SEARCH ).getByName( "littleware.web_home", AssetType.HOME ).get().getObjectId ();
                 }
                 ob_initialized = true;
             } catch (RuntimeException e) {

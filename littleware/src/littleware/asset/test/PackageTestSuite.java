@@ -46,7 +46,9 @@ public class PackageTestSuite extends TestSuite {
             SimpleAssetSearchManager m_search,
             Provider<CacheManagerTester> provideCacheTester,
             Provider<TransactionTester> provideTransTester,
-            Provider<DbAssetManagerTester> provideDbTester
+            Provider<DbAssetManagerTester> provideDbTester,
+            Provider<AssetRetrieverTester> provideRetrieverTest,
+            Provider<AssetPathTester> providePathTester
             ) {
         super(PackageTestSuite.class.getName());
         boolean b_run = true;
@@ -70,9 +72,6 @@ public class PackageTestSuite extends TestSuite {
 
         if (false) { // Disable these test - running with NullCacheManager now ...
             this.addTest( provideCacheTester.get() );
-
-            // Test the non-cacheing AssetRetriever while we're at it
-            this.addTest(new AssetRetrieverTester("testLoad", m_search));
         }
         if (b_run) {
             this.addTest( provideTransTester.get() );
@@ -89,14 +88,14 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(new AssetBuilderTester("testBuild"));
         }
         if (b_run) {
-            this.addTest(new AssetRetrieverTester("testLoad", m_search));
-            this.addTest(new AssetRetrieverTester("testAssetType", m_search));
+            this.addTest(provideRetrieverTest.get());
+            this.addTest(provideRetrieverTest.get().putName("testAssetType") );
         }
         if (b_run) {
             this.addTest(new AssetSearchManagerTester("testSearch", m_search));
         }
         if (b_run) {
-            this.addTest(new AssetPathTester("testPathTraverse", m_search, m_asset));
+            this.addTest(providePathTester.get() );
         }
 
         if (b_run) {

@@ -65,8 +65,8 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
     private final LittleListener  olisten_children = new LittleListener () {
         @Override
         public void receiveLittleEvent ( LittleEvent event_groupmodel ) {
-            AssetModel  amodel_source = (AssetModel) event_groupmodel.getSource ();
-            LittleGroup group_source = (LittleGroup) amodel_source.getAsset ();
+            final AssetModel  amodel_source = (AssetModel) event_groupmodel.getSource ();
+            final LittleGroup group_source = amodel_source.getAsset ().narrow( LittleGroup.class );
             // find the group in the list model
             final int i_size = olmodel_groups.getSize ();
             for ( int i_pos=0; i_pos < i_size; ++i_pos ) {

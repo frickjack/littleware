@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -25,6 +23,7 @@ import javax.security.auth.callback.*;
 // Source the SLIDE JAAS types
 // disable for now import org.apache.slide.jaas.spi.*;
 
+import littleware.asset.AssetSearchManager;
 import littleware.asset.server.LittleTransaction;
 import littleware.base.UUIDFactory;
 import littleware.db.*;
@@ -63,15 +62,15 @@ public class SimpleDbLoginModule implements LoginModule {
         ob_check_password = b_check_password;
     }
 
-    private static AccountManager om_account = null;
+    private static AssetSearchManager osearch = null;
     private static DbAuthManager om_dbauth = null;
     private static Provider<LittleTransaction>  oprovideTrans = null;
 
     /**
      * Inject the dependencies
      */
-    public static void start( AccountManager m_account, DbAuthManager m_dbauth, Provider<LittleTransaction> provideTrans ) {
-        om_account = m_account;
+    public static void start( AssetSearchManager search, DbAuthManager m_dbauth, Provider<LittleTransaction> provideTrans ) {
+        osearch = search;
         om_dbauth = m_dbauth;
         oprovideTrans = provideTrans;
     }
@@ -109,7 +108,7 @@ public class SimpleDbLoginModule implements LoginModule {
         if (null == oj_subject) {
             throw new LoginException("Subject never setup");
         }
-        if ( null == om_account ) {
+        if ( null == osearch ) {
             throw new LoginException( "AccountManager dependency never injected" );
         }
         if ( null == om_dbauth ) {
@@ -139,7 +138,7 @@ public class SimpleDbLoginModule implements LoginModule {
         final LittleTransaction trans_login = oprovideTrans.get();
         trans_login.startDbAccess();
         try {
-            LittleUser user = (LittleUser) om_account.getPrincipal(s_user);
+            final LittleUser user = osearch.getByName(s_user, SecurityAssetType.USER ).get();
             // Ok, user exists - now verify password if necessary
             if (ob_check_password) {
                 DbReader<Boolean, String> sql_check = om_dbauth.makeDbPasswordLoader(user.getObjectId());

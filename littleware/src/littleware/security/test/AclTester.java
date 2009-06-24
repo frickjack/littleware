@@ -166,7 +166,7 @@ public class AclTester extends TestCase {
 			}
 			{
 				// Make sure setData/getData are valid
-				LittleAclEntry   acl_entry = (LittleAclEntry) SecurityAssetType.ACL_ENTRY.create ();
+				LittleAclEntry   acl_entry = SecurityAssetType.ACL_ENTRY.create ();
 				
 				acl_entry.addPermission ( LittlePermission.READ );
 				String s_data = acl_entry.getData ();
@@ -187,7 +187,7 @@ public class AclTester extends TestCase {
 	 */
 	public void testAclOwner () {		
 		try {
-			final Principal p_admin = (LittlePrincipal) om_search.getByName ( AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER );
+			final Principal p_admin = om_search.getByName ( AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER ).get();
 				
 			assertTrue (  "Successfully retrieved administrator", null != p_admin );
 			olog_generic.log ( Level.INFO, "Successfull retrieved administrator principal: " + p_admin );

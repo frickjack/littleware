@@ -57,21 +57,12 @@ public class LocalAssetRetriever implements AssetRetriever {
         oprovideTrans = provideTrans;
     }
 
-    @Override
-    public Asset getAsset(UUID u_id) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        Asset a_result = getAssetOrNull(u_id);
-        if (null == a_result) {
-            throw new NoSuchThingException("No data found for: " + u_id);
-        }
-        return a_result;
-    }
 
     @Override
-    public Asset getAssetOrNull(UUID u_id) throws BaseException, AssetException,
+    public Maybe<Asset> getAsset(UUID u_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (null == u_id) {
-            return null;
+            return Maybe.empty( "Null id passed to getAsset");
         }
 
         final LittleTransaction trans = oprovideTrans.get();
@@ -82,17 +73,17 @@ public class LocalAssetRetriever implements AssetRetriever {
 
             if (null != a_result) {
                 // no need to secure - already secure in cache
-                return a_result;
+                return Maybe.something(a_result);
             }
 
             a_result = getAssetOrNullInsecure(u_id);
             if (null == a_result) {
-                return a_result;
+                return Maybe.empty( "No asset with id: " + u_id );
             }
 
             // Specialize the asset
             littleware.base.Whatever.check("Got a valid id", a_result.getObjectId() != null);
-            return secureAndSpecialize(a_result);
+            return Maybe.something( secureAndSpecialize(a_result) );
         } finally {
             trans.endDbAccess(v_cycle_cache);
         }
@@ -184,7 +175,10 @@ public class LocalAssetRetriever implements AssetRetriever {
             }
 
             try {
-                a_result = om_cache.getAssetOrNull(u_id);
+                final Maybe<Asset> maybeResult = om_cache.getAsset(u_id);
+                if ( maybeResult.isSet() ) {
+                    a_result = maybeResult.get();
+                }
             } catch (CacheMissException e) {
             } catch (GeneralSecurityException e) {
                 throw new AssertionFailedException("Cache should not do security check");
@@ -218,9 +212,9 @@ public class LocalAssetRetriever implements AssetRetriever {
         try {
             Set<Asset> v_result = new HashSet<Asset>();
             for (UUID u_id : v_id) {
-                Asset a_result = getAssetOrNull(u_id);
-                if (null != a_result) {
-                    v_result.add(a_result);
+                final Maybe<Asset> maybe = getAsset(u_id);
+                if ( maybe.isSet() ) {
+                    v_result.add( maybe.get() );
                 }
             }
             return v_result;
@@ -229,6 +223,7 @@ public class LocalAssetRetriever implements AssetRetriever {
         }
     }
 
+    @Override
     public Map<String, UUID> getHomeAssetIds() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         Map<String, UUID> v_result = null;
@@ -252,6 +247,7 @@ public class LocalAssetRetriever implements AssetRetriever {
         return v_result;
     }
 
+    @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_source,
             AssetType<? extends Asset> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {

@@ -140,7 +140,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		if ( null == ou_home ) {
 			return null;
 		}
-		return m_retriever.getAsset ( ou_home );
+		return m_retriever.getAsset ( ou_home ).get();
 	}
 
     @Override
@@ -150,12 +150,12 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 	{
 		if ( null == ou_owner ) {
             return new SimpleOwner ( 
-                                     (LittleGroup) m_retriever.getAsset ( AccountManager.UUID_ADMIN_GROUP )
+                                     m_retriever.getAsset ( AccountManager.UUID_ADMIN_GROUP ).get().narrow(LittleGroup.class)
                                      );
 		}
         
-		return new SimpleOwner ( (LittleUser) m_retriever.getAsset ( ou_owner ),
-                                 (LittleGroup) m_retriever.getAsset ( AccountManager.UUID_ADMIN_GROUP )
+		return new SimpleOwner ( m_retriever.getAsset ( ou_owner ).get().narrow( LittleUser.class ),
+                                 m_retriever.getAsset ( AccountManager.UUID_ADMIN_GROUP ).get().narrow(LittleGroup.class)
                                  );
 	}
 
@@ -167,7 +167,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		if ( null == ou_acl ) {
 			return null;
 		}
-		return (LittleAcl) m_retriever.getAsset ( ou_acl );
+		return m_retriever.getAsset ( ou_acl ).get().narrow(LittleAcl.class);
 	}
 
     @Override
@@ -178,7 +178,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		if ( null == ou_creator ) {
 			return null;
 		}
-		return (LittleUser) m_retriever.getAsset ( ou_creator );
+		return m_retriever.getAsset ( ou_creator ).get().narrow(LittleUser.class);
 	}
 
     @Override
@@ -189,7 +189,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		if ( null == ou_last_updater ) {
 			return null;
 		}
-		return (LittleUser) m_retriever.getAsset ( ou_last_updater );
+		return m_retriever.getAsset ( ou_last_updater ).get().narrow( LittleUser.class );
 	}
 
     @Override
@@ -200,7 +200,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		if ( null == ou_from ) {
 			return null;
 		}
-		return m_retriever.getAsset ( ou_from );
+		return m_retriever.getAsset ( ou_from ).get();
 	}
 
     @Override
@@ -211,7 +211,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 		if ( null == ou_to ) {
 			return null;
 		}
-		return m_retriever.getAsset ( ou_to );
+		return m_retriever.getAsset ( ou_to ).get();
 	}
 	
 	/** 
@@ -349,8 +349,17 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
                        ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
     {
-        this.sync( m_retriever.getAsset( this.getObjectId () ) );
+        this.sync( m_retriever.getAsset( this.getObjectId () ).get() );
     }
-    
+
+    @Override
+    public <T extends Asset> T narrow( Class<T> type ) {
+        return type.cast(this );
+    }
+
+    @Override
+    public <T extends Asset> T narrow() {
+        return (T) this;
+    }
 }
 

@@ -1,20 +1,30 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.test;
 
+import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.Principal;
 
-import junit.framework.*;
 
 import littleware.asset.*;
 import littleware.base.*;
 import littleware.security.SecurityAssetType;
+import littleware.test.LittleTest;
 
 /**
  * Tester for implementations of the AssetRetriever interface 
  */
-public class AssetRetrieverTester extends TestCase {
+public class AssetRetrieverTester extends LittleTest {
 	private static final Logger olog_generic = Logger.getLogger ( "littleware.asset.test.AssetRetrieverTester" );
 	
 	private final AssetRetriever  om_asset;
@@ -25,22 +35,12 @@ public class AssetRetrieverTester extends TestCase {
 	 * @param s_test_name of test to run - pass to super class
 	 * @param m_asset to test against
 	 */
-	public AssetRetrieverTester ( String s_test_name, AssetRetriever m_asset ) {
-		super( s_test_name );
+    @Inject
+	public AssetRetrieverTester ( AssetRetriever m_asset ) {
 		om_asset = m_asset;
+        setName( "testLoad" );
 	}
 	
-	/**
-	 * No setUp necessary
-	 */
-	public void setUp () {
-	}
-	
-	/**
-	 * No teardown necessary
-	 */
-	public void tearDown () {
-	}
 	
 	/**
 	 * Just load some test assets.
@@ -52,10 +52,12 @@ public class AssetRetrieverTester extends TestCase {
 			for ( String s_home : v_home_id.keySet () ) {
 				olog_generic.log ( Level.INFO, "getHomeAssetIds found home: " + s_home );
 			}
-			assertTrue ( "Test-home is in home set: " + AssetManagerTester.MS_TEST_HOME,
-						 v_home_id.containsKey ( AssetManagerTester.MS_TEST_HOME )
+			assertTrue ( "Test-home is in home set: " + getTestHome(),
+						 v_home_id.containsKey ( getTestHome() )
 						 );
-			Asset a_home = om_asset.getAsset ( v_home_id.get ( AssetManagerTester.MS_TEST_HOME ) );
+			assertTrue( "Able to retrieve test home: " + getTestHome(),
+                    om_asset.getAsset ( v_home_id.get ( getTestHome() ) ).isSet()
+                    );
 		} catch ( Exception e ) {
 			olog_generic.log ( Level.WARNING, "Caught: " + e );
 			assertTrue ( "Caught: " + e, false );
@@ -67,6 +69,7 @@ public class AssetRetrieverTester extends TestCase {
                                                     "littleware.BOGUS"
                                                 ) {
 		/** Get a LittleUser implementation */
+        @Override
 		public Asset create () throws FactoryException { return (Asset) null; }
 
         @Override
@@ -97,6 +100,4 @@ public class AssetRetrieverTester extends TestCase {
 	
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

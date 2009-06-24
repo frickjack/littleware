@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -72,7 +70,7 @@ public interface Asset extends littleware.base.CacheableObject
             public String toString () { return OS_INTERFACE + "EndDate"; }
         };
         
-        private static final String  OS_INTERFACE = "littleware.apps.Asset#";
+        private static final String  OS_INTERFACE = "littleware.asset.Asset#";
         
     }
     
@@ -243,6 +241,7 @@ public interface Asset extends littleware.base.CacheableObject
      * basic information for server side cacheing.
      * Follow clone() with a sync() call to get an accurate copy.
      */
+    @Override
     public Asset clone();
     
     /**
@@ -285,5 +284,9 @@ public interface Asset extends littleware.base.CacheableObject
      */
     public void removePropertyChangeListener( PropertyChangeListener listen_props );
     
+    /** Cast this to the specified asset type ... little safer than simple cast */
+    public <T extends Asset> T narrow( Class<T> type );
+
+    public <T extends Asset> T narrow();
 }
     

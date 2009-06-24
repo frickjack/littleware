@@ -12,7 +12,6 @@ package littleware.apps.swingclient.wizard;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
@@ -242,7 +241,7 @@ public class JAssetPathPanel extends JPanel {
             } else {
                 // just start browsing around ACL_EVERYBODY
                 oview_asset.setAssetModel ( olib_asset.syncAsset ( om_search.getByName ( LittleAcl.ACL_EVERYBODY_READ,
-                                                                                           SecurityAssetType.ACL )
+                                                                                           SecurityAssetType.ACL ).get()
                                                                    )
                                             );
             }
@@ -335,7 +334,7 @@ public class JAssetPathPanel extends JPanel {
             //owbutton_browse.setEnabled ( false );
             return;
         }
-        Asset a_link = om_search.getAssetAtPath ( path_asset );
+        final Asset a_link = om_search.getAssetAtPath ( path_asset ).get();
         olib_asset.syncAsset( a_link );
         if ( (! ov_legal.isEmpty ())
              && (! ov_legal.contains ( a_link.getAssetType () ))

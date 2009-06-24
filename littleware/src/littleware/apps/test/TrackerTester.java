@@ -81,12 +81,12 @@ public class TrackerTester extends LittleTest {
                     a_folder.setFromId(u_home);
                     a_folder.setHomeId(u_home);
                     a_folder.setName(os_test_folder);
-                    UUID u_acl = om_search.getByName(littleware.security.LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL).getObjectId();
+                    final UUID u_acl = om_search.getByName(littleware.security.LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL).get().getObjectId();
 
                     a_folder.setAclId(u_acl);
                     oa_test_folder = om_asset.saveAsset(a_folder, "setup folder for test");
                 } else {
-                    oa_test_folder = om_search.getAsset(u_test_folder);
+                    oa_test_folder = om_search.getAsset(u_test_folder).get();
                 }
             }
         } catch (Exception e) {
@@ -151,7 +151,7 @@ public class TrackerTester extends LittleTest {
             assertTrue("Queue needs update after adding task", v_check_result.containsKey(q_test.getObjectId()));
             assertTrue("Task is up to date", !v_check_result.containsKey(task_1.getObjectId()));
 
-            q_test.sync(om_search.getAsset(q_test.getObjectId()));
+            q_test.sync( om_search.getAsset(q_test.getObjectId()).get() );
 
             Task task_2 = TrackerAssetType.TASK.create();
             task_2.setName("task_2_" + t_now.getTime());

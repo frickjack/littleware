@@ -67,7 +67,7 @@ public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> 
         try {
             aFolder = osearch.getAssetAtPath(
                     ofactoryPath.createPath( sFolder )
-                    );
+                    ).get();
         } catch ( Exception ex ) {
             throw new LgoException( "Failed to load parent folder: " + sFolder, ex );
         }
@@ -83,10 +83,10 @@ public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> 
         final boolean bAdmin = ! Whatever.empty( mapArg.get( Option.admin.toString() ) );
         if ( bAdmin ) {
             try {
-                LittleGroup groupAdmin = osearch.getByName(
+                final LittleGroup groupAdmin = osearch.getByName(
                         AccountManager.LITTLEWARE_ADMIN_GROUP,
                         SecurityAssetType.GROUP
-                        );
+                        ).get();
                 groupAdmin.addMember(userNew);
                 omgrAsset.saveAsset( groupAdmin, "Added user " + sName );
             } catch ( Exception ex ) {

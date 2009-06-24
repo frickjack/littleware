@@ -174,12 +174,8 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
     private void uiAddNewMember () {
         try {
             String            s_name = owtext_add.getText ();
-            LittlePrincipal   p_new = (LittlePrincipal) om_search.getByName ( s_name, SecurityAssetType.PRINCIPAL );
-            
-            if ( null == p_new ) {
-                throw new NoSuchThingException ( "No principal with name " + s_name + " in repository" );
-            }
-            LittleAcl         acl_local = (LittleAcl) this.getLocalAsset ();
+            LittlePrincipal   p_new = om_search.getByName ( s_name, SecurityAssetType.PRINCIPAL ).get();
+            LittleAcl         acl_local = this.getLocalAsset ().narrow( LittleAcl.class );
             AssetModelLibrary lib_asset = getAssetModel ().getLibrary ();
             LittlePermission  perm_selected = owtab_perms.getSelectedPermission ();
             
@@ -210,7 +206,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
      */
     private void uiDeleteMembers () {
         try {
-            LittleAcl             acl_local = (LittleAcl) this.getLocalAsset ();
+            LittleAcl             acl_local = this.getLocalAsset ().narrow( LittleAcl.class );
             LittlePermission      perm_selected = owtab_perms.getSelectedPermission ();
             List<LittlePrincipal> v_selected = owtab_perms.getSelectedPrincipal ( perm_selected );
             
@@ -395,7 +391,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
             return;
         }
 
-        LittleAcl              acl_view = (LittleAcl) getLocalAsset ();
+        LittleAcl              acl_view = getLocalAsset ().narrow( LittleAcl.class );
         owlink_acl.setLink ( acl_view );
         
         Enumeration<AclEntry>  enum_entry = acl_view.entries ();
@@ -416,6 +412,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
         }
 
         Comparator<LittlePrincipal> compare_sort = new Comparator<LittlePrincipal> () {
+            @Override
             public int compare ( LittlePrincipal p_1, LittlePrincipal p_2 ) {
                 return p_1.getName ().compareTo ( p_2.getName () );
             }

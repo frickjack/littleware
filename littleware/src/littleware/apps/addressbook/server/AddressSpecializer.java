@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.addressbook.server;
 
 import com.google.inject.Inject;
@@ -28,6 +38,7 @@ public class AddressSpecializer implements AssetSpecializer {
         om_retriever = m_retriever;
     }
 
+    @Override
     public <T extends Asset> T narrow(T a_in, AssetRetriever m_retriever) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (!a_in.getAssetType().equals(AddressAssetType.CONTACT)) {
@@ -41,6 +52,7 @@ public class AddressSpecializer implements AssetSpecializer {
         List<Asset> v_sort = new ArrayList(v_address);
         Comparator<Asset> x_sort = new Comparator<Asset>() {
 
+            @Override
             public int compare(Asset a_1, Asset a_2) {
                 return Float.compare(a_1.getValue().floatValue(), a_2.getValue().floatValue());
             }
@@ -54,6 +66,7 @@ public class AddressSpecializer implements AssetSpecializer {
         return a_in;
     }
 
+    @Override
     public void postCreateCallback(Asset a_new, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (!(a_new instanceof Contact)) {
@@ -71,6 +84,7 @@ public class AddressSpecializer implements AssetSpecializer {
         }
     }
 
+    @Override
     public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (!(a_now instanceof Contact)) {
@@ -86,7 +100,7 @@ public class AddressSpecializer implements AssetSpecializer {
         v_old.removeAll(addr_now.getAddress());
 
         for (Address addr_old : v_old) {
-            Address addr_load = (Address) om_retriever.getAssetOrNull(addr_old.getObjectId());
+            Address addr_load = (Address) om_retriever.getAsset(addr_old.getObjectId()).getOr( null );
 
             if ((null != addr_load) && (null != addr_load.getObjectId()) && addr_now.getObjectId().equals(addr_load.getObjectId())) {
                 addr_load.setFromId(null);
@@ -95,6 +109,7 @@ public class AddressSpecializer implements AssetSpecializer {
         }
     }
 
+    @Override
     public void postDeleteCallback(Asset a_deleted, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         // Clear out the contact-id of Contact Addresses

@@ -69,7 +69,7 @@ public class DeleteAssetCommand extends AbstractLgoCommand<String,UUID> {
         }
         final Asset    aDelete;
         try {
-            aDelete = osearch.getAssetAtPath(path);
+            aDelete = osearch.getAssetAtPath(path).get();
         } catch ( Exception ex ) {
             throw new LgoException( "Could not load asset at path: " + sPath, ex );
         }

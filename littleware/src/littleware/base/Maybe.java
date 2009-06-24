@@ -22,12 +22,14 @@ public class Maybe<T> implements java.io.Serializable {
     private static final long serialVersionUID = 10000001L;
 
     private boolean  ob_set = false;
+    private String osError = null;
+
     public boolean isSet() { return ob_set; }
 
     /** Construct an unset Maybe */
-    public Maybe () {}
+    private Maybe () {}
     /** Construct an isSet Maybe */
-    public Maybe ( T val ) {
+    private Maybe ( T val ) {
         oval = val;
         ob_set = true;
     }
@@ -55,6 +57,9 @@ public class Maybe<T> implements java.io.Serializable {
      */
     public T get () {
         if ( ! ob_set ) {
+            if ( null != osError ) {
+                throw new NoSuchElementException( osError );
+            }
             throw new NoSuchElementException();
         }
         return oval;
@@ -77,5 +82,43 @@ public class Maybe<T> implements java.io.Serializable {
         hash = 37 * hash + (this.ob_set ? 1 : 0);
         hash = 37 * hash + (this.oval != null ? this.oval.hashCode() : 0);
         return hash;
+    }
+
+    /**
+     * Internal setter for error message property
+     * attached to NoSuchElementException on get() call
+     * against unset option.
+     *
+     * @param sError
+     * @return this
+     */
+    private Maybe<T> putError( String sError ) {
+        osError = sError;
+        return this;
+    }
+
+    /** Factory for unset Maybe */
+    public static <T> Maybe<T> empty() { return new Maybe<T>(); }
+    /**
+     * Factory method for unset Maybe
+     *
+     * @param sError message to attach to the NoSuchElementException if
+     *     the client invokes get
+     */
+    public static <T> Maybe<T> empty( String sError ) {
+        return new Maybe<T>().putError( sError );
+    }
+
+    /** Maybe factory set if val is not null */
+    public static <T> Maybe<T> emptyIfNull( T val ) {
+        if ( null == val ) {
+            return new Maybe<T>();
+        } else {
+            return new Maybe<T>( val );
+        }
+    }
+    /** Factory builds Maybe set with val */
+    public static <T> Maybe<T> something( T val ) {
+        return new Maybe<T>( val );
     }
 }

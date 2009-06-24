@@ -25,6 +25,7 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.base.BaseException;
 import littleware.base.Cache;
+import littleware.base.Maybe;
 import littleware.security.auth.client.ClientCache;
 
 /**
@@ -54,32 +55,26 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     }
 
     @Override
-    public <T extends Asset> T getByName(String s_name, AssetType<T> n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        T result = oserver.getByName( s_name, n_type );
-        if ( null != result ) {
-            fireServiceEvent( new AssetLoadEvent( this, result ) );
+    public <T extends Asset> Maybe<T> getByName(String s_name, AssetType<T> n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final Maybe<T> result = oserver.getByName( s_name, n_type );
+        if ( result.isSet() ) {
+            fireServiceEvent( new AssetLoadEvent( this, result.get() ) );
         }
         return result;
     }
 
-    @Override
-    public Map<AssetPath, Asset> getAssetsAlongPath(AssetPath path_asset) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Map<AssetPath,Asset> mapResult = oserver.getAssetsAlongPath( path_asset );
-        for( Asset asset : mapResult.values () ) {
-            fireServiceEvent( new AssetLoadEvent( this, asset ) );
-        }
-        return mapResult;
-    }
 
     @Override
-    public Asset getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Maybe<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Cache<String,Object> cache = ClientCache.getSingleton().getCache();
         final String sKey = "path:" + path_asset;
-        Asset result = (Asset) cache.get( sKey );
-        if ( null == result ) {
+        Maybe<Asset> result = Maybe.emptyIfNull( (Asset) cache.get( sKey ) );
+        if ( ! result.isSet() ) {
             result = oserver.getAssetAtPath( path_asset );
         }
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
+        if ( result.isSet() ) {
+            fireServiceEvent( new AssetLoadEvent( this, result.get() ) );
+        }
         return result;
     }
 
@@ -90,22 +85,14 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     }
 
     @Override
-    public Asset getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Asset result = oserver.getAssetFrom( u_from, s_name );
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
-        return result;
-
-    }
-
-    @Override
-    public Asset getAssetFromOrNull(UUID u_from, String s_name) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Asset result = oserver.getAssetFromOrNull( u_from, s_name );
-        if ( null != result ) {
-            fireServiceEvent( new AssetLoadEvent( this, result ) );
+    public Maybe<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final Maybe<Asset> result = oserver.getAssetFrom( u_from, s_name );
+        if ( result.isSet() ) {
+            fireServiceEvent( new AssetLoadEvent( this, result.get() ) );
         }
         return result;
-
     }
+
 
     @Override
     public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> v_check) throws BaseException, RemoteException {
@@ -126,31 +113,19 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     }
 
     @Override
-    public Asset getAsset(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Maybe<Asset> getAsset(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final ClientCache cache = ClientCache.getSingleton();
 
-        Asset result = cache.get( u_id );
-        if ( null == result ) {
+        Maybe<Asset> result = Maybe.emptyIfNull( cache.get( u_id ) );
+        if ( ! result.isSet() ) {
             result = oserver.getAsset( u_id );
         }
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
-        return result;
-    }
-
-    @Override
-    public Asset getAssetOrNull(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final ClientCache cache = ClientCache.getSingleton();
-
-        Asset result = cache.get( u_id );
-        if ( null == result ) {
-            result = oserver.getAssetOrNull( u_id );
-        }
-
-        if ( null != result ) {
-            fireServiceEvent( new AssetLoadEvent( this, result ) );
+        if ( result.isSet() ) {
+            fireServiceEvent( new AssetLoadEvent( this, result.get() ) );
         }
         return result;
     }
+
 
     @Override
     public Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
@@ -176,11 +151,6 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
             cache.put( sKey, mapResult );
         }
         return mapResult;
-    }
-
-    @Override
-    public String getSourceName() throws RemoteException {
-        return oserver.getSourceName();
     }
 
 }

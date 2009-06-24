@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
@@ -25,9 +23,9 @@ import littleware.security.*;
  */
 public class SecurityServerGuice implements Module {
 
+    @Override
     public void configure(Binder binder) {
         binder.bind( AccountManager.class ).to( SimpleAccountManager.class ).in( Scopes.SINGLETON );
-        binder.bind( AclManager.class ).to( SimpleAclManager.class ).in( Scopes.SINGLETON );
     }
 
 }

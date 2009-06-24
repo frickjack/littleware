@@ -228,7 +228,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                             String s_path = owtext_goto_path.getText ();
                             try {
                                 AssetPath  path_goto = ofactory_path.createPath ( s_path );
-                                AssetModel model_goto = olib_asset.syncAsset ( om_search.getAssetAtPath ( path_goto ) );
+                                AssetModel model_goto = olib_asset.syncAsset ( om_search.getAssetAtPath ( path_goto ).get() );
                                 ou_goto = model_goto.getAsset ().getObjectId ();
                                 oview_component.setAssetModel ( model_goto );
                             } catch ( Exception e ) {

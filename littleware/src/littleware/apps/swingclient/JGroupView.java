@@ -44,7 +44,7 @@ public class JGroupView extends JAssetWithChildrenView {
             return v_childinfo;
         }
         super.setTabEnabled ( true );
-        LittleGroup group_view = (LittleGroup) model_view.getAsset ();
+        LittleGroup group_view = model_view.getAsset ().narrow( LittleGroup.class );
         
         for ( Enumeration<? extends Principal> enum_members = group_view.members ();
               enum_members.hasMoreElements ();

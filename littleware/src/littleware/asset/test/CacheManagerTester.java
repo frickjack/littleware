@@ -104,9 +104,9 @@ public class CacheManagerTester extends TestCase {
 						 v_cache_data.containsKey ( AssetManagerTester.MS_TEST_HOME )
 						 );
 			u_test = v_cache_data.get( AssetManagerTester.MS_TEST_HOME );
-			Asset a_home = om_asset.getAsset ( u_test );
+			Asset a_home = om_asset.getAsset ( u_test ).get();
 			om_cache.put ( u_test, a_home );
-			a_home = om_cache.getAsset ( u_test );
+			a_home = om_cache.getAsset ( u_test ).get();
 			assertTrue ( "Valid home data pulled out of cache",
 						 a_home.getObjectId ().equals ( u_test )
 						 && a_home.getName ().equals ( AssetManagerTester.MS_TEST_HOME )
@@ -117,7 +117,7 @@ public class CacheManagerTester extends TestCase {
 			a_home.setTransactionCount ( a_home.getTransactionCount () + 1 );
 			
 			om_cache.put ( u_test, a_home );
-			a_home = om_cache.getAsset ( u_test );
+			a_home = om_cache.getAsset ( u_test ).get();
 			assertTrue ( "Cache picked up our basic asset-type update",
 						 a_home.getAssetType ().equals ( SecurityAssetType.USER ) );
 			v_cache_data = om_cache.getHomeAssetIds ();

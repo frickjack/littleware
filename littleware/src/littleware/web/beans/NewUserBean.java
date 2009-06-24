@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.web.beans;
 
 import java.security.*;
@@ -46,6 +56,7 @@ public class NewUserBean extends AbstractBean {
                     PrivilegedAction<SessionHelper> act_getadmin =
                             new PrivilegedAction<SessionHelper>() {
 
+                        @Override
                                 public SessionHelper run() {
                                     return BeanUtil.getWebAdminHelper();
                                 }
@@ -55,7 +66,7 @@ public class NewUserBean extends AbstractBean {
                 }
                 ou_acl_everybody = ohelp_admin.getService( ServiceType.ASSET_SEARCH ).
                         getByName( LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL ).
-                        getObjectId();
+                        get().getObjectId();
                 ob_initialized = true;
             } catch ( Exception ex ) {
                 olog.log( Level.SEVERE, "Failed to setup NewUserBean statics", ex );
@@ -166,14 +177,7 @@ public class NewUserBean extends AbstractBean {
             quota_new.setHomeId(BeanUtil.getWebHomeId());
             quota_new.setOwnerId(AccountManager.UUID_ADMIN);
             quota_new.setAclId( ou_acl_everybody );
-            quota_new = (littleware.security.Quota) m_asset.saveAsset(quota_new, "Quota for " + user_new.getName());
-
-            if ( null != getNewUserGroupName() ) {
-                // Add to web group
-                LittleGroup p_web = (LittleGroup) m_account.getPrincipal( getNewUserGroupName () );
-                p_web.addMember(user_new);
-                p_web = (LittleGroup) m_asset.saveAsset(p_web, "Add new member: " + user_new.getName());
-            }
+            quota_new =  m_asset.saveAsset(quota_new, "Quota for " + user_new.getName());
 
             // Setup Contact info: User - Link - Contact - Address
             Asset a_link = AddressAssetType.LINK.create();
@@ -229,7 +233,4 @@ public class NewUserBean extends AbstractBean {
         return getLastResult().toString();
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.web.beans;
 
 import java.security.*;
@@ -111,13 +121,13 @@ public class SessionBean {
                     .setFromId( user.getObjectId () )
                     .create ( AssetType.LINK );
         } else {
-            a_link = m_search.getAsset(u_link);
+            a_link = m_search.getAsset(u_link).get();
         }
 
         Contact contact_user = null;
 
         if (null != a_link.getToId()) {
-            contact_user = (Contact) m_search.getAssetOrNull(a_link.getToId());
+            contact_user = (Contact) m_search.getAsset(a_link.getToId()).getOr(null);
         }
         if (null == contact_user) {
             contact_user = builder.setFromId( null )
@@ -222,7 +232,4 @@ public class SessionBean {
         return ouser;
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

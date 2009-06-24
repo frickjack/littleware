@@ -27,7 +27,7 @@ import littleware.security.*;
 /**
  * Simple AclManager implementation.
  */
-public class SimpleAclManager extends NullAssetSpecializer implements AclManager, AssetSpecializer {
+public class SimpleAclManager extends NullAssetSpecializer implements AclSpecializer {
 	
 	private static final Logger             olog = Logger.getLogger ( SimpleAclManager.class.getName() );
 
@@ -49,32 +49,6 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 		om_searcher = m_searcher;
 	}
 
-	
-
-    @Override
-	public LittleAcl getAcl( UUID u_id ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException
-	{
-		return (LittleAcl) om_searcher.getAsset ( u_id );
-	}
-
-	
-    @Override
-	public LittleAcl getAcl ( String s_name )
-		throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException
-	{
-		LittleAcl a_result = om_searcher.getByName ( s_name, SecurityAssetType.ACL );
-        if ( null == a_result ) {
-            throw new NoSuchThingException ( "No ACL with name: " + s_name );
-        }
-        return a_result;
-	}		
-	
-	
-
-	
-
 	/**
 	 * Specialize ACL type assets
 	 */
@@ -83,7 +57,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 						  ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
 	{
-		LittleAcl   acl_in = (LittleAcl) a_in;
+		LittleAcl   acl_in = a_in.narrow(LittleAcl.class);
 
         acl_in.clearEntries ();  // clear cloned entry list and rebuild
 		final Map<String,UUID>  v_links = m_retriever.getAssetIdsFrom ( acl_in.getObjectId (),
@@ -94,9 +68,9 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 		
         for ( Asset a_link : v_link_assets ) {
             final UUID             u_principal = a_link.getToId ();
-            final LittleAclEntry   acl_entry = (LittleAclEntry) a_link;
+            final LittleAclEntry   acl_entry = a_link.narrow();
 
-            final Principal p_entry = (Principal) m_retriever.getAsset ( u_principal );
+            final LittlePrincipal p_entry = m_retriever.getAsset ( u_principal ).get().narrow(LittlePrincipal.class );
             acl_entry.setPrincipal ( p_entry );
             
             acl_in.addEntry ( acl_entry );
@@ -129,7 +103,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 		acl_entry.setOwnerId ( acl_in.getOwnerId () );
 		acl_entry.setAclId ( acl_in.getAclId () );
         acl_entry.setHomeId ( acl_in.getHomeId () );
-		acl_entry = (LittleAclEntry) m_asset.saveAsset ( acl_entry, "ACL entry tracker" );
+		acl_entry = m_asset.saveAsset ( acl_entry, "ACL entry tracker" );
 		return acl_entry;
 	}
 	
@@ -143,7 +117,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclManager
 		GeneralSecurityException, RemoteException
 	{
 		if ( SecurityAssetType.ACL.equals ( a_new.getAssetType () ) ) {
-			LittleAcl     acl_new = (LittleAcl) a_new;
+			LittleAcl     acl_new = a_new.narrow();
 			
 			for ( Enumeration<AclEntry> v_entries = acl_new.entries ();
 				  v_entries.hasMoreElements ();

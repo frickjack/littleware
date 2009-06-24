@@ -244,7 +244,7 @@ public class JQView extends JGenericAssetView {
         if ( null == getAssetModel () ) {
             return;
         }
-        littleware.apps.tracker.Queue  q_view = (littleware.apps.tracker.Queue) getAssetModel ().getAsset ();
+        littleware.apps.tracker.Queue  q_view =  getAssetModel ().getAsset ().narrow(littleware.apps.tracker.Queue.class);
         try {
             for ( TaskStatus n_status : ov_status_order ) {
                 if ( i_count > OI_MAX_TASK ) {

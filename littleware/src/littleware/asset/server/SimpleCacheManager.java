@@ -187,16 +187,12 @@ public class SimpleCacheManager implements CacheManager {
     }
 
     @Override
-    public Asset getAsset(UUID u_id) throws DataAccessException, AssetException, NoSuchThingException, GeneralSecurityException {
-        Asset a_result = getAssetOrNull(u_id);
-        if (null == a_result) {
-            throw new NoSuchThingException();
-        }
-        return a_result;
+    public Maybe<Asset> getAsset(UUID u_id) throws DataAccessException, AssetException, NoSuchThingException, GeneralSecurityException {
+        return Maybe.emptyIfNull( getAssetOrNull(u_id) );
     }
 
     /** Ignore cycle-cache - somebody else should maintain and check that */
-    public Asset getAsset(UUID u_id, Map<UUID, Asset> v_cycle_cache) throws DataAccessException, AssetException, NoSuchThingException, GeneralSecurityException {
+    public Maybe<Asset> getAsset(UUID u_id, Map<UUID, Asset> v_cycle_cache) throws DataAccessException, AssetException, NoSuchThingException, GeneralSecurityException {
         return getAsset(u_id);
     }
 
@@ -209,7 +205,6 @@ public class SimpleCacheManager implements CacheManager {
      * @return the asset or null if the u_id is in the cache
      * @exception CacheMissException if the u_id is not in the cache
      */
-    @Override
     public Asset getAssetOrNull(UUID u_id) throws DataAccessException, AssetException, GeneralSecurityException {
         if (oprovideTrans.get().isDbUpdating()) {
             throw new CacheMissException("In transaction");
@@ -345,13 +340,9 @@ public class SimpleCacheManager implements CacheManager {
         }
     }
 
-    @Override
-    public String getSourceName() {
-        return "cache";
-    }
 
     @Override
-    public <T extends Asset> T getByName(String s_name, AssetType<T> n_type) throws DataAccessException,
+    public <T extends Asset> Maybe<T> getByName(String s_name, AssetType<T> n_type) throws DataAccessException,
             AssetException, NoSuchThingException, AccessDeniedException, GeneralSecurityException {
         if (oprovideTrans.get().isDbUpdating()) {
             throw new CacheMissException("In transaction");
@@ -366,7 +357,7 @@ public class SimpleCacheManager implements CacheManager {
             if (v_data.isEmpty()) {
                 return null;
             }
-            return (T) getAssetOrNull(v_data.iterator().next());
+            return Maybe.emptyIfNull( (T) getAssetOrNull(v_data.iterator().next()) );
         } catch (SQLException e) {
             throw new DataAccessException("frickjack: " + e, e);
         }
@@ -397,28 +388,16 @@ public class SimpleCacheManager implements CacheManager {
 
     /** Not yet implemented */
     @Override
-    public Asset getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
+    public Maybe<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
             GeneralSecurityException {
         throw new CacheMissException();
     }
 
-    /** Not yet implemented */
-    @Override
-    public Asset getAssetFromOrNull(UUID u_from, String s_name) throws BaseException, AssetException,
-            GeneralSecurityException {
-        throw new CacheMissException();
-    }
+
 
     /** Not yet implemented */
     @Override
-    public Map<AssetPath, Asset> getAssetsAlongPath(AssetPath path_asset) throws BaseException, AssetException,
-            GeneralSecurityException {
-        throw new CacheMissException();
-    }
-
-    /** Not yet implemented */
-    @Override
-    public Asset getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
+    public Maybe<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException {
         throw new CacheMissException();
     }

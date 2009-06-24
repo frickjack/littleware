@@ -17,6 +17,7 @@ import java.util.logging.Level;
 
 import littleware.base.BaseException;
 import littleware.base.AssertionFailedException;
+import littleware.base.Maybe;
 
 /**
  * Convenience baseclass for AssetPath implementations 
@@ -78,7 +79,7 @@ public abstract class AbstractAssetPath implements AssetPath {
         if ( ! s_normal.startsWith ( "/.." ) ) {
             return this;
         }
-        Asset a_root = getRoot( m_search );
+        Asset a_root = getRoot( m_search ).get();
         for ( ;
               s_normal.startsWith ( "/.." );
               s_normal = s_normal.substring ( 3 )
@@ -86,14 +87,14 @@ public abstract class AbstractAssetPath implements AssetPath {
             if ( null == a_root.getFromId () ) {
                 throw new DanglingLinkException ( "Unable to normalize path for " + this );
             }
-            a_root = m_search.getAsset ( a_root.getFromId () );
+            a_root = m_search.getAsset ( a_root.getFromId () ).get();
         }
         return AssetPathFactory.getFactory ().createPath ( a_root.getObjectId (), s_normal );
     }
     
     /** Subtype needs to override */
     @Override
-    public abstract Asset getRoot ( AssetSearchManager m_search 
+    public abstract Maybe<Asset> getRoot ( AssetSearchManager m_search
                            ) throws BaseException, AssetException, GeneralSecurityException,
         RemoteException;
     
@@ -103,23 +104,16 @@ public abstract class AbstractAssetPath implements AssetPath {
     }
     
     @Override
-    public Asset getAsset ( AssetSearchManager m_search 
-                            ) throws BaseException, AssetException, GeneralSecurityException,
-        RemoteException
-    {
-        return getAsset ( m_search, true );
-    }
-    
-    public Asset getAsset ( AssetSearchManager m_search,
-                            boolean b_resolve_link
+    public Maybe<Asset> getAsset ( AssetSearchManager m_search
                             ) throws BaseException, AssetException, GeneralSecurityException,
         RemoteException
     {
         return m_search.getAssetAtPath ( this );
     }
-    
+        
     
         
+    @Override
     public boolean hasParent () {
         return os_subroot_path.matches ( "^(/\\.\\.)*/.+$" );
     }
@@ -128,6 +122,7 @@ public abstract class AbstractAssetPath implements AssetPath {
      * Relies on clone to assemble the parent path if hasParent(),
      * otherwise just returns this.
      */
+    @Override
     public AssetPath getParent () {
         if ( hasParent () ) {
             try {
@@ -152,19 +147,23 @@ public abstract class AbstractAssetPath implements AssetPath {
 
     
     /** Just return constructor-supplied path string */ 
+    @Override
     public String toString () { return os_path; }
 
     /** Just hash on toString() */
+    @Override
     public int hashCode () { 
         return os_path.hashCode ();
     }
 
     /** Just compare on toString () */
+    @Override
     public int compareTo ( AssetPath path_other ) {
         return os_path.compareTo ( path_other.toString () );
     }
 
     /** Just call through to super - subclass also needs to implement */
+    @Override
     public AbstractAssetPath clone () {
         try {
             return (AbstractAssetPath) super.clone ();

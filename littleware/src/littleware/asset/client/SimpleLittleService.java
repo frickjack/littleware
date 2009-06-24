@@ -66,6 +66,7 @@ public class SimpleLittleService implements LittleService {
         oxSource = this;
     }
 
+    @Override
     public void addServiceListener(ServiceListener listener ) {
         if (!ovListener.contains(listener)) {
             ovListener.add(listener);

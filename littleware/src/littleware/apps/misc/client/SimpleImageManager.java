@@ -46,8 +46,9 @@ public class SimpleImageManager implements ImageManager {
         omgrBucket = mgrBucket;
     }
 
-    private static final Maybe<BufferedImage> oempty = new Maybe<BufferedImage>();
+    private static final Maybe<BufferedImage> oempty = Maybe.empty();
 
+    @Override
     public Maybe<BufferedImage> loadImage(UUID u_asset) throws BaseException, GeneralSecurityException, RemoteException, IOException {
         final Maybe<BufferedImage> maybe_cache = ocache.get( u_asset );
         if ( null != maybe_cache ) {
@@ -59,20 +60,22 @@ public class SimpleImageManager implements ImageManager {
             ocache.put( u_asset, oempty );
             return oempty;
         }
-        final Maybe<BufferedImage> maybe_result = new Maybe<BufferedImage>( ImageIO.read( new ByteArrayInputStream( omgrBucket.readBytesFromBucket(u_asset, osReservedPath) ) ) );
+        final Maybe<BufferedImage> maybe_result = Maybe.something( ImageIO.read( new ByteArrayInputStream( omgrBucket.readBytesFromBucket(u_asset, osReservedPath) ) ) );
         ocache.put( u_asset, maybe_result );
         return maybe_result;
     }
 
+    @Override
     public <T extends Asset> T saveImage(T a_save, BufferedImage img, String s_update_comment ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         ImageIO.write(img, "jpg", stream);
         stream.close();
         T a_result = omgrBucket.writeToBucket(a_save, osReservedPath, stream.toByteArray(), s_update_comment);
-        ocache.put( a_save.getObjectId(), new Maybe<BufferedImage>( img ) );
+        ocache.put( a_save.getObjectId(), Maybe.something( img ) );
         return a_result;
     }
 
+    @Override
     public <T extends Asset> T   deleteImage( T a_save, String s_update_comment
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
         ocache.remove( a_save.getObjectId() );
@@ -84,6 +87,7 @@ public class SimpleImageManager implements ImageManager {
         return omgrBucket.eraseFromBucket(a_save, osReservedPath, s_update_comment);
     }
 
+    @Override
     public void clearCache( UUID u_asset ) {
         ocache.remove(u_asset);
     }

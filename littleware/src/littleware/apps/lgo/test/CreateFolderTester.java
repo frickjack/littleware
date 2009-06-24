@@ -19,6 +19,7 @@ import littleware.apps.lgo.LgoException;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
+import littleware.base.Maybe;
 import littleware.test.LittleTest;
 
 /**
@@ -38,11 +39,11 @@ public class CreateFolderTester extends LittleTest {
     public void setUp() {
         try {
             final Asset aHome = getTestHome( osearch );
-            final Asset aDelete = osearch.getAssetFromOrNull( aHome.getObjectId(),
+            final Maybe<Asset> maybeDelete = osearch.getAssetFrom( aHome.getObjectId(),
                     "testCreateFolder"
                     );
-            if ( null != aDelete ) {
-                omgrAsset.deleteAsset( aDelete.getObjectId(), "test cleanup" );
+            if ( maybeDelete.isSet() ) {
+                omgrAsset.deleteAsset( maybeDelete.get().getObjectId(), "test cleanup" );
             }
         } catch ( Exception ex ) {
             olog.log( Level.WARNING, "Failed test setup", ex );

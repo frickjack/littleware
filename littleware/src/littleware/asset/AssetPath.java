@@ -14,6 +14,7 @@ import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 
 import littleware.base.BaseException;
+import littleware.base.Maybe;
 
 
 /**
@@ -60,9 +61,9 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
         RemoteException;
     
     /**
-     * Retrieve the asset at the root of the path
+     * Retrieve the asset at the root of the path if it exists
      */
-    public Asset getRoot ( AssetSearchManager m_search 
+    public Maybe<Asset> getRoot ( AssetSearchManager m_search
                            ) throws BaseException, AssetException, GeneralSecurityException,
         RemoteException;
     
@@ -82,31 +83,14 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
     
     /**
      * Retrieve the asset referenced by this path.
-     * Equivalent to {@link #getAsset( AssetSearchManager, boolean ) getAsset( m_search, true )}
      * 
      * @param m_search to traverse the asset tree with
      * @see AssetSearchManager.getAssetAtPath( AssetPath, boolean )
      */
-    public Asset getAsset ( AssetSearchManager m_search 
+    public Maybe<Asset> getAsset ( AssetSearchManager m_search
                             ) throws BaseException, AssetException, GeneralSecurityException,
         RemoteException;
     
-    /**
-     * By default getAsset traverses any AssetType.LINK assets
-     * at the end of the path.
-     * This method allows the caller to retrieve the link asset referenced
-     * at the end of this path&apos;s traversal rather than the asset
-     * pointed TO by the link.
-     *
-     * @param m_search to traverse the asset tree with
-     * @param b_resolve_link set true to resolve implicit links at the end of the path,
-     *                        false to retrieve the link itself
-     * @see AssetSearchManager.getAssetAtPath( AssetPath, boolean )
-     */
-    public Asset getAsset ( AssetSearchManager m_search,
-                            boolean b_resolve_link
-                            ) throws BaseException, AssetException, GeneralSecurityException,
-        RemoteException;
     
         
     

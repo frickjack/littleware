@@ -118,7 +118,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
         }
         if ( null != sStartPath ) {
             try {
-                Asset a_start = osearch.getAssetAtPath( AssetPathFactory.getFactory ().createPath( sStartPath ) );
+                final Asset a_start = osearch.getAssetAtPath( AssetPathFactory.getFactory ().createPath( sStartPath ) ).get();
                 olib.syncAsset( a_start );
                 setStart( a_start.getObjectId () );
             } catch ( Exception e ) {

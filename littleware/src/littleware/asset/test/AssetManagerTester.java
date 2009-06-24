@@ -74,7 +74,7 @@ public class AssetManagerTester extends TestCase {
 	 */
 	public void testAssetCreation () {
             try {
-                final Asset       home = om_search.getByName ( MS_TEST_HOME, AssetType.HOME );
+                final Asset       home = om_search.getByName ( MS_TEST_HOME, AssetType.HOME ).get();
                 final Asset       acl = null;
 		
                 olog_generic.log ( Level.INFO, "Running with test home: " + home );
@@ -116,7 +116,7 @@ public class AssetManagerTester extends TestCase {
                 a_test.setData ( "<data> some data </data>" );
                 a_test = om_asset.saveAsset ( a_test, "data update" );
                 
-                a_test = om_search.getAssetOrNull ( a_test.getObjectId () );
+                a_test = om_search.getAsset ( a_test.getObjectId () ).get();
                 assertTrue ( "Able to load new asset and data matches",
                              a_test.equals ( a_clone )
                              && a_clone.getName ().equals ( a_test.getName () )
@@ -127,10 +127,9 @@ public class AssetManagerTester extends TestCase {
                 
                 // Delete the asset
                 om_asset.deleteAsset ( a_clone.getObjectId () , "Cleanup test case" );
-                a_test = om_search.getAssetOrNull ( a_test.getObjectId () );
 		
                 assertTrue ( "No longer able to retrieve deleted asset: " + a_clone.getObjectId (),
-                             null == a_test
+                             ! om_search.getAsset( a_test.getObjectId () ).isSet()
                              );
 											
             } catch ( Exception e ) {

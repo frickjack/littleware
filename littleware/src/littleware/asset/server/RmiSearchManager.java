@@ -35,7 +35,7 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
     }
 
     @Override
-    public Asset getByName(String s_name, AssetType n_type) throws BaseException, AssetException,
+    public Maybe<Asset> getByName(String s_name, AssetType n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getByName(s_name, n_type);
     }
@@ -48,16 +48,11 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
     }
 
     @Override
-    public Asset getAsset(UUID u_id) throws BaseException, AssetException,
+    public Maybe<Asset> getAsset(UUID u_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAsset(u_id);
     }
 
-    @Override
-    public Asset getAssetOrNull(UUID u_id) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        return om_proxy.getAssetOrNull(u_id);
-    }
 
     @Override
     public Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
@@ -78,34 +73,19 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
         return om_proxy.getAssetIdsFrom(u_from, n_type);
     }
 
-    @Override
-    public String getSourceName() throws RemoteException {
-        return om_proxy.getSourceName();
-    }
 
     @Override
-    public Map<AssetPath, Asset> getAssetsAlongPath(AssetPath path_asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        return om_proxy.getAssetsAlongPath(path_asset);
-    }
-
-    @Override
-    public Asset getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
+    public Maybe<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetAtPath(path_asset);
     }
 
     @Override
-    public Asset getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
+    public Maybe<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssetFrom(u_from, s_name);
     }
 
-    @Override
-    public Asset getAssetFromOrNull(UUID u_from, String s_name) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        return om_proxy.getAssetFromOrNull(u_from, s_name);
-    }
 
     @Override
     public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> v_check) throws BaseException, RemoteException {

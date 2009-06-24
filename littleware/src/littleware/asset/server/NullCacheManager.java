@@ -26,27 +26,34 @@ public class NullCacheManager implements CacheManager {
 
 	public NullCacheManager () {}
 	
+    @Override
 	public Cache.Policy getPolicy () { return Cache.Policy.FIFO; }
 	
+    @Override
 	public int getMaxSize () { return -1; }
 	
+    @Override
 	public int getMaxEntryAgeSecs () { return -1; }
 	
 	
+    @Override
 	public Asset put ( UUID u_key, Asset a_value ) {
 		return null;
 	}
 	
+    @Override
 	public Asset get ( UUID u_key ) {
 		return null;
 	}
 	
 	
+    @Override
 	public Asset remove ( UUID u_key ) {
 		return null;
 	}
 	
 	
+    @Override
 	public void clear () {
 	}
 	
@@ -55,17 +62,20 @@ public class NullCacheManager implements CacheManager {
 	}
 	
 	
+    @Override
 	public boolean isEmpty () {
 		return true;
 	}
 	
 	
+    @Override
 	public Map<UUID,Asset> cacheContents () {
 		return new HashMap<UUID,Asset> ();
 	}
 	
 	
-	public Asset getAsset ( UUID u_id ) throws DataAccessException, AssetException, NoSuchThingException, GeneralSecurityException
+    @Override
+	public Maybe<Asset> getAsset ( UUID u_id ) throws DataAccessException, AssetException, NoSuchThingException, GeneralSecurityException
 	{
 		throw new CacheMissException ();
 	}
@@ -77,6 +87,7 @@ public class NullCacheManager implements CacheManager {
 	}
 	
 	
+    @Override
 	public Set<Asset> getAssets ( Collection<UUID> v_id ) throws DataAccessException, AssetException, GeneralSecurityException
 	{
 		throw new CacheMissException ();
@@ -100,17 +111,20 @@ public class NullCacheManager implements CacheManager {
 	}
 	
 
+    @Override
 	public synchronized Map<String,UUID> getHomeAssetIds () throws DataAccessException, AssetException, GeneralSecurityException
 	{
 		throw new CacheMissException ();
 	}
 	
 	
+    @Override
 	public synchronized void setHomeAssetIds ( Map<String, UUID> v_home_ids ) 
 	{
 	}
 	
 	
+    @Override
 	public synchronized Map<String,UUID> getAssetIdsFrom ( UUID u_source,
 														   AssetType n_type
 														   ) throws DataAccessException, AssetException, GeneralSecurityException
@@ -119,6 +133,7 @@ public class NullCacheManager implements CacheManager {
 	}
 	
 	
+    @Override
 	public synchronized void setAssetIdsFrom ( UUID u_source,
 											   AssetType n_type,
 											   Map<String,UUID> v_data
@@ -127,6 +142,7 @@ public class NullCacheManager implements CacheManager {
 	}
     
     
+    @Override
 	public synchronized Set<UUID> getAssetIdsTo ( UUID u_to,
 														   AssetType n_type
 														   ) throws DataAccessException, AssetException, GeneralSecurityException
@@ -135,6 +151,7 @@ public class NullCacheManager implements CacheManager {
     }
 
 
+    @Override
     public synchronized void setAssetIdsTo ( UUID u_to,
                                                AssetType n_type,
                                                Set<UUID> v_data
@@ -146,13 +163,15 @@ public class NullCacheManager implements CacheManager {
 	public String getSourceName () { return "nullcache"; }
 	
 
-    public Asset getByName ( String s_name, AssetType n_type ) throws DataAccessException, 
+    @Override
+    public Maybe<Asset> getByName ( String s_name, AssetType n_type ) throws DataAccessException,
         AssetException, NoSuchThingException, AccessDeniedException, GeneralSecurityException
     {
         throw new CacheMissException ();
     }
 
 
+    @Override
 	public List<Asset> getAssetHistory ( UUID u_id, java.util.Date t_start, java.util.Date t_end )
 		throws NoSuchThingException, AccessDeniedException, GeneralSecurityException, 
 		DataAccessException, AssetException
@@ -160,13 +179,15 @@ public class NullCacheManager implements CacheManager {
 		throw new CacheMissException ();
 	}
 
+    @Override
 	public void setAssetsByName ( String s_name, AssetType n_type, UUID u_home, Set<Asset> v_data ) 
 	{
 	}
 
     
 
-    public Asset getAssetFrom ( UUID u_from, String s_name 	
+    @Override
+    public Maybe<Asset> getAssetFrom ( UUID u_from, String s_name
                                 ) throws BaseException, AssetException, 
     GeneralSecurityException
     {
@@ -189,13 +210,15 @@ public class NullCacheManager implements CacheManager {
     }
 
 
-    public Asset getAssetAtPath ( AssetPath path_asset
+    @Override
+    public Maybe<Asset> getAssetAtPath ( AssetPath path_asset
                                   ) throws BaseException, AssetException,
     GeneralSecurityException
     {
         throw new CacheMissException ();
     }
 
+    @Override
     public Map<UUID,Long> checkTransactionCount( Map<UUID,Long> v_check
                                                  ) throws BaseException
     {

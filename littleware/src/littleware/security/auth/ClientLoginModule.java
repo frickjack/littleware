@@ -152,9 +152,10 @@ public class ClientLoginModule implements LoginModule {
 
                 for (String s_acl_name : ov_acl) {
                     try {
-                        Acl acl_check = (LittleAcl) m_search.getByName(s_acl_name,
+                        final Maybe<LittleAcl> maybeAcl = m_search.getByName(s_acl_name,
                                 SecurityAssetType.ACL);
-                        if ( null != acl_check ) {
+                        if ( maybeAcl.isSet() ) {
+                            final LittleAcl acl_check = maybeAcl.get();
                             for (LittlePermission perm_check : v_perms) {
                                 if (acl_check.checkPermission(user_active, perm_check)) {
                                     String s_role = s_acl_name + ":" + perm_check.toString();

@@ -85,7 +85,7 @@ public class AddressBookTester extends TestCase {
             UUID u_contact = om_search.getAssetIdsFrom(osession.getObjectId(),
                     AddressAssetType.CONTACT).get(os_test_name);
             if (null != u_contact) {
-                Contact contact_old = (Contact) om_search.getAsset(u_contact);
+                Contact contact_old = (Contact) om_search.getAsset(u_contact).get();
                 List<littleware.apps.addressbook.Address> v_addr = contact_old.getAddress();
 
                 for (littleware.apps.addressbook.Address addr_old : v_addr) {
@@ -156,7 +156,7 @@ public class AddressBookTester extends TestCase {
             contact_test = (Contact) om_asset.saveAsset(contact_test, "new contact test");
 
             olog_generic.log(Level.INFO, "Trying to reload Contact: " + contact_test.getObjectId());
-            Contact contact_load = (Contact) om_search.getAsset(contact_test.getObjectId());
+            Contact contact_load = (Contact) om_search.getAsset(contact_test.getObjectId()).get();
             assertTrue("Middle names match on reload: " + contact_test.getMiddleName() +
                     " =? " + contact_load.getMiddleName(),
                     contact_load.getMiddleName().equals(contact_test.getMiddleName()));

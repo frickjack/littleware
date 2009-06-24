@@ -8,7 +8,6 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
 package littleware.asset;
 
 import java.util.*;
@@ -16,7 +15,10 @@ import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 import java.rmi.Remote;
 
-import littleware.base.*;
+import littleware.base.BaseException;
+import littleware.base.Maybe;
+import littleware.base.ReadOnly;
+
 
 /**
  * Asset-search interface.  Searches the local server database only.
@@ -38,25 +40,9 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      * @exception InavlidAssetTypeException if n_type is not name-unique
      */
     @ReadOnly
-    public <T extends Asset> T getByName(String s_name, AssetType<T> n_type) throws BaseException, AssetException,
+    public <T extends Asset> Maybe<T> getByName(String s_name, AssetType<T> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
-    /**
-     * Get the assets along the given asset path.
-     * The caller must have read-access to every asset along the path.
-     * The traversal fails if it traverses more than 20 assets.
-     *
-     * @param path_asset to traverse
-     * @return map of assets in order traversed from the normalized root
-     * @exception GeneralSecurityException if caller does not have read-access
-     *             to every asset along the path
-     * @exception AssetPathTooLongException if traversal exceeds limit on number of assets
-     * @exception LinkLoopException if a loop is detected during automatic link traversal
-     */
-    public 
-    @ReadOnly
-    Map<AssetPath, Asset> getAssetsAlongPath( AssetPath path_asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
 
     /**
      * Convenience method just retrieves the asset referenced by the
@@ -72,7 +58,7 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      */
     public 
     @ReadOnly
-    Asset getAssetAtPath( AssetPath path_asset) throws BaseException, AssetException,
+    Maybe<Asset> getAssetAtPath( AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -102,20 +88,9 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      */
     public 
     @ReadOnly
-    Asset getAssetFrom( UUID u_from,  String s_name) throws BaseException, AssetException,
+    Maybe<Asset> getAssetFrom( UUID u_from,  String s_name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
-    /**
-     * Same as {@link #getAssetFrom(Asset,String) getAssetFrom} except
-     * return NULL if the requested asset does not exist.
-     *
-     * @param u_from result&apos;s FROM-asset id
-     * @param s_name of result asset
-     */
-    public 
-    @ReadOnly
-    Asset getAssetFromOrNull( UUID u_from,  String s_name) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
 
     /**
      * Method for a client to verify the transaction-counts

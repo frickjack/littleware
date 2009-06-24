@@ -51,10 +51,11 @@ public class SimpleSessionHelper implements SessionHelper {
         oreg_service = reg_service;
 	}
 	
+    @Override
 	public LittleSession getSession ()  throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
 	{
-		LittleSession a_session = (LittleSession) om_search.getAssetOrNull ( ou_session );
+		LittleSession a_session = (LittleSession) om_search.getAsset ( ou_session ).getOr( null );
 		if ( null == a_session ) {
 			throw new SessionExpiredException ( ou_session.toString () );
 		}
@@ -62,6 +63,7 @@ public class SimpleSessionHelper implements SessionHelper {
 	}
 	
 
+    @Override
 	public <T extends LittleService> T getService ( ServiceType<T> n_type ) throws BaseException, AssetException,
 		GeneralSecurityException, RemoteException
 	{
@@ -74,7 +76,7 @@ public class SimpleSessionHelper implements SessionHelper {
 		GeneralSecurityException, RemoteException
 	{
 		try {
-			LittleSession    a_session = (LittleSession) SecurityAssetType.SESSION.create ();
+			LittleSession    a_session = SecurityAssetType.SESSION.create ();
 			LittleUser       p_caller = Subject.getSubject ( AccessController.getContext () ).
 				getPrincipals ( LittleUser.class ).iterator ().next ();
 			
@@ -83,7 +85,7 @@ public class SimpleSessionHelper implements SessionHelper {
 			
 			for ( int i=0; i < 20; ++i ) {
 				try {
-					a_session = (LittleSession) om_asset.saveAsset ( a_session, s_session_comment );
+					a_session = om_asset.saveAsset ( a_session, s_session_comment );
 					i = 1000;
 				} catch ( AlreadyExistsException e ) {
 					if ( i < 10 ) {

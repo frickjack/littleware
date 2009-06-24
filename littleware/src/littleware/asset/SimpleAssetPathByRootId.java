@@ -15,6 +15,7 @@ import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 
 import littleware.base.BaseException;
+import littleware.base.Maybe;
 
 
 /**
@@ -37,7 +38,7 @@ public class SimpleAssetPathByRootId extends AbstractAssetPath implements AssetP
     }
             
     @Override
-    public Asset getRoot ( AssetSearchManager m_search 
+    public Maybe<Asset> getRoot ( AssetSearchManager m_search
                                     ) throws BaseException, AssetException, GeneralSecurityException,
         RemoteException
     {

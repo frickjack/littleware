@@ -92,14 +92,10 @@ public class JGroupEditor extends JGenericAssetEditor  {
      */
     private void uiAddNewMember () {
         try {
-            AssetType         n_type = SecurityAssetType.PRINCIPAL; //(AssetType) owcombo_ptype.getSelectedItem ();
+            AssetType<LittlePrincipal>         n_type = SecurityAssetType.PRINCIPAL; //(AssetType) owcombo_ptype.getSelectedItem ();
             String            s_name = owtext_add.getText ();
-            LittlePrincipal   p_new = (LittlePrincipal) om_search.getByName ( s_name, n_type );
-            
-            if ( null == p_new ) {
-                throw new NoSuchThingException ( "No " + n_type + " asset with name " + s_name + " in repository" );
-            }
-            LittleGroup       group_local = (LittleGroup) this.getLocalAsset ();
+            LittlePrincipal   p_new = om_search.getByName ( s_name, n_type ).get();
+            LittleGroup       group_local = this.getLocalAsset ().narrow( LittleGroup.class );
             if ( group_local.addMember ( p_new ) ) {
                 omodel_memberlist.addElement ( p_new );
                 this.setHasLocalChanges ( true );
@@ -119,7 +115,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
      */
     private void uiDeleteMembers () {
         try {
-            LittleGroup       group_local = (LittleGroup) this.getLocalAsset ();
+            final LittleGroup       group_local = this.getLocalAsset ().narrow( LittleGroup.class );
             Object[] v_selected = owlist_members.getSelectedValues ();
             
             for ( Object x_selected : v_selected ) {
@@ -293,7 +289,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
             return;
         }
         setTabEnabled ( owpanel_build, true );
-        LittleGroup      group_view = (LittleGroup) model_view.getAsset ();
+        LittleGroup      group_view = model_view.getAsset ().narrow( LittleGroup.class );
         java.util.List<LittlePrincipal>  v_members = new ArrayList<LittlePrincipal> ();
         
         owlink_group.setLink ( group_view );

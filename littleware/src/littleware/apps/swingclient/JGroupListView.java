@@ -185,7 +185,7 @@ public class JGroupListView extends JPanel {
                 Asset a_selected = (Asset) tnode_asset.getUserObject();
                 if ( (null != a_selected) 
                      && a_selected.getAssetType ().equals ( SecurityAssetType.GROUP ) ) {
-                    group_selected = (LittleGroup) a_selected;
+                    group_selected = a_selected.narrow( LittleGroup.class );
                 }
             }
             setSelectedGroup ( group_selected );

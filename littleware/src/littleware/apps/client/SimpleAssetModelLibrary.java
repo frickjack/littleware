@@ -73,6 +73,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
             oa_data = a_data;
         }
         
+        @Override
         public Asset getAsset () {
             return oa_data;
         }
@@ -123,6 +124,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
             return event_result;
         }
         
+        @Override
         public void setAsset ( Asset a_data ) {
             setAssetReturnEvent ( a_data );
         }
@@ -132,6 +134,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
          * Call out to SimpleAssetModelLibrary.sycnAsset to
          * fire AssetModelEvent on other affected asset-models.
          */
+        @Override
         public Asset syncAsset ( Asset a_new ) {
             Asset a_old = this.getAsset ();
             
@@ -176,6 +179,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         /**
          * Just compare the wrapped assets
          */
+        @Override
         public int compareTo ( AssetModel model_other ) {
             return oa_data.compareTo ( model_other.getAsset () );
         }
@@ -196,10 +200,12 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
             otool_support.fireLittleEvent ( event_fire );
         }
         
+        @Override
         public void addLittleListener ( LittleListener listen_add ) {
             otool_support.addLittleListener ( listen_add );
         }
         
+        @Override
         public void removeLittleListener ( LittleListener listen_remove ) {
             otool_support.removeLittleListener ( listen_remove );
         }
@@ -291,6 +297,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
     private Map<AssetType,Map<String,UUID>> omulti_byname =
             new TreeMap<AssetType,Map<String,UUID>>();
     
+    @Override
     public synchronized AssetModel getByName( String s_name, AssetType atype
             ) throws InvalidAssetTypeException
     {
@@ -308,6 +315,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         return get( u_id );
     }
     
+    @Override
     public AssetModel getByName( String s_name, AssetType<? extends Asset> atype,
             AssetSearchManager m_search
             ) throws InvalidAssetTypeException,
@@ -319,7 +327,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         if ( null != amodel_result ) {
             return amodel_result;
         }
-        Asset a_result = m_search.getByName( s_name, atype );
+        Asset a_result = m_search.getByName( s_name, atype ).getOr( null );
         if ( null == a_result ) {
             return null;
         }
@@ -337,6 +345,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         
     
     
+    @Override
     public synchronized AssetModel syncAsset ( Asset a_new ) {
         if ( null == a_new ) {
             return null;
@@ -353,6 +362,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
     }
     
     
+    @Override
     public synchronized AssetModel retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException, 
         AssetException, GeneralSecurityException, RemoteException
     {
@@ -361,13 +371,14 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
         if ( null != amodel_lookup ) {
             return amodel_lookup;
         }
-        Asset a_new = m_retriever.getAssetOrNull ( u_id );
+        Asset a_new = m_retriever.getAsset ( u_id ).getOr( null );
         if ( null == a_new ) {
             return null;
         }
         return syncAsset ( a_new );
     }
 
+    @Override
     public Collection<AssetModel> syncAsset ( Collection<? extends Asset> v_assets ) {
         List<AssetModel> v_result = new ArrayList<AssetModel> ();
         for ( Asset a_check : v_assets ) {
@@ -398,6 +409,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
     }
     
     
+    @Override
     public AssetModel assetDeleted ( UUID u_deleted ) {
         SimpleAssetModel amodel_deleted = (SimpleAssetModel) remove ( u_deleted );
         

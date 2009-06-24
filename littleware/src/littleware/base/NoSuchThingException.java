@@ -15,6 +15,7 @@ package littleware.base;
  * Thing with requested name already exists
  */
 public class NoSuchThingException extends BaseException {
+    private static final long serialVersionUID = 924747789617037240L;
     /** Default constructor */
     public NoSuchThingException () {
 	    super ( "NoSuchThing exception" );

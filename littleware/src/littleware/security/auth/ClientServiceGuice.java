@@ -171,7 +171,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
         try {
             prop_session = PropertiesLoader.get().loadProperties(os_propfile);
         } catch (IOException ex) {
-            olog.log(Level.INFO, "Unable to load " + os_propfile + ", proceeding ...");
+            olog.log(Level.FINE, "Unable to load " + os_propfile + ", proceeding ...");
         }
 
         String s_name = prop_session.getProperty(os_name_key, 
@@ -192,7 +192,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 // ok
                 return helper;
             } catch (Exception ex) {
-                olog.log(Level.INFO, "Failed to connect to session: " + s_session_id + ", continueing", ex);
+                olog.log(Level.FINE, "Failed to connect to session: " + s_session_id + ", continueing", ex);
             }
         }
 
@@ -231,7 +231,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                         PropertiesLoader.get().safelySave(prop_session,
                                 new File(fh_home, os_propfile));
                     } catch (IOException ex) {
-                        olog.log(Level.INFO, "Failed to save session info", ex);
+                        olog.log(Level.FINE, "Failed to save session info", ex);
                     }
                 }
                 return helper;
@@ -240,7 +240,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 throw ex;
                  */
             } catch (Exception ex) {
-                olog.log(Level.INFO, "Failed login attempt " + i, ex);
+                olog.log(Level.FINE, "Failed login attempt " + i, ex);
             } finally {
                 v_callback[2] = new TextOutputCallback(TextOutputCallback.ERROR, "Login Failed");
             }

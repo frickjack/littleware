@@ -1,3 +1,13 @@
+/*
+ * Copyright 2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.xml;
 
 import java.lang.reflect.*;
@@ -16,6 +26,7 @@ public class SimpleXmlDataSetter implements XmlDataSetter {
 	 */
 	public SimpleXmlDataSetter () {}
 	
+    @Override
 	public void init ( Method meth_setter ) {
 		ometh_setter = meth_setter;
 	}
@@ -28,6 +39,7 @@ public class SimpleXmlDataSetter implements XmlDataSetter {
 	protected Method getSetter () { return ometh_setter; }
 	
 	
+    @Override
 	public void setData ( Object x_target, String s_data ) throws ParseException {
 		try {
 			ometh_setter.invoke ( x_target, s_data );
@@ -37,8 +49,4 @@ public class SimpleXmlDataSetter implements XmlDataSetter {
 		}
 	}
 }
-
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

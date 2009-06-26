@@ -76,7 +76,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         final Map<UUID,Asset> v_cycle_cache = trans.startDbAccess ();
         try {
             try {
-                DbReader<Set<Asset>,String> db_reader = om_db.makeDbAssetsByNameLoader ( s_name, n_type );
+                DbReader<Set<Asset>,String> db_reader = om_db.makeDbAssetsByNameLoader( s_name, n_type );
                 
                 v_load = db_reader.loadObject ( null );
                 om_cache.setAssetsByName ( s_name, n_type, null, v_load );
@@ -86,7 +86,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
             }
             
             if ( v_load.isEmpty () ) {
-                return null;
+                return Maybe.empty( "No asset " + s_name + "/:type:" + n_type );
             }
             final Asset a_load = v_load.iterator ().next ();
             v_cycle_cache.put ( a_load.getObjectId (), a_load );
@@ -105,7 +105,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 		throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException
 	{
-		return null;
+		throw new UnsupportedOperationException();
 	}
 	
     

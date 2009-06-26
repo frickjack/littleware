@@ -54,8 +54,16 @@ public class AssetSearchManagerTester extends TestCase {
 		try {
 			Asset a_lookup = om_search.getByName ( AssetManagerTester.MS_TEST_HOME,
 															  AssetType.HOME
-                                                        ).get();
+                                                        ).getOr( null );
 			assertTrue ( "Got some home-by-name data", null != a_lookup );
+
+            assertTrue( "Searcher did not freak out on empty search",
+                    ! om_search.getByName( "frickityFrickjackFroo", SecurityAssetType.USER ).isSet()
+                    );
+            assertTrue( "Child search did not freak on empty search",
+                    (! om_search.getAssetFrom( a_lookup.getObjectId(), "UgidyUgaUga" ).isSet())
+                    && (! om_search.getAssetFrom( UUID.randomUUID(), "whatever" ).isSet())
+                    );
             
             final LittleGroup group_everybody = om_search.getByName ( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                                                                                    SecurityAssetType.GROUP
@@ -72,10 +80,8 @@ public class AssetSearchManagerTester extends TestCase {
                              );
             }
 		} catch ( Exception e ) {
-			olog_generic.log ( Level.WARNING, "Caught: " + e + ", " +
-                               BaseException.getStackTrace ( e )
-                               );
-			assertTrue ( "Caught: " + e, false );
+			olog_generic.log ( Level.WARNING, "Test failed", e );
+			fail ( "Caught: " + e );
 		}			
 	}
 	

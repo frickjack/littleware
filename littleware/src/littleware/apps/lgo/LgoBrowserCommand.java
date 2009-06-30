@@ -26,7 +26,7 @@ import javax.swing.*;
 
 import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.client.LoggerUiFeedback;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.ExtendedAssetViewController;
 import littleware.asset.Asset;
@@ -114,7 +114,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
      * @return where the user stops browsing
      */
     @Override
-    public synchronized UUID runSafe( UiFeedback feedback, String sPathIn ) {
+    public synchronized UUID runSafe( Feedback feedback, String sPathIn ) {
         String sStartPath = sPathIn;
         if ( Whatever.empty(sStartPath) && (! getArgs().isEmpty() ) ) {
             sStartPath = getArgs().get(0);
@@ -274,7 +274,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
                             new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
                         }
             );
-            UiFeedback        feedback = new LoggerUiFeedback();
+            Feedback        feedback = new LoggerUiFeedback();
             LgoBrowserCommand command = injector.getInstance( LgoBrowserCommand.class );
             command.runDynamic( feedback, "/littleware.home/" );
         } catch ( final Exception ex ) {

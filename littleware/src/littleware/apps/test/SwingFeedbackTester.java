@@ -17,7 +17,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.apps.swingclient.SwingFeedbackBuilder;
 import littleware.base.swing.JTextAppender;
 import littleware.test.JLittleDialog;
@@ -49,7 +49,7 @@ public class SwingFeedbackTester extends LittleTest {
         final JTextAppender jappend = new JTextAppender();
         jpanelTest.add( jprogress );
         jpanelTest.add(jappend);
-        final UiFeedback feedback = obuilder.build(jprogress, jlabel, jappend);
+        final Feedback feedback = obuilder.build(jprogress, jlabel, jappend);
         new Thread( new Runnable() {
 
             @Override

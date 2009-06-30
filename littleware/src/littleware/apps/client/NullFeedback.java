@@ -10,16 +10,18 @@
 
 package littleware.apps.client;
 
+import littleware.apps.client.*;
 import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
 import littleware.apps.client.event.UiMessageEvent;
 import littleware.apps.client.event.UiPublishEvent;
 
 /**
- * UiFeedback just fires PropertyChangeEvents and LittleEvents
+ * Feedback just fires PropertyChangeEvents and LittleEvents
  * on method calls - doesn't do anything else.
  */
-public class NullUiFeedback implements UiFeedback {
+public class NullFeedback implements Feedback, java.io.Serializable {
+    private static final long serialVersionUID = -8172928920832788511L;
 
     private SimpleLittleTool  osupport = new SimpleLittleTool( this );
 

@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
@@ -42,7 +42,7 @@ public class GetByNameCommand extends AbstractCreateCommand<String,Asset> {
     private enum Option { name, type };
 
     @Override
-    public Asset runSafe(UiFeedback feedback, String sNameDefault ) throws LgoException {
+    public Asset runSafe(Feedback feedback, String sNameDefault ) throws LgoException {
         final Map<String,String> mapDefault = new HashMap<String,String>();
         mapDefault.put( Option.name.toString(), sNameDefault);
         mapDefault.put( Option.type.toString(), AssetType.LOCK.toString() );

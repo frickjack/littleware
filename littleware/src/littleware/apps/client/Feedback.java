@@ -10,6 +10,7 @@
 
 package littleware.apps.client;
 
+import littleware.apps.client.*;
 import java.util.logging.Level;
 
 
@@ -20,7 +21,7 @@ import java.util.logging.Level;
  * for delivering partial results back to the
  * UI as a computation progresses.
  */
-public interface UiFeedback extends LittleTool {
+public interface Feedback extends LittleTool {
     /** 
      * Property tracks the progress of some
      * task on a scale from 0 to 100

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.apps.misc.ImageManager;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
@@ -70,7 +70,7 @@ public class SetImageCommand extends AbstractLgoCommand<String,Boolean> {
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public Boolean runSafe(UiFeedback feedback, String sDefaultPath ) throws LgoException {
+    public Boolean runSafe(Feedback feedback, String sDefaultPath ) throws LgoException {
         final Map<String,String> mapOption = Option.getMap();
         mapOption.put( Option.path.toString(), sDefaultPath );
         final Map<String,String> mapArgs = processArgs( mapOption, getArgs() );

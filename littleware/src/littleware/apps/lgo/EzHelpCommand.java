@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import java.util.Set;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.base.Whatever;
 import littleware.base.XmlResourceBundle;
 
@@ -86,7 +86,7 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
 
 
     @Override
-    public LgoHelp runSafe( UiFeedback feedback, String sTargetIn ) {
+    public LgoHelp runSafe( Feedback feedback, String sTargetIn ) {
         String sTarget = sTargetIn;
         if ( ((null == sTarget) || (sTarget.length() == 0))
                 && (getArgs().size() > 0)
@@ -149,7 +149,7 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
      * the given arguments, and return an
      * info string appropriate for the given locale.
      */
-    protected String getHelpString ( UiFeedback feedback, Locale locale ) {
+    protected String getHelpString ( Feedback feedback, Locale locale ) {
         ResourceBundle bundle_help = XmlResourceBundle.getBundle( EzHelpCommand.class.getName() + "Resources",
                 locale
                 );

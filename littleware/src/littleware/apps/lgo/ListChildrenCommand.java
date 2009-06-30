@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
@@ -47,7 +47,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
      * @return
      * @throws littleware.apps.lgo.LgoException
      */
-    private Map<String,UUID> runInternal( UiFeedback feedback, AssetPath path ) throws LgoException {
+    private Map<String,UUID> runInternal( Feedback feedback, AssetPath path ) throws LgoException {
         final Map<String,UUID> mapChildren;
         try {
             mapChildren = osearch.getAssetIdsFrom(
@@ -92,12 +92,12 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public Map<String,UUID> runSafe(UiFeedback feedback, String sDefaultPath ) throws LgoException {
+    public Map<String,UUID> runSafe(Feedback feedback, String sDefaultPath ) throws LgoException {
         return runInternal( feedback, getPathFromArgs( sDefaultPath ) );
     }
 
     @Override
-    public String runCommandLine( UiFeedback feedback, String sDefaultPath ) throws LgoException {
+    public String runCommandLine( Feedback feedback, String sDefaultPath ) throws LgoException {
         final AssetPath path = getPathFromArgs( sDefaultPath );
         final Map<String,UUID> mapChildren = runInternal( feedback, path );
         final List<String> vChildren = new ArrayList<String>( mapChildren.keySet() );

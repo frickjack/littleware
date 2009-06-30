@@ -10,6 +10,7 @@
 
 package littleware.apps.client;
 
+import littleware.apps.client.NullFeedback;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
@@ -20,7 +21,7 @@ import littleware.apps.client.event.UiMessageEvent;
  * Simple logger-based implementation of UiFeedback interface.
  * Just adds listeners that log each UIFeedback event.
  */
-public class LoggerUiFeedback extends NullUiFeedback {
+public class LoggerUiFeedback extends NullFeedback {
     private static final Logger olog = Logger.getLogger( LoggerUiFeedback.class.getName() );
 
     {

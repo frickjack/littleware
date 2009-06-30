@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 
 
 /**
@@ -59,7 +59,7 @@ public interface LgoCommand <InType,OutType> extends Cloneable {
       * @exception LgoBadInputException if input cannot be handled
       * @exception IOException on problem accessing in/out streams
       */
-      public void runCommand( UiFeedback feedback, InputStream istream,
+      public void runCommand( Feedback feedback, InputStream istream,
               OutputStream ostream
               ) throws LgoException, IOException;
 
@@ -72,7 +72,7 @@ public interface LgoCommand <InType,OutType> extends Cloneable {
        * @return formatted string result
        * @throws littleware.apps.lgo.LgoException
        */
-      public String runCommandLine( UiFeedback feedback, String s_in ) throws LgoException;
+      public String runCommandLine( Feedback feedback, String s_in ) throws LgoException;
       
       /**
        * Run the command with the given input String,
@@ -85,7 +85,7 @@ public interface LgoCommand <InType,OutType> extends Cloneable {
        * @return string representation of result
        */
       public OutType runCommand(
-              UiFeedback feedback, String s_in
+              Feedback feedback, String s_in
               ) throws LgoException;
        
 
@@ -99,11 +99,11 @@ public interface LgoCommand <InType,OutType> extends Cloneable {
        * @throws littleware.apps.lgo.LgoException
        * @throws ClassCastException on failure to cast x_in to a supported type
        */
-      public OutType runDynamic ( UiFeedback feedback,
+      public OutType runDynamic ( Feedback feedback,
               Object x_in ) throws LgoException;
       
       /** Run type-safe */
-      public OutType runSafe( UiFeedback feedback, InType in ) throws LgoException;
+      public OutType runSafe( Feedback feedback, InType in ) throws LgoException;
       
       /** 
        * Specialization of clone - no exception, and return LgoCommand

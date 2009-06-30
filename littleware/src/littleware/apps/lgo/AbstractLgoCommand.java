@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.base.AssertionFailedException;
 
 
@@ -157,7 +157,7 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public void runCommand( UiFeedback feedback, InputStream streamin, OutputStream streamout
+    public void runCommand( Feedback feedback, InputStream streamin, OutputStream streamout
             ) throws LgoException, IOException
     {        
         char[] v_buffer = new char[1024];
@@ -183,26 +183,26 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public Tout runCommand( UiFeedback feedback, String s_in ) throws LgoException
+    public Tout runCommand( Feedback feedback, String s_in ) throws LgoException
     {
         return runDynamic( feedback, s_in );
     }
 
     /** Just calls runCommand().toString() */
     @Override
-    public String runCommandLine( UiFeedback feedback, String s_in ) throws LgoException {
+    public String runCommandLine( Feedback feedback, String s_in ) throws LgoException {
         Object result = runCommand( feedback, s_in );
         return (null == result) ? null : result.toString ();
     }
 
     /** Just does a direct cast (Tin) x_in */
     @Override
-    public Tout runDynamic ( UiFeedback feedback, Object x_in ) throws LgoException {
+    public Tout runDynamic ( Feedback feedback, Object x_in ) throws LgoException {
         return runSafe( feedback, (Tin) x_in );
     }
     
     @Override
-    public abstract Tout runSafe( UiFeedback feedback, Tin in ) throws LgoException;
+    public abstract Tout runSafe( Feedback feedback, Tin in ) throws LgoException;
     
     /** Subtypes should override via normal clone() rules */
     @Override

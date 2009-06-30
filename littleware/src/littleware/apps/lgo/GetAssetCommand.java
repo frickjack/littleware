@@ -11,7 +11,7 @@
 package littleware.apps.lgo;
 
 import com.google.inject.Inject;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
@@ -57,16 +57,16 @@ public class GetAssetCommand extends AbstractCreateCommand<AssetPath,Asset> {
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public Asset runSafe(UiFeedback feedback, AssetPath in) throws LgoException {
+    public Asset runSafe(Feedback feedback, AssetPath in) throws LgoException {
         return runInternal( feedback, getPathFromArgs( in ) );
     }
 
     @Override
-    public Asset runDynamic( UiFeedback feedback, Object in ) throws LgoException {
+    public Asset runDynamic( Feedback feedback, Object in ) throws LgoException {
         return runInternal( feedback, getPathFromArgs( in ) );
     }
 
-    private Asset runInternal( UiFeedback feedback, AssetPath in ) throws LgoException {
+    private Asset runInternal( Feedback feedback, AssetPath in ) throws LgoException {
         try {
             return osearch.getAssetAtPath(in).get();
         } catch ( RuntimeException ex ) {

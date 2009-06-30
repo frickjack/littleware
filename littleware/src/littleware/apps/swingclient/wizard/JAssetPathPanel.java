@@ -65,6 +65,8 @@ public class JAssetPathPanel extends JPanel {
     
     private boolean                    ob_gui_built = false;
     private final Provider<JAssetBrowser> oprovideBrowser;
+    private final AssetPathFactory opathFactory;
+    private final Provider<JSimpleAssetToolbar> oprovideToolbar;
 
     public String getInstructions () {
         return ojLabelInstructions.getText();
@@ -168,11 +170,7 @@ public class JAssetPathPanel extends JPanel {
                                                                              olib_asset
                                                                              );
             listen_control.setControlView((AssetView) wbrowser_asset );
-            JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar ( 
-                                                                  olib_asset,
-                                                                  olib_icon,
-                                                                  om_search
-                                                                  );
+            final JSimpleAssetToolbar wtoolbar_asset = oprovideToolbar.get();
             wtoolbar_asset.setConnectedView( wbrowser_asset );
             ((LittleTool) wtoolbar_asset).addLittleListener ( listen_control );
                         
@@ -186,8 +184,7 @@ public class JAssetPathPanel extends JPanel {
                 public void actionPerformed( ActionEvent evt_action ) {
                     try {
                         UUID u_asset = oview_asset.getAssetModel ().getAsset ().getObjectId ();
-                        AssetPathFactory factory_asset = AssetPathFactory.getFactory ();
-                        setAssetPath ( factory_asset.createPath ( u_asset ) );
+                        setAssetPath ( opathFactory.createPath ( u_asset ) );
                         owbrowser_root.setVisible( false );
                     } catch ( Exception e ) {
                         JOptionPane.showMessageDialog( JAssetPathPanel.this, 
@@ -285,7 +282,9 @@ public class JAssetPathPanel extends JPanel {
                              AssetModelLibrary  lib_asset,                             
                              IconLibrary        lib_icon,
                              AssetViewFactory   factory_view,
-                             Provider<JAssetLink>  provideLink
+                             Provider<JAssetLink>  provideLink,
+                             AssetPathFactory      pathFactory,
+                             Provider<JSimpleAssetToolbar> provideToolbar
                              ) {
         super( new GridBagLayout () );
         oprovideBrowser = provideBrowser;
@@ -295,6 +294,8 @@ public class JAssetPathPanel extends JPanel {
         olib_asset = lib_asset;
         owlink_asset = provideLink.get();
         ofactory_view = factory_view;
+        opathFactory = pathFactory;
+        oprovideToolbar = provideToolbar;
         buildUI ();
     }
     
@@ -362,7 +363,7 @@ public class JAssetPathPanel extends JPanel {
         if ( (null == s_path) || "".equals( s_path ) ) {
             setAssetPath( (AssetPath) null );
         } else {
-            setAssetPath ( AssetPathFactory.getFactory ().createPath ( s_path ) );
+            setAssetPath ( opathFactory.createPath ( s_path ) );
         }
     } 
     

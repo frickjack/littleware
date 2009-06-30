@@ -12,7 +12,6 @@ package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
@@ -50,6 +49,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
     private       JDialog              owdial_browser = null;
     private       AssetModel           oamodel_fallback = null;
     private final Provider<JAssetBrowser> oprovideBrowser;
+    private final Provider<JSimpleAssetToolbar> oprovideToolbar;
     
     
     /**
@@ -69,7 +69,8 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
                               AssetModel amodel_fallback,
                               AssetViewFactory factory_view,
                               Provider<JAssetLink> provideLinkView,
-                              Provider<JAssetBrowser> provideBrowser
+                              Provider<JAssetBrowser> provideBrowser,
+                              Provider<JSimpleAssetToolbar>  provideToolbar
                         ) {
         super( new FlowLayout ( FlowLayout.LEFT ) );
         owalink_edit = provideLinkView.get();
@@ -80,6 +81,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
         oamodel_fallback = amodel_fallback;
         ofactory_view = factory_view;
         oprovideBrowser = provideBrowser;
+        oprovideToolbar = provideToolbar;
         
         JButton  wbutton_browse = new JButton ( lib_icon.lookupIcon ( "littleware.browse" ) );
         wbutton_browse.addActionListener (
@@ -108,11 +110,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
                                                                              olib_asset
                                                                              );
             listen_control.setControlView( (AssetView) oview_browser );
-            final JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar (
-                                                                  olib_asset,
-                                                                  olib_icon,
-                                                                  om_search
-                                                                  );
+            final JSimpleAssetToolbar wtoolbar_asset = oprovideToolbar.get();
             wtoolbar_asset.setConnectedView( (AssetView) oview_browser );
             ((LittleTool) wtoolbar_asset).addLittleListener ( listen_control );
             

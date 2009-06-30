@@ -46,28 +46,28 @@ public class PackageTestSuite extends ServerTestLauncher {
             ) {
         super( PackageTestSuite.class.getName(), search );
         // disable server tests
-        final boolean b_run = true;
+        final boolean bRun = true;
 
         
         olog.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
-            if (b_run) {
+            if (bRun) {
                 olog.log(Level.INFO, "Trying to setup littleware.base test suite");
                 this.addTest( suite_base );
             }
 
-            if (b_run) {
+            if (bRun) {
                 olog.log(Level.INFO, "Trying to setup littleware.db test suite");
                 olog.log( Level.INFO, "Test disabled ... does not apply when running with JPA");
                 //this.addTest( suite_db );
             }
 
-            if ( b_run ) {
+            if ( bRun ) {
                 olog.log(Level.INFO, "Trying to setup littleware.asset test suite");
                 this.addTest( suite_asset );
             }
 
-            if (b_run) {
+            if (bRun) {
                 olog.log(Level.INFO, "Trying to setup littleware.security test suite");
                 this.addTest( suite_security );
             }
@@ -116,7 +116,7 @@ public class PackageTestSuite extends ServerTestLauncher {
         injector.getInstance( AssetModelServiceListener.class );
         injector.getInstance( ClientCache.class );
 
-        final boolean b_run = true;
+        final boolean bRun = true;
 
         if ( false ) {
             // TODO - guice enable JSF beans 
@@ -125,7 +125,7 @@ public class PackageTestSuite extends ServerTestLauncher {
             this.addTest( injector.getInstance( littleware.web.test.PackageTestSuite.class ) );
         }
 
-        if (b_run) {
+        if (bRun) {
             // TODO - workout OSGi bootstrap with server framework
             olog.log(Level.INFO, "Trying to setup littleware.apps test suite");
             this.addTest( injector.getInstance( littleware.apps.test.PackageTestSuite.class ) );

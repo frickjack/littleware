@@ -33,11 +33,14 @@ public class SimpleAssetPathByRootName extends AbstractAssetPath implements Asse
      */
     public SimpleAssetPathByRootName ( AssetType n_type, 
                                        String s_root_name,
-                                       String s_subroot_path ) throws InvalidAssetTypeException
+                                       String s_subroot_path,
+                                       AssetPathFactory pathFactory
+                                       ) throws InvalidAssetTypeException
     {
         super ( "/byname:" + s_root_name +
                 ":type:" + n_type + "/" +
-                s_subroot_path
+                s_subroot_path,
+                pathFactory
                 );
 
         on_type = n_type;

@@ -19,7 +19,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
-import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.beans.PropertyChangeEvent;
@@ -242,7 +241,6 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
      * @return true on success applying all changes, false on failure
      */
     private boolean applyDataFromSummaryUI () {
-        AssetPathFactory factory_apath = AssetPathFactory.getFactory ();
         try {
             final String     s_name = owtext_name.getText ();
             final String     s_comment = owtext_comment.getText ();
@@ -286,12 +284,9 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
         olib_icon = lib_icon;   
         olib_asset = libAsset;
         owlink_asset = provideLinkView.get();
-        
         owalink_to = provideLinkEditor.get();
         owalink_from = provideLinkEditor.get();
-        
         owalink_acl = provideLinkEditor.get();
-
         owalink_owner = provideLinkEditor.get();
 
         owalink_owner.addLittleListener ( new LittleListener () {
@@ -353,21 +348,6 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
         buildAssetUI ();
     }
     
-    /**
-     * Little internal utility to get an asset-path string
-     * to the asset with the given id - handles null
-     *
-     * @param u_id of asset to get path to or null
-     * @param factory_apath to create path with
-     * @return AssetPath.toString() if u_id not null, else ""
-     */
-    private String getPath ( UUID u_id, AssetPathFactory factory_apath ) {
-        if ( null == u_id ) {
-            return "";
-        } else {
-            return factory_apath.createPath ( u_id ).toString ();
-        }
-    }
 
     /**  
      * Internal utility - resyncs the basic editor pane with the local asset.
@@ -376,7 +356,6 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
         Asset a_local = getLocalAsset ();
         owlink_asset.setLink ( a_local );
         owtext_name.setText ( a_local.getName () );
-        AssetPathFactory factory_apath = AssetPathFactory.getFactory ();
         
         owalink_to.setLink ( a_local.getToId () );
         owalink_from.setLink ( a_local.getFromId () );

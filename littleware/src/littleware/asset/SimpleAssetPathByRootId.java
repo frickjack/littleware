@@ -26,8 +26,8 @@ public class SimpleAssetPathByRootId extends AbstractAssetPath implements AssetP
     private UUID   ou_root = null;
     
     
-    public SimpleAssetPathByRootId ( UUID u_root, String s_subroot_path ) {
-        super ( "/byid:" + u_root.toString () + "/" + s_subroot_path );
+    public SimpleAssetPathByRootId ( UUID u_root, String s_subroot_path, AssetPathFactory pathFactory ) {
+        super ( "/byid:" + u_root.toString () + "/" + s_subroot_path, pathFactory );
         ou_root = u_root;
     }
     

@@ -34,6 +34,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 	private final DbAssetManager     om_db;
 	private final CacheManager       om_cache;
 	private final Provider<LittleTransaction> oprovideTrans;
+    private final AssetPathFactory   opathFactory = new SimpleAssetPathFactory( this );
 	
 	/**
 	 * Constructor stashes DataSource, DbManager, and CacheManager
@@ -119,7 +120,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 		
         try {
             if ( path_asset.hasRootBacktrack () ) {
-                return getAssetsAlongPath ( path_asset.normalizePath( this ) );
+                return getAssetsAlongPath ( opathFactory.normalizePath( path_asset ) );
             }
 
             SortedMap<AssetPath,Maybe<Asset>> mapResult = null;

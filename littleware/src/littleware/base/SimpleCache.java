@@ -12,7 +12,6 @@ package littleware.base;
 
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Simple Cache implementation using FIFO replacement policy.
@@ -98,7 +97,9 @@ public class SimpleCache<K,V> implements Cache<K,V> {
 		}
 	}
 	
+    @Override
 	public int getMaxEntryAgeSecs () { return oi_ageout_secs; }
+    @Override
 	public int getMaxSize () { return oi_size; }
 
 	/**
@@ -109,6 +110,7 @@ public class SimpleCache<K,V> implements Cache<K,V> {
 	 * @param x_value
 	 * @return null or previous value registered with key
 	 */
+    @Override
 	public synchronized V put ( K x_key, V x_value ) {
 		CacheEntry x_entry = new CacheEntry ( x_key, x_value );
 		CacheEntry x_old_entry = ov_cache.put ( x_key, x_entry );
@@ -135,6 +137,7 @@ public class SimpleCache<K,V> implements Cache<K,V> {
 	 * @param x_key
 	 * @return the cache entry value, or null if no entry or aged out
 	 */
+    @Override
 	public synchronized V get ( K x_key ) {
 		CacheEntry x_entry = ov_cache.get ( x_key );
 		
@@ -152,6 +155,7 @@ public class SimpleCache<K,V> implements Cache<K,V> {
 	/**
 	 * Flush the entry associated with the given key out of the cache
 	 */
+    @Override
 	public synchronized V remove ( K x_key ) {
 		CacheEntry x_entry = ov_cache.remove ( x_key );
 		
@@ -164,11 +168,13 @@ public class SimpleCache<K,V> implements Cache<K,V> {
 	}
 	
 
+    @Override
 	public synchronized void clear () {
 		ov_cache.clear ();
 		ov_entries.clear ();
 	}
 	
+    @Override
 	public synchronized Map<K,V> cacheContents ()
 	{
 		Map<K,V> v_copy = new HashMap<K,V> ();
@@ -178,11 +184,14 @@ public class SimpleCache<K,V> implements Cache<K,V> {
 		return v_copy;
 	}
 	
+    @Override
 	public Cache.Policy getPolicy () { return Cache.Policy.FIFO; }
 
 	
+    @Override
 	public synchronized boolean isEmpty () { return ov_cache.isEmpty (); }
 
+    @Override
 	public synchronized int size () { return ov_cache.size (); }
 
 }

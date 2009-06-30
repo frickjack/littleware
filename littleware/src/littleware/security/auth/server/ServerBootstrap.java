@@ -21,7 +21,6 @@ import littleware.apps.tracker.server.TrackerServerActivator;
 import littleware.asset.server.AssetServerGuice;
 import littleware.asset.server.db.jpa.HibernateGuice;
 import littleware.asset.server.db.jpa.J2EEGuice;
-import littleware.asset.server.db.postgres.PostgresGuice;
 import littleware.db.DbGuice;
 import littleware.security.auth.AbstractGOBootstrap;
 import littleware.security.auth.LittleBootstrap;

@@ -114,6 +114,9 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
 
     @Override
     public Maybe<Asset> getAsset(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        if ( null == u_id ) {
+            return Maybe.empty();
+        }
         final ClientCache cache = ClientCache.getSingleton();
 
         Maybe<Asset> result = Maybe.emptyIfNull( cache.get( u_id ) );

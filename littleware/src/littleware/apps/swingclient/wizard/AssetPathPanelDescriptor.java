@@ -26,7 +26,8 @@ import littleware.asset.AssetPathFactory;
  * Subtypes should override [g/s]etAssetId, get[Back/Next]PanelDescriptor
  */
 public abstract class AssetPathPanelDescriptor extends WizardPanelDescriptor {
-    private final JAssetPathPanel   opanel_path;
+    private final JAssetPathPanel   owPanelPath;
+    private final AssetPathFactory  opathFactory;
     
     
     /**
@@ -48,26 +49,28 @@ public abstract class AssetPathPanelDescriptor extends WizardPanelDescriptor {
     /**
      * Constructor passes data through to super class
      */
-    public AssetPathPanelDescriptor ( Object x_panel_id,
-                                      JAssetPathPanel panel_path
+    public AssetPathPanelDescriptor ( Object panelId,
+                                      AssetPathFactory pathFactory,
+                                      JAssetPathPanel wPanelPath
                                 ) {
-        super ( x_panel_id, panel_path );
-        opanel_path = panel_path;
+        super ( panelId, wPanelPath );
+        owPanelPath = wPanelPath;
+        opathFactory = pathFactory;
     }
     
     @Override
     public void aboutToDisplayPanel () {
-        UUID u_acl = getAssetId ();
+        final UUID uId = getAssetId ();
         try {
-            if ( null == u_acl ) {
-                opanel_path.setAssetPath ( (AssetPath) null );
+            if ( null == uId ) {
+                owPanelPath.setAssetPath ( (AssetPath) null );
             } else {
-                AssetPath path_acl = AssetPathFactory.getFactory ().createPath ( u_acl );
-                opanel_path.setAssetPath ( path_acl );
+                final AssetPath path = opathFactory.createPath ( uId );
+                owPanelPath.setAssetPath ( path );
             }
         } catch ( Exception e ) {
             JOptionPane.showMessageDialog( null,
-                                           "Could not resolve AssetPath for: " + u_acl +
+                                           "Could not resolve AssetPath for: " + uId +
                                            ", caught: " + e, "alert", 
                                            JOptionPane.ERROR_MESSAGE
                                            );                                                   
@@ -78,15 +81,15 @@ public abstract class AssetPathPanelDescriptor extends WizardPanelDescriptor {
     /** Set the focus */
     @Override
     public void displayingPanel () {
-        opanel_path.requestFocus ();
+        owPanelPath.requestFocus ();
     }
     
     @Override
     public void aboutToHidePanel () {
         try {
-            opanel_path.setAssetPath ( opanel_path.getText () );
+            owPanelPath.setAssetPath ( owPanelPath.getText () );
             UUID u_old = getAssetId ();
-            UUID u_new = opanel_path.getAssetId ();
+            UUID u_new = owPanelPath.getAssetId ();
             if ( ! littleware.base.Whatever.equalsSafe ( u_old, u_new ) ) {
                 setAssetId ( u_new );
             }

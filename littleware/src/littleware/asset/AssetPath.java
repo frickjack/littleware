@@ -49,16 +49,6 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
      */
     public boolean hasRootBacktrack ();
     
-    /**
-     * Generate a path rooted so that there is no backtrack.
-     *
-     * @param m_search necessary to resolve the backtrack (if any)
-     * @see #hasRootBacktrack()
-     * @return hasRootBacktrack () ? (path rooted without backtrack) : this
-     */
-    public AssetPath normalizePath ( AssetSearchManager m_search
-                                    ) throws BaseException, AssetException, GeneralSecurityException,
-        RemoteException;
     
     /**
      * Retrieve the asset at the root of the path if it exists

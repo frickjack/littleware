@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPath;
@@ -48,7 +48,7 @@ public class DeleteAssetCommand extends AbstractLgoCommand<String,UUID> {
     private enum Option { path, comment; }
 
     @Override
-    public UUID runSafe(UiFeedback feedback, String sPathIn ) throws LgoException {
+    public UUID runSafe(Feedback feedback, String sPathIn ) throws LgoException {
 
         final Map<String,String> mapOptions = new HashMap<String,String>();
         mapOptions.put( Option.path.toString(), sPathIn );

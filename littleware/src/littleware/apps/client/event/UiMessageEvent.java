@@ -12,10 +12,10 @@ package littleware.apps.client.event;
 
 import java.util.logging.Level;
 import littleware.apps.client.LittleEvent;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 
 /**
- * LittleEvent fired by UiFeedback implementation on log() call.
+ * LittleEvent fired by Feedback implementation on log() call.
  */
 public class UiMessageEvent extends LittleEvent {
 
@@ -23,13 +23,13 @@ public class UiMessageEvent extends LittleEvent {
     private final Level  olevel;
 
     /**
-     * Event triggered when worker call UiFeedback.log
+     * Event triggered when worker call Feedback.log
      *
      * @param source
      * @param level of the message
-     * @param s_message sent to UiFeedback
+     * @param s_message sent to Feedback
      */
-    public UiMessageEvent( UiFeedback source, Level level, String s_message ) {
+    public UiMessageEvent( Feedback source, Level level, String s_message ) {
         super( source, "UiMessageEvent", s_message );
         os_message = s_message;
         olevel = level;

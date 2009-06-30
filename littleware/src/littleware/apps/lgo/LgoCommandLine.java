@@ -24,7 +24,7 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 import littleware.apps.client.ClientBootstrap;
 import littleware.apps.client.LoggerUiFeedback;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.security.auth.GuiceOSGiBootstrap;
@@ -115,7 +115,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
      * @param feedback to pass to command.runCommandLine
      * @return command exit-status
      */
-    private int processCommand(String sCommand, List<String> vProcess, String sArg, UiFeedback feedback) {
+    private int processCommand(String sCommand, List<String> vProcess, String sArg, Feedback feedback) {
         LgoCommand<?, ?> command = omgrCommand.buildCommand(sCommand);
         try {
             if (null == command) {
@@ -146,7 +146,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
      *      name  args* [ -- arg]
      * Treat "exit" command as special escape.
      */
-    private void processPipe(UiFeedback feedback) throws IOException {
+    private void processPipe(Feedback feedback) throws IOException {
         final BufferedReader reader;
         try {
             reader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
@@ -197,7 +197,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         int iExitStatus = 0;
 
         try {
-            UiFeedback feedback = new LoggerUiFeedback();
+            Feedback feedback = new LoggerUiFeedback();
 
             if (vArgs.length == 0) { // launch help command by default
                 System.out.print(omgrCommand.buildCommand("help").runCommandLine(feedback, ""));

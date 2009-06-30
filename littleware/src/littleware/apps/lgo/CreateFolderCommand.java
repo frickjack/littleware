@@ -13,7 +13,7 @@ package littleware.apps.lgo;
 import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPath;
@@ -71,7 +71,7 @@ public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public Asset runSafe(UiFeedback feedback, String sDefaultPath ) throws LgoException {
+    public Asset runSafe(Feedback feedback, String sDefaultPath ) throws LgoException {
         final Map<String,String> mapDefault = new HashMap<String,String>();
         mapDefault.put( Option.path.toString(), sDefaultPath );
         mapDefault.put( Option.comment.toString(), "no comment" );

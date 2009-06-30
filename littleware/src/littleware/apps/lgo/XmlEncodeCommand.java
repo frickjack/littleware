@@ -17,7 +17,7 @@ import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 import java.util.List;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.base.AssertionFailedException;
 import littleware.base.XmlSpecial;
 
@@ -187,7 +187,7 @@ public class XmlEncodeCommand extends AbstractLgoCommand<String,String> {
     */
 
     @Override
-    public String runCommand( UiFeedback feedback, String s_in ) {
+    public String runCommand( Feedback feedback, String s_in ) {
         // Need to add ResourceBundle stuff ...
         switch( on_subcommand ) {
             case version:
@@ -202,7 +202,7 @@ public class XmlEncodeCommand extends AbstractLgoCommand<String,String> {
     }
 
     @Override
-    public String runSafe( UiFeedback feedback, String s_in ) {
+    public String runSafe( Feedback feedback, String s_in ) {
         return runCommand( feedback, s_in );
     }
 }

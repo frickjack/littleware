@@ -20,8 +20,8 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import littleware.apps.client.LittleEvent;
 import littleware.apps.client.LittleListener;
-import littleware.apps.client.NullUiFeedback;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.NullFeedback;
+import littleware.apps.client.Feedback;
 import littleware.apps.client.event.UiMessageEvent;
 import littleware.base.Whatever;
 
@@ -36,7 +36,7 @@ public class SwingFeedbackBuilder {
     private static final Logger olog = Logger.getLogger( SwingFeedbackBuilder.class.getName() );
 
     /**
-     * Little factory just allocations a NullUiFeedback
+     * Little factory just allocations a NullFeedback
      * instance wired up with listeners to update
      * a given progress bar, label, and appender.
      *
@@ -45,12 +45,12 @@ public class SwingFeedbackBuilder {
      * @param appender
      * @return feedback instance
      */
-    public UiFeedback build( final JProgressBar jprogress,
+    public Feedback build( final JProgressBar jprogress,
             final JLabel jlabelTitle,
             final Appendable appender
             ) {
         jprogress.setMaximum(100 + 1);
-       final UiFeedback feedback = new NullUiFeedback();
+       final Feedback feedback = new NullFeedback();
        feedback.addPropertyChangeListener(
                new PropertyChangeListener() {
 

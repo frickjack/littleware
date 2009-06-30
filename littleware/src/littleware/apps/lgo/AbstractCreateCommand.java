@@ -11,7 +11,7 @@
 package littleware.apps.lgo;
 
 import java.io.StringWriter;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.pickle.HumanPicklerProvider;
 
@@ -33,7 +33,7 @@ public abstract class AbstractCreateCommand<Tin,Tout extends Asset>
      * Just run the result of runDynamic(feedback,sIn) through pickler
      */
     @Override
-    public String runCommandLine( UiFeedback feedback, String sIn ) throws LgoException {
+    public String runCommandLine( Feedback feedback, String sIn ) throws LgoException {
         try {
             StringWriter writer = new StringWriter();
             oprovidePickler.get().pickle( runDynamic(feedback,sIn ), writer);

@@ -48,11 +48,15 @@ public class PackageTestSuite extends TestSuite {
             Provider<TransactionTester> provideTransTester,
             Provider<DbAssetManagerTester> provideDbTester,
             Provider<AssetRetrieverTester> provideRetrieverTest,
-            Provider<AssetPathTester> providePathTester
+            Provider<AssetPathTester> providePathTester,
+            Provider<AssetTreeToolTester> provideTreeTester
             ) {
         super(PackageTestSuite.class.getName());
         boolean b_run = true;
 
+        if ( b_run ) {
+            this.addTest( provideTreeTester.get() );
+        }
         if (b_run) {
             this.addTest(new PickleTester(new HumanPicklerProvider()));
             this.addTest(new PickleTester(

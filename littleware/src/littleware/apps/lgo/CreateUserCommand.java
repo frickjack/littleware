@@ -13,7 +13,7 @@ package littleware.apps.lgo;
 import com.google.inject.Inject;
 import java.util.Map;
 import java.util.logging.Level;
-import littleware.apps.client.UiFeedback;
+import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
@@ -51,7 +51,7 @@ public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> 
     private enum Option { name, admin };
     
     @Override
-    public LittleUser runSafe(UiFeedback feedback, String sDefaultName ) throws LgoException {
+    public LittleUser runSafe(Feedback feedback, String sDefaultName ) throws LgoException {
         final Map<String,String> mapArg = processArgs( getArgs(),
                 Option.name.toString(), Option.admin.toString()
                 );

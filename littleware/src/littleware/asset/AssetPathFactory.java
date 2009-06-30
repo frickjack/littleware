@@ -11,18 +11,18 @@
 package littleware.asset;
 
 import com.google.inject.ImplementedBy;
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
 import java.util.*;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
+import littleware.base.BaseException;
 import littleware.base.ParseException;
 
 /**
  * Source of AssetPath objects.
  */
 @ImplementedBy(SimpleAssetPathFactory.class )
-public abstract class AssetPathFactory {
-    private static final Logger olog_generic = Logger.getLogger ( AssetPathFactory.class.getName() );
+public interface AssetPathFactory {
     /**
      * Prefix for different types of AssetPath
      */
@@ -37,13 +37,6 @@ public abstract class AssetPathFactory {
         },
     }
     
-    /**
-     * Make it easy to swap in subtype implementations later by
-     * requiring users to create AssetPathFactory via this method.
-     */
-    public static AssetPathFactory getFactory () {
-        return new SimpleAssetPathFactory ();
-    }
     
     /**
      * Little utility removes redundant /, /./, and /../ from a path.
@@ -55,42 +48,8 @@ public abstract class AssetPathFactory {
      * @param s_path to cleanup
      * @return s_path without redundant /, /./, and /../ 
      */
-    public static String cleanupPath ( String s_path ) {
-        List<String> v_parts = new ArrayList<String> ();
-        olog_generic.log ( Level.FINE, "Processing path: " + s_path );
+    public String cleanupPath ( String s_path );
 
-        for ( StringTokenizer token_slash = new StringTokenizer ( s_path, "/" );
-              token_slash.hasMoreTokens ();
-              ) {
-            String s_token = token_slash.nextToken ();
-            olog_generic.log ( Level.FINE, "Processing token: " + s_token );
-            if ( s_token.equals ( "." ) ) {
-                continue;
-            }
-            if ( s_token.equals ( ".." ) 
-                 && (v_parts.size () > 1)
-                 && (! v_parts.get ( v_parts.size () - 1 ).equals( ".." ))
-                 ) {
-                // remove last part
-                olog_generic.log ( Level.FINE, "Got .., removing: " + v_parts.remove ( v_parts.size () - 1 ) );
-                continue;
-            }
-            olog_generic.log ( Level.FINE, "Adding token to token list: " + s_token );
-            v_parts.add ( s_token );
-        }
-        
-        String       s_result = "/";
-        if ( ! v_parts.isEmpty () ) {
-            StringBuilder sb_result = new StringBuilder ( 256 );
-            for ( String s_part : v_parts ) {
-                sb_result.append ( "/" );
-                sb_result.append ( s_part );
-            }
-            s_result = sb_result.toString ();
-        } 
-        return s_result;
-    }
-    
     
     
     /**
@@ -137,5 +96,30 @@ public abstract class AssetPathFactory {
      */    
     public abstract AssetPath createPath ( UUID u_root
                                            );
+
+    /**
+     * Generate a path rooted so that there is no backtrack.
+     *
+     * @see AssetPath#hasRootBacktrack()
+     * @return hasRootBacktrack () ? (path rooted without backtrack) : pathIn
+     */
+    public AssetPath normalizePath ( AssetPath pathIn
+                                    ) throws BaseException, GeneralSecurityException,
+        RemoteException;
+
+    /**
+     * Convert path rooted at path with non-null fromId property
+     * to a path rooted at the furthest reachable ancestor
+     * 
+     * @param pathIn path to convert
+     * @return pathIn.getRoot().getFromId() != null ? new rooted bath : pathIn
+     * @throws littleware.base.BaseException
+     * @throws java.security.GeneralSecurityException
+     * @throws java.rmi.RemoteException
+     */
+    public AssetPath toRootedPath ( AssetPath pathIn
+                                    ) throws BaseException, GeneralSecurityException,
+        RemoteException;
+
 }
 

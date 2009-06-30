@@ -10,22 +10,44 @@
 
 package littleware.asset;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.UUID;
 
+import littleware.apps.client.AssetModelLibrary;
+import littleware.base.BaseException;
+import littleware.base.Maybe;
 import littleware.base.ParseException;
 import littleware.base.UUIDFactory;
+
 
 
 /**
  * Source of AssetPath objects.
  */
-public class SimpleAssetPathFactory extends AssetPathFactory {    
-    private static Logger   olog = Logger.getLogger ( "littleware.asset.SimpleAssetPathFactory" );
-    
-    /** Do nothing constructor */
-    public SimpleAssetPathFactory () {}
+@Singleton
+public class SimpleAssetPathFactory implements AssetPathFactory {
+    private static final Logger   olog = Logger.getLogger ( SimpleAssetPathFactory.class.getName() );
+
+    private final AssetSearchManager osearch;
+
+
+    /** Injecting constructor */
+    @Inject
+    public SimpleAssetPathFactory (
+            AssetSearchManager search
+            )
+    {
+        osearch = search;
+    }
         
     @Override
     public  AssetPath createPath ( String s_path_in
@@ -85,26 +107,137 @@ public class SimpleAssetPathFactory extends AssetPathFactory {
    }
                                        
     
+    @Override
     public  AssetPath createPath ( String s_root_name, AssetType n_root_type, 
                                            String s_path
                                            ) throws ParseException, InvalidAssetTypeException
     {
         return new SimpleAssetPathByRootName( n_root_type, s_root_name,
-                                          s_path
+                                          s_path, this
                                           );
     }
     
+    @Override
     public  AssetPath createPath ( UUID u_root, String s_path
                                            ) throws ParseException
     {
         return new SimpleAssetPathByRootId( u_root,
-                                          s_path
+                                          s_path, this
                                           );
     }
     
+    @Override
     public AssetPath createPath ( UUID u_root ) {
-        return new SimpleAssetPathByRootId( u_root, "" );
+        return new SimpleAssetPathByRootId( u_root, "", this );
     }
+
+    @Override
+    public String cleanupPath ( String s_path ) {
+        final List<String> v_parts = new ArrayList<String> ();
+        olog.log ( Level.FINE, "Processing path: " + s_path );
+
+        for ( StringTokenizer token_slash = new StringTokenizer ( s_path, "/" );
+              token_slash.hasMoreTokens ();
+              ) {
+            String s_token = token_slash.nextToken ();
+            olog.log ( Level.FINE, "Processing token: " + s_token );
+            if ( s_token.equals ( "." ) ) {
+                continue;
+            }
+            if ( s_token.equals ( ".." )
+                 && (v_parts.size () > 1)
+                 && (! v_parts.get ( v_parts.size () - 1 ).equals( ".." ))
+                 ) {
+                // remove last part
+                olog.log ( Level.FINE, "Got .., removing: " + v_parts.remove ( v_parts.size () - 1 ) );
+                continue;
+            }
+            olog.log ( Level.FINE, "Adding token to token list: " + s_token );
+            v_parts.add ( s_token );
+        }
+
+        String       s_result = "/";
+        if ( ! v_parts.isEmpty () ) {
+            StringBuilder sb_result = new StringBuilder ( 256 );
+            for ( String s_part : v_parts ) {
+                sb_result.append ( "/" );
+                sb_result.append ( s_part );
+            }
+            s_result = sb_result.toString ();
+        }
+        return s_result;
+    }
+
+    @Override
+    public AssetPath normalizePath ( AssetPath pathIn
+                                     ) throws BaseException, AssetException, GeneralSecurityException,
+        RemoteException
+    {
+        String s_normal = pathIn.getSubRootPath();
+        if ( s_normal.startsWith ( ".." ) ) { // just in case
+            s_normal = "/" + s_normal;
+        }
+        if ( ! s_normal.startsWith ( "/.." ) ) {
+            return pathIn;
+        }
+        Asset a_root = pathIn.getRoot( osearch ).get();
+        for ( ;
+              s_normal.startsWith ( "/.." );
+              s_normal = s_normal.substring ( 3 )
+              ) {
+            if ( null == a_root.getFromId () ) {
+                throw new DanglingLinkException ( "Unable to normalize path for " + pathIn );
+            }
+            final Maybe<Asset> maybeParent = osearch.getAsset ( a_root.getFromId () );
+            if ( ! maybeParent.isSet() ) {
+                throw new DanglingLinkException ( "Unable to normalize path for " + pathIn );
+            }
+            a_root = maybeParent.get();
+        }
+        return createPath ( a_root.getObjectId (), s_normal );
+    }
+
+    @Override
+    public AssetPath toRootedPath ( AssetPath pathIn
+                                    ) throws BaseException, GeneralSecurityException,
+        RemoteException
+    {
+        final AssetPath pathNormal = normalizePath( pathIn );
+        final Maybe<Asset> maybeRoot = pathNormal.getRoot( osearch );
+        if ( ! maybeRoot.isSet() )
+        {
+            return pathNormal;
+        }
+        final List<Asset>  vTrail = new ArrayList<Asset>();
+        vTrail.add( maybeRoot.get() );
+        for( Maybe<Asset> maybeParent = osearch.getAsset( maybeRoot.get().getFromId() );
+             maybeParent.isSet();
+             maybeParent = osearch.getAsset( maybeParent.get().getFromId() )
+                )
+        {
+            vTrail.add( maybeParent.get() );
+        }
+        Collections.reverse(vTrail);
+        final StringBuilder sbSubrootPath = new StringBuilder();
+        boolean bFirst = true;
+        for( Asset aPart : vTrail ) {
+            if ( bFirst ) {
+                // skip the root
+                bFirst = false;
+                continue;
+            }
+            sbSubrootPath.append("/" ).append( aPart.getName() );
+        }
+        sbSubrootPath.append( "/" ).append( pathNormal.getSubRootPath() );
+        final Asset aRoot = vTrail.get(0);
+        if ( aRoot.getAssetType().isNameUnique() ) {
+            return normalizePath( createPath( aRoot.getName(), aRoot.getAssetType(), sbSubrootPath.toString() ) );
+        } else {
+            return normalizePath( createPath( aRoot.getObjectId(), sbSubrootPath.toString() ) );
+        }
+    }
+
+
 }
 
 

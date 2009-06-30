@@ -29,6 +29,7 @@ public class AssetPathTester extends LittleTest {
 	
     private final AssetManager        om_asset;
 	private final AssetSearchManager  om_search;
+    private final AssetPathFactory opathFactory;
 
 	
 	/**
@@ -40,10 +41,12 @@ public class AssetPathTester extends LittleTest {
 	 */
     @Inject
 	public AssetPathTester ( AssetSearchManager m_search,
-                             AssetManager m_asset
+                             AssetManager m_asset,
+                             AssetPathFactory pathFactory
                              ) {
 		om_search = m_search;
         om_asset = m_asset;
+        opathFactory = pathFactory;
         setName( "testPathTraverse" );
 	}
 	
@@ -150,15 +153,15 @@ public class AssetPathTester extends LittleTest {
 	 */
 	public void testPathTraverse () {
         List<AssetPath>  v_tests = new ArrayList<AssetPath> ();
-        AssetPathFactory factory_path = AssetPathFactory.getFactory ();
+
 		try {
-            v_tests.add ( factory_path.createPath ( "littleware.test_home/AssetPathTester/A/../A/1/../1" 
+            v_tests.add ( opathFactory.createPath ( "littleware.test_home/AssetPathTester/A/../A/1/../1"
                                                     )
                           );
-            v_tests.add ( factory_path.createPath ( "/littleware.test_home/AssetPathTester/A/2/../../Points2A/2/@/2"
+            v_tests.add ( opathFactory.createPath ( "/littleware.test_home/AssetPathTester/A/2/../../Points2A/2/@/2"
                                                     )
                           );
-            v_tests.add ( factory_path.createPath ( "littleware.test_home/AssetPathTester/Points2A/2/@/3" 
+            v_tests.add ( opathFactory.createPath ( "littleware.test_home/AssetPathTester/Points2A/2/@/3"
                                                     )
                           );
             
@@ -172,15 +175,15 @@ public class AssetPathTester extends LittleTest {
                 assertTrue( "Path has expected basename " + i_count + ": " + path_test.getBasename(),
                         path_test.getBasename().equals( Integer.toString( i_count ) )
                         );
-                AssetPath path_root = factory_path.createPath( path_test.getRoot ( om_search ).get().getObjectId (),
+                AssetPath path_root = opathFactory.createPath( path_test.getRoot ( om_search ).get().getObjectId (),
                                                                path_test.getSubRootPath ()
                                                                );
                 assertTrue ( "SubRoot paths match: " + path_test.getSubRootPath () + " == " +
                              path_root.getSubRootPath (),
                              path_test.getSubRootPath ().equals ( path_root.getSubRootPath () )
                              );
-                AssetPath path_name_string = factory_path.createPath ( path_test.toString () );
-                AssetPath path_id_string = factory_path.createPath( path_root.getRoot ( om_search ).get().getObjectId (),
+                AssetPath path_name_string = opathFactory.createPath ( path_test.toString () );
+                AssetPath path_id_string = opathFactory.createPath( path_root.getRoot ( om_search ).get().getObjectId (),
                                                                path_root.getSubRootPath ()
                                                                );
                 
@@ -190,10 +193,15 @@ public class AssetPathTester extends LittleTest {
                 assertTrue ( path_id_string.toString () + " == " + path_root.toString (),
                              path_id_string.equals ( path_root )
                              );
-                Asset a_test = path_test.getAsset( om_search ).get();
+                final Asset a_test = path_test.getAsset( om_search ).get();
                 assertTrue ( "Got the same asset from " + path_test + " and " + path_root,
                              a_test.equals ( path_root.getAsset ( om_search ).get() )
                              );
+                final AssetPath pathRoot = opathFactory.toRootedPath( opathFactory.createPath( a_test.getObjectId() ) );
+                assertTrue( "Root path resolver works ok: " + pathRoot,
+                        pathRoot.getAsset(om_search).equals( a_test )
+                        && pathRoot.toString().equals( opathFactory.toRootedPath( opathFactory.createPath( a_test.getObjectId() ) ).toString() )
+                        );
                 AssetPath  path_parent = path_test.getParent ();
                 assertTrue ( "Path has parent: " + path_test,
                              path_test.hasParent ()
@@ -207,16 +215,16 @@ public class AssetPathTester extends LittleTest {
                              );
                 
                 if ( 1 == i_count ) {
-                    AssetPath path_smallest = factory_path.createPath( path_test.toString () + "/@/smallest" );
+                    AssetPath path_smallest = opathFactory.createPath( path_test.toString () + "/@/smallest" );
                     Asset     a_smallest = path_smallest.getAsset ( om_search ).get();
                     assertTrue ( "Smallest link resolved to asset 1: " + a_smallest.getName (),
                                  a_smallest.equals ( a_test )
                                  );
                     assertTrue( "Get by id ok",
-                            factory_path.createPath( a_smallest.getObjectId().toString() ).getAsset( om_search ).equals( a_smallest )
+                            opathFactory.createPath( a_smallest.getObjectId().toString() ).getAsset( om_search ).equals( a_smallest )
                             );
                 } else if ( i_count == v_tests.size () ) {
-                    AssetPath path_biggest = factory_path.createPath( path_test.toString () + "/@/biggest" );
+                    AssetPath path_biggest = opathFactory.createPath( path_test.toString () + "/@/biggest" );
                     Asset     a_biggest = path_biggest.getAsset ( om_search ).get();
                     assertTrue ( "Biggest link resolved to asset 1: " + a_biggest.getName (),
                                  a_biggest.equals ( a_test )

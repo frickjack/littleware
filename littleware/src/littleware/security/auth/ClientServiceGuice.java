@@ -280,14 +280,6 @@ public class ClientServiceGuice implements LittleGuiceModule {
         binder.bind(AccountManager.class).to(AccountManagerService.class);
         binder.bind(AssetManager.class).to(AssetManagerService.class);
         binder.bind(SessionHelper.class).toInstance(ohelper);
-        binder.bind( AssetPathFactory.class ).toProvider(
-                new Provider<AssetPathFactory>() {
-            @Override
-            public AssetPathFactory get() {
-                return AssetPathFactory.getFactory();
-            }
-        });
-
         binder.bind(LittleSession.class).toProvider(new Provider<LittleSession>() {
 
             @Override

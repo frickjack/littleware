@@ -43,12 +43,13 @@ import littleware.base.Whatever;
  */
 public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
     private final static  Logger  olog = Logger.getLogger( LgoBrowserCommand.class.getName () );
-    private  JAssetBrowser        obrowser       = null;
+    private  JAssetBrowser                obrowser       = null;
     private  ExtendedAssetViewController  ocontrol;
     private  JSimpleAssetToolbar          otoolbar = null;
-    private JFrame                       owframe = null;
-    private final AssetSearchManager           osearch;
-    private final AssetModelLibrary            olib;
+    private JFrame                        owframe = null;
+    private final AssetSearchManager      osearch;
+    private final AssetModelLibrary       olib;
+    private final AssetPathFactory        opathFactory;
     
     /**
      * Inject the browser that this command launches,
@@ -68,7 +69,8 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
             final Provider<ExtendedAssetViewController> provideControl,
             final Provider<JSimpleAssetToolbar>    provideToolbar,
             AssetSearchManager     search,
-            AssetModelLibrary      lib
+            AssetModelLibrary      lib,
+            AssetPathFactory       pathFactory
             ) {
         super( LgoBrowserCommand.class.getName() );
         final Runnable runner = new Runnable () {
@@ -90,6 +92,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
         }
         osearch = search;
         olib = lib;
+        opathFactory = pathFactory;
     }
     
     private UUID  ou_start = UUIDFactory.parseUUID( "00000000000000000000000000000000");
@@ -118,7 +121,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
         }
         if ( null != sStartPath ) {
             try {
-                final Asset a_start = osearch.getAssetAtPath( AssetPathFactory.getFactory ().createPath( sStartPath ) ).get();
+                final Asset a_start = osearch.getAssetAtPath( opathFactory.createPath( sStartPath ) ).get();
                 olib.syncAsset( a_start );
                 setStart( a_start.getObjectId () );
             } catch ( Exception e ) {

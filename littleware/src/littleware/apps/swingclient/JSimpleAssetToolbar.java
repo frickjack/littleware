@@ -35,7 +35,7 @@ import littleware.base.BaseException;
  * Includes a GOTO-path text-field, so setFloatable(false) is set by constructor.
  */
 public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListener, LittleTool {
-    private final static Logger         olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JSimpleAssetToolbar" );
+    private final static Logger         olog_generic = Logger.getLogger ( JSimpleAssetToolbar.class.getName() );
     private static final long serialVersionUID = 3427883110446003286L;
 
 
@@ -44,7 +44,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
     private final IconLibrary           olib_icon;
     private final AssetSearchManager    om_search;
     private final SimpleLittleTool      otool_handler = new SimpleLittleTool ( this );
-    private final AssetPathFactory      ofactory_path = AssetPathFactory.getFactory ();
+    private final AssetPathFactory      ofactoryPath;
 
     private final List<UUID>            olist_navigation = new ArrayList<UUID> ();
     private int                         oi_nav_position = 0;
@@ -227,7 +227,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                         public void actionPerformed ( ActionEvent ev_button ) {
                             String s_path = owtext_goto_path.getText ();
                             try {
-                                AssetPath  path_goto = ofactory_path.createPath ( s_path );
+                                AssetPath  path_goto = ofactoryPath.createPath ( s_path );
                                 AssetModel model_goto = olib_asset.syncAsset ( om_search.getAssetAtPath ( path_goto ).get() );
                                 ou_goto = model_goto.getAsset ().getObjectId ();
                                 oview_component.setAssetModel ( model_goto );
@@ -303,7 +303,12 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                         @Override
                         public void run () {
                             ou_goto = u_nav;
-                            AssetPath  path_new = ofactory_path.createPath ( u_nav );
+                            AssetPath  path_new = ofactoryPath.createPath ( u_nav );
+                            try {
+                                path_new = ofactoryPath.toRootedPath( path_new );
+                            } catch ( Exception ex ) {
+                                olog_generic.log( Level.WARNING, "Failed to resolve root asset path for " + path_new, ex );
+                            }
                             owtext_goto_path.setText ( path_new.toString () );
                         }
                     }
@@ -371,39 +376,16 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
     public JSimpleAssetToolbar ( 
                                  AssetModelLibrary lib_asset,
                                  IconLibrary lib_icon,
-                                 AssetSearchManager m_search
-                                 ) {
-        this ( null, lib_asset, lib_icon, m_search, "whatever", ov_all_buttons );
-    }
-    
-    
-    /**
-     * Constructor associates toolbar with a view,
-     * and specifies which predefined buttons to place 
-     * on the toolbar.
-     *
-     * @param view_component to listen to 
-     * @param lib_asset asset data library
-     * @param lib_icon source of icons
-     * @param m_search to resolve lookups with
-     * @param s_toolbar_name to pass to super
-     */
-    public JSimpleAssetToolbar ( AssetView view_component, 
-                                 AssetModelLibrary lib_asset,
-                                 IconLibrary lib_icon,
                                  AssetSearchManager m_search,
-                                 String s_toolbar_name,
-                                 List<ButtonId>  v_buttons
+                                 AssetPathFactory factoryPath
                                  ) {
-        super ( s_toolbar_name );
+        super ( "toolbar" );
                 
         olib_asset = lib_asset;
         olib_icon = lib_icon;
         om_search = m_search;
-        buildToolbar ( v_buttons );
-        if ( null != view_component ) {
-            setConnectedView( view_component );
-        }
+        ofactoryPath = factoryPath;
+        buildToolbar ( ov_all_buttons );
     }
     
     

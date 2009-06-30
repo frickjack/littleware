@@ -47,6 +47,7 @@ public class SwingClientTester extends LittleTest {
     private final Provider<CreateAssetWizard> oprovideWizard;
     private final Provider<JAssetBrowser> oprovideBrowser;
     private final Provider<ExtendedAssetViewController> oprovideController;
+    private final Provider<JSimpleAssetToolbar> oprovideToolbar;
 
     
     /** Inject dependencies */
@@ -57,7 +58,8 @@ public class SwingClientTester extends LittleTest {
         AssetEditorFactory factory_edit,
         Provider<CreateAssetWizard> provideWizard,
         Provider<JAssetBrowser> provideBrowser,
-        Provider<ExtendedAssetViewController>  provideController
+        Provider<ExtendedAssetViewController>  provideController,
+        Provider<JSimpleAssetToolbar>  provideToolbar
         ) {
         om_helper = m_helper;
         olib_asset = lib_asset;
@@ -67,6 +69,7 @@ public class SwingClientTester extends LittleTest {
         oprovideWizard = provideWizard;
         oprovideBrowser = provideBrowser;
         oprovideController = provideController;
+        oprovideToolbar = provideToolbar;
     }
 
     /** 
@@ -265,11 +268,7 @@ public class SwingClientTester extends LittleTest {
             JComponent wbrowser_asset = oprovideBrowser.get();
             SimpleAssetViewController listen_control = oprovideController.get();
             listen_control.setControlView((AssetView) wbrowser_asset);
-            JSimpleAssetToolbar wtoolbar_asset = new JSimpleAssetToolbar(
-                    olib_asset,
-                    olib_icon,
-                    m_search
-                    );
+            final JSimpleAssetToolbar wtoolbar_asset = oprovideToolbar.get();
             wtoolbar_asset.setConnectedView( (AssetView) wbrowser_asset );
             wtoolbar_asset.getButton(JSimpleAssetToolbar.ButtonId.CREATE).setEnabled(true);
             wtoolbar_asset.getButton(JSimpleAssetToolbar.ButtonId.EDIT).setEnabled(true);

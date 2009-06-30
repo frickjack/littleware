@@ -44,6 +44,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
     private static final Logger olog_generic = Logger.getLogger( CreateAssetWizard.class.getName() );
     private final Provider<JAssetPathPanel> oprovideAssetPanel;
 
+
     /**
      * Panel ids for the initial panels.
      * Type specific info should be added before the 
@@ -67,12 +68,11 @@ public class CreateAssetWizard extends WizardAssetEditor {
     private final  AssetModelLibrary olib_asset;
     private final  AssetManager om_asset;
     private final  AssetSearchManager om_search  ;
-    private final  AssetPathFactory ofactory_path;       
+    private final  AssetPathFactory opathFactory;
     private final   AssetViewFactory     ofactory_view;
     private final   ResourceBundle       obundle_labels;
     {
         try {
-            ofactory_path = AssetPathFactory.getFactory();
             obundle_labels = ResourceBundle.getBundle ( "littleware.apps.swingclient.wizard.resources.WizardSupport");
         } catch ( RuntimeException e ) {
             olog_generic.log ( Level.SEVERE, "Caught unexpected: " + e + ", " +
@@ -181,6 +181,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 });
         this.registerWizardPanel(BasicPanel.PickAcl,
                 new AssetPathPanelDescriptor(BasicPanel.PickAcl,
+                opathFactory,
                 opanel_acl) {
 
                     @Override
@@ -204,6 +205,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 });
         this.registerWizardPanel(BasicPanel.PickFrom,
                 new AssetPathPanelDescriptor(BasicPanel.PickFrom,
+                opathFactory,
                 opanel_from) {
 
             @Override
@@ -242,6 +244,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 });
         this.registerWizardPanel(BasicPanel.PickTo,
                 new AssetPathPanelDescriptor(BasicPanel.PickTo,
+                opathFactory,
                 opanel_to) {
 
             @Override
@@ -315,7 +318,9 @@ public class CreateAssetWizard extends WizardAssetEditor {
             IconLibrary lib_icon,
             AssetViewFactory factory_view,
             AssetModel amodel_start,
-            Provider<JAssetPathPanel> provideAssetPanel ) {
+            Provider<JAssetPathPanel> provideAssetPanel,
+            AssetPathFactory pathFactory
+            ) {
         super(m_asset, m_search, lib_asset, lib_icon);
 
         oprovideAssetPanel = provideAssetPanel;
@@ -324,6 +329,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
         om_search = m_search;
         om_asset = m_asset;
         ofactory_view = factory_view;
+        opathFactory = pathFactory;
 
         setAssetModel(amodel_start);
         initializePanels();

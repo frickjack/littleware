@@ -12,6 +12,7 @@ package littleware.apps.swingclient.controller;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.beans.PropertyChangeEvent;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -23,9 +24,13 @@ import javax.swing.WindowConstants;
 
 import com.nexes.wizard.Wizard;
 import java.awt.Dimension;
+import java.beans.PropertyChangeListener;
 import javax.swing.BoxLayout;
+import javax.swing.JDialog;
 import littleware.apps.client.*;
+import littleware.apps.swingclient.DeleteAssetStrategy;
 import littleware.apps.swingclient.IconLibrary;
+import littleware.apps.swingclient.JDeleteAssetBuilder;
 import littleware.apps.swingclient.event.*;
 import littleware.apps.swingclient.wizard.CreateAssetWizard;
 import littleware.asset.Asset;
@@ -33,6 +38,7 @@ import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.security.auth.LittleSession;
+import littleware.security.auth.client.ClientCache;
 
 
 /** 
@@ -50,6 +56,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
     private final AssetEditorFactory ofactory_edit;
     private final AssetViewFactory   ofactory_view;
     private final Provider<CreateAssetWizard> oprovideWizard;
+    private final JDeleteAssetBuilder buildDelete;
 
     
     
@@ -73,9 +80,11 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                                          AssetViewFactory   factory_view,
                                          IconLibrary        lib_icon,
                                          LittleSession      a_session,
-                                         Provider<CreateAssetWizard> provideWizard
+                                         Provider<CreateAssetWizard> provideWizard,
+                                         ClientCache cache,
+                                         JDeleteAssetBuilder buildDelete
                                        ) {
-        super( m_search, lib_asset );
+        super( m_search, lib_asset, cache );
                 
         om_asset = m_asset;
         om_search = m_search;
@@ -85,6 +94,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
         olib_icon = lib_icon;
         oa_session = a_session;
         oprovideWizard = provideWizard;
+        this.buildDelete = buildDelete;
     }
         
     /**
@@ -160,44 +170,29 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                 wframe_edit.setVisible ( true );
             }
         } else if ( event_little instanceof DeleteRequestEvent ) {
-            DeleteRequestEvent  event_delete = (DeleteRequestEvent) event_little;
-            AssetModel          amodel_delete = event_delete.getAssetModel ();
-            Asset               a_delete = amodel_delete.getAsset ();
-            
-            String s_reason = JOptionPane.showInputDialog ( null,
-                       "Enter a reason for the delete, or Cancel",
-                       "no reason for delete"
-                       );
-            
-            if ( null != s_reason ) {
-                try {
-                    om_asset.deleteAsset ( a_delete.getObjectId (), s_reason );
-                    olib_asset.assetDeleted ( a_delete.getObjectId () );
+            final DeleteRequestEvent  event_delete = (DeleteRequestEvent) event_little;
+            final AssetModel          amodel_delete = event_delete.getAssetModel ();
+            final Asset               a_delete = amodel_delete.getAsset ();
+            final JDeleteAssetBuilder.JDeletePanel delete = buildDelete.build( a_delete.getObjectId() );
+            final JDialog             dialog = new JDialog();
+            dialog.setTitle( "Delete Asset Subtree" );
+            dialog.add(delete);
+            dialog.pack();
+            dialog.setModal( false );
+            delete.addPropertyChangeListener( new PropertyChangeListener() {
 
-                    if ( a_delete.getObjectId ().equals ( getControlView ().getAssetModel ().getAsset ().getObjectId () ) ) {
-                        /**
-                         * ... then move the view to something that has not been deleted
-                         */
-                        UUID u_view = a_delete.getFromId ();
-                        if ( null == u_view ) {
-                            u_view = a_delete.getHomeId ();
-                        }
-                        NavRequestEvent event_nav = new NavRequestEvent ( event_little.getSource (),
-                                                                          u_view, 
-                                                                          NavRequestEvent.NavMode.GENERIC
-                                                                          );
-                        super.receiveLittleEvent ( event_nav );
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if( evt.getPropertyName().equals( "state" )
+                            && evt.getNewValue().equals( DeleteAssetStrategy.State.Dismissed )
+                            ) {
+                        dialog.dispose();
                     }
-                } catch ( Exception e ) {
-                    olog_generic.log ( Level.WARNING, "Asset-delete caught unexpected", e );
-                    JOptionPane.showMessageDialog(null, "Could not delete asset, caught: " + e,
-                                                  "alert", 
-                                                  JOptionPane.ERROR_MESSAGE
-                                                  );                                        
                 }
-            }
-            
-            
+            } );
+            dialog.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
+            dialog.setVisible( true );
+            delete.launch();
         } else if ( event_little instanceof SaveRequestEvent ) {
             // Save request from spawned editor
             SaveRequestEvent event_save = (SaveRequestEvent) event_little;

@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset;
 
 import com.google.inject.Inject;
@@ -18,10 +17,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 import littleware.apps.client.Feedback;
+import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.NullFeedback;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
+import littleware.base.TooMuchDataException;
 
 /**
  * Simple AssetTreeTool implementation just calls through to
@@ -29,37 +31,54 @@ import littleware.base.Maybe;
  */
 @Singleton
 public class SimpleAssetTreeTool implements AssetTreeTool {
+    private static final Logger olog = Logger.getLogger( SimpleAssetTreeTool.class.getName() );
+    private static final int    MaxAsset = 1000;
+
     private final AssetSearchManager osearch;
 
     @Inject
-    public SimpleAssetTreeTool( AssetSearchManager search ) {
+    public SimpleAssetTreeTool(AssetSearchManager search) {
         osearch = search;
     }
 
     @Override
-    public List<Asset> loadBreadthFirst(UUID uRoot, Feedback feedback ) throws BaseException, GeneralSecurityException, RemoteException {
+    public List<Asset> loadBreadthFirst(UUID uRoot, Feedback feedback, int iMaxDepth) throws BaseException, GeneralSecurityException, RemoteException {
         final List<UUID> vScan = new ArrayList<UUID>();
         final List<Asset> vResult = new ArrayList<Asset>();
 
         vScan.add(uRoot);
-        feedback.setProgress( 0 );
-        feedback.info( "Scanning node tree under " + uRoot );
-        for ( int i=0; i < vScan.size(); ++i ) {
+        feedback.setProgress(0);
+        feedback.info("Scanning node tree under " + uRoot);
+        for (int i = 0; i < vScan.size(); ++i) {
             final UUID uScan = vScan.get(i);
-            vScan.addAll( osearch.getAssetIdsFrom( uScan, null ).values() );
-            feedback.setProgress(i,vScan.size() );
+            vScan.addAll(osearch.getAssetIdsFrom(uScan, null).values());
+            feedback.setProgress(i, vScan.size());
+
+            if ( vScan.size() > MaxAsset ) {
+                throw new TooMuchDataException();
+            }
         }
-        feedback.info( "Loading " + vScan.size() + " assets under tree" );
+        feedback.info("Loading " + vScan.size() + " assets under tree");
         int iCount = 0;
-        for ( UUID uScan : vScan ) {
-            vResult.add( osearch.getAsset( uScan ).get() );
-            feedback.setProgress( ++iCount,vScan.size() );
+        for (UUID uScan : vScan) {
+            vResult.add(osearch.getAsset(uScan).get());
+            feedback.setProgress(++iCount, vScan.size());
         }
         return vResult;
     }
 
     @Override
-    public List<Asset> loadBreadthFirst(UUID uRoot ) throws BaseException, GeneralSecurityException, RemoteException {
-        return loadBreadthFirst( uRoot, new NullFeedback() );
+    public List<Asset> loadBreadthFirst(UUID uRoot) throws BaseException, GeneralSecurityException, RemoteException {
+        return loadBreadthFirst(uRoot, new LoggerUiFeedback(olog));
+    }
+
+    @Override
+    public List<Asset> loadBreadthFirst(UUID uRoot, int iMaxDepth) throws BaseException, GeneralSecurityException, RemoteException, TooMuchDataException {
+        return loadBreadthFirst(uRoot, new LoggerUiFeedback(olog), iMaxDepth );
+    }
+
+    @Override
+    public List<Asset> loadBreadthFirst(UUID uRoot, Feedback feedback) throws BaseException, GeneralSecurityException, RemoteException, TooMuchDataException {
+        return loadBreadthFirst(uRoot, feedback, MaxAsset );
     }
 }

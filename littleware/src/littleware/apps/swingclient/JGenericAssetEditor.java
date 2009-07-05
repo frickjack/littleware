@@ -503,6 +503,16 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
     public Asset changeLocalAsset () {
         return oeditor_util.changeLocalAsset ();
     }
-	
+
+    @Override
+    public Feedback getFeedback() {
+        return oeditor_util.getFeedback();
+    }
+
+    @Override
+    public void setFeedback( Feedback feedback ) {
+        oeditor_util.setFeedback( feedback );
+    }
+
 }    
 

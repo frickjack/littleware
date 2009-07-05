@@ -342,7 +342,17 @@ public class JAssetBrowser extends JPanel implements AssetView {
 	public void     removeLittleListener( LittleListener listen_little ) {
 		oview_support.removeLittleListener ( listen_little );
 	}
-	    
+
+    @Override
+    public Feedback getFeedback() {
+        return oview_support.getFeedback();
+    }
+
+    @Override
+    public void setFeedback( Feedback feedback ) {
+        oview_support.setFeedback( feedback );
+    }
+
 }
 
 

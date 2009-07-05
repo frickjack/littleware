@@ -14,66 +14,20 @@ import java.rmi.RemoteException;
 import java.util.*;
 import java.security.acl.Owner;
 import java.security.GeneralSecurityException;
-import java.beans.PropertyChangeListener;
+import littleware.base.BaseException;
+import littleware.base.CacheableObject;
+import littleware.base.LittleBean;
+import littleware.security.LittleAcl;
+import littleware.security.LittleUser;
 
 
-import littleware.base.*;
-import littleware.security.*;
+
 
 /**
  * Asset data-bucket base-class.
  */
-public interface Asset extends littleware.base.CacheableObject
-{	
-    /**
-     * Enumeration listing the properties that PropertyChangeListeners
-     * can listen for changes on - subtypes may include others.
-     * Subtypes will have to add their own property names.
-     * Name properties with strings like "PackageName.InternfaceName#PropertyName"
-     * to avoid name collision.
-     */
-    public enum Properties {
-        AclId {
-            @Override
-            public String toString () { return OS_INTERFACE + "AclId"; }
-        },
-        Comment {
-            @Override
-            public String toString () { return OS_INTERFACE + "Comment"; }
-        },
-        Data {
-            @Override
-            public String toString () { return OS_INTERFACE + "Data"; }
-        },
-        FromId {
-            @Override
-            public String toString () { return OS_INTERFACE + "FromId"; }
-        },
-        ToId {
-            @Override
-            public String toString () { return OS_INTERFACE + "ToId;"; }
-        },
-        OwnerId {
-            @Override
-            public String toString () { return OS_INTERFACE + "OwnerId"; }
-        },
-        Value {
-            @Override
-            public String toString () { return OS_INTERFACE + "Value"; }
-        },
-        StartDate {
-            @Override
-            public String toString () { return OS_INTERFACE + "StartDate"; }
-        },
-        EndDate {
-            @Override
-            public String toString () { return OS_INTERFACE + "EndDate"; }
-        };
-        
-        private static final String  OS_INTERFACE = "littleware.asset.Asset#";
-        
-    }
-    
+public interface Asset extends CacheableObject, LittleBean
+{	    
 	public String      getName ();
 	/** Id of user that created this asset */
 	public UUID        getCreatorId ();
@@ -269,20 +223,6 @@ public interface Asset extends littleware.base.CacheableObject
                        ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException;
     
-    /**
-     * Allow observers to listen for property changes on this asset.
-     * The internal listener list is not serialized, synced, or cloned.
-     *
-     * @param listen_props listener that wants informed when a setter gets invoked on this object
-     */
-    public void addPropertyChangeListener( PropertyChangeListener listen_props );
-
-    /**
-     * Allow observers to stop listening for changes
-     *
-     * @param listen_props to stop sending events to
-     */
-    public void removePropertyChangeListener( PropertyChangeListener listen_props );
     
     /** Cast this to the specified asset type ... little safer than simple cast */
     public <T extends Asset> T narrow( Class<T> type );

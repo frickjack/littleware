@@ -203,5 +203,15 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
         oaview_delegate.setAssetModel ( model_asset );
         updateGrouplist ();
     }
-    	
+
+    @Override
+    public Feedback getFeedback() {
+        return oaview_delegate.getFeedback();
+    }
+
+    @Override
+    public void setFeedback( Feedback feedback ) {
+        oaview_delegate.setFeedback( feedback );
+    }
+    
 }

@@ -97,6 +97,11 @@ public class Maybe<T> implements java.io.Serializable {
         return this;
     }
 
+    @Override
+    public String toString () {
+        return isSet() ? get().toString() : "null";
+    }
+
     /** Factory for unset Maybe */
     public static <T> Maybe<T> empty() { return new Maybe<T>(); }
     /**
@@ -121,4 +126,6 @@ public class Maybe<T> implements java.io.Serializable {
     public static <T> Maybe<T> something( T val ) {
         return new Maybe<T>( val );
     }
+
+
 }

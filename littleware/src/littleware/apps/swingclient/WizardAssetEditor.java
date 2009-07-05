@@ -88,30 +88,36 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
         olib_asset = lib_asset;        
     }
     
+    @Override
     public AssetModel getAssetModel () {
         return oeditor_internal.getAssetModel ();
     }
     
     
+    @Override
     public void setAssetModel ( AssetModel model_view ) {
         oeditor_internal.setAssetModel ( model_view );
     }
     
     
     
+    @Override
     public Asset getLocalAsset () {
         return oeditor_internal.getLocalAsset ();
     }
     
     
+    @Override
     public void setHasLocalChanges ( boolean b_changed ) {
         oeditor_internal.setHasLocalChanges ( b_changed );
     }
     
+    @Override
     public boolean getHasLocalChanges () {
         return oeditor_internal.getHasLocalChanges ();
     }
     
+    @Override
     public void saveLocalChanges ( AssetManager m_asset, String s_message 
                                    ) throws BaseException, AssetException, 
         RemoteException, GeneralSecurityException
@@ -120,32 +126,39 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
     }
     
     
+    @Override
 	public void	addUndoableEditListener( UndoableEditListener listen_edit ) {
         oeditor_internal.addUndoableEditListener ( listen_edit );
     }
 	
+    @Override
 	public void     removeUndoableEditListener( UndoableEditListener listen_edit ) {
         oeditor_internal.removeUndoableEditListener ( listen_edit );
     }
     
     
+    @Override
     public void	addLittleListener( LittleListener listen_little ) {
 		oeditor_internal.addLittleListener ( listen_little );
 	}
 	
 	
+    @Override
 	public void     removeLittleListener( LittleListener listen_little ) {
 		oeditor_internal.removeLittleListener ( listen_little );
 	}
     
+    @Override
     public Asset   changeLocalAsset () {
         return oeditor_internal.changeLocalAsset ();
     }
     
+    @Override
     public void addPropertyChangeListener( PropertyChangeListener listen_props ) {
         oeditor_internal.addPropertyChangeListener ( listen_props );
     }
     
+    @Override
     public void removePropertyChangeListener( PropertyChangeListener listen_props ) {
         oeditor_internal.removePropertyChangeListener ( listen_props );
     }
@@ -156,6 +169,7 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
         oeditor_internal.fireLittleEvent ( event_little );
 	}
     
+    @Override
 	public void clearLocalChanges () {
         oeditor_internal.clearLocalChanges ();
 	}
@@ -183,5 +197,17 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
                                                );
         }
     }
+
+    @Override
+    public Feedback getFeedback() {
+        return oeditor_internal.getFeedback();
+    }
+
+    @Override
+    public void setFeedback(Feedback feedback) {
+        oeditor_internal.setFeedback( feedback );
+    }
+
+
     
 }    

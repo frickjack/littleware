@@ -67,6 +67,7 @@ public class JAssetPathPanel extends JPanel {
     private final Provider<JAssetBrowser> oprovideBrowser;
     private final AssetPathFactory opathFactory;
     private final Provider<JSimpleAssetToolbar> oprovideToolbar;
+    private final SimpleAssetViewController ocontroller;
 
     public String getInstructions () {
         return ojLabelInstructions.getText();
@@ -165,14 +166,10 @@ public class JAssetPathPanel extends JPanel {
         if ( null == oview_asset ) {
             JAssetBrowser wbrowser_asset = oprovideBrowser.get();
 
-            SimpleAssetViewController  listen_control = new SimpleAssetViewController ( 
-                                                                             om_search,
-                                                                             olib_asset
-                                                                             );
-            listen_control.setControlView((AssetView) wbrowser_asset );
+            ocontroller.setControlView((AssetView) wbrowser_asset );
             final JSimpleAssetToolbar wtoolbar_asset = oprovideToolbar.get();
             wtoolbar_asset.setConnectedView( wbrowser_asset );
-            ((LittleTool) wtoolbar_asset).addLittleListener ( listen_control );
+            ((LittleTool) wtoolbar_asset).addLittleListener ( ocontroller );
                         
             final JPanel              wpanel_buttons = new JPanel ();
             final JPanel              wpanel_browser = new JPanel ( new GridBagLayout () );
@@ -284,7 +281,8 @@ public class JAssetPathPanel extends JPanel {
                              AssetViewFactory   factory_view,
                              Provider<JAssetLink>  provideLink,
                              AssetPathFactory      pathFactory,
-                             Provider<JSimpleAssetToolbar> provideToolbar
+                             Provider<JSimpleAssetToolbar> provideToolbar,
+                             SimpleAssetViewController controller
                              ) {
         super( new GridBagLayout () );
         oprovideBrowser = provideBrowser;
@@ -296,6 +294,7 @@ public class JAssetPathPanel extends JPanel {
         ofactory_view = factory_view;
         opathFactory = pathFactory;
         oprovideToolbar = provideToolbar;
+        ocontroller = controller;
         buildUI ();
     }
     

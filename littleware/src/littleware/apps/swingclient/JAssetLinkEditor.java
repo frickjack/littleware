@@ -50,6 +50,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
     private       AssetModel           oamodel_fallback = null;
     private final Provider<JAssetBrowser> oprovideBrowser;
     private final Provider<JSimpleAssetToolbar> oprovideToolbar;
+    private final SimpleAssetViewController obrowserControl;
     
     
     /**
@@ -70,7 +71,8 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
                               AssetViewFactory factory_view,
                               Provider<JAssetLink> provideLinkView,
                               Provider<JAssetBrowser> provideBrowser,
-                              Provider<JSimpleAssetToolbar>  provideToolbar
+                              Provider<JSimpleAssetToolbar>  provideToolbar,
+                              SimpleAssetViewController    browserControl
                         ) {
         super( new FlowLayout ( FlowLayout.LEFT ) );
         owalink_edit = provideLinkView.get();
@@ -82,6 +84,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
         ofactory_view = factory_view;
         oprovideBrowser = provideBrowser;
         oprovideToolbar = provideToolbar;
+        obrowserControl = browserControl;
         
         JButton  wbutton_browse = new JButton ( lib_icon.lookupIcon ( "littleware.browse" ) );
         wbutton_browse.addActionListener (
@@ -105,14 +108,10 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
             // build the browser
             oview_browser = oprovideBrowser.get();
             
-            SimpleAssetViewController  listen_control = new SimpleAssetViewController ( 
-                                                                             om_search,
-                                                                             olib_asset
-                                                                             );
-            listen_control.setControlView( (AssetView) oview_browser );
+            obrowserControl.setControlView( (AssetView) oview_browser );
             final JSimpleAssetToolbar wtoolbar_asset = oprovideToolbar.get();
             wtoolbar_asset.setConnectedView( (AssetView) oview_browser );
-            ((LittleTool) wtoolbar_asset).addLittleListener ( listen_control );
+            ((LittleTool) wtoolbar_asset).addLittleListener ( obrowserControl );
             
             final JPanel              wpanel_buttons = new JPanel ();
             final JPanel              wpanel_browser = new JPanel ( new GridBagLayout () );

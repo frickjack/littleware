@@ -42,6 +42,7 @@ import littleware.apps.client.AbstractAssetView;
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.client.AssetView;
+import littleware.apps.client.Feedback;
 import littleware.apps.client.LittleEvent;
 import littleware.apps.client.LittleListener;
 import littleware.apps.swingclient.event.NavRequestEvent;
@@ -311,4 +312,15 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     protected void fireLittleEvent(LittleEvent event_little) {
         oview_util.fireLittleEvent(event_little);
     }
+
+    @Override
+    public Feedback getFeedback() {
+        return oview_util.getFeedback();
+    }
+
+    @Override
+    public void setFeedback( Feedback feedback ) {
+        oview_util.setFeedback( feedback );
+    }
+
 }

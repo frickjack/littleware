@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.lgo;
 
 import com.google.inject.*;
@@ -33,24 +32,51 @@ import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.base.AssertionFailedException;
+import littleware.base.EventBarrier;
+import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
 
-
 /**
  * Launch a Swing browser, and return the whatever
  */
-public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
-    private final static  Logger  olog = Logger.getLogger( LgoBrowserCommand.class.getName () );
-    private  JAssetBrowser                obrowser       = null;
-    private  ExtendedAssetViewController  ocontrol;
-    private  JSimpleAssetToolbar          otoolbar = null;
-    private JFrame                        owframe = null;
-    private final AssetSearchManager      osearch;
-    private final AssetModelLibrary       olib;
-    private final AssetPathFactory        opathFactory;
-    
+public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
+
+    private final static Logger olog = Logger.getLogger(LgoBrowserCommand.class.getName());
+    private final AssetSearchManager osearch;
+    private final AssetModelLibrary olib;
+    private final AssetPathFactory opathFactory;
+    private final Provider<JAssetBrowser> provideBrowser;
+    private final Provider<ExtendedAssetViewController> provideControl;
+    private final Provider<JSimpleAssetToolbar> provideToolbar;
+    private final EventBarrier<UUID> barrier = new EventBarrier<UUID>();
+    private Maybe<UUID> maybeResult = Maybe.empty();
+
+    /**
+     * Container for the different Swing components
+     * that make up a browser frame - including the frame itself.
+     * Mostly exists so we can pass data to buildMenuBar() ...
+     */
+    protected class UIStuff {
+
+        public final JAssetBrowser browser = provideBrowser.get();
+        public final JSimpleAssetToolbar toolbar = provideToolbar.get();
+        public final JFrame jframe = new JFrame("Asset Browser");
+
+        {
+            toolbar.setConnectedView(browser);
+            toolbar.getButton(JSimpleAssetToolbar.ButtonId.CREATE).setEnabled(true);
+            toolbar.getButton(JSimpleAssetToolbar.ButtonId.EDIT).setEnabled(true);
+            toolbar.getButton(JSimpleAssetToolbar.ButtonId.DELETE).setEnabled(true);
+
+            jframe.setLayout(new BorderLayout());
+            jframe.add(toolbar, BorderLayout.NORTH);
+            jframe.add(browser, BorderLayout.CENTER);
+            jframe.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        }
+    }
+
     /**
      * Inject the browser that this command launches,
      * and the controller to attach to it.
@@ -64,49 +90,34 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
      * @param provideToolbar to connect to the browser
      */
     @Inject
-    public LgoBrowserCommand( 
+    public LgoBrowserCommand(
             final Provider<JAssetBrowser> provideBrowser,
             final Provider<ExtendedAssetViewController> provideControl,
-            final Provider<JSimpleAssetToolbar>    provideToolbar,
-            AssetSearchManager     search,
-            AssetModelLibrary      lib,
-            AssetPathFactory       pathFactory
-            ) {
-        super( LgoBrowserCommand.class.getName() );
-        final Runnable runner = new Runnable () {
-            @Override
-            public void run() {
-                obrowser = provideBrowser.get();
-                otoolbar = provideToolbar.get();
-                ocontrol = provideControl.get();
-            }
-        };
-        if ( SwingUtilities.isEventDispatchThread() ) {
-            runner.run();
-        } else {
-            try {
-                SwingUtilities.invokeAndWait(runner);
-            } catch (Exception ex) {
-                throw new AssertionFailedException( "Failed to init LgoBrowserCommand", ex );
-            }
-        }
+            final Provider<JSimpleAssetToolbar> provideToolbar,
+            AssetSearchManager search,
+            AssetModelLibrary lib,
+            AssetPathFactory pathFactory) {
+        super(LgoBrowserCommand.class.getName());
+        this.provideBrowser = provideBrowser;
+        this.provideControl = provideControl;
+        this.provideToolbar = provideToolbar;
         osearch = search;
         olib = lib;
         opathFactory = pathFactory;
     }
-    
-    private UUID  ou_start = UUIDFactory.parseUUID( "00000000000000000000000000000000");
-    
+    private UUID ou_start = UUIDFactory.parseUUID("00000000000000000000000000000000");
+
     /**
      * Property sets the asset to start browsing at.
      */
     public UUID getStart() {
         return ou_start;
     }
-    public void setStart( UUID u_start ) {
+
+    public void setStart(UUID u_start) {
         ou_start = u_start;
     }
-    
+
     /**
      * Start browsing 
      * 
@@ -114,171 +125,160 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
      * @return where the user stops browsing
      */
     @Override
-    public synchronized UUID runSafe( Feedback feedback, String sPathIn ) {
+    public Maybe<UUID> runSafe(Feedback feedback, String sPathIn) {
         String sStartPath = sPathIn;
-        if ( Whatever.empty(sStartPath) && (! getArgs().isEmpty() ) ) {
+        if (Whatever.empty(sStartPath) && (!getArgs().isEmpty())) {
             sStartPath = getArgs().get(0);
         }
-        if ( null != sStartPath ) {
+        if (null != sStartPath) {
             try {
-                final Asset a_start = osearch.getAssetAtPath( opathFactory.createPath( sStartPath ) ).get();
-                olib.syncAsset( a_start );
-                setStart( a_start.getObjectId () );
-            } catch ( Exception e ) {
-                feedback.log( Level.WARNING, "Unable to load asset at path: " + sStartPath + ", caught: " + e );
+                final Asset a_start = osearch.getAssetAtPath(opathFactory.createPath(sStartPath)).get();
+                olib.syncAsset(a_start);
+                setStart(a_start.getObjectId());
+            } catch (Exception e) {
+                feedback.log(Level.WARNING, "Unable to load asset at path: " + sStartPath + ", caught: " + e);
             }
         }
-        if ( SwingUtilities.isEventDispatchThread() ) {
-            throw new IllegalStateException( "Cannot launch browser-command from Swing dispatch thread" );
+        if (SwingUtilities.isEventDispatchThread()) {
+            createGUI(Maybe.emptyIfNull(getStart()));
         } else {
-            SwingUtilities.invokeLater( new Runnable () {
-                @Override
-                public void run () {
-                    createGUI ();
-                }
-            }
-            );
-            try {
-                wait(); // browser frame notifies us on close
-            } catch (InterruptedException ex) {
-            }
-        }
-        return ouResult;
-    }
-    
-    private UUID ouResult = ou_start;
-    
-    /**
-     * Ste the result to the current browser view,
-     * and notify the launching thread that the browse is done.
-     */
-    private synchronized void windowClosed () {
-        if ( null != obrowser.getAssetModel() ) {
-            ouResult = obrowser.getAssetModel().getAsset().getObjectId();
-        }
-        notifyAll();
-        // cleanup in case the app wants to exit or tries to reuse this command
-        // (which it shouldn't!)
-        owframe.dispose();
-        owframe = null;
-    }
+            SwingUtilities.invokeLater(new Runnable() {
 
+                @Override
+                public void run() {
+                    createGUI(Maybe.emptyIfNull(getStart()));
+                }
+            });
+            try {
+                maybeResult = Maybe.emptyIfNull(barrier.waitForEventData());
+            } catch (InterruptedException ex) {
+                feedback.info("Interrupted waiting for browser result: " + ex);
+                olog.log(Level.WARNING, "Caught exception", ex);
+            }
+        }
+        return maybeResult;
+    }
 
     /**
      * Allow subtypes to specialize the menu
      *
      * @return menubar to attach to the browser frame
      */
-    protected JMenuBar  buildMenuBar () {
-        final JMenuBar  jBar = new JMenuBar ();
-        final JMenu     jMenuFile = new JMenu( "File" );
+    protected JMenuBar buildMenuBar(final UIStuff stuff) {
+        final JMenuBar jBar = new JMenuBar();
+        final JMenu jMenuFile = new JMenu("File");
+        final JMenuItem jNewBrowser = new JMenuItem(
+                new AbstractAction("New Browser") {
 
-        final JMenuItem jMenItemQuit = new JMenuItem( new AbstractAction( "Exit" ) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        createGUI(Maybe.emptyIfNull(stuff.browser.getAssetModel().getAsset().getObjectId()));
+                    }
+                });
 
+        final JMenuItem jQuit = new JMenuItem(new AbstractAction("Exit") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                windowClosed();
+                stuff.jframe.setVisible( false );
+                stuff.jframe.dispose();
             }
-
         });
-        jMenItemQuit.setMnemonic( KeyEvent.VK_X );
-        jMenuFile.add( jMenItemQuit );
-        jMenuFile.setMnemonic( KeyEvent.VK_F );
-        jBar.add( jMenuFile );
+
+        jNewBrowser.setMnemonic(KeyEvent.VK_N);
+        jQuit.setMnemonic(KeyEvent.VK_X);
+
+        jMenuFile.add( jNewBrowser );
+        jMenuFile.add(jQuit);
+        jMenuFile.setMnemonic(KeyEvent.VK_F);
+        jBar.add(jMenuFile);
 
         return jBar;
     }
+    boolean bFirstWindow = true;
 
-    private synchronized void createGUI () {
-        if ( null == owframe ) {
-            ocontrol.setControlView( obrowser );
-            otoolbar.setConnectedView( obrowser );
-            otoolbar.getButton ( JSimpleAssetToolbar.ButtonId.CREATE ).setEnabled ( true );
-            otoolbar.getButton ( JSimpleAssetToolbar.ButtonId.EDIT ).setEnabled ( true );
-            otoolbar.getButton ( JSimpleAssetToolbar.ButtonId.DELETE ).setEnabled ( true );
-            otoolbar.addLittleListener( ocontrol );
-            owframe = new JFrame( "Asset Browser" );
-            owframe.setLayout ( new BorderLayout () );
-            owframe.add ( otoolbar, BorderLayout.NORTH );
-            owframe.add ( obrowser, BorderLayout.CENTER );
-            final JButton jButtonSelect = new JButton( "Select" );
-            jButtonSelect.addActionListener( new ActionListener() {
+    private void createGUI(Maybe<UUID> maybeStart) {
+        final ExtendedAssetViewController control = provideControl.get();
+        final UIStuff stuff = new UIStuff();
+
+        control.setControlView(stuff.browser);
+        stuff.toolbar.addLittleListener(control);
+        if (maybeStart.isSet()) {
+            try {
+                stuff.browser.setAssetModel(olib.retrieveAssetModel(maybeStart.get(), osearch));
+            } catch (Exception e) {
+                olog.log(Level.INFO, "Failed to load initial asset model " + getStart() +
+                        ", caught: " + e, e);
+            }
+        }
+
+        if (bFirstWindow) {
+            bFirstWindow = false;
+            final JButton jButtonSelect = new JButton("Select");
+            jButtonSelect.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    windowClosed();
+                    barrier.publishEventData(stuff.browser.getAssetModel().getAsset().getObjectId());
+                    stuff.jframe.dispose();
                 }
-            
-            }
-            );
-            final JPanel  jPanelButton = new JPanel( new FlowLayout( FlowLayout.RIGHT ));
-            jPanelButton.add( jButtonSelect );
-            owframe.add( jPanelButton, BorderLayout.PAGE_END );
-            owframe.setJMenuBar(buildMenuBar() );
-            owframe.pack ();
-            //owframe.setDefaultCloseOperation( WindowConstants. );
-            owframe.addWindowListener(new WindowAdapter() {
+            });
+            final JPanel jPanelButton = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            jPanelButton.add(jButtonSelect);
+            stuff.jframe.add(jPanelButton, BorderLayout.PAGE_END);
+
+            stuff.jframe.addWindowListener(new WindowAdapter() {
 
                 @Override
                 public void windowClosing(WindowEvent ev) {
-                    if (null != owframe) {
-                        owframe.removeWindowListener(this);
-                        LgoBrowserCommand.this.windowClosed();
+                    if (!barrier.isDataReady()) {
+                        barrier.publishEventData(null);
                     }
+
                 }
 
                 @Override
                 public void windowClosed(WindowEvent e) {
-                    if (null != owframe) {
-                        owframe.removeWindowListener(this);
-                        LgoBrowserCommand.this.windowClosed();
+                    if (!barrier.isDataReady()) {
+                        barrier.publishEventData(null);
                     }
+
                 }
             });
-        }
-            
-        if ( null != getStart() ) {
-            try {
-                obrowser.setAssetModel( olib.retrieveAssetModel( getStart(), osearch ) );
-            } catch ( Exception e ) {
-                olog.log( Level.INFO, "Failed to load initial asset model " + getStart () +
-                        ", caught: " + e, e );
-            }
-        }
-        if ( ! owframe.isVisible() ) {
-            owframe.setVisible( true );
+            stuff.jframe.setJMenuBar(buildMenuBar(stuff));
         }
 
+        stuff.jframe.pack();
+        stuff.jframe.setVisible( true );
     }
 
     @Override
     public LgoBrowserCommand clone() {
         return (LgoBrowserCommand) super.clone();
     }
-    
+
     /**
      * Launch a browser with the session
      * loaded from littleware.properties.
-     * 
+     *
      * @param v_args command-line args
      * @TODO setup standard feedback mechanism in StandardSwingGuice
      */
-    public static void main( String[] v_args ) {
+    public static void main(String[] v_args) {
         try {
-            Injector     injector = Guice.createInjector( new Module[] {
-                            new EzModule(),
-                            new littleware.apps.swingclient.StandardSwingGuice(),
-                            new littleware.apps.client.StandardClientGuice(),
-                            new littleware.apps.misc.StandardMiscGuice(),
-                            new littleware.security.auth.ClientServiceGuice(),
-                            new PropertiesGuice( littleware.base.PropertiesLoader.get().loadProperties() )
-                        }
-            );
-            Feedback        feedback = new LoggerUiFeedback();
-            LgoBrowserCommand command = injector.getInstance( LgoBrowserCommand.class );
-            command.runDynamic( feedback, "/littleware.home/" );
-        } catch ( final Exception ex ) {
-            olog.log( Level.SEVERE, "Failed command, caught: " + ex, ex );
+            final Injector injector = Guice.createInjector(new Module[]{
+                        new EzModule(),
+                        new littleware.apps.swingclient.StandardSwingGuice(),
+                        new littleware.apps.client.StandardClientGuice(),
+                        new littleware.apps.misc.StandardMiscGuice(),
+                        new littleware.security.auth.ClientServiceGuice(),
+                        new PropertiesGuice(littleware.base.PropertiesLoader.get().loadProperties())
+                    });
+            Feedback feedback = new LoggerUiFeedback();
+            LgoBrowserCommand command = injector.getInstance(LgoBrowserCommand.class);
+            command.runDynamic(feedback,
+                    "/littleware.home/");
+        } catch (final Exception ex) {
+            olog.log(Level.SEVERE, "Failed command, caught: " + ex, ex);
             try {
                 final Runnable runner = new Runnable() {
 
@@ -287,16 +287,18 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String,UUID> {
                         JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage(), "Launch failed", JOptionPane.ERROR_MESSAGE);
                     }
                 };
-                if ( SwingUtilities.isEventDispatchThread() ) {
+                if (SwingUtilities.isEventDispatchThread()) {
                     runner.run();
                 } else {
-                    olog.log( Level.INFO, "Waiting for user input ..." );
-                    SwingUtilities.invokeAndWait( runner );
+                    olog.log(Level.INFO, "Waiting for user input ...");
+                    SwingUtilities.invokeAndWait(runner);
                 }
+
             } catch (Exception ex1) {
                 olog.log(Level.SEVERE, null, ex1);
-            } 
-            System.exit( 1 );
+            }
+
+            System.exit(1);
         }
-    }    
+    }
 }

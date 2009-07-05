@@ -43,11 +43,17 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             Provider<ThumbManagerTester> provide_thumb_test,
             littleware.apps.lgo.test.PackageTestSuite suiteLgo,
             Provider<JAssetFamilyTester> provideFamilyTest,
-            Provider<SwingFeedbackTester> provideFeedbackTest) {
+            Provider<SwingFeedbackTester> provideFeedbackTest,
+            Provider<JDeleteAssetTester> provideDeleteTest
+            )
+    {
         super(PackageTestSuite.class.getName());
 
         boolean b_run = true;
 
+        if ( b_run ) {
+            this.addTest( provideDeleteTest.get() );
+        }
         if (b_run) {
             this.addTest( provideFeedbackTest.get() );
         }

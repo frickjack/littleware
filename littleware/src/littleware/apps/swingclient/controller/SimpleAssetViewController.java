@@ -23,6 +23,7 @@ import littleware.apps.client.*;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.apps.swingclient.event.RefreshRequestEvent;
 import littleware.asset.AssetRetriever;
+import littleware.security.auth.client.ClientCache;
 
 /** 
  * Simple controller watches for events (NavRequestEvent, RefreshRequestEvent),
@@ -34,6 +35,8 @@ public class SimpleAssetViewController implements LittleListener {
     private AssetView          oview_control = null;
     private final AssetRetriever     om_retriever;
     private final AssetModelLibrary  olib_asset;
+    private final ClientCache oclientCache;
+    private Feedback ofeedback = new NullFeedback();
     
     
     /**
@@ -45,10 +48,12 @@ public class SimpleAssetViewController implements LittleListener {
     @Inject
     public SimpleAssetViewController ( 
                                        AssetRetriever m_retriever,
-                                       AssetModelLibrary  lib_asset
+                                       AssetModelLibrary  lib_asset,
+                                       ClientCache        clientCache
                                        ) {      
         om_retriever = m_retriever;
         olib_asset = lib_asset;
+        oclientCache = clientCache;
     }
     
     /**
@@ -67,6 +72,19 @@ public class SimpleAssetViewController implements LittleListener {
     }
     public AssetView getControlView() {
         return oview_control;
+    }
+
+    /**
+     * Feedback object controller should send info to show
+     * progress
+     *
+     * @param feedback
+     */
+    public void setFeedback( Feedback feedback ) {
+        ofeedback = feedback;
+    }
+    public Feedback getFeedback() {
+        return ofeedback;
     }
 
     /**
@@ -115,6 +133,7 @@ public class SimpleAssetViewController implements LittleListener {
         } else if ( event_little instanceof RefreshRequestEvent ) {
             try {
                 olog_generic.log( Level.FINE, "REFRESH!" );
+                oclientCache.getCache().clear();
                 final UUID uAsset = oview_control.getAssetModel().getAsset().getObjectId();
                 olib_asset.syncAsset(
                         om_retriever.getAsset( uAsset ).get()

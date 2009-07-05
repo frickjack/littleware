@@ -24,6 +24,7 @@ public abstract class AbstractAssetView extends SimpleLittleTool implements Asse
     
     private AssetModel          omodel_asset = null;
     private AssetModelLibrary   olib_asset = null;
+    private Feedback            ofeedback = new LoggerUiFeedback( olog_generic );
     
     /** Bridge propagate events from AssetModel */
     private final LittleListener olisten_bridge = new LittleListener () {
@@ -76,7 +77,16 @@ public abstract class AbstractAssetView extends SimpleLittleTool implements Asse
         omodel_asset.addLittleListener ( olisten_bridge );
         firePropertyChange ( AssetView.Property.assetModel.toString (), model_old, model_asset );
     }
-        
+
+    @Override
+    public Feedback getFeedback() {
+        return ofeedback;
+    }
+    @Override
+    public void  setFeedback( Feedback feedback ) {
+        ofeedback = feedback;
+    }
+    
 
     /**
      * Convenience method bridges property-change events from the active

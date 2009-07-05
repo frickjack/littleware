@@ -47,5 +47,12 @@ public interface AssetView extends LittleTool {
      */
     public void setAssetModel ( AssetModel model_asset );
 
+    /**
+     * Property associates a feedback mechanism with a view so that
+     * the view may communicate information back to the user
+     * when carrying out long running or whatever operations.
+     */
+    public Feedback getFeedback();
+    public void  setFeedback( Feedback feedback );
 }
 

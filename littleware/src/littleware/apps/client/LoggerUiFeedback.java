@@ -22,7 +22,7 @@ import littleware.apps.client.event.UiMessageEvent;
  * Just adds listeners that log each UIFeedback event.
  */
 public class LoggerUiFeedback extends NullFeedback {
-    private static final Logger olog = Logger.getLogger( LoggerUiFeedback.class.getName() );
+    private Logger olog = Logger.getLogger( LoggerUiFeedback.class.getName() );
 
     {
         this.addPropertyChangeListener( new PropertyChangeListener () {
@@ -37,6 +37,7 @@ public class LoggerUiFeedback extends NullFeedback {
         );
 
         this.addLittleListener( new LittleListener() {
+            @Override
             public void receiveLittleEvent(LittleEvent event_little) {
                 if ( event_little instanceof UiMessageEvent ) {
                     olog.log( Level.INFO, event_little.getResult().toString() );
@@ -46,4 +47,10 @@ public class LoggerUiFeedback extends NullFeedback {
         );
     }
 
+    /** Just use general logger */
+    public LoggerUiFeedback() {}
+    /** Inject logger */
+    public LoggerUiFeedback( Logger logger ) {
+        olog = logger;
+    }
 }

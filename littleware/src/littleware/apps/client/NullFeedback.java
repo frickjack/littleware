@@ -49,7 +49,7 @@ public class NullFeedback implements Feedback, java.io.Serializable {
 
     @Override
     public void setProgress(int i_progress, int i_max) {
-        setProgress( (int) ((float) i_progress / (float) i_max) );
+        setProgress( (int) (100 * (float) i_progress / (float) i_max) );
     }
 
     private String os_title = "";

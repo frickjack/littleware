@@ -10,7 +10,7 @@
 
 package littleware.apps.client;
 
-import java.beans.PropertyChangeListener;
+import littleware.base.LittleBean;
 
 
 /** 
@@ -29,7 +29,7 @@ import java.beans.PropertyChangeListener;
  * for PropertyChangeEvents resulting when controllers set properities
  * on the UI components in response to the user action.
  */
-public interface LittleTool {
+public interface LittleTool extends LittleBean {
 	/**
 	 * Register a listener for LoginOkEvent and LoginFailedEvent
 	 * events triggered when the GUI calls SessionManager.login()
@@ -47,17 +47,4 @@ public interface LittleTool {
 	 */
 	public void     removeLittleListener( LittleListener listen_action ) ;
     
-    /**
-     * Allow observers to listen for property changes 
-     *
-     * @param listen_props listener that wants informed when a setter gets invoked on this object
-     */
-    public void addPropertyChangeListener( PropertyChangeListener listen_props );
-    
-    /**
-     * Allow observers to stop listening for changes
-     *
-     * @param listen_props to stop sending events to
-     */
-    public void removePropertyChangeListener( PropertyChangeListener listen_props );    
 }

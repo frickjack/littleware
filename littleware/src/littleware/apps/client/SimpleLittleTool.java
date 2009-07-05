@@ -55,12 +55,14 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
         ox_source = x_source;
     }
 
+    @Override
     public void addLittleListener(LittleListener listen_little) {
         if (!ov_listener.contains(listen_little)) {
             ov_listener.add(listen_little);
         }
     }
 
+    @Override
     public void removeLittleListener(LittleListener listen_little) {
         ov_listener.remove(listen_little);
     }
@@ -81,6 +83,7 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
         /**
          * Invoke notify() on each LittleListener
          */
+        @Override
         public void run() {
             for (LittleListener listen_little : ov_listener) {
                 listen_little.receiveLittleEvent(oevent_little);

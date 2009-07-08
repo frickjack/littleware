@@ -18,6 +18,8 @@ import com.google.inject.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -281,7 +283,6 @@ public class ClientServiceGuice implements LittleGuiceModule {
         binder.bind(AssetManager.class).to(AssetManagerService.class);
         binder.bind(SessionHelper.class).toInstance(ohelper);
         binder.bind(LittleSession.class).toProvider(new Provider<LittleSession>() {
-
             @Override
             public LittleSession get() {
                 try {
@@ -293,6 +294,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 }
             }
         });
+        binder.bind(ExecutorService.class).toInstance(Executors.newFixedThreadPool(4));
         binder.bind(AssetRetriever.class).to( AssetSearchManager.class );
 
         olog.log( Level.FINE, "Forcing load of SecurityAssetType and AssetType: " +

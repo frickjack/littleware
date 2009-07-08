@@ -6,7 +6,7 @@
   <synopsis>lgo xmlencode</synopsis>
   <description>
       Encode the XML-special characters (ex: &amp; -&gt; &amp;amp;)
-      from STDIN.
+      from STDIN, or decode back if given -decode flag.
   </description>
   <shortname>xencode</shortname>
   <shortname>xenc</shortname>

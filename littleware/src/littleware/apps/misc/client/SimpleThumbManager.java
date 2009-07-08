@@ -32,7 +32,7 @@ import littleware.base.SimpleCache;
 public class SimpleThumbManager implements ThumbManager {
     private static final Logger  olog = Logger.getLogger( SimpleThumbManager.class.getName() );
 
-    private static class SimpleThumb implements ThumbManager.Thumb {
+    protected static class SimpleThumb implements ThumbManager.Thumb {
         private final boolean       obFallback;
         private final Image  oimg;
         
@@ -83,6 +83,29 @@ public class SimpleThumbManager implements ThumbManager {
         omgrImage = mgrImage;
     }
 
+    protected Cache<UUID,ThumbManager.Thumb>    getCache() {
+        return ocache;
+    }
+
+    /**
+     * Return the given image scaled to fit within getWidth/getHeight
+     * @param img
+     * @return img itself if scaling not needed or scaled image
+     */
+    protected Image scaleImage( BufferedImage img ) {
+        if ( (img.getWidth() > getWidth())
+                || (img.getHeight() > getHeight())
+                ) {
+            if ( img.getWidth() > img.getHeight() ) {
+                return img.getScaledInstance( oiWidth, -1,  Image.SCALE_DEFAULT );
+            } else {
+                return img.getScaledInstance( -1, oiHeight,  Image.SCALE_DEFAULT );
+            }
+        } else {
+            return img;
+        }
+    }
+    
     @Override
     public Thumb loadThumb(UUID u_asset) throws BaseException, GeneralSecurityException, IOException {
         Thumb thumbCache = ocache.get( u_asset );
@@ -91,7 +114,9 @@ public class SimpleThumbManager implements ThumbManager {
         }
         Maybe<BufferedImage> maybe = omgrImage.loadImage(u_asset);
         if ( maybe.isSet() ) {
-            Thumb thumb = new SimpleThumb( (Image) maybe.getOr( null ).getScaledInstance(oiWidth, oiHeight, Image.SCALE_DEFAULT));
+            final BufferedImage img = maybe.get();
+            final Image         imgScale = scaleImage( img );
+            final Thumb thumb = new SimpleThumb( imgScale );
             ocache.put( u_asset, thumb );
             return thumb;
         }
@@ -108,10 +133,12 @@ public class SimpleThumbManager implements ThumbManager {
         oimgDefault = imgDefault;
     }
 
+    @Override
     public int getWidth() {
         return oiWidth;
     }
 
+    @Override
     public void setWidth(int iWidth) {
         if ( iWidth != oiWidth ) {
             oiWidth = iWidth;
@@ -119,10 +146,12 @@ public class SimpleThumbManager implements ThumbManager {
         }
     }
 
+    @Override
     public int getHeight() {
         return oiHeight;
     }
 
+    @Override
     public void setHeight(int iHeight) {
         if ( iHeight != oiHeight ) {
             oiHeight = iHeight;
@@ -130,6 +159,7 @@ public class SimpleThumbManager implements ThumbManager {
         }
     }
 
+    @Override
     public void clearCache(UUID u_asset) {
         ocache.remove( u_asset );
     }

@@ -108,14 +108,6 @@ public class PackageTestSuite extends ServerTestLauncher {
                     new littleware.apps.client.StandardClientGuice(),
                     new littleware.apps.misc.StandardMiscGuice(),
                     new littleware.security.auth.ClientServiceGuice(),
-                    new Module() {
-
-                        @Override
-                        public void configure(Binder binder) {
-                            binder.bind(ExecutorService.class).toInstance(Executors.newFixedThreadPool(4));
-
-                        }
-                    },
                     new PropertiesGuice(littleware.base.PropertiesLoader.get().loadProperties())
                 });
         // Hack to setup client-side service listeners -

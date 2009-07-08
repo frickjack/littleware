@@ -19,7 +19,7 @@
  <property name="clientjar" location="${builddir}/littleware.jar" />
  <property name="serverjar" location="${builddir}/littleServer.jar" />
 
- <path id="clientclasspath">
+ <path id="oldclientclasspath">
 	 <pathelement location="${jardir}/bsf-2.4.0.jar" />
 	 <pathelement location="${jardir}/commons-dbutils.jar" />
 	 <pathelement location="${jardir}/commons-logging.jar" />
@@ -41,9 +41,31 @@
      <pathelement location="${jardir}/mysql-connector-java-3.1.14-bin.jar" />
      <pathelement location="${jardir}/felix-1.4.jar" />
  </path>
+ <path id="clientclasspath">
+	 <pathelement location="${jardir}/bsf-2.4.0.jar" />
+	 <pathelement location="${jardir}/commons-dbutils.jar" />
+	 <pathelement location="${jardir}/commons-logging.jar" />
+	 <pathelement location="${jardir}/guice-2.0/aopalliance.jar" />
+	 <pathelement location="${jardir}/guice-2.0/guice-2.0.jar" />
+	 <pathelement location="${jardir}/js.jar" />
+	 <pathelement location="${jardir}/jython.jar" />
+	 <pathelement location="${jardir}/junit-3.8.2.jar" />
+	 <pathelement location="${jardir}/easymock-2.4.jar" />
+	 <pathelement location="${jardir}/google-collect-1.0-rc1/google-collect-1.0-rc1.jar" />
+         <pathelement location="${jardir}/littleIcons-0.0.jar" />
+	 <pathelement location="${jardir}/mail.jar" />
+         <pathelement location="${jardir}/felix-1.4.jar" />
+ </path>
  <path id="serverclasspath">
    <path refid="clientclasspath" />
    <pathelement location="${clientjar}" />
+	 <pathelement location="${jardir}/derby-10.4.2.1.jar" />
+	 <pathelement location="${jardir}/javaee5.jar" />
+	 <pathelement location="${jardir}/mail.jar" />
+	 <pathelement location="${jardir}/proxool-0.9.1.jar" />
+     <pathelement location="${jardir}/proxool-cglib.jar" />
+     <pathelement location="${jardir}/postgresql-8.3-603.jdbc4.jar" />
+     <pathelement location="${jardir}/mysql-connector-java-3.1.14-bin.jar" />
    <pathelement location="${jardir}/hibernate-entitymanager-3.4.0.GA/hibernate-entitymanager.jar" />
    <pathelement location="${jardir}/hibernate-entitymanager-3.4.0.GA/lib/hibernate-core.jar" />
  </path>
@@ -90,6 +112,7 @@
    <exclude name="3rdparty/**" />
    <exclude name="**/server/**" />
    <exclude name="**/test/**" />
+   <exclude name="**/web/**" />
    <classpath refid="clientclasspath" />
   </javac>
  </target>
@@ -103,6 +126,7 @@
       >
    <include name="**/server/**" />
    <include name="**/test/**" />
+   <include name="**/web/**" />
    <exclude name="alarmClock/**" />
    <include name="db/**" />
    <classpath refid="serverclasspath" />

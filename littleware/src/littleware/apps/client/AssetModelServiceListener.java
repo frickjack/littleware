@@ -52,7 +52,7 @@ public class AssetModelServiceListener implements ServiceListener, BundleActivat
             final AssetLoadEvent eventLoad = (AssetLoadEvent) eventBase;
             olibAsset.syncAsset( eventLoad.getAsset() );
         } else if ( eventBase instanceof AssetDeleteEvent ) {
-            olibAsset.remove( ((AssetDeleteEvent) eventBase).getDeletedId() );
+            olibAsset.assetDeleted( ((AssetDeleteEvent) eventBase).getDeletedId() );
         } else {
             olog.log( Level.WARNING, "Not handling unknown service event of type: " +
                     eventBase.getClass().getName() );

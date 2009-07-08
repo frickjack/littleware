@@ -237,6 +237,10 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
         }
     }
 
+    @Override
+    public AssetPath toRootedPath(UUID uAsset) throws BaseException, GeneralSecurityException, RemoteException {
+        return toRootedPath( createPath( uAsset ) );
+    }
 
 }
 

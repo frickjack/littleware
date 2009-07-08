@@ -50,6 +50,10 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
         super(PackageTestSuite.class.getName());
 
         boolean b_run = true;
+        
+        if (b_run) {
+            this.addTest(suiteLgo);
+        }
 
         if ( b_run ) {
             this.addTest( provideDeleteTest.get() );
@@ -58,9 +62,6 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             this.addTest( provideFeedbackTest.get() );
         }
 
-        if (b_run) {
-            this.addTest(suiteLgo);
-        }
         if (b_run) {
             this.addTest(provide_swing_test.get().putName("testClientSession"));
         }

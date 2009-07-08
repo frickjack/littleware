@@ -21,8 +21,6 @@ import littleware.security.LittleAcl;
 import littleware.security.LittleUser;
 
 
-
-
 /**
  * Asset data-bucket base-class.
  */

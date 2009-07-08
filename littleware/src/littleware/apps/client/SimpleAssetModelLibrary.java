@@ -411,7 +411,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
     
     @Override
     public AssetModel assetDeleted ( UUID u_deleted ) {
-        SimpleAssetModel amodel_deleted = (SimpleAssetModel) remove ( u_deleted );
+        final SimpleAssetModel amodel_deleted = (SimpleAssetModel) remove ( u_deleted );
         
         if ( null != amodel_deleted ) {
             AssetModelEvent  event_delete = new AssetModelEvent ( amodel_deleted,

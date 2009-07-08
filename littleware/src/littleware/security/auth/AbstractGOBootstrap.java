@@ -168,8 +168,8 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         
         // Get Guice injected instances of the OSGi BundleActivators,
         // and bootstrap OSGi
-        Map<String,Object> map_felix = new HashMap<String,Object>();
-        List<BundleActivator> v_activate = new ArrayList<BundleActivator> ();
+        final Map<String,Object> map_felix = new HashMap<String,Object>();
+        final List<BundleActivator> v_activate = new ArrayList<BundleActivator> ();
         for( Class<? extends BundleActivator> class_act : ovOSGi ) {
             v_activate.add( injector.getInstance( class_act ) );
         }

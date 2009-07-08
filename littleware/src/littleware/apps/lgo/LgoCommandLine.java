@@ -69,7 +69,8 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             Provider<CreateUserCommand> comUser,
             Provider<CreateLockCommand> comLock,
             Provider<GetByNameCommand> comNameGet,
-            Provider<SetImageCommand>  comSetImage
+            Provider<SetImageCommand>  comSetImage,
+            Provider<GetRootPathCommand> comRootPath
             ) {
         omgrCommand = mgrCommand;
         omgrHelp = mgrHelp;
@@ -78,9 +79,10 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         for (Provider<? extends LgoCommand<?,?>> command : // need to move this into a properties file
                 Arrays.asList(
                     comHelp, comXml, comBrowse, comDelete, comLs, comGet,
-                    comFolder, comUser, comLock, comNameGet, comSetImage
+                    comFolder, comUser, comLock, comNameGet, comSetImage,
+                    comRootPath
         )) {
-            mgrCommand.setCommand(mgrHelp, (Provider<LgoCommand<?,?>>) command);
+            mgrCommand.setCommand(mgrHelp, command);
         }
 
     }

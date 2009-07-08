@@ -45,6 +45,7 @@ import littleware.apps.client.AssetView;
 import littleware.apps.client.Feedback;
 import littleware.apps.client.LittleEvent;
 import littleware.apps.client.LittleListener;
+import littleware.apps.client.event.AssetModelEvent;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
@@ -65,7 +66,6 @@ public class JAssetFamilyView extends JPanel implements AssetView {
             JAssetFamilyView.this.eventFromModel(evt_from_model);
         }
     };
-
 
     {
         // Should only happen on call to setAssetModel ...
@@ -157,18 +157,18 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     private final AssetModelLibrary olibAsset;
 
     private void buildUI() {
-        this.setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
-        ojTree.setBackground( null );
-        final JScrollPane scrollTree = new JScrollPane( ojTree );
-        scrollTree.setPreferredSize( new Dimension( 500, 500 ) );
-        this.add( scrollTree );
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        ojTree.setBackground(null);
+        final JScrollPane scrollTree = new JScrollPane(ojTree);
+        scrollTree.setPreferredSize(new Dimension(500, 500));
+        this.add(scrollTree);
     }
 
     @Inject
     public JAssetFamilyView(JAssetLinkRenderer render,
             AssetModelLibrary libAsset,
             AssetSearchManager search) {
-        render.setRenderThumbnail(false );
+        render.setRenderThumbnail(false);
         ojTree.setCellRenderer(render);
         osearch = search;
         olibAsset = libAsset;
@@ -178,9 +178,10 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     /**
      * The renderer for the underlying JTree
      */
-    public void setCellRenderer( TreeCellRenderer render ) {
-        ojTree.setCellRenderer( render );
+    public void setCellRenderer(TreeCellRenderer render) {
+        ojTree.setCellRenderer(render);
     }
+
     public TreeCellRenderer getCellRenderer() {
         return ojTree.getCellRenderer();
     }
@@ -191,6 +192,10 @@ public class JAssetFamilyView extends JPanel implements AssetView {
      * the getAssetModel() AssetModel (data model update).
      */
     protected void eventFromModel(LittleEvent evt_prop) {
+        if ((evt_prop instanceof AssetModelEvent) && ((AssetModelEvent) evt_prop).getOperation().equals(AssetModel.Operation.assetDeleted.toString())) {
+            return;
+        }
+
         SwingUtilities.invokeLater(
                 new Runnable() {
 
@@ -199,7 +204,6 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                         updateAssetUI();
                     }
                 });
-
     }
 
     /**
@@ -319,8 +323,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     }
 
     @Override
-    public void setFeedback( Feedback feedback ) {
-        oview_util.setFeedback( feedback );
+    public void setFeedback(Feedback feedback) {
+        oview_util.setFeedback(feedback);
     }
-
 }

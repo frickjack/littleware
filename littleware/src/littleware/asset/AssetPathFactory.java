@@ -121,5 +121,9 @@ public interface AssetPathFactory {
                                     ) throws BaseException, GeneralSecurityException,
         RemoteException;
 
+    /** Shortcut to create rooted path for asset with particular id */
+    public AssetPath toRootedPath( UUID uAsset ) throws BaseException, GeneralSecurityException,
+        RemoteException;
+
 }
 

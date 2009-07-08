@@ -37,9 +37,10 @@ public class SimpleAssetPathByRootName extends AbstractAssetPath implements Asse
                                        AssetPathFactory pathFactory
                                        ) throws InvalidAssetTypeException
     {
-        super ( "/byname:" + s_root_name +
-                ":type:" + n_type + "/" +
-                s_subroot_path,
+        super ( ( n_type.equals(AssetType.HOME) ?
+                    ("/" + s_root_name) :
+                    ("/byname:" + s_root_name + ":type:" + n_type)
+                ) + "/" + s_subroot_path,
                 pathFactory
                 );
 

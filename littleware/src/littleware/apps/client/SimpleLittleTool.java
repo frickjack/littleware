@@ -85,7 +85,10 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
          */
         @Override
         public void run() {
-            for (LittleListener listen_little : ov_listener) {
+            // avoid concurrent modification
+            final List<LittleListener> vListener = new ArrayList<LittleListener>();
+            vListener.addAll( ov_listener );
+            for (LittleListener listen_little : vListener ) {
                 listen_little.receiveLittleEvent(oevent_little);
             }
         }

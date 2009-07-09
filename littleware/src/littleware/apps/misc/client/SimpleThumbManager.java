@@ -119,6 +119,9 @@ public class SimpleThumbManager implements ThumbManager {
             final Thumb thumb = new SimpleThumb( imgScale );
             ocache.put( u_asset, thumb );
             return thumb;
+        } else {
+            // waisting too much time check for thumbnails ...
+            ocache.put( u_asset, othumbDefault );
         }
         return othumbDefault;
     }

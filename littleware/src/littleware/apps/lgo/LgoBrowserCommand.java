@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 
+import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.Feedback;
@@ -204,10 +205,14 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
         stuff.toolbar.addLittleListener(control);
         if (maybeStart.isSet()) {
             try {
-                stuff.browser.setAssetModel(olib.retrieveAssetModel(maybeStart.get(), osearch));
+                final Maybe<AssetModel> maybeModel = olib.retrieveAssetModel(maybeStart.get(), osearch);
+                if ( maybeModel.isSet() ) {
+                    stuff.browser.setAssetModel( maybeModel.get() );
+                } else {
+                    olog.log( Level.INFO, "Requested initial asset model does not exist: " + getStart() );
+                }
             } catch (Exception e) {
-                olog.log(Level.INFO, "Failed to load initial asset model " + getStart() +
-                        ", caught: " + e, e);
+                olog.log(Level.INFO, "Failed to load initial asset model " + getStart(), e);
             }
         }
 

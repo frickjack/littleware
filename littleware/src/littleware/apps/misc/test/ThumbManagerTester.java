@@ -80,6 +80,7 @@ public class ThumbManagerTester extends LittleTest {
                     imgTest,
                     "Setting up thumb test image"
                     );
+            omgrThumb.clearCache( osession.getObjectId() );
             assertTrue( "Thumb no longer default", ! omgrThumb.loadThumb( osession.getObjectId() ).isFallback() );
         } catch ( Exception ex ) {
             olog.log( Level.WARNING, "Test failed on exception", ex );

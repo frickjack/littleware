@@ -24,6 +24,7 @@ import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.base.BaseException;
 import littleware.base.Cache;
+import littleware.base.Maybe;
 
 
 /**
@@ -47,7 +48,7 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @return cached asset-model or null
      * @exception InvalidAssetTypeException if atype is not name-unique
      */
-    public AssetModel getByName( String s_name, AssetType<? extends Asset> atype
+    public Maybe<AssetModel> getByName( String s_name, AssetType<? extends Asset> atype
             ) throws InvalidAssetTypeException;
     
     /**
@@ -65,7 +66,7 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @throws java.security.GeneralSecurityException
      * @throws java.rmi.RemoteException
      */
-    public AssetModel getByName( String s_name, AssetType<? extends Asset> atype,
+    public Maybe<AssetModel> getByName( String s_name, AssetType<? extends Asset> atype,
             AssetSearchManager m_search
             ) throws InvalidAssetTypeException,
         BaseException, 
@@ -97,12 +98,12 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @exception AssetException may be thrown by AssetRetriever.getAssetOrNull
      * @exception RemoteException may be thrown by AssetRetriever.getAssetOrNull
      */
-    public AssetModel retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException, 
+    public Maybe<AssetModel> retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException,
         AssetException, GeneralSecurityException, RemoteException;
     /**
      * Convenience dereferences model, or returns null if model is null
      */
-    public Asset retrieveAsset( UUID u_id, AssetRetriever retriever ) throws BaseException,
+    public Maybe<Asset> retrieveAsset( UUID u_id, AssetRetriever retriever ) throws BaseException,
         AssetException, GeneralSecurityException, RemoteException;
     
     /**
@@ -128,7 +129,9 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
     
     /**
      * Convenience method to sync the results of a repository search
-     * with the in-memory library 
+     * with the in-memory library.
+     * This is probably not necessary now that we have service-listeners
+     * on the client side to detect updates from the server.
      *
      * @param v_assets collection of assets to sync
      * @return the collection of synced AssetModels
@@ -140,11 +143,14 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * from the littleware asset repository.
      * Remove the asset from the library, and fire an Operation.assetDeleted AssetModelEvent
      * to listeners.
+     * The AssetModelLibrary implementation should implement a ServiceListener
+     * interface and listen for asset-delete events so that client code
+     * should not have to explicity invoke this method.
      *
      * @param u_deleted id of asset that has been deleted
      * @return the AssetModel removed from the library or null if not in library
      */
-    public AssetModel assetDeleted ( UUID u_deleted );
+    public Maybe<AssetModel> assetDeleted ( UUID u_deleted );
 }
 
 

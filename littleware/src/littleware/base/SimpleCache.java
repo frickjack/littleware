@@ -111,10 +111,28 @@ public class SimpleCache<K, V> implements Cache<K, V> {
     public int getMaxEntryAgeSecs() {
         return oi_ageout_secs;
     }
+    @Override
+    public synchronized void setMaxEntryAgeSecs( int iSecs ) {
+        final int iOld = oi_ageout_secs;
+        if ( iSecs < MIN_AGEOUT_SECS ) {
+            oi_ageout_secs = iSecs;
+        } else {
+            oi_ageout_secs = MIN_AGEOUT_SECS;
+        }
+    }
 
     @Override
     public int getMaxSize() {
         return oi_size;
+    }
+    
+    @Override
+    public void setMaxSize( int iSize ) {
+        if ( iSize < MIN_SIZE ) {
+            oi_size = MIN_SIZE;
+        } else {
+            oi_size = iSize;
+        }
     }
 
     /**

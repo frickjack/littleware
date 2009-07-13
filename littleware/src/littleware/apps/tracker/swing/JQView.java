@@ -92,7 +92,7 @@ public class JQView extends JGenericAssetView {
                         return task_display.getTaskStatus ();
                     } 
                     case 2: { // Creator
-                        return getAssetModel ().getLibrary ().retrieveAssetModel ( task_display.getCreatorId (), om_search ).getAsset ().getName ();
+                        return getAssetModel ().getLibrary ().retrieveAssetModel ( task_display.getCreatorId (), om_search ).get().getAsset ().getName ();
                     } 
                     case 3: { // Create date
                         return task_display.getCreateDate ();
@@ -104,7 +104,7 @@ public class JQView extends JGenericAssetView {
                         return task_display.getLastUpdateDate ();
                     } 
                     case 6: { // Last updater
-                        return getAssetModel ().getLibrary ().retrieveAssetModel ( task_display.getLastUpdaterId (), om_search ).getAsset ().getName ();   
+                        return getAssetModel ().getLibrary ().retrieveAssetModel ( task_display.getLastUpdaterId (), om_search ).get().getAsset ().getName ();
                     } 
                     case 7: { // Last update comment
                         return task_display.getLastUpdate ();
@@ -254,7 +254,7 @@ public class JQView extends JGenericAssetView {
                 java.util.List<UUID>  v_ids = q_view.getTask ( n_status );
                 for ( UUID u_id : v_ids ) {
                     ++i_count;
-                    ov_tasks.add ( getAssetModel ().getLibrary ().retrieveAssetModel ( u_id, om_search ) );
+                    ov_tasks.add ( getAssetModel ().getLibrary ().retrieveAssetModel ( u_id, om_search ).get() );
                     if ( i_count > OI_MAX_TASK ) {
                         break;
                     }                

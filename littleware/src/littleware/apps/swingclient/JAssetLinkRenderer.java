@@ -29,6 +29,7 @@ import littleware.apps.misc.ThumbManager;
 import littleware.apps.misc.ThumbManager.Thumb;
 import littleware.asset.*;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
 import littleware.security.SecurityAssetType;
 
 /**
@@ -211,8 +212,11 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         jLabelRender.setForeground(Color.BLUE);
         jLabelRender.setText(s_name);
         try {
-            Asset a_linkto = olibAsset.retrieveAssetModel(u_id, osearch).getAsset();
-            configureLabel(a_linkto, jLabelRender );
+            final Maybe<AssetModel> maybe = olibAsset.retrieveAssetModel(u_id, osearch);
+            if ( maybe.isSet() ) {
+                final Asset a_linkto = maybe.get().getAsset();
+                configureLabel(a_linkto, jLabelRender );
+            }
         } catch (RuntimeException e) {
             throw e;
         } catch (GeneralSecurityException e) {

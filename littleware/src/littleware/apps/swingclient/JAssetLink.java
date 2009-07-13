@@ -28,6 +28,7 @@ import javax.swing.*;
 import littleware.asset.*;
 import littleware.base.UUIDFactory;
 import littleware.apps.swingclient.event.*;
+import littleware.base.Maybe;
 
 
 /** 
@@ -289,11 +290,11 @@ public class JAssetLink extends JLabel implements LittleTool {
             return;
         }
         try {
-            final AssetModel model = olibAsset.retrieveAssetModel( u_id, osearch );
-            if ( null == model ) {
+            final Maybe<AssetModel> maybeModel = olibAsset.retrieveAssetModel( u_id, osearch );
+            if ( ! maybeModel.isSet() ) {
                 setLink( (Asset) null );
             } else {
-                setLink( model.getAsset() );
+                setLink( maybeModel.get().getAsset() );
             }
         } catch ( Exception ex ) {
             olog_generic.log( Level.WARNING, "Failed to load object id " + u_id, ex );

@@ -72,10 +72,18 @@ public class SimpleCacheManager implements CacheManager {
     public int getMaxSize() {
         return ocache_asset.getMaxSize();
     }
+    @Override
+    public void setMaxSize( int iSize ) {
+        ocache_asset.setMaxSize( iSize );
+    }
 
     @Override
     public int getMaxEntryAgeSecs() {
         return ocache_asset.getMaxEntryAgeSecs();
+    }
+    @Override
+    public void setMaxEntryAgeSecs( int iSecs ) {
+        ocache_asset.setMaxEntryAgeSecs(iSecs);
     }
 
     /** 

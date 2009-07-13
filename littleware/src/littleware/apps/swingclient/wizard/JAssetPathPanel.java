@@ -231,7 +231,7 @@ public class JAssetPathPanel extends JPanel {
         try {
             // Where should we start browsing ?
             if ( null != getAssetId () ) {
-                oview_asset.setAssetModel ( olib_asset.retrieveAssetModel ( getAssetId (), om_search ) );
+                oview_asset.setAssetModel ( olib_asset.retrieveAssetModel ( getAssetId (), om_search ).get() );
             } else {
                 // just start browsing around ACL_EVERYBODY
                 oview_asset.setAssetModel ( olib_asset.syncAsset ( om_search.getByName ( LittleAcl.ACL_EVERYBODY_READ,

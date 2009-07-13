@@ -67,7 +67,7 @@ public class AssetModelLibTester extends LittleTest {
             assertTrue("Simple sync is ok",
                     olibAsset.syncAsset(a_test).getAsset() == a_test);
             assertTrue("No retrieval if not necessary",
-                    olibAsset.retrieveAssetModel(a_test.getObjectId(), osearch).getAsset() == a_test
+                    olibAsset.retrieveAssetModel(a_test.getObjectId(), osearch).get().getAsset() == a_test
                     );
 
             final AssetModel amodel_everybody =
@@ -77,23 +77,23 @@ public class AssetModelLibTester extends LittleTest {
             assertTrue( "ModelLibrary getByName inheritance aware 1",
                     olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     SecurityAssetType.PRINCIPAL
-                    ) != null
+                    ).isSet()
                     );
             assertTrue( "ModelLibrary getByName inheritance aware 2",
-                    olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.USER
-                    ) == null
+                    ! olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                            SecurityAssetType.USER
+                        ).isSet()
                     );
             assertTrue( "ModelLibrary getByName inheritance aware 3",
                     olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     SecurityAssetType.GROUP
-                    ) != null
+                    ).isSet()
                     );
             olibAsset.remove( amodel_everybody.getAsset ().getObjectId () );
             assertTrue( "ModelLibrary getByName cleared after remove",
-                    olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP
-                    ) == null
+                    !olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                        SecurityAssetType.GROUP
+                    ).isSet()
                     );
 
             final AssetEditor edit_bogus = new AbstractAssetEditor(this) {

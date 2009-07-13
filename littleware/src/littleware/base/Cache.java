@@ -33,20 +33,24 @@ public interface Cache<K,V> {
 	public Policy getPolicy ();
 	
 	/**
-	 * Get the maximum size of the cache before old entries
-	 * start getting flused out.
+	 * Maximum size of the cache before old entries
+	 * start getting flused out.  Resetting this value
+         * may trigger a cache clear() depending on implementation.
 	 *
-	 * @return max size, -1 indicates no max
+	 * @return max size
 	 */
 	public int getMaxSize ();
+        public void setMaxSize( int iSize );
 	
 	/**
 	 * Get the maximum age in seconds of a cache-entry
 	 * before the entry is automatically cleared from the cache.
-	 *
-	 * @return max age in secs, -1 indicates no maximum age
+	 * Resetting this value
+         * may trigger a cache clear() depending on implementation.
+	 * @return max age in secs
 	 */
 	public int getMaxEntryAgeSecs ();
+        public void setMaxEntryAgeSecs( int iSecs );
 	
 	/**
 	 * Put an item in the cache

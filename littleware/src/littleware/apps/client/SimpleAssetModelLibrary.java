@@ -33,6 +33,7 @@ import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
 import littleware.base.SimpleCache;
 import littleware.base.Whatever;
 
@@ -48,12 +49,12 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
     private static final Logger   olog_generic = Logger.getLogger ( SimpleAssetModelLibrary.class.getName () );
 
     @Override
-    public Asset retrieveAsset(UUID u_id, AssetRetriever retriever) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        AssetModel model = retrieveAssetModel( u_id, retriever );
-        if ( null == model ) {
-            return null;
+    public Maybe<Asset> retrieveAsset(UUID u_id, AssetRetriever retriever) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        Maybe<AssetModel> maybe= retrieveAssetModel( u_id, retriever );
+        if ( ! maybe.isSet() ) {
+            return Maybe.empty();
         }
-        return model.getAsset();
+        return Maybe.something( maybe.get().getAsset() );
     }
     
     /**
@@ -298,40 +299,40 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
             new TreeMap<AssetType,Map<String,UUID>>();
     
     @Override
-    public synchronized AssetModel getByName( String s_name, AssetType atype
+    public synchronized Maybe<AssetModel> getByName( String s_name, AssetType atype
             ) throws InvalidAssetTypeException
     {
         if ( ! atype.isNameUnique () ) {
             throw new InvalidAssetTypeException ( "Asset type not name-unique: " + atype );
         }
-        Map<String,UUID> map_byname = omulti_byname.get( atype );
+        final Map<String,UUID> map_byname = omulti_byname.get( atype );
         if ( null == map_byname ) {
-            return null;
+            return Maybe.empty();
         }
         UUID u_id = map_byname.get( s_name );
         if ( null == u_id ) {
-            return null;
+            return Maybe.empty();
         }
-        return get( u_id );
+        return Maybe.emptyIfNull( get( u_id ) );
     }
     
     @Override
-    public AssetModel getByName( String s_name, AssetType<? extends Asset> atype,
+    public Maybe<AssetModel> getByName( String s_name, AssetType<? extends Asset> atype,
             AssetSearchManager m_search
             ) throws InvalidAssetTypeException,
         BaseException, 
         AssetException, GeneralSecurityException, RemoteException
     {
-        AssetModel amodel_result = getByName( s_name, atype );
+        Maybe<AssetModel> maybeModel = getByName( s_name, atype );
         
-        if ( null != amodel_result ) {
-            return amodel_result;
+        if ( maybeModel.isSet() ) {
+            return maybeModel;
         }
-        Asset a_result = m_search.getByName( s_name, atype ).getOr( null );
-        if ( null == a_result ) {
-            return null;
+        final Maybe<? extends Asset> maybeAsset = m_search.getByName( s_name, atype );
+        if ( ! maybeAsset.isSet() ) {
+            return Maybe.empty();
         }
-        return syncAsset( a_result );
+        return Maybe.something( syncAsset( maybeAsset.get() ) );
     }
 
     
@@ -363,19 +364,19 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
     
     
     @Override
-    public synchronized AssetModel retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException, 
+    public synchronized Maybe<AssetModel> retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException,
         AssetException, GeneralSecurityException, RemoteException
     {
-        AssetModel amodel_lookup = this.get ( u_id );
+        Maybe<AssetModel> maybeModel = Maybe.emptyIfNull( get( u_id ) );
         
-        if ( null != amodel_lookup ) {
-            return amodel_lookup;
+        if ( maybeModel.isSet() ) {
+            return maybeModel;
         }
-        Asset a_new = m_retriever.getAsset ( u_id ).getOr( null );
-        if ( null == a_new ) {
-            return null;
+        Maybe<Asset> maybeAsset = m_retriever.getAsset ( u_id );
+        if ( ! maybeAsset.isSet() ) {
+            return Maybe.empty();
         }
-        return syncAsset ( a_new );
+        return Maybe.something( syncAsset ( maybeAsset.get() ) );
     }
 
     @Override
@@ -410,7 +411,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
     
     
     @Override
-    public AssetModel assetDeleted ( UUID u_deleted ) {
+    public Maybe<AssetModel> assetDeleted ( UUID u_deleted ) {
         final SimpleAssetModel amodel_deleted = (SimpleAssetModel) remove ( u_deleted );
         
         if ( null != amodel_deleted ) {
@@ -420,7 +421,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID,AssetModel>
             amodel_deleted.fireLittleEvent ( event_delete );
             fireChildEvent ( amodel_deleted.getAsset (), null, event_delete );
         }
-        return amodel_deleted;
+        return Maybe.emptyIfNull( (AssetModel) amodel_deleted );
     }
 }
 

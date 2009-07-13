@@ -23,6 +23,7 @@ import littleware.apps.client.*;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.apps.swingclient.event.RefreshRequestEvent;
 import littleware.asset.AssetRetriever;
+import littleware.base.Maybe;
 import littleware.security.auth.client.ClientCache;
 
 /** 
@@ -108,27 +109,33 @@ public class SimpleAssetViewController implements LittleListener {
                 olog_generic.log ( Level.FINE, "Ignoring null NavRequest" );
                 return;
             }
-            
+            final Runnable runPopup =new Runnable () {
+                    @Override
+                    public void run () {
+                        JOptionPane.showMessageDialog(null, "Could not navigate to " + u_destination, "alert",
+                                              JOptionPane.ERROR_MESSAGE
+                                              );
+                    }
+                };
+
             try {
-                AssetModel model_new = olib_asset.retrieveAssetModel ( u_destination, om_retriever );
-                olog_generic.log ( Level.FINE, "Navigationg to " + model_new.getAsset () );
-                oview_control.setAssetModel( model_new );
+                final Maybe<AssetModel> maybe = olib_asset.retrieveAssetModel ( u_destination, om_retriever );
+                if ( maybe.isSet() ) {
+                    if ( olog_generic.isLoggable(Level.FINE)) {
+                        olog_generic.log ( Level.FINE, "Navigationg to " + maybe.get().getAsset () );
+                    }
+                    oview_control.setAssetModel( maybe.get() );
+                } else {
+                    olog_generic.log( Level.INFO, "No data for nav asset: " + u_destination );
+                    SwingUtilities.invokeLater( runPopup );
+                }
             } catch ( RuntimeException e ) {
                 throw e;
             } catch ( final Exception e ) {
                 olog_generic.log ( Level.INFO, "Failure to navigate to " + u_destination + 
                                        ", caught: " + e 
                                        );
-                SwingUtilities.invokeLater ( new Runnable () {
-                    @Override
-                    public void run () {
-                        JOptionPane.showMessageDialog(null, "Could not navigate to " + u_destination +
-                                              ", caught: " + e, "alert", 
-                                              JOptionPane.ERROR_MESSAGE
-                                              );
-                    }
-                }
-                                             );
+                SwingUtilities.invokeLater ( runPopup );
             }
         } else if ( event_little instanceof RefreshRequestEvent ) {
             try {

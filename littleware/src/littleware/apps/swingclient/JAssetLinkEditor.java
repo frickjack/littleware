@@ -171,7 +171,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
         }
         if ( null != getLink () ) {
             try {
-                oview_browser.setAssetModel ( olib_asset.retrieveAssetModel ( getLink (), om_search ) );
+                oview_browser.setAssetModel ( olib_asset.retrieveAssetModel ( getLink (), om_search ).get() );
             } catch ( Exception e ) {
                 oview_browser.setAssetModel ( oamodel_fallback );
             }

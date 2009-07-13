@@ -37,6 +37,7 @@ public class DbAssetSaver implements DbWriter<Asset> {
         asset.setTransactionCount( trans.getTransaction() );
         final AssetEntity entity = AssetEntity.buildEntity(asset);
         entMgr.merge( entity );
+        asset.setDirty(false);
     }
 
 }

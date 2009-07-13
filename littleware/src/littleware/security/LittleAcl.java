@@ -27,6 +27,7 @@ public interface LittleAcl extends Acl, Asset {
     public final static String ACL_EVERYBODY_READ = "acl.littleware.everybody.read";
 
     /** Covariant return-type clone */
+    @Override
     public LittleAcl clone ();
     
     /** Convenience method - clear all the entries from the ACL */
@@ -35,16 +36,19 @@ public interface LittleAcl extends Acl, Asset {
     /**
      * Throws UnsupportedOperationException - do getOwner(...).isOwner(...) instead
      */
+    @Override
     public boolean isOwner ( Principal p_owner );
     
     /**
      * Throws UnsupportedOperationException - do getOwner(...)... instead
      */
+    @Override
 	public boolean deleteOwner ( Principal p_caller, Principal p_owner );
     
     /**
      * Throws UnsupportedOperationException - do getOwner(...)... instead
      */
+    @Override
     public boolean addOwner ( Principal p_caller, Principal p_owner );
 
     /**
@@ -67,7 +71,3 @@ public interface LittleAcl extends Acl, Asset {
      */
     public LittleAclEntry getEntry ( Principal p_entry, boolean b_negative );
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

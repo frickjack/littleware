@@ -10,6 +10,7 @@
 
 package littleware.security.auth;
 
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -49,6 +50,14 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         try {
             ovGuice.add(
                     new PropertiesGuice( PropertiesLoader.get().loadProperties() )
+                    );
+            ovGuice.add(
+                    new Module() {
+                @Override
+                public void configure(Binder binder) {
+                    binder.bind( GuiceOSGiBootstrap.class ).toInstance( AbstractGOBootstrap.this );
+                }
+            }
                     );
         } catch ( IOException ex ) {
             throw new AssertionFailedException( "Failed default Guice setup", ex );

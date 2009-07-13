@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security;
 
 import java.security.acl.*;
@@ -29,6 +39,7 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
 	}
 	
 	
+    @Override
 	public void setName ( Principal p_caller, String s_name ) {
 		this.setName ( s_name );
 	}
@@ -38,6 +49,7 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
 	 * The returned entries are read-only - must clone()
 	 * to get a modifiable version.
 	 */
+    @Override
 	public Enumeration<AclEntry> entries () {
 		List<AclEntry> v_entries = new ArrayList<AclEntry> ();
 		
@@ -50,6 +62,7 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
 	
 	
 
+    @Override
 	public boolean checkPermission ( Principal p_user, Permission perm_access ) {
 		if ( ov_negative_user_entries.containsKey ( p_user ) 
 			&& ((AclEntry) ov_negative_user_entries.get ( p_user )).checkPermission ( perm_access )
@@ -99,6 +112,7 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
 	}
 	
 
+    @Override
 	public Enumeration<Permission> getPermissions ( Principal x_principal ) {
 		Set<Permission> v_perms = new HashSet<Permission> ();
 		
@@ -177,16 +191,19 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
 		return getCacheForEntry ( x_entry.getPrincipal (), x_entry.isNegative () );
 	}
 	
+    @Override
 	public LittleAclEntry getEntry ( Principal p_user, boolean b_negative ) {
 		Map<Principal,AclEntry>  v_entries = getCacheForEntry ( p_user, b_negative );
 		return (LittleAclEntry) v_entries.get ( p_user );
 	}
 	
 
+    @Override
 	public boolean addEntry ( Principal p_caller, AclEntry x_entry ) {
         return addEntry ( (LittleAclEntry) x_entry );
     }
     
+    @Override
     public boolean addEntry ( LittleAclEntry x_entry ) {
 		Map<Principal,AclEntry> v_edit = getCacheForEntry ( x_entry );
 		Principal p_user = x_entry.getPrincipal ();
@@ -205,10 +222,12 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
 	}
         
 
+    @Override
 	public boolean removeEntry ( Principal p_caller, AclEntry x_entry ) {
         return removeEntry ( (LittleAclEntry) x_entry );
     }
     
+    @Override
     public boolean removeEntry ( LittleAclEntry x_entry ) {
 		Map<Principal,AclEntry> v_edit = getCacheForEntry ( x_entry );
 		Principal p_user = x_entry.getPrincipal ();
@@ -216,6 +235,7 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
 		return (null != v_edit.remove ( p_user ));
 	}
     
+    @Override
     public void clearEntries () {
         ov_positive_user_entries.clear ();
         ov_negative_user_entries.clear ();
@@ -223,16 +243,19 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
         ov_negative_group_entries.clear ();
     }
 	
+    @Override
 	public boolean isOwner ( Principal p_owner ) { 
         throw new UnsupportedOperationException ();
 	}
 	
+    @Override
 	public boolean deleteOwner ( Principal p_caller, Principal p_owner 
 								 ) 
 	{
         throw new UnsupportedOperationException ();
 	}
 	
+    @Override
 	public boolean addOwner ( Principal p_caller, Principal p_owner ) {
         throw new UnsupportedOperationException ();
 	}
@@ -241,6 +264,7 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
 	 * Return a simple copy of this object - except setup new empty
 	 * member sets.
 	 */
+    @Override
 	public SimpleAccessList clone () {
 		SimpleAccessList acl_copy = (SimpleAccessList) super.clone ();
 		acl_copy.ov_positive_user_entries = new HashMap<Principal,AclEntry> ();
@@ -272,6 +296,7 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
     }
     
 
+    @Override
     public void sync ( Asset a_copy_source ) throws InvalidAssetTypeException {
         if ( this == a_copy_source ) {
             return;
@@ -289,9 +314,8 @@ public class SimpleAccessList extends SimpleAsset implements LittleAcl {
         mapSync( ov_negative_group_entries, acl_copy_source.ov_negative_group_entries );
     }
     
+    @Override
 	public String toString () { return "ACL " + this.getName () + " (" + this.getObjectId () + ")"; }
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

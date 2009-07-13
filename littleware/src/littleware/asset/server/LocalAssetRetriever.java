@@ -8,7 +8,6 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
 package littleware.asset.server;
 
 import com.google.inject.Provider;
@@ -42,6 +41,7 @@ public class LocalAssetRetriever implements AssetRetriever {
     private final CacheManager   om_cache;
     private final AssetSpecializerRegistry  oregistry_special;
     private final Provider<LittleTransaction>        oprovideTrans;
+    private final PermissionCache ocachePermission;
 
     /**
      * Constructor stashes DbManager, and CacheManager
@@ -49,12 +49,14 @@ public class LocalAssetRetriever implements AssetRetriever {
     public LocalAssetRetriever(DbAssetManager m_db,
             CacheManager m_cache,
             AssetSpecializerRegistry registry_special,
-            Provider<LittleTransaction>  provideTrans
+            Provider<LittleTransaction>  provideTrans,
+            PermissionCache        cachePermission
             ) {
         om_db = m_db;
         om_cache = m_cache;
         oregistry_special = registry_special;
         oprovideTrans = provideTrans;
+        ocachePermission = cachePermission;
     }
 
 
@@ -83,11 +85,15 @@ public class LocalAssetRetriever implements AssetRetriever {
 
             // Specialize the asset
             littleware.base.Whatever.check("Got a valid id", a_result.getObjectId() != null);
-            return Maybe.something( secureAndSpecialize(a_result) );
+            final Asset aSecure = secureAndSpecialize(a_result);
+            aSecure.setDirty( false );
+            return Maybe.something( aSecure );
         } finally {
             trans.endDbAccess(v_cycle_cache);
         }
     }
+
+    // cache ACLs to improve performance ...
 
     /**
      * Internal method - shared with SimpleAssetSearchManager - to specialize,
@@ -104,8 +110,16 @@ public class LocalAssetRetriever implements AssetRetriever {
         try {
             final T a_result = oregistry_special.getService( a_loaded.getAssetType() ).narrow(a_loaded, this);
 
-            if (a_result.getAssetType().equals(SecurityAssetType.USER) || a_result.getAssetType().equals(SecurityAssetType.GROUP) || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER) || ( // acl-entry may be protected by its own ACL
-                    a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals(a_result.getFromId()) && v_cycle_cache.containsKey(a_result.getAclId()))) {
+            if (a_result.getAssetType().equals(SecurityAssetType.USER)
+                    || a_result.getAssetType().equals(SecurityAssetType.GROUP)
+                    || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER)
+                    || ( // acl-entry may be protected by its own ACL
+                        a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY)
+                        && (null != a_result.getAclId())
+                        && a_result.getAclId().equals(a_result.getFromId())
+                        && v_cycle_cache.containsKey(a_result.getAclId())
+                        )
+                        ) {
                 /**
                  * No access limitation on USER, GROUP - 
                  * chicken/egg problem since need these guys to implement security.
@@ -134,13 +148,7 @@ public class LocalAssetRetriever implements AssetRetriever {
                 return a_result;
             }
             // Need to check ACL
-            final LittleAcl acl_asset = a_result.getAcl(this);
-            if (null == acl_asset) {
-                throw new AccessDeniedException("Caller " + p_caller.getName() +
-                        " does not have permission to access null-acl asset " +
-                        a_result.getObjectId());
-            }
-            if (!acl_asset.checkPermission(p_caller, LittlePermission.READ)) {
+            if ( ! ocachePermission.checkPermission(p_caller, LittlePermission.READ, this, a_result.getAclId() ) ) {
                 throw new AccessDeniedException("Caller " + p_caller.getName() + " does not have permission to access asset " +
                         a_result.getName() + "(" + a_result.getObjectId() + ")"
                         );

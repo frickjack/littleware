@@ -30,10 +30,10 @@ public class NullCacheManager implements CacheManager {
 	public Cache.Policy getPolicy () { return Cache.Policy.FIFO; }
 	
     @Override
-	public int getMaxSize () { return -1; }
+	public int getMaxSize () { return 1000000; }
 	
     @Override
-	public int getMaxEntryAgeSecs () { return -1; }
+	public int getMaxEntryAgeSecs () { return 1000000; }
 	
 	
     @Override
@@ -223,6 +223,14 @@ public class NullCacheManager implements CacheManager {
                                                  ) throws BaseException
     {
         throw new CacheMissException ();
+    }
+
+    @Override
+    public void setMaxSize(int iSize) {
+    }
+
+    @Override
+    public void setMaxEntryAgeSecs(int iSecs) {
     }
 
 }

@@ -215,6 +215,7 @@ public class AssetEntity implements Serializable {
             aNew.setLastUpdateDate( getTimeUpdated() );
             aNew.setLastAccessDate( getTimeAccessed() );
             aNew.setTransactionCount( getLastTransaction() );
+            aNew.setDirty( false );
             return aNew;
         } catch ( Exception ex ) {
             throw new AssetBuildException( "Not enough data to build asset", ex );

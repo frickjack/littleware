@@ -49,6 +49,7 @@ import littleware.apps.client.event.AssetModelEvent;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
+import littleware.base.Maybe;
 import littleware.base.swing.JUtil;
 
 /**
@@ -220,9 +221,9 @@ public class JAssetFamilyView extends JPanel implements AssetView {
         try {
             final List<Asset> vChildren = new ArrayList<Asset>();
             for (UUID uChild : osearch.getAssetIdsFrom(uParent, null).values()) {
-                final AssetModel modChild = olibAsset.retrieveAssetModel(uChild, osearch);
-                if (null != modChild) {
-                    vChildren.add(modChild.getAsset());
+                final Maybe<AssetModel> maybeChild = olibAsset.retrieveAssetModel(uChild, osearch);
+                if (maybeChild.isSet()) {
+                    vChildren.add(maybeChild.get().getAsset());
                 }
             }
             if (vChildren.isEmpty()) {

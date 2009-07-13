@@ -231,7 +231,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                            ) {
                             // Must have same HOME when linking FROM an asset
                             try {
-                                AssetModel model_from = olib_asset.retrieveAssetModel(u_asset, om_search);
+                                AssetModel model_from = olib_asset.retrieveAssetModel(u_asset, om_search).get();
                                 changeLocalAsset().setHomeId(model_from.getAsset().getHomeId());
                             } catch (Exception e) {
                                 JOptionPane.showMessageDialog(null,

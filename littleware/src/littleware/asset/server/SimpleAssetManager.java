@@ -74,6 +74,7 @@ public class SimpleAssetManager implements AssetManager {
             };
     private final DeleteCBProvider oprovideBucketCB;
     private int olLastTransaction = 0;
+    private final PermissionCache ocachePermission;
 
     /**
      * Constructor sets up internal data source.
@@ -95,7 +96,8 @@ public class SimpleAssetManager implements AssetManager {
             QuotaUtil quota,
             AssetSpecializerRegistry registry_special,
             Provider<LittleTransaction> provideTrans,
-            littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB) {
+            littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB,
+            PermissionCache cachePermission) {
         om_cache = m_cache;
         om_search = m_search;
         om_db = m_db;
@@ -103,6 +105,7 @@ public class SimpleAssetManager implements AssetManager {
         oregistry_special = registry_special;
         oprovideTrans = provideTrans;
         oprovideBucketCB = provideBucketCB;
+        ocachePermission = cachePermission;
     }
 
     /** Internal utility */
@@ -163,6 +166,10 @@ public class SimpleAssetManager implements AssetManager {
                 oregistry_special.getService(a_asset.getAssetType()).postDeleteCallback(a_asset, this);
                 b_rollback = false;
                 trans_delete.deferTillTransactionEnd(oprovideBucketCB.build(a_asset));
+                final AssetType type = a_asset.getAssetType();
+                if (type.isA(SecurityAssetType.ACL) || type.isA(SecurityAssetType.ACL_ENTRY) || type.isA(SecurityAssetType.GROUP) || type.isA(SecurityAssetType.GROUP_MEMBER)) {
+                    ocachePermission.clear();
+                }
             } finally {
                 trans_delete.endDbUpdate(b_rollback);
             }
@@ -205,7 +212,7 @@ public class SimpleAssetManager implements AssetManager {
         final boolean bCallerIsAdmin;
         {
             final LittleGroup groupAdmin = om_search.getAsset(
-                    AccountManager.UUID_ADMIN_GROUP).get().narrow( LittleGroup.class );
+                    AccountManager.UUID_ADMIN_GROUP).get().narrow(LittleGroup.class);
             bCallerIsAdmin = groupAdmin.isMember(userCaller);
         }
 
@@ -220,7 +227,7 @@ public class SimpleAssetManager implements AssetManager {
                 olog_generic.log(Level.WARNING, "Save cycle detected - not saving " + a_asset);
                 return a_asset;
             } else {
-                a_old_asset = om_search.getAsset(a_asset.getObjectId()).getOr( null );
+                a_old_asset = om_search.getAsset(a_asset.getObjectId()).getOr(null);
             }
 
             olog_generic.log(Level.FINE, "Check pre-save");
@@ -346,6 +353,12 @@ public class SimpleAssetManager implements AssetManager {
                     } else {
                         oregistry_special.getService(a_asset.getAssetType()).postUpdateCallback(a_old_asset, a_asset, this);
                     }
+
+                    final AssetType type = a_asset.getAssetType();
+                    if (type.isA(SecurityAssetType.ACL) || type.isA(SecurityAssetType.ACL_ENTRY) || type.isA(SecurityAssetType.GROUP) || type.isA(SecurityAssetType.GROUP_MEMBER)) {
+                        ocachePermission.clear();
+                    }
+
                     b_rollback = false;
                 } finally {
                     trans_save.endDbUpdate(b_rollback);

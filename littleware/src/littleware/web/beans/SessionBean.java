@@ -155,7 +155,7 @@ public class SessionBean {
             v_save.add ( a_link );
             getAssetLib().syncAsset( m_asset.saveAssetsInOrder(v_save, "bootstrapping user contact" ) );
             // get the post-save asset
-            contact_user = (Contact) getAssetLib ().retrieveAssetModel( contact_user.getObjectId (), m_search).getAsset ();
+            contact_user = (Contact) getAssetLib ().retrieveAssetModel( contact_user.getObjectId (), m_search).get().getAsset ();
         }
 
         return contact_user;

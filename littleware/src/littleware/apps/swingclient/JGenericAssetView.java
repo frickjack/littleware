@@ -28,6 +28,7 @@ import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.UUIDFactory;
 import littleware.apps.swingclient.event.*;
+import littleware.base.Maybe;
 import littleware.base.swing.GridBagWrap;
 
 /** 
@@ -309,7 +310,12 @@ public class JGenericAssetView extends JPanel implements AssetView {
                                     deleted.getFromId() : deleted.getHomeId();
                                 getFeedback().info( "Asset in view deleted, moving to view " + uNew );
                                 try {
-                                    setAssetModel( lib.retrieveAssetModel(uNew, om_retriever));
+                                    final Maybe<AssetModel> maybe = lib.retrieveAssetModel(uNew, om_retriever);
+                                    if ( maybe.isSet() ) {
+                                        setAssetModel( maybe.get() );
+                                    } else {
+                                        setAssetModel( lib.retrieveAssetModel( deleted.getHomeId(), om_retriever ).get() );
+                                    }
                                 } catch ( Exception ex ) {
                                     getFeedback().log( Level.WARNING, "Failed to update view after asset delete: " + ex );
                                     olog.log( Level.WARNING, "Failed update after asset delete: " + ex );

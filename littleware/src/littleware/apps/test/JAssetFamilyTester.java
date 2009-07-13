@@ -45,7 +45,7 @@ public class JAssetFamilyTester extends LittleTest {
 
     public void testJAssetFamily() {
         try {
-            AssetModel modelEverybody = olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP, osearch );
+            final AssetModel modelEverybody = olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP, osearch ).get();
             ojViewTest.setAssetModel( modelEverybody );
             assertTrue("User confirmed family-viewer UI functional",
                     JLittleDialog.showTestDialog(ojViewTest,

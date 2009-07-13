@@ -186,6 +186,15 @@ public interface Asset extends CacheableObject, LittleBean
 	public void        setLastAccessDate ( Date t_access_date );
 	
 	public void        setValue ( float f_value );
+
+    /**
+     * Property indicates whether this object is in sync
+     * with the backend database to the best of the environment's knowlege,
+     * or if this object has changes that make it "dirty".
+     */
+    public boolean isDirty();
+    public void setDirty( boolean bDirty );
+
     
     /** 
      * Implementors must expose safe clone() call.

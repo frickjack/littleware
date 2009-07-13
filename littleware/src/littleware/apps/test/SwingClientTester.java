@@ -118,7 +118,7 @@ public class SwingClientTester extends LittleTest {
             assertTrue("Simple sync is ok",
                     olib_asset.syncAsset(a_test).getAsset() == a_test);
             assertTrue("No retrieval if not necessary",
-                    olib_asset.retrieveAssetModel(a_test.getObjectId(), m_search).getAsset() == a_test
+                    olib_asset.retrieveAssetModel(a_test.getObjectId(), m_search).get().getAsset() == a_test
                     );
             
             AssetModel amodel_everybody =

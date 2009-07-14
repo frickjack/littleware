@@ -1,14 +1,21 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
-import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
@@ -27,6 +34,7 @@ public class JAssetTypeSelector extends JComboBox implements AssetTypeSelector {
     {
         // Update UI when Model changes
         PropertyChangeListener listen_change = new PropertyChangeListener () {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if ( evt.getPropertyName ().equals ( AssetTypeSelector.Property.selectedAssetType.toString () ) ) {
                     JAssetTypeSelector.this.setSelectedIndex ( oselector_support.getSelectedAssetTypeIndex () );
@@ -43,6 +51,7 @@ public class JAssetTypeSelector extends JComboBox implements AssetTypeSelector {
         
         // Update Model in response to UI control actions
         this.addActionListener ( new ActionListener () {
+            @Override
             public void actionPerformed(ActionEvent evt_action ) {
                 JComboBox wcombo_this = (JComboBox)evt_action.getSource();
                 JAssetTypeSelector.this.setSelectedAssetTypeIndex ( wcombo_this.getSelectedIndex () );
@@ -67,6 +76,7 @@ public class JAssetTypeSelector extends JComboBox implements AssetTypeSelector {
         java.util.List<AssetType>  v_options = new ArrayList<AssetType> ();
         v_options.addAll ( AssetType.getMembers () );
         Collections.sort ( v_options, new Comparator<AssetType>() {
+            @Override
             public int compare( AssetType a, AssetType b ) {
                 return a.getName ().compareTo ( b.getName () );
             }
@@ -94,45 +104,49 @@ public class JAssetTypeSelector extends JComboBox implements AssetTypeSelector {
         this.setRenderer ( render_custom );
     }
     
+    @Override
     public java.util.List<AssetType>  getAssetTypeOptions () {
         return oselector_support.getAssetTypeOptions ();
     }
     
     
+    @Override
     public void setAssetTypeOptions ( java.util.List<AssetType> v_options ) {
         oselector_support.setAssetTypeOptions ( v_options );
     }
     
+    @Override
     public int getSelectedAssetTypeIndex () {
         return oselector_support.getSelectedAssetTypeIndex ();
     }
     
+    @Override
     public void setSelectedAssetTypeIndex ( int i_selected ) {
         oselector_support.setSelectedAssetTypeIndex ( i_selected );
     }
     
+    @Override
     public int getIndexOf ( AssetType n_look4 ) {
         return oselector_support.getIndexOf ( n_look4 );
     }
 
+    @Override
     public AssetType getSelectedAssetType () {
         return oselector_support.getSelectedAssetType ();
     }
     
 
+    @Override
     public void	addLittleListener( LittleListener listen_action ) {
         oselector_support.addLittleListener ( listen_action );
     }
 	
 
+    @Override
 	public void     removeLittleListener( LittleListener listen_action ) {
         oselector_support.removeLittleListener ( listen_action );
     }
     
     
 }
-
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

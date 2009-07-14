@@ -1,14 +1,20 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security;
 
 import java.security.Principal;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.acl.*;
 import java.util.*;
 
-import littleware.base.Whatever;
 import littleware.asset.Asset;
-import littleware.asset.InvalidAssetTypeException;
 
 
 /**
@@ -64,6 +70,7 @@ public class SimpleGroup extends SimplePrincipal implements LittleGroup {
 	 * @param p_member Principle to add to the group
 	 * @return true if p_member successfully added, false if already a member
 	 */
+    @Override
 	public synchronized boolean addMember ( Principal p_member ) {
 		if ( this.equals ( p_member ) ) {
 			return false;
@@ -190,7 +197,8 @@ public class SimpleGroup extends SimplePrincipal implements LittleGroup {
 		return grp_copy;
 	}
     
-    public void sync ( Asset a_copy_source ) throws InvalidAssetTypeException {
+    @Override
+    public void sync ( Asset a_copy_source ) {
         if ( this == a_copy_source ) {
             return;
         }
@@ -202,7 +210,4 @@ public class SimpleGroup extends SimplePrincipal implements LittleGroup {
         ob_cache_complete = grp_copy_source.ob_cache_complete;
     }        
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

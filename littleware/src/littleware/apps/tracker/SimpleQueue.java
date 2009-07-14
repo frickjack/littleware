@@ -1,11 +1,17 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.tracker;
 
-import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
 import java.util.*;
 
-import littleware.base.BaseException;
-import littleware.base.AssertionFailedException;
 import littleware.asset.*;
 
 
@@ -34,6 +40,7 @@ public class SimpleQueue extends SimpleAsset implements Queue {
         setAssetType ( TrackerAssetType.QUEUE );
     }
     
+    @Override
     public List<UUID> getTask( TaskStatus n_status 
                                ) 
     {
@@ -48,13 +55,15 @@ public class SimpleQueue extends SimpleAsset implements Queue {
         }
     }
     
+    @Override
     public SimpleQueue clone () {
         SimpleQueue q_clone = (SimpleQueue) super.clone ();
         q_clone.clearQData ();
         return q_clone;
     }
     
-    public void sync ( Asset a_other ) throws InvalidAssetTypeException {
+    @Override
+    public void sync ( Asset a_other ) {
         if ( this == a_other ) {
             return;
         }
@@ -68,7 +77,4 @@ public class SimpleQueue extends SimpleAsset implements Queue {
         
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

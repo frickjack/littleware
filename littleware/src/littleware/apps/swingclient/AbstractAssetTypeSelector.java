@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient;
 
 import java.util.List;
@@ -24,10 +34,12 @@ public class AbstractAssetTypeSelector extends SimpleLittleTool implements Asset
     }
 
     
+    @Override
     public List<AssetType>  getAssetTypeOptions () {
         return ov_options;
     }
     
+    @Override
     public void setAssetTypeOptions ( List<AssetType> v_options ) {
         List<AssetType>  v_old = ov_options;
         ov_options = v_options;
@@ -40,10 +52,12 @@ public class AbstractAssetTypeSelector extends SimpleLittleTool implements Asset
     }
     
 
+    @Override
     public int getSelectedAssetTypeIndex () {
         return oi_selected;
     }
     
+    @Override
     public void setSelectedAssetTypeIndex ( int i_selected ) {
         int i_old = oi_selected;
         if ( (i_selected < 0) || ov_options.isEmpty () ) {
@@ -59,6 +73,7 @@ public class AbstractAssetTypeSelector extends SimpleLittleTool implements Asset
                             );
     }
     
+    @Override
     public int getIndexOf ( AssetType n_look4 ) {
         int i_index = 0;
         
@@ -72,12 +87,10 @@ public class AbstractAssetTypeSelector extends SimpleLittleTool implements Asset
         return -1;
     }
 
+    @Override
     public AssetType getSelectedAssetType () {
         return ov_options.get ( getSelectedAssetTypeIndex () );
     }
 
  }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

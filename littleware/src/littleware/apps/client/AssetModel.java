@@ -43,7 +43,7 @@ public interface AssetModel extends Comparable<AssetModel> {
      */
     public Asset getAsset ();
         
-    /**
+    /* @deprecated ....
      * Reset the asset this model references - triggers
      * an AssetModelEvent to listeners.
      *
@@ -51,12 +51,15 @@ public interface AssetModel extends Comparable<AssetModel> {
      * @exception IllegalArgumentException RuntimeException if a_data.getObjectId is
      *              not the same as the id of the asset this Model is
      *              already observing
-     */
+     *
     public void setAsset ( Asset a_data );
+     */
     
     /**
-     * Little utility function - calls resetAsset iff 
+     * Little utility function - getAsset.sync if
      *     a_data.getTransactionCount () > getAsset().getTransactionCount ()
+     * or a_data.isDirty() and fires various AssetModelEvents
+     * depending on state change.
      *
      * @param a_data for getAsset to return from now on if a_data has newer TransactionCount
      * @return (a_data.getTransactionCount () > getAsset ().getTransactionCount ()) ? a_data : getAsset ()

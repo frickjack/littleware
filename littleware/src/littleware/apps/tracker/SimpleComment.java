@@ -1,14 +1,22 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.tracker;
 
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 import java.io.StringReader;
 import java.io.IOException;
-import java.util.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 
 import littleware.base.BaseException;
@@ -30,12 +38,15 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
         setAssetType ( TrackerAssetType.COMMENT );
     }
     
+    @Override
     public String getSummary () {
         return os_summary;
     }
     
+    @Override
     public String getBucketPath () { return OS_BUCKET_PATH; }
     
+    @Override
     public void setSummary ( String s_summary ) throws BaseException {
         if ( s_summary.length () > SimpleAsset.OI_DATA_LIMIT - 200 ) {
             throw new littleware.base.TooBigException ( "Summary data exceeds size limit: " + 
@@ -45,11 +56,13 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
         os_summary = s_summary;
     }
     
+    @Override
     public SimpleComment clone () {
         return (SimpleComment) super.clone ();
     }
     
-    public void sync ( Asset a_other ) throws InvalidAssetTypeException {
+    @Override
+    public void sync ( Asset a_other ) {
         if ( this == a_other ) {
             return;
         } 
@@ -161,7 +174,4 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
 
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

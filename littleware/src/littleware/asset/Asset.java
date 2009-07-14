@@ -210,9 +210,9 @@ public interface Asset extends CacheableObject, LittleBean
      * into this asset.  Should be NOOP if this == a_copy_source.  
      *
      * @param a_copy_source to copy data out of
-     * @exception InvalidAssetTypeException if a_copy is not compatible with this
+     * @exception IllegalArgumentException of a_copy_source is not of same type as this
      */
-    public void sync ( Asset a_copy_source ) throws InvalidAssetTypeException;
+    public void sync ( Asset a_copy_source );
     
     /**
      * Convenience method - equivalent to:

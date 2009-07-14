@@ -35,8 +35,7 @@ import littleware.security.*;
  * between those trusted servers.
  */
 public class LocalAssetRetriever implements AssetRetriever {
-
-    private static final Logger olog_generic = Logger.getLogger("littleware.asset.server.LocalAssetRetriever");
+    private static final Logger olog_generic = Logger.getLogger( LocalAssetRetriever.class.getName() );
     private final DbAssetManager om_db;
     private final CacheManager   om_cache;
     private final AssetSpecializerRegistry  oregistry_special;

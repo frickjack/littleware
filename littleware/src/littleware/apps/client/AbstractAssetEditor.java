@@ -57,11 +57,7 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
         }
         Asset a_new = model_edit.getAsset ();
         oa_local = model_edit.getAsset ().clone ();
-        try {
-            oa_local.sync ( a_new );
-        } catch ( InvalidAssetTypeException e ) {
-            throw new AssertionFailedException ( "Should not fail sync after clone", e );
-        }
+        oa_local.sync ( a_new );
         // Do this last - it notifies observers
         super.setAssetModel ( model_edit );
         setHasLocalChanges ( false );
@@ -95,12 +91,8 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
     @Override
     public void clearLocalChanges () {
         Asset a_clean = getAssetModel ().getAsset ();
-        try {
-            oa_local = a_clean.clone ();
-            oa_local.sync ( a_clean );
-        } catch ( InvalidAssetTypeException e ) {
-            throw new AssertionFailedException ( "Should not have happened", e );
-        }
+        oa_local = a_clean.clone ();
+        oa_local.sync ( a_clean );
         setHasLocalChanges ( false );
     }
         

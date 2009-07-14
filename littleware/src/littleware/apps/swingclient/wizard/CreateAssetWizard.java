@@ -141,6 +141,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                             a_new.setComment(a_old.getComment());
                             a_new.setObjectId(a_old.getObjectId());
                             a_new.setName(a_old.getName());
+                            olib_asset.remove( a_new.getObjectId() );
                             setAssetModel(olib_asset.syncAsset(a_new));
                             setHasLocalChanges(true);
                         }

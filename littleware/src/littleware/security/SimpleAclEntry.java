@@ -269,7 +269,7 @@ class SimpleAclEntry extends SimpleAsset implements LittleAclEntry, XmlDataAsset
 	}
 	
     @Override
-    public void sync ( Asset a_copy_source ) throws InvalidAssetTypeException {
+    public void sync ( Asset a_copy_source )  {
         if ( this == a_copy_source ) {
             return;
         }

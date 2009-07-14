@@ -435,12 +435,12 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
     }
 
     @Override
-    public void sync(Asset a_copy_source) throws InvalidAssetTypeException {
+    public void sync(Asset a_copy_source) {
         if (this == a_copy_source) {
             return;
         }
         if (!getAssetType().equals(a_copy_source.getAssetType())) {
-            throw new InvalidAssetTypeException("Mismatching asset-types at sync: " +
+            throw new IllegalArgumentException("Mismatching asset-types at sync: " +
                     this.getAssetType() + " != " +
                     a_copy_source.getAssetType());
         }

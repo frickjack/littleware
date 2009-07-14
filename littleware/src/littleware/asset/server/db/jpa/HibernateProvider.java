@@ -28,20 +28,25 @@ import org.hibernate.ejb.Ejb3Configuration;
 public class HibernateProvider implements Provider<EntityManagerFactory> {
 
     private final DataSource odsource;
+    private final String osUrl;
     private EntityManagerFactory ofactory = null;
     private final List<Class<?>> ovExtraEntity = new ArrayList<Class<?>>();
 
     @Inject
-    public HibernateProvider(@Named("datasource.littleware") DataSource dsource) {
+    public HibernateProvider(@Named("datasource.littleware") DataSource dsource,
+            @Named("datasource.littleware") String sDatasourceUrl) {
         odsource = dsource;
+        osUrl = sDatasourceUrl;
     }
 
     /**
      * Allow subtypes to extend the set of registered entity classes
      */
     protected HibernateProvider(DataSource dsource,
+            String         sDatasourceUrl,
             List<Class<?>> vExtraEntity) {
         odsource = dsource;
+        osUrl = sDatasourceUrl;
         ovExtraEntity.addAll(vExtraEntity);
     }
 
@@ -51,10 +56,15 @@ public class HibernateProvider implements Provider<EntityManagerFactory> {
             final Ejb3Configuration config = new org.hibernate.ejb.Ejb3Configuration(). //addAnnotatedClass( classOf[SimpleProqUpload] ).
                     addAnnotatedClass(AssetEntity.class).
                     addAnnotatedClass(TransactionEntity.class).
-                    addAnnotatedClass(AssetTypeEntity.class).
-                    //setProperty("hibernate.show_sql", "true").
-                    setProperty("hibernate.dialect",
-                    "org.hibernate.dialect.MySQLDialect");
+                    addAnnotatedClass(AssetTypeEntity.class);
+            //setProperty("hibernate.show_sql", "true").jdbc:derby://localhost:1527/littleware
+            if (osUrl.toLowerCase().indexOf("javadb") > -1) {
+                config.setProperty("hibernate.dialect",
+                        "org.hibernate.dialect.DerbyDialect");
+            } else {
+                config.setProperty("hibernate.dialect",
+                        "org.hibernate.dialect.MySQLDialect");
+            }
             for (Class<?> entityClass : ovExtraEntity) {
                 config.addAnnotatedClass(entityClass);
             }

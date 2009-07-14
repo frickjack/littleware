@@ -48,7 +48,6 @@ public class PackageTestSuite extends ServerTestLauncher {
         // disable server tests
         final boolean bRun = true;
 
-
         olog.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
             if (bRun) {

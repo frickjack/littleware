@@ -237,7 +237,8 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * Sort based on getName() first, fall through to getObjectId()
      * if names are equal.
      */
-    public int compareTo(DynamicEnum n_other) {
+    @Override
+    public int compareTo(T n_other) {
         int i_result = getName().compareTo(n_other.getName());
 
         if (0 != i_result) {

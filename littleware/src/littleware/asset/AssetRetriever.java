@@ -97,7 +97,8 @@ public interface AssetRetriever extends java.rmi.Remote {
      * Caller must have READ-access to the source asset.
      *
      * @param u_from asset - result&apos;s FROM-asset
-     * @param n_type to limit search to - may be null
+     * @param n_type to limit search to
+     * @param i_state to limit search to
      * @return mapping from child-name to child-id
      * @exception AccessDeniedException if caller does not have read access
      *                to a_source
@@ -108,7 +109,21 @@ public interface AssetRetriever extends java.rmi.Remote {
     public
     @ReadOnly
     Map<String, UUID> getAssetIdsFrom(UUID u_from,
+            AssetType<? extends Asset> n_type, int i_state ) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
+    public
+    @ReadOnly
+    Map<String, UUID> getAssetIdsFrom(UUID u_from,
             AssetType<? extends Asset> n_type) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
+
+
+    public
+    @ReadOnly
+    Map<String, UUID> getAssetIdsFrom(UUID u_from
+            ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 }

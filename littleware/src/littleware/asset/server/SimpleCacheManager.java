@@ -12,6 +12,7 @@ package littleware.asset.server;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -416,6 +417,16 @@ public class SimpleCacheManager implements CacheManager {
     @Override
     public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> v_check) throws BaseException {
         throw new CacheMissException();
+    }
+
+    @Override
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return getAssetIdsFrom( u_from, null );
     }
 }
 

@@ -30,7 +30,6 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 
     private static final Logger olog_generic = Logger.getLogger(SimpleAssetSearchManager.class.getName());
     private final DbAssetManager om_db;
-    private final CacheManager om_cache;
     private final Provider<LittleTransaction> oprovideTrans;
     private final AssetPathFactory opathFactory = new SimpleAssetPathFactory(this);
 
@@ -39,13 +38,11 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
      */
     @Inject
     public SimpleAssetSearchManager(DbAssetManager m_db,
-            CacheManager m_cache,
             AssetSpecializerRegistry registry_special,
             Provider<LittleTransaction> provideTrans,
             PermissionCache  cachePermission ) {
-        super(m_db, m_cache, registry_special, provideTrans, cachePermission );
+        super(m_db, registry_special, provideTrans, cachePermission );
         om_db = m_db;
-        om_cache = m_cache;
         oprovideTrans = provideTrans;
     }
 
@@ -54,15 +51,6 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
             GeneralSecurityException, RemoteException {
         if (!n_type.isNameUnique()) {
             throw new InvalidAssetTypeException("getByName requires name-unique type: " + n_type);
-        }
-
-        try {
-            final Maybe<T> maybeResult = om_cache.getByName(s_name, n_type);
-            if (!maybeResult.isSet()) {
-                return maybeResult;
-            }
-            return Maybe.something((T) secureAndSpecialize(maybeResult.get()));
-        } catch (CacheMissException e) {
         }
 
         // cache miss
@@ -74,7 +62,6 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 DbReader<Set<Asset>, String> db_reader = om_db.makeDbAssetsByNameLoader(s_name, n_type);
 
                 v_load = db_reader.loadObject(null);
-                om_cache.setAssetsByName(s_name, n_type, null, v_load);
             } catch (SQLException e) {
                 olog_generic.log(Level.SEVERE, "Caught unexpected: " + e);
                 throw new DataAccessException("Unexpected caught: " + e, e);
@@ -212,24 +199,12 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     public Set<UUID> getAssetIdsTo(UUID u_to,
             AssetType<? extends Asset> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        Set<UUID> v_result = null;
-
         try {
-            return om_cache.getAssetIdsTo(u_to, n_type);
-        } catch (CacheMissException e) {
-            olog_generic.log(Level.FINE, "Cache miss: " + u_to + ", " + n_type);
-        }
-
-        // cache miss
-        try {
-            DbReader<Set<UUID>, String> sql_reader = om_db.makeDbAssetIdsToLoader(u_to, n_type);
-            v_result = sql_reader.loadObject(null);
+            final DbReader<Set<UUID>, String> sql_reader = om_db.makeDbAssetIdsToLoader(u_to, n_type);
+            return sql_reader.loadObject(null);
         } catch (SQLException e) {
             throw new DataAccessException("Caught unexpected: " + e);
         }
-
-        om_cache.setAssetIdsTo(u_to, n_type, v_result);
-        return v_result;
     }
 }
 

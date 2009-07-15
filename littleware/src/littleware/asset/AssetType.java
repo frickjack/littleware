@@ -94,13 +94,13 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
      * A false result indicates that two assets
      * of this type may have the same name.
      * This base class method returns:
-     *         (null == getSuperType()) ? false : getSuperType ().isNameUnique ()
+     *         (getSuperType().isEmpty()) ? false : getSuperType ().isNameUnique ()
      *
      * @return true if each asset of this type has a unique name within the
      *          set of assets of this type within a single littleware asset repository.
      */
     public boolean isNameUnique() {
-        return (null == getSuperType()) ? false : getSuperType().isNameUnique();
+        return (getSuperType().isEmpty()) ? false : getSuperType().get().isNameUnique();
     }
 
     /**
@@ -111,8 +111,8 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
      *
      * @return super-type, or null if no super-type (this implementation returns null)
      */
-    public AssetType<? extends Asset> getSuperType() {
-        return null;
+    public Maybe<AssetType<? extends Asset>> getSuperType() {
+        return Maybe.empty();
     }
 
     /**
@@ -129,10 +129,10 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         }
 
         // climb this assset's inheritance tree, cache the result
-        for (AssetType atype_check = this;
-                atype_check != null;
-                atype_check = atype_check.getSuperType()) {
-            if (atype_check.equals(atype_other)) {
+        for ( Maybe<AssetType<? extends Asset>> maybe = Maybe.something( (AssetType<? extends Asset>) this);
+                maybe.isSet();
+                maybe = maybe.get().getSuperType()) {
+            if (maybe.get().equals(atype_other)) {
                 return true;
             }
         }
@@ -151,7 +151,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
      *         (null == getSuperType()) ? false : getSuperType ().mustBeAdminToCreate ()
      */
     public boolean mustBeAdminToCreate() {
-        return ((null == getSuperType()) ? false : getSuperType().mustBeAdminToCreate());
+        return (getSuperType().isEmpty()) ? false : getSuperType().get().mustBeAdminToCreate());
     }
     /** GENERIC asset-type */
     public static final AssetType<Asset> GENERIC = new AssetType<Asset>(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),

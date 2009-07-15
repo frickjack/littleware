@@ -156,4 +156,24 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
         return mapResult;
     }
 
+    @Override
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        if ( null == n_type ) {
+            throw new NullPointerException( "Null type argument to getAssetIdsFrom" );
+        }
+        final String sKey = u_from.toString() + n_type + i_state;
+        final Cache<String,Object> cache = ClientCache.getSingleton().getCache();
+        Map<String,UUID> mapResult = (Map<String,UUID>) cache.get( sKey );
+        if ( null == mapResult ) {
+            mapResult = oserver.getAssetIdsFrom( u_from, n_type, i_state );
+            cache.put( sKey, mapResult );
+        }
+        return mapResult;
+    }
+
+    @Override
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return getAssetIdsFrom( u_from, null );
+    }
+
 }

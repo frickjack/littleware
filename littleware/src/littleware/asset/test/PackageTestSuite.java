@@ -110,7 +110,7 @@ public class PackageTestSuite extends TestSuite {
                 AssetManager m_proxy = (AssetManager) Proxy.newProxyInstance(AssetManager.class.getClassLoader(),
                         new Class[]{AssetManager.class},
                         handler_asset);
-                this.addTest(new AssetManagerTester("testAssetCreation",
+                this.addTest(new AssetManagerTester(
                         new RmiAssetManager(m_proxy),
                         m_search));
             } catch (Exception e) {

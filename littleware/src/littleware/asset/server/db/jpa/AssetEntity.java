@@ -37,6 +37,7 @@ public class AssetEntity implements Serializable {
     private long olTransaction = 0;
     private String osOwnerId = null;
     private float ofValue = 0.0F;
+    private int    oiState = 0;
     private String osComment = null;
     private String osLastChange = null;
     private String osData = null;
@@ -102,6 +103,15 @@ public class AssetEntity implements Serializable {
     public void setValue( float fValue ) {
         ofValue = fValue;
     }
+
+    @Column( name="i_state" )
+    public int getState () {
+        return oiState;
+    }
+    public void setState( int iState ) {
+        oiState = iState;
+    }
+
 
     @Column( name="s_comment", length=256 )
 	public String        getComment () { return osComment; }
@@ -199,6 +209,7 @@ public class AssetEntity implements Serializable {
             aNew.setObjectId( UUIDFactory.parseUUID( getObjectId() ) );
             aNew.setName( getName() );
             aNew.setValue( getValue() );
+            aNew.setState( getState() );
             aNew.setData( getData() );
             aNew.setFromId( uuidOrNull( getFromId() ) );
             aNew.setToId( uuidOrNull( getToId() ) );
@@ -235,6 +246,7 @@ public class AssetEntity implements Serializable {
         entity.setTypeId( UUIDFactory.makeCleanString( aImport.getAssetType().getObjectId() ) );
         entity.setName(aImport.getName());
         entity.setValue(aImport.getValue());
+        entity.setState( aImport.getState() );
         entity.setData(aImport.getData());
         entity.setFromId(stringOrNull(aImport.getFromId()));
         entity.setToId(stringOrNull(aImport.getToId()));

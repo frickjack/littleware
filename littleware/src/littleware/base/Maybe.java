@@ -25,6 +25,7 @@ public class Maybe<T> implements java.io.Serializable {
     private String osError = null;
 
     public boolean isSet() { return ob_set; }
+    public boolean isEmpty() { return ! ob_set; }
 
     /** Construct an unset Maybe */
     private Maybe () {}
@@ -104,6 +105,8 @@ public class Maybe<T> implements java.io.Serializable {
 
     /** Factory for unset Maybe */
     public static <T> Maybe<T> empty() { return new Maybe<T>(); }
+    public static <T> Maybe<T> empty( Class<T> type ) { return new Maybe<T>(); }
+
     /**
      * Factory method for unset Maybe
      *
@@ -111,6 +114,9 @@ public class Maybe<T> implements java.io.Serializable {
      *     the client invokes get
      */
     public static <T> Maybe<T> empty( String sError ) {
+        return new Maybe<T>().putError( sError );
+    }
+    public static <T> Maybe<T> empty( Class<T> type, String sError ) {
         return new Maybe<T>().putError( sError );
     }
 

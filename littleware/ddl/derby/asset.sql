@@ -190,6 +190,7 @@ CREATE TABLE littleware.asset (
 	s_id_updater        VARCHAR(32) NOT NULL,
 	s_id_owner          VARCHAR(32) NOT NULL,
 	f_value             NUMERIC(16,4),
+    i_state             INTEGER DEFAULT 0,
 	s_id_acl            VARCHAR(32),
 	s_comment           VARCHAR(256),
 	s_last_change       VARCHAR(128) NOT NULL,

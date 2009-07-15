@@ -52,7 +52,8 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
     /** Limit on the size of the data block */
     public static final int OI_DATA_LIMIT = 1024;
     private transient PropertyChangeSupport osupport_props = new PropertyChangeSupport(this);
-    private boolean obDirty = true;
+    private boolean ob_dirty = true;
+    private int oi_state = 0;
 
     /** 
      * Wrapper fires property change if property changes, and
@@ -93,14 +94,14 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
 
     @Override
     public boolean isDirty() {
-        return obDirty;
+        return ob_dirty;
     }
 
     @Override
     public void setDirty(boolean bDirty) {
-        final boolean old = obDirty;
-        obDirty = bDirty;
-        osupport_props.firePropertyChange("dirty", old, obDirty);
+        final boolean old = ob_dirty;
+        ob_dirty = bDirty;
+        osupport_props.firePropertyChange("dirty", old, ob_dirty);
     }
 
     /**
@@ -456,6 +457,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
         setLastUpdate( a_simple_source.os_last_update );
         setName( a_simple_source.os_name );
         setValue( a_simple_source.of_value );
+        setState( a_simple_source.oi_state );
         setOwnerId( a_simple_source.ou_owner );
         try {
             // simplify XML-data handling
@@ -497,6 +499,18 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
     @Override
     public <T extends Asset> T narrow() {
         return (T) this;
+    }
+
+    @Override
+    public Integer getState() {
+        return oi_state;
+    }
+
+    @Override
+    public void setState(int iState) {
+        final int old = oi_state;
+        oi_state = iState;
+        firePropertyChange( "state", old, iState );
     }
 }
 

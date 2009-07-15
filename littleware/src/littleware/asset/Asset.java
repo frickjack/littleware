@@ -23,6 +23,18 @@ import littleware.security.LittleUser;
 
 /**
  * Asset data-bucket base-class.
+ * A typical littleware application arranges
+ * assets into a tree-like graph rooted under
+ * the application's "home" asset.
+ * The application arranges assets into different
+ * subtrees to categorize the assets in different ways.
+ * For example, a request-tracker application might
+ * have a very simple structure.
+ *     /Application/InBox/
+ *     /Application/OutBox/
+ * where /Application is a 'home' type asset (see littleware.asset.AssetType),
+ * InBox and OutBox are 'generic' assets, and InBox and OutBox
+ * have multiple 'request' type asset children.
  */
 public interface Asset extends CacheableObject, LittleBean
 {	    
@@ -143,10 +155,20 @@ public interface Asset extends CacheableObject, LittleBean
 	/**
 	 * Asset may have a float value associated with it
 	 * interpreted differently for different asset types
+     * (priority, cost, whatever).
 	 *
 	 * @return value as an Object - so we can Proxy this interface easily
 	 */
 	public Float       getValue ();
+
+    /**
+     * It's very common for asset pipelines to want to put
+     * assets into one of several states.
+     * Subtypes should generally map a state to an enumeration.
+     *
+     * @return integer asset state
+     */
+    public Integer     getState();
 	
 	/** 
 	 * Name may not contain / 
@@ -186,6 +208,7 @@ public interface Asset extends CacheableObject, LittleBean
 	public void        setLastAccessDate ( Date t_access_date );
 	
 	public void        setValue ( float f_value );
+    public void        setState ( int iState );
 
     /**
      * Property indicates whether this object is in sync

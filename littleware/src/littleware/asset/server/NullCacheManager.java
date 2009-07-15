@@ -10,6 +10,7 @@
 
 package littleware.asset.server;
 
+import java.rmi.RemoteException;
 import littleware.asset.*;
 import java.util.*;
 import java.security.GeneralSecurityException;
@@ -231,6 +232,16 @@ public class NullCacheManager implements CacheManager {
 
     @Override
     public void setMaxEntryAgeSecs(int iSecs) {
+    }
+
+    @Override
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        throw new CacheMissException ();
+    }
+
+    @Override
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        throw new CacheMissException ();
     }
 
 }

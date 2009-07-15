@@ -37,7 +37,6 @@ import littleware.security.*;
 public class LocalAssetRetriever implements AssetRetriever {
     private static final Logger olog_generic = Logger.getLogger( LocalAssetRetriever.class.getName() );
     private final DbAssetManager om_db;
-    private final CacheManager   om_cache;
     private final AssetSpecializerRegistry  oregistry_special;
     private final Provider<LittleTransaction>        oprovideTrans;
     private final PermissionCache ocachePermission;
@@ -46,13 +45,11 @@ public class LocalAssetRetriever implements AssetRetriever {
      * Constructor stashes DbManager, and CacheManager
      */
     public LocalAssetRetriever(DbAssetManager m_db,
-            CacheManager m_cache,
             AssetSpecializerRegistry registry_special,
             Provider<LittleTransaction>  provideTrans,
             PermissionCache        cachePermission
             ) {
         om_db = m_db;
-        om_cache = m_cache;
         oregistry_special = registry_special;
         oprovideTrans = provideTrans;
         ocachePermission = cachePermission;
@@ -180,18 +177,6 @@ public class LocalAssetRetriever implements AssetRetriever {
             if (null != a_result) {
                 return a_result;
             }
-
-            try {
-                final Maybe<Asset> maybeResult = om_cache.getAsset(u_id);
-                if ( maybeResult.isSet() ) {
-                    a_result = maybeResult.get();
-                }
-            } catch (CacheMissException e) {
-            } catch (GeneralSecurityException e) {
-                throw new AssertionFailedException("Cache should not do security check");
-            }
-
-            if (null == a_result) { // cache miss
                 try {
                     DbReader<Asset, UUID> sql_reader = om_db.makeDbAssetLoader();
                     a_result = sql_reader.loadObject(u_id);
@@ -200,8 +185,6 @@ public class LocalAssetRetriever implements AssetRetriever {
                     throw new DataAccessException("Caught unexpected: " + e);
                 }
 
-                om_cache.put(u_id, a_result);
-            }
             v_cycle_cache.put(u_id, a_result);
 
             return a_result;
@@ -233,52 +216,42 @@ public class LocalAssetRetriever implements AssetRetriever {
     @Override
     public Map<String, UUID> getHomeAssetIds() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        Map<String, UUID> v_result = null;
-
-        try {
-            return om_cache.getHomeAssetIds();
-        } catch (CacheMissException e) {
-        }
-
         // cache miss
         try {
             DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbHomeIdLoader();
-            v_result = sql_reader.loadObject(null);
+            return sql_reader.loadObject(null);
         } catch (SQLException e) {
             olog_generic.log(Level.INFO, "Caught unexpected: " + e);
             throw new DataAccessException("Caught unexpected: " + e);
         }
-
-        om_cache.setHomeAssetIds(v_result);
-
-        return v_result;
     }
 
     @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_source,
             AssetType<? extends Asset> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        Map<String, UUID> v_result = null;
-
-        try {
-            return om_cache.getAssetIdsFrom(u_source, n_type);
-        } catch (CacheMissException e) {
-        }
-
-        // cache miss
         try {
             DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_source, n_type);
-            v_result = sql_reader.loadObject(null);
+            return sql_reader.loadObject(null);
         } catch (SQLException e) {
             throw new DataAccessException("Caught unexpected: " + e, e);
         }
-
-        om_cache.setAssetIdsFrom(u_source, n_type, v_result);
-        return v_result;
     }
 
-    public String getSourceName() {
-        return "local";
+
+    @Override
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        try {
+            final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_from, n_type, i_state);
+            return sql_reader.loadObject(null);
+        } catch (SQLException e) {
+            throw new DataAccessException("Caught unexpected: " + e, e);
+        }
+    }
+
+    @Override
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return getAssetIdsFrom( u_from, null );
     }
 }
 

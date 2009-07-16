@@ -51,7 +51,6 @@ public class JTextAppender extends JPanel implements Appendable {
     private JComboBox ow_mode = null;
     private int oi_buffer_size = 0;
     private Mode on_mode = Mode.TAIL;
-    private JTextAreaAppender appender = null;
 
     /**
      * Shared constructor code
@@ -110,7 +109,6 @@ public class JTextAppender extends JPanel implements Appendable {
 
         ow_text = new JTextArea(i_height, i_width);
         ow_text.setEditable(false);
-        appender = new JTextAreaAppender( ow_text, oi_buffer_size );
 
         JScrollPane w_scroll = new JScrollPane(ow_text,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,

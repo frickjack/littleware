@@ -1,9 +1,17 @@
+/*
+ * Copyright 2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.tracker;
 
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
-import java.util.UUID;
-import java.util.List;
 import java.io.IOException;
 
 import littleware.base.BaseException;
@@ -22,6 +30,9 @@ import littleware.apps.filebucket.BucketException;
  * associated with this asset.
  */
 public interface Comment extends Asset {
+    /** Get upper bound on summary size */
+    public int getMaxSummary();
+
     /**
      * Extracts summary information from the Asset Data block
      */
@@ -30,10 +41,10 @@ public interface Comment extends Asset {
     /**
      * Sets up summary info in the data block
      *
-     * @exception TooBigException if summary exceeds limit
-     *         on asset data size
+     * @exception IllegalArgumentException if summary exceeds 
+     *         800 characters
      */
-    public void setSummary ( String s_summary ) throws BaseException;
+    public void setSummary ( String s_summary );
     
     /**
      * Return true if a non-null comment has been saved
@@ -76,12 +87,7 @@ public interface Comment extends Asset {
      * Get the path to the file containing the full comment within the bucket
      * associated with this Comment.
      */
-    public String getBucketPath ();
-    
-    
+    public String getBucketPath ();    
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

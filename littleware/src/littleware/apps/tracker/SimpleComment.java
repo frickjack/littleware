@@ -45,11 +45,16 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
     
     @Override
     public String getBucketPath () { return OS_BUCKET_PATH; }
-    
+
     @Override
-    public void setSummary ( String s_summary ) throws BaseException {
-        if ( s_summary.length () > SimpleAsset.OI_DATA_LIMIT - 200 ) {
-            throw new littleware.base.TooBigException ( "Summary data exceeds size limit: " + 
+    public int getMaxSummary() {
+        return SimpleAsset.OI_DATA_LIMIT - 200;
+    }
+
+    @Override
+    public void setSummary ( String s_summary ) {
+        if ( s_summary.length () > getMaxSummary() ) {
+            throw new IllegalArgumentException ( "Summary data exceeds size limit: " +
                                         (SimpleAsset.OI_DATA_LIMIT - 200)
                                         );
         }
@@ -81,6 +86,7 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
 		/**
          * Callback for XML start-tag
 		 */
+        @Override
 		public void startElement( String s_namespace,
 						          String s_simple, // simple name (localName)
 						          String s_qualified, // qualified name
@@ -91,6 +97,7 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
 		}
         
 		
+        @Override
 		public void characters(char buf[], int offset, int len)
             throws SAXException
         {
@@ -104,6 +111,7 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
     /**
      * Parse XML data to determine data summary
 	 */
+    @Override
 	public void        setData ( String s_data ) throws ParseException
 	{
 		try {
@@ -126,6 +134,7 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
 	/**
      * Procedurally generate XML data
 	 */
+    @Override
 	public String    getData () 
 	{
 		String s_data = "<asset:comment xmlns:asset=\"" 
@@ -136,6 +145,7 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
 		return s_data;
 	}
 
+    @Override
     public void saveComment ( BucketManager m_bucket, String s_comment
                               )  throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
@@ -146,6 +156,7 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
                     );
     }
     
+    @Override
     public void eraseComment ( BucketManager m_bucket
                               )  throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
@@ -156,6 +167,7 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
                     );
     }
 
+    @Override
     public String getComment ( BucketManager m_bucket 
                                )  throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, BucketException, IOException
@@ -163,10 +175,12 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
         return m_bucket.readTextFromBucket ( this.getObjectId (), getBucketPath () );
     }
 
+    @Override
     public boolean hasComment () {
         return (getValue () > 0);
     }
     
+    @Override
     public DefaultHandler getSaxDataHandler () {
 		return new XmlDataHandler ();
 	}

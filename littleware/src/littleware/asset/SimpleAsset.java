@@ -11,6 +11,7 @@ package littleware.asset;
 
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -512,5 +513,11 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
         oi_state = iState;
         firePropertyChange( "state", old, iState );
     }
+
+    private void readObject(java.io.ObjectInputStream in)
+     throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        osupport_props = new PropertyChangeSupport(this);
+    }  
 }
 

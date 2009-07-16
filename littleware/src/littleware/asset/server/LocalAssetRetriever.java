@@ -231,7 +231,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             AssetType<? extends Asset> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         try {
-            DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_source, n_type);
+            final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_source, Maybe.emptyIfNull( (AssetType) n_type ), Maybe.empty( Integer.class ) );
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
             throw new DataAccessException("Caught unexpected: " + e, e);
@@ -242,7 +242,7 @@ public class LocalAssetRetriever implements AssetRetriever {
     @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         try {
-            final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_from, n_type, i_state);
+            final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_from, Maybe.something( (AssetType) n_type ), Maybe.something( i_state ) );
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
             throw new DataAccessException("Caught unexpected: " + e, e);

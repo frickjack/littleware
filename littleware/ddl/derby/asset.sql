@@ -210,6 +210,8 @@ CREATE INDEX asset_from_idx ON littleware.asset ( s_id_from, s_id_to, s_id_home 
 CREATE INDEX asset_to_idx ON littleware.asset ( s_id_to, s_id_from, s_id_home );
 CREATE INDEX asset_typename_idx ON littleware.asset ( s_pk_type, s_name );
 CREATE INDEX asset_transaction_idx ON littleware.asset( l_last_transaction );
+CREATE INDEX asset_from_type_idx ON littleware.asset ( s_id_from, s_pk_type, i_state );
+
 
 ------
 

@@ -95,7 +95,7 @@ public final class HumanPicklerProvider implements Provider<AssetHumanPickler> {
             Provider<? extends AssetHumanPickler> provider = null;
             for ( AssetType<? extends Asset> atype = x.getAssetType();
                   (null == provider) && (atype != null);
-                  atype = atype.getSuperType()
+                  atype = atype.getSuperType().getOr(null)
                   ) {
                 provider = omapType2Provider.get( atype );
             }

@@ -1,6 +1,4 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
  * Copyright 2007-2008 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
@@ -55,7 +53,7 @@ public class DerbyDbCacheManager implements DbCacheManager {
      */
     static void saveAssetTypeIfNecessary(final AssetType n_type,
             final Connection con_derby) throws SQLException {
-        AssetType n_super = n_type.getSuperType();
+        AssetType n_super = (AssetType) n_type.getSuperType().getOr(null);
 
         if ((null != n_super) && (!mv_saved_types.contains(n_type))) {
             PreparedStatement stmt_derby = null;
@@ -67,7 +65,7 @@ public class DerbyDbCacheManager implements DbCacheManager {
 
                 for (AssetType n_check = n_type;
                         n_super != null;
-                        n_super = n_super.getSuperType()) {
+                        n_super = (AssetType) n_super.getSuperType().getOr(null)) {
                     stmt_derby.setString(1, UUIDFactory.makeCleanString(n_super.getObjectId()));
                     stmt_derby.setString(2, UUIDFactory.makeCleanString(n_check.getObjectId()));
                     stmt_derby.executeUpdate();
@@ -98,6 +96,7 @@ public class DerbyDbCacheManager implements DbCacheManager {
         mv_query_log.clear();
     }
 
+    @Override
     public JdbcDbReader<Map<String, UUID>, String> makeDbHomeIdsLoader() {
         if (!mv_query_log.contains(DbHomeIdsSaver.getQueryLogKey())) {
             return null;
@@ -105,6 +104,7 @@ public class DerbyDbCacheManager implements DbCacheManager {
         return new DbHomeIdsLoader( odataSource );
     }
 
+    @Override
     public JdbcDbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID u_from, AssetType n_type) {
         String s_query_key = DbAssetIdsFromSaver.getQueryLogKey(u_from, n_type);
 
@@ -116,6 +116,7 @@ public class DerbyDbCacheManager implements DbCacheManager {
         return new DbAssetIdsFromLoader( odataSource, u_from, n_type);
     }
 
+    @Override
     public JdbcDbReader<Set<UUID>, String> makeDbAssetIdsToLoader(UUID u_to, AssetType n_type) {
         String s_query_key = DbAssetIdsToSaver.getQueryLogKey(u_to, n_type);
 
@@ -125,30 +126,37 @@ public class DerbyDbCacheManager implements DbCacheManager {
         return new DbAssetIdsToLoader( odataSource, u_to, n_type);
     }
 
+    @Override
     public JdbcDbWriter<Set<UUID>> makeDbAssetIdsToSaver(UUID u_to, AssetType n_type) {
         return new DbAssetIdsToSaver( odataSource, u_to, n_type);
     }
 
+    @Override
     public JdbcDbWriter<Map<String, UUID>> makeDbHomeIdsSaver() {
         return new DbHomeIdsSaver( odataSource );
     }
 
+    @Override
     public JdbcDbWriter<Map<String, UUID>> makeDbAssetIdsFromSaver(UUID u_from, AssetType n_type) {
         return new DbAssetIdsFromSaver( odataSource, u_from, n_type);
     }
 
+    @Override
     public JdbcDbWriter<Asset> makeDbAssetSaver() {
         return new DbAssetSaver( odataSource );
     }
 
+    @Override
     public JdbcDbWriter<UUID> makeDbEraser() {
         return new DbEraser( odataSource );
     }
 
+    @Override
     public JdbcDbWriter<Set<Asset>> makeDbAssetsByNameSaver(String s_name, AssetType n_type, UUID u_home) {
         return new DbAssetsByNameSaver( odataSource, s_name, n_type, u_home);
     }
 
+    @Override
     public JdbcDbReader<Set<UUID>, String> makeDbAssetsByNameLoader(String s_name, AssetType n_type,
             UUID u_home) {
         String s_query_key = DbAssetsByNameSaver.getQueryLogKey(s_name, n_type, u_home);

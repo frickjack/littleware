@@ -15,6 +15,7 @@ import java.util.*;
 import java.sql.SQLException;
 
 import littleware.asset.*;
+import littleware.base.Maybe;
 import littleware.db.*;
 
 /**
@@ -59,7 +60,7 @@ public interface DbAssetManager {
     /**
      * Create handler to load the ids of assets linking FROM a given asset id
      */
-    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID u_from, AssetType n_child_type);
+    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, Maybe<AssetType> maybeType, Maybe<Integer> maybeState);
 
     /**
      * Create handler to load the ids of assets linking TO a given asset id

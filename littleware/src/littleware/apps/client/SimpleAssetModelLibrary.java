@@ -94,13 +94,13 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
                 if (null != a_old) {
                     for (AssetType atype = a_old.getAssetType();
                             (atype != null) && atype.isNameUnique();
-                            atype = atype.getSuperType()) {
+                            atype = (AssetType) atype.getSuperType().getOr(null)) {
                         omulti_byname.get(atype).remove(a_old.getName());
                     }
                 }
                 for (AssetType atype = a_new.getAssetType();
                         (null != atype) && atype.isNameUnique();
-                        atype = atype.getSuperType()) {
+                        atype = (AssetType) atype.getSuperType().getOr(null)) {
                     Map<String, UUID> map_4type = omulti_byname.get(atype);
                     if (null == map_4type) {
                         map_4type = new HashMap<String, UUID>();
@@ -306,7 +306,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
             Asset a_remove = amodel_remove.getAsset();
             for (AssetType atype = a_remove.getAssetType();
                     (atype != null) && atype.isNameUnique();
-                    atype = atype.getSuperType()) {
+                    atype = (AssetType) atype.getSuperType().getOr(null)) {
                 Map<String, UUID> map_byname = omulti_byname.get(atype);
                 if (null != map_byname) {
                     map_byname.remove(a_remove.getName());

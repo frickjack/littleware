@@ -225,6 +225,7 @@ CREATE TABLE littleware.asset (
 	s_id_updater        VARCHAR(32) NOT NULL,
 	s_id_owner          VARCHAR(32) NOT NULL,
 	f_value             NUMERIC(16,4),
+        i_state             INTEGER DEFAULT 0,
 	s_id_acl            VARCHAR(32),
 	s_comment           VARCHAR(256),
 	s_last_change       VARCHAR(128) NOT NULL,
@@ -242,6 +243,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON littleware.asset TO littleware_user;
 
 CREATE UNIQUE INDEX asset_fromname_idx ON littleware.asset ( s_id_from, s_name );
 CREATE INDEX asset_from_idx ON littleware.asset ( s_id_from, s_id_to, s_id_home );
+CREATE INDEX asset_from_type_idx ON littleware.asset ( s_id_from, s_pk_type, i_state );
 CREATE INDEX asset_to_idx ON littleware.asset ( s_id_to, s_id_from, s_id_home );
 CREATE INDEX asset_typename_idx ON littleware.asset ( s_pk_type, s_name );
 CREATE INDEX asset_transaction_idx ON littleware.asset( l_last_transaction );

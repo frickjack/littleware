@@ -111,7 +111,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
      *
      * @return super-type, or null if no super-type (this implementation returns null)
      */
-    public Maybe<AssetType<? extends Asset>> getSuperType() {
+    public Maybe<AssetType> getSuperType() {
         return Maybe.empty();
     }
 
@@ -129,7 +129,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         }
 
         // climb this assset's inheritance tree, cache the result
-        for ( Maybe<AssetType<? extends Asset>> maybe = Maybe.something( (AssetType<? extends Asset>) this);
+        for ( Maybe<AssetType> maybe = Maybe.something( (AssetType) this);
                 maybe.isSet();
                 maybe = maybe.get().getSuperType()) {
             if (maybe.get().equals(atype_other)) {
@@ -151,7 +151,7 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
      *         (null == getSuperType()) ? false : getSuperType ().mustBeAdminToCreate ()
      */
     public boolean mustBeAdminToCreate() {
-        return (getSuperType().isEmpty()) ? false : getSuperType().get().mustBeAdminToCreate());
+        return (getSuperType().isEmpty()) ? false : getSuperType().get().mustBeAdminToCreate();
     }
     /** GENERIC asset-type */
     public static final AssetType<Asset> GENERIC = new AssetType<Asset>(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),

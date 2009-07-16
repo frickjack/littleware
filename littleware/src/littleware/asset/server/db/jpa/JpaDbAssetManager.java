@@ -21,6 +21,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.server.CacheManager;
 import littleware.asset.server.db.DbAssetManager;
+import littleware.base.Maybe;
 import littleware.db.DbReader;
 import littleware.db.DbWriter;
 
@@ -83,8 +84,8 @@ public class JpaDbAssetManager implements DbAssetManager {
     }
 
     @Override
-    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, AssetType atype) {
-        return new DbIdsFromLoader(oprovideTrans, uFrom, atype);
+    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, Maybe<AssetType> maybeType, Maybe<Integer> maybeState) {
+        return new DbIdsFromLoader(oprovideTrans, uFrom, maybeType, maybeState );
     }
 
     @Override

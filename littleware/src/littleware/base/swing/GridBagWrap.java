@@ -185,6 +185,11 @@ public class GridBagWrap {
         return gridheight( GridBagConstraints.REMAINDER );
     }
 
+    /** Calls both remainderX and remainderY */
+    public GridBagWrap remainderBoth() {
+        return remainderX().remainderY();
+    }
+
     public int gridheight () {
         return ogb.gridheight;
     }

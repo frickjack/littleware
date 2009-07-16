@@ -18,6 +18,7 @@ import littleware.asset.*;
 
 import littleware.base.UUIDFactory;
 import littleware.base.FactoryException;
+import littleware.base.Maybe;
 import littleware.security.auth.SimpleSession;
 import littleware.security.auth.LittleSession;
 
@@ -38,6 +39,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             "littleware.PRINCIPAL") {
 
         /** Alwasy throws FactoryException */
+        @Override
         public LittlePrincipal create() throws FactoryException {
             throw new FactoryException("PRINCIPAL asset-type is abstract");
         }
@@ -55,6 +57,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
 
 
         /** Get a LittleUser implementation */
+        @Override
         public LittleUser create() throws FactoryException {
             return new SimpleUser();
         }
@@ -65,8 +68,8 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
         }
 
         @Override
-        public AssetType getSuperType() {
-            return PRINCIPAL;
+        public Maybe<AssetType> getSuperType() {
+            return Maybe.something( (AssetType) PRINCIPAL );
         }
     };
     /** GROUP asset type - with AccountManager asset specializer */
@@ -75,13 +78,14 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             "littleware.GROUP") {
 
         /** Return a LittleGroup implementation */
+        @Override
         public LittleGroup create() throws FactoryException {
             return new SimpleGroup();
         }
 
         @Override
-        public AssetType getSuperType() {
-            return PRINCIPAL;
+        public Maybe<AssetType> getSuperType() {
+            return Maybe.something((AssetType) PRINCIPAL);
         }
     };
     /** GROUP asset type - with AccountManager asset specializer */
@@ -89,6 +93,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             UUIDFactory.parseUUID("BA50260718204D50BAC6AC711CEE1536"),
             "littleware.GROUP_MEMBER") {
 
+        @Override
         public Asset create() throws FactoryException {
             Asset a_result = new SimpleAsset();
             a_result.setAssetType(this);
@@ -101,6 +106,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             "littleware.ACL") {
 
         /** Return a LittleAcl implementation */
+        @Override
         public LittleAcl create() throws FactoryException {
             return new SimpleAccessList();
         }
@@ -115,6 +121,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             UUIDFactory.parseUUID("D23EA8B5A55F4283AEF29DFA50C12C54"),
             "littleware.ACL_ENTRY") {
 
+        @Override
         public LittleAclEntry create() throws FactoryException {
             return new SimpleAclEntry();
         }
@@ -124,6 +131,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             UUIDFactory.parseUUID("7AC8C92F30C14AD89FA82DB0060E70C2"),
             "littleware.SESSION") {
 
+        @Override
         public LittleSession create() throws FactoryException {
             LittleSession a_result = new SimpleSession();
 
@@ -138,12 +146,14 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             UUIDFactory.parseUUID("6AD504ACBB3A4A2CAB5AECE02D8E6706"),
             "littleware.SERVICE_STUB") {
 
+        @Override
         public Asset create() throws FactoryException {
             Asset a_result = new SimpleAsset();
             a_result.setAssetType(this);
             return a_result;
         }
 
+        @Override
         public boolean mustBeAdminToCreate() {
             return true;
         }
@@ -154,6 +164,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             "littleware.QUOTA") {
 
         /** Return a LittleGroup implementation */
+        @Override
         public Quota create() throws FactoryException {
             return new SimpleQuota();
         }

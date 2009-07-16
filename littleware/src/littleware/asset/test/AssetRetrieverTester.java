@@ -77,8 +77,8 @@ public class AssetRetrieverTester extends LittleTest {
         }
 
         @Override
-        public AssetType getSuperType() {
-            return SecurityAssetType.PRINCIPAL;
+        public Maybe<AssetType> getSuperType() {
+            return Maybe.something( (AssetType) SecurityAssetType.PRINCIPAL );
         }
     };
 

@@ -60,6 +60,7 @@
    <path refid="clientclasspath" />
    <pathelement location="${clientjar}" />
 	 <pathelement location="${jardir}/derby-10.4.2.1.jar" />
+	 <pathelement location="${jardir}/derbyclient_10.4.jar" />
 	 <pathelement location="${jardir}/javaee5.jar" />
 	 <pathelement location="${jardir}/mail.jar" />
 	 <pathelement location="${jardir}/proxool-0.9.1.jar" />

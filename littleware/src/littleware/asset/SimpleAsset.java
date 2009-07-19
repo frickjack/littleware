@@ -216,6 +216,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
         return m_retriever.getAsset(ou_home).get();
     }
 
+    /*... deprecated ...
     @Override
     public Owner getOwner(AssetRetriever m_retriever)
             throws BaseException, AssetException,
@@ -228,6 +229,7 @@ public class SimpleAsset extends SimpleCacheableObject implements Asset, java.io
         return new SimpleOwner(m_retriever.getAsset(ou_owner).get().narrow(LittleUser.class),
                 m_retriever.getAsset(AccountManager.UUID_ADMIN_GROUP).get().narrow(LittleGroup.class));
     }
+     */
 
     @Override
     public LittleAcl getAcl(AssetRetriever m_retriever)

@@ -60,8 +60,13 @@ public class SimpleImageManager implements ImageManager {
             ocache.put( u_asset, oempty );
             return oempty;
         }
-        final Maybe<BufferedImage> maybe_result = Maybe.something( ImageIO.read( new ByteArrayInputStream( omgrBucket.readBytesFromBucket(u_asset, osReservedPath) ) ) );
-        ocache.put( u_asset, maybe_result );
+        final byte[] data = omgrBucket.readBytesFromBucket(u_asset, osReservedPath);
+        final BufferedImage img = ImageIO.read( new ByteArrayInputStream( data ) );
+        final Maybe<BufferedImage> maybe_result = Maybe.something( img );
+        if ( (img.getWidth() < 100) && (img.getHeight() < 100) ) {
+            // don't cache fat images in memory!
+            ocache.put( u_asset, maybe_result );
+        }
         return maybe_result;
     }
 

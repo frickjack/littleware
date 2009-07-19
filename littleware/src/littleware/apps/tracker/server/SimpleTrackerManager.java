@@ -51,15 +51,14 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
         if ( a_in instanceof Task ) {
             Task          task_in = (Task) a_in;
             
-            Set<Asset> v_unsorted_children = om_search.getAssets ( om_search.getAssetIdsFrom ( a_in.getObjectId (),
+            final List<Task> v_children = new ArrayList<Task>();
+
+            for ( Asset scan : om_search.getAssets ( om_search.getAssetIdsFrom ( a_in.getObjectId (),
                                                               TrackerAssetType.TASK ).values ()
-                                                         );
-            // Sort by create date
-            List<Task> v_children = new ArrayList<Task> ();
-            for ( Asset a_entry : v_unsorted_children ) {
-                v_children.add ( (Task) a_entry );
+                                                         )
+                                                         ) {
+                v_children.add( scan.narrow( Task.class ) );
             }
-            
             Collections.sort ( v_children, new Comparator<Task> () {
                 @Override
                 public int compare ( Task task_a, Task task_b ) {
@@ -73,12 +72,13 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
                 v_subtask.get ( task_entry.getTaskStatus () ).add ( task_entry.getObjectId () );
             }
             
-            Set<UUID>  v_depends = new HashSet<UUID> ();
-            v_unsorted_children = om_search.getAssets ( om_search.getAssetIdsFrom ( a_in.getObjectId (),
+            final Set<UUID>  v_depends = new HashSet<UUID> ();
+            
+            for ( Asset a_depend : om_search.getAssets ( om_search.getAssetIdsFrom ( a_in.getObjectId (),
                                                                            TrackerAssetType.DEPENDENCY
                                                                            ).values ()
-                                               );
-            for ( Asset a_depend : v_unsorted_children ) {
+                                               )
+                                               ) {
                 if ( a_depend.getToId () != null ) {
                     v_depends.add ( a_depend.getToId () );
                 } else {
@@ -89,17 +89,17 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
                     }
                 }
             }
-            v_unsorted_children = om_search.getAssets ( v_depends );
-            Map<TaskStatus,List<UUID>> v_waiting4 = task_in.getTaskIdDependingOn ();
 
-            for ( Asset a_entry : v_unsorted_children ) {
+            final Map<TaskStatus,List<UUID>> v_waiting4 = task_in.getTaskIdDependingOn ();
+
+            for ( Asset a_entry : om_search.getAssets ( v_depends ) ) {
                 Task       task_entry = (Task) a_entry;
                 
                 v_waiting4.get ( task_entry.getTaskStatus () ).add ( task_entry.getObjectId () );
             }
             
             
-            Set<UUID> v_comments = om_search.getAssetIdsTo ( a_in.getObjectId (),
+            final Set<UUID> v_comments = om_search.getAssetIdsTo ( a_in.getObjectId (),
                                                              TrackerAssetType.COMMENT 
                                                              );
             olog_generic.log ( Level.FINE, "Adding " + v_comments.size () + " comments to Task " +
@@ -109,10 +109,9 @@ public class SimpleTrackerManager extends NullAssetSpecializer {
         }
         if ( a_in.getAssetType ().equals ( TrackerAssetType.QUEUE ) ) {
             littleware.apps.tracker.Queue q_in = a_in.narrow(littleware.apps.tracker.Queue.class);
-            Set<Asset> v_tasks = om_search.getAssets ( om_search.getAssetIdsTo ( a_in.getObjectId (),
+            for ( Asset a_task : om_search.getAssets ( om_search.getAssetIdsTo ( a_in.getObjectId (),
                                                                                       TrackerAssetType.TASK )
-                                                          );
-            for ( Asset a_task : v_tasks ) {
+                                                          ) ) {
                 q_in.getTask ( ((Task) a_task).getTaskStatus () ).add ( a_task.getObjectId () );
             }
         }

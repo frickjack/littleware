@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.addressbook.server;
 
 import com.google.inject.Inject;
@@ -48,17 +47,14 @@ public class AddressSpecializer implements AssetSpecializer {
         Contact addr_contact = (Contact) a_in;
         Map<String, UUID> v_children = m_retriever.getAssetIdsFrom(addr_contact.getObjectId(),
                 AddressAssetType.ADDRESS);
-        Set<Asset> v_address = m_retriever.getAssets(v_children.values());
-        List<Asset> v_sort = new ArrayList(v_address);
-        Comparator<Asset> x_sort = new Comparator<Asset>() {
+        final List<Asset> v_sort = m_retriever.getAssets(v_children.values());
 
+        Collections.sort(v_sort, new Comparator<Asset>() {
             @Override
             public int compare(Asset a_1, Asset a_2) {
                 return Float.compare(a_1.getValue().floatValue(), a_2.getValue().floatValue());
             }
-        };
-
-        Collections.sort(v_sort, x_sort);
+        });
         addr_contact.clearAddress();
         for (Asset a_address : v_sort) {
             addr_contact.addAddress((Address) a_address, -1);
@@ -100,7 +96,7 @@ public class AddressSpecializer implements AssetSpecializer {
         v_old.removeAll(addr_now.getAddress());
 
         for (Address addr_old : v_old) {
-            Address addr_load = (Address) om_retriever.getAsset(addr_old.getObjectId()).getOr( null );
+            Address addr_load = (Address) om_retriever.getAsset(addr_old.getObjectId()).getOr(null);
 
             if ((null != addr_load) && (null != addr_load.getObjectId()) && addr_now.getObjectId().equals(addr_load.getObjectId())) {
                 addr_load.setFromId(null);

@@ -55,7 +55,7 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
 
 
     @Override
-    public Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
+    public List<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.getAssets(v_id);
     }

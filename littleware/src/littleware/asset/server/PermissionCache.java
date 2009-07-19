@@ -20,6 +20,7 @@ import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.security.LittlePermission;
 import littleware.security.LittlePrincipal;
+import littleware.security.LittleUser;
 
 /**
  * Allow AssetSearchManager to safely cache ACL
@@ -28,6 +29,12 @@ import littleware.security.LittlePrincipal;
  */
 @ImplementedBy(SimplePermissionCache.class)
 public interface PermissionCache {
+    /**
+     * Check if the given principal is an administrator
+     */
+    public boolean isAdmin( LittleUser user, AssetRetriever search
+            ) throws BaseException, RemoteException, GeneralSecurityException;
+
     /**
      * Check the permission for the given principal against the acl
      * with id uAcl.  If the acl is not yet cached, then load the acl

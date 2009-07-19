@@ -152,38 +152,6 @@
            <include name="**/*.xml" />
         </fileset>
     </copy>
-  <!--
-    <copy todir="${buildclient}/littleware/base/resources">
-        <fileset dir="${srcdir.littleware}/base/resources" />
-    </copy>
-    <copy todir="${buildclient}">
-        <fileset dir="src">
-           <include name="*.properties"/>
-         </fileset>
-    </copy>
-    <copy todir="${buildclient}/littleware/apps/lgo">
-        <fileset dir="src/littleware/apps/lgo">
-           <include name="*.properties"/>
-           <include name="*.xml"/>
-         </fileset>
-    </copy>
-    <copy todir="${buildclient}/littleware/apps/swingclient/wizard/resources">
-        <fileset dir="${srcdir.littleware}/apps/swingclient/wizard/resources" />
-    </copy>
-    <copy todir="${buildclient}/com/nexes/wizard">
-        <fileset dir="${srcdir.wizard}/nexes/wizard" casesensitive="yes">
-           <include name="*.gif"/>
-           <include name="*.properties"/>
-         </fileset>
-    </copy>
-    <copy todir="${buildclient}/META-INF">
-        <fileset dir="${srcdir.littleware}/web/tags/META-INF" />
-    </copy>
-    <copy todir="${buildclient}/META-INF">
-        <fileset dir="${srcdir.littleware}/META-INF" />
-    </copy>
-        manifest="${buildclient}/META-INF/CLIENT_MANIFEST.MF"
-    -->
     <jar id="jarclient" jarfile="${clientjar}"
         basedir="${buildclient}"
         index="true"

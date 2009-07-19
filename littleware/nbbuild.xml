@@ -71,4 +71,31 @@
     nbproject/build-impl.xml file. 
 
     -->
+ <target name="-post-jar" 
+	 description="build littleClient.jar"
+      >
+      <jar id="jarclient" jarfile="dist/littleClient.jar"
+	basedir="build/classes"
+        index="true"
+	level="9"
+     >
+   <exclude name="derby/**" />
+   <exclude name="mysql/**" />
+   <exclude name="postgres/**" />
+   <exclude name="littleware/META-INF/**" />
+   <exclude name="littleware/apps/calendar/**" />
+   <exclude name="littleware/alarmClock/**" />
+   <exclude name="littleware/apps/backup/**" />
+   <exclude name="littleware/browser/**" />
+   <exclude name="littleware/calendar/**" />
+   <exclude name="littleware/cookbook/**" />
+   <exclude name="littleware/db/**" />
+   <exclude name="trash/**" />
+   <exclude name="3rdparty/**" />
+   <exclude name="**/server/**" />
+   <exclude name="**/test/**" />
+   <exclude name="**/web/**" />
+     </jar>
+</target>
+
 </project>

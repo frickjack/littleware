@@ -44,6 +44,7 @@ import littleware.asset.client.AssetManagerService;
 import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.LittleService;
 import littleware.base.AssertionFailedException;
+import littleware.base.Maybe;
 import littleware.base.PropertiesLoader;
 import littleware.base.UUIDFactory;
 import littleware.base.swing.JPasswordDialog;
@@ -84,6 +85,20 @@ public class ClientServiceGuice implements LittleGuiceModule {
         }
     }
 
+    private Maybe<String> host = Maybe.empty();
+
+    /**
+     * Property specifies the server host to authenticate to
+     * if authentication is necessary.
+     */
+    public Maybe<String> getHost() {
+        return host;
+    }
+
+    public void setHost(Maybe<String> host) {
+        this.host = host;
+    }
+
     /**
      * Inject helper dependency
      * 
@@ -104,6 +119,14 @@ public class ClientServiceGuice implements LittleGuiceModule {
      * using the registered CallbackHandler.
      */
     public ClientServiceGuice() {
+    }
+
+    /**
+     * Same as parameterless constructor, but with an override
+     * of the server host to connect to.
+     */
+    public ClientServiceGuice( String sHost ) {
+        host = Maybe.something( sHost );
     }
 
 
@@ -261,7 +284,12 @@ public class ClientServiceGuice implements LittleGuiceModule {
     public void configure(Binder binder) {
         if (null == ohelper) {
             try {
-                ohelper = authenticate(SessionUtil.get().getSessionManager(), ohandler, 3);
+                if ( host.isSet() ) {
+                    // connect to default server
+                    ohelper = authenticate(SessionUtil.get().getSessionManager( host.get(), SessionUtil.get().getRegistryPort() ), ohandler, 3);
+                } else {
+                    ohelper = authenticate(SessionUtil.get().getSessionManager(), ohandler, 3);
+                }
             } catch (Exception ex) {
                 throw new AssertionFailedException("Failed to authenticate to " + SessionUtil.get().getRegistryHost(), ex);
             }

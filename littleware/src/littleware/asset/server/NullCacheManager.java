@@ -89,7 +89,7 @@ public class NullCacheManager implements CacheManager {
 	
 	
     @Override
-	public Set<Asset> getAssets ( Collection<UUID> v_id ) throws DataAccessException, AssetException, GeneralSecurityException
+	public List<Asset> getAssets ( Collection<UUID> v_id ) throws DataAccessException, AssetException, GeneralSecurityException
 	{
 		throw new CacheMissException ();
 	}

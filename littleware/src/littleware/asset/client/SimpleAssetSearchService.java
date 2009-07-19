@@ -131,8 +131,8 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
 
 
     @Override
-    public Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Set<Asset> vResult = oserver.getAssets( v_id );
+    public List<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final List<Asset> vResult = oserver.getAssets( v_id );
         for( Asset result : vResult ) {
             fireServiceEvent( new AssetLoadEvent( this, result ) );
         }

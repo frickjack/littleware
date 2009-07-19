@@ -85,7 +85,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         Map<String, UUID> v_links = m_retriever.getAssetIdsFrom(grp_result.getObjectId(),
                 SecurityAssetType.GROUP_MEMBER);
 
-        Set<Asset> v_link_assets = m_retriever.getAssets(v_links.values());
+        final List<Asset> v_link_assets = m_retriever.getAssets(v_links.values());
 
         /** 
          * This check not true after a member group/user has been deleted.
@@ -107,7 +107,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         }
 
         // Recursion here!
-        Set<Asset> v_member_assets = m_retriever.getAssets(v_members);
+        final List<Asset> v_member_assets = m_retriever.getAssets(v_members);
 
         for (Asset a_member : v_member_assets) {
             olog_generic.log(Level.FINE, "adding " + a_member.getName() + " to " +
@@ -276,7 +276,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
                             SecurityAssetType.GROUP_MEMBER)
                     );
 
-            Set<Asset> v_member_links = om_search.getAssets( vChildren );
+            final List<Asset> v_member_links = om_search.getAssets( vChildren );
             for (Asset p_link : v_member_links) {
                 m_asset.deleteAsset(p_link.getObjectId(), "cleaning up deleted principal");
             }
@@ -322,7 +322,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
                 // to the group-members, and delete the unneeded ones
                 Map<String, UUID> v_children = om_search.getAssetIdsFrom(p_after.getObjectId(),
                         SecurityAssetType.GROUP_MEMBER);
-                Set<Asset> v_member_links = om_search.getAssets(v_children.values());
+                final List<Asset> v_member_links = om_search.getAssets(v_children.values());
                 for (Asset a_link : v_member_links) {
                     if (!v_members.contains(a_link.getToId())) {
                         m_asset.deleteAsset(a_link.getObjectId(), "member no longer in group");

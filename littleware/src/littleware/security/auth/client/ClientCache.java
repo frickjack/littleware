@@ -12,8 +12,11 @@ package littleware.security.auth.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.security.Principal;
+import java.util.Enumeration;
 import java.util.UUID;
 import littleware.asset.Asset;
+import littleware.asset.AssetType;
 import littleware.asset.client.AssetLoadEvent;
 import littleware.asset.client.LittleService;
 import littleware.asset.client.ServiceEvent;
@@ -21,6 +24,9 @@ import littleware.asset.client.ServiceListener;
 import littleware.base.AssertionFailedException;
 import littleware.base.Cache;
 import littleware.base.SimpleCache;
+import littleware.security.LittleGroup;
+import littleware.security.LittlePrincipal;
+import littleware.security.SecurityAssetType;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.SessionHelper;
 import org.osgi.framework.BundleActivator;
@@ -116,6 +122,15 @@ public class ClientCache implements ServiceListener, BundleActivator {
      * @return what was in the cache before if anything
      */
     public Asset put( Asset asset ) {
+        if ( asset.getAssetType().isA( SecurityAssetType.GROUP ) ) {
+            // go ahead and harvest group members
+            final LittleGroup group = asset.narrow();
+            for( Enumeration<? extends Principal> i = group.members();
+                    i.hasMoreElements();) {
+                final LittlePrincipal p = (LittlePrincipal) i.nextElement();
+                put( p );  // recurse over nexted groups
+            }
+        }
         return (Asset) getCache().put( asset.getObjectId().toString(), asset );
     }
 

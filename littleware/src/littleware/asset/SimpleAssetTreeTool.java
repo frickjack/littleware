@@ -14,8 +14,11 @@ import com.google.inject.Singleton;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.apps.client.Feedback;
@@ -44,7 +47,6 @@ public class SimpleAssetTreeTool implements AssetTreeTool {
     @Override
     public List<Asset> loadBreadthFirst(UUID uRoot, Feedback feedback, int iMaxDepth) throws BaseException, GeneralSecurityException, RemoteException {
         final List<UUID> vScan = new ArrayList<UUID>();
-        final List<Asset> vResult = new ArrayList<Asset>();
 
         vScan.add(uRoot);
         feedback.setProgress(0);
@@ -59,12 +61,8 @@ public class SimpleAssetTreeTool implements AssetTreeTool {
             }
         }
         feedback.info("Loading " + vScan.size() + " assets under tree");
-        int iCount = 0;
-        for (UUID uScan : vScan) {
-            vResult.add(osearch.getAsset(uScan).get());
-            feedback.setProgress(++iCount, vScan.size());
-        }
-        return vResult;
+
+        return osearch.getAssets(vScan);
     }
 
     @Override

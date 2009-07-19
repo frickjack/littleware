@@ -52,18 +52,22 @@ public class SimpleTask extends SimpleAsset implements Task {
         setAssetType ( TrackerAssetType.TASK );
     }
         
+    @Override
     public TaskStatus getTaskStatus () {
-        return TaskStatus.values ()[ (int) this.getValue ().floatValue () ];
+        return TaskStatus.values ()[ this.getState() ];
     }
     
+    @Override
     public void setTaskStatus ( TaskStatus n_status ) {
-        this.setValue ( n_status.ordinal () );
+        this.setState ( n_status.ordinal () );
     }
     
+    @Override
     public List<UUID> getTaskComments () {
         return ov_comments;
     }
     
+    @Override
     public Map<TaskStatus,List<UUID>>    getSubtask () {
         return ov_subtask;
     }
@@ -71,6 +75,7 @@ public class SimpleTask extends SimpleAsset implements Task {
     
     
 
+    @Override
     public UUID     getTaskIdMergedWith () {
         if ( ! TaskStatus.MERGED.equals ( getTaskStatus () ) ) {
             return null;
@@ -91,6 +96,7 @@ public class SimpleTask extends SimpleAsset implements Task {
         
     
 
+    @Override
     public UUID getQueueId () {
         if ( (! TaskStatus.WAITING_IN_Q.equals ( getTaskStatus () ))
              && (! TaskStatus.PROCESSING.equals ( getTaskStatus () ))
@@ -101,10 +107,12 @@ public class SimpleTask extends SimpleAsset implements Task {
     }
     
 
+    @Override
     public void makeSubtaskOf ( Task task_parent ) {
         setFromId ( task_parent.getObjectId () );
     }
 
+    @Override
     public void addToQueue ( Queue q_add ) throws TaskStatusException {
         if ( TaskStatus.MERGED.equals ( getTaskStatus () ) ) {
             throw new TaskStatusException ( "Man not at MERGED task to a queue" );
@@ -112,21 +120,25 @@ public class SimpleTask extends SimpleAsset implements Task {
         setToId ( q_add.getObjectId () );
     }
 
+    @Override
     public Map<TaskStatus,List<UUID>> getTaskIdDependingOn () {
         return ov_wait4task;
     }
 
+    @Override
     public void mergeWithTask ( Task task_merge ) {
         setToId ( task_merge.getObjectId () );
         setTaskStatus ( TaskStatus.MERGED );
     }
     
+    @Override
     public SimpleTask clone () {
         SimpleTask task_clone = (SimpleTask) super.clone ();
         task_clone.clearTaskData ();
         return task_clone;
     }
     
+    @Override
     public void sync ( Asset a_other ) {
         if ( this == a_other ) {
             return;
@@ -180,9 +192,11 @@ public class SimpleTask extends SimpleAsset implements Task {
                                       ) throws BaseException, AssetException,
         GeneralSecurityException, RemoteException
     {
-        return m_search.getAssets ( m_search.getAssetIdsFrom ( this.getObjectId (),
+        return new HashSet<Asset>(
+                m_search.getAssets ( m_search.getAssetIdsFrom ( this.getObjectId (),
                                                                  TrackerAssetType.DEPENDENCY 
                                                                  ).values ()
+                                     )
                                      );
     }
     

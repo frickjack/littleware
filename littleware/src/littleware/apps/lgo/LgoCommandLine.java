@@ -9,6 +9,7 @@
  */
 package littleware.apps.lgo;
 
+import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +29,7 @@ import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.Feedback;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
 import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.LittleBootstrap;
 
@@ -69,19 +72,17 @@ public class LgoCommandLine implements BundleActivator, Runnable {
             Provider<CreateUserCommand> comUser,
             Provider<CreateLockCommand> comLock,
             Provider<GetByNameCommand> comNameGet,
-            Provider<SetImageCommand>  comSetImage,
-            Provider<GetRootPathCommand> comRootPath
-            ) {
+            Provider<SetImageCommand> comSetImage,
+            Provider<GetRootPathCommand> comRootPath) {
         omgrCommand = mgrCommand;
         omgrHelp = mgrHelp;
         obootstrap = bootstrap;
 
-        for (Provider<? extends LgoCommand<?,?>> command : // need to move this into a properties file
+        for (Provider<? extends LgoCommand<?, ?>> command : // need to move this into a properties file
                 Arrays.asList(
-                    comHelp, comXml, comBrowse, comDelete, comLs, comGet,
-                    comFolder, comUser, comLock, comNameGet, comSetImage,
-                    comRootPath
-        )) {
+                comHelp, comXml, comBrowse, comDelete, comLs, comGet,
+                comFolder, comUser, comLock, comNameGet, comSetImage,
+                comRootPath)) {
             mgrCommand.setCommand(mgrHelp, command);
         }
 
@@ -157,7 +158,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         }
 
         final StringBuilder sb = new StringBuilder();
-        System.out.println( "LGO>>" );
+        System.out.println("LGO>>");
         for (String sLine = reader.readLine(); null != sLine; sLine = reader.readLine()) {
             String sClean = sLine.trim();
             if (sClean.length() == 0) {
@@ -178,9 +179,9 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                     sClean = sClean.substring(0, iDashDash).trim();
                 }
                 // TODO - add some smarter parsing
-                for( String sProcess : sClean.split("\\s+")) {
-                    if ( sProcess.trim().length() > 0 ) {
-                        vProcess.add( sProcess );
+                for (String sProcess : sClean.split("\\s+")) {
+                    if (sProcess.trim().length() > 0) {
+                        vProcess.add(sProcess);
                     }
                 }
             }
@@ -188,13 +189,13 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                 break;
             }
             processCommand(sCommand, vProcess, sArg, feedback);
-            System.out.println( "LGO>>" );
+            System.out.println("LGO>>");
         }
     }
 
     @Override
     public void run() {
-        olog.log( Level.FINE, "Running on Swing dispatch thread" );
+        olog.log(Level.FINE, "Running on Swing dispatch thread");
         String[] vArgs = getArgs();
         int iExitStatus = 0;
 
@@ -219,7 +220,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                     // everything after -- goes into runCommand
                     for (int j = i + 1; j < vArgs.length; ++j) {
                         sb_in.append(vArgs[j]).append(" ");
-                    // Note: trim() sb_in.toString before passing to run
+                        // Note: trim() sb_in.toString before passing to run
                     }
                     break;
                 }
@@ -255,7 +256,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
      * @param vArgs command-line args
      * @param bootClient to add LittleCommandLine.class to and bootstrap()
      */
-    public static void launch(String[] vArgs, GuiceOSGiBootstrap bootClient) {
+    public static void launch(String[] vArgs, ClientBootstrap bootClient) {
         ovArgs = vArgs;
         /*... just for testing in serverless environment ... 
         {
@@ -264,7 +265,21 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         bootServer.bootstrap();
         }
         ...*/
-
+        // Currently only support -url argument
+        if ((vArgs.length > 1) && vArgs[0].matches("^-+[uU][rR][lL]")) {
+            final String sUrl = vArgs[1];
+            try {
+                final URL url = new URL(sUrl);
+                bootClient.setHost(Maybe.something(url.getHost()));
+            } catch (MalformedURLException ex) {
+                throw new IllegalArgumentException("Malformed URL: " + sUrl);
+            }
+            if (vArgs.length > 2) {
+                ovArgs = Arrays.copyOfRange(vArgs, 2, vArgs.length );
+            } else {
+                ovArgs = new String[0];
+            }
+        }
         bootClient.getOSGiActivator().add(LgoCommandLine.class);
         bootClient.bootstrap();
     }
@@ -274,10 +289,10 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         /*..
         SwingUtilities.invokeLater(new Runnable() {
 
-            @Override
-            public void run() {
-                launch(vArgs, new ClientBootstrap());
-            }
+        @Override
+        public void run() {
+        launch(vArgs, new ClientBootstrap());
+        }
         });
          */
         launch(vArgs, new ClientBootstrap());

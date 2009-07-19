@@ -58,7 +58,7 @@ public class SimpleThumbManager implements ThumbManager {
     }
 
     private final Cache<UUID,ThumbManager.Thumb>  ocache =
-            new SimpleCache<UUID,ThumbManager.Thumb>();
+            new SimpleCache<UUID,ThumbManager.Thumb>( 100000, 100000 );
 
     private final ImageManager  omgrImage;
 

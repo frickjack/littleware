@@ -133,27 +133,12 @@ public class SimpleAssetManager implements AssetManager {
         try {
             final LittlePrincipal p_caller = this.getAuthenticatedUser();
             // Get the asset for ourselves - make sure it's a valid asset
-            final Asset a_asset = om_search.getAsset(u_asset).get();
-            final Owner o_asset = a_asset.getOwner(om_search);
-            // add security later
-            if (false && (!o_asset.isOwner(p_caller))) {
-                if (null == a_asset.getAclId()) {
-                    throw new AccessDeniedException("may not delete asset without permission: " +
-                            a_asset.getObjectId() + "/" + a_asset.getName());
-                }
-                Acl acl_x = a_asset.getAcl(om_search);
-
-                // Need to have all the permissions to DELETE an asset
-                for (LittlePermission n_permission : LittlePermission.getMembers()) {
-                    if (!acl_x.checkPermission(p_caller, n_permission)) {
-                        throw new AccessDeniedException("Caller " + p_caller + " does not have permission: " + n_permission);
-                    }
-                }
-            }
-
+            Asset a_asset = om_search.getAsset(u_asset).get();
             a_asset.setLastUpdateDate(new Date());
             a_asset.setLastUpdaterId(p_caller.getObjectId());
             a_asset.setLastUpdate(s_update_comment);
+            // make sure caller has write permission too ...
+            a_asset = saveAsset( a_asset, s_update_comment );
 
             final LittleTransaction trans_delete = oprovideTrans.get();
             boolean b_rollback = true;
@@ -209,12 +194,7 @@ public class SimpleAssetManager implements AssetManager {
         final Map<UUID, Asset> v_cache = trans_save.startDbAccess();
         // Don't save the same asset more than once in this transaction
         final Map<UUID, Asset> v_save_cycle = oprovideSaveCycle.get().startDbAccess();
-        final boolean bCallerIsAdmin;
-        {
-            final LittleGroup groupAdmin = om_search.getAsset(
-                    AccountManager.UUID_ADMIN_GROUP).get().narrow(LittleGroup.class);
-            bCallerIsAdmin = groupAdmin.isMember(userCaller);
-        }
+        final boolean bCallerIsAdmin = ocachePermission.isAdmin( userCaller, om_search );
 
         try {
             if (null == a_asset.getObjectId()) {
@@ -230,7 +210,7 @@ public class SimpleAssetManager implements AssetManager {
                 a_old_asset = om_search.getAsset(a_asset.getObjectId()).getOr(null);
             }
 
-            olog_generic.log(Level.FINE, "Check pre-save");
+            //olog_generic.log(Level.FINE, "Check pre-save");
             try {
                 if (null == a_old_asset) {
                     if (a_asset.getAssetType().isNameUnique() && om_search.getByName(a_asset.getName(), a_asset.getAssetType()).isSet()) {
@@ -270,12 +250,10 @@ public class SimpleAssetManager implements AssetManager {
 
                     olog_generic.log(Level.FINE, "Checking security");
 
-                    final Owner ownerOld = a_old_asset.getOwner(om_search);
-                    if ((!bCallerIsAdmin) && (!ownerOld.isOwner(userCaller))) {
-                        final Acl aclOld = a_old_asset.getAcl(om_search);
-
+                    if ((!bCallerIsAdmin) 
+                            && (!a_old_asset.getOwnerId().equals(userCaller.getObjectId()))) {
                         // Need to have all the permissions to UPDATE an asset
-                        if (!aclOld.checkPermission(userCaller, LittlePermission.WRITE)) {
+                        if (! ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_old_asset.getAclId() )) {
                             throw new AccessDeniedException("Caller " + userCaller + " does not have permission: " + LittlePermission.WRITE + " for asset: " + a_old_asset.getObjectId());
                         }
                         if (!a_old_asset.getOwnerId().equals(a_asset.getOwnerId())) {
@@ -301,7 +279,11 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     // If from-id is null from non-home orphan asset,
                     // then must have home-write permission to write home asset
-                    if ((null == a_asset.getFromId()) && (!a_home.getOwner(om_search).isOwner(userCaller)) && ((a_home.getAclId() == null) || (!a_home.getAcl(om_search).checkPermission(userCaller, LittlePermission.WRITE)))) {
+                    if ((null == a_asset.getFromId())
+                            && (!a_home.getOwnerId().equals(userCaller.getObjectId()))
+                            && (! ocachePermission.isAdmin(userCaller, om_search))
+                            && (! ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_home.getAclId() ))
+                                ) {
                         // caller must have WRITE on Home permission to create a rootless
                         // (null from-id) asset
                         throw new AccessDeniedException("Must have home-write permission to create asset with null fromId");
@@ -313,10 +295,11 @@ public class SimpleAssetManager implements AssetManager {
                     // Verify have WRITE access to from-asset, and under same HOME
                     final Asset a_from = om_search.getAsset(a_asset.getFromId()).get();
 
-                    final Owner o_from = a_from.getOwner(om_search);
-                    if (!o_from.isOwner(userCaller)) {
-                        Acl acl_from = a_from.getAcl(om_search);
-                        if ((null == acl_from) || (!acl_from.checkPermission(userCaller, LittlePermission.WRITE))) {
+                    if (
+                            (!a_from.getOwnerId().equals(userCaller.getObjectId()))
+                            && ( ! ocachePermission.isAdmin(userCaller, om_search))
+                            ) {
+                        if ( ! ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_from.getAclId() )) {
                             throw new AccessDeniedException("Caller " + userCaller +
                                     " may not link from asset " + a_from.getObjectId() +
                                     " without permission " + LittlePermission.WRITE);

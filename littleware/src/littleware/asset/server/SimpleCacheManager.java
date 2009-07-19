@@ -239,8 +239,8 @@ public class SimpleCacheManager implements CacheManager {
      * in cache.
      */
     @Override
-    public Set<Asset> getAssets(Collection<UUID> v_id) throws DataAccessException, AssetException, GeneralSecurityException {
-        Set<Asset> v_result = new HashSet<Asset>();
+    public List<Asset> getAssets(Collection<UUID> v_id) throws DataAccessException, AssetException, GeneralSecurityException {
+        final List<Asset> v_result = new ArrayList<Asset>();
         Set<UUID> v_done = new HashSet<UUID>();
 
         for (UUID u_id : v_id) {

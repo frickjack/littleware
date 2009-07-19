@@ -90,10 +90,8 @@ public class SessionUtil {
     }
 
     /**
-
-
      * Get the default port on which we expect the RMI registry to listen.
-     * Set to littleware.rmi_host system property if exists, otherwise "localhost".
+     * Defaults to littleware.rmi_host system property if exists, otherwise "localhost".
      */
     public String getRegistryHost() {
         return os_registry_host;

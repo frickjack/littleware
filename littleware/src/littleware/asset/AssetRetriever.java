@@ -60,13 +60,12 @@ public interface AssetRetriever extends java.rmi.Remote {
             GeneralSecurityException, RemoteException;
 
     /**
-     * Get as many of the assets in the given set of ids as possible.
+     * Get as many of the assets in the given collection of ids as possible.
      *
      * @param v_id set of asset ids to retrieve
-     * @return set of fully initialized assets (no duplicates).
-     *           If the asset is a PRIINCIPAL or ACL AssetType,
-     *           then the returned object will implent the Principal
-     *           and Acl interfaces respectively.
+     * @return list of assets loaded in order - 2 entries
+     *                with the same id may reference the same object,
+     *                skips ids that do not exist 
      * @exception NoSuchThingException if requested asset does not exist in the db
      * @exception AccessDeniedException if caller does not have permission to read
      *                 the specified asset
@@ -75,7 +74,7 @@ public interface AssetRetriever extends java.rmi.Remote {
      */
     public
     @ReadOnly
-    Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
+    List<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**

@@ -117,7 +117,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
             final UUID uFromOld = (null == a_old) ? null : a_old.getFromId();
             if (!Whatever.equalsSafe(uFromOld, a_new.getFromId() )) {
                 for (UUID uFrom : Arrays.asList(uFromOld, a_new.getFromId() )) {
-                    if ((null == uFrom) || (uFrom.equals(a_new.getObjectId()))) {
+                    if ( null == uFrom ) {
                         continue;
                     }
                     final SimpleAssetModel amodel_affected = (SimpleAssetModel) get(uFrom);

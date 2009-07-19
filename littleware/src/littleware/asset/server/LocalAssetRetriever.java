@@ -138,8 +138,8 @@ public class LocalAssetRetriever implements AssetRetriever {
                 throw new AccessDeniedException("Unauthenticated caller");
             }
 
-            final Owner owner_asset = a_result.getOwner(this);
-            if ((null != owner_asset) && (owner_asset.isOwner(p_caller))) {
+            if ( p_caller.getObjectId().equals( a_result.getOwnerId() )
+                    || ocachePermission.isAdmin( p_caller, this) ) {
                 // Owner can read his own freakin' asset
                 return a_result;
             }
@@ -194,13 +194,13 @@ public class LocalAssetRetriever implements AssetRetriever {
     }
 
     @Override
-    public Set<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
+    public List<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         final LittleTransaction trans = oprovideTrans.get();
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 
         try {
-            Set<Asset> v_result = new HashSet<Asset>();
+            final List<Asset> v_result = new ArrayList<Asset>();
             for (UUID u_id : v_id) {
                 final Maybe<Asset> maybe = getAsset(u_id);
                 if ( maybe.isSet() ) {

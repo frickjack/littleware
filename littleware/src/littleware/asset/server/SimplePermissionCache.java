@@ -20,9 +20,12 @@ import littleware.asset.Asset;
 import littleware.asset.AssetRetriever;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
+import littleware.security.AccountManager;
 import littleware.security.LittleAcl;
+import littleware.security.LittleGroup;
 import littleware.security.LittlePermission;
 import littleware.security.LittlePrincipal;
+import littleware.security.LittleUser;
 import littleware.security.SecurityAssetType;
 
 /**
@@ -32,10 +35,14 @@ import littleware.security.SecurityAssetType;
 @Singleton
 public class SimplePermissionCache implements PermissionCache {
     private Map<UUID,LittleAcl> mapAcl = new HashMap<UUID,LittleAcl>();
+    private Maybe<LittleGroup>   maybeAdmin = Maybe.empty();
 
     @Override
     public boolean checkPermission(LittlePrincipal principal, LittlePermission permission, AssetRetriever retriever, UUID uAcl
             ) throws BaseException, RemoteException, GeneralSecurityException {
+        if ( null == uAcl ) {
+            return false;
+        }
         LittleAcl acl;
         synchronized (this) {
             acl = mapAcl.get( uAcl );
@@ -58,6 +65,21 @@ public class SimplePermissionCache implements PermissionCache {
     @Override
     public void clear() {
         mapAcl = new HashMap<UUID,LittleAcl>();
+        maybeAdmin = Maybe.empty();
+    }
+
+    @Override
+    public boolean isAdmin(LittleUser user, AssetRetriever search) throws BaseException, RemoteException, GeneralSecurityException {
+        final Maybe<LittleGroup> maybe = maybeAdmin;
+        final LittleGroup       group;
+
+        if ( maybe.isSet() ) {
+            group = maybe.get();
+        } else {
+            group = search.getAsset( AccountManager.UUID_ADMIN_GROUP ).get().narrow();
+            maybeAdmin = Maybe.something( group );
+        }
+        return group.isMember(user);
     }
 
 }

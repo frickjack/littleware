@@ -12,8 +12,11 @@ package littleware.asset.client;
 
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -132,11 +135,32 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
 
     @Override
     public List<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final List<Asset> vResult = oserver.getAssets( v_id );
-        for( Asset result : vResult ) {
-            fireServiceEvent( new AssetLoadEvent( this, result ) );
+        final Map<UUID,Asset>  assetMap = new HashMap<UUID,Asset>();
+        final Set<UUID>   missingIds = new HashSet<UUID>();
+        
+        // 1st - load as much as possible from cache
+        final ClientCache cache = ClientCache.getSingleton();
+        for( UUID id : v_id ) {
+            final Asset assetInCache = cache.get(id);
+            if ( null != assetInCache ) {
+                assetMap.put( id, assetInCache );
+            } else {
+                missingIds.add( id );
+            }
         }
-        return vResult;
+        final List<Asset> newAssets = oserver.getAssets( missingIds );
+        for( Asset asset : newAssets ) {
+            assetMap.put( asset.getObjectId(), asset );
+            fireServiceEvent( new AssetLoadEvent( this, asset ) );
+        }
+        final List<Asset> result = new ArrayList<Asset>();
+        for ( UUID id : v_id ) {
+            final Asset asset = assetMap.get( id );
+            if ( null != asset ) {
+                result.add(asset);
+            }
+        }
+        return result;
     }
 
     @Override

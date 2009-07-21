@@ -28,25 +28,25 @@ import littleware.apps.addressbook.*;
 
 /**
  * Little security-info session-tracker for jsf web-session.
- * This is just a databucket with get/set routines.
- * The LoginForm is responsible for setting the
- * authenticatedUser property.
- * An unauthenticated session may still be granted
- * access to the repo by setting up a guest user session
- * for the session-bean to bootstrap to. 
+ * The session bean manages Guice injection to the
+ * other beans in a user session via the visitor pattern.
+ * To inject a JSF bean with Guice dependencies
+ * simply annotate the bean class appropriately,
+ * and JSF inject (via faces-config.xml) a SessionBean
+ * property (setSessionBean/getSessionBean).
  */
 public class SessionBean {
-    private static final Logger olog_generic = Logger.getLogger( SessionBean.class.getName() );
-    private static SessionManager om_session = null;
-    private static SessionHelper om_guest = null;
-    private static boolean ob_initialized = false;
+    private static final Logger log = Logger.getLogger( SessionBean.class.getName() );
+    private static SessionManager sessionManager = null;
+    private static SessionBean    guestBean = null;
+    private static boolean initialized = false;
 
 
     /**
      * Little utility to setup the session connections to the asset server
      */
     private static synchronized void setupSession() {
-        if (!ob_initialized) {
+        if (!initialized) {
             try {
                 if (null == om_session) {
                     om_session = BeanUtil.getSessionManager();
@@ -62,9 +62,9 @@ public class SessionBean {
 
                     om_guest = (SessionHelper) AccessController.doPrivileged(act_getguest);
                 }
-                ob_initialized = true;
+                initialized = true;
             } catch ( Throwable e ) {
-                olog_generic.log( Level.SEVERE, "Failed to setup session, caught: " + e
+                log.log( Level.SEVERE, "Failed to setup session, caught: " + e
                         + ", " + BaseException.getStackTrace( e ), e
                         );
                 throw new AssertionFailedException( "Caught throwable: " + e, e );
@@ -72,7 +72,7 @@ public class SessionBean {
         }
     }
     
-    private SessionHelper om_helper = om_guest;
+    private SessionHelper helper = om_guest;
     private HttpSession ohttp_session = null;
     private AssetModelLibrary oalib_session = new SimpleAssetModelLibrary ();
 

@@ -10,15 +10,19 @@ package littleware.web.beans;
  * Base class with shared functionality for various form beans.
  */
 public class AbstractBean {
-    private SessionBean   osession = null;
+    private SessionBean   session = null;
     
     /**
      * SessionBean property should be set at initialization
      * by JSF engine for use by form actions.
      */
-    public SessionBean  getSessionBean () { return osession; }
+    public SessionBean  getSessionBean () { return session; }
     public void setSessionBean ( SessionBean session ) {
-        osession = session;
+        if ( null != this.session ) {
+            throw new IllegalStateException ( "Bean already injected" );
+        }
+        session.injectMembers( this );
+        this.session = session;
     }
     
     private ActionResult   oresult_last = null;

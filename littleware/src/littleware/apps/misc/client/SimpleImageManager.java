@@ -39,7 +39,8 @@ public class SimpleImageManager implements ImageManager {
     private static final String osReservedPath = "Image123.jpg";
 
     private final BucketManager      omgrBucket;
-    private final Cache<UUID,Maybe<BufferedImage>>  ocache = new SimpleCache<UUID,Maybe<BufferedImage>>();
+    private final Cache<UUID,Maybe<BufferedImage>>  ocache =
+                    new SimpleCache<UUID,Maybe<BufferedImage>>();
 
     @Inject
     public SimpleImageManager( BucketManager mgrBucket ) {
@@ -65,7 +66,7 @@ public class SimpleImageManager implements ImageManager {
         final Maybe<BufferedImage> maybe_result = Maybe.something( img );
         if ( (img.getWidth() < 100) && (img.getHeight() < 100) ) {
             // don't cache fat images in memory!
-            ocache.put( u_asset, maybe_result );
+            //ocache.put( u_asset, maybe_result );
         }
         return maybe_result;
     }
@@ -76,7 +77,8 @@ public class SimpleImageManager implements ImageManager {
         ImageIO.write(img, "jpg", stream);
         stream.close();
         T a_result = omgrBucket.writeToBucket(a_save, osReservedPath, stream.toByteArray(), s_update_comment);
-        ocache.put( a_save.getObjectId(), Maybe.something( img ) );
+        //ocache.put( a_save.getObjectId(), Maybe.something( img ) );
+        ocache.remove( a_save.getObjectId() );
         return a_result;
     }
 

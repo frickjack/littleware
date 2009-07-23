@@ -21,7 +21,7 @@ public class AbstractBean {
         if ( null != this.session ) {
             throw new IllegalStateException ( "Bean already injected" );
         }
-        session.injectMembers( this );
+        //session.injectMembers( this );
         this.session = session;
     }
     

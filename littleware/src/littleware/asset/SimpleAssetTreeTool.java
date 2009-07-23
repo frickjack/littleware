@@ -61,7 +61,7 @@ public class SimpleAssetTreeTool implements AssetTreeTool {
             }
         }
         feedback.info("Loading " + vScan.size() + " assets under tree");
-
+        // Load assets one at a time to take advantage of cache
         return osearch.getAssets(vScan);
     }
 

@@ -36,43 +36,8 @@ import littleware.apps.addressbook.*;
  * property (setSessionBean/getSessionBean).
  */
 public class SessionBean {
-    private static final Logger log = Logger.getLogger( SessionBean.class.getName() );
-    private static SessionManager sessionManager = null;
-    private static SessionBean    guestBean = null;
-    private static boolean initialized = false;
-
-
-    /**
-     * Little utility to setup the session connections to the asset server
-     */
-    private static synchronized void setupSession() {
-        if (!initialized) {
-            try {
-                if (null == om_session) {
-                    om_session = BeanUtil.getSessionManager();
-                }
-                if (null == om_guest) {
-                    PrivilegedAction<SessionHelper> act_getguest =
-                            new PrivilegedAction<SessionHelper>() {
-
-                                public SessionHelper run() {
-                                    return BeanUtil.getWebGuestHelper();
-                                }
-                            };
-
-                    om_guest = (SessionHelper) AccessController.doPrivileged(act_getguest);
-                }
-                initialized = true;
-            } catch ( Throwable e ) {
-                log.log( Level.SEVERE, "Failed to setup session, caught: " + e
-                        + ", " + BaseException.getStackTrace( e ), e
-                        );
-                throw new AssertionFailedException( "Caught throwable: " + e, e );
-            }
-        }
-    }
-    
-    private SessionHelper helper = om_guest;
+    private static final Logger log = Logger.getLogger( SessionBean.class.getName() );    
+    private SessionHelper helper;
     private HttpSession ohttp_session = null;
     private AssetModelLibrary oalib_session = new SimpleAssetModelLibrary ();
 
@@ -80,10 +45,6 @@ public class SessionBean {
      * Do-nothing constructor
      */
     public SessionBean() {
-        if ((null == om_session) || (null == om_guest)) {
-            setupSession();
-            om_helper = om_guest;
-        }
     }
     
 
@@ -108,8 +69,8 @@ public class SessionBean {
      */
     public Contact getContact( LittleUser user ) throws RemoteException,
             BaseException, GeneralSecurityException, AssetException {
-        AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
-        AssetManager m_asset = om_helper.getService(ServiceType.ASSET_MANAGER);
+        AssetSearchManager m_search = null; //helper.getService(ServiceType.ASSET_SEARCH);
+        AssetManager m_asset = null; //helper.getService(ServiceType.ASSET_MANAGER);
         UUID u_link = m_search.getAssetIdsFrom(user.getObjectId(),
                 AssetType.LINK).get("contact");
         Asset a_link = null;
@@ -172,16 +133,16 @@ public class SessionBean {
         if ( isGuest() ) {
             return null;
         }
-        AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
+        AssetSearchManager m_search = null; //helper.getService(ServiceType.ASSET_SEARCH);
         
-        return getContact( om_helper.getSession().getCreator(m_search) );
+        return getContact( helper.getSession().getCreator(m_search) );
     }
 
     /** 
      * SessionHelper is available after successful authenticateAction
      */
     public SessionHelper getHelper() {
-        return om_helper;
+        return helper;
     }
 
     /**
@@ -192,7 +153,7 @@ public class SessionBean {
             BaseException, GeneralSecurityException {
         AssetSearchManager m_search = m_helper.getService(ServiceType.ASSET_SEARCH);        
         ouser = m_helper.getService( ServiceType.ACCOUNT_MANAGER ).getAuthenticatedUser();
-        om_helper = m_helper;
+        helper = m_helper;
         Contact contact_user = getContact();
         Address addr_first = contact_user.getFirstAddress();
     }
@@ -217,7 +178,7 @@ public class SessionBean {
      * reserved 'guest' user login.
      */
     public boolean isGuest () {
-        return ((null == om_helper) || (om_helper == om_guest));
+        return ((null == helper));// || (helper == om_guest));
     }
 
     private LittleUser ouser = null;

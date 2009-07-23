@@ -11,9 +11,11 @@
 package littleware.apps.misc;
 
 import java.awt.Image;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
+import javax.swing.ImageIcon;
 import littleware.base.BaseException;
 
 /**
@@ -33,6 +35,9 @@ public interface ThumbManager {
         public boolean isFallback ();
 
         public Image getThumb();
+
+        /** ImageIcon generated on demand first time called */
+        public ImageIcon getIcon();
     }
 
     /**
@@ -50,8 +55,8 @@ public interface ThumbManager {
             ) throws BaseException, GeneralSecurityException, IOException;
 
 
-    public Image  getDefault ();
-    public void setDefault( Image thumb );
+    public RenderedImage  getDefault ();
+    public void setDefault( RenderedImage thumb );
 
     /** Thumbnail width property */
     public int getWidth();

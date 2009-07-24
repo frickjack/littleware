@@ -55,7 +55,7 @@ public interface ThumbManager {
             ) throws BaseException, GeneralSecurityException, IOException;
 
 
-    public RenderedImage  getDefault ();
+    public Thumb  getDefault ();
     public void setDefault( RenderedImage thumb );
 
     /** Thumbnail width property */

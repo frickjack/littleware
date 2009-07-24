@@ -250,8 +250,8 @@ public class SimpleThumbManager implements ThumbManager {
     }
 
     @Override
-    public RenderedImage getDefault() {
-        return oimgDefault;
+    public Thumb getDefault() {
+        return othumbDefault;
     }
 
     @Override

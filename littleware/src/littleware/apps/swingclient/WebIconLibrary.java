@@ -57,6 +57,9 @@ public class WebIconLibrary implements IconLibrary {
         ov_named_urls.put ( "littleware.screw",                              
                                                 "/apache/screw2.gif" 
                              );
+        ov_named_urls.put ( "littleware.wait",
+                            "/geronimo/exp_32.gif"
+                             );
         ov_named_urls.put ( "littleware.right_arrow",
                                                       "/geronimo/arrow_closed_active_16.gif" 
                              );

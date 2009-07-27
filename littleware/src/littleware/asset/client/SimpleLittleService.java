@@ -14,6 +14,12 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.util.*;
 import java.util.logging.Logger;
+import littleware.security.auth.client.ClientCache;
+import littleware.security.auth.client.NullClientCache;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 
 
 /**
@@ -26,7 +32,7 @@ public class SimpleLittleService implements LittleService {
     private static final long serialVersionUID = -1343921475014296291L;
 
 
-    private transient List<ServiceListener> ovListener = new ArrayList<ServiceListener>();
+    private transient List<LittleServiceListener> ovListener = new ArrayList<LittleServiceListener>();
     // Don't use final when object needs to be serializable
     private LittleService oxSource = this;
 
@@ -39,7 +45,7 @@ public class SimpleLittleService implements LittleService {
      * @throws java.lang.ClassNotFoundException
      */
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        ovListener = new ArrayList<ServiceListener>();
+        ovListener = new ArrayList<LittleServiceListener>();
         in.defaultReadObject();
     }
 
@@ -51,7 +57,7 @@ public class SimpleLittleService implements LittleService {
      * @throws java.lang.ClassNotFoundException
      */
     private void readObjectNoData() throws ObjectStreamException {
-        ovListener = new ArrayList<ServiceListener>();
+        ovListener = new ArrayList<LittleServiceListener>();
     }
 
     /**
@@ -67,35 +73,87 @@ public class SimpleLittleService implements LittleService {
     }
 
     @Override
-    public void addServiceListener(ServiceListener listener ) {
+    public void addServiceListener(LittleServiceListener listener ) {
         if (!ovListener.contains(listener)) {
             ovListener.add(listener);
         }
     }
 
-    public void removeServiceListener(ServiceListener listener) {
+    @Override
+    public void removeServiceListener(LittleServiceListener listener) {
         ovListener.remove(listener);
     }
 
 
 
     /**
-     * Invoke notify() on each ServiceListener registered with this object.
+     * Invoke notify() on each LittleServiceListener registered with this object.
      *
      * @param event to notify the listeners of
      */
-    public void fireServiceEvent(ServiceEvent event) {
+    public void fireServiceEvent(LittleServiceEvent event) {
         if (event.getSource() != oxSource) {
             throw new IllegalArgumentException("source mismatch");
         }
 
-        for (ServiceListener listener : ovListener) {
+        for (LittleServiceListener listener : ovListener) {
             listener.receiveServiceEvent(event);
         }
     }
 
     protected LittleService getSource() {
         return oxSource;
+    }
+
+    private ClientCache  cache = new NullClientCache();
+
+    /**
+     * Access the client-side cache if available
+     */
+    protected ClientCache getCache() {
+        return cache;
+    }
+
+    private static int cacheCount = 0;
+
+    /**
+     * Little hook just for testing ...
+     */
+    public static int getCacheCount() {
+        return cacheCount;
+    }
+
+    /** Loads the ClientCache from the execution context */
+    @Override
+    public void start( final BundleContext ctx) throws Exception {
+        ctx.registerService( LittleService.class.getName(), this, new Properties() );
+        final ServiceListener listener = new ServiceListener() {
+            @Override
+            public void serviceChanged(ServiceEvent event) {
+                switch ( event.getType() ) {
+                    case ServiceEvent.REGISTERED: {
+                        final ServiceReference ref = event.getServiceReference();
+                        final ClientCache service  = (ClientCache) ctx.getService(ref );
+                        if ( null != service ) {
+                            cache = service;
+                            if ( ! (service instanceof NullClientCache) ) {
+                                ++cacheCount;
+                            }
+                        }
+                    } break;
+                }
+            }
+        };
+        final String filter = "(objectclass=" + ClientCache.class.getName() + ")";
+        ctx.addServiceListener(listener, filter);
+        for ( ServiceReference ref : ctx.getServiceReferences( null, filter ) ) {
+            listener.serviceChanged( new ServiceEvent( ServiceEvent.REGISTERED, ref ) );
+        }
+    }
+
+    /** NOOP */
+    @Override
+    public void stop(BundleContext arg0) throws Exception {
     }
 }
 

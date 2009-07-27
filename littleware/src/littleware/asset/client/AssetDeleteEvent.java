@@ -16,7 +16,7 @@ import java.util.UUID;
  *
  * @author pasquini
  */
-public class AssetDeleteEvent extends ServiceEvent {
+public class AssetDeleteEvent extends LittleServiceEvent {
     private static final long serialVersionUID = -3732208122310806735L;
     private final UUID  ouDelete;
 

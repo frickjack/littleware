@@ -80,6 +80,7 @@ public class SessionManagerProxy implements SessionManager {
         }
     }
 
+    @Override
     public SessionHelper getSessionHelper(UUID u_session) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         RemoteException e_last = null;

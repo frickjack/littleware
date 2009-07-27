@@ -17,7 +17,7 @@ import littleware.asset.Asset;
  * an updated view of an asset from the repo - possibly
  * after updating/creating the asset.
  */
-public class AssetLoadEvent extends ServiceEvent {
+public class AssetLoadEvent extends LittleServiceEvent {
     private static final long serialVersionUID = 4242312050123652047L;
     private final Asset oaLoad;
 

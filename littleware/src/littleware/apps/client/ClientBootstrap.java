@@ -12,22 +12,19 @@ package littleware.apps.client;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Module;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.EzModule;
-import littleware.base.AssertionFailedException;
+import littleware.asset.client.LittleService;
 import littleware.base.Maybe;
-import littleware.base.PropertiesLoader;
 import littleware.security.auth.AbstractGOBootstrap;
 import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.LittleBootstrap;
-import littleware.security.auth.client.ClientCache;
+import littleware.security.auth.SessionHelper;
+import littleware.security.auth.client.CacheActivator;
 //import org.apache.jcs.JCS;
 //import org.apache.jcs.access.exception.CacheException;
 //import org.apache.jcs.engine.control.CompositeCacheManager;
@@ -44,27 +41,32 @@ public class ClientBootstrap extends AbstractGOBootstrap {
 
     /** 
      * Utility activator takes care of shutting down the
-     * executor service and the JCS cache.
+     * executor service and the JCS cache, and bootstraps
+     * the session helper.
      * Public for guice-no_aop access only.
      */
     public static class Activator implements BundleActivator {
 
         private final ExecutorService executor;
+        private final SessionHelper helper;
         //private final CompositeCacheManager cacheManager;
 
         @Inject
-        public Activator(ExecutorService executor ) { //, CompositeCacheManager cacheManager) {
+        public Activator(ExecutorService executor, SessionHelper helper ) { //, CompositeCacheManager cacheManager) {
             this.executor = executor;
+            this.helper = helper;
             //this.cacheManager = cacheManager;
         }
 
         @Override
         public void start(BundleContext ctx) throws Exception {
+            ((LittleService) helper).start( ctx );
         }
 
         @Override
-        public void stop(BundleContext cxt) throws Exception {
+        public void stop(BundleContext ctx) throws Exception {
             //cacheManager.shutDown();
+            ((LittleService) helper).stop( ctx );
             if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
             }
@@ -138,7 +140,7 @@ public class ClientBootstrap extends AbstractGOBootstrap {
         });
         this.getGuiceModule().add(new CacheModule());
         this.getOSGiActivator().add(AssetModelServiceListener.class);
-        this.getOSGiActivator().add(ClientCache.class);
+        this.getOSGiActivator().add(CacheActivator.class);
         this.getOSGiActivator().add(Activator.class);
         this.clientGuice = clientGuice;
     }

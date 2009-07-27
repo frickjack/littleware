@@ -224,6 +224,8 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                 } else {
                     throw new SessionExpiredException("Expired at: " + m_helper.getSession().getEndDate());
                 }
+            } else {
+                ov_session_map.remove(u_session);
             }
         }
 

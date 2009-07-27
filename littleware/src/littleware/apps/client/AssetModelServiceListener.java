@@ -16,8 +16,8 @@ import java.util.logging.Logger;
 import littleware.asset.client.AssetDeleteEvent;
 import littleware.asset.client.AssetLoadEvent;
 import littleware.asset.client.LittleService;
-import littleware.asset.client.ServiceEvent;
-import littleware.asset.client.ServiceListener;
+import littleware.asset.client.LittleServiceEvent;
+import littleware.asset.client.LittleServiceListener;
 import littleware.base.AssertionFailedException;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.client.SessionHelperService;
@@ -30,7 +30,7 @@ import org.osgi.framework.BundleContext;
  * then automatically updates the AssetModelLibrary based
  * on ServiceEvents fired by LittleServices.
  */
-public class AssetModelServiceListener implements ServiceListener, BundleActivator {
+public class AssetModelServiceListener implements LittleServiceListener, BundleActivator {
     private static final Logger     olog = Logger.getLogger( AssetModelServiceListener.class.getName() );
 
     private final AssetModelLibrary olibAsset;
@@ -47,7 +47,7 @@ public class AssetModelServiceListener implements ServiceListener, BundleActivat
     }
 
     @Override
-    public void receiveServiceEvent(ServiceEvent eventBase ) {
+    public void receiveServiceEvent(LittleServiceEvent eventBase ) {
         if ( eventBase instanceof AssetLoadEvent ) {
             final AssetLoadEvent eventLoad = (AssetLoadEvent) eventBase;
             olibAsset.syncAsset( eventLoad.getAsset() );

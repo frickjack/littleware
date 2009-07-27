@@ -22,6 +22,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.client.LittleService;
+import littleware.asset.client.SimpleLittleService;
 import littleware.security.AccountManager;
 import littleware.security.SecurityAssetType;
 import littleware.security.auth.LittleSession;
@@ -136,6 +137,10 @@ public class AssetModelLibTester extends LittleTest {
             osearch.getAsset( osession.getObjectId() );
             assertTrue( "Asset automatically added to model library on load",
                     null != olibAsset.get( osession.getObjectId() )
+                    );
+            // Make sure that our client cache is getting wired up
+            assertTrue( "Client cache registration looks ok",
+                    SimpleLittleService.getCacheCount() > 0
                     );
         } catch ( Exception ex ) {
             olog.log( Level.WARNING, "Test failed" , ex );

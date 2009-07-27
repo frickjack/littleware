@@ -10,15 +10,10 @@
 
 package littleware.asset.client;
 
-import java.util.EventObject;
-
 /**
- * Base class for LittleService observer events
+ *
+ * @author pasquini
  */
-public class ServiceEvent extends EventObject {
-    private static final long serialVersionUID = 8882466619235817165L;
-
-    public ServiceEvent( LittleService source ) {
-        super( source );
-    }
+public interface LittleServiceListener {
+	public void receiveServiceEvent ( LittleServiceEvent event_little );
 }

@@ -131,10 +131,12 @@ public class BeanTester extends TestCase {
             assertTrue("Login ok: " + s_result,
                     bean_test.getLastResult().equals( ActionResult.Ok ) 
                     );
-                    
+
+            /*.. disable for now ..
             Contact contact_user = bean_session.getContact();
             assertTrue("Got a contact", contact_user != null);
             olog_generic.log(Level.INFO, "Got contact with data: " + contact_user.getData());
+             * */
         } catch (Exception e) {
             olog_generic.log(Level.WARNING, "Caught unexpected: " + e + ", " +
                     BaseException.getStackTrace(e));

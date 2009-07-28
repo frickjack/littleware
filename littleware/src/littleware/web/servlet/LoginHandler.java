@@ -40,12 +40,12 @@ import javax.servlet.http.HttpSessionListener;
 public class LoginHandler extends HttpServlet implements HttpSessionListener {
 
     @Override
-    public void sessionCreated(HttpSessionEvent arg0) {
+    public void sessionCreated(HttpSessionEvent event) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void sessionDestroyed(HttpSessionEvent arg0) {
+    public void sessionDestroyed(HttpSessionEvent event) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -17,6 +17,8 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.client.AssetLoadEvent;
 import littleware.asset.client.LittleService;
@@ -42,6 +44,7 @@ import org.osgi.framework.ServiceReference;
  */
 @Singleton
 public class CacheActivator implements BundleActivator, LittleServiceListener, ClientCache {
+    private static final Logger log = Logger.getLogger( CacheActivator.class.getName() );
 
     private final Cache<String, Object> cacheLong = new SimpleCache<String, Object>(900, 20000);
     private final Cache<String, Object> cacheShort = new SimpleCache<String, Object>(SimpleCache.MIN_AGEOUT_SECS, 20000);
@@ -218,7 +221,7 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
     public void start(final BundleContext ctx) throws Exception {
         // register self to whiteboard
         ctx.registerService(ClientCache.class.getName(), this, new Properties());
-
+        log.log( Level.FINE, "ClientCache registered with OSGi service whiteboard" );
         // listen on whiteboard for new services
         /** ... not necessary at this point - SessionHelperProxy manages this stuff currently ...
          * TODO: implement AbstractLittleServiceListener OSGi activator ...

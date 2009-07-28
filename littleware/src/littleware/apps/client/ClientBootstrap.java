@@ -138,7 +138,7 @@ public class ClientBootstrap extends AbstractGOBootstrap {
                 binder.bind(LittleBootstrap.class).toInstance(ClientBootstrap.this);
             }
         });
-        this.getGuiceModule().add(new CacheModule());
+        //this.getGuiceModule().add(new CacheModule());
         this.getOSGiActivator().add(AssetModelServiceListener.class);
         this.getOSGiActivator().add(CacheActivator.class);
         this.getOSGiActivator().add(Activator.class);

@@ -26,6 +26,7 @@ import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
+import littleware.asset.IdWithClock;
 import littleware.base.BaseException;
 import littleware.base.Cache;
 import littleware.base.Maybe;
@@ -198,6 +199,11 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return getAssetIdsFrom( u_from, null );
+    }
+
+    @Override
+    public List<IdWithClock> checkTransactionLog(UUID homeId, long minTransaction) throws BaseException, RemoteException {
+        return oserver.checkTransactionLog(homeId, minTransaction);
     }
 
 }

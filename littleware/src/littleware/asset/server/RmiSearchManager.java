@@ -108,4 +108,9 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
     public Map<String, UUID> getAssetIdsFrom(UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return om_proxy.getAssetIdsFrom( u_from );
     }
+
+    @Override
+    public List<IdWithClock> checkTransactionLog(UUID homeId, long minTransaction) throws BaseException, RemoteException {
+        return om_proxy.checkTransactionLog(homeId, minTransaction);
+    }
 }

@@ -105,6 +105,16 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
     @ReadOnly
     Map<UUID, Long> checkTransactionCount( Map<UUID, Long> v_check) throws BaseException, RemoteException;
 
+
+    /**
+     * Return the assets modified by the 100 most recent transaction after lMin
+     *
+     * @param homeId to restrict to
+     * @param minTransaction
+     * @return list of (transaction,asset-id) info in transaction order
+     */
+    public @ReadOnly List<IdWithClock> checkTransactionLog( UUID homeId, long minTransaction ) throws BaseException, RemoteException;
+
     /**
      * Get the links (assets with a_to as their TO-asset)
      * out of the given asset-id of the given type.

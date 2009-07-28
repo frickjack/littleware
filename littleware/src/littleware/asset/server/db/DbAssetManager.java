@@ -99,6 +99,8 @@ public interface DbAssetManager {
      */
     public DbReader<Map<UUID, Asset>, String> makeDbCacheSyncLoader();
 
+    public DbReader<List<IdWithClock>, Long> makeLogLoader( UUID homeId );
+
     /**
      * Call only once.  Launch a background thread to 
      * periodically sync the given Cache manager with
@@ -110,5 +112,7 @@ public interface DbAssetManager {
      * @exception SQLException on failure to perform initial sync with cache-data database
      */
     public void launchCacheSyncThread(CacheManager m_cache) throws SQLException;
+
+
 }
 

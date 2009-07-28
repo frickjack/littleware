@@ -1,3 +1,13 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.web.servlet;
 
 import javax.servlet.*;
@@ -34,10 +44,12 @@ public class SecurityFilter implements Filter {
     }
 
     /** Do nothing init */
+    @Override
     public void init(FilterConfig config) throws ServletException {
     }
 
     /** Do nothing */
+    @Override
     public void destroy() {
     //config = null;
     }
@@ -65,6 +77,7 @@ public class SecurityFilter implements Filter {
         /**
          * Just invoke the filterchain doFilter
          */
+        @Override
         public Object run() throws IOException, ServletException {
             ohttp_chain.doFilter(ohttp_request, ohttp_response);
             return null;
@@ -76,6 +89,7 @@ public class SecurityFilter implements Filter {
      * session attribute, and extract the Subject to set
      * the javax.security.auth.subject session attribute to.
      */
+    @Override
     public void doFilter(ServletRequest sreq, ServletResponse sres,
             FilterChain chain) throws IOException, ServletException {
         HttpServletResponse http_response = (HttpServletResponse) sres;
@@ -144,7 +158,4 @@ public class SecurityFilter implements Filter {
         }
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

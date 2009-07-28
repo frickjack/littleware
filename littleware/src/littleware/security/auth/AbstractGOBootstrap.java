@@ -118,11 +118,11 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      * the SessionUtil singleton of specified at construction time,
      * and boot into OSGi.
      *
+     * @return injector - only intended for access by bootstrap subtypes
      * @exception IllegalStateException if bootstrap has already run
      * @exception IOException on failure to load init daa
      */
-    @Override
-    public void bootstrap () {
+    protected Injector bootstrapInternal () {
         if ( ob_bootstrap ) {
             throw new IllegalStateException ( "Bootstrap already run" );
         }
@@ -196,6 +196,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         }
 
         ob_bootstrap = true;
+        return injector;
     }
 
     @Override
@@ -212,4 +213,8 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
 
     }
 
+    @Override
+    public void bootstrap () {
+        bootstrapInternal();
+    }
 }

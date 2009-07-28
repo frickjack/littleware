@@ -66,6 +66,14 @@ public class Maybe<T> implements java.io.Serializable {
         return oval;
     }
 
+    /**
+     * Just calls get() - setup as Property to simplify access
+     * from JSF/JSP expression language, etc.
+     */
+    public T getThing() {
+        return get();
+    }
+
     @Override
     public boolean equals( final Object other ) {
         if ( other instanceof Maybe ) {

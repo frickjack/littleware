@@ -119,9 +119,9 @@ public class ClientBootstrap extends AbstractGOBootstrap {
     }
 
     /**
-     * Internal shared constructor
+     * Setup bootstrap with preconfigured ClientServiceGuice module.
      */
-    private ClientBootstrap(ClientServiceGuice clientGuice) {
+    public ClientBootstrap(ClientServiceGuice clientGuice) {
         super(
                 Arrays.asList(
                 new EzModule(),

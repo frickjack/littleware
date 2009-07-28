@@ -120,7 +120,7 @@ public class UpdateContactBean extends AbstractBean {
         try {
             AssetSearchManager search = getSessionBean ().getHelper().getService( ServiceType.ASSET_SEARCH );
             LittleUser user = search.getByName ( s_user, SecurityAssetType.USER ).get();
-            Address addr = getSessionBean ().getContact ( user ).getFirstAddress ();
+            Address addr = null; // BUSTED! getSessionBean ().getContact ( user ).getFirstAddress ();
             
             os_user = s_user;
             setEmail( addr.getEmail().toString() );
@@ -165,11 +165,11 @@ public class UpdateContactBean extends AbstractBean {
             Address addr = null;
             
             if ( null == os_user ) {
-                addr = getSessionBean ().getContact().getFirstAddress();
+                addr = null; // BUSTED! getSessionBean ().getContact().getFirstAddress();
             } else {
                 AssetSearchManager search = getSessionBean ().getHelper().getService( ServiceType.ASSET_SEARCH );
                 LittleUser user = search.getByName ( os_user, SecurityAssetType.USER ).get();
-                addr = getSessionBean ().getContact ( user ).getFirstAddress ();
+                addr = null; // BUSTED! getSessionBean ().getContact ( user ).getFirstAddress ();
             }
             applyUpdatesToAddress( addr );
             AssetManager m_asset = getSessionBean ().getHelper ().getService(ServiceType.ASSET_MANAGER);

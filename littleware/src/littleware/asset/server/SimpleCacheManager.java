@@ -428,5 +428,10 @@ public class SimpleCacheManager implements CacheManager {
     public Map<String, UUID> getAssetIdsFrom(UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return getAssetIdsFrom( u_from, null );
     }
+
+    @Override
+    public List<IdWithClock> checkTransactionLog(UUID homeId, long minTransaction) throws BaseException, RemoteException {
+        throw new CacheMissException("Not supported yet.");
+    }
 }
 

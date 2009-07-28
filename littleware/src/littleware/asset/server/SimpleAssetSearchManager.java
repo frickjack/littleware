@@ -206,5 +206,21 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
             throw new DataAccessException("Caught unexpected: " + e);
         }
     }
+
+    @Override
+    public List<IdWithClock> checkTransactionLog( UUID homeId, long minTransaction) throws BaseException, RemoteException {
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID, Asset> v_cache = trans.startDbAccess();
+        final List<IdWithClock> result = new ArrayList<IdWithClock>();
+
+        try {
+            final DbReader<List<IdWithClock>, Long> sql_reader = om_db.makeLogLoader( homeId );
+            return sql_reader.loadObject( minTransaction );
+        } catch ( SQLException ex ) {
+            throw new DataAccessException( "Data access error: " + ex );
+        } finally {
+            trans.endDbAccess(v_cache);
+        }
+    }
 }
 

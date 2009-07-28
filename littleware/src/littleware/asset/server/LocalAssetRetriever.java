@@ -38,7 +38,7 @@ public class LocalAssetRetriever implements AssetRetriever {
     private static final Logger olog_generic = Logger.getLogger( LocalAssetRetriever.class.getName() );
     private final DbAssetManager om_db;
     private final AssetSpecializerRegistry  oregistry_special;
-    private final Provider<LittleTransaction>        oprovideTrans;
+    private final Provider<? extends LittleTransaction>        oprovideTrans;
     private final PermissionCache ocachePermission;
 
     /**
@@ -46,7 +46,7 @@ public class LocalAssetRetriever implements AssetRetriever {
      */
     public LocalAssetRetriever(DbAssetManager m_db,
             AssetSpecializerRegistry registry_special,
-            Provider<LittleTransaction>  provideTrans,
+            Provider<? extends LittleTransaction>  provideTrans,
             PermissionCache        cachePermission
             ) {
         om_db = m_db;
@@ -153,7 +153,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             return a_result;
         } catch (NoSuchThingException e) {
             throw new DataAccessException("Failure to specialize " + a_loaded.getAssetType() + " type asset: " + a_loaded.getName() +
-                    ", caught: " + e, e);
+                    ", caught: " + e, e );
         } finally {
             trans.endDbAccess(v_cycle_cache);
         }
@@ -234,7 +234,8 @@ public class LocalAssetRetriever implements AssetRetriever {
             final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_source, Maybe.emptyIfNull( (AssetType) n_type ), Maybe.empty( Integer.class ) );
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
-            throw new DataAccessException("Caught unexpected: " + e, e);
+            // do not throw cause e - may not be serializable
+            throw new DataAccessException("Caught unexpected: " + e );
         }
     }
 
@@ -245,7 +246,8 @@ public class LocalAssetRetriever implements AssetRetriever {
             final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_from, Maybe.something( (AssetType) n_type ), Maybe.something( i_state ) );
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
-            throw new DataAccessException("Caught unexpected: " + e, e);
+            // do not throw cause e - may not be serializable
+            throw new DataAccessException("Caught unexpected: " + e);
         }
     }
 

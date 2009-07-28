@@ -167,4 +167,9 @@ public class DbAssetPostgresManager implements DbAssetManager {
     public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(UUID u_to, AssetType n_type) {
         return new DbAssetIdsToLoader(u_to, n_type, getClientId(), oprovideTrans);
     }
+
+    @Override
+    public DbReader<List<IdWithClock>, Long> makeLogLoader( UUID homeId ) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

@@ -244,5 +244,10 @@ public class NullCacheManager implements CacheManager {
         throw new CacheMissException ();
     }
 
+    @Override
+    public List<IdWithClock> checkTransactionLog(UUID homeId, long minTransaction) throws BaseException, RemoteException {
+        throw new CacheMissException ();
+    }
+
 }
 

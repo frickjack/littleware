@@ -12,6 +12,7 @@ package littleware.asset.server.db.jpa;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -19,8 +20,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
+import littleware.asset.IdWithClock;
 import littleware.asset.server.CacheManager;
 import littleware.asset.server.db.DbAssetManager;
+import littleware.asset.server.db.jpa.DbLogLoader.Builder;
 import littleware.base.Maybe;
 import littleware.db.DbReader;
 import littleware.db.DbWriter;
@@ -36,6 +39,7 @@ public class JpaDbAssetManager implements DbAssetManager {
     private final Provider<DbAssetDeleter> oprovideDeleter;
     private final Provider<JpaLittleTransaction> oprovideTrans;
     private final Provider<DbHomeLoader> oprovideHomeLoader;
+    private final DbLogLoader.Builder dbLogBuilder;
 
     @Inject
     public JpaDbAssetManager(
@@ -43,7 +47,8 @@ public class JpaDbAssetManager implements DbAssetManager {
             Provider<DbAssetLoader> provideLoader,
             Provider<DbAssetSaver> provideSaver,
             Provider<DbAssetDeleter> provideDeleter,
-            Provider<DbHomeLoader> provideHomeLoader
+            Provider<DbHomeLoader> provideHomeLoader,
+            DbLogLoader.Builder dbLogBuilder
             )
     {
         oprovideLoader = provideLoader;
@@ -51,6 +56,7 @@ public class JpaDbAssetManager implements DbAssetManager {
         oprovideDeleter = provideDeleter;
         oprovideTrans = provideTrans;
         oprovideHomeLoader = provideHomeLoader;
+        this.dbLogBuilder = dbLogBuilder;
     }
 
     @Override
@@ -111,5 +117,10 @@ public class JpaDbAssetManager implements DbAssetManager {
     @Override
     public void launchCacheSyncThread(CacheManager m_cache) throws SQLException {
         // NOOP
+    }
+
+    @Override
+    public DbReader<List<IdWithClock>, Long> makeLogLoader( UUID homeId ) {
+        return dbLogBuilder.build(homeId);
     }
 }

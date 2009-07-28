@@ -29,6 +29,8 @@ import org.osgi.framework.BundleContext;
  * time as a SessionHelper service listener,
  * then automatically updates the AssetModelLibrary based
  * on ServiceEvents fired by LittleServices.
+ * Launches background thread that attempts to keep local
+ * data in sync with remote repository.
  */
 public class AssetModelServiceListener implements LittleServiceListener, BundleActivator {
     private static final Logger     olog = Logger.getLogger( AssetModelServiceListener.class.getName() );

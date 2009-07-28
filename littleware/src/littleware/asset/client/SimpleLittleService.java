@@ -13,6 +13,7 @@ package littleware.asset.client;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.security.auth.client.ClientCache;
 import littleware.security.auth.client.NullClientCache;
@@ -132,6 +133,7 @@ public class SimpleLittleService implements LittleService {
             public void serviceChanged(ServiceEvent event) {
                 switch ( event.getType() ) {
                     case ServiceEvent.REGISTERED: {
+                        olog_generic.log( Level.FINE, "Listener processing service registration" );
                         final ServiceReference ref = event.getServiceReference();
                         final ClientCache service  = (ClientCache) ctx.getService(ref );
                         if ( null != service ) {

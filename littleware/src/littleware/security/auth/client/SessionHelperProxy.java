@@ -127,6 +127,13 @@ public class SessionHelperProxy implements SessionHelperService {
     @Override
     public void start(BundleContext ctx) throws Exception {
         this.maybeContext = Maybe.something(ctx);
+        for (LittleService service : ov_cache.values()) {
+            try {
+                service.start(ctx);
+            } catch (Exception ex) {
+                olog_generic.log(Level.WARNING, "Failed to start service", ex);
+            }
+        }
     }
 
     @Override
@@ -289,12 +296,13 @@ public class SessionHelperProxy implements SessionHelperService {
             m_service.addServiceListener(listener);
         }
         // Register with client side OSGi environment
-        try {
-            m_service.start(maybeContext.get());
-        } catch (Exception ex) {
-            throw new IllegalStateException("Client environment not setup propertly");
+        if (maybeContext.isSet()) {
+            try {
+                m_service.start(maybeContext.get());
+            } catch (Exception ex) {
+                throw new IllegalStateException("Client environment not setup propertly");
+            }
         }
-
         return m_service;
     }
 

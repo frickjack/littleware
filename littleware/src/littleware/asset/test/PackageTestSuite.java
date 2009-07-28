@@ -49,7 +49,8 @@ public class PackageTestSuite extends TestSuite {
             Provider<DbAssetManagerTester> provideDbTester,
             Provider<AssetRetrieverTester> provideRetrieverTest,
             Provider<AssetPathTester> providePathTester,
-            Provider<AssetTreeToolTester> provideTreeTester
+            Provider<AssetTreeToolTester> provideTreeTester,
+            Provider<AssetSearchManagerTester> provideSearchTest
             ) {
         super(PackageTestSuite.class.getName());
         boolean b_run = true;
@@ -96,7 +97,8 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(provideRetrieverTest.get().putName("testAssetType") );
         }
         if (b_run) {
-            this.addTest(new AssetSearchManagerTester("testSearch", m_search));
+            this.addTest( provideSearchTest.get() );
+            this.addTest( provideSearchTest.get().putName( "testTransactionLog"));
         }
         if (b_run) {
             this.addTest(providePathTester.get() );

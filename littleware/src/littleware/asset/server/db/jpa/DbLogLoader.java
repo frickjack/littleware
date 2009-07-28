@@ -55,11 +55,12 @@ class DbLogLoader implements DbReader<List<IdWithClock>, Long> {
     public List<IdWithClock> loadObject(Long minTransactionIn) throws SQLException {
         final EntityManager entMgr = provideTrans.get().getEntityManager();
         final TransactionEntity trans = entMgr.find( TransactionEntity.class, new Integer(1) );
-        final String sQuery = "SELECT NEW littleware.asset.server.db.jpa.ClockIdType( x.objectId, MAX(x.lastTransaction) ) " +
-                "FROM Asset x GROUP BY x.objectId " +
-                "HAVING x.homeId = :homeId AND x.lastTransaction > :minTransaction";
-        final long minTransaction = (trans.getTransaction() - 1000 < minTransactionIn.longValue()) ?
-            (trans.getTransaction() - 1000) : minTransactionIn.longValue();
+        final String sQuery = "SELECT NEW littleware.asset.server.db.jpa.ClockIdType( x.objectId, x.lastTransaction ) " +
+                "FROM Asset x " +
+                "WHERE x.homeId = :homeId AND x.lastTransaction > :minTransaction " +
+                "ORDER BY x.lastTransaction";
+        final long minTransaction = (trans.getTransaction() - 200 < minTransactionIn.longValue()) ?
+            (trans.getTransaction() - 200) : minTransactionIn.longValue();
         final Query query = entMgr.createQuery(sQuery).
                 setParameter("homeId", UUIDFactory.makeCleanString(homeId)).
                 setParameter("minTransaction", minTransaction );

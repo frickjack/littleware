@@ -50,7 +50,6 @@ public abstract class ServerTestLauncher extends TestSuite implements BundleActi
 
     public static final String OS_TEST_USER = "littleware.test_user";
     public static final String OS_TEST_USER_PASSWORD = "test123";
-    public static final String OS_TEST_GROUP = "group.littleware.test_user";
 
     private static ServerTestLauncher  osingleton = null;
     private final  AssetSearchManager  osearch;

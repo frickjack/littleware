@@ -130,10 +130,13 @@ public class PackageTestSuite extends ServerTestLauncher {
                 }).toInstance(barrier);
             }
         });
+
         bootstrap.getOSGiActivator().add(ClientTestSuite.class);
         bootstrap.bootstrap();
         try {
-            this.addTest(barrier.waitForEventData());
+            if ( true ) {
+                this.addTest(barrier.waitForEventData());
+            }
         } catch (InterruptedException ex) {
             throw new IllegalStateException("Failed to setup client tests", ex);
         }

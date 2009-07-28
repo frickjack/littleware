@@ -294,13 +294,12 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager m_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.GROUP.equals(a_now.getAssetType())) {
-            final LittleGroup p_before = a_pre_update.narrow(LittleGroup.class);
             final LittleGroup p_after = a_now.narrow(LittleGroup.class);
 
             Set<Principal> v_before = new HashSet<Principal>();
 
-            if (null != p_before) {
-                v_before.addAll(Collections.list(p_before.members()));
+            if (null != a_pre_update ) {
+                v_before.addAll(Collections.list(a_pre_update.narrow( LittleGroup.class ).members()));
             }
 
             List<LittlePrincipal> v_add = new ArrayList<LittlePrincipal>();

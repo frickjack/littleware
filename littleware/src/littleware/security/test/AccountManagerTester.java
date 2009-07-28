@@ -20,6 +20,7 @@ import java.util.logging.Level;
 
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.AssetType;
 import littleware.security.*;
 import littleware.security.auth.*;
 import littleware.base.BaseException;
@@ -167,25 +168,32 @@ public class AccountManagerTester extends LittleTest {
      */
     public void testGroupUpdate() {
         try {
-            LittleGroup groupTest = osearch.getByName(ServerTestLauncher.OS_TEST_GROUP, SecurityAssetType.GROUP ).get();
+            final String name = "group.littleware.test_user";
             final LittleUser caller = om_account.getAuthenticatedUser();
+            LittleGroup groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).getOr(null);
+            if ( null == groupTest ) {
+                groupTest = AssetType.createSubfolder( SecurityAssetType.GROUP, name, getTestHome(osearch) );
+                groupTest.addMember(caller);
+                groupTest = om_asset.saveAsset(groupTest, "setup test group" );
+            }
+            
 
             if (groupTest.removeMember(caller)) {
                 groupTest = om_asset.saveAsset(groupTest, "Removed tester " + caller.getName());
             }
-            groupTest = osearch.getByName(ServerTestLauncher.OS_TEST_GROUP, SecurityAssetType.GROUP ).get();
+            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
             assertTrue("Already removed caller as primary member of group",
                     !groupTest.removeMember(caller));
             assertTrue("Added caller to test group: " + caller.getName(),
                     groupTest.addMember(caller));
             groupTest = om_asset.saveAsset(groupTest, "Added tester " + caller.getName());
 
-            groupTest = osearch.getByName(ServerTestLauncher.OS_TEST_GROUP, SecurityAssetType.GROUP ).get();
+            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
             assertTrue("Able to remove caller " + caller.getName() + " from test group",
                     groupTest.removeMember(caller));
             groupTest = om_asset.saveAsset(groupTest, "Removed tester " + caller.getName());
 
-            groupTest = osearch.getByName(ServerTestLauncher.OS_TEST_GROUP, SecurityAssetType.GROUP ).get();
+            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
             assertTrue("Already removed caller as primary member of group 2nd time",
                     !groupTest.removeMember(caller));
         } catch (Exception e) {

@@ -211,7 +211,6 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     public List<IdWithClock> checkTransactionLog( UUID homeId, long minTransaction) throws BaseException, RemoteException {
         final LittleTransaction trans = oprovideTrans.get();
         final Map<UUID, Asset> v_cache = trans.startDbAccess();
-        final List<IdWithClock> result = new ArrayList<IdWithClock>();
 
         try {
             final DbReader<List<IdWithClock>, Long> sql_reader = om_db.makeLogLoader( homeId );

@@ -15,6 +15,8 @@ import com.google.inject.Module;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import littleware.apps.lgo.EzModule;
@@ -46,7 +48,6 @@ public class ClientBootstrap extends AbstractGOBootstrap {
      * Public for guice-no_aop access only.
      */
     public static class Activator implements BundleActivator {
-
         private final ExecutorService executor;
         private final SessionHelper helper;
         //private final CompositeCacheManager cacheManager;
@@ -142,6 +143,7 @@ public class ClientBootstrap extends AbstractGOBootstrap {
         this.getOSGiActivator().add(AssetModelServiceListener.class);
         this.getOSGiActivator().add(CacheActivator.class);
         this.getOSGiActivator().add(Activator.class);
+        this.getOSGiActivator().add(SyncWithServer.class );
         this.clientGuice = clientGuice;
     }
 

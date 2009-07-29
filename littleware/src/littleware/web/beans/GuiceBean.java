@@ -11,18 +11,39 @@
 
 package littleware.web.beans;
 
+import com.google.inject.Injector;
+import littleware.base.Maybe;
+
 /**
  * Attempt to marry littleware world with
  * web jsp/jsf servlet world.
  */
 public class GuiceBean {
+    private final Maybe<Injector> maybeInjector;
+
+    /**
+     * Inject the injector with which GuiceBean.injectMe
+     * injects other beans.
+     */
+    public GuiceBean( Injector injector ) {
+        this.maybeInjector = Maybe.something( injector );
+    }
+
+    /**
+     * Setup a GuiceBean for a web session that has
+     * not logged into littleware.  The injectMe method
+     * acts as a NOOP, and loggedIn is false.
+     */
+    public GuiceBean () {
+        this.maybeInjector = Maybe.empty();
+    }
 
     /**
      * Return true if a user session is logged in,
      * false if no littleware login is active.
      */
     public boolean isLoggedIn() {
-        return false;
+        return maybeInjector.isSet();
     }
     
 
@@ -37,5 +58,10 @@ public class GuiceBean {
      * @exception IllegalStateException if injector not initialized
      */
     public void injectMembers( Object injectMe ) {
+        if ( maybeInjector.isEmpty() ) {
+            return;
+        }
+        maybeInjector.get().injectMembers(injectMe);
     }
+
 }

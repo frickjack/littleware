@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+import littleware.security.auth.LittleBootstrap;
+import littleware.web.beans.GuiceBean;
 
 /**
  * Combination servlet and HttpSessionListener.
@@ -39,14 +41,26 @@ import javax.servlet.http.HttpSessionListener;
  */
 public class LoginHandler extends HttpServlet implements HttpSessionListener {
 
+    /**
+     * Inject an unauthenticated GuiceBean into the session
+     */
     @Override
     public void sessionCreated(HttpSessionEvent event) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        event.getSession().setAttribute( "littleGuice", new GuiceBean() );
     }
 
+    /**
+     *
+     * @param event
+     */
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        final LittleBootstrap boot = (LittleBootstrap) event.getSession().getAttribute("littleBoot" );
+        if ( null != boot ) {
+            boot.shutdown();
+            event.getSession().removeAttribute( "littleBoot" );
+        }
+        event.getSession().removeAttribute("littleGuice" );
     }
 
     @Override

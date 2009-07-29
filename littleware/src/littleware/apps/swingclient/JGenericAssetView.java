@@ -297,7 +297,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
      * the getAssetModel() AssetModel (data model update).
      */
     protected void eventFromModel(final LittleEvent event ) {
-        if (event .getSource() == getAssetModel()) {
+        if (event.getSource() == getAssetModel()) {
             // Model has changed under us
             SwingUtilities.invokeLater(
                     new Runnable() {

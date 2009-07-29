@@ -59,7 +59,7 @@ class DbLogLoader implements DbReader<List<IdWithClock>, Long> {
                 "FROM Asset x " +
                 "WHERE x.homeId = :homeId AND x.lastTransaction > :minTransaction " +
                 "ORDER BY x.lastTransaction";
-        final long minTransaction = (trans.getTransaction() - 200 < minTransactionIn.longValue()) ?
+        final long minTransaction = (trans.getTransaction() - 200 > minTransactionIn.longValue()) ?
             (trans.getTransaction() - 200) : minTransactionIn.longValue();
         final Query query = entMgr.createQuery(sQuery).
                 setParameter("homeId", UUIDFactory.makeCleanString(homeId)).

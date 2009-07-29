@@ -112,14 +112,14 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
      */
     public List<UUID> findOldAssets() throws BaseException, GeneralSecurityException, RemoteException {
         final List<UUID> result = new ArrayList<UUID>();
-
+        long newMin = minTransaction;
         for (UUID homeId : homeIdSet) {
             if (homeId.equals(littleHomeId)) {
                 continue;
             }
             for (IdWithClock data : search.checkTransactionLog(homeId, minTransaction)) {
-                if ( data.getTransaction() > minTransaction ) {
-                    minTransaction = data.getTransaction();
+                if ( data.getTransaction() > newMin ) {
+                    newMin = data.getTransaction();
                 }
                 final AssetModel model = libAsset.get( data.getId() );
                 if ( (null != model) 
@@ -128,6 +128,7 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
                 }
             }
         }
+        minTransaction = newMin;
         return result;
     }
 
@@ -136,6 +137,7 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
         if (eventIn instanceof AssetLoadEvent) {
             final AssetLoadEvent event = (AssetLoadEvent) eventIn;
             if ((!event.getAsset().getHomeId().equals(littleHomeId)) && (!homeIdSet.contains(event.getAsset().getHomeId()))) {
+                log.log( Level.FINE, "Adding " + event.getAsset().getHomeId() + " to home id set" );
                 homeIdSet = new ImmutableSet.Builder<UUID>().addAll(homeIdSet).
                         add(event.getAsset().getHomeId()).
                         build();
@@ -146,8 +148,9 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
     @Override
     public void run() {
         try {
-            log.log( Level.FINE, "Scanning transaction log" );
-            for( UUID id : findOldAssets() ) {
+            final List<UUID> idList = findOldAssets();
+            log.log( Level.FINE, "Scanning transaction log " + idList.size() + ", up to transaction " + minTransaction );
+            for( UUID id : idList ) {
                 try {
                     final Maybe<Asset> maybe = search.getAsset( id );
                     if ( maybe.isSet() ) {

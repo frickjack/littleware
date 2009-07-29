@@ -348,10 +348,11 @@ public class SimpleAssetManager implements AssetManager {
                 }
             } catch (SQLException e) {
                 // Should check SQLException error-string for specific error translation here ...
+                // Do not throw SQLException to client - may not be serializable
                 if (e.toString().indexOf("littleware(sync)") >= 0) {
-                    throw new AssetSyncException("Attempt to save asset not in sync with database backend", e);
+                    throw new AssetSyncException("Attempt to save asset not in sync with database backend");
                 }
-                throw new DataAccessException("Unexpected: " + e, e);
+                throw new DataAccessException("Unexpected: " + e );
             }
 
         } finally {

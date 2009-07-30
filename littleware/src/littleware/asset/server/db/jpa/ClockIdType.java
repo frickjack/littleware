@@ -16,6 +16,11 @@ package littleware.asset.server.db.jpa;
 public class ClockIdType {
     private final String id;
     private final long transaction;
+    private final String fromId;
+
+    public String getFromId() {
+        return fromId;
+    }
 
     public String getId() {
         return id;
@@ -26,9 +31,10 @@ public class ClockIdType {
     }
 
 
-    public ClockIdType( String id, long transaction ) {
+    public ClockIdType( String id, String fromId, long transaction ) {
         this.id = id;
         this.transaction = transaction;
+        this.fromId = fromId;
     }
 
 

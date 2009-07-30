@@ -12,6 +12,7 @@ package littleware.asset;
 
 import java.io.Serializable;
 import java.util.UUID;
+import littleware.base.Maybe;
 
 /**
  * Basic implementation of IdWithClock.Builder
@@ -21,15 +22,27 @@ public class IdWithClockBuilder implements IdWithClock.Builder {
     private static class Data implements IdWithClock, Serializable {
         private UUID   id;
         private long   transaction;
+        private Maybe<UUID> maybeFrom = Maybe.empty();
 
-        public Data( UUID id, long transaction ) {
+
+        /** Empty constructor for serialization */
+        public Data() {}
+
+        /** Inject read-only properties, from may be null */
+        public Data( UUID id, UUID from, long transaction ) {
             this.id = id;
             this.transaction = transaction;
+            this.maybeFrom = Maybe.emptyIfNull( from );
         }
 
         @Override
         public UUID getId() {
             return id;
+        }
+
+        @Override
+        public Maybe<UUID> getFrom() {
+            return maybeFrom;
         }
 
         @Override
@@ -39,10 +52,13 @@ public class IdWithClockBuilder implements IdWithClock.Builder {
 
     }
 
-
     @Override
     public IdWithClock build(UUID id, long transaction) {
-        return new Data( id, transaction );
+        return build( id, null, transaction );
     }
 
+    @Override
+    public IdWithClock build(UUID id, UUID from, long transaction) {
+        return new Data( id, from, transaction );
+    }
 }

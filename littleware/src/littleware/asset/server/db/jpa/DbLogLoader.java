@@ -55,7 +55,7 @@ class DbLogLoader implements DbReader<List<IdWithClock>, Long> {
     public List<IdWithClock> loadObject(Long minTransactionIn) throws SQLException {
         final EntityManager entMgr = provideTrans.get().getEntityManager();
         final TransactionEntity trans = entMgr.find( TransactionEntity.class, new Integer(1) );
-        final String sQuery = "SELECT NEW littleware.asset.server.db.jpa.ClockIdType( x.objectId, x.lastTransaction ) " +
+        final String sQuery = "SELECT NEW littleware.asset.server.db.jpa.ClockIdType( x.objectId, x.fromId, x.lastTransaction ) " +
                 "FROM Asset x " +
                 "WHERE x.homeId = :homeId AND x.lastTransaction > :minTransaction " +
                 "ORDER BY x.lastTransaction";
@@ -68,6 +68,7 @@ class DbLogLoader implements DbReader<List<IdWithClock>, Long> {
         final List<IdWithClock> result = new ArrayList<IdWithClock>();
         for( ClockIdType data : dataList ) {
             result.add( clockBuilder.build( UUIDFactory.parseUUID( data.getId() ),
+                                            UUIDFactory.parseUUID( data.getFromId() ),
                                             data.getTransaction()
                                             )
                                             );

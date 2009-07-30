@@ -122,9 +122,17 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
                     newMin = data.getTransaction();
                 }
                 final AssetModel model = libAsset.get( data.getId() );
+
                 if ( (null != model) 
                         && (model.getAsset().getTransactionCount() < data.getTransaction()) ) {
                     result.add( data.getId() );
+                } else if ( (null == model)
+                        && data.getFrom().isSet()
+                        && (null != libAsset.get( data.getFrom().get()))
+                        ) {
+                    // tracking parent, so go ahead and add this child
+                    // to inform parent listeners of new child
+                    result.add( data.getFrom().get() );
                 }
             }
         }

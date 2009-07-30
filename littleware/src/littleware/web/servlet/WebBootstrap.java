@@ -14,6 +14,8 @@ package littleware.web.servlet;
 import com.google.inject.Injector;
 import javax.servlet.http.HttpSession;
 import littleware.apps.client.ClientBootstrap;
+import littleware.security.auth.ClientServiceGuice;
+import littleware.security.auth.SessionHelper;
 import littleware.web.beans.GuiceBean;
 
 /**
@@ -24,6 +26,10 @@ import littleware.web.beans.GuiceBean;
  * in a web environment.
  */
 public class WebBootstrap extends ClientBootstrap {
+    /** Bean names in session */
+    public static String littleGuice = "littleGuice";
+    public static String littleBoot = "littleBoot";
+
     private final HttpSession session;
 
     public HttpSession getSession() {
@@ -33,9 +39,11 @@ public class WebBootstrap extends ClientBootstrap {
     /** 
      * Inject the session to bootstrap into.
      * 
-     * @param session
+     * @param session web session
+     * @param helper littleware session
      */
-    public WebBootstrap( HttpSession session ) {
+    public WebBootstrap( HttpSession session, SessionHelper helper ) {
+        super( new ClientServiceGuice( helper ) );
         this.session = session;
     }
 
@@ -52,7 +60,7 @@ public class WebBootstrap extends ClientBootstrap {
     @Override
     public void bootstrap() {
         final Injector injector = super.bootstrapInternal();
-        getSession().setAttribute("littleGuice", new GuiceBean( injector ) );
-        getSession().setAttribute("littleBoot", this );
+        getSession().setAttribute(littleGuice, new GuiceBean( injector ) );
+        getSession().setAttribute(littleBoot, this );
     }
 }

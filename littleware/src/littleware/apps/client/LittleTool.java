@@ -36,15 +36,15 @@ public interface LittleTool extends LittleBean {
 	 * and SessionManager.getSessionHelper ().
 	 * Noop if listen_action is already registered as a listener.
 	 *
-	 * @param listen_action to add
+	 * @param listener to add
 	 */
-	public void	addLittleListener( LittleListener listen_action ) ;
+	public void	addLittleListener( LittleListener listener ) ;
 	
 	/**
 	 * Remove the given listener.
 	 *
-	 * @param listen_action to remove
+	 * @param listener to remove
 	 */
-	public void     removeLittleListener( LittleListener listen_action ) ;
+	public void     removeLittleListener( LittleListener listener ) ;
     
 }

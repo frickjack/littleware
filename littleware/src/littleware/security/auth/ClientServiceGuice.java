@@ -49,6 +49,7 @@ import littleware.base.PropertiesLoader;
 import littleware.base.UUIDFactory;
 import littleware.base.swing.JPasswordDialog;
 import littleware.security.AccountManager;
+import littleware.security.LittleUser;
 import littleware.security.SecurityAssetType;
 import littleware.security.client.AccountManagerService;
 
@@ -315,6 +316,19 @@ public class ClientServiceGuice implements LittleGuiceModule {
             public LittleSession get() {
                 try {
                     return ohelper.getSession();
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new AssertionFailedException("Failed to retrieve active session", e);
+                }
+            }
+        });
+        binder.bind(LittleUser.class).toProvider(new Provider<LittleUser>() {
+            @Override
+            public LittleUser get() {
+                try {
+                    final AssetSearchManager search = ohelper.getService( ServiceType.ASSET_SEARCH);
+                    return search.getAsset( ohelper.getSession().getOwnerId() ).get().narrow( LittleUser.class );
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {

@@ -33,7 +33,6 @@ import littleware.asset.*;
 public class SessionBean {
     private static final Logger log = Logger.getLogger( SessionBean.class.getName() );    
     private SessionHelper helper;
-    private HttpSession ohttp_session = null;
     private AssetModelLibrary oalib_session = new SimpleAssetModelLibrary ();
 
     /**
@@ -42,14 +41,6 @@ public class SessionBean {
     public SessionBean() {
     }
     
-
-    /**
-     * Let the freakin bean know which HTTP session it is associatd with
-     */
-    public void setSession(HttpSession http_session) {
-        ohttp_session = http_session;
-    }
-
 
     /** 
      * SessionHelper is available after successful authenticateAction

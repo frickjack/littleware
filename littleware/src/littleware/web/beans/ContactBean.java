@@ -35,14 +35,13 @@ import littleware.security.LittleUser;
 import littleware.security.auth.ServiceType;
 
 /**
- *
- * @author rdp0004
+ * Track update logged in user's contact info
  */
-public class UserInfoBean {
+public class ContactBean {
     private final SessionBean session;
 
     @Inject
-    public UserInfoBean( SessionBean session ) {
+    public ContactBean( SessionBean session ) {
         this.session = session;
     }
 

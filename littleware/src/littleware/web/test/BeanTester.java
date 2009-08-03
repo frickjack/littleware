@@ -35,30 +35,16 @@ public class BeanTester extends TestCase {
     /**
      * Erase the test users/groups out of the database,
      */
+    @Override
     public void setUp() {
     }
 
     /** Call setUp() to clear out test data */
+    @Override
     public void tearDown() {
         setUp();
     }
 
-    /**
-     * Test the SessionBean
-     */
-    public void testLoginBean() {
-        LoginBean bean_test = new LoginBean ();
-        
-        bean_test.setSessionBean( new SessionBean() );
-
-        bean_test.setName("littleware.test_user");
-        bean_test.setPassword("bogus");
-        String s_result = bean_test.authenticateAction();
-
-        assertTrue("Bad password login should have failed, but got result: " + s_result,
-                ! bean_test.getLastResult().equals( ActionResult.Ok )
-                );
-    }
 
     public void testUpdateContactBean () {
         try {
@@ -115,34 +101,6 @@ public class BeanTester extends TestCase {
         }
     }
 
-    /**
-     * Make sure the SessionBean can log us in, and get our contact information
-     */
-    public void testBasicSession() {
-        try {
-            LoginBean bean_test = new LoginBean();
-            SessionBean bean_session = new SessionBean();
-            bean_test.setSessionBean( bean_session );
-            
-            bean_test.setName("littleware.test_user");
-            bean_test.setPassword("test123");
-            String s_result = bean_test.authenticateAction();
-
-            assertTrue("Login ok: " + s_result,
-                    bean_test.getLastResult().equals( ActionResult.Ok ) 
-                    );
-
-            /*.. disable for now ..
-            Contact contact_user = bean_session.getContact();
-            assertTrue("Got a contact", contact_user != null);
-            olog_generic.log(Level.INFO, "Got contact with data: " + contact_user.getData());
-             * */
-        } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught unexpected: " + e + ", " +
-                    BaseException.getStackTrace(e));
-            assertTrue("Caught unexpected: " + e, false);
-        }
-    }
 
     /**
      * Make sure the DefaultsBean got its data ok

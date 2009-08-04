@@ -33,7 +33,7 @@ import littleware.base.ThreadLocalProvider;
 public abstract class AbstractGuice implements Module {
     private static final Logger olog = Logger.getLogger( AbstractGuice.class.getName() );
     /** Guice provider calls through to injected EntityManagerFactory */
-    private static class EntityManagerProvider implements Provider<EntityManager> {
+    public static class EntityManagerProvider implements Provider<EntityManager> {
         private final EntityManagerFactory ofactory;
         @Inject
         public EntityManagerProvider( EntityManagerFactory factory ) {
@@ -46,7 +46,7 @@ public abstract class AbstractGuice implements Module {
 
     }
 
-    private static class TransactionProvider extends ThreadLocalProvider<SimpleJpaTransaction> {
+    public static class TransactionProvider extends ThreadLocalProvider<SimpleJpaTransaction> {
         private Provider<EntityManager> oprovideEntMgr;
         @Inject
         public TransactionProvider( Provider<EntityManager> provideEntMgr ) {

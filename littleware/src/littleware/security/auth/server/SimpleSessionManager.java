@@ -29,6 +29,7 @@ import littleware.base.stat.Sampler;
 import littleware.base.stat.SimpleSampler;
 import littleware.security.*;
 import littleware.security.auth.*;
+import org.joda.time.DateTime;
 
 /**
  * Simple implementation of SessionManager.
@@ -94,6 +95,24 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
 
         @Override
         public LittleSession run() throws Exception {
+            // Let's create a hierarchy
+            final DateTime now = new DateTime();
+            final List<String> pathList = Arrays.asList(
+                    "Sessions", Integer.toString( now.getYear() ),
+                    now.toString( "MM" ),
+                    now.toString( "dd" ));
+            Asset parent = om_search.getByName( "littleware.home", AssetType.HOME).get();
+            for ( String childName : pathList ) {
+                final Maybe<Asset> maybe = om_search.getAssetFrom( parent.getObjectId(), childName);
+                if ( maybe.isSet() ) {
+                    parent = maybe.get();
+                    continue;
+                }
+                Asset child = AssetType.createSubfolder(AssetType.GENERIC, childName, parent);
+                parent = om_asset.saveAsset( child, os_session_comment );
+            }
+            osession.setFromId( parent.getObjectId() );
+            osession.setHomeId( parent.getHomeId() );
             return om_asset.saveAsset(osession, os_session_comment);
         }
     }
@@ -188,8 +207,9 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
          */
         j_caller.setReadOnly();
         // ok - user authenticated ok by here - setup user session
-        LittleSession session = SecurityAssetType.SESSION.create();
-        session.setName(s_name);
+        final LittleSession session = SecurityAssetType.SESSION.create();
+        session.setObjectId( UUID.randomUUID() );
+        session.setName(s_name + "_" + UUIDFactory.makeCleanString( session.getObjectId() ) );
         session.setOwnerId(maybeUser.get().getObjectId());
         session.setComment("User login");
 

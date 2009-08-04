@@ -163,6 +163,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
                 if (null == forwardURL) {
                     forwardURL = this.getLoginFailedURL();
                 }
+                request.setAttribute("exception", ex);
                 try {
                     getServletConfig().getServletContext().getRequestDispatcher(forwardURL).forward(request, response);
                 } catch (IOException ex2) {

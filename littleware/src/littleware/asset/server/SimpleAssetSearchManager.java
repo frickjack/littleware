@@ -98,7 +98,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 
             SortedMap<AssetPath, Maybe<Asset>> mapResult = null;
             String s_path = path_asset.toString();
-            Maybe<Asset> maybeResult = null;
+            Maybe<Asset> maybeResult = Maybe.empty();
 
             if (path_asset.hasParent()) {
                 // else get parent
@@ -111,7 +111,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 }
 
                 final Maybe<Asset> maybeParent = mapResult.get(mapResult.lastKey());
-                String s_name = s_path.substring(s_path.lastIndexOf("/") + 1);
+                final String s_name = s_path.substring(s_path.lastIndexOf("/") + 1);
 
                 if (!maybeParent.isSet()) {
                     maybeResult = maybeParent;

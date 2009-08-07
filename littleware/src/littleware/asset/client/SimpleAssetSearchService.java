@@ -77,6 +77,7 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
             result = oserver.getAssetAtPath( path_asset );
         }
         if ( result.isSet() ) {
+            cache.put( sKey, result.get() );
             fireServiceEvent( new AssetLoadEvent( this, result.get() ) );
         }
         return result;

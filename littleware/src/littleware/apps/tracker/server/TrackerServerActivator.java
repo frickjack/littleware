@@ -40,10 +40,12 @@ public class TrackerServerActivator implements BundleActivator {
     }
 
     /** NOOP for now */
+    @Override
     public void start(BundleContext ctx) throws Exception {
     }
 
     /** NOOP for now */
+    @Override
     public void stop(BundleContext ctx) throws Exception {
     }
 

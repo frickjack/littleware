@@ -39,8 +39,13 @@ import org.osgi.framework.BundleException;
  * The guice module list starts out with a PropertiesGuice
  * instance loading littleware.properties,
  * and the bootstrap loads additional guice modules from
- * the lw.guice_module property.  Similarly loads
- * additional OSGi bundle classes from the lw.osgi_bundle property.
+ * the lw.guice_module property or lw_client.guice_module property
+ * depending on whether the environment is server or client.
+ * Similarly loads
+ * additional OSGi bundle classes from the lw.osgi_bundle property
+ * or lw_client.osgi_bundle property.
+ * The separate server/client properties are necessary as it's possible
+ * for a client and server to coexist in the same VM.
  */
 public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
     private static final Logger olog = Logger.getLogger( AbstractGOBootstrap.class.getName() );
@@ -111,6 +116,55 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
     private boolean   ob_bootstrap = false;
     private Felix     ofelix = null;
 
+    /**
+     * Internal method loads extra modules and bundles
+     * from the lw/lw_client littleware properties.
+     */
+    protected void addInfoFromProperties () {
+        try {
+            /**
+             * Load extensions from property file.
+             * It's possible for client and server to exist
+             * in same VM, so may need to bootstrap separate modules.
+             */
+            final String   sGuiceName = obServer ? "lw.guice_module" : "lw_client.guice_module";
+            final String   sBundleName = obServer ? "lw.osgi_bundle" : "lw_client.osgi_bundle";
+
+            final Properties propLittleware = PropertiesLoader.get().loadProperties();
+            final String sModules = propLittleware.getProperty( sGuiceName, "");
+            if ( sModules.length () > 0 ) {
+                olog.log( Level.INFO, "Loading custom guice modules: " + sModules );
+                for ( String s_mod : sModules.split( "[:,; ]+" ) ) {
+                    try {
+                        ovGuice.add (
+                                (Module) Class.forName(s_mod).newInstance()
+                                );
+                    } catch ( Exception ex ) {
+                        olog.log( Level.SEVERE, "Failed to load Guice module: " + s_mod, ex );
+                        throw new AssertionFailedException( "Failed to load Guice module: " + s_mod, ex );
+                    }
+                }
+            }
+            final String sBundles = propLittleware.getProperty( sBundleName, "");
+            if ( sBundles.length () > 0 ) {
+                olog.log( Level.INFO, "Loading custom OSGi bundles: " + sBundles );
+                for ( String sBundle : sBundles.split( "[:,; ]+" ) ) {
+                    try {
+                        ovOSGi.add (
+                                (Class<? extends BundleActivator>) Class.forName(sBundle)
+                                );
+                    } catch ( Exception ex ) {
+                        olog.log( Level.SEVERE, "Failed to load OSGi bundle: " + sBundle, ex );
+                        throw new AssertionFailedException( "Failed to load OSGi bundle: " + sBundle, ex );
+                    }
+                }
+            }
+
+        } catch ( IOException ex ) {
+            throw new AssertionFailedException( "Unable to load littleware.properties", ex );
+        }
+
+    }
 
     /**
      * Setup the GUICE injector, use the injector to allocate the registered
@@ -130,40 +184,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
             throw new IllegalStateException( "Empty OSGi bundle list - nothing to do!");
         }
 
-        try {
-            Properties propLittleware = PropertiesLoader.get().loadProperties();
-            String sModules = propLittleware.getProperty( "lw.guice_module", "");
-            if ( sModules.length () > 0 ) {
-                olog.log( Level.INFO, "Loading custom guice modules: " + sModules );
-                for ( String s_mod : sModules.split( "[:,; ]+" ) ) {
-                    try {
-                        ovGuice.add (
-                                (Module) Class.forName(s_mod).newInstance()
-                                );
-                    } catch ( Exception ex ) {
-                        olog.log( Level.SEVERE, "Failed to load Guice module: " + s_mod, ex );
-                        throw new AssertionFailedException( "Failed to load Guice module: " + s_mod, ex );
-                    }
-                }
-            }
-            String sBundles = propLittleware.getProperty( "lw.osgi_bundle", "");
-            if ( sBundles.length () > 0 ) {
-                olog.log( Level.INFO, "Loading custom OSGi bundles: " + sBundles );
-                for ( String sBundle : sBundles.split( "[:,; ]+" ) ) {
-                    try {
-                        ovOSGi.add (
-                                (Class<? extends BundleActivator>) Class.forName(sBundle)
-                                );
-                    } catch ( Exception ex ) {
-                        olog.log( Level.SEVERE, "Failed to load OSGi bundle: " + sBundle, ex );
-                        throw new AssertionFailedException( "Failed to load OSGi bundle: " + sBundle, ex );
-                    }
-                }
-            }
-
-        } catch ( IOException ex ) {
-            throw new AssertionFailedException( "Unable to load littleware.properties", ex );
-        }
+        addInfoFromProperties();
 
         final Injector injector = Guice.createInjector(
                 ovGuice

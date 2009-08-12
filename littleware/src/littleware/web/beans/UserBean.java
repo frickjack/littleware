@@ -12,15 +12,31 @@
 package littleware.web.beans;
 
 import com.google.inject.Inject;
+import littleware.asset.AssetSearchManager;
+import littleware.base.AssertionFailedException;
+import littleware.security.AccountManager;
 import littleware.security.LittleUser;
+import littleware.security.SecurityAssetType;
 
 /**
  * Session scope bean gives access to logged in user
  */
 public class UserBean extends InjectMeBean {
-    private LittleUser user;
+    private LittleUser user = null;
+    private boolean    admin = false;
+
+    public LittleUser getUser() { return user; }
+    /** Is this user a member of the littleware admin group ? */
+    public boolean    isAdmin() { return admin; }
 
     @Inject
-    public void setUser( LittleUser user ) { this.user = user; }
-    public LittleUser getUser() { return user; }
+    public void injectMe( LittleUser user, AssetSearchManager search ) {
+        this.user = user;
+        try {
+            this.admin = search.getByName( AccountManager.LITTLEWARE_ADMIN_GROUP, SecurityAssetType.GROUP ).get().isMember( user );
+        } catch ( Exception ex ) {
+            throw new AssertionFailedException( "Failed to load admin group", ex );
+        }
+    }
+    
 }

@@ -131,6 +131,25 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
                             ) );
                 }
             }
+            // a_old is null at initial register time
+            final UUID uToOld = (null == a_old) ? null : a_old.getToId();
+            if (!Whatever.equalsSafe(uToOld, a_new.getToId() )) {
+                for (UUID uTo : Arrays.asList(uToOld, a_new.getToId() )) {
+                    if ( null == uTo ) {
+                        continue;
+                    }
+                    final SimpleAssetModel amodel_affected = (SimpleAssetModel) get(uTo);
+                    if (null == amodel_affected) {
+                        continue;
+                    }
+                    vResult.add( new AssetModelEvent(amodel_affected,
+                            AssetModel.Operation.assetsLinkingTo,
+                            null,
+                            event
+                            ) );
+                }
+            }
+
             return vResult;
         }
 

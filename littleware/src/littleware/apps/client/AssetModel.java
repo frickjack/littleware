@@ -34,6 +34,8 @@ public interface AssetModel extends Comparable<AssetModel> {
         assetUpdated,
         /** There has been some change in the set of assets where x.getFromId()==this.getAsset().getObjectId() */
         assetsLinkingFrom,
+        /** There has been some change in the set of assets where x.getToId()==this.getAsset().getObjectId() */
+        assetsLinkingTo,
         /** The asset has been deleted from the repository, this model removed from the AssetModelLibrary */
         assetDeleted
     }

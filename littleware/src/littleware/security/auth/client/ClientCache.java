@@ -56,5 +56,8 @@ public interface ClientCache {
 
     /** Shortcut for (Asset) getCache().get( uuid.toString() ) */
     public Asset get(UUID uId);
+
+    /** Add the object to the cache with a long-term ageout */
+    public Object putLongTerm( String key, Object value );
     
 }

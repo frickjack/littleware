@@ -35,9 +35,6 @@ import littleware.security.auth.LittleSession;
 import littleware.security.auth.SessionHelper;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
-import org.osgi.framework.ServiceReference;
 
 /**
  * OSGi BundleActivator registers itself as a cache service
@@ -47,7 +44,7 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
     private static final Logger log = Logger.getLogger( CacheActivator.class.getName() );
 
     private final Cache<String, Object> cacheLong = new SimpleCache<String, Object>(900, 20000);
-    private final Cache<String, Object> cacheShort = new SimpleCache<String, Object>(SimpleCache.MIN_AGEOUT_SECS, 20000);
+    private final Cache<String, Object> cacheShort = new SimpleCache<String, Object>(30, 20000);
     /** Extend cache to add some special asset handling */
     private final Cache<String, Object> ocache = new Cache<String, Object>() {
 
@@ -260,5 +257,11 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
     /** Remove this cache from the context */
     @Override
     public void stop(BundleContext ctx) throws Exception {
+    }
+
+    @Override
+    public Object putLongTerm( String key, Object value ) {
+        cacheShort.remove(key);
+        return cacheLong.put(key, value);
     }
 }

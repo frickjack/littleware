@@ -20,6 +20,7 @@ import littleware.base.NullCache;
  * NOOP ClientCache
  */
 public class NullClientCache implements ClientCache, java.io.Serializable {
+    private static final long serialVersionUID = 42234L;
 
     @Override
     public long getTransaction() {
@@ -40,6 +41,11 @@ public class NullClientCache implements ClientCache, java.io.Serializable {
 
     @Override
     public Asset get(UUID uId) {
+        return null;
+    }
+
+    @Override
+    public Object putLongTerm(String key, Object value) {
         return null;
     }
 

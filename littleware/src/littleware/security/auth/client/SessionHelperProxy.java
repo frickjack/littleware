@@ -283,7 +283,12 @@ public class SessionHelperProxy implements SessionHelperService {
         try {
             m_service = om_real.getService(n_type);
         } catch (RemoteException e) {
-            om_real = om_session.getSessionHelper(ou_session);
+            final SessionHelper helper = om_session.getSessionHelper(ou_session);
+            if ( helper instanceof SessionHelperProxy ) {
+                om_real = ((SessionHelperProxy) helper).om_real;
+            } else {
+                om_real = helper;
+            }
             m_service = om_real.getService(n_type);
         }
 

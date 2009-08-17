@@ -116,15 +116,16 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                 
                 a_new.setName ( "username.new_asset" );
 
-                final   AssetModel        amodel_new = olib_asset.syncAsset( a_new );
                 int                       i_create_result = Wizard.ERROR_RETURN_CODE;
                 final   CreateAssetWizard wizard_create = oprovideWizard.get();
                 try {
-                    wizard_create.setAssetModel(amodel_new );
+                    wizard_create.setAssetModel(olib_asset.syncAsset( a_new ) );
                     // Give the asset local changes not in the AssetModelLibrary
                     if ( null != amodel_view ) {
                         Asset a_from = amodel_view.getAsset ();
                         Asset a_local = wizard_create.changeLocalAsset();
+                        // issue as change after setting initial asset-model
+                        // so library detects from-id change
                         a_local.setFromId ( a_from.getObjectId () );
                         a_local.setHomeId ( a_from.getHomeId () );
                         a_local.setOwnerId ( oa_session.getOwnerId () );
@@ -138,8 +139,10 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                         olib_asset.remove ( a_new.getObjectId () );
                         amodel_edit = null;
                     } else {
-                        wizard_create.saveLocalChanges ( om_asset, "new asset create" );
-                        amodel_edit = amodel_new;
+                        // Note - asset-model may be replaced with a new object
+                        // as side-effect of create process (remove then add)
+                        wizard_create.saveLocalChanges(om_asset, "new asset create");
+                        amodel_edit = wizard_create.getAssetModel();
                     }
                         
                 } catch ( Exception e ) {

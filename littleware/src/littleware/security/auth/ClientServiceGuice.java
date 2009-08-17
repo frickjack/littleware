@@ -67,25 +67,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
 
     private static final Logger olog = Logger.getLogger(ClientServiceGuice.class.getName());
     private SessionHelper ohelper = null;
-    private CallbackHandler ohandler = null;
-    {
-        if ( SwingUtilities.isEventDispatchThread() ) {
-            ohandler = new JPasswordDialog("", "");
-        } else {
-            try {
-                SwingUtilities.invokeAndWait(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        ohandler = new JPasswordDialog("", "");
-                    }
-                });
-            } catch (Exception ex) {
-                throw new AssertionFailedException( "Failed to init dialog callback handler", ex );
-            }
-        }
-    }
-
+    private Maybe<CallbackHandler> maybeHandler = Maybe.empty();
     private Maybe<String> host = Maybe.empty();
 
     /**
@@ -109,8 +91,6 @@ public class ClientServiceGuice implements LittleGuiceModule {
         ohelper = helper;
     }
 
-
-
     /**
      * Parameterless constructor - client must inject
      * dependency by hand before configuring a GUICE injector,
@@ -126,17 +106,16 @@ public class ClientServiceGuice implements LittleGuiceModule {
      * Same as parameterless constructor, but with an override
      * of the server host to connect to.
      */
-    public ClientServiceGuice( String sHost ) {
-        host = Maybe.something( sHost );
+    public ClientServiceGuice(String sHost) {
+        host = Maybe.something(sHost);
     }
-
 
     /**
      * Allow the user to inject a CallbackHandler, otherwise
      * defaults to littleware.base.JPasswordDialog
      */
     public ClientServiceGuice(CallbackHandler handler) {
-        ohandler = handler;
+        maybeHandler = Maybe.something(handler);
     }
 
     @Override
@@ -200,10 +179,9 @@ public class ClientServiceGuice implements LittleGuiceModule {
             olog.log(Level.FINE, "Unable to load " + os_propfile + ", proceeding ...");
         }
 
-        String s_name = prop_session.getProperty(os_name_key, 
-                System.getProperty( "user.name", "username" )
-                );
-        if ( null == s_name ) {
+        String s_name = prop_session.getProperty(os_name_key,
+                System.getProperty("user.name", "username"));
+        if (null == s_name) {
             s_name = "";
         } else {
             s_name = s_name.toLowerCase();
@@ -231,7 +209,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
 
         for (int i = 0; i < i_retry; ++i) {
             String s_password = "";
-            if ( 0 != i ) {
+            if (0 != i) {
                 // First time through just check if can login
                 // as default user with null password
                 try {
@@ -262,7 +240,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 }
                 return helper;
                 /*
-            } catch (RuntimeException ex) {
+                } catch (RuntimeException ex) {
                 throw ex;
                  */
             } catch (Exception ex) {
@@ -272,6 +250,21 @@ public class ClientServiceGuice implements LittleGuiceModule {
             }
         }
         throw new FailedLoginException("Retries expended");
+    }
+
+    /** Internal utility, sets ohelper */
+    private void authenticate(CallbackHandler callback) {
+        try {
+            if (host.isSet()) {
+                // connect to default server
+                ohelper = authenticate(SessionUtil.get().getSessionManager(host.get(), SessionUtil.get().getRegistryPort()), callback, 3);
+            } else {
+                ohelper = authenticate(SessionUtil.get().getSessionManager(), callback, 3);
+            }
+        } catch (Exception ex) {
+            throw new AssertionFailedException("Failed to authenticate to " + SessionUtil.get().getRegistryHost(), ex);
+        }
+
     }
 
     /**
@@ -284,15 +277,27 @@ public class ClientServiceGuice implements LittleGuiceModule {
     @Override
     public void configure(Binder binder) {
         if (null == ohelper) {
-            try {
-                if ( host.isSet() ) {
-                    // connect to default server
-                    ohelper = authenticate(SessionUtil.get().getSessionManager( host.get(), SessionUtil.get().getRegistryPort() ), ohandler, 3);
-                } else {
-                    ohelper = authenticate(SessionUtil.get().getSessionManager(), ohandler, 3);
+            if (maybeHandler.isSet()) {
+                // NOTE: avoid swing calls in server environment!
+                authenticate(maybeHandler.get());
+            } else if (SwingUtilities.isEventDispatchThread()) {
+                authenticate(new JPasswordDialog("", ""));
+            } else {
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            authenticate(new JPasswordDialog("", ""));
+                        }
+                    });
+
+                } catch (Exception ex) {
+                    throw new AssertionFailedException("Failed to init dialog callback handler", ex);
                 }
-            } catch (Exception ex) {
-                throw new AssertionFailedException("Failed to authenticate to " + SessionUtil.get().getRegistryHost(), ex);
+            }
+            if (null == ohelper) {
+                throw new AssertionFailedException("Failed authentication");
             }
         }
 
@@ -312,6 +317,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
         binder.bind(AssetManager.class).to(AssetManagerService.class);
         binder.bind(SessionHelper.class).toInstance(ohelper);
         binder.bind(LittleSession.class).toProvider(new Provider<LittleSession>() {
+
             @Override
             public LittleSession get() {
                 try {
@@ -324,11 +330,12 @@ public class ClientServiceGuice implements LittleGuiceModule {
             }
         });
         binder.bind(LittleUser.class).toProvider(new Provider<LittleUser>() {
+
             @Override
             public LittleUser get() {
                 try {
-                    final AssetSearchManager search = ohelper.getService( ServiceType.ASSET_SEARCH);
-                    return search.getAsset( ohelper.getSession().getOwnerId() ).get().narrow( LittleUser.class );
+                    final AssetSearchManager search = ohelper.getService(ServiceType.ASSET_SEARCH);
+                    return search.getAsset(ohelper.getSession().getOwnerId()).get().narrow(LittleUser.class);
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {
@@ -337,10 +344,9 @@ public class ClientServiceGuice implements LittleGuiceModule {
             }
         });
         binder.bind(ExecutorService.class).toInstance(Executors.newFixedThreadPool(4));
-        binder.bind(AssetRetriever.class).to( AssetSearchManager.class );
+        binder.bind(AssetRetriever.class).to(AssetSearchManager.class);
 
-        olog.log( Level.FINE, "Forcing load of SecurityAssetType and AssetType: " +
-                AssetType.HOME + ", " + SecurityAssetType.USER
-                );
+        olog.log(Level.FINE, "Forcing load of SecurityAssetType and AssetType: " +
+                AssetType.HOME + ", " + SecurityAssetType.USER);
     }
 }

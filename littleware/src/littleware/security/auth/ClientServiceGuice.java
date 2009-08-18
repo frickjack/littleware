@@ -205,7 +205,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
             new PasswordCallback("Enter password", false),
             new TextOutputCallback(TextOutputCallback.INFORMATION, "Please login")
         };
-        File fh_home = PropertiesLoader.get().getLittleHome();
+        final Maybe<File> maybeHome = PropertiesLoader.get().getLittleHome();
 
         for (int i = 0; i < i_retry; ++i) {
             String s_password = "";
@@ -228,12 +228,12 @@ public class ClientServiceGuice implements LittleGuiceModule {
             }
             try {
                 SessionHelper helper = manager.login(s_name, s_password, "client login");
-                if (null != fh_home) {
+                if ( maybeHome.isSet() ) {
                     try {
                         prop_session.setProperty(os_name_key, s_name);
                         prop_session.setProperty(os_session_key, helper.getSession().getObjectId().toString());
                         PropertiesLoader.get().safelySave(prop_session,
-                                new File(fh_home, os_propfile));
+                                new File(maybeHome.get(), os_propfile));
                     } catch (IOException ex) {
                         olog.log(Level.FINE, "Failed to save session info", ex);
                     }

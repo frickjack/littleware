@@ -14,6 +14,7 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
+import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
 import littleware.base.PropertiesLoader;
 import org.apache.felix.framework.Felix;
@@ -206,7 +208,9 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         //System.setProperty( "org.osgi.framework.storage", PropertiesLoader.get().getLittleHome().toString() + "/osgi_cache" );
         if ( ! obServer ) {
             // setup cache under little home
-            map_felix.put( BundleCache.CACHE_ROOTDIR_PROP, PropertiesLoader.get().getLittleHome().toString() );
+            final File cacheDir = PropertiesLoader.get().getLittleHome().
+                    getOr( new File( System.getProperty("java.io.tmpdir" ) ) );
+            map_felix.put( BundleCache.CACHE_ROOTDIR_PROP, cacheDir.toString() );
         }
         map_felix.put( FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, v_activate );
         ofelix = new Felix( map_felix );

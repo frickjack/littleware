@@ -29,28 +29,31 @@ public class PropertiesLoader {
     
     private String os_littlehome_key = "littleware.home";
     
-    private  File ofile_home = null;
+    private  final Maybe<File> maybeHome;
     
     {
+        Maybe<File> maybe = Maybe.empty();
         try {
-            String s_home = System.getProperty( os_littlehome_key );
-            if ( null == s_home ) {
-                s_home = System.getProperty ( "user.home" );
-                if ( null != s_home ) {
-                    s_home += "/.littleware";
+            String sHome = System.getProperty( os_littlehome_key );
+            if ( null == sHome ) {
+                sHome = System.getProperty ( "user.home" );
+                if ( null != sHome ) {
+                    sHome += "/.littleware";
                 }
             }
-            if ( null != s_home ) {
-                File fh_home = new File( s_home );
+            if ( null != sHome ) {
+                File fh_home = new File( sHome );
                 if ( fh_home.isDirectory() && fh_home.canRead() ) {
-                    ofile_home = fh_home;
+                    maybe = Maybe.something( fh_home );
                 } else if ( ! fh_home.exists() ) {
                     fh_home.mkdirs();
-                    ofile_home = fh_home;
+                    maybe = Maybe.something( fh_home );
                 }
             }
         } catch ( Exception ex ) {
             olog.log( Level.WARNING, "Unable to access littleware.home", ex );
+        } finally {
+            maybeHome = maybe;
         }
     }
     
@@ -62,8 +65,8 @@ public class PropertiesLoader {
      * @return File referencing littleware home directory, or
      *           null if unable to locate and create
      */
-    public File getLittleHome () {
-        return ofile_home;
+    public Maybe<File> getLittleHome () {
+        return maybeHome;
     }
     
     /**
@@ -217,9 +220,9 @@ public class PropertiesLoader {
                 }
             }
         }
-        final File fh_home = getLittleHome ();
-        if ( null != fh_home ) {
-            loadPropsFromFile( prop_filedata,  new File( fh_home, s_name ) );
+
+        if ( maybeHome.isSet() ) {
+            loadPropsFromFile( prop_filedata,  new File( maybeHome.get(), s_name ) );
         }
         try {
             String s_path = System.getProperty(s_name);

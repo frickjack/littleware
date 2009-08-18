@@ -98,7 +98,7 @@ public class SimpleThumbManager implements ThumbManager {
     private final Cache<UUID, ThumbManager.Thumb> ocache =
             new SimpleCache<UUID, ThumbManager.Thumb>(100000, 100000);
     private final ImageManager omgrImage;
-    private final File dirCache = new File(PropertiesLoader.get().getLittleHome(), "thumbCache");
+    private final File dirCache = new File(PropertiesLoader.get().getLittleHome().getOr( new File( System.getProperty( "java.io.tmpdir" ) )), "thumbCache");
     private RenderedImage oimgDefault;
 
     {

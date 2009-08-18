@@ -134,16 +134,19 @@ public class CreateAssetWizard extends WizardAssetEditor {
                         if (!getLocalAsset().getAssetType().equals(select_atype.getSelectedAssetType())) {
                             Asset a_old = getLocalAsset();
                             Asset a_new = select_atype.getSelectedAssetType().create();
+                            a_new.setObjectId(a_old.getObjectId());
+                            a_new.setName(a_old.getName());
+                            olib_asset.remove( a_new.getObjectId() );
+                            // register bald model with library, so
+                            // update events get fired on save
+                            setAssetModel(olib_asset.syncAsset(a_new));
+
+                            a_new = changeLocalAsset();
                             a_new.setFromId(a_old.getFromId());
                             a_new.setAclId(a_old.getAclId());
                             a_new.setToId(a_old.getToId());
                             a_new.setHomeId( a_old.getHomeId() );
                             a_new.setComment(a_old.getComment());
-                            a_new.setObjectId(a_old.getObjectId());
-                            a_new.setName(a_old.getName());
-                            olib_asset.remove( a_new.getObjectId() );
-                            setAssetModel(olib_asset.syncAsset(a_new));
-                            setHasLocalChanges(true);
                         }
                         if ( getLocalAsset().getAssetType().equals( AssetType.HOME ) ) {
                             changeLocalAsset().setHomeId( getLocalAsset().getObjectId() );

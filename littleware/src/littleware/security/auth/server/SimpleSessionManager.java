@@ -98,21 +98,21 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             // Let's create a hierarchy
             final DateTime now = new DateTime();
             final List<String> pathList = Arrays.asList(
-                    "Sessions", Integer.toString( now.getYear() ),
-                    now.toString( "MM" ),
-                    now.toString( "dd" ));
-            Asset parent = om_search.getByName( "littleware.home", AssetType.HOME).get();
-            for ( String childName : pathList ) {
-                final Maybe<Asset> maybe = om_search.getAssetFrom( parent.getObjectId(), childName);
-                if ( maybe.isSet() ) {
+                    "Sessions", Integer.toString(now.getYear()),
+                    now.toString("MM"),
+                    now.toString("dd"));
+            Asset parent = om_search.getByName("littleware.home", AssetType.HOME).get();
+            for (String childName : pathList) {
+                final Maybe<Asset> maybe = om_search.getAssetFrom(parent.getObjectId(), childName);
+                if (maybe.isSet()) {
                     parent = maybe.get();
                     continue;
                 }
                 Asset child = AssetType.createSubfolder(AssetType.GENERIC, childName, parent);
-                parent = om_asset.saveAsset( child, os_session_comment );
+                parent = om_asset.saveAsset(child, os_session_comment);
             }
-            osession.setFromId( parent.getObjectId() );
-            osession.setHomeId( parent.getHomeId() );
+            osession.setFromId(parent.getObjectId());
+            osession.setHomeId(parent.getHomeId());
             return om_asset.saveAsset(osession, os_session_comment);
         }
     }
@@ -140,16 +140,22 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     @Override
     public SessionHelper login(final String s_name, final String s_password, String s_session_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         Subject j_caller = null;
+        LoginContext x_login = null;
         try {
-            LoginContext x_login = new LoginContext("littleware.login",
+            x_login = new LoginContext("littleware.login",
                     new SimpleNamePasswordCallbackHandler(s_name, s_password));
-            x_login.login();
-            j_caller = x_login.getSubject();
-        } catch (FailedLoginException ex) {
-            throw new FailedLoginException();
-        } catch (LoginException ex) {
+        } catch ( Exception ex ) {
             olog_generic.log(Level.INFO, "Assuming pass-through login - no littleware.login context available", ex);
             j_caller = new Subject();
+        }
+        if (null != x_login) {
+            try {
+                x_login.login();
+                j_caller = x_login.getSubject();
+            } catch (FailedLoginException ex) {
+                // dispose of cause - probably not serializable
+                throw new FailedLoginException();
+            }
         }
 
         if (null == j_caller) {
@@ -208,8 +214,8 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         j_caller.setReadOnly();
         // ok - user authenticated ok by here - setup user session
         final LittleSession session = SecurityAssetType.SESSION.create();
-        session.setObjectId( UUID.randomUUID() );
-        session.setName(s_name + "_" + UUIDFactory.makeCleanString( session.getObjectId() ) );
+        session.setObjectId(UUID.randomUUID());
+        session.setName(s_name + "_" + UUIDFactory.makeCleanString(session.getObjectId()));
         session.setOwnerId(maybeUser.get().getObjectId());
         session.setComment("User login");
 

@@ -35,7 +35,9 @@ import littleware.asset.client.LittleServiceEvent;
 import littleware.asset.client.LittleServiceListener;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
+import littleware.base.UUIDFactory;
 import littleware.security.auth.SessionHelper;
+import littleware.security.auth.client.ClientCache;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -64,13 +66,16 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
     private final SessionHelper helper;
     private final UUID littleHomeId;
     private final AssetModelLibrary libAsset;
+    private final ClientCache cache;
 
     @Inject
     public SyncWithServer(SessionHelper helper, AssetSearchManager search,
-            AssetPathFactory pathFactory, AssetModelLibrary libAsset) {
+            AssetPathFactory pathFactory, AssetModelLibrary libAsset,
+            ClientCache cache ) {
         this.search = search;
         this.helper = helper;
         this.libAsset = libAsset;
+        this.cache = cache;
         try {
             littleHomeId = search.getAssetAtPath(pathFactory.createPath("/littleware.home")).get().getObjectId();
         } catch (RuntimeException ex) {
@@ -83,7 +88,7 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
     @Override
     public void start(BundleContext bundle) throws Exception {
         ((LittleService) helper).addServiceListener(this);
-        final ScheduledFuture<?> handle = execSchedule.scheduleWithFixedDelay(this, 60, 60, TimeUnit.SECONDS );
+        final ScheduledFuture<?> handle = execSchedule.scheduleWithFixedDelay(this, 60, 20, TimeUnit.SECONDS );
     }
 
     @Override
@@ -153,16 +158,32 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
         }
     }
 
+    private boolean running = false;
+
+    /**
+     * Synchronized - try to avoid running multiple syncs at same time
+     */
     @Override
     public void run() {
+        synchronized ( this ) {
+            // try to avoid running multiple syncs at same time
+            if ( running ) {
+                return;
+            }
+            running = true;
+        }
         try {
             final List<UUID> idList = findOldAssets();
             log.log( Level.FINE, "Scanning transaction log " + idList.size() + ", up to transaction " + minTransaction );
             for( UUID id : idList ) {
                 try {
+                    cache.getCache().remove( id.toString() );
                     final Maybe<Asset> maybe = search.getAsset( id );
                     if ( maybe.isSet() ) {
-                        log.log( Level.FINE, "Syncing asset " + maybe.get().getObjectId() + ", " + maybe.get().getName() );
+                        final Asset asset = maybe.get();
+                        log.log( Level.FINE, "Syncing asset " + asset.getObjectId() + ", " + asset.getName() +
+                                ", " + asset.getTransactionCount()
+                                );
                         libAsset.syncAsset( maybe.get() );
                     }
                 } catch ( Exception ex ) {
@@ -171,6 +192,8 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
             }
         } catch ( Exception ex ) {
             log.log( Level.WARNING, "Server sync failed", ex );
+        } finally {
+            running = false;
         }
     }
 }

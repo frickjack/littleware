@@ -16,13 +16,13 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.Session;
 
 /**
  * Configure the GUICE binding String constants according
  * to the constructor injected Properties.
- * If a property name begins with "datasource", then treat
- * the value as a javax.sql.DataSource URL, configure that
- * DataSource, and bind the @Named Guice constant to the datasource.
+ * If a mail.smtp.host property is set, then bind javax.mail.Session
+ * to a provider that sends mail via SMTP to the host.
  */
 public class PropertiesGuice implements Module {
 
@@ -59,6 +59,12 @@ public class PropertiesGuice implements Module {
         for (String sKey : oprop.stringPropertyNames()) {
             final String sValue = oprop.getProperty(sKey);
             bindKeyValue(binder, sKey, sValue);
+        }
+        if ( oprop.containsKey( "mail.smtp.host" ) ) {
+            // then bind mail session
+            binder.bind( Session.class ).toInstance(
+                    Session.getInstance(oprop)
+                    );
         }
     }
 }

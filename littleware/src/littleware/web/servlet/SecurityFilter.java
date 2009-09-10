@@ -12,21 +12,11 @@ package littleware.web.servlet;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.io.IOException;
-import javax.security.auth.Subject;
 import java.security.*;
 
 import littleware.web.beans.*;
-import littleware.security.auth.*;
-import littleware.security.LittleUser;
-import littleware.security.TomcatUser;
-import littleware.asset.AssetRetriever;
-import littleware.asset.AssetException;
-import littleware.base.BaseException;
-import littleware.base.AssertionFailedException;
 
 /**
  * Little filter that sets the javax.security.auth.subject
@@ -36,53 +26,28 @@ import littleware.base.AssertionFailedException;
  * JAAS LoginContext setups.
  */
 public class SecurityFilter implements Filter {
+    private static Logger log = Logger.getLogger( SecurityFilter.class.getName() );
 
-    private static Logger olog_generic = Logger.getLogger("littleware.web.servlet.SecurityFilter");
-
-    /** Do nothing constructor */
-    public SecurityFilter() {
-    }
+    private String  loginFormUri = "/home.jsf";
 
     /** Do nothing init */
     @Override
     public void init(FilterConfig config) throws ServletException {
+        final String uri = config.getInitParameter( "loginForm" );
+        if ( null != uri ) {
+            if ( uri.startsWith( "/" ) ) {
+                loginFormUri = uri;
+            } else {
+                loginFormUri = "/" + uri;
+            }
+        }
     }
 
     /** Do nothing */
     @Override
     public void destroy() {
-    //config = null;
     }
 
-    /**
-     * Privileged action to run servlet as our authenticated Subject
-     */
-    private static class PrivilegedChain implements PrivilegedExceptionAction<Object> {
-
-        private FilterChain ohttp_chain = null;
-        private HttpServletRequest ohttp_request = null;
-        private HttpServletResponse ohttp_response = null;
-
-        /**
-         * Stash the args to chain off with
-         */
-        public PrivilegedChain(FilterChain http_chain,
-                HttpServletRequest http_request,
-                HttpServletResponse http_response) {
-            ohttp_chain = http_chain;
-            ohttp_request = http_request;
-            ohttp_response = http_response;
-        }
-
-        /**
-         * Just invoke the filterchain doFilter
-         */
-        @Override
-        public Object run() throws IOException, ServletException {
-            ohttp_chain.doFilter(ohttp_request, ohttp_response);
-            return null;
-        }
-    }
 
     /**
      * Lookup the littleware.web.beans.SessionBean from the &quot;lw_user&quot;
@@ -92,70 +57,36 @@ public class SecurityFilter implements Filter {
     @Override
     public void doFilter(ServletRequest sreq, ServletResponse sres,
             FilterChain chain) throws IOException, ServletException {
-        HttpServletResponse http_response = (HttpServletResponse) sres;
-        HttpServletRequest http_request = (HttpServletRequest) sreq;
-
-        HttpSession http_session = http_request.getSession(true);
-        Subject subject_ready = (Subject) http_session.getAttribute("javax.security.auth.subject");
-
-        olog_generic.log(Level.FINE, "SecurityFilter running ...");
-        Principal p_user = http_request.getUserPrincipal();
-
-        if ((subject_ready == null) || subject_ready.getPrincipals(LittleUser.class).isEmpty()) {
-            subject_ready = null;
-            SessionBean bean_session = (SessionBean) http_session.getAttribute("lw_user");
-
-            if ( bean_session != null ) {
-                SessionHelper m_helper = bean_session.getHelper();
-                try {
-                    AssetRetriever m_search = m_helper.getService(ServiceType.ASSET_SEARCH);
-                    subject_ready = m_helper.getSession().getSubject(m_search);
-
-                    http_session.setAttribute("javax.security.auth.subject", subject_ready);
-                } catch (RuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    olog_generic.log(Level.WARNING, "Failed to load subject for session", e );
-                    throw new ServletException("Failed to load subject for session ", e);
-                }
-            } else if ((p_user != null) && (p_user instanceof TomcatUser)) {
-                if (null == bean_session) {
-                    bean_session = new SessionBean();
-                    http_session.setAttribute("lw_user", bean_session);
-                }
-
-                /**
-                 * Work within the Tomcat framework!
-                 * We can get our hands on a Principal, but not on a javax.security.auth.Subject.  Frick.
-                 */
-                TomcatUser p_tomcat = (TomcatUser) p_user;
-                try {
-                    bean_session.setHelper(p_tomcat.getHelper());
-                } catch (Exception e) {
-                    throw new AssertionFailedException("Failed to setup session for user: " + p_tomcat.getName(), e);
-                }
-            } else {
-                olog_generic.log(Level.FINE, "Unable to retrieve lw_user attribute from session");
-            /*... for debugging only ...
-            Enumeration enum_param = http_session.getAttributeNames ();
-            while ( enum_param.hasMoreElements () ) {
-            String s_name = (String) enum_param.nextElement ();
-            olog_generic.log ( Level.INFO, "attribute: " + s_name );
-            }
-             */
-            }
+        final HttpServletRequest request = (HttpServletRequest) sreq;
+        final String uri = request.getRequestURI();
+        if ( uri.toLowerCase().indexOf( "/secure/" ) < 0 ) {
+            chain.doFilter(sreq, sres);
+            return;
         }
+        final HttpServletResponse response = (HttpServletResponse) sres;                
+        final HttpSession session = request.getSession(true);
+        final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
 
-        if (null == subject_ready) {
-            chain.doFilter(http_request, http_response);
+        if ( (null != bean) && bean.isLoggedIn() ) {
+            // logged in - all ok
+            chain.doFilter(sreq, sres);
+            return;
+        }
+        // redirect the user to login
+        final String context = request.getContextPath();
+        final String contextRelativeUri;
+        if ( (! context.isEmpty()) && uri.startsWith( context ) ) {
+            contextRelativeUri = uri.substring(context.length() );
         } else {
-            try {
-                Subject.doAs(subject_ready,
-                        new PrivilegedChain(chain, http_request, http_response));
-            } catch (PrivilegedActionException e) {
-                throw new ServletException("Something went wrong in the chain, caught: " + e, e);
-            }
+            contextRelativeUri = uri;
         }
+        String redirect = context + loginFormUri;
+        if ( redirect.indexOf( '?' ) > 0 ) {
+            redirect += "&loginTrigger=" + contextRelativeUri;
+        } else {
+            redirect += "?loginTrigger=" + contextRelativeUri;
+        }
+        response.sendRedirect(redirect);
     }
 }
 

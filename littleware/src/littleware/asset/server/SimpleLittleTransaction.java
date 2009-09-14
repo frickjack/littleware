@@ -145,14 +145,18 @@ public class SimpleLittleTransaction extends AbstractLittleTransaction
     private List<Runnable> ov_deferred_actions = new ArrayList<Runnable>();
 
     @Override
-    public synchronized void startDbUpdate() throws SQLException {
+    public synchronized void startDbUpdate() {
         startDbAccess();
-        ostack_savept.add(new MySavepoint());
+        try {
+            ostack_savept.add(new MySavepoint());
+        } catch (SQLException ex) {
+            throw new IllegalStateException( "Failed to setup transaction save point", ex );
+        }
     }
 
 
     @Override
-    public void endDbUpdate(boolean b_rollback, int iLevel ) throws SQLException {
+    public void endDbUpdate(boolean b_rollback, int iLevel ) {
         final MySavepoint savept_trans = ostack_savept.removeLast();
         if ( iLevel != ostack_savept.size() ) {
             throw new AssertionFailedException( "Savepoint stack out of sync with transaction block" );
@@ -168,6 +172,8 @@ public class SimpleLittleTransaction extends AbstractLittleTransaction
                     getConnection().commit();
                 }
             }
+        } catch ( SQLException ex ) {
+            throw new IllegalStateException( "Failed commit/rollback", ex );
         } finally {
             if (ostack_savept.isEmpty()) {
                 ov_deferred_actions.clear();

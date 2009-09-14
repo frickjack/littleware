@@ -59,9 +59,9 @@ public interface LittleTransaction {
      * endTransaction (below).  Does a startDbAccess() call that endTransaction matches
      * with a endDbAccess().
      *
-     * @exception TransactionException if unable to setup transaction SavePoint
+     * @exception IllegalStateException if unable to setup transaction SavePoint
      */
-    public void startDbUpdate () throws SQLException;
+    public void startDbUpdate ();
     
     /**
      * Return true if we are within a db-update transaction.
@@ -87,11 +87,9 @@ public interface LittleTransaction {
      *
      * @param b_rollback set true if the transaction failed, and needs rolled back
      *             to its SavePoint, otherwise release the SavePoint.
-     * @exception NoSuchThingTransaction if a matching startTransaction does
-     *             not exist.
-     * @exception SQLException if db commit/rollback fails
+     * @exception RuntimeException if db commit/rollback fails
      */
-    public void endDbUpdate ( boolean b_rollback ) throws SQLException;
+    public void endDbUpdate ( boolean b_rollback );
     
     /**
      * If isDbUpdating(), then defer the given Runnable action until

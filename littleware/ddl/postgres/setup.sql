@@ -22,7 +22,7 @@ SELECT  littleware.saveAsset ( 'littleware.web_home', littleware.getTypeId( 'lit
 
 
 SELECT  littleware.saveAsset ( 'littleware.test_home', littleware.getTypeId( 'littleware.home' ), 
-        'BD46E5588F9D4F41A6310100FE68DCB4', NULL,
+        NULL, NULL,
        '00000000000000000000000000000000',
        'F4CEDAA07B574FFFA27E0BA87078DC34',
        'no data', 0, 'home for test assets', 'set owner to littleware.test_user',

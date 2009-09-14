@@ -57,7 +57,7 @@ public class HibernateProvider implements Provider<EntityManagerFactory> {
                     addAnnotatedClass(AssetEntity.class).
                     addAnnotatedClass(TransactionEntity.class).
                     addAnnotatedClass(AssetTypeEntity.class);
-            //setProperty("hibernate.show_sql", "true").jdbc:derby://localhost:1527/littleware
+            config.setProperty("hibernate.show_sql", "true"); //.jdbc:derby://localhost:1527/littleware
             if (osUrl.toLowerCase().indexOf("javadb") > -1) {
                 config.setProperty("hibernate.dialect",
                         "org.hibernate.dialect.DerbyDialect");

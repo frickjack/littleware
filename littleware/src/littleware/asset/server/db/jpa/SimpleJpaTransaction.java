@@ -62,7 +62,7 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
     }
 
     @Override
-    public void startDbUpdate() throws SQLException {
+    public void startDbUpdate() {
         if ( ! isDbUpdating() ) {
             if ( null == oentMgr ) {
                 oentMgr = oprovideEntMgr.get();
@@ -73,7 +73,7 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
     }
 
     @Override
-    protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) throws SQLException {
+    protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) {
         if ( 0 == iUpdateLevel ) {
             if ( b_rollback ) {
                 oentMgr.getTransaction().rollback();
@@ -83,7 +83,7 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
             //oentMgr.flush();
             olog.log( Level.FINE, "Transaction complete, rollback: " + b_rollback );
         } else if ( b_rollback ) {
-            throw new SQLException( "Nested rollback not supported by this transaction implementation" );
+            throw new IllegalStateException( "Nested rollback not supported by this transaction implementation" );
         }
     }
 

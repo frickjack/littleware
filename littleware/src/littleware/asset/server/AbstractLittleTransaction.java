@@ -130,7 +130,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
 
 
     @Override
-    public void startDbUpdate () throws SQLException {
+    public void startDbUpdate () {
         startDbAccess ();
         ostack_savept.add( new MySavePoint() );
     }
@@ -141,7 +141,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
     }
 
     /** Subtypes hook into endDbUpdate here */
-    protected abstract void endDbUpdate( boolean b_rollback, int iUpdateLevel ) throws SQLException;
+    protected abstract void endDbUpdate( boolean b_rollback, int iUpdateLevel );
 
     /**
      * Performs sanity check before calling endDbUpdate with the
@@ -152,7 +152,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
      * @throws java.sql.SQLException
      */
     @Override
-    public final void endDbUpdate ( final boolean b_rollback ) throws SQLException {
+    public final void endDbUpdate ( final boolean b_rollback ) {
         if ( ! isDbUpdating() ) {
             throw new IllegalStateException( "Not updating" );
         }

@@ -67,7 +67,7 @@ public class SimpleAssetManager implements AssetManager {
                         }
 
                         @Override
-                        protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) throws SQLException {
+                        protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) {
                         }
                     };
                 }
@@ -138,7 +138,7 @@ public class SimpleAssetManager implements AssetManager {
             a_asset.setLastUpdaterId(p_caller.getObjectId());
             a_asset.setLastUpdate(s_update_comment);
             // make sure caller has write permission too ...
-            a_asset = saveAsset( a_asset, s_update_comment );
+            a_asset = saveAsset(a_asset, s_update_comment);
 
             final LittleTransaction trans_delete = oprovideTrans.get();
             boolean b_rollback = true;
@@ -194,7 +194,7 @@ public class SimpleAssetManager implements AssetManager {
         final Map<UUID, Asset> v_cache = trans_save.startDbAccess();
         // Don't save the same asset more than once in this transaction
         final Map<UUID, Asset> v_save_cycle = oprovideSaveCycle.get().startDbAccess();
-        final boolean bCallerIsAdmin = ocachePermission.isAdmin( userCaller, om_search );
+        final boolean bCallerIsAdmin = ocachePermission.isAdmin(userCaller, om_search);
 
         try {
             if (null == a_asset.getObjectId()) {
@@ -250,10 +250,9 @@ public class SimpleAssetManager implements AssetManager {
 
                     olog_generic.log(Level.FINE, "Checking security");
 
-                    if ((!bCallerIsAdmin) 
-                            && (!a_old_asset.getOwnerId().equals(userCaller.getObjectId()))) {
+                    if ((!bCallerIsAdmin) && (!a_old_asset.getOwnerId().equals(userCaller.getObjectId()))) {
                         // Need to have all the permissions to UPDATE an asset
-                        if (! ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_old_asset.getAclId() )) {
+                        if (!ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_old_asset.getAclId())) {
                             throw new AccessDeniedException("Caller " + userCaller + " does not have permission: " + LittlePermission.WRITE + " for asset: " + a_old_asset.getObjectId());
                         }
                         if (!a_old_asset.getOwnerId().equals(a_asset.getOwnerId())) {
@@ -279,11 +278,7 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     // If from-id is null from non-home orphan asset,
                     // then must have home-write permission to write home asset
-                    if ((null == a_asset.getFromId())
-                            && (!a_home.getOwnerId().equals(userCaller.getObjectId()))
-                            && (! ocachePermission.isAdmin(userCaller, om_search))
-                            && (! ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_home.getAclId() ))
-                                ) {
+                    if ((null == a_asset.getFromId()) && (!a_home.getOwnerId().equals(userCaller.getObjectId())) && (!ocachePermission.isAdmin(userCaller, om_search)) && (!ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_home.getAclId()))) {
                         // caller must have WRITE on Home permission to create a rootless
                         // (null from-id) asset
                         throw new AccessDeniedException("Must have home-write permission to create asset with null fromId");
@@ -295,11 +290,8 @@ public class SimpleAssetManager implements AssetManager {
                     // Verify have WRITE access to from-asset, and under same HOME
                     final Asset a_from = om_search.getAsset(a_asset.getFromId()).get();
 
-                    if (
-                            (!a_from.getOwnerId().equals(userCaller.getObjectId()))
-                            && ( ! ocachePermission.isAdmin(userCaller, om_search))
-                            ) {
-                        if ( ! ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_from.getAclId() )) {
+                    if ((!a_from.getOwnerId().equals(userCaller.getObjectId())) && (!ocachePermission.isAdmin(userCaller, om_search))) {
+                        if (!ocachePermission.checkPermission(userCaller, LittlePermission.WRITE, om_search, a_from.getAclId())) {
                             throw new AccessDeniedException("Caller " + userCaller +
                                     " may not link from asset " + a_from.getObjectId() +
                                     " without permission " + LittlePermission.WRITE);
@@ -352,7 +344,7 @@ public class SimpleAssetManager implements AssetManager {
                 if (e.toString().indexOf("littleware(sync)") >= 0) {
                     throw new AssetSyncException("Attempt to save asset not in sync with database backend");
                 }
-                throw new DataAccessException("Unexpected: " + e );
+                throw new DataAccessException("Unexpected: " + e);
             }
 
         } finally {
@@ -367,23 +359,19 @@ public class SimpleAssetManager implements AssetManager {
             GeneralSecurityException, RemoteException {
         final LittleTransaction trans_batch = oprovideTrans.get();
         boolean b_rollback = true;
+
+        final List<Asset> result = new ArrayList<Asset>();
+
+        trans_batch.startDbUpdate();
         try {
-            List<Asset> v_result = new ArrayList<Asset>();
-
-            trans_batch.startDbUpdate();
-            try {
-                for (Asset a_save : v_assets) {
-                    v_result.add(saveAsset(a_save, s_update_comment));
-                }
-                b_rollback = false;
-            } finally {
-                trans_batch.endDbUpdate(b_rollback);
+            for (Asset a_save : v_assets) {
+                result.add(saveAsset(a_save, s_update_comment));
             }
-
-            return v_result;
-        } catch (SQLException e) {
-            throw new DataAccessException("Unexpected SQLException", e);
+            b_rollback = false;
+        } finally {
+            trans_batch.endDbUpdate(b_rollback);
         }
 
+        return result;
     }
 }

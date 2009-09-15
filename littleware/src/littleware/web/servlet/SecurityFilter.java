@@ -70,7 +70,7 @@ public class SecurityFilter implements Filter {
     /**
      * Internal utility class - inject properties, then check access
      */
-    private static class AccessControl extends InjectMeBean {
+    public static class AccessControl extends InjectMeBean {
 
         private AssetSearchManager search;
         private LittleUser user;
@@ -142,6 +142,8 @@ public class SecurityFilter implements Filter {
         final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
 
         if ((null == bean) || (!bean.isLoggedIn())) {
+            redirectToLogin(sreq, sres);
+            return;
         } else if (accessControl.isSet()) {
             final AccessControl check = new AccessControl();
             check.setGuiceBean(bean);

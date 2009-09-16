@@ -117,7 +117,18 @@ public class JAssetLink extends JLabel implements LittleTool {
     private final AssetModelLibrary olibAsset;
     private final AssetSearchManager osearch;
 
-	
+
+    /**
+     * Property tracks whether to render the thumbnail or not
+     * when available
+     */
+    public boolean isRenderThumbnail() {
+        return orender.isRenderThumbnail();
+    }
+    public void setRenderThumbnail(boolean bRenderThumb) {
+        orender.setRenderThumbnail(bRenderThumb);
+    }
+
 
     /**
      * Shared utility for different event handlers

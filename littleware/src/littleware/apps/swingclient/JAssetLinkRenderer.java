@@ -63,7 +63,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
     {
         ojLabel.setForeground(Color.BLUE);
     }
-    private boolean obRenderThumb = true;
+    private boolean obRenderThumb = false;
 
     private final DefaultTreeCellRenderer orenderTree = new DefaultTreeCellRenderer();
     private final DefaultListCellRenderer orenderList = new DefaultListCellRenderer();

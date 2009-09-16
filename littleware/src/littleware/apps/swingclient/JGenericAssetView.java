@@ -259,6 +259,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
         gw.fillBoth().remainderX().add(owlink_name).
                 newRow().gridheight(1).
                 add(owlabel_type);
+        owlink_name.setRenderThumbnail(true);
         gw.newRow().remainderX().remainderY().
                 fillBoth().
                 add(owtab_stuff);

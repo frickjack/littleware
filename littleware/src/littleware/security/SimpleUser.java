@@ -1,7 +1,16 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security;
 
 import java.util.UUID;
-import java.security.*;
 
 /**
  * Simple implementation of the SimpleUser interface
@@ -13,15 +22,17 @@ public class SimpleUser extends SimplePrincipal implements LittleUser {
         setAssetType(SecurityAssetType.USER);
     }
 
+    @Override
     public Status getStatus() {
-        if (getValue() == Status.ACTIVE.ordinal()) {
+        if (getState() == Status.ACTIVE.ordinal()) {
             return Status.ACTIVE;
         }
         return Status.INACTIVE;
     }
 
+    @Override
     public void setStatus(Status n_status) {
-        setValue(n_status.ordinal());
+        setState(n_status.ordinal());
     }
 
     /**
@@ -39,11 +50,9 @@ public class SimpleUser extends SimplePrincipal implements LittleUser {
     /**
      * Return a simple copy of this object
      */
+    @Override
     public SimpleUser clone() {
         return (SimpleUser) super.clone();
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -10,6 +10,7 @@
 package littleware.security.auth.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.rmi.*;
 //import java.rmi.server.UnicastRemoteObject;
 import java.lang.reflect.*;
@@ -48,12 +49,18 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private final Map<UUID, WeakReference<SessionHelper>> ov_session_map = new HashMap<UUID, WeakReference<SessionHelper>>();
     private static SimpleSessionManager om_session = null;
     private final Sampler ostatSessionHelper = new SimpleSampler();
+    private final Provider<UserTreeBuilder> provideUserTree;
 
     /**
      * Inject dependencies
      */
     @Inject
-    public SimpleSessionManager(AssetManager m_asset, AssetSearchManager m_search, ServiceProviderRegistry reg_service) throws RemoteException {
+    public SimpleSessionManager(AssetManager m_asset, 
+            AssetSearchManager m_search,
+            ServiceProviderRegistry reg_service,
+            Provider<UserTreeBuilder> provideUserTree
+            ) throws RemoteException
+    {
         //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         om_asset = m_asset;
         om_search = m_search;
@@ -62,6 +69,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         }
         om_session = this;
         oreg_service = reg_service;
+        this.provideUserTree = provideUserTree;
     }
 
     /**
@@ -175,12 +183,12 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
 
                     @Override
                     public Maybe<LittleUser> run() throws BaseException, GeneralSecurityException, RemoteException {
-                        final Asset aHome = om_search.getByName("littleware.home", AssetType.HOME).get();
-                        Maybe<Asset> maybeParent = om_search.getAssetFrom(aHome.getObjectId(), "Users");
-                        if (!maybeParent.isSet()) {
-                            maybeParent = Maybe.something(om_asset.saveAsset(AssetType.createSubfolder(AssetType.GENERIC, "Users", aHome), "setup user folder"));
+                        for( AssetTreeTemplate.AssetInfo treeInfo : provideUserTree.get().user( s_name ).build().visit( om_search.getByName("littleware.home", AssetType.HOME).get(), om_search ) ) {
+                            if ( ! treeInfo.getAssetExists() ) {
+                                om_asset.saveAsset( treeInfo.getAsset(), "Setup new user: " + s_name );
+                            }
                         }
-                        return Maybe.something(om_asset.saveAsset(AssetType.createSubfolder(SecurityAssetType.USER, s_name, maybeParent.get()), "setup new user"));
+                        return om_search.getByName(s_name, SecurityAssetType.USER);
                     }
                 });
             } catch (PrivilegedActionException ex) {
@@ -197,7 +205,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                     throw new AssertionFailedException("Unexpected exception", ex2);
                 }
             }
-
         }
 
         j_caller.getPrincipals().add(maybeUser.get());

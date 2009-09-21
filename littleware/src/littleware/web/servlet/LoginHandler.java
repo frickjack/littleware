@@ -136,7 +136,6 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
     }
 
     private void doCommon(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-
         String action = request.getParameter("action");
 
         if (null == action) {

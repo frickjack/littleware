@@ -12,6 +12,7 @@ package littleware.base;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
+import littleware.asset.Asset;
 
 
 /**

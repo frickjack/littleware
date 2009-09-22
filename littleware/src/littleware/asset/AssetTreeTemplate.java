@@ -76,19 +76,46 @@ public class AssetTreeTemplate {
 
     /**
      * Scan the tree defined by this template under the given parent.
+     * If name-unique asset already exists under a different parent then
+     * just create a link to it, and continue down its subtree
      *
-     * @return collection of nodes that define the subtree under this template -
+     * @param parent ignored if null
+     * @return collection of nodes that define the subtree under this template
+     *      in asset-create safe order -
      *      some nodes may already exist, others may need to be saved to the repo
      */
     public Collection<AssetInfo> visit(Asset parent, AssetSearchManager search) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final Maybe<Asset> maybe = search.getAssetFrom(parent.getObjectId(), name);
+        Maybe<Asset> maybe = Maybe.empty();
+
+        if ( null != parent ) {
+            maybe = search.getAssetFrom(parent.getObjectId(), name);
+        } 
+        if ( maybe.isEmpty() && type.isNameUnique() ) {
+            maybe = search.getByName(name, type);
+        }
+        
         final Asset asset;
         final ImmutableList.Builder<AssetInfo> builder = ImmutableList.builder();
         if (maybe.isEmpty()) {
-            asset = AssetType.createSubfolder(type, name, parent);
+            if ( null != parent ) {
+                asset = AssetType.createSubfolder(type, name, parent);
+            } else {
+                asset = type.create();
+                asset.setName( name );
+            }
+            if ( type.isA( AssetType.HOME ) ) {
+                asset.setFromId(null);
+            }
             builder.add( new AssetInfo( asset, false ) );
         } else {
             asset = maybe.get();
+            if ( (null != parent)
+                    && (! asset.getFromId().equals( parent.getObjectId() ) )
+            ) {
+                throw new IllegalArgumentException ( "Asset already exists under different tree: " +
+                        asset.getName() + " (" + asset.getAssetType() + ")"
+                        );
+            }
             builder.add( new AssetInfo( asset, true ) );
         }
 

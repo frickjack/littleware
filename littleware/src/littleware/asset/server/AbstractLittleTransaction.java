@@ -49,6 +49,8 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
              && (t_now.getTime () > ot_notzero.getTime () + 300000)
              ) {
             olog_generic.log ( Level.WARNING, "Cyclecache not zeroed for over 5 minutes - probably missing a recycle() call" );
+            // do not vomit log messages - reset timer back 100 seconds
+            ot_notzero = new Date ( new Date().getTime() - 200000 );
         } else if ( oi_count == 0 ) {
             ot_notzero = new Date ();
         }

@@ -13,18 +13,13 @@ import com.google.inject.Inject;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.ImageFilter;
 import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.awt.image.RenderedImage;
-import java.awt.image.ReplicateScaleFilter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.Writer;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
@@ -96,7 +91,7 @@ public class SimpleThumbManager implements ThumbManager {
         }
     }
     private final Cache<UUID, ThumbManager.Thumb> ocache =
-            new SimpleCache<UUID, ThumbManager.Thumb>(100000, 100000);
+            new SimpleCache<UUID, ThumbManager.Thumb>(100000, 10);
     private final ImageManager omgrImage;
     private final File dirCache = new File(PropertiesLoader.get().getLittleHome().getOr( new File( System.getProperty( "java.io.tmpdir" ) )), "thumbCache");
     private RenderedImage oimgDefault;

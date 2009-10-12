@@ -11,6 +11,8 @@ package littleware.apps.client;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.lang.ref.WeakReference;
 import javax.swing.SwingUtilities;
 
 /**
@@ -24,19 +26,28 @@ public class SwingAdapter {
         return singleton;
     }
 
-    private static class LittleWrapper implements LittleListener {
+    /**
+     * Use weak reference trick to avoid issues with
+     * defunct listeners preventing garbage collection.
+     */
+    private static class LittleWrapper extends WeakReference implements LittleListener {
+        private final LittleTool listenTo;
 
-        private final LittleListener listener;
-
-        public LittleWrapper(LittleListener listener) {
+        public LittleWrapper(LittleListener listener, LittleTool listenTo ) {
+            super( listener );
             if (listener instanceof LittleWrapper) {
                 throw new IllegalArgumentException("listener already wrapped");
             }
-            this.listener = listener;
+            this.listenTo = listenTo;
         }
 
         @Override
         public void receiveLittleEvent(final LittleEvent event_little) {
+            final LittleListener listener = (LittleListener) super.get();
+            if ( null == listener ) {
+                listenTo.removeLittleListener(this);
+                return;
+            }
             if (SwingUtilities.isEventDispatchThread()) {
                 listener.receiveLittleEvent(event_little);
             } else {
@@ -51,18 +62,24 @@ public class SwingAdapter {
         }
     }
 
-    private static class PropertyWrapper implements PropertyChangeListener {
-        private final PropertyChangeListener listener;
-
-        public PropertyWrapper( PropertyChangeListener listener ) {
+    private static class PropertyWrapper extends WeakReference implements PropertyChangeListener {
+        private final PropertyChangeSupport listenTo;
+        
+        public PropertyWrapper( PropertyChangeListener listener, PropertyChangeSupport listenTo ) {
+            super( listener );
             if ( listener instanceof PropertyWrapper ) {
                 throw new IllegalArgumentException( "listener already wrapped" );
             }
-            this.listener = listener;
+            this.listenTo = listenTo;
         }
 
         @Override
         public void propertyChange(final PropertyChangeEvent event) {
+            final PropertyChangeListener listener = (PropertyChangeListener) super.get();
+            if ( null == listener ) {
+                listenTo.removePropertyChangeListener(listener);
+                return;
+            }
             if (SwingUtilities.isEventDispatchThread()) {
                 listener.propertyChange(event);
             } else {
@@ -79,32 +96,37 @@ public class SwingAdapter {
 
     /**
      * Wrap the given listener in an adapter that ensures that
-     * the listener receives its events on the dispatch thread.
+     * the listener receives its events on the dispatch thread,
+     * extends WeakReference for garbage collection, and
+     * self adds to the given PropertyChangeSupport
      *
      * @param listener
      * @return listener wrapped if necessary
      */
-    public LittleListener dispatchWrap(LittleListener listener) {
+    public void dispatchWrap(LittleListener listener, LittleTool listenTo ) {
         if (listener instanceof LittleWrapper) {
-            return listener;
+            listenTo.addLittleListener(  listener );
         } else {
-            return new LittleWrapper(listener);
+            listenTo.addLittleListener( new LittleWrapper(listener, listenTo ) );
         }
     }
 
 
     /**
      * Wrap the given listener in an adapter that ensures that
-     * the listener receives its events on the dispatch thread.
+     * the listener receives its events on the dispatch thread,
+     * extends WeakReference for garbage collection, and
+     * self adds to the given PropertyChangeSupport
      *
      * @param listener
+     * @param listenTo to add to
      * @return listener wrapped if necessary
      */
-    public PropertyChangeListener dispatchWrap(PropertyChangeListener listener) {
+    public void dispatchWrap(PropertyChangeListener listener, PropertyChangeSupport listenTo ) {
         if (listener instanceof PropertyWrapper) {
-            return listener;
+            listenTo.addPropertyChangeListener( listener );
         } else {
-            return new PropertyWrapper(listener);
+            listenTo.addPropertyChangeListener( new PropertyWrapper(listener, listenTo ) );
         }
     }
 

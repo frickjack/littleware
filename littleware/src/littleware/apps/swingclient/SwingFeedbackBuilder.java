@@ -22,6 +22,7 @@ import littleware.apps.client.LittleEvent;
 import littleware.apps.client.LittleListener;
 import littleware.apps.client.Feedback;
 import littleware.apps.client.LoggerUiFeedback;
+import littleware.apps.client.NullFeedback;
 import littleware.apps.client.event.UiMessageEvent;
 import littleware.base.Whatever;
 
@@ -51,7 +52,7 @@ public class SwingFeedbackBuilder {
             final Logger   log
             ) {
         jprogress.setMaximum(100 + 1);
-       final Feedback feedback = new LoggerUiFeedback( log );
+       final Feedback feedback = new NullFeedback();
        feedback.addPropertyChangeListener(
                new PropertyChangeListener() {
 

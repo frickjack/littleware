@@ -66,6 +66,7 @@ public class AssetModelEvent extends LittleEvent {
         return on_operation;
     }
 
+    @Override
     public AssetModel getSource() {
         return (AssetModel) super.getSource();
     }

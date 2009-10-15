@@ -10,6 +10,7 @@
 
 package littleware.apps.client;
 
+import com.google.common.collect.ImmutableList;
 import java.util.*;
 import javax.swing.SwingUtilities;
 import java.beans.PropertyChangeSupport;
@@ -56,14 +57,14 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
     }
 
     @Override
-    public void addLittleListener(LittleListener listen_little) {
+    public synchronized void addLittleListener(LittleListener listen_little) {
         if (!ov_listener.contains(listen_little)) {
             ov_listener.add(listen_little);
         }
     }
 
     @Override
-    public void removeLittleListener(LittleListener listen_little) {
+    public synchronized void removeLittleListener(LittleListener listen_little) {
         ov_listener.remove(listen_little);
     }
 
@@ -71,13 +72,14 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
      * Runnable to throw onto the swing-event dispatch thread
      * to notify registered LittleListener listeners.
      */
-    private class DispatchHandler implements Runnable {
-
-        private LittleEvent oevent_little = null;
+    private static class DispatchHandler implements Runnable {
+        private final List<LittleListener> listenerList;
+        private final LittleEvent oevent_little;
 
         /** Stash away the event to dispatch */
-        public DispatchHandler(LittleEvent event_little) {
+        public DispatchHandler(LittleEvent event_little, List<LittleListener> listenerList ) {
             oevent_little = event_little;
+            this.listenerList = ImmutableList.copyOf( listenerList );
         }
 
         /**
@@ -85,10 +87,7 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
          */
         @Override
         public void run() {
-            // avoid concurrent modification
-            final List<LittleListener> vListener = new ArrayList<LittleListener>();
-            vListener.addAll( ov_listener );
-            for (LittleListener listen_little : vListener ) {
+            for (LittleListener listen_little : listenerList ) {
                 listen_little.receiveLittleEvent(oevent_little);
             }
         }
@@ -106,7 +105,10 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
             throw new IllegalArgumentException("source mismatch");
         }
 
-        final Runnable run_dispatch = new DispatchHandler(event_little);
+        final Runnable run_dispatch;
+        synchronized (this ) {
+            run_dispatch = new DispatchHandler(event_little, ov_listener );
+        }
         if ((!ob_swing_enabled) || SwingUtilities.isEventDispatchThread()) {
             run_dispatch.run();
         } else {

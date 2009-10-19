@@ -133,7 +133,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private SessionHelper setupNewHelper(LittleSession a_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         Subject j_caller = a_session.getSubject(om_search);
         SessionHelper m_helper = new SimpleSessionHelper(a_session.getObjectId(), om_search, om_asset, this, oreg_service);
-        InvocationHandler handler_helper = new SessionInvocationHandler(j_caller, m_helper, ostatSessionHelper, m_helper);
+        InvocationHandler handler_helper = new SubjectInvocationHandler(j_caller, m_helper, ostatSessionHelper );
         SessionHelper m_proxy = (SessionHelper) Proxy.newProxyInstance(SessionHelper.class.getClassLoader(),
                 new Class[]{SessionHelper.class},
                 handler_helper);

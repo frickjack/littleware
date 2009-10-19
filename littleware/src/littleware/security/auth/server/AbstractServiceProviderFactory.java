@@ -95,10 +95,9 @@ public abstract class AbstractServiceProviderFactory<T extends LittleService> im
         om_search.getAsset ( on_service.getObjectId () );
         
         Subject  j_caller = Subject.getSubject ( AccessController.getContext () );
-        InvocationHandler  handler_proxy = new SessionInvocationHandler 
+        InvocationHandler  handler_proxy = new SubjectInvocationHandler
             ( j_caller, x_provider, 
-              on_service.getCallSampler (),
-              m_helper
+              on_service.getCallSampler ()
               );
         //Class<T> class_interface = on_service.getServiceInterface ( T.class );
         R m_proxy = (R) Proxy.newProxyInstance ( class_interface.getClassLoader (),

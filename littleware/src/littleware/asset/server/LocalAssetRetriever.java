@@ -216,13 +216,17 @@ public class LocalAssetRetriever implements AssetRetriever {
     @Override
     public Map<String, UUID> getHomeAssetIds() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        // cache miss
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
+
         try {
             DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbHomeIdLoader();
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
             olog_generic.log(Level.INFO, "Caught unexpected: " + e);
             throw new DataAccessException("Caught unexpected: " + e);
+        } finally {
+            trans.endDbAccess( v_cycle_cache );
         }
     }
 
@@ -230,24 +234,34 @@ public class LocalAssetRetriever implements AssetRetriever {
     public Map<String, UUID> getAssetIdsFrom(UUID u_source,
             AssetType<? extends Asset> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
+
         try {
             final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_source, Maybe.emptyIfNull( (AssetType) n_type ), Maybe.empty( Integer.class ) );
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
             // do not throw cause e - may not be serializable
             throw new DataAccessException("Caught unexpected: " + e );
+        } finally {
+            trans.endDbAccess( v_cycle_cache );
         }
     }
 
 
     @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final LittleTransaction trans = oprovideTrans.get();
+        final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
+
         try {
             final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_from, Maybe.something( (AssetType) n_type ), Maybe.something( i_state ) );
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
             // do not throw cause e - may not be serializable
             throw new DataAccessException("Caught unexpected: " + e);
+        } finally {
+            trans.endDbAccess( v_cycle_cache );
         }
     }
 

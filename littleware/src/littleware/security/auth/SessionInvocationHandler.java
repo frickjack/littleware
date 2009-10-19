@@ -29,6 +29,9 @@ import littleware.base.stat.Sampler;
  * Specialization of SubjectInvocationHandler that pulls the Subject
  * out of a session asset, and periodically reloads the session to
  * verify ReadOnly and SessionExpires tests.
+ *
+ * @deprecated do not invalidate an active session -
+ *             just re-authenticate at login time
  */
 public class SessionInvocationHandler<T> extends SubjectInvocationHandler<T> {
 	private SessionHelper     om_helper = null;
@@ -63,7 +66,8 @@ public class SessionInvocationHandler<T> extends SubjectInvocationHandler<T> {
 				 return om_helper.getSession ();
 			}
 		};
-		
+
+                /*..
 		LittleSession a_session = null;
 		try {
 			a_session = (LittleSession) AccessController.doPrivileged ( new MakePrivilegedAction( act_getsession ) );
@@ -80,6 +84,7 @@ public class SessionInvocationHandler<T> extends SubjectInvocationHandler<T> {
 			 ) {
 			throw new ReadOnlyException ();
 		}
+                 */
 		return super.invoke ( proxy, method_call, v_args );
 	}
 }

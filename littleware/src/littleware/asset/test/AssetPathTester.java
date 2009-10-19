@@ -210,5 +210,19 @@ public class AssetPathTester extends LittleTest {
             assertTrue("Caught: " + e, false);
         }
     }
-}
 
+    /**
+     * Check that path-lookup fails on path that does not exist
+     */
+    public void testBadLookup() {
+        try {
+            final AssetPath path = opathFactory.createPath("/" + getTestHome() + "/bogusFrickjack/bogus/ugh");
+            assertTrue("Path not found: " + path, om_search.getAssetAtPath(path).isEmpty());
+        } catch (Exception e) {
+            olog_generic.log(Level.WARNING, "Caught unexpected: " + e +
+                    ", " + BaseException.getStackTrace(e));
+            assertTrue("Caught: " + e, false);
+        }
+    }
+
+}

@@ -102,6 +102,7 @@ public class PackageTestSuite extends TestSuite {
         }
         if (b_run) {
             this.addTest(providePathTester.get() );
+            this.addTest(providePathTester.get().putName( "testBadLookup") );
         }
 
         if (b_run) {

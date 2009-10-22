@@ -10,14 +10,5 @@ CVS
 ^littleware/ddl/derbycache
 nbproject/private
 ^scratch
-^webapp
-^webapp/littleware/lib/doc/api
-^webapp/littleware/lib/
-^webapp/littleware/lib/icons
-^webapp/littleware/doc/api
-^webapp/littleware/WEB-INF/lib
-^webapp/littleware/WEB-INF/tld
-^webapp/littleware/Littleware
-^webapp/littleware/Hosting
 \.pyc$
 ~$

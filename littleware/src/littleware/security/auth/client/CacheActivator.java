@@ -11,6 +11,8 @@ package littleware.security.auth.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.security.Principal;
 import java.util.Date;
 import java.util.Enumeration;
@@ -27,6 +29,7 @@ import littleware.asset.client.LittleServiceListener;
 import littleware.base.AssertionFailedException;
 import littleware.base.Cache;
 import littleware.base.Cache.Policy;
+import littleware.base.LittleBean;
 import littleware.base.SimpleCache;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
@@ -41,8 +44,8 @@ import org.osgi.framework.BundleContext;
  */
 @Singleton
 public class CacheActivator implements BundleActivator, LittleServiceListener, ClientCache {
-    private static final Logger log = Logger.getLogger( CacheActivator.class.getName() );
 
+    private static final Logger log = Logger.getLogger(CacheActivator.class.getName());
     private final Cache<String, Object> cacheLong = new SimpleCache<String, Object>(900, 20000);
     private final Cache<String, Object> cacheShort = new SimpleCache<String, Object>(30, 20000);
     /** Extend cache to add some special asset handling */
@@ -74,13 +77,16 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
         }
 
         @Override
-        public Object put(String x_key, Object x_value) {
-            Object result = cacheShort.put(x_key, x_value);
-            if (x_value instanceof Asset) {
-                final Asset asset = (Asset) x_value;
+        public Object put(String key, Object value) {
+            final Object result = cacheShort.put(key, value);
+            if (value instanceof Asset) {
+                final Asset asset = (Asset) value;
+                if ( asset.isDirty() ) {
+                    throw new IllegalArgumentException( "May not cache a dirty asset! " + asset );
+                }
                 if ((null != asset.getLastUpdateDate()) && (((new Date()).getTime() - 432000) > asset.getLastUpdateDate().getTime())) {
                     // not modified in 5 days
-                    cacheLong.put(x_key, x_value);
+                    cacheLong.put(key, value);
                 }
                 if (asset.getAssetType().isA(SecurityAssetType.GROUP)) {
                     // go ahead and harvest group members
@@ -97,11 +103,22 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
 
         @Override
         public Object get(String x_key) {
-            final Object result = cacheShort.get(x_key);
+            Object result = cacheShort.get(x_key);
             if (null != result) {
+                if ((result instanceof Asset) && ((Asset) result).isDirty()) {
+                    cacheShort.remove(x_key);
+                } else {
+                    return result;
+                }
+            }
+            // fall through to long cache
+            result = cacheLong.get(x_key);
+            if ((null != result) && (result instanceof Asset) && ((Asset) result).isDirty()) {
+                cacheLong.remove(x_key);
+                return null;
+            } else {
                 return result;
             }
-            return cacheLong.get(x_key);
         }
 
         @Override
@@ -218,38 +235,38 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
     public void start(final BundleContext ctx) throws Exception {
         // register self to whiteboard
         ctx.registerService(ClientCache.class.getName(), this, new Properties());
-        log.log( Level.FINE, "ClientCache registered with OSGi service whiteboard" );
+        log.log(Level.FINE, "ClientCache registered with OSGi service whiteboard");
         // listen on whiteboard for new services
         /** ... not necessary at this point - SessionHelperProxy manages this stuff currently ...
          * TODO: implement AbstractLittleServiceListener OSGi activator ...
         final ServiceListener listener = new org.osgi.framework.ServiceListener() {
-            @Override
-            public void serviceChanged(org.osgi.framework.ServiceEvent event) {
-                final ServiceReference ref = event.getServiceReference();
-                final LittleService service;
-                {
-                    final Object x = ctx.getService(ref);
-                    if (x instanceof LittleService) {
-                        service = (LittleService) x;
-                    } else {
-                        return;
-                    }
-                }
-                switch (event.getType()) {
-                    case org.osgi.framework.ServiceEvent.REGISTERED: {
-                        service.addServiceListener(CacheActivator.this);
-                    }
-                    break;
-                    case ServiceEvent.UNREGISTERING: {
-                        service.removeServiceListener( CacheActivator.this );
-                    } break;
-                }
-            }
+        @Override
+        public void serviceChanged(org.osgi.framework.ServiceEvent event) {
+        final ServiceReference ref = event.getServiceReference();
+        final LittleService service;
+        {
+        final Object x = ctx.getService(ref);
+        if (x instanceof LittleService) {
+        service = (LittleService) x;
+        } else {
+        return;
+        }
+        }
+        switch (event.getType()) {
+        case org.osgi.framework.ServiceEvent.REGISTERED: {
+        service.addServiceListener(CacheActivator.this);
+        }
+        break;
+        case ServiceEvent.UNREGISTERING: {
+        service.removeServiceListener( CacheActivator.this );
+        } break;
+        }
+        }
         };
         ctx.addServiceListener( listener );
         // invoke the listener on all already-registered services
         for ( ServiceReference ref : ctx.getAllServiceReferences(null, null)) {
-            listener.serviceChanged( new ServiceEvent( ServiceEvent.REGISTERED, ref ) );
+        listener.serviceChanged( new ServiceEvent( ServiceEvent.REGISTERED, ref ) );
         }
          */
     }
@@ -260,7 +277,12 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
     }
 
     @Override
-    public Object putLongTerm( String key, Object value ) {
+    public Object putLongTerm(String key, Object value) {
+        if ( (null != value) && (value instanceof Asset)
+                && ((Asset)value).isDirty()
+                ) {
+            throw new IllegalArgumentException( "May not cache a dirty asset! " + value );
+        }
         cacheShort.remove(key);
         return cacheLong.put(key, value);
     }

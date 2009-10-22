@@ -11,7 +11,6 @@ package littleware.asset;
 
 import java.rmi.RemoteException;
 import java.util.*;
-import java.security.acl.Owner;
 import java.security.GeneralSecurityException;
 import littleware.base.BaseException;
 import littleware.base.CacheableObject;

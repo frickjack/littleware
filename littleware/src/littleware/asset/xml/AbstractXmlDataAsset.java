@@ -50,5 +50,6 @@ public abstract class AbstractXmlDataAsset extends SimpleAsset implements XmlDat
         }
     }
 
+    @Override
     public abstract DefaultHandler getSaxDataHandler();
 }

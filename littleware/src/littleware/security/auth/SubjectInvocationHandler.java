@@ -17,6 +17,7 @@ import javax.security.auth.Subject;
 
 import littleware.base.AssertionFailedException;
 import littleware.base.stat.Sampler;
+import littleware.base.stat.Timer;
 import littleware.base.AccessPermission;
 
 /**
@@ -145,7 +146,7 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method_call, Object[] v_args) throws Throwable {
-        littleware.base.Timer timer_run = new littleware.base.Timer();
+        final Timer timer_run = Timer.startTimer();
 
         PrivilegedExceptionAction<Object> act_run = new RunAction(method_call, v_args);
         /*...

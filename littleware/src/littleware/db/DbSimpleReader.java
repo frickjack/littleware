@@ -1,10 +1,20 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.db;
 
 import java.sql.*;
 import javax.sql.DataSource;
-import java.security.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import littleware.base.stat.Timer;
 
 /**
  * Base class with some useful default methods for
@@ -32,8 +42,10 @@ public abstract class DbSimpleReader<T, R> implements JdbcDbReader<T, R> {
     }
 
     /** Subtypes override */
+    @Override
     public abstract T loadObject(R x_arg) throws SQLException;
 
+    @Override
     public PreparedStatement prepareStatement(Connection sql_conn) throws SQLException {
         if (ob_is_function) {
             CallableStatement sql_stmt = sql_conn.prepareCall(os_query);
@@ -50,9 +62,10 @@ public abstract class DbSimpleReader<T, R> implements JdbcDbReader<T, R> {
      *
      * @return ResultSet from execution of query or callable statement
      */
+    @Override
     public ResultSet executeStatement(PreparedStatement sql_stmt, R x_arg) throws SQLException {
         ResultSet sql_rset = null;
-        littleware.base.Timer x_timer = new littleware.base.Timer();
+        final Timer timer = Timer.startTimer();
 
         try {
             if (sql_stmt instanceof CallableStatement) {
@@ -61,7 +74,7 @@ public abstract class DbSimpleReader<T, R> implements JdbcDbReader<T, R> {
             } else {
                 sql_rset = sql_stmt.executeQuery();
             }
-            olog_generic.log(Level.FINE, "Ran " + os_query + " in " + x_timer.sample() + " ms");
+            olog_generic.log(Level.FINE, "Ran " + os_query + " in " + timer.sample() + " ms");
             return sql_rset;
         } catch (SQLException e) {
             olog_generic.log(Level.WARNING, "Running " + os_query + ", caught unexpected " + e);
@@ -74,6 +87,7 @@ public abstract class DbSimpleReader<T, R> implements JdbcDbReader<T, R> {
     return loadObject ( osql_factory, x_arg );
     }
      */
+    @Override
     public T loadObject(DataSource sql_data_source, R x_arg) throws SQLException {
         Connection sql_conn = null;
         try {
@@ -84,6 +98,7 @@ public abstract class DbSimpleReader<T, R> implements JdbcDbReader<T, R> {
         }
     }
 
+    @Override
     public T loadObject(Connection sql_conn, R x_arg) throws SQLException {
         PreparedStatement sql_stmt = null;
         try {
@@ -94,6 +109,7 @@ public abstract class DbSimpleReader<T, R> implements JdbcDbReader<T, R> {
         }
     }
 
+    @Override
     public T loadObject(PreparedStatement sql_stmt, R x_arg) throws SQLException {
         ResultSet sql_rset = null;
         try {
@@ -104,7 +120,6 @@ public abstract class DbSimpleReader<T, R> implements JdbcDbReader<T, R> {
         }
     }
 
+    @Override
     public abstract T loadObject(ResultSet sql_rset) throws SQLException;
-}// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-
+}

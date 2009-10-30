@@ -169,6 +169,13 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
             if ((null != a_old) && (a_new.getTransactionCount() < a_old.getTransactionCount()) && (!a_old.isDirty())) {
                 return a_old;
             }
+            if ( (null != a_old)
+                    && (a_new.getTransactionCount() == a_old.getTransactionCount())
+                    && (! a_old.isDirty())
+                    ) {
+                // avoid throwing events model-events on reload of same asset
+                return a_old;
+            }
             final UUID fromIdOld = (null != a_old) ? a_old.getFromId() : null;
             final UUID fromIdNew = a_new.getFromId();
             // this call syncs a_new with a_old

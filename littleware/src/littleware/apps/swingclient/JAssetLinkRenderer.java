@@ -110,9 +110,11 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
             configureLabel((Asset) xValue, jLabel);
         } else if (xValue instanceof String) {
             jLabel.setText((String) xValue);
+            jLabel.setIcon(null);
         } else {
-            olog_generic.log(Level.WARNING, "Object of unknown type: " + xValue);
-            jLabel.setText("ERR - wrong type: " + xValue);
+            //olog_generic.log(Level.WARNING, "Object of unknown type: " + xValue);
+            jLabel.setText(xValue.toString());
+            jLabel.setIcon(null);
         }
     }
 
@@ -195,6 +197,10 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
             configureUnknown( ((DefaultMutableTreeNode) x_value).getUserObject(), orenderTree );
         } else {
             configureUnknown( x_value, orenderTree );
+        }
+        // Make sure some icon is set for tree expander
+        if ( orenderTree.getIcon() == null ) {
+            orenderTree.setIcon(this.olib_icon.lookupIcon(AssetType.GENERIC));
         }
         return orenderTree;
     }

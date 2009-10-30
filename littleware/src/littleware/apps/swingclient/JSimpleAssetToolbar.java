@@ -226,6 +226,10 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                     @Override
                         public void actionPerformed ( ActionEvent ev_button ) {
                             String s_path = owtext_goto_path.getText ();
+                            if ( s_path.trim().matches("^/?$" ) ) {
+                                s_path = "/littleware.home";
+                                owtext_goto_path.setText( s_path );
+                            }
                             try {
                                 AssetPath  path_goto = ofactoryPath.createPath ( s_path );
                                 AssetModel model_goto = olib_asset.syncAsset ( om_search.getAssetAtPath ( path_goto ).get() );

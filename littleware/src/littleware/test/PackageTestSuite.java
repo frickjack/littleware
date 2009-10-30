@@ -10,24 +10,16 @@
 package littleware.test;
 
 import com.google.inject.Binder;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.*;
-import javax.swing.SwingUtilities;
 import junit.framework.*;
-import littleware.apps.client.AssetModelServiceListener;
 import littleware.apps.client.ClientBootstrap;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.EventBarrier;
-import littleware.base.PropertiesGuice;
-import littleware.security.auth.client.ClientCache;
 import littleware.security.auth.server.ServerBootstrap;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

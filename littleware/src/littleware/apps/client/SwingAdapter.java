@@ -113,6 +113,7 @@ public class SwingAdapter {
             listenTo.addPropertyChangeListener( new PropertyWrapper(listener ) );
         }
     }
+    
     public void dispatchWrap(PropertyChangeListener listener, LittleBean listenTo ) {
         if (listener instanceof PropertyWrapper) {
             listenTo.addPropertyChangeListener( listener );

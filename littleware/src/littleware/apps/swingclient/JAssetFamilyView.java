@@ -9,6 +9,8 @@
  */
 package littleware.apps.swingclient;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -24,6 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
@@ -49,7 +55,9 @@ import littleware.apps.client.event.AssetModelEvent;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.AssetType;
 import littleware.base.Maybe;
+import littleware.base.stat.Timer;
 import littleware.base.swing.JUtil;
 
 /**
@@ -82,12 +90,42 @@ public class JAssetFamilyView extends JPanel implements AssetView {
 
                                 @Override
                                 public void run() {
+                                    olog.log(Level.FINE, "Updating UI on view-model change");
                                     updateAssetUI();
                                 }
                             });
                 }
             }
         });
+    }
+
+    /**
+     * Little data bucket holds an asset name and id obtained via
+     * getIdsFrom while waiting for main asset to load in background
+     */
+    private static class AssetNameId {
+
+        private final String name;
+        private final UUID id;
+
+        public AssetNameId(String name, UUID id) {
+            this.name = name;
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public UUID getId() {
+            return id;
+        }
+
+        @Override
+        public String toString() {
+            // Include padding so there's room for supplemental after the asset loads
+            return name + "           ... (loading)";
+        }
     }
     //private final DefaultMutableTreeNode onodeRoot = new DefaultMutableTreeNode( "Root" );
     private final JTree ojTree = new JTree(); //onodeRoot, true );
@@ -105,11 +143,15 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                         final Object data = ((DefaultMutableTreeNode) selPath.getLastPathComponent()).getUserObject();
                         if (null == data) {
                             // do nothing
+                        } else if (data instanceof AssetNameId) {
+                            oview_util.fireLittleEvent(
+                                    new NavRequestEvent(JAssetFamilyView.this,
+                                    ((AssetNameId) data).getId(), NavRequestEvent.NavMode.GENERIC));
                         } else if (data instanceof UUID) {
                             oview_util.fireLittleEvent(
                                     new NavRequestEvent(JAssetFamilyView.this,
                                     (UUID) data, NavRequestEvent.NavMode.GENERIC));
-                        } else {
+                        } else if (data instanceof Asset) {
                             oview_util.fireLittleEvent(
                                     new NavRequestEvent(JAssetFamilyView.this,
                                     ((Asset) data).getObjectId(),
@@ -140,7 +182,9 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                     return;
                 } else if (info instanceof UUID) {
                     addChildren(node, (UUID) info);
-                } else {
+                } else if (info instanceof AssetNameId) {
+                    addChildren(node, ((AssetNameId) info).getId());
+                } else if (info instanceof Asset) {
                     addChildren(node, ((Asset) info).getObjectId());
                 }
                 Component w_root = JUtil.findRoot(JAssetFamilyView.this);
@@ -156,6 +200,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     }
     private final AssetSearchManager osearch;
     private final AssetModelLibrary olibAsset;
+    private final ExecutorService workPool;
 
     private void buildUI() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -168,11 +213,13 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     @Inject
     public JAssetFamilyView(JAssetLinkRenderer render,
             AssetModelLibrary libAsset,
-            AssetSearchManager search) {
+            AssetSearchManager search,
+            ExecutorService workPool) {
         render.setRenderThumbnail(false);
         ojTree.setCellRenderer(render);
         osearch = search;
         olibAsset = libAsset;
+        this.workPool = workPool;
         buildUI();
     }
 
@@ -186,6 +233,11 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     public TreeCellRenderer getCellRenderer() {
         return ojTree.getCellRenderer();
     }
+    /**
+     * Little counter to track when we're loading our own assets
+     */
+    private int activeWorkers = 0;
+    private boolean updatePending = false;
 
     /**
      * Trigger a UI sync call to updateAssetUI
@@ -196,16 +248,50 @@ public class JAssetFamilyView extends JPanel implements AssetView {
         if ((evt_prop instanceof AssetModelEvent) && ((AssetModelEvent) evt_prop).getOperation().equals(AssetModel.Operation.assetDeleted.toString())) {
             return;
         }
+        if ((activeWorkers < 1) && (! updatePending) ){
+            // ignore changes to library child-data that result
+            // from our own asset-load activity
+            // try to avoid update causing update causing update loops ...
+            updatePending = true;
+            SwingUtilities.invokeLater(
+                    new Runnable() {
 
-        SwingUtilities.invokeLater(
-                new Runnable() {
-
-                    @Override
-                    public void run() {
-                        updateAssetUI();
-                    }
-                });
+                        @Override
+                        public void run() {
+                            try {
+                                olog.log(Level.FINE, "Updating UI on asset-model update");
+                                updateAssetUI();
+                            } finally {
+                                updatePending = false;
+                            }
+                        }
+                    });
+        }
     }
+    Maybe<UUID> littleHomeId = Maybe.empty();
+
+    /**
+     * Provide customization hook to subtypes - runs in background thread
+     */
+    protected void assignUserObject(DefaultMutableTreeNode node, Asset asset) {
+        node.setUserObject(asset);
+    }
+
+    /**
+     * Provide customization hook to subtypes
+     *
+     * @return comparator to sort node-children with by name
+     */
+    protected Comparator<String> getAssetSorter() {
+        return new Comparator<String>() {
+
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareTo(o2);
+            }
+        };
+    }
+    private final List<Future<?>> childWorkers = new ArrayList<Future<?>>();
 
     /**
      * Register the parent's children with it's parent node
@@ -216,41 +302,131 @@ public class JAssetFamilyView extends JPanel implements AssetView {
      */
     protected Map<UUID, DefaultMutableTreeNode> addChildren(DefaultMutableTreeNode nodeParent,
             UUID uParent) {
-        final Map<UUID, DefaultMutableTreeNode> mapNode =
-                new HashMap<UUID, DefaultMutableTreeNode>();
         try {
-            final List<Asset> vChildren = new ArrayList<Asset>();
-            for (UUID uChild : osearch.getAssetIdsFrom(uParent, null).values()) {
-                final Maybe<AssetModel> maybeChild = olibAsset.retrieveAssetModel(uChild, osearch);
-                if (maybeChild.isSet()) {
-                    vChildren.add(maybeChild.get().getAsset());
-                }
-            }
-            if (vChildren.isEmpty()) {
+            final Map<String, UUID> childDictionary = osearch.getAssetIdsFrom(uParent, null);
+            if (childDictionary.isEmpty()) {
                 nodeParent.setAllowsChildren(false);
-                return mapNode;
+                return Collections.emptyMap();
             }
-            Collections.sort(vChildren, new Comparator<Asset>() {
+
+            final List<String> childNames = new ArrayList<String>(childDictionary.keySet());
+            Collections.sort(childNames, getAssetSorter());
+
+            final ImmutableMap.Builder<UUID, DefaultMutableTreeNode> mapBuilder = ImmutableMap.builder();
+            // Populate tree with string-names to start with
+            for (String childName : childNames) {
+                final AssetNameId child = new AssetNameId(childName, childDictionary.get(childName));                
+                final DefaultMutableTreeNode node = new DefaultMutableTreeNode(child);
+                /*... could do this ...
+                final AssetModel model = olibAsset.get( child.getId() );
+                if ( null != model ) {
+                    assignUserObject( node, model.getAsset() );
+                }
+                */
+                olog.log(Level.FINE, "Adding node " + childName);
+
+                nodeParent.add(node);
+                mapBuilder.put(child.getId(), node);
+            }
+            final Map<UUID, DefaultMutableTreeNode> nodeMap = mapBuilder.build();
+            // Load real assets in the background
+            final Callable<Object> loadCall = new Callable<Object>() {
+
+                private void repaintTree() {
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            olog.log(Level.FINE, "Triggering repaint");
+                            ojTree.repaint();
+                        }
+                    });
+                }
 
                 @Override
-                public int compare(Asset o1, Asset o2) {
-                    return o1.getName().compareTo(o2.getName());
+                public Object call() {
+                    final Timer timer = Timer.startTimer();
+                    synchronized (JAssetFamilyView.this) {
+                        ++activeWorkers;
+                    }
+                    try {
+                        for (String childName : childNames) {
+                            if (Thread.interrupted()) {
+                                olog.log(Level.FINE, "Child worker interrupted ...");
+                                return null;
+                            }
+                            final UUID id = childDictionary.get(childName);
+                            final DefaultMutableTreeNode node = nodeMap.get(id);
+                            if ( node.getUserObject() instanceof Asset ) {
+                                continue;  // node already loaded
+                            }
+                            try {
+                                final Maybe<Asset> maybe = osearch.getAsset(id);
+                                if (maybe.isSet()) {
+                                    assignUserObject(node, maybe.get());
+                                }
+                                if (timer.sampleSeconds() > 2) {
+                                    repaintTree();
+                                    timer.reset();
+                                }
+                            } catch (Exception ex) {
+                                olog.log(Level.WARNING, "Failed to load asset " + childName);
+                            }
+                        }
+                    } finally {
+                        synchronized (JAssetFamilyView.this) {
+                            --activeWorkers;
+                        }
+                    }
+
+                    repaintTree();
+                    return null;
                 }
-            });
-            for (Asset aChild : vChildren) {
-                final DefaultMutableTreeNode node = new DefaultMutableTreeNode(aChild);
-                olog.log(Level.FINE, "Adding node " + aChild.getName());
-                nodeParent.add(node);
-                mapNode.put(aChild.getObjectId(), node);
+            };
+
+            final ImmutableList.Builder<Future<?>> builder = ImmutableList.builder();
+            synchronized( childWorkers ) {
+                childWorkers.add( workPool.submit( loadCall ) );
             }
+
+            // handle littleware.home special case
+            if (!littleHomeId.isSet()) {
+                littleHomeId = Maybe.something(
+                        osearch.getByName("littleware.home", AssetType.HOME).get().getObjectId());
+            }
+            if (uParent.equals(littleHomeId.get())) {
+                final DefaultMutableTreeNode homeNode = new DefaultMutableTreeNode("(Home Assets)");
+                final Map<String,UUID>       homeMap = osearch.getHomeAssetIds();
+                final List<String>           homeName = new ArrayList<String>( homeMap.keySet() );
+                Collections.sort( homeName );
+                for ( String name: homeName ) {
+                    if ( name.equals( "littleware.home" ) ) {
+                        continue;
+                    }
+                    final DefaultMutableTreeNode node = new DefaultMutableTreeNode( osearch.getAsset( homeMap.get( name ) ).get() );
+                    node.setAllowsChildren( false );
+                    homeNode.add( node );
+                }
+                nodeParent.add(homeNode);
+            }
+            return nodeMap;
         } catch (Exception ex) {
             olog.log(Level.WARNING, "Failed populated family tree", ex);
+            return Collections.emptyMap();
         }
-        return mapNode;
     }
 
     /** Update the UI with current data - runs on event dispatch thread */
     private void updateAssetUI() {
+        synchronized( childWorkers ) {
+            try {
+                for( Future<?> future : childWorkers ) {
+                    future.cancel(true);
+                }
+            } finally {
+                childWorkers.clear();
+            }
+        }
         final DefaultMutableTreeNode nodeRoot = new DefaultMutableTreeNode("Root");
         final DefaultTreeModel model = new DefaultTreeModel(nodeRoot, true);
 

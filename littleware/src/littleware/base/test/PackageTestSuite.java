@@ -10,6 +10,8 @@
 
 package littleware.base.test;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -27,11 +29,15 @@ public class PackageTestSuite extends TestSuite {
      * Setup a test suite to exercise this package -
      * junit.swingui.TestRunner looks for this.
      */
-    public PackageTestSuite() {
+    @Inject
+    public PackageTestSuite( Provider<WhateverTester> provideWhatever ) {
         super( PackageTestSuite.class.getName() );
 
         boolean b_run = true;
 
+        if ( b_run ) {
+            this.addTest( provideWhatever.get() );
+        }
         if ( b_run ) {
             this.addTest( new XmlResourceBundleTester( "testBasicXmlBundle" ) );
         }

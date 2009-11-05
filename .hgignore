@@ -1,10 +1,10 @@
 CVS
 ^littleware/lib
 ^littleware/applet_test
-^littleware/build
+/build/
 ^littleware/LittleTestCache
 ^littleware/littleTest
-^littleware/dist
+/dist/
 ^littleware/doc
 ^littleware_client
 ^littleware/ddl/derbycache

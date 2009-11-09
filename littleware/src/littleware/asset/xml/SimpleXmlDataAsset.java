@@ -18,6 +18,7 @@ import java.lang.reflect.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import littleware.asset.AssetType;
 import littleware.base.ParseException;
 import littleware.base.XmlSpecial;
 import littleware.base.AssertionFailedException;
@@ -44,6 +45,7 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
     private String os_namespace = null;
     private String os_prefix = null;
     private String os_root = null;
+
 
     /**
      * Avoid serializing the annotation information - that
@@ -118,12 +120,6 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
         }
     }
 
-    /** 
-     * No-arg constructor - only intended to support serialization 
-     */
-    protected SimpleXmlDataAsset() {
-        scanForAnnotations();
-    }
 
     /**
      * Preferred constructor - specify the namespace
@@ -135,7 +131,9 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
      */
     protected SimpleXmlDataAsset(String s_namespace,
             String s_prefix,
-            String s_root) {
+            String s_root,
+            AssetType assetType ) {
+        super( assetType );
         os_namespace = s_namespace;
         os_prefix = s_prefix;
         os_root = s_root;
@@ -294,18 +292,5 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
                 throws SAXException {
             os_buffer.append(buf, offset, len);
         }
-    }
-
-    /**
-     * Return a simple copy of this object
-     */
-    @Override
-    public SimpleXmlDataAsset clone() {
-        SimpleXmlDataAsset a_xml = (SimpleXmlDataAsset) super.clone();
-        a_xml.ov_element_in = (HashMap<String, XmlDataSetter>) ov_element_in.clone();
-        a_xml.ov_attribute_in = (HashMap<String, XmlDataSetter>) ov_attribute_in.clone();
-        a_xml.ov_element_out = (HashMap<String, XmlDataGetter>) ov_element_out.clone();
-        a_xml.ov_attribute_out = (HashMap<String, XmlDataGetter>) ov_attribute_out.clone();
-        return a_xml;
     }
 }

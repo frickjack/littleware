@@ -63,6 +63,17 @@ public abstract class AssetType extends DynamicEnum<AssetType> {
         return new SimpleAssetBuilder( this );
     }
 
+    public static abstract class Specialized<T extends AssetBuilder> extends AssetType {
+        public Specialized( UUID id, String name ) {
+            super( id, name );
+        }
+
+        @Override
+        public T create() {
+            return (T) super.create();
+        }
+    }
+
     
     /** Shortcut to DynamicEnum.getMembers */
     public static Set<AssetType> getMembers() {
@@ -151,12 +162,12 @@ public abstract class AssetType extends DynamicEnum<AssetType> {
         return (getSuperType().isEmpty()) ? false : getSuperType().get().isAdminToCreate();
     }
     /** GENERIC asset-type */
-    public static final AssetType GENERIC = new AssetType(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),
+    public static final AssetType.Specialized<AssetBuilder> GENERIC = new AssetType.Specialized<AssetBuilder>(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),
             "littleware.GENERIC") {};
 
 
     /** HOME asset-type - must be admin to create */
-    public static final AssetType HOME = new AssetType(UUIDFactory.parseUUID("C06CC38C6BD24D48AB5E2D228612C179"),
+    public static final AssetType.Specialized<AssetBuilder> HOME = new AssetType.Specialized<AssetBuilder>(UUIDFactory.parseUUID("C06CC38C6BD24D48AB5E2D228612C179"),
             "littleware.HOME") {
 
 
@@ -189,7 +200,7 @@ public abstract class AssetType extends DynamicEnum<AssetType> {
 
     
     /** LINK assset-type */
-    public static final AssetType LINK = new AssetType(UUIDFactory.parseUUID("926D122F82FE4F28A8F5C790E6733665"),
+    public static final AssetType.Specialized<AssetBuilder> LINK = new AssetType.Specialized<AssetBuilder>(UUIDFactory.parseUUID("926D122F82FE4F28A8F5C790E6733665"),
             "littleware.LINK") {};
 
 
@@ -198,8 +209,8 @@ public abstract class AssetType extends DynamicEnum<AssetType> {
      * distributed exclusion locks.
      * Can setup cron-job to delete old locks out of the repository.
      */
-    public static final AssetType LOCK =
-        new AssetType( UUIDFactory.parseUUID("5C52B28DA10A435B957AD5EF454F01C7"),
+    public static final AssetType.Specialized<AssetBuilder> LOCK =
+        new AssetType.Specialized<AssetBuilder>( UUIDFactory.parseUUID("5C52B28DA10A435B957AD5EF454F01C7"),
                     "littleware.LOCK" ) {
 
         @Override
@@ -210,7 +221,7 @@ public abstract class AssetType extends DynamicEnum<AssetType> {
      * UNKNOWN asset-type - place holder for asset-types that we don't have a handler for.
      * The engine refuses to save/create/update assets with UNKNOWN type.
      */
-    public static final AssetType UNKNOWN = new AssetType(UUIDFactory.parseUUID("EDC97D5F816044E69BFC289F4715BA45"),
+    public static final AssetType.Specialized<AssetBuilder> UNKNOWN = new AssetType.Specialized<AssetBuilder>(UUIDFactory.parseUUID("EDC97D5F816044E69BFC289F4715BA45"),
             "littleware.UNKNOWN") {};
 
 }

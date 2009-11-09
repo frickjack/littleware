@@ -31,13 +31,13 @@ public class DbAssetSaver implements DbWriter<Asset> {
 
     @Override
     public void saveObject(Asset asset) throws SQLException {
-        final EntityManager entMgr = oprovideTrans.get().getEntityManager();
-        final TransactionEntity trans = entMgr.find( TransactionEntity.class, new Integer(1) );
-        trans.setTransaction( trans.getTransaction() + 1 );
-        asset.setTransactionCount( trans.getTransaction() );
+        final JpaLittleTransaction trans = oprovideTrans.get();
+        if ( asset.getTransaction() != trans.getTransaction() ) {
+            throw new IllegalStateException( "Transaction not established" );
+        }
+        final EntityManager entMgr = trans.getEntityManager();
         final AssetEntity entity = AssetEntity.buildEntity(asset);
         entMgr.merge( entity );
-        asset.setDirty(false);
     }
 
 }

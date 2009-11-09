@@ -15,6 +15,7 @@ import java.util.UUID;
 import javax.persistence.*;
 
 import littleware.asset.Asset;
+import littleware.asset.AssetBuilder;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.base.UUIDFactory;
@@ -214,15 +215,6 @@ public class AssetEntity implements Serializable {
         otUpdate = tUpdate;
     }
 
-    @Column(name = "t_last_accessed")
-    @Temporal(TemporalType.TIMESTAMP)
-    public Date getTimeAccessed() {
-        return otAccess;
-    }
-
-    public void setTimeAccessed(Date tAccess) {
-        otAccess = tAccess;
-    }
 
     @Column(name = "t_start")
     @Temporal(TemporalType.TIMESTAMP)
@@ -262,31 +254,29 @@ public class AssetEntity implements Serializable {
     }
 
     public Asset buildAsset() throws AssetException {
-        final Asset aNew = AssetType.getMember(UUIDFactory.parseUUID(getTypeId())).create();
+        final AssetBuilder builder = AssetType.getMember(UUIDFactory.parseUUID(getTypeId())).create();
 
         try {
-            aNew.setObjectId(UUIDFactory.parseUUID(getObjectId()));
-            aNew.setName(getName());
-            aNew.setValue(getValue());
-            aNew.setState(getState());
-            aNew.setData(getData());
-            aNew.setFromId(uuidOrNull(getFromId()));
-            aNew.setToId(uuidOrNull(getToId()));
-            aNew.setAclId(uuidOrNull(getAclId()));
-            aNew.setComment(getComment());
-            aNew.setCreatorId(UUIDFactory.parseUUID(getCreatorId()));
-            aNew.setLastUpdaterId(UUIDFactory.parseUUID(getLastUpdaterId()));
-            aNew.setOwnerId(UUIDFactory.parseUUID(getOwnerId()));
-            aNew.setLastUpdate(getLastChange());
-            aNew.setHomeId(UUIDFactory.parseUUID(getHomeId()));
-            aNew.setCreateDate(getTimeCreated());
-            aNew.setEndDate(getEnd());
-            aNew.setStartDate(getStart());
-            aNew.setLastUpdateDate(getTimeUpdated());
-            aNew.setLastAccessDate(getTimeAccessed());
-            aNew.setTransactionCount(getLastTransaction());
-            aNew.setDirty(false);
-            return aNew;
+            builder.setId(UUIDFactory.parseUUID(getObjectId()));
+            builder.setName(getName());
+            builder.setValue(getValue());
+            builder.setState(getState());
+            builder.setData(getData());
+            builder.setFromId(uuidOrNull(getFromId()));
+            builder.setToId(uuidOrNull(getToId()));
+            builder.setAclId(uuidOrNull(getAclId()));
+            builder.setComment(getComment());
+            builder.setCreatorId(UUIDFactory.parseUUID(getCreatorId()));
+            builder.setLastUpdaterId(UUIDFactory.parseUUID(getLastUpdaterId()));
+            builder.setOwnerId(UUIDFactory.parseUUID(getOwnerId()));
+            builder.setLastUpdate(getLastChange());
+            builder.setHomeId(UUIDFactory.parseUUID(getHomeId()));
+            builder.setCreateDate(getTimeCreated());
+            builder.setEndDate(getEnd());
+            builder.setStartDate(getStart());
+            builder.setLastUpdateDate(getTimeUpdated());
+            builder.setTransaction(getLastTransaction());
+            return builder.build();
         } catch (Exception ex) {
             throw new AssetBuildException("Not enough data to build asset", ex);
         }
@@ -301,7 +291,7 @@ public class AssetEntity implements Serializable {
      */
     public static AssetEntity buildEntity(Asset aImport) {
         final AssetEntity entity = new AssetEntity();
-        entity.setObjectId(UUIDFactory.makeCleanString(aImport.getObjectId()));
+        entity.setObjectId(UUIDFactory.makeCleanString(aImport.getId()));
         entity.setTypeId(UUIDFactory.makeCleanString(aImport.getAssetType().getObjectId()));
         entity.setName(aImport.getName());
         entity.setValue(aImport.getValue());
@@ -320,8 +310,7 @@ public class AssetEntity implements Serializable {
         entity.setEnd(aImport.getEndDate());
         entity.setStart(aImport.getStartDate());
         entity.setTimeUpdated(aImport.getLastUpdateDate());
-        entity.setTimeAccessed(aImport.getLastAccessDate());
-        entity.setLastTransaction(aImport.getTransactionCount());
+        entity.setLastTransaction(aImport.getTransaction());
         return entity;
     }
 }

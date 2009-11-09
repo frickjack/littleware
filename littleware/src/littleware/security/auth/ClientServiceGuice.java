@@ -9,7 +9,6 @@
  */
 package littleware.security.auth;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
 import com.google.inject.Binder;
@@ -36,7 +35,6 @@ import littleware.apps.filebucket.BucketServiceType;
 
 import littleware.apps.filebucket.client.BucketManagerService;
 import littleware.asset.AssetManager;
-import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
@@ -231,7 +229,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 if ( maybeHome.isSet() ) {
                     try {
                         prop_session.setProperty(os_name_key, s_name);
-                        prop_session.setProperty(os_session_key, helper.getSession().getObjectId().toString());
+                        prop_session.setProperty(os_session_key, helper.getSession().getId().toString());
                         PropertiesLoader.get().safelySave(prop_session,
                                 new File(maybeHome.get(), os_propfile));
                     } catch (IOException ex) {

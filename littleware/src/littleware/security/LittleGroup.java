@@ -1,6 +1,7 @@
 package littleware.security;
 
 import com.google.inject.ImplementedBy;
+import java.util.Collection;
 import littleware.asset.AssetBuilder;
 
 /**
@@ -9,10 +10,13 @@ import littleware.asset.AssetBuilder;
  */
 public interface LittleGroup extends LittlePrincipal, java.security.acl.Group {	
 
+    @Override
+    public Builder copy();
+    
     @ImplementedBy(GroupBuilder.class)
     public interface Builder extends AssetBuilder {
         public Builder  add( LittlePrincipal principal );
-        
+        public Builder  addAll( Collection<? extends LittlePrincipal> principalSet );
         @Override
         public LittleGroup build();
     }

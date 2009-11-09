@@ -15,12 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.base.Maybe;
 import littleware.base.UUIDFactory;
@@ -88,7 +86,7 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
                     setParameter("fromId", UUIDFactory.makeCleanString(uFrom)).
                     getResultList();
         } else {
-            final AssetType<? extends Asset> type = maybeType.get();
+            final AssetType type = maybeType.get();
             final AssetTypeEntity typeEnt = entMgr.find(AssetTypeEntity.class, UUIDFactory.makeCleanString(type.getObjectId()));
             vInfo = loadInfo(type.getObjectId());
             for (AssetTypeEntity subtype : typeEnt.getSubtypeList()) {

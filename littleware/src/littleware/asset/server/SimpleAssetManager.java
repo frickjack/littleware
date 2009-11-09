@@ -68,6 +68,11 @@ public class SimpleAssetManager implements AssetManager {
                         @Override
                         protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) {
                         }
+
+                @Override
+                public long getTransaction() {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
                     };
                 }
             };
@@ -314,7 +319,7 @@ public class SimpleAssetManager implements AssetManager {
 
                 boolean b_rollback = true;
                 trans_save.startDbUpdate();
-                
+                builder.setTransaction( trans_save.getTransaction() );
                 try {
                     final Asset assetSave = builder.build();
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver();

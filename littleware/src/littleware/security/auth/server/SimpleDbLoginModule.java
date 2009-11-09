@@ -138,16 +138,16 @@ public class SimpleDbLoginModule implements LoginModule {
         final LittleTransaction trans_login = oprovideTrans.get();
         trans_login.startDbAccess();
         try {
-            final LittleUser user = osearch.getByName(s_user, SecurityAssetType.USER ).get();
+            final LittleUser user = osearch.getByName(s_user, SecurityAssetType.USER ).get().narrow();
             // Ok, user exists - now verify password if necessary
             if (ob_check_password) {
-                DbReader<Boolean, String> sql_check = om_dbauth.makeDbPasswordLoader(user.getObjectId());
+                DbReader<Boolean, String> sql_check = om_dbauth.makeDbPasswordLoader(user.getId());
                 Boolean b_result =
                         sql_check.loadObject(s_password);
 
                 if (b_result.equals(Boolean.FALSE)) {
                     olog_generic.log(Level.WARNING, "Invalid password for user: " +
-                            s_user + " (" + UUIDFactory.makeCleanString(user.getObjectId()) +
+                            s_user + " (" + UUIDFactory.makeCleanString(user.getId()) +
                             ") -> " + s_password);
                     throw new LoginException();
                 }

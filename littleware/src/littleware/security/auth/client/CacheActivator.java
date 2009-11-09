@@ -11,8 +11,6 @@ package littleware.security.auth.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.security.Principal;
 import java.util.Date;
 import java.util.Enumeration;
@@ -29,7 +27,6 @@ import littleware.asset.client.LittleServiceListener;
 import littleware.base.AssertionFailedException;
 import littleware.base.Cache;
 import littleware.base.Cache.Policy;
-import littleware.base.LittleBean;
 import littleware.base.SimpleCache;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
@@ -81,9 +78,6 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
             final Object result = cacheShort.put(key, value);
             if (value instanceof Asset) {
                 final Asset asset = (Asset) value;
-                if ( asset.isDirty() ) {
-                    throw new IllegalArgumentException( "May not cache a dirty asset! " + asset );
-                }
                 if ((null != asset.getLastUpdateDate()) && (((new Date()).getTime() - 432000) > asset.getLastUpdateDate().getTime())) {
                     // not modified in 5 days
                     cacheLong.put(key, value);
@@ -94,7 +88,9 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
                     for (Enumeration<? extends Principal> i = group.members();
                             i.hasMoreElements();) {
                         final LittlePrincipal p = (LittlePrincipal) i.nextElement();
-                        put(p.getObjectId().toString(), p);  // recurse over nexted groups
+                        if ( ! asset.equals( p ) ) {
+                            put(p.getId().toString(), p);  // recurse over nexted groups
+                        }
                     }
                 }
             }
@@ -105,20 +101,10 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
         public Object get(String x_key) {
             Object result = cacheShort.get(x_key);
             if (null != result) {
-                if ((result instanceof Asset) && ((Asset) result).isDirty()) {
-                    cacheShort.remove(x_key);
-                } else {
-                    return result;
-                }
-            }
-            // fall through to long cache
-            result = cacheLong.get(x_key);
-            if ((null != result) && (result instanceof Asset) && ((Asset) result).isDirty()) {
-                cacheLong.remove(x_key);
-                return null;
-            } else {
                 return result;
             }
+            // fall through to long cache
+            return cacheLong.get(x_key);
         }
 
         @Override
@@ -167,8 +153,8 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
         } catch (Exception ex) {
             throw new AssertionFailedException("Failed to retrieve session");
         }
-        olTransaction = session.getTransactionCount();
-        ocache.put(session.getObjectId().toString(), session);
+        olTransaction = session.getTransaction();
+        ocache.put(session.getId().toString(), session);
         ((LittleService) helper).addServiceListener(this);
     }
 
@@ -205,7 +191,7 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
 
     @Override
     public Asset put(Asset asset) {
-        return (Asset) getCache().put(asset.getObjectId().toString(), asset);
+        return (Asset) getCache().put(asset.getId().toString(), asset);
     }
 
     @Override
@@ -217,11 +203,13 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
     public void receiveServiceEvent(LittleServiceEvent eventLittle) {
         if (eventLittle instanceof AssetLoadEvent) {
             final AssetLoadEvent eventLoad = (AssetLoadEvent) eventLittle;
-            if (eventLoad.getAsset().getTransactionCount() > getTransaction()) {
+            if (eventLoad.getAsset().getTransaction() > getTransaction()) {
+                log.log( Level.FINE, "Clearing cache on transaction advance" );
                 getCache().clear();
             }
             put(eventLoad.getAsset());
         } else {
+            log.log( Level.FINE, "Clearing cache on non-load service event" );
             getCache().clear();
         }
     }
@@ -278,11 +266,6 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
 
     @Override
     public Object putLongTerm(String key, Object value) {
-        if ( (null != value) && (value instanceof Asset)
-                && ((Asset)value).isDirty()
-                ) {
-            throw new IllegalArgumentException( "May not cache a dirty asset! " + value );
-        }
         cacheShort.remove(key);
         return cacheLong.put(key, value);
     }

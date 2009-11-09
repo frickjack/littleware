@@ -46,6 +46,14 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
     }
 
     @Override
+    public LittleGroup.Builder  addAll( Collection<? extends LittlePrincipal> principalSet ) {
+        for ( LittlePrincipal principal : principalSet ) {
+            memberBuilder.add(principal);
+        }
+        return this;
+    }
+
+    @Override
     public LittleGroup build() {
        return new GroupAsset( this, memberBuilder.build() );
     }
@@ -109,6 +117,12 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
         @Override
         public boolean removeMember(Principal user) {
             throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public LittleGroup.Builder copy() {
+             final LittleGroup.Builder builder = (Builder) super.copy();
+             return builder.addAll( memberSet );
         }
     }
 

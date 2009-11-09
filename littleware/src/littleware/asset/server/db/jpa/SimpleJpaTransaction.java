@@ -61,6 +61,19 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
         }
     }
 
+    private long transactionCounter = -1L;
+
+    @Override
+    public long getTransaction() {
+        if ( ! isDbUpdating() ) {
+            throw new IllegalStateException( "Update-transaction not initialized" );
+        }
+        if ( transactionCounter < 0 ) {
+            throw new IllegalStateException( "Internal error - invalid transaction counter: " + transactionCounter );
+        }
+        return transactionCounter;
+    }
+
     @Override
     public void startDbUpdate() {
         if ( ! isDbUpdating() ) {
@@ -68,6 +81,9 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
                 oentMgr = oprovideEntMgr.get();
             }
             oentMgr.getTransaction().begin();
+            final TransactionEntity trans = oentMgr.find( TransactionEntity.class, new Integer(1) );
+            transactionCounter = trans.getTransaction() + 1;
+            trans.setTransaction( transactionCounter );
         }
         super.startDbUpdate();
     }
@@ -81,6 +97,7 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
                 oentMgr.getTransaction().commit();
             }
             //oentMgr.flush();
+            transactionCounter = -1L;
             olog.log( Level.FINE, "Transaction complete, rollback: " + b_rollback );
         } else if ( b_rollback ) {
             throw new IllegalStateException( "Nested rollback not supported by this transaction implementation" );

@@ -189,7 +189,12 @@ public class QuotaBuilder extends SimpleAssetBuilder implements Quota.Builder {
 
         @Override
         public int getQuotaLimit() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return limit;
+        }
+
+        @Override
+        public Quota.Builder copy() {
+            return (Builder) super.copy();
         }
     }
 }

@@ -18,7 +18,6 @@ import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.LittleService;
 import littleware.base.*;
 import littleware.base.stat.*;
-import littleware.security.auth.client.SessionHelperService;
 import littleware.security.client.AccountManagerService;
 
 /**
@@ -57,7 +56,7 @@ public class ServiceType<T extends LittleService> extends DynamicEnum<ServiceTyp
      * and getServiceClass.
      */
     public ServiceType(UUID u_id, String s_name, Class<T> class_service ) {
-        super(u_id, s_name, ServiceType.class, new AccessPermission("newtype"));
+        super(u_id, s_name, ServiceType.class );
         oclass_service = class_service;
     }
 

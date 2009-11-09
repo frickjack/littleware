@@ -18,7 +18,7 @@ import littleware.asset.*;
 import littleware.base.UUIDFactory;
 import littleware.base.FactoryException;
 import littleware.base.Maybe;
-import littleware.security.auth.SimpleSession;
+import littleware.security.auth.SimpleSessionBuilder;
 import littleware.security.auth.LittleSession;
 
 /** 
@@ -79,11 +79,11 @@ public abstract class SecurityAssetType extends AssetType {
     }
 
     /** USER asset type - with AccountManager asset specializer */
-    public static final AssetType USER = new UserType();
+    public static final UserType USER = new UserType();
 
     
     /** GROUP asset type - with AccountManager asset specializer */
-    public static final AssetType GROUP = new AssetType(
+    public static final AssetType.Specialized<LittleGroup.Builder> GROUP = new AssetType.Specialized<LittleGroup.Builder>(
             UUIDFactory.parseUUID("FAA894CEC15B49CF8F8EC5C280062776"),
             "littleware.GROUP") {
 
@@ -98,26 +98,20 @@ public abstract class SecurityAssetType extends AssetType {
             return Maybe.something((AssetType) PRINCIPAL);
         }
     };
+
     /** GROUP asset type - with AccountManager asset specializer */
     public static final AssetType GROUP_MEMBER = new AssetType(
             UUIDFactory.parseUUID("BA50260718204D50BAC6AC711CEE1536"),
-            "littleware.GROUP_MEMBER") {
-
-        @Override
-        public Asset create() throws FactoryException {
-            Asset a_result = new SimpleAssetBuilder();
-            a_result.setAssetType(this);
-            return a_result;
-        }
-    };
+            "littleware.GROUP_MEMBER") {};
+            
     /** ACL asset type - with AclManager asset specializer */
-    public static final AssetType<LittleAcl> ACL = new AssetType<LittleAcl>(
+    public static final AssetType.Specialized<LittleAcl.Builder> ACL = new AssetType.Specialized<LittleAcl.Builder>(
             UUIDFactory.parseUUID("04E11B112526462F91152DFFB51D21C9"),
             "littleware.ACL") {
 
         /** Return a LittleAcl implementation */
         @Override
-        public LittleAcl create() throws FactoryException {
+        public LittleAcl.Builder create() {
             return new SimpleACLBuilder();
         }
 
@@ -126,61 +120,55 @@ public abstract class SecurityAssetType extends AssetType {
             return true;
         }
     };
+
     /** ACL_ENTRY asset type  */
-    public static final AssetType<LittleAclEntry> ACL_ENTRY = new AssetType<LittleAclEntry>(
+    public static final AssetType.Specialized<LittleAclEntry.Builder> ACL_ENTRY = new AssetType.Specialized<LittleAclEntry.Builder>(
             UUIDFactory.parseUUID("D23EA8B5A55F4283AEF29DFA50C12C54"),
             "littleware.ACL_ENTRY") {
 
         @Override
-        public LittleAclEntry create() throws FactoryException {
+        public LittleAclEntry.Builder create() {
             return new AclEntryBuilder();
         }
     };
+
     /** SESSION asset type */
-    public static final AssetType<LittleSession> SESSION = new AssetType<LittleSession>(
+    public static final AssetType.Specialized<LittleSession.Builder> SESSION = new AssetType.Specialized<LittleSession.Builder>(
             UUIDFactory.parseUUID("7AC8C92F30C14AD89FA82DB0060E70C2"),
             "littleware.SESSION") {
 
         @Override
-        public LittleSession create() throws FactoryException {
-            LittleSession a_result = new SimpleSession();
-
-            return a_result;
+        public LittleSession.Builder create() {
+            return new SimpleSessionBuilder();
         }
     };
+    
     /** 
      * SERVICE_STUB asset type - with NULL asset specializer 
      * - must be ADMIN to create -regulates access to SessionManager services.
      */
-    public static final AssetType<Asset> SERVICE_STUB = new AssetType<Asset>(
+    public static final AssetType SERVICE_STUB = new AssetType(
             UUIDFactory.parseUUID("6AD504ACBB3A4A2CAB5AECE02D8E6706"),
             "littleware.SERVICE_STUB") {
-
         @Override
-        public Asset create() throws FactoryException {
-            Asset a_result = new SimpleAssetBuilder();
-            a_result.setAssetType(this);
-            return a_result;
-        }
-
-        @Override
-        public boolean mustBeAdminToCreate() {
+        public boolean isAdminToCreate() {
             return true;
         }
     };
+
     /** QUOTA asset type - with AccountManager asset specializer, must be admin group to create */
-    public static final AssetType<Quota> QUOTA = new AssetType<Quota>(
+    public static final AssetType.Specialized<Quota.Builder> QUOTA = new AssetType.Specialized<Quota.Builder>(
             UUIDFactory.parseUUID("0897E6CF8A4C4B128ECABD92FEF793AF"),
             "littleware.QUOTA") {
 
         /** Return a LittleGroup implementation */
         @Override
-        public Quota create() throws FactoryException {
+        public Quota.Builder create() {
             return new QuotaBuilder();
         }
 
         @Override
-        public boolean mustBeAdminToCreate() {
+        public boolean isAdminToCreate() {
             return true;
         }
     };

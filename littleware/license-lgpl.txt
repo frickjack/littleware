@@ -1,0 +1,13 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}Copyright 2009 Reuben Pasquini All rights reserved.
+${licensePrefix}
+${licensePrefix}The contents of this file are subject to the terms of the
+${licensePrefix}Lesser GNU General Public License (LGPL) Version 2.1.
+${licensePrefix}You may not use this file except in compliance with the
+${licensePrefix}License. You can obtain a copy of the License at
+${licensePrefix}http://www.gnu.org/licenses/lgpl-2.1.html.
+<#if licenseLast??>
+${licenseLast}
+</#if>

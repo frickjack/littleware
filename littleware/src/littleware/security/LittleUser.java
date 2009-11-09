@@ -10,6 +10,8 @@
 
 package littleware.security;
 
+import littleware.asset.AssetBuilder;
+
 /**
  * Specialization of LittlePrincipal with a few
  * more user specific methods not available on groups.
@@ -19,7 +21,7 @@ public interface LittleUser extends LittlePrincipal {
     /**
      * Little principal-status class
      */
-    public static enum Status {
+    public enum Status {
         ACTIVE,
         INACTIVE
     }
@@ -27,11 +29,16 @@ public interface LittleUser extends LittlePrincipal {
     /** Maps getValue() to a UserStatus */
     public Status getStatus();
 
-    /** Maps to setValue() */
-    public void setStatus(Status n_status);
+    public interface Builder extends AssetBuilder {
+        @Override
+        LittleUser build();
+        /** Maps to setValue() */
+        public void setStatus(Status status);
 
-    /** Covariant return-type clone */
-    @Override
-    public LittleUser clone();
+        /** Maps getValue() to a UserStatus */
+        public Status getStatus();
+        public Builder status( Status status );
+
+    }
 }
 

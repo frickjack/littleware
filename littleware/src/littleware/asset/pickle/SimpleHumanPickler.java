@@ -99,7 +99,7 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         sb.append(Whatever.NEWLINE).append("AssetBegin: ").append(Whatever.NEWLINE);
         appendProperty(sb, "name", aIn.getName());
         appendProperty(sb, "type", aIn.getAssetType());
-        appendProperty(sb, "id", aIn.getObjectId());
+        appendProperty(sb, "id", aIn.getId());
         appendProperty(sb, "home", aIn.getHomeId());
         appendProperty(sb, "acl", aIn.getAclId());
         appendProperty(sb, "from", aIn.getFromId());
@@ -108,10 +108,10 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         appendProperty(sb, "creator", aIn.getCreatorId());
         appendProperty(sb, "createDate", aIn.getCreateDate());
         appendProperty(sb, "updater", aIn.getLastUpdaterId());
-        appendProperty(sb, "updateDate", aIn.getLastAccessDate());
+        appendProperty(sb, "updateDate", aIn.getLastUpdateDate());
         appendProperty(sb, "startDate", aIn.getStartDate());
         appendProperty(sb, "endDate", aIn.getEndDate());
-        appendProperty(sb, "transaction", Long.toString(aIn.getTransactionCount()));
+        appendProperty(sb, "transaction", Long.toString(aIn.getTransaction()));
         appendProperty( sb, "comment", aIn.getComment() );
         appendProperty( sb, "value", aIn.getValue() );
         // Go ahead and add some special handling of GROUP type assets here.

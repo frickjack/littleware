@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.security;
 
 import java.util.*;
@@ -26,21 +25,25 @@ import littleware.security.auth.LittleSession;
  * AssetType specializer and bucket for littleware.security
  * based AssetTypes.
  */
-public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
+public abstract class SecurityAssetType extends AssetType {
+
     private static final long serialVersionUID = 4444442L;
 
+    protected SecurityAssetType(UUID id, String name) {
+        super(id, name);
+    }
     /** 
      * PRINCIPAL asset type - with AccountManager asset specializer 
      * This asset-type is abstract - just intended for grouping
      * USER and GROUP types together.
      */
-    public static final AssetType<LittlePrincipal> PRINCIPAL = new AssetType<LittlePrincipal>(
+    public static final SecurityAssetType PRINCIPAL = new SecurityAssetType(
             UUIDFactory.parseUUID("A7E11221-5469-49FA-AF1E-8FCC52190F1D"),
             "littleware.PRINCIPAL") {
 
         /** Alwasy throws FactoryException */
         @Override
-        public LittlePrincipal create() throws FactoryException {
+        public AssetBuilder create() {
             throw new FactoryException("PRINCIPAL asset-type is abstract");
         }
 
@@ -50,37 +53,44 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
             return true;
         }
     };
-    /** USER asset type - with AccountManager asset specializer */
-    public static final AssetType<LittleUser> USER = new AssetType<LittleUser>(
-            UUIDFactory.parseUUID("2FAFD5D1074F4BF8A4F01753DBFF4CD5"),
-            "littleware.USER") {
 
+    public static class UserType extends SecurityAssetType {
 
-        /** Get a LittleUser implementation */
-        @Override
-        public LittleUser create() throws FactoryException {
-            return new SimpleUser();
+        private UserType() {
+            super(UUIDFactory.parseUUID("2FAFD5D1074F4BF8A4F01753DBFF4CD5"),
+                    "littleware.USER");
         }
 
         @Override
-        public boolean mustBeAdminToCreate() {
+        public boolean isAdminToCreate() {
             return true;
         }
 
         @Override
         public Maybe<AssetType> getSuperType() {
-            return Maybe.something( (AssetType) PRINCIPAL );
+            return Maybe.something((AssetType) PRINCIPAL);
         }
-    };
+
+
+        @Override
+        public LittleUser.Builder create() {
+            return new SimpleUserBuilder();
+        }
+    }
+
+    /** USER asset type - with AccountManager asset specializer */
+    public static final AssetType USER = new UserType();
+
+    
     /** GROUP asset type - with AccountManager asset specializer */
-    public static final AssetType<LittleGroup> GROUP = new AssetType<LittleGroup>(
+    public static final AssetType GROUP = new AssetType(
             UUIDFactory.parseUUID("FAA894CEC15B49CF8F8EC5C280062776"),
             "littleware.GROUP") {
 
         /** Return a LittleGroup implementation */
         @Override
-        public LittleGroup create() throws FactoryException {
-            return new SimpleGroup();
+        public LittleGroup.Builder create() throws FactoryException {
+            return new GroupBuilder();
         }
 
         @Override
@@ -89,13 +99,13 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
         }
     };
     /** GROUP asset type - with AccountManager asset specializer */
-    public static final AssetType<Asset> GROUP_MEMBER = new AssetType<Asset>(
+    public static final AssetType GROUP_MEMBER = new AssetType(
             UUIDFactory.parseUUID("BA50260718204D50BAC6AC711CEE1536"),
             "littleware.GROUP_MEMBER") {
 
         @Override
         public Asset create() throws FactoryException {
-            Asset a_result = new SimpleAsset();
+            Asset a_result = new SimpleAssetBuilder();
             a_result.setAssetType(this);
             return a_result;
         }
@@ -108,7 +118,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
         /** Return a LittleAcl implementation */
         @Override
         public LittleAcl create() throws FactoryException {
-            return new SimpleAccessList();
+            return new SimpleACLBuilder();
         }
 
         @Override
@@ -123,7 +133,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
 
         @Override
         public LittleAclEntry create() throws FactoryException {
-            return new SimpleAclEntry();
+            return new AclEntryBuilder();
         }
     };
     /** SESSION asset type */
@@ -148,7 +158,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
 
         @Override
         public Asset create() throws FactoryException {
-            Asset a_result = new SimpleAsset();
+            Asset a_result = new SimpleAssetBuilder();
             a_result.setAssetType(this);
             return a_result;
         }
@@ -166,7 +176,7 @@ public abstract class SecurityAssetType<T extends Asset> extends AssetType<T> {
         /** Return a LittleGroup implementation */
         @Override
         public Quota create() throws FactoryException {
-            return new SimpleQuota();
+            return new QuotaBuilder();
         }
 
         @Override

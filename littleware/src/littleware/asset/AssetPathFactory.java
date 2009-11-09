@@ -82,7 +82,7 @@ public interface AssetPathFactory {
     public abstract AssetPath createPath ( String s_root_name,
                                            AssetType n_root_type, 
                                            String s_subroot_path
-                                         ) throws ParseException, InvalidAssetTypeException;
+                                         ) throws ParseException, InvalidAssetTypeException, AssetException;
     
     /**
      * Create an AssetPath rooted at the asset with the given id,

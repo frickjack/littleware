@@ -88,29 +88,32 @@ public class AssetTreeTemplate {
         Maybe<Asset> maybe = Maybe.empty();
 
         if ( null != parent ) {
-            maybe = search.getAssetFrom(parent.getObjectId(), name);
+            maybe = search.getAssetFrom(parent.getId(), name);
         } 
         if ( maybe.isEmpty() && type.isNameUnique() ) {
             maybe = search.getByName(name, type);
         }
         
-        final Asset asset;
+        
         final ImmutableList.Builder<AssetInfo> builder = ImmutableList.builder();
+        final Asset asset;
         if (maybe.isEmpty()) {
+            final AssetBuilder assetBuilder;
             if ( null != parent ) {
-                asset = AssetType.createSubfolder(type, name, parent);
+                assetBuilder = type.create().parent(parent).name( name );
             } else {
-                asset = type.create();
-                asset.setName( name );
+                assetBuilder = type.create();
+                assetBuilder.setName( name );
             }
             if ( type.isA( AssetType.HOME ) ) {
-                asset.setFromId(null);
+                assetBuilder.setFromId(null);
             }
+            asset = assetBuilder.build();
             builder.add( new AssetInfo( asset, false ) );
         } else {
             asset = maybe.get();
             if ( (null != parent)
-                    && (! asset.getFromId().equals( parent.getObjectId() ) )
+                    && (! asset.getFromId().equals( parent.getId() ) )
             ) {
                 throw new IllegalArgumentException ( "Asset already exists under different tree: " +
                         asset.getName() + " (" + asset.getAssetType() + ")"

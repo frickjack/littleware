@@ -15,7 +15,6 @@ import java.rmi.RemoteException;
 
 
 import littleware.base.*;
-import littleware.security.AccessDeniedException;
 
 /**
  * Interface for retrieving assets from various sources -
@@ -95,9 +94,9 @@ public interface AssetRetriever extends java.rmi.Remote {
      * out of the given asset-id of the given type.
      * Caller must have READ-access to the source asset.
      *
-     * @param u_from asset - result&apos;s FROM-asset
-     * @param n_type to limit search to
-     * @param i_state to limit search to
+     * @param fromId asset - result&apos;s FROM-asset
+     * @param type to limit search to
+     * @param stateto limit search to
      * @return mapping from child-name to child-id
      * @exception AccessDeniedException if caller does not have read access
      *                to a_source
@@ -107,21 +106,21 @@ public interface AssetRetriever extends java.rmi.Remote {
      */
     public
     @ReadOnly
-    Map<String, UUID> getAssetIdsFrom(UUID u_from,
-            AssetType<? extends Asset> n_type, int i_state ) throws BaseException, AssetException,
+    Map<String, UUID> getAssetIdsFrom(UUID fromId,
+            AssetType type, int state) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     public
     @ReadOnly
-    Map<String, UUID> getAssetIdsFrom(UUID u_from,
-            AssetType<? extends Asset> n_type) throws BaseException, AssetException,
+    Map<String, UUID> getAssetIdsFrom(UUID fromId,
+            AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 
 
     public
     @ReadOnly
-    Map<String, UUID> getAssetIdsFrom(UUID u_from
+    Map<String, UUID> getAssetIdsFrom(UUID fromId
             ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 

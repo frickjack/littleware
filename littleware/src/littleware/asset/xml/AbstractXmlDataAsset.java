@@ -16,10 +16,10 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import java.io.*;
 
-import littleware.asset.SimpleAsset;
+import littleware.asset.SimpleAssetBuilder;
 import littleware.base.ParseException;
 
-public abstract class AbstractXmlDataAsset extends SimpleAsset implements XmlDataAsset {
+public abstract class AbstractXmlDataAsset extends SimpleAssetBuilder implements XmlDataAsset {
     /**
      * Procedurally generate XML data.
      * 

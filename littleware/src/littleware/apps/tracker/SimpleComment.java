@@ -29,7 +29,7 @@ import littleware.apps.filebucket.*;
 /**
  * Simple implementation of Comment interface.
  */
-public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset {
+public class SimpleComment extends SimpleAssetBuilder implements Comment, XmlDataAsset {
     private static final String  OS_BUCKET_PATH = "comment.txt";
     private String  os_summary = null;
     
@@ -48,14 +48,14 @@ public class SimpleComment extends SimpleAsset implements Comment, XmlDataAsset 
 
     @Override
     public int getMaxSummary() {
-        return SimpleAsset.OI_DATA_LIMIT - 200;
+        return SimpleAssetBuilder.DATA_LIMIT - 200;
     }
 
     @Override
     public void setSummary ( String s_summary ) {
         if ( s_summary.length () > getMaxSummary() ) {
             throw new IllegalArgumentException ( "Summary data exceeds size limit: " +
-                                        (SimpleAsset.OI_DATA_LIMIT - 200)
+                                        (SimpleAssetBuilder.DATA_LIMIT - 200)
                                         );
         }
         os_summary = s_summary;

@@ -56,7 +56,7 @@ public class SimplePermissionCache implements PermissionCache {
             }
             acl = maybe.get().narrow();
             synchronized ( this ) {
-                mapAcl.put( acl.getObjectId(), acl );
+                mapAcl.put( acl.getId(), acl );
             }
         }
         return acl.checkPermission( principal, permission );

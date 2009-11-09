@@ -18,7 +18,7 @@ import littleware.asset.*;
 /**
  * Simple implementation of Queue
  */
-public class SimpleQueue extends SimpleAsset implements Queue {
+public class SimpleQueue extends SimpleAssetBuilder implements Queue {
     private Map<TaskStatus,List<UUID>>  ov_task = null;
     {
         clearQData ();

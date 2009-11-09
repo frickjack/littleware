@@ -27,7 +27,7 @@ import littleware.asset.*;
  * Simple implementation of LittleSession 
  * interface backed by a database entry.
  */
-public class SimpleSession extends SimpleAsset implements LittleSession {	
+public class SimpleSession extends SimpleAssetBuilder implements LittleSession {
 	/** Do-nothing constructor for java.io.Serializable */
 	public SimpleSession () {
 		this.setAssetType ( SecurityAssetType.SESSION );

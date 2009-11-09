@@ -19,13 +19,7 @@ import java.security.Permission;
 
 /**
  * A sort of dynamic-enum that allows 3rd-party plugins
- * to added unique (UUID based) members to the enum at load time.
- * We implement our own Enum pattern, since we want
- * to be able to dynamically add members to the Enum.
- * Our enum's are uniquely identified by UUID, not by
- * integer ordinal - so we don't have to worry about 
- * 2 users in different locations assigning the same ID to
- * 2 different types.
+ * to add unique (UUID based) members to the enum at load time.
  * Subtypes should attempt to maintain themselves as singletons locally,
  * but also tolerate the serialization/deserialization of new instances
  * due to RPC/etc.
@@ -65,19 +59,16 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
         /**
          * Add the given type-object to the typemap if another
          * object hasn't already been registered with the given UUID.
-         *
-         * @param perm_join AccessController permission that the calling code-base must have
-         *              in order to join the c_type enum-set - may be null
          */
-        private synchronized void registerMemberIfNecessary(T n_member, Permission perm_join) {
-            if (!ov_id_map.containsKey(n_member.getObjectId())) {
-                Whatever.check("DynamicEnums have unique names", !ov_name_map.containsKey(n_member.getName()));
-                ov_id_map.put(n_member.getObjectId(), n_member);
-                ov_name_map.put(n_member.getName(), n_member);
+        private synchronized void registerMemberIfNecessary(T member ) {
+            if (!ov_id_map.containsKey(member.getObjectId())) {
+                Whatever.check("DynamicEnums have unique names", !ov_name_map.containsKey(member.getName()));
+                ov_id_map.put(member.getObjectId(), member);
+                ov_name_map.put(member.getName(), member);
             }
         }
     }
-    private static final Map<String, SubtypeData<? extends DynamicEnum>> mv_subtypes = new HashMap<String, SubtypeData<? extends DynamicEnum>>();
+    private static final Map<String, SubtypeData<? extends DynamicEnum>> subtypesByName = new HashMap<String, SubtypeData<? extends DynamicEnum>>();
     private UUID ou_id = null;
     private String os_name = null;
     private Class<T> oc_enumtype = null;
@@ -85,23 +76,20 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Add the given type-object to the global typemap if another
      * object hasn't already been registered with the given UUID.
-     *
-     * @param perm_join AccessController permission that the calling code-base must have
-     *              in order to join the c_type enum-set - may be null
      */
-    private void registerMemberIfNecessary(Class<T> c_class, Permission perm_join) {
+    private void registerMemberIfNecessary(Class<T> c_class) {
         SubtypeData<T> x_data = null;
 
-        synchronized (mv_subtypes) {
-            x_data = (SubtypeData<T>) mv_subtypes.get ( c_class.getName () );
+        synchronized (subtypesByName) {
+            x_data = (SubtypeData<T>) subtypesByName.get ( c_class.getName () );
 
             if (null == x_data) {
                 olog_generic.log(Level.FINE, "Registering new new DynamicEnum type: " + c_class.getName());
                 x_data = new SubtypeData<T>();
-                mv_subtypes.put(c_class.getName(), x_data);
+                subtypesByName.put(c_class.getName(), x_data);
             }
         }
-        x_data.registerMemberIfNecessary((T) this, perm_join);
+        x_data.registerMemberIfNecessary((T) this);
     }
 
     /**
@@ -112,8 +100,8 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     public static <T extends DynamicEnum> T getMember(UUID u_type_id, Class<T> c_class) throws NoSuchThingException {
         SubtypeData<T> x_data = null;
 
-        synchronized (mv_subtypes) {
-            x_data = (SubtypeData<T>) mv_subtypes.get ( c_class.getName () );
+        synchronized (subtypesByName) {
+            x_data = (SubtypeData<T>) subtypesByName.get ( c_class.getName () );
         }
 
         T n_result = null;
@@ -135,8 +123,8 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     public static <T extends DynamicEnum> T getMember(String s_name, Class<T> c_class) throws NoSuchThingException {
         SubtypeData<T> x_data = null;
 
-        synchronized (mv_subtypes) {
-            x_data = (SubtypeData<T>) mv_subtypes.get ( c_class.getName () );
+        synchronized (subtypesByName) {
+            x_data = (SubtypeData<T>) subtypesByName.get ( c_class.getName () );
         }
 
         T n_result = null;
@@ -156,8 +144,8 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     public static <T extends DynamicEnum> Set<T> getMembers(Class<T> c_class) {
         SubtypeData x_data = null;
 
-        synchronized (mv_subtypes) {
-            x_data = mv_subtypes.get(c_class.getName());
+        synchronized (subtypesByName) {
+            x_data = subtypesByName.get(c_class.getName());
         }
         if (null == x_data) {
             return Collections.emptySet();
@@ -174,25 +162,19 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Constructor for subtypes to register a u_id/s_name
      * for the default implementation of getObjectId() and getName().
-     * The perm_join is intended to prevent unauthorized code from
-     * introducing new enum-types (service types, asset types).
      *
      * @param u_id of the new member
      * @param s_name of the new member
      * @param c_type enum-type whose members this object is joining -
      *           this must be an instanceof c_type
-     * @param perm_join AccessController permission that the calling code-base must have
-     *              in order to join the c_type enum-set - may be null -
-     *              Always ignored for now - security issues with appserver class-loader
-     *              and our Class.forName mechanism for registering types.  Ugh!
      */
-    protected DynamicEnum(UUID u_id, String s_name, Class<T> c_type, Permission perm_join) {
+    protected DynamicEnum(UUID u_id, String s_name, Class<T> c_type) {
         ou_id = u_id;
         os_name = s_name;
         oc_enumtype = c_type;
 
         Whatever.check("Only valid subtypes may join a DynamicEnum set", c_type.isInstance(this));
-        registerMemberIfNecessary(oc_enumtype, perm_join);
+        registerMemberIfNecessary(oc_enumtype);
     }
 
     /**
@@ -252,7 +234,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      */
     public Object readResolve() throws ObjectStreamException {
         try {
-            registerMemberIfNecessary(oc_enumtype, null);
+            registerMemberIfNecessary(oc_enumtype);
             return getMember(this.getObjectId(), oc_enumtype);
         } catch (NoSuchThingException e) {
             olog_generic.log(Level.WARNING, "Deserialization of asset-type: " + this + ", caught unexpected: " + e);

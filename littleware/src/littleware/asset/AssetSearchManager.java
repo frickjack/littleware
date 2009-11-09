@@ -40,7 +40,7 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      * @exception InavlidAssetTypeException if n_type is not name-unique
      */
     @ReadOnly
-    public <T extends Asset> Maybe<T> getByName(String s_name, AssetType<T> n_type) throws BaseException, AssetException,
+    public  Maybe<Asset> getByName(String name, AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 
@@ -103,7 +103,7 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      */
     public 
     @ReadOnly
-    Map<UUID, Long> checkTransactionCount( Map<UUID, Long> v_check) throws BaseException, RemoteException;
+    Map<UUID, Long> checkTransactionCount( Map<UUID, Long> checkMap ) throws BaseException, RemoteException;
 
 
     /**
@@ -131,8 +131,8 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      */
     public 
     @ReadOnly
-    Set<UUID> getAssetIdsTo( UUID u_to,
-             AssetType<? extends Asset> n_type) throws BaseException, AssetException,
+    Set<UUID> getAssetIdsTo( UUID toId,
+             AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 }
 

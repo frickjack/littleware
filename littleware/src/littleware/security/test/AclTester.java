@@ -108,14 +108,14 @@ public class AclTester extends TestCase {
                         x_perm.equals(new BogusAclPermission(5)));
 
                 UUID u_id = factory_uuid.create();
-                Principal p_test = new SimpleUser("10", u_id, "whatever");
+                Principal p_test = new SimpleUserBuilder("10", u_id, "whatever");
                 assertTrue("SimplePrincipal recognizes equality between instances",
-                        p_test.equals(new SimpleUser("10", u_id, "whatever")));
+                        p_test.equals(new SimpleUserBuilder("10", u_id, "whatever")));
             }
 
             // Generate AclEntries for a bunch of principal's
             for (int i = 10; i < 20; ++i) {
-                Principal p_test = new SimpleUser(Integer.toString(i),
+                Principal p_test = new SimpleUserBuilder(Integer.toString(i),
                         factory_uuid.create(), "no comment");
                 Set v_check = new HashSet();
 
@@ -150,7 +150,7 @@ public class AclTester extends TestCase {
             }
             // Ok, let's test a few ops
             for (int i = 10; i < 20; ++i) {
-                Principal p_test = new SimpleUser(Integer.toString(i),
+                Principal p_test = new SimpleUserBuilder(Integer.toString(i),
                         factory_uuid.create(), "no comment");
                 // Assign a couple permissions to the entry
                 for (int j = 0; j < 5; ++j) {

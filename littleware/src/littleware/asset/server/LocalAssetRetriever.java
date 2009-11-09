@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.security.GeneralSecurityException;
-import java.security.acl.*;
 
 import littleware.asset.*;
 import littleware.base.*;
@@ -80,9 +79,8 @@ public class LocalAssetRetriever implements AssetRetriever {
             }
 
             // Specialize the asset
-            littleware.base.Whatever.check("Got a valid id", a_result.getObjectId() != null);
+            littleware.base.Whatever.check("Got a valid id", a_result.getId() != null);
             final Asset aSecure = secureAndSpecialize(a_result);
-            aSecure.setDirty( false );
             return Maybe.something( aSecure );
         } finally {
             trans.endDbAccess(v_cycle_cache);
@@ -138,7 +136,7 @@ public class LocalAssetRetriever implements AssetRetriever {
                 throw new AccessDeniedException("Unauthenticated caller");
             }
 
-            if ( p_caller.getObjectId().equals( a_result.getOwnerId() )
+            if ( p_caller.getId().equals( a_result.getOwnerId() )
                     || ocachePermission.isAdmin( p_caller, this) ) {
                 // Owner can read his own freakin' asset
                 return a_result;
@@ -146,7 +144,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             // Need to check ACL
             if ( ! ocachePermission.checkPermission(p_caller, LittlePermission.READ, this, a_result.getAclId() ) ) {
                 throw new AccessDeniedException("Caller " + p_caller.getName() + " does not have permission to access asset " +
-                        a_result.getName() + "(" + a_result.getObjectId() + ")"
+                        a_result.getName() + "(" + a_result.getId() + ")"
                         );
             }
 
@@ -232,7 +230,7 @@ public class LocalAssetRetriever implements AssetRetriever {
 
     @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_source,
-            AssetType<? extends Asset> n_type) throws BaseException, AssetException,
+            AssetType n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         final LittleTransaction trans = oprovideTrans.get();
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
@@ -250,7 +248,7 @@ public class LocalAssetRetriever implements AssetRetriever {
 
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final LittleTransaction trans = oprovideTrans.get();
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 

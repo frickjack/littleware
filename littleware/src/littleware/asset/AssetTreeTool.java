@@ -14,8 +14,8 @@ import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.UUID;
-import littleware.apps.client.Feedback;
 import littleware.base.BaseException;
+import littleware.base.Feedback;
 import littleware.base.TooMuchDataException;
 
 /**

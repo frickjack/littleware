@@ -11,6 +11,7 @@ package littleware.security;
 
 import com.google.common.collect.ImmutableSet;
 
+import com.google.common.collect.Sets;
 import java.security.Principal;
 import java.util.*;
 
@@ -44,6 +45,17 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
         memberBuilder.add(principal);
         return this;
     }
+
+    @Override
+    public LittleGroup.Builder  remove( LittlePrincipal principal ) {
+        final ImmutableSet.Builder<LittlePrincipal> builder = ImmutableSet.builder();
+        builder.addAll(
+                Sets.difference(memberBuilder.build(), Collections.singleton(principal))
+                );
+        memberBuilder = builder;
+        return this;
+    }
+
 
     @Override
     public LittleGroup.Builder  addAll( Collection<? extends LittlePrincipal> principalSet ) {

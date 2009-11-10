@@ -20,7 +20,6 @@ import java.util.logging.Level;
 
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
 import littleware.security.*;
 import littleware.security.auth.*;
 import littleware.base.BaseException;
@@ -76,17 +75,16 @@ public class AccountManagerTester extends LittleTest {
      */
     public void testGetPrincipals() {
         try {
-            final LittleUser userAdmin = osearch.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get();
+            final LittleUser userAdmin = osearch.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow();
             final LittleGroup groupAdmin = osearch.getByName(
                     AccountManager.LITTLEWARE_ADMIN_GROUP,
-                    SecurityAssetType.GROUP
-                    ).get();
+                    SecurityAssetType.GROUP).get().narrow();
 
             for (Enumeration<? extends Principal> enum_x = groupAdmin.members();
                     enum_x.hasMoreElements();) {
                 LittlePrincipal p_member = (LittlePrincipal) enum_x.nextElement();
                 olog_generic.log(Level.INFO, "Got admin group member: " + p_member.getName() +
-                        " (" + p_member.getObjectId() + ")");
+                        " (" + p_member.getId() + ")");
             }
             assertTrue("administrator should be member of admin group",
                     groupAdmin.isMember(userAdmin));
@@ -125,8 +123,8 @@ public class AccountManagerTester extends LittleTest {
             } finally {
                 om_account.updateUser(p_user, ServerTestLauncher.OS_TEST_USER_PASSWORD, "restore password");
             }
-            final Principal x_user = osearch.getByName(ServerTestLauncher.OS_TEST_USER, SecurityAssetType.PRINCIPAL ).get();
-            final Principal x_tmp = osearch.getByName("group." + ServerTestLauncher.OS_TEST_USER, SecurityAssetType.PRINCIPAL ).get();
+            final LittlePrincipal x_user = osearch.getByName(ServerTestLauncher.OS_TEST_USER, SecurityAssetType.PRINCIPAL).get().narrow();
+            final LittlePrincipal x_tmp = osearch.getByName("group." + ServerTestLauncher.OS_TEST_USER, SecurityAssetType.PRINCIPAL).get().narrow();
 
         } catch (Exception e) {
             olog_generic.log(Level.WARNING, "Caught unexpected: " + e +
@@ -152,9 +150,8 @@ public class AccountManagerTester extends LittleTest {
                     " -> " + a_quota_after.getQuotaCount(),
                     a_quota_before.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
             // Verify get/setData parsing
-            String s_data = a_quota_after.getData();
-            a_quota_after.setData(a_quota_after.getData());
-            assertTrue("get/setData consistency", s_data.equals(a_quota_after.getData()));
+            assertTrue("get/setData consistency",
+                    a_quota_after.getData().equals(a_quota_after.copy().data(a_quota_after.getData()).build().getData()));
         } catch (Exception e) {
             olog_generic.log(Level.WARNING, "Caught unexpected: " + e +
                     ", " + BaseException.getStackTrace(e));
@@ -170,32 +167,23 @@ public class AccountManagerTester extends LittleTest {
         try {
             final String name = "group.littleware.test_user";
             final LittleUser caller = om_account.getAuthenticatedUser();
-            LittleGroup groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).getOr(null);
-            if ( null == groupTest ) {
-                groupTest = AssetType.createSubfolder( SecurityAssetType.GROUP, name, getTestHome(osearch) );
-                groupTest.addMember(caller);
-                groupTest = om_asset.saveAsset(groupTest, "setup test group" );
+            LittleGroup groupTest = (LittleGroup) osearch.getByName(name, SecurityAssetType.GROUP).getOr(null);
+            if (null == groupTest) {
+                groupTest = om_asset.saveAsset(
+                        SecurityAssetType.GROUP.create().add(caller).name(name).parent(getTestHome(osearch)).
+                        build(), "setup test group").narrow();
             }
-            
-
-            if (groupTest.removeMember(caller)) {
-                groupTest = om_asset.saveAsset(groupTest, "Removed tester " + caller.getName());
+            if ( ! groupTest.isMember( caller ) ) {
+                groupTest = om_asset.saveAsset(groupTest.copy().add(caller).build(), "Removed tester " + caller.getName());
             }
-            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
-            assertTrue("Already removed caller as primary member of group",
-                    !groupTest.removeMember(caller));
-            assertTrue("Added caller to test group: " + caller.getName(),
-                    groupTest.addMember(caller));
-            groupTest = om_asset.saveAsset(groupTest, "Added tester " + caller.getName());
-
-            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
-            assertTrue("Able to remove caller " + caller.getName() + " from test group",
-                    groupTest.removeMember(caller));
-            groupTest = om_asset.saveAsset(groupTest, "Removed tester " + caller.getName());
-
-            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
-            assertTrue("Already removed caller as primary member of group 2nd time",
-                    !groupTest.removeMember(caller));
+            assertTrue( caller.getName() + " is member of " + groupTest.getName(),
+                    groupTest.isMember( caller )
+                    );
+            groupTest = om_asset.saveAsset(groupTest.copy().remove(caller).build(), "Removed tester " + caller.getName());
+            groupTest = osearch.getByName(name, SecurityAssetType.GROUP).get().narrow();
+            assertTrue( caller.getName() + " is not a member of " + groupTest.getName(),
+                    !groupTest.isMember(caller)
+                    );
         } catch (Exception e) {
             olog_generic.log(Level.INFO, "Caught: " + e + ", " + BaseException.getStackTrace(e));
             assertTrue("Should not have caught: " + e, false);

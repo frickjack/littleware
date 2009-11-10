@@ -236,14 +236,22 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
         public boolean removeEntry(Principal caller, AclEntry entry) throws NotOwnerException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
+
+        @Override
+        public Builder copy() {
+            return (Builder) super.copy();
+        }
     }
 
-    final ImmutableSet.Builder<LittleAclEntry>  entryListBuilder = ImmutableSet.builder();
+    final ImmutableSet.Builder<LittleAclEntry>  entrySetBuilder = ImmutableSet.builder();
 
 
     @Override
     public boolean addEntry(LittleAclEntry entry) {
-        entryListBuilder.add(entry);
+        if ( ! entry.getFromId().equals( getId() ) ) {
+            throw new IllegalArgumentException( "Entry does not link from new ACL" );
+        }
+        entrySetBuilder.add(entry);
         return true;
     }
 
@@ -256,7 +264,7 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
         for( final Enumeration<AclEntry> it = acl.entries();
              it.hasMoreElements();
         ) {
-            entryListBuilder.add( (LittleAclEntry) it.nextElement() );
+            entrySetBuilder.add( (LittleAclEntry) it.nextElement() );
         }
         return this;
     }

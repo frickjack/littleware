@@ -24,6 +24,8 @@ public interface LittleAclEntry extends AclEntry, Asset {
      */
     @Override
     public LittlePrincipal getPrincipal ();
+    @Override
+    public Builder copy();
 
     @ImplementedBy(AclEntryBuilder.class)
     public interface Builder extends AssetBuilder {

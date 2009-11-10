@@ -739,7 +739,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public AssetBuilder parent(Asset parent) {
-        return fromId(parent.getId()).homeId(parent.getHomeId()).aclId(parent.getAclId());
+        fromId(parent.getId()).homeId(parent.getHomeId()).aclId(parent.getAclId());
+        if ( parent.getAssetType().equals( AssetType.HOME ) ) {
+            homeId( parent.getId() );
+        }
+        return this;
     }
 }
 

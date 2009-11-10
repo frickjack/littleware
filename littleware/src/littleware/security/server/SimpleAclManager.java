@@ -27,9 +27,9 @@ import littleware.security.*;
  */
 public class SimpleAclManager extends NullAssetSpecializer implements AclSpecializer {
 
-    private static final Logger olog = Logger.getLogger(SimpleAclManager.class.getName());
-    private final AssetManager om_asset;
-    private final AssetSearchManager om_searcher;
+    private static final Logger log = Logger.getLogger(SimpleAclManager.class.getName());
+    private final AssetManager assetMgr;
+    private final AssetSearchManager search;
 
     /**
      * Constructor injects dependencies
@@ -41,75 +41,57 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     @Inject
     public SimpleAclManager(AssetManager m_asset,
             AssetSearchManager m_searcher) {
-        om_asset = m_asset;
-        om_searcher = m_searcher;
+        assetMgr = m_asset;
+        search = m_searcher;
     }
 
     /**
      * Specialize ACL type assets
      */
     @Override
-    public <T extends Asset> T narrow(T a_in, AssetRetriever m_retriever) throws BaseException, AssetException,
+    public <T extends Asset> T narrow(T a_in, AssetRetriever retriever) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        LittleAcl acl_in = a_in.narrow(LittleAcl.class);
+        final LittleAcl.Builder aclBuilder = a_in.narrow(LittleAcl.class).copy();
 
-        acl_in.clearEntries();  // clear cloned entry list and rebuild
-        final Map<String, UUID> v_links = m_retriever.getAssetIdsFrom(acl_in.getObjectId(),
+        final Map<String, UUID> linkMap = retriever.getAssetIdsFrom(aclBuilder.getId(),
                 SecurityAssetType.ACL_ENTRY);
 
-        final List<Asset> v_link_assets = m_retriever.getAssets(v_links.values());
+        final List<Asset> lineAssets = retriever.getAssets(linkMap.values());
 
-        for (Asset a_link : v_link_assets) {
-            final UUID u_principal = a_link.getToId();
-            final LittleAclEntry acl_entry = a_link.narrow();
+        for (Asset link : lineAssets) {
+            final UUID principalId = link.getToId();
+            final LittlePrincipal entry = retriever.getAsset(principalId).get().narrow(LittlePrincipal.class);
+            final LittleAclEntry aclEntry = link.narrow( LittleAclEntry.class ).copy().principal( entry ).build();
 
-            final LittlePrincipal p_entry = m_retriever.getAsset(u_principal).get().narrow(LittlePrincipal.class);
-            acl_entry.setPrincipal(p_entry);
-
-            acl_in.addEntry(acl_entry);
-            olog.log(Level.FINE, "Just added entry for " + acl_entry.getName() +
-                    " (negative: " + acl_entry.isNegative() +
-                    ") to ACL " + acl_in.getName());
+            aclBuilder.addEntry(aclEntry);
+            log.log(Level.FINE, "Just added entry for " + aclEntry.getName() +
+                    " (negative: " + aclEntry.isNegative() +
+                    ") to ACL " + aclBuilder.getName());
 
         }
-        return a_in;
+        return (T) aclBuilder.build();
     }
 
-    /**
-     * Add an ACL-entry link to the repository
-     *
-     * @param acl_in to add to
-     * @param p_add principal to add to ACL
-     * @param perm_add permission to associate with the principal
-     * @param b_positive set true for positive permission, false for negative permission
-     * @param m_asset to save the new asset with
-     */
-    private LittleAclEntry addEntryToAcl(LittleAcl acl_in, LittleAclEntry acl_entry,
-            AssetManager m_asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        acl_entry.setName(acl_entry.getPrincipal().getName() + "." + (acl_entry.isNegative() ? "negative" : "positive"));
-        acl_entry.setFromId(acl_in.getObjectId());
-        acl_entry.setOwnerId(acl_in.getOwnerId());
-        acl_entry.setAclId(acl_in.getAclId());
-        acl_entry.setHomeId(acl_in.getHomeId());
-        acl_entry = m_asset.saveAsset(acl_entry, "ACL entry tracker");
-        return acl_entry;
-    }
 
     /**
      * Save a new ACL entries into the repository
      */
     @Override
-    public void postCreateCallback(Asset a_new, AssetManager m_asset) throws BaseException, AssetException,
+    public void postCreateCallback(Asset asset, AssetManager saver) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        if (SecurityAssetType.ACL.equals(a_new.getAssetType())) {
-            LittleAcl acl_new = a_new.narrow();
+        if (SecurityAssetType.ACL.equals(asset.getAssetType())) {
+            final LittleAcl acl = asset.narrow( LittleAcl.class );
 
-            for (Enumeration<AclEntry> v_entries = acl_new.entries();
-                    v_entries.hasMoreElements();) {
-                LittleAclEntry acl_entry = (LittleAclEntry) v_entries.nextElement();
-
-                addEntryToAcl(acl_new, acl_entry, m_asset);
+            for (Enumeration<AclEntry> entries = ((LittleAcl) asset).entries();
+                    entries.hasMoreElements();) {
+                final LittleAclEntry startEntry = (LittleAclEntry) entries.nextElement();
+                final LittlePrincipal principal = search.getAsset( startEntry.getToId() ).get().narrow();
+                final LittleAclEntry.Builder entryBuilder = (LittleAclEntry.Builder) startEntry.copy().
+                        principal( principal ).
+                        name( principal.getName() + "." + (startEntry.isNegative() ? "negative" : "positive")).
+                        parent( asset ).
+                        ownerId(acl.getOwnerId());
+                 assetMgr.saveAsset(entryBuilder.build(), "ACL entry tracker");
             }
         }
     }
@@ -124,15 +106,15 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
                     v_entries.hasMoreElements();) {
                 LittleAclEntry acl_entry = (LittleAclEntry) v_entries.nextElement();
 
-                if (null != acl_entry.getObjectId()) {
-                    v_now_entries.add(acl_entry.getObjectId());
+                if (null != acl_entry.getId()) {
+                    v_now_entries.add(acl_entry.getId());
                 }
             }
             for (Enumeration<AclEntry> v_entries = ((LittleAcl) a_pre_update).entries();
                     v_entries.hasMoreElements();) {
                 LittleAclEntry acl_entry = (LittleAclEntry) v_entries.nextElement();
-                if (!v_now_entries.contains(acl_entry.getObjectId())) {
-                    m_asset.deleteAsset(acl_entry.getObjectId(), "ACL update remove entry");
+                if (!v_now_entries.contains(acl_entry.getId())) {
+                    m_asset.deleteAsset(acl_entry.getId(), "ACL update remove entry");
                 }
             }
             postCreateCallback(a_now, m_asset);
@@ -146,8 +128,8 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
             // Delete all the ACL_ENTRY assets off this thing
             for (Enumeration<AclEntry> v_entries = ((LittleAcl) a_deleted).entries();
                     v_entries.hasMoreElements();) {
-                LittleAclEntry a_cleanup = (LittleAclEntry) v_entries.nextElement();
-                m_asset.deleteAsset(a_cleanup.getObjectId(), "Cleanup after ACL delete");
+                final LittleAclEntry a_cleanup = (LittleAclEntry) v_entries.nextElement();
+                m_asset.deleteAsset(a_cleanup.getId(), "Cleanup after ACL delete");
             }
         }
     }

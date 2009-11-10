@@ -48,7 +48,6 @@ public class SimpleAssetManager implements AssetManager {
 
     private static final Logger log = Logger.getLogger(SimpleAssetManager.class.getName());
     private final DbAssetManager dbMgr;
-    private final CacheManager cache;
     private final AssetSearchManager search;
     private final Factory<UUID> uuidFactory = UUIDFactory.getFactory();
     private final QuotaUtil quotaUtil;
@@ -93,7 +92,6 @@ public class SimpleAssetManager implements AssetManager {
      */
     @Inject
     public SimpleAssetManager(
-            CacheManager m_cache,
             AssetSearchManager m_search,
             DbAssetManager m_db,
             QuotaUtil quota,
@@ -101,7 +99,6 @@ public class SimpleAssetManager implements AssetManager {
             Provider<LittleTransaction> provideTrans,
             littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB,
             PermissionCache cachePermission) {
-        cache = m_cache;
         search = m_search;
         dbMgr = m_db;
         quotaUtil = quota;
@@ -151,7 +148,6 @@ public class SimpleAssetManager implements AssetManager {
                 DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter();
                 sql_writer.saveObject(asset);
 
-                cache.remove(asset.getId());
                 specialRegistry.getService(asset.getAssetType()).postDeleteCallback(asset, this);
                 b_rollback = false;
                 trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
@@ -324,7 +320,6 @@ public class SimpleAssetManager implements AssetManager {
                     final Asset assetSave = builder.build();
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver();
                     sql_writer.saveObject(assetSave);
-                    cache.put(assetSave.getId(), assetSave);
 
                     v_save_cycle.put(assetSave.getId(), assetSave);
                     v_cache.put(assetSave.getId(), assetSave);
@@ -341,7 +336,7 @@ public class SimpleAssetManager implements AssetManager {
                     }
 
                     b_rollback = false;
-                    return (T) assetSave;
+                    return search.getAsset( assetSave.getId() ).get().narrow();
                 } finally {
                     trans_save.endDbUpdate(b_rollback);
                 }

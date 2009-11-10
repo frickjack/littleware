@@ -126,6 +126,32 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
             return "SimpleAclEntry( Principal: " + principal + ", permissions: " + permissionSet + ")";
         }
 
+        @Override
+        public boolean equals( Object other ) {
+            if ( (null == other)
+                    || ! (other instanceof LittleAclEntry) ) {
+                return false;
+            }
+            final LittleAclEntry entry = (LittleAclEntry) other;
+            return super.equals( entry )
+                || ( Whatever.equalsSafe(entry.getFromId(), getFromId() )
+                    && Whatever.equalsSafe( entry.getToId(), getToId() )
+                    && entry.isNegative() == isNegative()
+                    );
+        }
+
+
+
+        @Override
+        public int hashCode() {
+            int hash = 7 + super.hashCode();
+            hash = 47 * hash + (this.getFromId() != null ? this.getFromId().hashCode() : 0);
+            hash = 47 * hash + (this.getToId() != null ? this.getToId().hashCode() : 0);
+            hash = 47 * hash + (isNegative() ? 1 : 0);
+            return hash;
+        }
+
+
     }
 
     /** Do nothing default constructor */

@@ -58,7 +58,7 @@ public class DbAssetManagerTester extends LittleTest {
             Asset a_result = db_reader.loadObject(ouTestHome);
             assertTrue("Asset is of proper type",
                     a_result.getAssetType().equals(AssetType.HOME));
-            assertTrue("Asset has right id", a_result.getObjectId().equals(ouTestHome));
+            assertTrue("Asset has right id", a_result.getId().equals(ouTestHome));
             // Verify that looking up a non-existent thing does not throw an exceptioon
             final UUID uTest = UUIDFactory.getFactory().create();
             a_result = db_reader.loadObject(uTest);
@@ -91,21 +91,19 @@ public class DbAssetManagerTester extends LittleTest {
                 final DbWriter<Asset> dbDelete = omgrDb.makeDbAssetDeleter();
                 dbDelete.saveObject(aTest);
             }
-            aTest = AssetType.createSubfolder(AssetType.GENERIC, "DbAssetTester", aHome);
-            aTest.setObjectId(ouTestCreate);
-            aTest.setCreatorId(aHome.getCreatorId());
-            aTest.setOwnerId(aHome.getOwnerId());
-            aTest.setLastUpdaterId(aHome.getCreatorId());
-            aTest.setComment("Just a test");
-            aTest.setLastUpdate("Testing asset setup");
+            final AssetBuilder assetBuilder = AssetType.GENERIC.create().name( "DbAssetTester" ).parent( aHome).
+                    id(ouTestHome).
+                    comment("Just a test").
+                    lastUpdate("Testing asset setup").
+                    creatorId( aHome.getCreatorId() ).
+                    lastUpdaterId( aHome.getCreatorId() ).
+                    ownerId( aHome.getOwnerId() ).transaction(1);
             final DbWriter<Asset> dbSaver = omgrDb.makeDbAssetSaver();
+            final Asset testSave = assetBuilder.build();
+            final long lNewTransaction = aTest.getTransaction();
             dbSaver.saveObject(aTest);
-            final long lNewTransaction = aTest.getTransactionCount();
-            dbSaver.saveObject(aTest);
-            assertTrue("Transaction progress on save",
-                    aTest.getTransactionCount() > lNewTransaction);
-            aTest = omgrDb.makeDbAssetLoader().loadObject(aTest.getObjectId());
-            assertTrue("From preserved on load", aTest.getFromId().equals(aHome.getObjectId()));
+            aTest = omgrDb.makeDbAssetLoader().loadObject(testSave.getId());
+            assertTrue("From preserved on load", testSave.getFromId().equals(aHome.getId()));
             // Test from-loader
             final Map<String, UUID> mapChildren = omgrDb.makeDbAssetIdsFromLoader(ouTestHome, Maybe.something((AssetType) AssetType.GENERIC), Maybe.empty(Integer.class)).loadObject("");
             assertTrue("Able to load children: " + mapChildren.size(),

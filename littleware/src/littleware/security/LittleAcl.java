@@ -36,13 +36,6 @@ public interface LittleAcl extends Acl, Asset {
     public boolean isOwner(Principal p_owner);
 
     /**
-     * Throws UnsupportedOperationException - do getOwner(...)... instead
-     */
-    @Override
-    public boolean deleteOwner(Principal p_caller, Principal p_owner);
-
-
-    /**
      * Little utility - get the entry associated with the given Principal,
      * or return null if no entry registered.
      *
@@ -52,6 +45,9 @@ public interface LittleAcl extends Acl, Asset {
      */
     public Maybe<LittleAclEntry> getEntry(Principal entry, boolean isNegative );
 
+    @Override
+    public Builder copy();
+    
     @ImplementedBy(SimpleACLBuilder.class)
     public interface Builder extends AssetBuilder {
 

@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import littleware.apps.filebucket.server.DeleteCBProvider;
+//import littleware.apps.filebucket.server.DeleteCBProvider;
 import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.*;
@@ -75,7 +75,7 @@ public class SimpleAssetManager implements AssetManager {
                     };
                 }
             };
-    private final DeleteCBProvider provideBucketCB;
+    //private final DeleteCBProvider provideBucketCB;
     private final PermissionCache permissionCache;
 
     /**
@@ -97,14 +97,14 @@ public class SimpleAssetManager implements AssetManager {
             QuotaUtil quota,
             AssetSpecializerRegistry registry_special,
             Provider<LittleTransaction> provideTrans,
-            littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB,
+            //littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB,
             PermissionCache cachePermission) {
         search = m_search;
         dbMgr = m_db;
         quotaUtil = quota;
         specialRegistry = registry_special;
         this.provideTrans = provideTrans;
-        this.provideBucketCB = provideBucketCB;
+        //this.provideBucketCB = provideBucketCB;
         this.permissionCache = cachePermission;
     }
 
@@ -150,7 +150,7 @@ public class SimpleAssetManager implements AssetManager {
 
                 specialRegistry.getService(asset.getAssetType()).postDeleteCallback(asset, this);
                 b_rollback = false;
-                trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
+                //trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
                 final AssetType type = builder.getAssetType();
                 if (type.isA(SecurityAssetType.ACL) || type.isA(SecurityAssetType.ACL_ENTRY) || type.isA(SecurityAssetType.GROUP) || type.isA(SecurityAssetType.GROUP_MEMBER)) {
                     permissionCache.clear();

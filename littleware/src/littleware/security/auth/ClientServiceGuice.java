@@ -30,10 +30,6 @@ import javax.security.auth.login.LoginException;
 
 // pull in these services -- ugh
 import javax.swing.SwingUtilities;
-import littleware.apps.filebucket.BucketManager;
-import littleware.apps.filebucket.BucketServiceType;
-
-import littleware.apps.filebucket.client.BucketManagerService;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetSearchManager;
@@ -299,17 +295,12 @@ public class ClientServiceGuice implements LittleGuiceModule {
             }
         }
 
-        // Try to force BucketManager service-type registration
-        // Need to move over to OSGi based client-side bootstrap.  Ugh.
-        ServiceType<BucketManagerService> servBucket = BucketServiceType.BUCKET_MANAGER;
-
         for (ServiceType<? extends LittleService> service : ServiceType.getMembers()) {
             olog.log(Level.FINE, "Binding service provider: " + service);
             bind(binder, service, ohelper);
         }
 
         // Frick - need to bind core interfaces here explicitly
-        binder.bind(BucketManager.class).to(BucketManagerService.class);
         binder.bind(AssetSearchManager.class).to(AssetSearchService.class);
         binder.bind(AccountManager.class).to(AccountManagerService.class);
         binder.bind(AssetManager.class).to(AssetManagerService.class);

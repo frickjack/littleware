@@ -52,13 +52,7 @@ public class PackageTestSuite extends TestSuite {
         boolean b_run = true;
 
         if (b_run) {
-            try {
-                final LittleUser administrator = search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get();
-
-                this.addTest(new AclTester("testAcl", SecurityAssetType.ACL.create(), administrator, search));
-            } catch (Exception e) {
-                throw new AssertionFailedException("Caught unexpected during test initialization: " + e, e);
-            }
+            this.addTest(provideAclTester.get().putName("testAcl"));
         }
 
         if (b_run) {

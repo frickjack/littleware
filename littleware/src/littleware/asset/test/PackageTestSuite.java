@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -88,10 +88,6 @@ public class PackageTestSuite extends TestSuite {
 
         //AssetRetriever     m_retriever = new LocalAssetRetriever ( om_dbasset, om_cache, oregistry_special );
         //AssetSearchManager m_search = new SimpleAssetSearchManager ( om_dbasset, om_cache, oregistry_special );
-
-        if (b_run) {
-            this.addTest(new AssetBuilderTester("testBuild"));
-        }
         if (b_run) {
             this.addTest(provideRetrieverTest.get());
             this.addTest(provideRetrieverTest.get().putName("testAssetType") );

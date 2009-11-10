@@ -16,6 +16,7 @@ public interface LittleGroup extends LittlePrincipal, java.security.acl.Group {
     @ImplementedBy(GroupBuilder.class)
     public interface Builder extends AssetBuilder {
         public Builder  add( LittlePrincipal principal );
+        public Builder  remove( LittlePrincipal principal );
         public Builder  addAll( Collection<? extends LittlePrincipal> principalSet );
         @Override
         public LittleGroup build();

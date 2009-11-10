@@ -16,7 +16,7 @@ import com.google.inject.TypeLiteral;
 import java.io.IOException;
 import java.util.logging.*;
 import junit.framework.*;
-import littleware.apps.client.ClientBootstrap;
+//import littleware.apps.client.ClientBootstrap;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.EventBarrier;
@@ -31,7 +31,7 @@ import org.osgi.framework.BundleContext;
 public class PackageTestSuite extends ServerTestLauncher {
 
     private static final Logger olog = Logger.getLogger(PackageTestSuite.class.getName());
-    private ClientBootstrap clientTestBootstrap;
+    //private ClientBootstrap clientTestBootstrap;
 
     @Inject
     public PackageTestSuite(
@@ -97,7 +97,7 @@ public class PackageTestSuite extends ServerTestLauncher {
      * Internal utility runs after OSGi server side bootstrap -
      * registers client-side test cases via a separate
      * Guice injection process.
-     */
+     *
     private ClientBootstrap addClientTests() throws IOException {
         final ClientBootstrap bootstrap = new ClientBootstrap();
         final EventBarrier<Test> barrier = new EventBarrier<Test>();
@@ -113,7 +113,7 @@ public class PackageTestSuite extends ServerTestLauncher {
         //         normally done by client-side OSGi
         injector.getInstance(AssetModelServiceListener.class);
         injector.getInstance(ClientCache.class);
-         */
+         XXXXXX/
         bootstrap.getGuiceModule().add(new Module() {
 
             @Override
@@ -135,9 +135,10 @@ public class PackageTestSuite extends ServerTestLauncher {
         return bootstrap;
     }
 
+
     /**
      * Internal activator configures ClientTestSuite on Client OSGi bundle
-     */
+     XXXX/
     public static class ClientTestSuite extends TestSuite implements BundleActivator {
 
         private final EventBarrier<Test> barrier;
@@ -172,8 +173,9 @@ public class PackageTestSuite extends ServerTestLauncher {
         olog.log(Level.INFO, "Trying to setup littleware.apps test suite");
         this.addTest(injector.getInstance(littleware.apps.test.PackageTestSuite.class));
         }
-         */
+         xxxxx/
     }
+     */
 
     /**
      * Override default implementation to add client test suite
@@ -183,12 +185,12 @@ public class PackageTestSuite extends ServerTestLauncher {
      */
     @Override
     public void start(BundleContext ctx) throws Exception {
-        clientTestBootstrap = addClientTests();
+        //clientTestBootstrap = addClientTests();
         super.start(ctx);
     }
 
     @Override
     public void stop(BundleContext arg0) throws Exception {
-        clientTestBootstrap.shutdown();
+        //clientTestBootstrap.shutdown();
     }
 }

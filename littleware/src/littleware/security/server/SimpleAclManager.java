@@ -56,9 +56,9 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
         final Map<String, UUID> linkMap = retriever.getAssetIdsFrom(aclBuilder.getId(),
                 SecurityAssetType.ACL_ENTRY);
 
-        final List<Asset> lineAssets = retriever.getAssets(linkMap.values());
+        final List<Asset> linkAssets = retriever.getAssets(linkMap.values());
 
-        for (Asset link : lineAssets) {
+        for (Asset link : linkAssets) {
             final UUID principalId = link.getToId();
             final LittlePrincipal entry = retriever.getAsset(principalId).get().narrow(LittlePrincipal.class);
             final LittleAclEntry aclEntry = link.narrow( LittleAclEntry.class ).copy().principal( entry ).build();
@@ -80,7 +80,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     public void postCreateCallback(Asset asset, AssetManager saver) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.ACL.equals(asset.getAssetType())) {
-            final LittleAcl acl = asset.narrow( LittleAcl.class );
+            final LittleAcl acl = asset.narrow();
 
             for (Enumeration<AclEntry> entries = ((LittleAcl) asset).entries();
                     entries.hasMoreElements();) {
@@ -89,7 +89,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
                 final LittleAclEntry.Builder entryBuilder = (LittleAclEntry.Builder) startEntry.copy().
                         principal( principal ).
                         name( principal.getName() + "." + (startEntry.isNegative() ? "negative" : "positive")).
-                        parent( asset ).
+                        parent( acl ).
                         ownerId(acl.getOwnerId());
                  assetMgr.saveAsset(entryBuilder.build(), "ACL entry tracker");
             }

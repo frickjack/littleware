@@ -18,7 +18,6 @@ import java.util.logging.Level;
 import junit.framework.*;
 
 import littleware.asset.*;
-import littleware.base.AssertionFailedException;
 import littleware.security.*;
 import littleware.security.auth.*;
 

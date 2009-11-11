@@ -92,7 +92,8 @@ public class DbAssetManagerTester extends LittleTest {
                 dbDelete.saveObject(aTest);
             }
             final AssetBuilder assetBuilder = AssetType.GENERIC.create().name( "DbAssetTester" ).parent( aHome).
-                    id(ouTestHome).
+                    id(ouTestCreate).
+                    parent(aHome).
                     comment("Just a test").
                     lastUpdate("Testing asset setup").
                     creatorId( aHome.getCreatorId() ).

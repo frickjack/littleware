@@ -21,7 +21,7 @@ public abstract class AbstractValidator implements Validator {
     @Override
     public final void validateOrFail() {
         if ( ! validate() ) {
-            throw new ValidationException();
+            throw new ValidationException( this.getClass().getName() );
         }
     }
 }

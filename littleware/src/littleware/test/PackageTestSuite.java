@@ -43,7 +43,7 @@ public class PackageTestSuite extends ServerTestLauncher {
             AssetSearchManager search) {
         super(PackageTestSuite.class.getName(), search);
         // disable server tests
-        final boolean bRun = true;
+        final boolean bRun = false;
 
         olog.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
@@ -58,7 +58,7 @@ public class PackageTestSuite extends ServerTestLauncher {
                 //this.addTest( suite_db );
             }
 
-            if (bRun) {
+            if (true) {
                 olog.log(Level.INFO, "Trying to setup littleware.asset test suite");
                 this.addTest(suite_asset);
             }

@@ -68,10 +68,23 @@ public class AssetTreeTemplate {
         this.children = new ImmutableList.Builder<AssetTreeTemplate>().addAll(Arrays.asList(children)).build();
     }
 
+    public AssetTreeTemplate(String name, Collection<? extends AssetTreeTemplate> children) {
+        this.name = name;
+        this.type = AssetType.GENERIC;
+        this.children = ImmutableList.copyOf(children);
+    }
+
+
     public AssetTreeTemplate(String name, AssetType type, AssetTreeTemplate... children) {
         this.name = name;
         this.type = type;
         this.children = new ImmutableList.Builder<AssetTreeTemplate>().addAll(Arrays.asList(children)).build();
+    }
+
+    public AssetTreeTemplate( String name, AssetType type, Collection<? extends AssetTreeTemplate> children ) {
+        this.name = name;
+        this.type = type;
+        this.children = ImmutableList.copyOf( children );
     }
 
     /**

@@ -17,7 +17,7 @@ import littleware.base.SimpleLittleRegistry;
  * SimpleLittleRegistry based implementation of AssetSpecializerRegistry
  */
 public class SimpleSpecializerRegistry 
-        extends SimpleLittleRegistry<AssetType<?>,AssetSpecializer>
+        extends SimpleLittleRegistry<AssetType,AssetSpecializer>
         implements AssetSpecializerRegistry {
     private final AssetSpecializer ospecial_default = new NullAssetSpecializer ();
     
@@ -29,7 +29,7 @@ public class SimpleSpecializerRegistry
      * @return specializer for key or default noop specializer
      */
     @Override
-    public AssetSpecializer getService( AssetType<?> key ) {
+    public AssetSpecializer getService( AssetType key ) {
         AssetSpecializer special = super.getService( key );
         if ( null != special ) {
             return special;

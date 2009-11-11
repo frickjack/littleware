@@ -38,18 +38,16 @@ import littleware.base.*;
  * Note: subtypes implementing AssetType must be in a code-base
  *     granted AccessPermission "littleware.asset.resource.newtype"
  */
-public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> implements Factory<T> {
+public abstract class AssetType extends DynamicEnum<AssetType> {
     private static final long serialVersionUID = 1111142L;
-    private static final Logger olog_generic = Logger.getLogger(AssetType.class.getName() );
+    private static final Logger log = Logger.getLogger(AssetType.class.getName() );
 
     /**
      * Do-nothing constructor intended for deserialization only.
-     * Does a 'newtype' permission check to make sure an RMI caller
-     * does not inject a new AssetType into our server.
      */
     protected AssetType() {
-        Permission perm_newtype = new AccessPermission("newtype");
-        AccessController.checkPermission(perm_newtype);
+        //final Permission permission = new AccessPermission("newtype");
+        //AccessController.checkPermission(permission);
     }
 
     /**
@@ -57,36 +55,50 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
      * for the default implementation of getObjectId() and getName()
      */
     protected AssetType(UUID u_id, String s_name) {
-        super(u_id, s_name, AssetType.class, new AccessPermission("newtype"));
+        super(u_id, s_name, AssetType.class);
     }
 
+    /** Default factory method just returns a SimpleAssetBuilder */
+    public AssetBuilder create() {
+        return new SimpleAssetBuilder( this );
+    }
+
+    public static abstract class Specialized<T extends AssetBuilder> extends AssetType {
+        public Specialized( UUID id, String name ) {
+            super( id, name );
+        }
+
+        @Override
+        public T create() {
+            return (T) super.create();
+        }
+    }
+
+    
     /** Shortcut to DynamicEnum.getMembers */
     public static Set<AssetType> getMembers() {
         return getMembers(AssetType.class);
     }
 
     /** Shortcut to DynamicEnum.getMember */
-    public static AssetType getMember(UUID u_id) throws NoSuchTypeException {
+    public static AssetType getMember(UUID id) throws NoSuchTypeException {
         try {
-            return getMember(u_id, AssetType.class);
+            return getMember(id, AssetType.class);
         } catch (NoSuchThingException e) {
-            throw new NoSuchTypeException("No asset type: " + u_id, e);
+            throw new NoSuchTypeException("No asset type: " + id, e);
         }
 
     }
 
     /** Shortcut to DynamicEnum.getMember */
-    public static AssetType getMember(String s_name) throws NoSuchTypeException {
+    public static AssetType getMember(String name) throws NoSuchTypeException {
         try {
-            return getMember(s_name, AssetType.class);
+            return getMember(name, AssetType.class);
         } catch (NoSuchThingException e) {
-            throw new NoSuchTypeException("No asset type: " + s_name, e);
+            throw new NoSuchTypeException("No asset type: " + name, e);
         }
     }
 
-    /** Default factory method just returns a SimpleAsset */
-    @Override
-    public abstract T create() throws FactoryException;
 
     /**
      * Does littleware enforce name-uniqueness (on a given server cluster) 
@@ -140,44 +152,28 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
     }
 
   
-    /** Noop recycle method to satisfy Factory interface */
-    @Override
-    public void recycle(T a_whatever) {
-    }
 
     /**
      * Whether a user must be in the ADMIN group to create this type of asset.
      * This base class method returns:
-     *         (null == getSuperType()) ? false : getSuperType ().mustBeAdminToCreate ()
+     *         (null == getSuperType()) ? false : getSuperType ().isAdminToCreate ()
      */
-    public boolean mustBeAdminToCreate() {
-        return (getSuperType().isEmpty()) ? false : getSuperType().get().mustBeAdminToCreate();
+    public boolean isAdminToCreate() {
+        return (getSuperType().isEmpty()) ? false : getSuperType().get().isAdminToCreate();
     }
     /** GENERIC asset-type */
-    public static final AssetType<Asset> GENERIC = new AssetType<Asset>(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),
-            "littleware.GENERIC") {
+    public static final AssetType.Specialized<AssetBuilder> GENERIC = new AssetType.Specialized<AssetBuilder>(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),
+            "littleware.GENERIC") {};
 
-        @Override
-        public Asset create() {
-            Asset a_result = new SimpleAsset();
-            a_result.setAssetType(this);
-            return a_result;
-        }
-    };
+
     /** HOME asset-type - must be admin to create */
-    public static final AssetType<Asset> HOME = new AssetType<Asset>(UUIDFactory.parseUUID("C06CC38C6BD24D48AB5E2D228612C179"),
+    public static final AssetType.Specialized<AssetBuilder> HOME = new AssetType.Specialized<AssetBuilder>(UUIDFactory.parseUUID("C06CC38C6BD24D48AB5E2D228612C179"),
             "littleware.HOME") {
 
-        @Override
-        public Asset create() {
-            Asset a_result = new SimpleAsset();
-            a_result.setAssetType(this);
-            return a_result;
-        }
 
         /** Always return true */
         @Override
-        public boolean mustBeAdminToCreate() {
+        public boolean isAdminToCreate() {
             return true;
         }
 
@@ -186,33 +182,36 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
         public boolean isNameUnique() {
             return true;
         }
-    };
-    /** LINK assset-type */
-    public static final AssetType<Asset> LINK = new AssetType<Asset>(UUIDFactory.parseUUID("926D122F82FE4F28A8F5C790E6733665"),
-            "littleware.LINK") {
 
         @Override
-        public Asset create() {
-            Asset a_result = new SimpleAsset();
-            a_result.setAssetType(this);
-            return a_result;
+        public AssetBuilder create() {
+            return new SimpleAssetBuilder( AssetType.HOME ) {
+                @Override
+                public UUID getHomeId() {
+                    return getId();
+                }
+                @Override
+                public UUID getFromId() {
+                    return null;
+                }
+            };
         }
     };
+
+    
+    /** LINK assset-type */
+    public static final AssetType.Specialized<AssetBuilder> LINK = new AssetType.Specialized<AssetBuilder>(UUIDFactory.parseUUID("926D122F82FE4F28A8F5C790E6733665"),
+            "littleware.LINK") {};
+
 
     /**
      * Globally name-unique asset-type for setting up
      * distributed exclusion locks.
      * Can setup cron-job to delete old locks out of the repository.
      */
-    public static final AssetType<Asset> LOCK =
-        new AssetType<Asset>( UUIDFactory.parseUUID("5C52B28DA10A435B957AD5EF454F01C7"),
+    public static final AssetType.Specialized<AssetBuilder> LOCK =
+        new AssetType.Specialized<AssetBuilder>( UUIDFactory.parseUUID("5C52B28DA10A435B957AD5EF454F01C7"),
                     "littleware.LOCK" ) {
-        @Override
-        public Asset create() {
-            Asset aResult = new SimpleAsset();
-            aResult.setAssetType(this);
-            return aResult;
-        }
 
         @Override
         public boolean isNameUnique() { return true; }
@@ -222,36 +221,8 @@ public abstract class AssetType<T extends Asset> extends DynamicEnum<AssetType> 
      * UNKNOWN asset-type - place holder for asset-types that we don't have a handler for.
      * The engine refuses to save/create/update assets with UNKNOWN type.
      */
-    public static final AssetType<Asset> UNKNOWN = new AssetType<Asset>(UUIDFactory.parseUUID("EDC97D5F816044E69BFC289F4715BA45"),
-            "littleware.UNKNOWN") {
+    public static final AssetType.Specialized<AssetBuilder> UNKNOWN = new AssetType.Specialized<AssetBuilder>(UUIDFactory.parseUUID("EDC97D5F816044E69BFC289F4715BA45"),
+            "littleware.UNKNOWN") {};
 
-        @Override
-        public Asset create() {
-            Asset a_result = new SimpleAsset();
-            a_result.setAssetType(this);
-            return a_result;
-        }
-    };
-
-    /**
-     * Utility creates an asset with the given type and name
-     * linking FROM the given parent asset, and intialized
-     * with the same HOME and ACL as the parent and set with a random object id.
-     *
-     * @param atype_new type of asset to create
-     * @param s_name to give the new asset
-     * @param a_parent asset to link from and get HOME, and ACL from.
-     * @exception FactoryException if propagated by atype_new.create
-     */
-    public static <T extends Asset> T createSubfolder(AssetType<T> atype_new, String s_name,
-            Asset a_parent) throws FactoryException {
-        T a_new = atype_new.create();
-        a_new.setName(s_name);
-        a_new.setFromId(a_parent.getObjectId());
-        a_new.setHomeId(a_parent.getHomeId());
-        a_new.setAclId(a_parent.getAclId());
-        a_new.setObjectId( UUID.randomUUID() );
-        return a_new;
-    }
 }
 

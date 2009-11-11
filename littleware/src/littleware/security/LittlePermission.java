@@ -1,13 +1,21 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security;
 
-import java.security.acl.Permission;
 import java.util.UUID;
 import java.util.Set;
 
 import littleware.base.DynamicEnum;
 import littleware.base.UUIDFactory;
 import littleware.base.NoSuchThingException;
-import littleware.base.AccessPermission;
 
 
 /**
@@ -29,9 +37,7 @@ public class LittlePermission extends DynamicEnum<LittlePermission> implements j
 
 	protected LittlePermission () {}
 	protected LittlePermission ( UUID u_id, String s_name ) {
-		super ( u_id, s_name, LittlePermission.class, 
-				new AccessPermission ( "newpermission" )
-				);
+		super ( u_id, s_name, LittlePermission.class);
 	}
 	
 	public static final LittlePermission READ = new LittlePermission ( UUIDFactory.parseUUID ( "EEB72C11DE934015BE42FA6FA9423EAC" ),
@@ -41,7 +47,3 @@ public class LittlePermission extends DynamicEnum<LittlePermission> implements j
 													  "littleware.WRITE"
 													  );	
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

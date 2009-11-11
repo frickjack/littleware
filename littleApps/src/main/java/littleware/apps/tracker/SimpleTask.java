@@ -24,7 +24,7 @@ import littleware.asset.*;
 /**
  * Simple implementation of Task
  */
-public class SimpleTask extends SimpleAsset implements Task {
+public class SimpleTask extends SimpleAssetBuilder implements Task {
     private List<UUID>                  ov_comments = null;
     private Map<TaskStatus,List<UUID>>  ov_subtask = null;
     private Map<TaskStatus,List<UUID>>  ov_wait4task = null;

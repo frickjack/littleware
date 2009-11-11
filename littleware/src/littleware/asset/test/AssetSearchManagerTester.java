@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.security.Principal;
 
 
-import junit.framework.*;
 
 import littleware.asset.*;
 import littleware.base.*;
@@ -59,14 +58,14 @@ public class AssetSearchManagerTester extends LittleTest {
             assertTrue("Searcher did not freak out on empty search",
                     !search.getByName("frickityFrickjackFroo", SecurityAssetType.USER).isSet());
             assertTrue("Child search did not freak on empty search",
-                    (!search.getAssetFrom(a_lookup.getObjectId(), "UgidyUgaUga").isSet()) && (!search.getAssetFrom(UUID.randomUUID(), "whatever").isSet()));
+                    (!search.getAssetFrom(a_lookup.getId(), "UgidyUgaUga").isSet()) && (!search.getAssetFrom(UUID.randomUUID(), "whatever").isSet()));
 
             final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP).get();
+                    SecurityAssetType.GROUP).get().narrow();
             for (Enumeration<? extends Principal> enum_members = group_everybody.members();
                     enum_members.hasMoreElements();) {
                 LittlePrincipal p_member = (LittlePrincipal) enum_members.nextElement();
-                Set<UUID> v_links = search.getAssetIdsTo(p_member.getObjectId(),
+                Set<UUID> v_links = search.getAssetIdsTo(p_member.getId(),
                         SecurityAssetType.GROUP_MEMBER);
                 assertTrue("Group member as links TO it: " + p_member,
                         !v_links.isEmpty());
@@ -87,17 +86,17 @@ public class AssetSearchManagerTester extends LittleTest {
           final Asset aTest;
           { // update the test asset
               final String name = "testTransactionLog";
-              final Maybe<Asset> maybeTest = search.getAssetFrom( home.getObjectId(), name);
+              final Maybe<Asset> maybeTest = search.getAssetFrom( home.getId(), name);
               if ( maybeTest.isSet() ) {
                   aTest = assetMan.saveAsset( maybeTest.get(), "force an update for testing" );
               } else {
-                  aTest = assetMan.saveAsset( AssetType.createSubfolder(AssetType.GENERIC, name, home ),
+                  aTest = assetMan.saveAsset( AssetType.GENERIC.create().name( name ).parent( home ).build(),
                                "setup test asset");
               }
           }
-          final List<IdWithClock> data = search.checkTransactionLog( home.getObjectId(), 0 );
+          final List<IdWithClock> data = search.checkTransactionLog( home.getId(), 0 );
           assertTrue( "Some transaction in the log", ! data.isEmpty() );
-          assertTrue( "Data not too old", data.get(0).getTransaction() > aTest.getTransactionCount() - 1000 );
+          assertTrue( "Data not too old", data.get(0).getTransaction() > aTest.getTransaction() - 1000 );
           long lastTransaction = 0;
           boolean bFoundTest = false;
           final Set<UUID>  idSet = new HashSet<UUID>();
@@ -106,11 +105,11 @@ public class AssetSearchManagerTester extends LittleTest {
               assertTrue( "data is in transaction order",
                       scan.getTransaction() >= lastTransaction );
               lastTransaction = scan.getTransaction ();
-              if ( scan.getId().equals( aTest.getObjectId() ) ) {
+              if ( scan.getId().equals( aTest.getId() ) ) {
                   bFoundTest = true;
                   assertTrue( "Test transaction count matches expected value " + scan.getTransaction () +
-                          " == " + aTest.getTransactionCount(),
-                          scan.getTransaction() == aTest.getTransactionCount()
+                          " == " + aTest.getTransaction(),
+                          scan.getTransaction() == aTest.getTransaction()
                           );
               }
           }

@@ -25,8 +25,8 @@ import littleware.test.LittleTest;
  */
 public class AssetRetrieverTester extends LittleTest {
 
-    private static final Logger olog_generic = Logger.getLogger("littleware.asset.test.AssetRetrieverTester");
-    private final AssetRetriever om_asset;
+    private static final Logger log = Logger.getLogger(AssetRetrieverTester.class.getName());
+    private final AssetRetriever search;
 
     /**
      * Stash AssetRetriever instance to run tests against
@@ -36,7 +36,7 @@ public class AssetRetrieverTester extends LittleTest {
      */
     @Inject
     public AssetRetrieverTester(AssetRetriever m_asset) {
-        om_asset = m_asset;
+        search = m_asset;
         setName("testLoad");
     }
 
@@ -45,35 +45,32 @@ public class AssetRetrieverTester extends LittleTest {
      */
     public void testLoad() {
         try {
-            Map<String, UUID> v_home_id = om_asset.getHomeAssetIds();
+            Map<String, UUID> v_home_id = search.getHomeAssetIds();
             assertTrue("Home-asset set is not empty", !v_home_id.isEmpty());
             for (String s_home : v_home_id.keySet()) {
-                olog_generic.log(Level.INFO, "getHomeAssetIds found home: " + s_home);
+                log.log(Level.INFO, "getHomeAssetIds found home: " + s_home);
             }
             assertTrue("Test-home is in home set: " + getTestHome(),
                     v_home_id.containsKey(getTestHome()));
             for( Map.Entry<String,UUID> entry : v_home_id.entrySet() ) {
-                final Maybe<Asset> maybe = om_asset.getAsset( entry.getValue() );
+                final Maybe<Asset> maybe = search.getAsset( entry.getValue() );
                 assertTrue("Able to retrieve home: " + entry.getKey(),
                     maybe.isSet()
                     );
-                assertTrue( "Just loaded asset is not dirty",
-                        ! maybe.get().isDirty()
-                        );
             }
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught exception", e );
+            log.log(Level.WARNING, "Caught exception", e );
             assertTrue("Caught: " + e, false);
         }
     }
-    AssetType<Asset> BOGUS = new AssetType<Asset>(
+    AssetType BOGUS = new AssetType(
             UUIDFactory.parseUUID("7D7B573B-4BF5-4A2F-BDC1-A614935E56AD"),
             "littleware.BOGUS") {
 
         /** Get a LittleUser implementation */
         @Override
-        public Asset create() throws FactoryException {
-            return (Asset) null;
+        public AssetBuilder create() {
+            return null;
         }
 
         @Override
@@ -94,7 +91,8 @@ public class AssetRetrieverTester extends LittleTest {
         assertTrue("BOGUS is name unique",
                 BOGUS.isNameUnique());
         assertTrue("BOGUS is not admin-create only",
-                !BOGUS.mustBeAdminToCreate());
+                !BOGUS.isAdminToCreate()
+                );
     }
 }
 

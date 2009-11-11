@@ -60,156 +60,189 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 	 */
 	public static enum AssetElement {
 		NAME {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				if ( null != a_data.getName () ) {
 					writeElement ( io_out, s_prefix, a_data.getName () );
 				}
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setName ( s_data );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setName ( s_data );
 			}
 		},
 		OBJECT_ID {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
-				writeElement ( io_out, s_prefix, UUIDFactory.makeCleanString ( a_data.getObjectId () ) );
+				writeElement ( io_out, s_prefix, UUIDFactory.makeCleanString ( a_data.getId () ) );
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setObjectId ( UUIDFactory.parseUUID ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setId ( UUIDFactory.parseUUID ( s_data ) );
 			}			
 		},
 		HOME_ID {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				writeElement ( io_out, s_prefix, UUIDFactory.makeCleanString ( a_data.getHomeId () ) );
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setHomeId ( UUIDFactory.parseUUID ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setHomeId ( UUIDFactory.parseUUID ( s_data ) );
 			}			
 		},
 		TO_ID {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				if ( null != a_data.getToId () ) {
 					writeElement ( io_out, s_prefix, UUIDFactory.makeCleanString ( a_data.getToId () ) );
 				}
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setToId ( UUIDFactory.parseUUID ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setToId ( UUIDFactory.parseUUID ( s_data ) );
 			}			
 		},
 		FROM_ID {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				if ( null != a_data.getFromId () ) {
 					writeElement ( io_out, s_prefix, UUIDFactory.makeCleanString ( a_data.getFromId () ) );
 				}
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setFromId ( UUIDFactory.parseUUID ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setFromId ( UUIDFactory.parseUUID ( s_data ) );
 			}			
 		},
 		ACL_ID {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				if ( null != a_data.getAclId () ) {
 					writeElement ( io_out, s_prefix, UUIDFactory.makeCleanString ( a_data.getAclId () ) );
 				}
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setAclId ( UUIDFactory.parseUUID ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setAclId ( UUIDFactory.parseUUID ( s_data ) );
 			}			
 		},		
 		CREATOR_ID {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				writeElement ( io_out, s_prefix, UUIDFactory.makeCleanString ( a_data.getCreatorId () ) );
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setCreatorId ( UUIDFactory.parseUUID ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setCreatorId ( UUIDFactory.parseUUID ( s_data ) );
 			}			
 		},
 		UPDATER_ID {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				writeElement ( io_out, s_prefix, UUIDFactory.makeCleanString ( a_data.getLastUpdaterId () ) );
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setLastUpdaterId ( UUIDFactory.parseUUID ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setLastUpdaterId ( UUIDFactory.parseUUID ( s_data ) );
 			}			
 		},
 		CREATE_DATE {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				writeElement ( io_out, s_prefix, oformat_date.format ( a_data.getCreateDate () ) );
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
 			}
 		},
 		UPDATE_DATE {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				writeElement ( io_out, s_prefix, oformat_date.format ( a_data.getLastUpdateDate () ) );
 			}
             @Override
-			public void assignElement ( String s_data, Asset a_blank ) {
+			public void assignElement ( String s_data, AssetBuilder builder ) {
 			}
 		},
 		START_DATE {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				Date t_start = a_data.getStartDate ();
 				if ( null != t_start ) {
 					writeElement ( io_out, s_prefix, oformat_date.format ( t_start ) );
 				}
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
 			}			
 		},
 		END_DATE {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				Date t_end = a_data.getEndDate ();
 				if ( null != t_end ) {
 					writeElement ( io_out, s_prefix, oformat_date.format ( t_end ) );
 				}
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
 			}			
 		},
 		ASSET_TYPE {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				writeElement ( io_out, s_prefix, a_data.getAssetType ().toString () );
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
 				// should not be necessary when parsing properly formatted data
 			}			
 		},
 		COMMENT {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				String s_comment = a_data.getComment ();
 				if ( null != s_comment ) {
 					writeElement ( io_out, s_prefix, XmlSpecial.encode ( s_comment ) );
 				}
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setComment ( s_data );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setComment ( s_data );
 			}			
 		},
 		UPDATE_COMMENT {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				String s_comment = a_data.getLastUpdate ();
 				if ( null != s_comment ) {
 					writeElement ( io_out, s_prefix, XmlSpecial.encode ( s_comment ) );
 				}
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setLastUpdate ( s_data );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setLastUpdate ( s_data );
 			}			
 		},
 		VALUE {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
 				writeElement ( io_out, s_prefix, Float.toString ( a_data.getValue () ) );
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setValue ( Float.parseFloat ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setValue ( Float.parseFloat ( s_data ) );
 			}
 		},
 		TRANSACTION {
+            @Override
 			public void writeElement ( Asset a_data, Writer io_out, String s_prefix ) throws IOException {
-				writeElement ( io_out, s_prefix, Long.toString ( a_data.getTransactionCount () ) );
+				writeElement ( io_out, s_prefix, Long.toString ( a_data.getTransaction () ) );
 			}
-			public void assignElement ( String s_data, Asset a_blank ) {
-				a_blank.setTransactionCount ( Long.parseLong ( s_data ) );
+            @Override
+			public void assignElement ( String s_data, AssetBuilder builder ) {
+				builder.setTransaction ( Long.parseLong ( s_data ) );
 			}			
 		};
 		 
@@ -253,15 +286,15 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 		 * after performing appropriate type conversion.
 		 *
 		 * @param s_data element contents extracted from XML parse
-		 * @param a_blank to assign data to
+		 * @param builder to assign data to
 		 */
-		public abstract void assignElement ( String s_data, Asset a_blank );
+		public abstract void assignElement ( String data, AssetBuilder builder );
 	}
 	
 	private ParserState           on_state = ParserState.SCANNING;
 	// Handler to delegate to when in DELEGATE ParseMode
 	private XmlTranslator<? extends Asset>  opickle_chain = null;
-	private Asset                 oa_result = null;
+	private AssetBuilder             resultBuilder = null;
 	
     @Override
 	public Asset  getResult () throws IllegalStateException
@@ -269,7 +302,7 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 		if ( on_state.equals ( ParserState.DELEGATE ) ) {
 			return opickle_chain.getResult ();
 		} else if ( on_state.equals ( ParserState.DONE ) ) {
-			return oa_result;
+			return resultBuilder.build();
 		} else {
 			throw new IllegalStateException ( "Parser result not yet ready, in state: " + on_state );
 		}
@@ -279,6 +312,7 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 	/**
 	 * Callback for XML start-tag
 	 */
+    @Override
 	public void startElement(String s_namespace,
 							 String s_simple, // simple name (localName)
 							 String s_qualified, // qualified name
@@ -306,7 +340,7 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 															);
 					} else {
 						// No delegate handler available
-						oa_result = n_type.create ();
+						resultBuilder = n_type.create ();
 						on_state = ParserState.IN_ASSET;
 						// recurse on this data now that we're in the IN_ASSET state
 						startElement ( s_namespace, s_simple, s_qualified, v_attrs );
@@ -346,6 +380,7 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 	 * @param s_simple name of element
 	 * @param s_qualified name of element
 	 */
+    @Override
 	public void endElement(String s_namespace,
 						   String s_simple, 
 						   String s_qualified 
@@ -364,7 +399,7 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 				} else {
 					AssetElement n_element = ov_name2element.get ( s_simple );
 					if ( null != n_element ) {
-						n_element.assignElement ( os_buffer.toString (), oa_result );
+						n_element.assignElement ( os_buffer.toString (), resultBuilder );
 					}
 				}
 			}
@@ -374,6 +409,7 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 	
 	public StringBuilder  os_buffer = new StringBuilder ();
 	
+    @Override
 	public void characters(char buf[], int offset, int len)
 		throws SAXException
 	{

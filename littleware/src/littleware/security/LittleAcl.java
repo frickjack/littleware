@@ -7,13 +7,15 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.security;
 
+import com.google.inject.ImplementedBy;
 import java.security.acl.Acl;
 import java.security.Principal;
 
 import littleware.asset.Asset;
+import littleware.asset.AssetBuilder;
+import littleware.base.Maybe;
 
 /**
  * Slight specialization of Acl to incorporate into littleware Asset framework.
@@ -24,50 +26,41 @@ import littleware.asset.Asset;
  * Override Acl methods with no-exception versions.
  */
 public interface LittleAcl extends Acl, Asset {
+
     public final static String ACL_EVERYBODY_READ = "acl.littleware.everybody.read";
 
-    /** Covariant return-type clone */
-    @Override
-    public LittleAcl clone ();
-    
-    /** Convenience method - clear all the entries from the ACL */
-    public void clearEntries ();
-    
     /**
      * Throws UnsupportedOperationException - do getOwner(...).isOwner(...) instead
      */
     @Override
-    public boolean isOwner ( Principal p_owner );
-    
-    /**
-     * Throws UnsupportedOperationException - do getOwner(...)... instead
-     */
-    @Override
-	public boolean deleteOwner ( Principal p_caller, Principal p_owner );
-    
-    /**
-     * Throws UnsupportedOperationException - do getOwner(...)... instead
-     */
-    @Override
-    public boolean addOwner ( Principal p_caller, Principal p_owner );
+    public boolean isOwner(Principal p_owner);
 
-    /**
-     * Utility since our Acl implementation does not care who the caller is
-     */
-    public boolean removeEntry ( LittleAclEntry x_entry );
-    
-    /**
-     * Utility since our Acl implementation does not care who the caller is
-     */    
-    public boolean addEntry ( LittleAclEntry x_entry );
-    
     /**
      * Little utility - get the entry associated with the given Principal,
      * or return null if no entry registered.
      *
-     * @param p_entry Principal we want to get the entry for
-     * @param b_negative do we want the postive or negative entry ?
-     * @return p_entry's entry or null if p_entry entry not in this Acl
+     * @param entry Principal we want to get the entry for
+     * @param isNegative do we want the postive or negative entry ?
+     * @return entry's entry or null if p_entry entry not in this Acl
      */
-    public LittleAclEntry getEntry ( Principal p_entry, boolean b_negative );
+    public Maybe<LittleAclEntry> getEntry(Principal entry, boolean isNegative );
+
+    @Override
+    public Builder copy();
+    
+    @ImplementedBy(SimpleACLBuilder.class)
+    public interface Builder extends AssetBuilder {
+
+        /**
+         * Utility since our Acl implementation does not care who the caller is
+         */
+        public boolean addEntry(LittleAclEntry entry);
+
+        @Override
+        public Builder copy( Asset source );
+
+        @Override
+        public LittleAcl build();
+    }
+
 }

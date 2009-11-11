@@ -1,17 +1,25 @@
 package littleware.security;
 
+import com.google.inject.ImplementedBy;
+import java.util.Collection;
+import littleware.asset.AssetBuilder;
+
 /**
  * Slight extention of Principal interface
  * to support notion of a principal id and comment
  */
 public interface LittleGroup extends LittlePrincipal, java.security.acl.Group {	
-    /** Covariant return-type clone */
-    public LittleGroup clone ();
 
-    /** Convenience method - removes all the members from a group */
-    public void clearMembers ();
+    @Override
+    public Builder copy();
+    
+    @ImplementedBy(GroupBuilder.class)
+    public interface Builder extends AssetBuilder {
+        public Builder  add( LittlePrincipal principal );
+        public Builder  remove( LittlePrincipal principal );
+        public Builder  addAll( Collection<? extends LittlePrincipal> principalSet );
+        @Override
+        public LittleGroup build();
+    }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

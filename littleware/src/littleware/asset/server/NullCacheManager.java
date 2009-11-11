@@ -58,6 +58,7 @@ public class NullCacheManager implements CacheManager {
 	public void clear () {
 	}
 	
+    @Override
 	public int size () {
 		return 0;
 	}
@@ -235,7 +236,7 @@ public class NullCacheManager implements CacheManager {
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         throw new CacheMissException ();
     }
 

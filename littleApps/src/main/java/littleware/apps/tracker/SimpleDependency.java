@@ -22,7 +22,7 @@ import littleware.apps.filebucket.*;
 /**
 * Simple implementation of Dependency interface.
  */
-public class SimpleDependency extends SimpleAsset implements Dependency {
+public class SimpleDependency extends SimpleAssetBuilder implements Dependency {
     
     /** Do nothing constructor */
     public SimpleDependency () {

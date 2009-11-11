@@ -1,118 +1,127 @@
+/*
+ * Copyright 2009 Reuben Pasquini All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
 package littleware.asset;
 
+import java.util.Date;
 import java.util.UUID;
+import littleware.base.LittleBean;
+import littleware.base.Validator;
 
-import littleware.base.Factory;
-import littleware.base.FactoryException;
-import littleware.base.UUIDFactory;
 
-/**
- * Sort of a factory that will create an asset
- * of a given type, and initialize the asset's Properties (seters)
- * according to the set properties on the builder,
- * and also initializes the object-id with a UUID from
- * a UUIDFactory.
- * The AssetBuilder setters return this.
- */
-public class AssetBuilder implements Factory<Asset> {
-    private  UUID       ou_acl = null;
-    private  UUID       ou_owner = null;
-    private  AssetType  oatype_build = AssetType.GENERIC;
-    private  String     os_comment = "";
-    private  UUID       ou_home = null;
-    private  UUID       ou_from = null;
-    private  UUID       ou_to = null;
-    private  String     os_name = null;
-    
-    private static final Factory<UUID> ofactory_uuid = UUIDFactory.getFactory ();
- 
-    /** Default to null */
-    public AssetBuilder        setAclId ( UUID u_acl ) {
-        ou_acl = u_acl;
-        return this;
-    }
-    
-    /** Default to null */
-	public AssetBuilder        setOwnerId ( UUID u_owner ) {
-        ou_owner = u_owner;
-        return this;
-    }
-    
+public interface AssetBuilder extends LittleBean, Validator {
+    public UUID getId();
+    public void setId( UUID value );
+    public AssetBuilder  id( UUID value );
+
     /**
-     * Set the asset-type on this builder - defaults to AssetType.GENERIC
+     * Name may not contain /
+     *
+     * @exception IllegalArgumentException if given an illegal name
      */
-	public AssetBuilder        setAssetType ( AssetType<? extends Asset> atype_set ) {
-        oatype_build = atype_set;
-        return this;
-    }
+    public String getName();
+    public void setName(String value);
+    public AssetBuilder name( String value );
 
-    /** Default to "" */    
-	public AssetBuilder        setComment ( String s_comment ) {
-        os_comment = s_comment;
-        return this;
-    }
-    
-    /** Default to null */    
-	public AssetBuilder        setHomeId ( UUID u_home ) {
-        ou_home = u_home;
-        return this;
-    }
-    
-    /** Default to null */    
-	public AssetBuilder        setFromId ( UUID u_from ) {
-        ou_from = u_from;
-        return this;
-    }
-    
-    /**
-     * If set null, then new assets will be initialized to 
-     * asset_new.setName( asset_new.getObjectId ().toString () ) -
-     * which is conveninent for setting up anonymous assets.
-     * Default is null 
-     */    
-	public AssetBuilder        setName ( String s_name ) {
-        os_name = s_name;
-        return this;
-    }
+    public UUID getCreatorId();
+    public void setCreatorId(UUID value);
+    public AssetBuilder creatorId( UUID value );
 
+    public UUID getLastUpdaterId();
+    public void setLastUpdaterId(UUID value);
+    public AssetBuilder lastUpdaterId( UUID value );
+
+    public UUID getAclId();
+    public void setAclId(UUID value);
+    public AssetBuilder aclId( UUID value );
     
-    /** Default to null */    
-	public AssetBuilder        setToId ( UUID u_to ) {
-        ou_to = u_to;
-        return this;
-    }
-    
+    public UUID getOwnerId();
+    public void setOwnerId(UUID value);
+    public AssetBuilder ownerId( UUID value );
+
+    public String getComment();
+    public void setComment(String value);
+    public AssetBuilder comment( String value );
+
+    public AssetType getAssetType();
+
+    public String getLastUpdate();
+    public void setLastUpdate(String value);
+    public AssetBuilder lastUpdate( String value );
+
     /**
-     * Create a new asset using the set AssetType and
-     * other parameters.
+     * Set the data blob attached to this asset.
+     *
+     * @exception IllegalArgumentException if data is in invalid format
+     *                for asset type, or if length exceeds 1024 characters
      */
-    public Asset create () throws FactoryException {
-        return create( oatype_build );
-    }
-    
+    public void setData(String value);
+    public String getData();
+    public AssetBuilder data( String value );
+
+    public UUID getHomeId();
+    public void setHomeId(UUID value);
+    public AssetBuilder homeId( UUID value );
+
+    public UUID getFromId();
+    public void setFromId(UUID value);
+    public AssetBuilder fromId( UUID value );
+
+    public UUID getToId();
+    public void setToId(UUID value);
+    public AssetBuilder toId( UUID value );
+
+    public Date getStartDate();
+    public void setStartDate(Date value);
+    public AssetBuilder startDate( Date value );
+
+    public Date getEndDate();
+    public void setEndDate(Date value);
+    public AssetBuilder endDate( Date value );
+
+    public Date getCreateDate();
+    public void setCreateDate(Date value);
+    public AssetBuilder createDate( Date value );
+
+    public Date getLastUpdateDate();
+    public void setLastUpdateDate(Date value);
+    public AssetBuilder lastUpdateDate( Date value );
+
+    public Float getValue();
+    public void setValue(float value);
+    public AssetBuilder value( float value );
+
+    public Integer getState();
+    public void setState(int value);
+    public AssetBuilder state( int value );
+
+    public long getTransaction();
+    public void setTransaction( long value );
+    public AssetBuilder transaction( long value );
+
     /**
-     * Create a new asset of the given AssetType (ignore the set AssetType).
-     * Avoids need to cast to subtype.
+     * Copy all the builder properties from the given
+     * template asset
+     *
+     * @exception IllegalArgumentException if ! value.getAssetType().equals( getAssetType() )
      */
-    public <T extends Asset> T create ( AssetType<T> atype_usethis ) {
-        T  a_new = atype_usethis.create ();
-        a_new.setObjectId ( ofactory_uuid.create () );
-        a_new.setAclId ( ou_acl );
-        a_new.setOwnerId ( ou_owner );
-        a_new.setComment ( os_comment );
-        a_new.setHomeId ( ou_home );
-        a_new.setFromId ( ou_from );
-        a_new.setToId ( ou_to );
-        if ( null == os_name ) {
-            a_new.setName ( a_new.getObjectId ().toString () );
-        } else {
-            a_new.setName ( os_name );
-        }
-        return a_new;
-    }
-    
-    
-    /** NOOP */
-    public void recycle ( Asset a_bla ) {}
-    
+    public AssetBuilder copy( Asset value );
+
+    /**
+     * Sets fromId to parent and copies parent's homeId and aclId
+     */
+    public AssetBuilder parent( Asset parent );
+
+    /**
+     * Validate then build asset then reset id
+     *
+     * @return new asset
+     */
+    public Asset build();
 }

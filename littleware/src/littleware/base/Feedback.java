@@ -8,9 +8,8 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.client;
+package littleware.base;
 
-import littleware.apps.client.*;
 import java.util.logging.Level;
 
 
@@ -21,7 +20,7 @@ import java.util.logging.Level;
  * for delivering partial results back to the
  * UI as a computation progresses.
  */
-public interface Feedback extends LittleTool {
+public interface Feedback extends LittleBean {
     /** 
      * Property tracks the progress of some
      * task on a scale from 0 to 100

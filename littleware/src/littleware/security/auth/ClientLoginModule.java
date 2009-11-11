@@ -1,9 +1,18 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.security.auth;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.acl.*;
 import javax.security.auth.*;
 import javax.security.auth.spi.*;
 import javax.security.auth.login.*;
@@ -139,7 +148,7 @@ public class ClientLoginModule implements LoginModule {
 
             AssetSearchManager m_search = m_helper.getService(ServiceType.ASSET_SEARCH);
 
-            LittleUser user_active = m_helper.getSession().getCreator(m_search);
+            final LittleUser user_active = m_search.getAsset( m_helper.getSession().getCreatorId() ).get().narrow();
 
             oj_subject.getPrincipals().add(user_active);
             // Also add a TomcatUser - the Tomcat Realm system holds onto Principals, not Subjects
@@ -152,10 +161,10 @@ public class ClientLoginModule implements LoginModule {
 
                 for (String s_acl_name : ov_acl) {
                     try {
-                        final Maybe<LittleAcl> maybeAcl = m_search.getByName(s_acl_name,
+                        final Maybe<Asset> maybeAcl = m_search.getByName(s_acl_name,
                                 SecurityAssetType.ACL);
                         if ( maybeAcl.isSet() ) {
-                            final LittleAcl acl_check = maybeAcl.get();
+                            final LittleAcl acl_check = maybeAcl.get().narrow();
                             for (LittlePermission perm_check : v_perms) {
                                 if (acl_check.checkPermission(user_active, perm_check)) {
                                     String s_role = s_acl_name + ":" + perm_check.toString();
@@ -226,8 +235,4 @@ public class ClientLoginModule implements LoginModule {
         return true;
     }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-
 

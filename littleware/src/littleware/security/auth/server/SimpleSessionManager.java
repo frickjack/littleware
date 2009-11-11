@@ -111,17 +111,16 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                     now.toString("dd"));
             Asset parent = om_search.getByName("littleware.home", AssetType.HOME).get();
             for (String childName : pathList) {
-                final Maybe<Asset> maybe = om_search.getAssetFrom(parent.getObjectId(), childName);
+                final Maybe<Asset> maybe = om_search.getAssetFrom(parent.getId(), childName);
                 if (maybe.isSet()) {
                     parent = maybe.get();
                     continue;
                 }
-                Asset child = AssetType.createSubfolder(AssetType.GENERIC, childName, parent);
+                final Asset child = AssetType.GENERIC.create().parent(parent).name(childName).build();
                 parent = om_asset.saveAsset(child, os_session_comment);
             }
-            osession.setFromId(parent.getObjectId());
-            osession.setHomeId(parent.getHomeId());
-            return om_asset.saveAsset(osession, os_session_comment);
+            return om_asset.saveAsset(osession.copy().fromId(parent.getId()).homeId(parent.getHomeId()).build(),
+                    os_session_comment).narrow();
         }
     }
 
@@ -132,13 +131,13 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      */
     private SessionHelper setupNewHelper(LittleSession a_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         Subject j_caller = a_session.getSubject(om_search);
-        SessionHelper m_helper = new SimpleSessionHelper(a_session.getObjectId(), om_search, om_asset, this, oreg_service);
+        SessionHelper m_helper = new SimpleSessionHelper(a_session.getId(), om_search, om_asset, this, oreg_service);
         InvocationHandler handler_helper = new SubjectInvocationHandler(j_caller, m_helper, ostatSessionHelper );
         SessionHelper m_proxy = (SessionHelper) Proxy.newProxyInstance(SessionHelper.class.getClassLoader(),
                 new Class[]{SessionHelper.class},
                 handler_helper);
         SessionHelper m_rmi = new RmiSessionHelper(m_proxy);
-        ov_session_map.put(a_session.getObjectId(), new WeakReference(m_rmi));
+        ov_session_map.put(a_session.getId(), new WeakReference(m_rmi));
         return m_rmi;
     }
 
@@ -171,18 +170,17 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         }
 
         final Subject j_admin = new Subject();
-        j_admin.getPrincipals().add(om_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get());
+        j_admin.getPrincipals().add(om_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow( LittlePrincipal.class ));
         j_admin.setReadOnly();
 
         // Do a little LoginContext sim - need to clean this up
         // Who am I running as now ?  What the frick ?
-        Maybe<LittleUser> maybeUser = om_search.getByName(s_name, SecurityAssetType.USER);
+        Maybe<? extends Asset> maybeUser = om_search.getByName(s_name, SecurityAssetType.USER);
         if (!maybeUser.isSet()) {
             try {
-                maybeUser = (Maybe<LittleUser>) Subject.doAs(j_admin, new PrivilegedExceptionAction<Maybe<LittleUser>>() {
-
+                maybeUser = Subject.doAs(j_admin, new PrivilegedExceptionAction<Maybe<Asset>>() {
                     @Override
-                    public Maybe<LittleUser> run() throws BaseException, GeneralSecurityException, RemoteException {
+                    public Maybe<Asset> run() throws BaseException, GeneralSecurityException, RemoteException {
                         for( AssetTreeTemplate.AssetInfo treeInfo : provideUserTree.get().user( s_name ).build().visit( om_search.getByName("littleware.home", AssetType.HOME).get(), om_search ) ) {
                             if ( ! treeInfo.getAssetExists() ) {
                                 om_asset.saveAsset( treeInfo.getAsset(), "Setup new user: " + s_name );
@@ -207,7 +205,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             }
         }
 
-        j_caller.getPrincipals().add(maybeUser.get());
+        j_caller.getPrincipals().add(maybeUser.get().narrow( LittleUser.class ));
         /*... disable for now ...
         javax.security.auth.spi.LoginModule module = new PasswordDbLoginModule();
         module.initialize ( j_caller, 
@@ -220,14 +218,14 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
          */
         j_caller.setReadOnly();
         // ok - user authenticated ok by here - setup user session
-        final LittleSession session = SecurityAssetType.SESSION.create();
-        session.setObjectId(UUID.randomUUID());
-        session.setName(s_name + "_" + UUIDFactory.makeCleanString(session.getObjectId()));
-        session.setOwnerId(maybeUser.get().getObjectId());
-        session.setComment("User login");
+        final LittleSession.Builder sessionBuilder = SecurityAssetType.SESSION.create();
+        sessionBuilder.setId(UUID.randomUUID());
+        sessionBuilder.setName(s_name + "_" + UUIDFactory.makeCleanString(sessionBuilder.getId()));
+        sessionBuilder.setOwnerId(maybeUser.get().getId());
+        sessionBuilder.setComment("User login");
 
         // Create the session asset as the admin user - session has null from-id
-        PrivilegedExceptionAction act_setup_session = new SetupSessionAction(session, s_session_comment);
+        final PrivilegedExceptionAction act_setup_session = new SetupSessionAction(sessionBuilder.build(), s_session_comment);
         try {
             try {
                 return setupNewHelper((LittleSession) Subject.doAs(j_admin, act_setup_session));

@@ -14,8 +14,6 @@ import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
 import littleware.security.auth.SessionManager;
-import littleware.security.auth.server.db.DbAuthManager;
-import littleware.security.auth.server.db.postgres.PostgresDbAuthManager;
 
 /**
  *

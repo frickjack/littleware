@@ -60,7 +60,7 @@ public class PickleTester extends LittleTest {
             final Asset a_test = AssetType.GENERIC.create().
                     name("bogus_pickletest_asset").
                     homeId(UUID.randomUUID()).
-                    toId(UUID.randomUUID()).
+                    fromId(UUID.randomUUID()).
                     comment("Test comment").
                     creatorId(UUID.randomUUID()).
                     lastUpdaterId(UUID.randomUUID()).

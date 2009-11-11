@@ -336,7 +336,7 @@ public class SimpleAssetManager implements AssetManager {
                     }
 
                     b_rollback = false;
-                    return search.getAsset( assetSave.getId() ).get().narrow();
+                    return (T) search.getAsset( assetSave.getId() ).get();
                 } finally {
                     trans_save.endDbUpdate(b_rollback);
                 }

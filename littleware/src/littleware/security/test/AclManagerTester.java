@@ -51,7 +51,7 @@ public class AclManagerTester extends LittleTest {
      */
     public void testAclLoad() {
         try {
-            final Acl acl_everybody = search.getByName(LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL).get().narrow();
+            final LittleAcl aclEverybody = search.getByName(LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL).get().narrow();
         } catch (Exception e) {
             log.severe("Caught unexpected: " +
                     e + ", " + BaseException.getStackTrace(e));

@@ -709,6 +709,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
         public AssetBuilder copy() {
             return getAssetType().create().copy(this);
         }
+        
     }
 
     @Override

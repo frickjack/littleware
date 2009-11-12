@@ -82,7 +82,8 @@ public class AclManagerTester extends LittleTest {
                 final LittlePrincipal testUser = (LittlePrincipal) SecurityAssetType.USER.create().name(Integer.toString(i)).build();
 
                 log.log(Level.INFO, "Registering and verifying AclEntry for principal: " + testUser);
-                final LittleAclEntry.Builder entryBuilder = SecurityAssetType.ACL_ENTRY.create().principal( testUser );
+                final LittleAclEntry.Builder entryBuilder = (LittleAclEntry.Builder) SecurityAssetType.ACL_ENTRY.create().principal( testUser ).
+                        fromId( aclBuilder.getId() ).homeId( aclBuilder.getId() );
 
                 // Assign a couple permissions to the entry
                 for (int j = 0; j < 10; ++j) {
@@ -126,7 +127,7 @@ public class AclManagerTester extends LittleTest {
     }
 
     /** Stupid little Acl permission for use in test cases */
-    public static class BogusAclPermission implements java.security.acl.Permission {
+    public static class BogusAclPermission extends LittlePermission {
 
         private int oi_id;
 

@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.server;
 
 import com.google.inject.Provider;
@@ -34,10 +33,11 @@ import littleware.security.*;
  * between those trusted servers.
  */
 public class LocalAssetRetriever implements AssetRetriever {
-    private static final Logger olog_generic = Logger.getLogger( LocalAssetRetriever.class.getName() );
+
+    private static final Logger olog_generic = Logger.getLogger(LocalAssetRetriever.class.getName());
     private final DbAssetManager om_db;
-    private final AssetSpecializerRegistry  oregistry_special;
-    private final Provider<? extends LittleTransaction>        oprovideTrans;
+    private final AssetSpecializerRegistry oregistry_special;
+    private final Provider<? extends LittleTransaction> oprovideTrans;
     private final PermissionCache ocachePermission;
 
     /**
@@ -45,21 +45,19 @@ public class LocalAssetRetriever implements AssetRetriever {
      */
     public LocalAssetRetriever(DbAssetManager m_db,
             AssetSpecializerRegistry registry_special,
-            Provider<? extends LittleTransaction>  provideTrans,
-            PermissionCache        cachePermission
-            ) {
+            Provider<? extends LittleTransaction> provideTrans,
+            PermissionCache cachePermission) {
         om_db = m_db;
         oregistry_special = registry_special;
         oprovideTrans = provideTrans;
         ocachePermission = cachePermission;
     }
 
-
     @Override
     public Maybe<Asset> getAsset(UUID u_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (null == u_id) {
-            return Maybe.empty( "Null id passed to getAsset");
+            return Maybe.empty("Null id passed to getAsset");
         }
 
         final LittleTransaction trans = oprovideTrans.get();
@@ -75,20 +73,19 @@ public class LocalAssetRetriever implements AssetRetriever {
 
             a_result = getAssetOrNullInsecure(u_id);
             if (null == a_result) {
-                return Maybe.empty( "No asset with id: " + u_id );
+                return Maybe.empty("No asset with id: " + u_id);
             }
 
             // Specialize the asset
             littleware.base.Whatever.check("Got a valid id", a_result.getId() != null);
             final Asset aSecure = secureAndSpecialize(a_result);
-            return Maybe.something( aSecure );
+            return Maybe.something(aSecure);
         } finally {
             trans.endDbAccess(v_cycle_cache);
         }
     }
 
     // cache ACLs to improve performance ...
-
     /**
      * Internal method - shared with SimpleAssetSearchManager - to specialize,
      * and verify access-permissions on the given newly-loaded asset.
@@ -102,18 +99,11 @@ public class LocalAssetRetriever implements AssetRetriever {
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 
         try {
-            final T a_result = oregistry_special.getService( a_loaded.getAssetType() ).narrow(a_loaded, this);
-
-            if (a_result.getAssetType().equals(SecurityAssetType.USER)
-                    || a_result.getAssetType().equals(SecurityAssetType.GROUP)
-                    || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER)
-                    || ( // acl-entry may be protected by its own ACL
-                        a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY)
-                        && (null != a_result.getAclId())
-                        && a_result.getAclId().equals(a_result.getFromId())
-                        && v_cycle_cache.containsKey(a_result.getAclId())
-                        )
-                        ) {
+            final T a_result = oregistry_special.getService(a_loaded.getAssetType()).narrow(a_loaded, this);
+            // update cycle cache
+            v_cycle_cache.put(a_result.getId(), a_result);
+            if (a_result.getAssetType().equals(SecurityAssetType.USER) || a_result.getAssetType().equals(SecurityAssetType.GROUP) || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER) || ( // acl-entry may be protected by its own ACL
+                    a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals(a_result.getFromId()) && v_cycle_cache.containsKey(a_result.getAclId()))) {
                 /**
                  * No access limitation on USER, GROUP - 
                  * chicken/egg problem since need these guys to implement security.
@@ -136,22 +126,20 @@ public class LocalAssetRetriever implements AssetRetriever {
                 throw new AccessDeniedException("Unauthenticated caller");
             }
 
-            if ( p_caller.getId().equals( a_result.getOwnerId() )
-                    || ocachePermission.isAdmin( p_caller, this) ) {
+            if (p_caller.getId().equals(a_result.getOwnerId()) || ocachePermission.isAdmin(p_caller, this)) {
                 // Owner can read his own freakin' asset
                 return a_result;
             }
             // Need to check ACL
-            if ( ! ocachePermission.checkPermission(p_caller, LittlePermission.READ, this, a_result.getAclId() ) ) {
+            if (!ocachePermission.checkPermission(p_caller, LittlePermission.READ, this, a_result.getAclId())) {
                 throw new AccessDeniedException("Caller " + p_caller.getName() + " does not have permission to access asset " +
-                        a_result.getName() + "(" + a_result.getId() + ")"
-                        );
+                        a_result.getName() + "(" + a_result.getAssetType() + ", " + a_result.getId() + ")");
             }
 
             return a_result;
         } catch (NoSuchThingException e) {
             throw new DataAccessException("Failure to specialize " + a_loaded.getAssetType() + " type asset: " + a_loaded.getName() +
-                    ", caught: " + e, e );
+                    ", caught: " + e, e);
         } finally {
             trans.endDbAccess(v_cycle_cache);
         }
@@ -175,13 +163,13 @@ public class LocalAssetRetriever implements AssetRetriever {
             if (null != a_result) {
                 return a_result;
             }
-                try {
-                    DbReader<Asset, UUID> sql_reader = om_db.makeDbAssetLoader();
-                    a_result = sql_reader.loadObject(u_id);
-                } catch (SQLException e) {
-                    olog_generic.log(Level.INFO, "Caught unexpected: " + e);
-                    throw new DataAccessException("Caught unexpected: " + e);
-                }
+            try {
+                DbReader<Asset, UUID> sql_reader = om_db.makeDbAssetLoader();
+                a_result = sql_reader.loadObject(u_id);
+            } catch (SQLException e) {
+                olog_generic.log(Level.INFO, "Caught unexpected: ", e);
+                throw new DataAccessException("Caught unexpected: " + e);
+            }
 
             v_cycle_cache.put(u_id, a_result);
 
@@ -201,8 +189,8 @@ public class LocalAssetRetriever implements AssetRetriever {
             final List<Asset> v_result = new ArrayList<Asset>();
             for (UUID u_id : v_id) {
                 final Maybe<Asset> maybe = getAsset(u_id);
-                if ( maybe.isSet() ) {
-                    v_result.add( maybe.get() );
+                if (maybe.isSet()) {
+                    v_result.add(maybe.get());
                 }
             }
             return v_result;
@@ -224,7 +212,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             olog_generic.log(Level.INFO, "Caught unexpected: " + e);
             throw new DataAccessException("Caught unexpected: " + e);
         } finally {
-            trans.endDbAccess( v_cycle_cache );
+            trans.endDbAccess(v_cycle_cache);
         }
     }
 
@@ -236,16 +224,15 @@ public class LocalAssetRetriever implements AssetRetriever {
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 
         try {
-            final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_source, Maybe.emptyIfNull( (AssetType) n_type ), Maybe.empty( Integer.class ) );
+            final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_source, Maybe.emptyIfNull((AssetType) n_type), Maybe.empty(Integer.class));
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
             // do not throw cause e - may not be serializable
-            throw new DataAccessException("Caught unexpected: " + e );
+            throw new DataAccessException("Caught unexpected: " + e);
         } finally {
-            trans.endDbAccess( v_cycle_cache );
+            trans.endDbAccess(v_cycle_cache);
         }
     }
-
 
     @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
@@ -253,19 +240,19 @@ public class LocalAssetRetriever implements AssetRetriever {
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 
         try {
-            final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_from, Maybe.something( (AssetType) n_type ), Maybe.something( i_state ) );
+            final DbReader<Map<String, UUID>, String> sql_reader = om_db.makeDbAssetIdsFromLoader(u_from, Maybe.something((AssetType) n_type), Maybe.something(i_state));
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
             // do not throw cause e - may not be serializable
             throw new DataAccessException("Caught unexpected: " + e);
         } finally {
-            trans.endDbAccess( v_cycle_cache );
+            trans.endDbAccess(v_cycle_cache);
         }
     }
 
     @Override
     public Map<String, UUID> getAssetIdsFrom(UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return getAssetIdsFrom( u_from, null );
+        return getAssetIdsFrom(u_from, null);
     }
 }
 

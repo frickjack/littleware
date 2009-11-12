@@ -34,16 +34,16 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
         super(SecurityAssetType.ACL);
     }
 
-    private class ACL extends SimpleAssetBuilder.SimpleAsset implements LittleAcl {
+    private class AclAsset extends SimpleAssetBuilder.SimpleAsset implements LittleAcl {
         private Map<Principal, AclEntry> positiveUserEntries;
         private Map<Principal, AclEntry> negativeUserEntries;
         private Map<Principal, AclEntry> positiveGroupEntries;
         private Map<Principal, AclEntry> negativeGroupEntries;
 
         /** For serialization */
-        public ACL() {}
+        public AclAsset() {}
 
-        public ACL(SimpleACLBuilder builder,
+        public AclAsset(SimpleACLBuilder builder,
                 Collection<LittleAclEntry> entries ) {
             super( builder );
             final ImmutableMap.Builder<Principal,AclEntry> positiveUserBuilder = ImmutableMap.builder();
@@ -271,7 +271,7 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
 
     @Override
     public LittleAcl build() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new AclAsset( this, entrySetBuilder.build() );
     }
 }
 

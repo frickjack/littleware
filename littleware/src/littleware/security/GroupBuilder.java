@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import java.security.Principal;
 import java.util.*;
 
+import littleware.asset.Asset;
 import littleware.asset.SimpleAssetBuilder;
 
 /**
@@ -69,6 +70,13 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
     public LittleGroup build() {
        return new GroupAsset( this, memberBuilder.build() );
     }
+
+    @Override
+    public LittleGroup.Builder copy( Asset source ) {
+        super.copy( source );
+        return addAll( ((GroupAsset) source).memberSet );
+    }
+
 
     private static class GroupAsset extends SimpleAssetBuilder.SimpleAsset implements LittleGroup {
         // Internal dynamic lookup cache - saves results of one lookup for reuse next time
@@ -132,9 +140,8 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
         }
 
         @Override
-        public LittleGroup.Builder copy() {
-             final LittleGroup.Builder builder = (Builder) super.copy();
-             return builder.addAll( memberSet );
+        public Builder copy() {
+            return (Builder) super.copy();
         }
     }
 

@@ -51,6 +51,12 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     @Override
     public <T extends Asset> T narrow(T a_in, AssetRetriever retriever) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
+        if ( a_in instanceof LittleAclEntry ) {
+            return (T) ((LittleAclEntry) a_in).copy().principal(
+                    (LittlePrincipal) retriever.getAsset( a_in.getToId() ).get()
+                    ).build();
+        }
+        // LittleAcl
         final LittleAcl.Builder aclBuilder = a_in.narrow(LittleAcl.class).copy();
 
         final Map<String, UUID> linkMap = retriever.getAssetIdsFrom(aclBuilder.getId(),
@@ -59,15 +65,15 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
         final List<Asset> linkAssets = retriever.getAssets(linkMap.values());
 
         for (Asset link : linkAssets) {
-            final UUID principalId = link.getToId();
-            final LittlePrincipal entry = retriever.getAsset(principalId).get().narrow(LittlePrincipal.class);
-            final LittleAclEntry aclEntry = link.narrow( LittleAclEntry.class ).copy().principal( entry ).build();
+            //final UUID principalId = link.getToId();
+            //final LittlePrincipal entry = retriever.getAsset(principalId).get().narrow(LittlePrincipal.class);
+            final LittleAclEntry aclEntry = link.narrow( LittleAclEntry.class );
 
             aclBuilder.addEntry(aclEntry);
             log.log(Level.FINE, "Just added entry for " + aclEntry.getName() +
                     " (negative: " + aclEntry.isNegative() +
-                    ") to ACL " + aclBuilder.getName());
-
+                    ") to ACL " + aclBuilder.getName()
+                    );
         }
         return (T) aclBuilder.build();
     }

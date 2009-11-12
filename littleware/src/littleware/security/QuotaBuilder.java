@@ -20,7 +20,6 @@ import javax.xml.parsers.SAXParser;
 import java.io.StringReader;
 
 import littleware.asset.*;
-import littleware.asset.xml.XmlDataAsset;
 import littleware.base.*;
 
 /**

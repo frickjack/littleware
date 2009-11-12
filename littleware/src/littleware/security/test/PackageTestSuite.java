@@ -56,9 +56,11 @@ public class PackageTestSuite extends TestSuite {
 
         if (b_run) {
             this.addTest(provideAccountTester.get().putName("testGetPrincipals"));
-            this.addTest(provideAccountTester.get().putName("testQuota"));
             //this.addTest(provideAccountTester.get().putName("testPasswordUpdate"));
             this.addTest(provideAccountTester.get().putName("testGroupUpdate"));
+        }
+        if (false) {  // disable quota testing for now 
+            this.addTest(provideAccountTester.get().putName("testQuota"));
         }
         if (b_run) {
             this.addTest(provideAclTester.get().putName("testAclLoad"));

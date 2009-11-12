@@ -256,8 +256,6 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
     /**
      * Assign values to this entry's permission set based
      * on the supplied data
-     *
-     * @param ParseException if data not formatted correctly
      */
     @Override
     public void setData(String data) {
@@ -280,7 +278,7 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
     @Override
     public LittleAclEntry.Builder copy( Asset other ) {
         super.copy( other );
-        return principal( ((LittleAclEntry) other).getPrincipal() );
+        return principal( ((Entry) other).principal );
     }
 
     /**
@@ -319,7 +317,10 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
     @Override
     public void setPrincipal(LittlePrincipal principal) {
         this.principal = (LittlePrincipal) principal;
-        setToId(principal.getId());
+        if ( null != principal ) {
+            // principal may not be set
+            setToId(principal.getId());
+        }
     }
     @Override
     public LittleAclEntry.Builder principal( LittlePrincipal principal ) {

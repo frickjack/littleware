@@ -86,24 +86,26 @@ public class DbAssetManagerTester extends LittleTest {
         try {
             final DbReader<Asset, UUID> dbReader = omgrDb.makeDbAssetLoader();
             final Asset aHome = dbReader.loadObject(ouTestHome);
-            Asset aTest = dbReader.loadObject(ouTestCreate);
-            if (null != aTest) {
-                final DbWriter<Asset> dbDelete = omgrDb.makeDbAssetDeleter();
-                dbDelete.saveObject(aTest);
+            {
+                Asset aTest = dbReader.loadObject(ouTestCreate);
+                if (null != aTest) {
+                    final DbWriter<Asset> dbDelete = omgrDb.makeDbAssetDeleter();
+                    dbDelete.saveObject(aTest);
+                }
             }
-            final AssetBuilder assetBuilder = AssetType.GENERIC.create().name( "DbAssetTester" ).parent( aHome).
+            final Asset testSave = AssetType.GENERIC.create().name("DbAssetTester").parent(aHome).
                     id(ouTestCreate).
                     parent(aHome).
                     comment("Just a test").
                     lastUpdate("Testing asset setup").
-                    creatorId( aHome.getCreatorId() ).
-                    lastUpdaterId( aHome.getCreatorId() ).
-                    ownerId( aHome.getOwnerId() ).transaction(1);
+                    creatorId(aHome.getCreatorId()).
+                    lastUpdaterId(aHome.getCreatorId()).
+                    ownerId(aHome.getOwnerId()).
+                    transaction( trans.getTransaction() ).build();
             final DbWriter<Asset> dbSaver = omgrDb.makeDbAssetSaver();
-            final Asset testSave = assetBuilder.build();
-            final long lNewTransaction = aTest.getTransaction();
-            dbSaver.saveObject(aTest);
-            aTest = omgrDb.makeDbAssetLoader().loadObject(testSave.getId());
+            
+            dbSaver.saveObject(testSave);
+            final Asset aTest = omgrDb.makeDbAssetLoader().loadObject(testSave.getId());
             assertTrue("From preserved on load", testSave.getFromId().equals(aHome.getId()));
             // Test from-loader
             final Map<String, UUID> mapChildren = omgrDb.makeDbAssetIdsFromLoader(ouTestHome, Maybe.something((AssetType) AssetType.GENERIC), Maybe.empty(Integer.class)).loadObject("");

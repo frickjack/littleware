@@ -71,9 +71,9 @@ public class AssetManagerTester extends LittleTest {
 
             olog_generic.log(Level.INFO, "Running with test home: " + home);
 
-            LittleUser user = SecurityAssetType.getAuthenticatedUserOrNull();
+            final LittleUser user = SecurityAssetType.getAuthenticatedUserOrNull();
             assertTrue("Have an authenticated user", null != user);
-            String s_name = "test_" + (new Date());
+            final String s_name = "test_" + (new Date()).getTime();
 
             final Date t_now = new Date();
             olog_generic.log(Level.INFO, "Saving new asset");
@@ -81,7 +81,7 @@ public class AssetManagerTester extends LittleTest {
                     AssetType.GENERIC.create().
                     name(s_name).
                     data("<data>no data </data>").
-                    fromId(user.getId()).
+                    parent(user).
                     ownerId(user.getId()).
                     value(55).
                     state(3).

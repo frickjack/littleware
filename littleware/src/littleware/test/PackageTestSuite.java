@@ -9,19 +9,13 @@
  */
 package littleware.test;
 
-import com.google.inject.Binder;
 import com.google.inject.Inject;
-import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
-import java.io.IOException;
 import java.util.logging.*;
 import junit.framework.*;
 //import littleware.apps.client.ClientBootstrap;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
-import littleware.base.EventBarrier;
 import littleware.security.auth.server.ServerBootstrap;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -43,7 +37,7 @@ public class PackageTestSuite extends ServerTestLauncher {
             AssetSearchManager search) {
         super(PackageTestSuite.class.getName(), search);
         // disable server tests
-        final boolean bRun = false;
+        final boolean bRun = true;
 
         olog.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
@@ -58,7 +52,7 @@ public class PackageTestSuite extends ServerTestLauncher {
                 //this.addTest( suite_db );
             }
 
-            if (true) {
+            if (bRun) {
                 olog.log(Level.INFO, "Trying to setup littleware.asset test suite");
                 this.addTest(suite_asset);
             }

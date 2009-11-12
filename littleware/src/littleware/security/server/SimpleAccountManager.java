@@ -35,7 +35,7 @@ import littleware.security.auth.server.db.*;
  */
 public class SimpleAccountManager extends NullAssetSpecializer implements AccountManager, AssetSpecializer {
 
-    private static final Logger olog_generic = Logger.getLogger("littleware.security.server.SimpleAccountManager");
+    private static final Logger log = Logger.getLogger("littleware.security.server.SimpleAccountManager");
     private final AssetManager om_asset;
     private final AssetSearchManager om_search;
     private final DbAuthManager om_dbauth;
@@ -54,7 +54,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             AssetSearchManager m_searcher,
             //DbAuthManager m_dbauth,
             QuotaUtil m_quota,
-            Provider<LittleTransaction> provideTrans ) {
+            Provider<LittleTransaction> provideTrans) {
         om_asset = m_asset;
         om_search = m_searcher;
         om_dbauth = null; //m_dbauth;
@@ -77,7 +77,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         Whatever.check("AccountManager is not the specializer for: " +
                 a_in.getAssetType(),
                 a_in.getAssetType().equals(SecurityAssetType.GROUP));
-        olog_generic.log(Level.FINE, "Narrowing group: " + a_in.getName());
+        log.log(Level.FINE, "Narrowing group: " + a_in.getName());
 
         // It's a GROUP - need to populate it
         final LittleGroup.Builder groupBuilder = a_in.narrow(LittleGroup.class).copy();
@@ -94,15 +94,14 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         v_links.size () == v_link_assets.size () 
         );
          */
-        olog_generic.log(Level.FINE, "Group: " + a_in.getName() + " found " + v_link_assets.size() +
+        log.log(Level.FINE, "Group: " + a_in.getName() + " found " + v_link_assets.size() +
                 " children under " + a_in.getId() + " of type " +
-                SecurityAssetType.GROUP_MEMBER
-                );
+                SecurityAssetType.GROUP_MEMBER);
 
 
         Set<UUID> v_members = new HashSet<UUID>();
         for (Asset a_link : v_link_assets) {
-            olog_generic.log(Level.FINE, "Got link UUID " + a_link.getToId());
+            log.log(Level.FINE, "Got link UUID " + a_link.getToId());
             v_members.add(a_link.getToId());
         }
 
@@ -110,14 +109,14 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         final List<Asset> v_member_assets = m_retriever.getAssets(v_members);
 
         for (Asset a_member : v_member_assets) {
-            olog_generic.log(Level.FINE, "adding " + a_member.getName() + " to " +
+            log.log(Level.FINE, "adding " + a_member.getName() + " to " +
                     groupBuilder.getName());
-            groupBuilder.add( a_member.narrow( LittlePrincipal.class ) );
+            groupBuilder.add(a_member.narrow(LittlePrincipal.class));
         }
 
         if (groupBuilder.getName().equals(AccountManager.LITTLEWARE_ADMIN_GROUP)) {
             // then add the admin principal
-            groupBuilder.add(m_retriever.getAsset(AccountManager.UUID_ADMIN).get().narrow(LittleUser.class) );
+            groupBuilder.add(m_retriever.getAsset(AccountManager.UUID_ADMIN).get().narrow(LittleUser.class));
         }
 
         return (T) groupBuilder.build();
@@ -131,7 +130,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             GeneralSecurityException, RemoteException {
         if (null == oj_admin) {
             try {
-                final LittleUser p_admin = om_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER ).get().narrow();
+                final LittleUser p_admin = om_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow();
                 final Set<Principal> v_users = new HashSet<Principal>();
 
                 v_users.add(p_admin);
@@ -159,12 +158,11 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             AssetManager m_asset) throws BaseException, AssetException, GeneralSecurityException,
             RemoteException {
         return m_asset.saveAsset(
-            SecurityAssetType.GROUP_MEMBER.create().
-                parent( p_group ).toId( p_member.getId() ).
-                name( p_member.getName() ).
+                SecurityAssetType.GROUP_MEMBER.create().
+                parent(p_group).toId(p_member.getId()).
+                name(p_member.getName()).
                 comment("Member of group: " + p_member.getName()).
-                build()
-                , "new group member");
+                build(), "new group member");
     }
 
     /**
@@ -208,7 +206,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             if (null != a_caller_quota) {
                 final Quota.Builder quotaBuilder = a_caller_quota.copy();
 
-                quotaBuilder.setId( UUID.randomUUID() );
+                quotaBuilder.setId(UUID.randomUUID());
                 quotaBuilder.setOwnerId(UUID_ADMIN);
                 quotaBuilder.setFromId(a_new.getId());
                 quotaBuilder.setToId(a_caller_quota.getId());
@@ -216,7 +214,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             }
             // Add this frickjack to the everybody group
             {
-                final LittleGroup everybody = om_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP ).get().narrow();
+                final LittleGroup everybody = om_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP).get().narrow();
 
                 try {
                     PrivilegedExceptionAction act_add2group = new AddToGroupAction(everybody,
@@ -242,10 +240,10 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             // Give the user a password
             /*... Disable for now - moving to JPA, and don't want to deal with this now ...
             try {
-                DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(a_new.getId());
-                sql_password.saveObject("default_password");
+            DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(a_new.getId());
+            sql_password.saveObject("default_password");
             } catch (SQLException e) {
-                throw new DataAccessException("Falure updating password, caught: " + e, e);
+            throw new DataAccessException("Falure updating password, caught: " + e, e);
             }
              */
 
@@ -264,14 +262,12 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             Set<UUID> vChildren = new HashSet<UUID>();
             vChildren.addAll(
                     om_search.getAssetIdsFrom(a_deleted.getId(),
-                                                SecurityAssetType.GROUP_MEMBER).values()
-                    );
+                    SecurityAssetType.GROUP_MEMBER).values());
             vChildren.addAll(
                     om_search.getAssetIdsTo(a_deleted.getId(),
-                            SecurityAssetType.GROUP_MEMBER)
-                    );
+                    SecurityAssetType.GROUP_MEMBER));
 
-            final List<Asset> v_member_links = om_search.getAssets( vChildren );
+            final List<Asset> v_member_links = om_search.getAssets(vChildren);
             for (Asset p_link : v_member_links) {
                 m_asset.deleteAsset(p_link.getId(), "cleaning up deleted principal");
             }
@@ -286,47 +282,48 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
      *              can leverage this
      */
     @Override
-    public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager m_asset) throws BaseException, AssetException,
+    public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager assetMgr) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.GROUP.equals(a_now.getAssetType())) {
-            final LittleGroup p_after = a_now.narrow(LittleGroup.class);
+            final LittleGroup group = a_now.narrow(LittleGroup.class);
+            log.log(Level.FINE, "Update callback running for " + group.getName());
+            final Set<Principal> v_before = new HashSet<Principal>();
 
-            Set<Principal> v_before = new HashSet<Principal>();
-
-            if (null != a_pre_update ) {
-                v_before.addAll(Collections.list(a_pre_update.narrow( LittleGroup.class ).members()));
+            if (null != a_pre_update) {
+                v_before.addAll(Collections.list(a_pre_update.narrow(LittleGroup.class).members()));
             }
 
-            List<LittlePrincipal> v_add = new ArrayList<LittlePrincipal>();
-            Set<UUID> v_members = new HashSet<UUID>();
+            final List<LittlePrincipal> v_add = new ArrayList<LittlePrincipal>();
+            final Set<UUID> v_members = new HashSet<UUID>();
 
             // Get the list of new group members that need added
-            for (Enumeration<? extends Principal> enum_new = p_after.members();
+            for (Enumeration<? extends Principal> enum_new = group.members();
                     enum_new.hasMoreElements();) {
                 final LittlePrincipal p_new = (LittlePrincipal) enum_new.nextElement();
 
                 v_members.add(p_new.getId());
                 if (!v_before.remove(p_new)) {
-                    v_add.add( p_new);
+                    v_add.add(p_new);
                 }
             }
 
             {
                 // Get the collection of assets linking the group-asset
                 // to the group-members, and delete the unneeded ones
-                Map<String, UUID> v_children = om_search.getAssetIdsFrom(p_after.getId(),
+                Map<String, UUID> v_children = om_search.getAssetIdsFrom(group.getId(),
                         SecurityAssetType.GROUP_MEMBER);
                 final List<Asset> v_member_links = om_search.getAssets(v_children.values());
                 for (Asset a_link : v_member_links) {
                     if (!v_members.contains(a_link.getToId())) {
-                        m_asset.deleteAsset(a_link.getId(), "member no longer in group");
+                        assetMgr.deleteAsset(a_link.getId(), "member no longer in group");
                     }
                 }
             }
 
             // Add the new members to the group
-            for (LittlePrincipal p_add : v_add) {
-                addMemberToGroup(p_after, p_add, m_asset);
+            for (LittlePrincipal member : v_add) {
+                log.log(Level.FINE, "Adding " + member.getName() + " to group " + group.getName());
+                addMemberToGroup(group, member, assetMgr);
             }
         }
     }
@@ -336,8 +333,6 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             GeneralSecurityException, RemoteException {
         return om_quota.incrementQuotaCount(getAuthenticatedUser(), om_asset, om_search);
     }
-
-
     private static Factory<UUID> ofactory_uuid = UUIDFactory.getFactory();
 
     @Override
@@ -345,44 +340,43 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             String s_password) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         final UUID id = ofactory_uuid.create();
-        return updateUser( (LittleUser) p_new.copy().id( id ).ownerId(id).build(),
-                s_password, "new user"
-                );
+        return updateUser((LittleUser) p_new.copy().id(id).ownerId(id).build(),
+                s_password, "new user");
     }
 
     @Override
     public LittleUser updateUser(LittleUser p_update, String s_password,
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        throw new UnsupportedOperationException( "Disabled for now - moving to JPA, AD, OpenID ...");
+        throw new UnsupportedOperationException("Disabled for now - moving to JPA, AD, OpenID ...");
         /*...
         if (!isValidPassword(s_password)) {
-            throw new IllegalNameException("Illegal password: " + s_password);
+        throw new IllegalNameException("Illegal password: " + s_password);
         }
 
         final LittleTransaction trans_update = oprovideTrans.get();
 
         try {
-            boolean b_rollback = true;
+        boolean b_rollback = true;
 
-            trans_update.startDbUpdate();
-            try {
-                p_update = om_asset.saveAsset(p_update, s_update_comment);
-                try {
-                    DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(p_update.getId());
-                    sql_password.saveObject(s_password);
-                } catch (SQLException e) {
-                    throw new DataAccessException("Falure updating password, caught: " + e, e);
-                }
-                b_rollback = false;
-                return p_update;
-            } finally {
-                trans_update.endDbUpdate(b_rollback);
-            }
+        trans_update.startDbUpdate();
+        try {
+        p_update = om_asset.saveAsset(p_update, s_update_comment);
+        try {
+        DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(p_update.getId());
+        sql_password.saveObject(s_password);
         } catch (SQLException e) {
-            throw new DataAccessException("Unexpected SQLException", e);
+        throw new DataAccessException("Falure updating password, caught: " + e, e);
         }
-           ... */
+        b_rollback = false;
+        return p_update;
+        } finally {
+        trans_update.endDbUpdate(b_rollback);
+        }
+        } catch (SQLException e) {
+        throw new DataAccessException("Unexpected SQLException", e);
+        }
+        ... */
     }
 
     @Override

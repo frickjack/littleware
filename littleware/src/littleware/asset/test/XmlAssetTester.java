@@ -18,6 +18,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import java.io.*;
 
+import java.util.UUID;
 import junit.framework.*;
 
 import littleware.asset.*;
@@ -152,7 +153,8 @@ public class XmlAssetTester extends TestCase {
      */
     public void testXmlAsset() {
         try {
-            Asset a_xml = new TestBuilder().build();
+            Asset a_xml = new TestBuilder().homeId( UUID.randomUUID() ).
+                    fromId( UUID.randomUUID() ).build();
             String s_xml = a_xml.getData();
 
             log.log(Level.INFO, "TestBuilder getData got: " + s_xml);
@@ -169,7 +171,6 @@ public class XmlAssetTester extends TestCase {
                 // If no exception thrown, then the XML is properly formed
             }
 
-            ((TestBuilder) a_xml).clearData();
             String s_xml2 = a_xml.copy().data(s_xml).build().getData();
             log.log(Level.INFO, "Data reset getData got: " + s_xml2);
             assertTrue("Data reset matches original data", s_xml2.equals(s_xml));

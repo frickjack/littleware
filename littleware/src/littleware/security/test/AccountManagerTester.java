@@ -172,9 +172,21 @@ public class AccountManagerTester extends LittleTest {
                 groupTest = om_asset.saveAsset(
                         SecurityAssetType.GROUP.create().add(caller).name(name).parent(getTestHome(osearch)).
                         build(), "setup test group").narrow();
+                assertTrue( caller.getName() + " is member of new group " + groupTest.getName(),
+                        groupTest.isMember(caller)
+                        );
             }
             if ( ! groupTest.isMember( caller ) ) {
-                groupTest = om_asset.saveAsset(groupTest.copy().add(caller).build(), "Removed tester " + caller.getName());
+                LittleGroup copy = groupTest.copy().add(caller).build();
+                copy = copy.getAssetType().create().copy( copy ).build().narrow();
+                assertTrue( caller.getName() + " added to " + copy.getName(),
+                    copy.isMember( caller )
+                    );
+                final Set<Principal> memberSet = new HashSet<Principal>( Collections.list( copy.members() ) );
+                assertTrue( caller.getName() + " in members copy of " + copy.getName(),
+                        memberSet.contains(caller)
+                        );
+                groupTest = om_asset.saveAsset(copy, "Add tester " + caller.getName());
             }
             assertTrue( caller.getName() + " is member of " + groupTest.getName(),
                     groupTest.isMember( caller )

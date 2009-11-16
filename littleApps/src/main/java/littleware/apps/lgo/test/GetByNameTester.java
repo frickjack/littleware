@@ -14,10 +14,10 @@ import com.google.inject.Inject;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.GetByNameCommand;
 import littleware.apps.lgo.LgoException;
 import littleware.asset.Asset;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.security.SecurityAssetType;
 import littleware.test.LittleTest;
 
@@ -40,7 +40,7 @@ public class GetByNameTester extends LittleTest {
             ocomTest.processArgs( Arrays.asList( "-name", "littleware.test_user",
                     "-type", "user"
                     ) );
-            final Asset aUser = ocomTest.runSafe( new LoggerUiFeedback(), "bla" );
+            final Asset aUser = ocomTest.runSafe( new LoggerFeedback(), "bla" );
             assertTrue( "Got expected asset: " + aUser.getName(),
                     aUser.getAssetType().equals( SecurityAssetType.USER )
                     && aUser.getName().equals( "littleware.test_user" )

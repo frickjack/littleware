@@ -77,17 +77,17 @@ public class SimpleImageManager implements ImageManager {
         ImageIO.write(img, "jpg", stream);
         stream.close();
         T a_result = omgrBucket.writeToBucket(a_save, osReservedPath, stream.toByteArray(), s_update_comment);
-        //ocache.put( a_save.getObjectId(), Maybe.something( img ) );
-        ocache.remove( a_save.getObjectId() );
+        //ocache.put( a_save.getId(), Maybe.something( img ) );
+        ocache.remove( a_save.getId() );
         return a_result;
     }
 
     @Override
     public <T extends Asset> T   deleteImage( T a_save, String s_update_comment
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
-        ocache.remove( a_save.getObjectId() );
+        ocache.remove( a_save.getId() );
         // Check the server
-        Bucket bucket = omgrBucket.getBucket( a_save.getObjectId () );
+        Bucket bucket = omgrBucket.getBucket( a_save.getId () );
         if ( ! bucket.getPaths ().contains( osReservedPath ) ) {
             return a_save;
         }

@@ -23,14 +23,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.SwingUtilities;
 import littleware.apps.client.ClientBootstrap;
-import littleware.apps.client.LoggerUiFeedback;
-import littleware.apps.client.Feedback;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
-import littleware.security.auth.GuiceOSGiBootstrap;
+import littleware.base.feedback.Feedback;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.security.auth.LittleBootstrap;
 
 import org.osgi.framework.BundleActivator;
@@ -200,7 +198,7 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         int iExitStatus = 0;
 
         try {
-            Feedback feedback = new LoggerUiFeedback();
+            final Feedback feedback = new LoggerFeedback();
 
             if (vArgs.length == 0) { // launch help command by default
                 System.out.print(omgrCommand.buildCommand("help").runCommandLine(feedback, ""));

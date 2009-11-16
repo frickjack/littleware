@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient;
 
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LittleEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.logging.Logger;

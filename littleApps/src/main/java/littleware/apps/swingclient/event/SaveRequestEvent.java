@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient.event;
 
+import littleware.base.feedback.LittleEvent;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.logging.Logger;

@@ -12,6 +12,7 @@
 package littleware.apps.client;
 
 
+import littleware.base.feedback.LittleListener;
 import littleware.asset.Asset;
 
 /**
@@ -58,13 +59,13 @@ public interface AssetModel extends Comparable<AssetModel> {
      */
     
     /**
-     * Little utility function - getAsset.sync if
-     *     a_data.getTransactionCount () > getAsset().getTransactionCount ()
+     * Little utility function - replace asset if
+     *     a_data.getTransaction () > getAsset().getTransaction ()
      * or a_data.isDirty() and fires various AssetModelEvents
      * depending on state change.
      *
      * @param a_data for getAsset to return from now on if a_data has newer TransactionCount
-     * @return (a_data.getTransactionCount () > getAsset ().getTransactionCount ()) ? a_data : getAsset ()
+     * @return (a_data.getTransaction () > getAsset ().getTransaction ()) ? a_data : getAsset ()
      * @exception IllegalArgumentException RuntimeExcption if object-ids do not match
      */
     public Asset syncAsset ( Asset a_data );

@@ -79,7 +79,7 @@ public class SimpleBucketManager implements BucketManager {
      *            the directory may not yet exist
      */
     public  File  getBucketPath ( Asset a_in ) {
-        String s_default_root = ov_root[ Math.abs( a_in.getObjectId ().hashCode () % ov_root.length ) ];
+        String s_default_root = ov_root[ Math.abs( a_in.getId ().hashCode () % ov_root.length ) ];
         File   file_root = new File ( s_default_root );
         
         if ( ! file_root.exists () ) { // check the other roots just 2b safe
@@ -92,7 +92,7 @@ public class SimpleBucketManager implements BucketManager {
                 }
             }
         }
-        return new File ( file_root, UUIDFactory.makeCleanString ( a_in.getObjectId () ) + "/userdata" );
+        return new File ( file_root, UUIDFactory.makeCleanString ( a_in.getId () ) + "/userdata" );
     }
                 
               
@@ -109,7 +109,7 @@ public class SimpleBucketManager implements BucketManager {
         if ( file_bucket.exists () ) {
             Collections.addAll ( v_members, file_bucket.list () );
         }
-        return new SimpleBucket ( a_bucket.getObjectId (), v_members );
+        return new SimpleBucket ( a_bucket.getId (), v_members );
     }
     
     
@@ -152,7 +152,7 @@ public class SimpleBucketManager implements BucketManager {
         try {
             // increment transaction count before writing anything - verify write permission
             olog_generic.log ( Level.FINE, "Writing to bucket " + a_bucket + ", path: " + s_path );
-            a_bucket.save ( om_asset, s_update_comment );
+            final Asset result = om_asset.saveAsset( a_bucket, s_update_comment );
 
             File              file_parent = getBucketPath ( a_bucket );
             
@@ -160,15 +160,15 @@ public class SimpleBucketManager implements BucketManager {
                 file_parent.mkdirs ();
             }
             
-            File              file_data = new File ( file_parent, s_path );
-            FileOutputStream  streamout_data = new FileOutputStream ( file_data );
+            final File              file_data = new File ( file_parent, s_path );
+            final FileOutputStream  streamout_data = new FileOutputStream ( file_data );
             
             try {
                 streamout_data.write ( v_data );
             } finally {
                 streamout_data.close ();
             }
-            return a_bucket;
+            return (T) result;
         } finally {
             trans.endDbAccess ( v_cache );
         }
@@ -224,9 +224,9 @@ public class SimpleBucketManager implements BucketManager {
             if ( ! file_data.exists () ) {
                 return a_bucket;
             }
-            a_bucket.save ( om_asset, s_update_comment );
+            final Asset result = om_asset.saveAsset( a_bucket, s_update_comment );
             file_data.delete ();
-            return a_bucket;
+            return (T) result;
         } finally {
             trans.endDbAccess ( v_cache );
         }        
@@ -244,15 +244,15 @@ public class SimpleBucketManager implements BucketManager {
         final LittleTransaction trans = oprovideTrans.get();
         final Map<UUID,Asset> v_cache = trans.startDbAccess ();
         try {
-            File              file_data = new File ( getBucketPath ( a_bucket ), s_start_path );
-            File              file_rename = new File ( getBucketPath ( a_bucket ), s_rename_path );
+            final File              file_data = new File ( getBucketPath ( a_bucket ), s_start_path );
+            final File              file_rename = new File ( getBucketPath ( a_bucket ), s_rename_path );
             if ( ! file_data.exists () ) {
                 return a_bucket;
             }
             // verify write permission before doing the rename
-            a_bucket.save ( om_asset, s_update_comment );
+            final Asset result = om_asset.saveAsset( a_bucket, s_update_comment );
             file_data.renameTo ( file_rename );
-            return a_bucket;
+            return (T) result;
         } finally {
             trans.endDbAccess ( v_cache );
         }                

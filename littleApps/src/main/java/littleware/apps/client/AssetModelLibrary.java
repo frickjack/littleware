@@ -48,7 +48,7 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @return cached asset-model or null
      * @exception InvalidAssetTypeException if atype is not name-unique
      */
-    public Maybe<AssetModel> getByName( String s_name, AssetType<? extends Asset> atype
+    public Maybe<AssetModel> getByName( String s_name, AssetType atype
             ) throws InvalidAssetTypeException;
     
     /**
@@ -66,7 +66,7 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @throws java.security.GeneralSecurityException
      * @throws java.rmi.RemoteException
      */
-    public Maybe<AssetModel> getByName( String s_name, AssetType<? extends Asset> atype,
+    public Maybe<AssetModel> getByName( String s_name, AssetType atype,
             AssetSearchManager m_search
             ) throws InvalidAssetTypeException,
         BaseException, 

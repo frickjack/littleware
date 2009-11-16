@@ -10,8 +10,13 @@
 
 package littleware.apps.client;
 
+import littleware.base.feedback.SimpleLittleTool;
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LoggerFeedback;
+import littleware.base.feedback.LittleEvent;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import littleware.base.feedback.Feedback;
 
 
 
@@ -24,7 +29,7 @@ public abstract class AbstractAssetView extends SimpleLittleTool implements Asse
     
     private AssetModel          omodel_asset = null;
     private AssetModelLibrary   olib_asset = null;
-    private Feedback            ofeedback = new LoggerUiFeedback( olog_generic );
+    private Feedback            ofeedback = new LoggerFeedback( olog_generic );
     
     /** Bridge propagate events from AssetModel */
     private final LittleListener olisten_bridge = new LittleListener () {

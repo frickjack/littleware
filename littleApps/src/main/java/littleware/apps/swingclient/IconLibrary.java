@@ -11,7 +11,6 @@
 package littleware.apps.swingclient;
 
 import com.google.inject.ImplementedBy;
-import com.google.inject.Provider;
 import java.util.Set;
 import javax.swing.Icon;
 
@@ -30,7 +29,7 @@ public interface IconLibrary {
      */
     public interface IconProvider {
         public Icon getIcon( Asset aNeedsIcon );
-        public Icon getIcon( AssetType<? extends Asset> atypeNeedsIcon );
+        public Icon getIcon( AssetType atypeNeedsIcon );
     }
 
     /**

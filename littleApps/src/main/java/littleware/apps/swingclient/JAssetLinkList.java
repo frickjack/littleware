@@ -9,6 +9,9 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.base.feedback.SimpleLittleTool;
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LittleTool;
 import com.google.inject.Inject;
 import java.awt.*;
 import java.awt.event.MouseAdapter;

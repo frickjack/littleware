@@ -11,7 +11,7 @@
 package littleware.apps.swingclient.event;
 
 import java.util.UUID;
-import littleware.apps.client.LittleEvent;
+import littleware.base.feedback.LittleEvent;
 
 /**
  * Event triggered to indicate a user request to navigate

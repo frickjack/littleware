@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient.wizard;
 
+import littleware.base.feedback.LittleTool;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.GridBagLayout;

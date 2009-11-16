@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient;
 
+import littleware.base.feedback.LittleListener;
 import com.google.inject.Inject;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

@@ -1,5 +1,6 @@
 package littleware.apps.swingclient.event;
 
+import littleware.base.feedback.LittleEvent;
 import littleware.asset.Asset;
 import littleware.apps.client.*;
 

@@ -39,9 +39,10 @@ public class ThumbManagerTester extends LittleTest {
     @Override
     public void setUp() {
         try {
-            osession.setTransactionCount( -1 );
-            osession = omgrImage.deleteImage(osession, "Setting up thumb test" );
-            omgrThumb.clearCache(osession.getObjectId() );
+            osession = omgrImage.deleteImage(osession.copy().transaction(-1).build(),
+                    "Setting up thumb test"
+                    ).narrow();
+            omgrThumb.clearCache(osession.getId() );
         } catch ( Exception ex ) {
             throw new AssertionFailedException( "Failed test setup", ex );
         }
@@ -65,7 +66,7 @@ public class ThumbManagerTester extends LittleTest {
 
     public void testBasicThumb () {
         try {
-            final Thumb thumb_default = omgrThumb.loadThumb( osession.getObjectId () );
+            final Thumb thumb_default = omgrThumb.loadThumb( osession.getId () );
             assertTrue ( "Loaded defualt thumb", thumb_default.isFallback () );
 
             assertTrue( "Default thumb ok",
@@ -80,8 +81,8 @@ public class ThumbManagerTester extends LittleTest {
                     imgTest,
                     "Setting up thumb test image"
                     );
-            omgrThumb.clearCache( osession.getObjectId() );
-            assertTrue( "Thumb no longer default", ! omgrThumb.loadThumb( osession.getObjectId() ).isFallback() );
+            omgrThumb.clearCache( osession.getId() );
+            assertTrue( "Thumb no longer default", ! omgrThumb.loadThumb( osession.getId() ).isFallback() );
         } catch ( Exception ex ) {
             olog.log( Level.WARNING, "Test failed on exception", ex );
             assertTrue( "Cuaght unexpected: " + ex, false );

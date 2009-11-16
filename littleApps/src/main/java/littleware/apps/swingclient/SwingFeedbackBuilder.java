@@ -18,13 +18,13 @@ import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
-import littleware.apps.client.LittleEvent;
-import littleware.apps.client.LittleListener;
+import littleware.base.feedback.LittleEvent;
+import littleware.base.feedback.LittleListener;
 import littleware.apps.client.Feedback;
 import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.client.NullFeedback;
-import littleware.apps.client.SwingAdapter;
-import littleware.apps.client.event.UiMessageEvent;
+import littleware.base.swing.SwingAdapter;
+import littleware.base.feedback.UiMessageEvent;
 import littleware.base.Whatever;
 
 /**

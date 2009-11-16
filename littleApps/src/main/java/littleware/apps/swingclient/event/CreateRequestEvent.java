@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient.event;
 
+import littleware.base.feedback.LittleEvent;
 import littleware.apps.client.*;
 
 /**

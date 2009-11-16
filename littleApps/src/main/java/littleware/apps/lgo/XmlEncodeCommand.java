@@ -10,16 +10,15 @@
 
 package littleware.apps.lgo;
 
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 //import gnu.getopt.Getopt;
 //import gnu.getopt.LongOpt;
 
 import java.util.List;
-import littleware.apps.client.Feedback;
 import littleware.base.AssertionFailedException;
 import littleware.base.XmlSpecial;
+import littleware.base.feedback.Feedback;
 
 
 /**
@@ -107,9 +106,7 @@ public class XmlEncodeCommand extends AbstractLgoCommand<String,String> {
         }
          */
     }            
-    
-    
-    
+     
 
     @Override
     public String runCommand( Feedback feedback, String s_in ) {

@@ -13,10 +13,10 @@ package littleware.apps.lgo;
 import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import littleware.apps.client.Feedback;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.base.Whatever;
+import littleware.base.feedback.Feedback;
 
 /**
  * Command tries to resolve home-rooted path for given asset-path.

@@ -30,8 +30,10 @@ import javax.swing.*;
 import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
 import littleware.base.NoSuchThingException;
 import littleware.security.*;
+import littleware.security.LittleAcl.Builder;
 
 
 /**
@@ -173,23 +175,26 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
      */
     private void uiAddNewMember () {
         try {
-            String            s_name = owtext_add.getText ();
-            LittlePrincipal   p_new = om_search.getByName ( s_name, SecurityAssetType.PRINCIPAL ).get();
-            LittleAcl         acl_local = this.getLocalAsset ().narrow( LittleAcl.class );
+            final String            s_name = owtext_add.getText ();
+            final LittlePrincipal   principal = om_search.getByName ( s_name, SecurityAssetType.PRINCIPAL ).get().narrow();
+            LittleAcl               acl_local = this.getLocalAsset ().narrow();
             AssetModelLibrary lib_asset = getAssetModel ().getLibrary ();
             LittlePermission  perm_selected = owtab_perms.getSelectedPermission ();
-            
-            lib_asset.syncAsset ( p_new );
-            LittleAclEntry    acle_new = acl_local.getEntry ( p_new, false );
-            if ( null == acle_new ) {
-                acle_new = SecurityAssetType.ACL_ENTRY.create ();
-                acle_new.setPrincipal ( p_new );
-                acl_local.addEntry ( acle_new );
+
+            final LittleAclEntry.Builder entryBuilder;
+            final LittleAclEntry entry = acl_local.getEntry ( principal, false ).getOr(null);
+            lib_asset.syncAsset ( principal );
+            if ( null == entry ) {
+                entryBuilder = SecurityAssetType.ACL_ENTRY.create ().
+                        principal( principal );
+            } else {
+                entryBuilder = entry.copy();
             }
-            if ( acle_new.addPermission ( perm_selected ) ) {
-                DefaultListModel model_memberlist = owtab_perms.getListModel ( perm_selected );
-                model_memberlist.addElement ( p_new );
-                this.setHasLocalChanges ( true );
+            entryBuilder.addPermission ( perm_selected );
+            final DefaultListModel model_memberlist = owtab_perms.getListModel ( perm_selected );
+            if ( ! model_memberlist.contains( principal ) ) {
+                model_memberlist.addElement ( principal );
+                ((LittleAcl.Builder) this.changeLocalAsset()).addEntry(entryBuilder.build() );
             }
         } catch ( Exception e ) {
             olog_generic.log ( Level.INFO, "Failed adding new member, caught: " + e +
@@ -206,18 +211,19 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
      */
     private void uiDeleteMembers () {
         try {
-            LittleAcl             acl_local = this.getLocalAsset ().narrow( LittleAcl.class );
-            LittlePermission      perm_selected = owtab_perms.getSelectedPermission ();
-            List<LittlePrincipal> v_selected = owtab_perms.getSelectedPrincipal ( perm_selected );
+            final LittleAcl       acl = this.getLocalAsset().narrow();
+            final LittleAcl.Builder     aclBuilder = (Builder) this.changeLocalAsset ();
+            final LittlePermission      perm_selected = owtab_perms.getSelectedPermission ();
+            final List<LittlePrincipal> v_selected = owtab_perms.getSelectedPrincipal ( perm_selected );
             
             DefaultListModel model_memberlist = owtab_perms.getListModel ( perm_selected );
             for ( LittlePrincipal p_selected : v_selected ) {
-                LittleAclEntry  acle_selected = acl_local.getEntry ( p_selected, false );
-                if ( (null != acle_selected) 
-                     && acle_selected.removePermission( perm_selected ) 
-                     ) {
-                    if ( ! acle_selected.permissions ().hasMoreElements () ) {
-                        acl_local.removeEntry ( acle_selected );
+                final Maybe<LittleAclEntry>  maybeEntry = acl.getEntry ( p_selected, false );
+                if ( maybeEntry.isSet() ) {
+                    final LittleAclEntry entry = maybeEntry.get().copy().removePermission(perm_selected).build();
+                     
+                    if ( ! entry.permissions ().hasMoreElements () ) {
+                        
                     }
                     model_memberlist.removeElement ( p_selected );
                     this.setHasLocalChanges ( true );

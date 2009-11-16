@@ -8,11 +8,10 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.client.event;
+package littleware.base.feedback;
 
 import java.util.logging.Level;
-import littleware.apps.client.LittleEvent;
-import littleware.apps.client.Feedback;
+import littleware.base.feedback.LittleEvent;
 
 /**
  * LittleEvent fired by Feedback implementation on log() call.

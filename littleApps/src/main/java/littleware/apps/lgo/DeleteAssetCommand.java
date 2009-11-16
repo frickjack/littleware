@@ -14,13 +14,13 @@ import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.base.Whatever;
+import littleware.base.feedback.Feedback;
 
 /**
  * Simple delete-asset command - refuses to delete asset
@@ -74,7 +74,7 @@ public class DeleteAssetCommand extends AbstractLgoCommand<String,UUID> {
             throw new LgoException( "Could not load asset at path: " + sPath, ex );
         }
         try {
-            if ( ! osearch.getAssetIdsFrom( aDelete.getObjectId(), null ).isEmpty() ) {
+            if ( ! osearch.getAssetIdsFrom( aDelete.getId(), null ).isEmpty() ) {
                 throw new LgoArgException( "May not delete asset with child assets linking from it: " + sPath );
             }
         } catch ( LgoException ex ) {
@@ -83,11 +83,11 @@ public class DeleteAssetCommand extends AbstractLgoCommand<String,UUID> {
             throw new LgoException( "Failed to load info on asset children: " + sPath, ex );
         }
         try {
-            omgrAsset.deleteAsset( aDelete.getObjectId(), sComment );
+            omgrAsset.deleteAsset( aDelete.getId(), sComment );
         } catch ( Exception ex ) {
             throw new LgoException( "Server delete of " + sPath + " failed", ex );
         }
-        return aDelete.getObjectId();
+        return aDelete.getId();
     }
 
 }

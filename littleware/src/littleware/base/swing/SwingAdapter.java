@@ -7,12 +7,14 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.client;
+package littleware.base.swing;
 
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LittleTool;
+import littleware.base.feedback.LittleEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.lang.ref.WeakReference;
 import javax.swing.SwingUtilities;
 import littleware.base.LittleBean;
 

@@ -9,7 +9,7 @@
  */
 
 
-package littleware.apps.client;
+package littleware.base.feedback;
 
 import java.util.EventObject;
 

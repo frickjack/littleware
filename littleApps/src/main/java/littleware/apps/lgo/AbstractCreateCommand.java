@@ -11,9 +11,9 @@
 package littleware.apps.lgo;
 
 import java.io.StringWriter;
-import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.pickle.HumanPicklerProvider;
+import littleware.base.feedback.Feedback;
 
 /**
  * Extends AbstractLgoCommand with a runCommandLine implementation

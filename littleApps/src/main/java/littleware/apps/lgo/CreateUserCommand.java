@@ -13,14 +13,13 @@ package littleware.apps.lgo;
 import com.google.inject.Inject;
 import java.util.Map;
 import java.util.logging.Level;
-import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.Whatever;
+import littleware.base.feedback.Feedback;
 import littleware.security.AccountManager;
 import littleware.security.LittleGroup;
 import littleware.security.LittleUser;
@@ -71,11 +70,11 @@ public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> 
         } catch ( Exception ex ) {
             throw new LgoException( "Failed to load parent folder: " + sFolder, ex );
         }
-        LittleUser userNew = AssetType.createSubfolder( SecurityAssetType.USER,
-                sName, aFolder
-                );
+        final LittleUser userNew;
         try {
-            userNew = omgrAsset.saveAsset( userNew, "CreateUserCommand" );
+            userNew = omgrAsset.saveAsset( 
+                    SecurityAssetType.USER.create().parent( aFolder ).name( sName ).build()
+                    , "CreateUserCommand" ).narrow();
         } catch ( Exception ex ) {
             throw new LgoException( "Failed to create new user: " + sName, ex );
         }
@@ -86,16 +85,17 @@ public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> 
                 final LittleGroup groupAdmin = osearch.getByName(
                         AccountManager.LITTLEWARE_ADMIN_GROUP,
                         SecurityAssetType.GROUP
-                        ).get();
+                        ).get().narrow();
                 groupAdmin.addMember(userNew);
-                omgrAsset.saveAsset( groupAdmin, "Added user " + sName );
+                omgrAsset.saveAsset( groupAdmin.copy().add(userNew).build()
+                        , "Added user " + sName );
             } catch ( Exception ex ) {
                 feedback.log( Level.SEVERE,
                         "Failed to add new user " + sName + " to admin group"
                         );
             }
         }
-        return userNew;  //.getObjectId();
+        return userNew;  
     }
 
 }

@@ -17,7 +17,7 @@ import littleware.apps.client.AbstractAssetEditor;
 import littleware.apps.client.AssetEditor;
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
-import littleware.apps.client.LittleEvent;
+import littleware.base.feedback.LittleEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;

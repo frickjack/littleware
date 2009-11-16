@@ -9,7 +9,7 @@
  */
 package littleware.apps.client.event;
 
-import littleware.apps.client.LittleEvent;
+import littleware.base.feedback.LittleEvent;
 import littleware.apps.client.AssetModel;
 
 /**

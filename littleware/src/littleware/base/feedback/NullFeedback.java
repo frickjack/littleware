@@ -8,11 +8,10 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.base;
+package littleware.base.feedback;
 
 
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.logging.Level;
 
 /**
@@ -21,7 +20,8 @@ import java.util.logging.Level;
  */
 public class NullFeedback implements Feedback, java.io.Serializable {
     private static final long serialVersionUID = -8172928920832788511L;
-    private PropertyChangeSupport osupport = new PropertyChangeSupport( this );
+
+    private SimpleLittleTool  osupport = new SimpleLittleTool( this );
 
     private int oi_progress = 0;
 
@@ -66,10 +66,12 @@ public class NullFeedback implements Feedback, java.io.Serializable {
 
     @Override
     public void publish( Object x_result ) {
+        osupport.fireLittleEvent( new UiPublishEvent( this, x_result ) );
     }
     
     @Override
     public void log(Level level, String s_info) {
+        osupport.fireLittleEvent( new UiMessageEvent( this, level, s_info ) );
     }
 
     @Override
@@ -77,6 +79,15 @@ public class NullFeedback implements Feedback, java.io.Serializable {
         this.log( Level.INFO, s_info );
     }
 
+    @Override
+    public void addLittleListener(LittleListener listen_action) {
+        osupport.addLittleListener( listen_action );
+    }
+
+    @Override
+    public void removeLittleListener(LittleListener listen_action) {
+        osupport.removeLittleListener( listen_action );
+    }
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listen_props) {

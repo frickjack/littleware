@@ -17,11 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import littleware.apps.client.Feedback;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.base.Whatever;
+import littleware.base.feedback.Feedback;
 
 /**
  * List the child assets under a given asset path by id,name
@@ -51,7 +51,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
         final Map<String,UUID> mapChildren;
         try {
             mapChildren = osearch.getAssetIdsFrom(
-                    osearch.getAssetAtPath(path).get().getObjectId(),
+                    osearch.getAssetAtPath(path).get().getId(),
                     null
                     );
         } catch ( Exception ex ) {

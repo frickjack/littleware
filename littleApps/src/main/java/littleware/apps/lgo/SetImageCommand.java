@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import littleware.apps.client.Feedback;
 import littleware.apps.misc.ImageManager;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
@@ -25,6 +24,7 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.Whatever;
+import littleware.base.feedback.Feedback;
 
 /**
  * Set the image associated with some asset.

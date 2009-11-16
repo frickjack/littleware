@@ -382,7 +382,9 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public void setId(UUID value) {
+        final UUID old = value;
         id = value;
+        firePropertyChange("id", old, value);
     }
 
     @Override

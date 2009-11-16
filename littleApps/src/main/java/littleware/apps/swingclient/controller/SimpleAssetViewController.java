@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient.controller;
 
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;

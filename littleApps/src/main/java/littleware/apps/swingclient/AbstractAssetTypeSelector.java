@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient;
 
+import littleware.base.feedback.SimpleLittleTool;
 import java.util.List;
 import java.util.ArrayList;
 

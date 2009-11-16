@@ -10,6 +10,7 @@
 
 package littleware.apps.tracker.swing;
 
+import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.*;

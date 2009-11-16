@@ -9,6 +9,9 @@
  */
 package littleware.apps.client;
 
+import littleware.base.feedback.SimpleLittleTool;
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LittleEvent;
 import com.google.inject.Singleton;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -60,7 +63,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
      */
     private class SimpleAssetModel implements AssetModel {
 
-        private final Asset oa_data;
+        private Asset oa_data;
         private SimpleLittleTool otool_support = new SimpleLittleTool(this);
 
         /**
@@ -106,7 +109,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
                         map_4type = new HashMap<String, UUID>();
                         omulti_byname.put(atype, map_4type);
                     }
-                    map_4type.put(a_new.getName(), a_new.getObjectId());
+                    map_4type.put(a_new.getName(), a_new.getId());
                 }
             }
 
@@ -159,28 +162,20 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
          */
         @Override
         public Asset syncAsset(Asset a_new) {
-            final Asset a_old = this.getAsset();
-
             olog_generic.log(Level.FINE, "Syncing: " + a_new);
 
-            if ((null == a_new) || (a_old == a_new)) {
-                return a_old;
+            if ((null == a_new) || (oa_data == a_new)) {
+                return oa_data;
             }
-            if ((null != a_old) && (a_new.getTransactionCount() < a_old.getTransactionCount()) && (!a_old.isDirty())) {
-                return a_old;
+            if ((null != oa_data)
+                    && (a_new.getTransaction() <= oa_data.getTransaction()) ) {
+                return oa_data;
             }
-            if ( (null != a_old)
-                    && (a_new.getTransactionCount() == a_old.getTransactionCount())
-                    && (! a_old.isDirty())
-                    ) {
-                // avoid throwing events model-events on reload of same asset
-                return a_old;
-            }
-            final UUID fromIdOld = (null != a_old) ? a_old.getFromId() : null;
+            final UUID fromIdOld = (null != oa_data) ? oa_data.getFromId() : null;
             final UUID fromIdNew = a_new.getFromId();
-            // this call syncs a_new with a_old
-            final List<AssetModelEvent> vEvent = computeEvents( a_old, a_new );
-            a_old.sync( a_new );
+            // this call syncs a_new with oa_data
+            final List<AssetModelEvent> vEvent = computeEvents( oa_data, a_new );
+            oa_data = a_new;
             for( AssetModelEvent event : vEvent ) {
                 ((SimpleAssetModel) event.getSource()).fireLittleEvent( event );
             }
@@ -256,7 +251,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
     }
 
     @Override
-    public Maybe<AssetModel> getByName(String s_name, AssetType<? extends Asset> atype,
+    public Maybe<AssetModel> getByName(String s_name, AssetType atype,
             AssetSearchManager m_search) throws InvalidAssetTypeException,
             BaseException,
             AssetException, GeneralSecurityException, RemoteException {
@@ -285,11 +280,11 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
         if (null == a_new) {
             return null;
         }
-        AssetModel amodel_lookup = this.get(a_new.getObjectId());
+        AssetModel amodel_lookup = this.get(a_new.getId());
 
         if (null == amodel_lookup) {
             amodel_lookup = new SimpleAssetModel(a_new);
-            this.put(a_new.getObjectId(), amodel_lookup);
+            this.put(a_new.getId(), amodel_lookup);
             final List<AssetModelEvent> vEvent = ((SimpleAssetModel) amodel_lookup).computeEvents( null, a_new );
             for( AssetModelEvent event : vEvent ) {
                 ((SimpleAssetModel) event.getSource()).fireLittleEvent( event );

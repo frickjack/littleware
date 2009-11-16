@@ -10,6 +10,9 @@
 
 package littleware.apps.test;
 
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LittleTool;
+import littleware.base.feedback.LittleEvent;
 import littleware.test.JLittleDialog;
 import com.google.inject.Inject;
 import com.google.inject.Provider;

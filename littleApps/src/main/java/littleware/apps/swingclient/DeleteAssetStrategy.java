@@ -12,8 +12,8 @@ package littleware.apps.swingclient;
 
 import com.google.inject.ImplementedBy;
 import java.util.UUID;
-import littleware.apps.client.Feedback;
 import littleware.base.LittleBean;
+import littleware.base.feedback.Feedback;
 
 /**
  * Strategy for managing delete-asset user interaction.

@@ -139,7 +139,7 @@ public class SimpleThumbManager implements ThumbManager {
             if (transaction >= 0) {
                 // check timeout
                 final Maybe<Asset> maybeAsset = search.getAsset(id);
-                if (maybeAsset.isSet() && (maybeAsset.get().getTransactionCount() <= transaction)) {
+                if (maybeAsset.isSet() && (maybeAsset.get().getTransaction() <= transaction)) {
                     maybe = Maybe.emptyIfNull( (RenderedImage) ImageIO.read(jpgFile));
                 }
             }
@@ -175,7 +175,7 @@ public class SimpleThumbManager implements ThumbManager {
             final Writer writer = new FileWriter(infoFile);
             try {
                 if (maybeAsset.isSet()) {
-                    writer.write("" + maybeAsset.get().getTransactionCount() + Whatever.NEWLINE);
+                    writer.write("" + maybeAsset.get().getTransaction() + Whatever.NEWLINE);
                 } else {
                     writer.write("0" + Whatever.NEWLINE);
                 }

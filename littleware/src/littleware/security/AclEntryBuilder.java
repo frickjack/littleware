@@ -292,6 +292,11 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
         permissionSet.add(permission);
         return this;
     }
+    @Override
+    public LittleAclEntry.Builder removePermission( Permission permission ) {
+        permissionSet.remove(permission);
+        return this;
+    }
 
     /**
      * Set this Acl Entry as a negative one - shortcut to setValue(0)

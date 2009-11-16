@@ -14,7 +14,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import littleware.apps.client.Feedback;
+import littleware.base.feedback.Feedback;
+
 
 
 /**

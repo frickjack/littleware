@@ -15,11 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.pickle.HumanPicklerProvider;
+import littleware.base.feedback.Feedback;
 
 /**
  *
@@ -49,8 +49,8 @@ public class GetByNameCommand extends AbstractCreateCommand<String,Asset> {
         final Map<String,String> mapArg = processArgs( mapDefault, getArgs() );
         final String sName = mapArg.get( Option.name.toString() );
         final String sType = mapArg.get( Option.type.toString() ).toLowerCase();
-        AssetType<? extends Asset>  type = AssetType.UNKNOWN;
-        for( AssetType<? extends Asset> possible : AssetType.getMembers() ) {
+        AssetType  type = AssetType.UNKNOWN;
+        for( AssetType possible : AssetType.getMembers() ) {
             String sPossible = possible.toString().toLowerCase();
             olog.log( Level.FINE, "Scanning type argument " + sType + " ?= " + sPossible );
             if ( sType.equals( sPossible )

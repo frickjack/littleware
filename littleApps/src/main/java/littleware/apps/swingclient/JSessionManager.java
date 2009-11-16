@@ -10,6 +10,10 @@
 
 package littleware.apps.swingclient;
 
+import littleware.base.feedback.SimpleLittleTool;
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LittleTool;
+import littleware.base.feedback.LittleEvent;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionListener;

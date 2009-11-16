@@ -14,9 +14,9 @@ import com.google.inject.Inject;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.SetImageCommand;
 import littleware.apps.misc.ImageManager;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
 
 /**
@@ -43,7 +43,7 @@ public class SetImageTester extends LittleTest {
                     "-path", getTestHome(),
                     "-image", "marilyn.jpg"
                     ));
-            ocomTest.runSafe( new LoggerUiFeedback(), "" );
+            ocomTest.runSafe( new LoggerFeedback(), "" );
         } catch ( Exception ex ) {
             olog.log( Level.WARNING, "Failed test", ex );
             assertTrue( "Caught unexpected: " + ex, false );

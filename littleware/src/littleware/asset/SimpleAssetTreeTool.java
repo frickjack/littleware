@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
-import littleware.base.Feedback;
-import littleware.base.NullFeedback;
+import littleware.base.feedback.Feedback;
+import littleware.base.feedback.NullFeedback;
 import littleware.base.BaseException;
 import littleware.base.TooMuchDataException;
 

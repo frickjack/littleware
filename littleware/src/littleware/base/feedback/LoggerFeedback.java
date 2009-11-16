@@ -8,21 +8,21 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.client;
+package littleware.base.feedback;
 
-import littleware.apps.client.NullFeedback;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.event.UiMessageEvent;
+import littleware.base.feedback.UiMessageEvent;
+import littleware.base.feedback.NullFeedback;
 
 /**
  * Simple logger-based implementation of UiFeedback interface.
  * Just adds listeners that log each UIFeedback event.
  */
-public class LoggerUiFeedback extends NullFeedback {
-    private Logger olog = Logger.getLogger( LoggerUiFeedback.class.getName() );
+public class LoggerFeedback extends NullFeedback {
+    private Logger log = Logger.getLogger( LoggerFeedback.class.getName() );
 
     {
         this.addPropertyChangeListener( new PropertyChangeListener () {
@@ -30,7 +30,7 @@ public class LoggerUiFeedback extends NullFeedback {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if ( evt.getPropertyName().equalsIgnoreCase( "progress" ) ) {
-                    olog.log( Level.INFO, getTitle() + ": " + getProgress() + "%" );
+                    log.log( Level.INFO, getTitle() + ": " + getProgress() + "%" );
                 }
             }
         }
@@ -40,7 +40,7 @@ public class LoggerUiFeedback extends NullFeedback {
             @Override
             public void receiveLittleEvent(LittleEvent event_little) {
                 if ( event_little instanceof UiMessageEvent ) {
-                    olog.log( Level.INFO, event_little.getResult().toString() );
+                    log.log( Level.INFO, event_little.getResult().toString() );
                 }
             }
         }
@@ -48,9 +48,9 @@ public class LoggerUiFeedback extends NullFeedback {
     }
 
     /** Just use general logger */
-    public LoggerUiFeedback() {}
+    public LoggerFeedback() {}
     /** Inject logger */
-    public LoggerUiFeedback( Logger logger ) {
-        olog = logger;
+    public LoggerFeedback( Logger logger ) {
+        log = logger;
     }
 }

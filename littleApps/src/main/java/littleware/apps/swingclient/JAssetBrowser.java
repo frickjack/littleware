@@ -9,6 +9,8 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.base.feedback.LittleListener;
+import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.*;

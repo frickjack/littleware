@@ -13,9 +13,9 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.GetAssetCommand;
 import littleware.apps.lgo.LgoException;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
 
 /**
@@ -35,7 +35,7 @@ public class GetAssetTester extends LittleTest {
 
     public void testGetAsset() {
         try {
-            String sResult = ocomTest.runCommandLine( new LoggerUiFeedback(),
+            String sResult = ocomTest.runCommandLine( new LoggerFeedback(),
                     "/" + getTestHome()
                     );
             olog.log( Level.INFO, "Test home: " + sResult );

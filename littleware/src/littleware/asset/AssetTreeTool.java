@@ -15,7 +15,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.UUID;
 import littleware.base.BaseException;
-import littleware.base.Feedback;
+import littleware.base.feedback.Feedback;
 import littleware.base.TooMuchDataException;
 
 /**

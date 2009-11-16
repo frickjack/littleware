@@ -14,9 +14,9 @@ import com.google.inject.Inject;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.LgoBrowserCommand;
 import littleware.base.Maybe;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
 
 /**
@@ -35,7 +35,7 @@ public class BrowserCommandTest extends LittleTest {
 
     public void testBrowserCommand() {
         try {
-            final Maybe<UUID> maybe = command.runCommand( new LoggerUiFeedback(), "/littleware.home" );
+            final Maybe<UUID> maybe = command.runCommand( new LoggerFeedback(), "/littleware.home" );
             assertTrue( "User selected something to pass test", maybe.isSet() );
         } catch ( Exception ex ) {
             log.log( Level.INFO, "Failed test", ex );

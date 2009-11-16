@@ -13,11 +13,11 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.GetRootPathCommand;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
 
 /**
@@ -42,8 +42,8 @@ public class RootPathCommandTest extends LittleTest {
 
     public void testRootPath() {
         try {
-            final AssetPath path = pathFactory.createPath( getTestHome( search ).getObjectId() );
-            final AssetPath pathResult = command.runSafe( new LoggerUiFeedback( log ), path );
+            final AssetPath path = pathFactory.createPath( getTestHome( search ).getId() );
+            final AssetPath pathResult = command.runSafe( new LoggerFeedback( log ), path );
             log.log( Level.INFO, "Rooted path: " + path + " -- " + pathResult );
             assertTrue( "Path references littleware.test_home: " + pathResult,
                     pathResult.toString().indexOf( getTestHome() ) >= 0

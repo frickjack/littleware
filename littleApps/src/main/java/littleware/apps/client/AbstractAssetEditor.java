@@ -10,18 +10,15 @@
 
 package littleware.apps.client;
 
-import javax.swing.event.UndoableEditListener;
-import javax.swing.undo.UndoableEditSupport;
 import java.beans.PropertyChangeEvent;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 
-import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.asset.AssetException;
 import littleware.asset.Asset;
+import littleware.asset.AssetBuilder;
 import littleware.asset.AssetManager;
-import littleware.asset.InvalidAssetTypeException;
 
 
 /** 
@@ -29,9 +26,9 @@ import littleware.asset.InvalidAssetTypeException;
  * Intended for delegation by Swing-based AssetEditor implementors.
  */
 public abstract class AbstractAssetEditor extends AbstractAssetView implements AssetEditor {
-    protected final UndoableEditSupport   oundo_handler = new UndoableEditSupport ( this );
-    private Asset                         oa_local = null;
-    private boolean                       ob_changed = false;
+    private AssetBuilder                  localBuilder = null;
+    private Asset                         localAsset = null;
+    private boolean                       isChanged = false;
 
     
     /**
@@ -44,7 +41,10 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
         
     @Override
     public Asset getLocalAsset () {
-        return oa_local;
+        if ( null == localAsset ) {
+            localAsset = localBuilder.build();
+        }
+        return localAsset;
     }
     
     /**
@@ -55,9 +55,8 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
         if ( null == model_edit ) {
             return;
         }
-        Asset a_new = model_edit.getAsset ();
-        oa_local = model_edit.getAsset ().clone ();
-        oa_local.sync ( a_new );
+        localBuilder = model_edit.getAsset ().copy ();
+        localAsset = null;
         // Do this last - it notifies observers
         super.setAssetModel ( model_edit );
         setHasLocalChanges ( false );
@@ -65,61 +64,51 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
         
         
     @Override
-    public void setHasLocalChanges ( boolean b_changed ) {
-        if ( b_changed != ob_changed ) {
-            ob_changed = b_changed;
+    public void setHasLocalChanges ( boolean value ) {
+        if ( value != isChanged ) {
+            isChanged = value;
             firePropertyChange ( new PropertyChangeEvent( getSourceBean (), 
                                                                AssetEditor.Property.hasLocalChanges.toString (),
-                                                               ! ob_changed,
-                                                               ob_changed
+                                                               ! isChanged,
+                                                               isChanged
                                                                ) 
                                       );
         }
+        localAsset = null;
     }
         
     @Override
     public boolean getHasLocalChanges () {
-        return ob_changed;
+        return isChanged;
     }
     
     @Override
-    public Asset changeLocalAsset () {
+    public AssetBuilder changeLocalAsset () {
         setHasLocalChanges ( true );
-        return getLocalAsset ();
+        return localBuilder;
     }
     
     @Override
     public void clearLocalChanges () {
-        Asset a_clean = getAssetModel ().getAsset ();
-        oa_local = a_clean.clone ();
-        oa_local.sync ( a_clean );
+        final Asset clean = getAssetModel ().getAsset ();
+        localBuilder = clean.copy ();
+        localAsset = null;
         setHasLocalChanges ( false );
     }
         
     @Override
-    public void saveLocalChanges ( AssetManager m_asset, String s_message 
+    public void saveLocalChanges ( AssetManager assetMgr, String message
                                        ) throws BaseException, AssetException, 
         RemoteException, GeneralSecurityException
     {
-        Asset a_saved = m_asset.saveAsset ( oa_local, s_message );
-        getAssetModel ().syncAsset ( a_saved );
-        
-        oa_local = a_saved.clone ();
-        oa_local.sync ( a_saved );
+        getAssetModel ().syncAsset ( assetMgr.saveAsset( localBuilder.build(), message ) );
+        localBuilder = getAssetModel().getAsset().copy();
+        localAsset = null;
         setHasLocalChanges ( false );
     }
 
 
-    @Override
-    public void	addUndoableEditListener( UndoableEditListener listen_edit ) {
-        oundo_handler.addUndoableEditListener ( listen_edit );
-    }
-
-    @Override
-    public void     removeUndoableEditListener( UndoableEditListener listen_edit ) {
-        oundo_handler.removeUndoableEditListener ( listen_edit );
-    }
-
 }
+
 
 

@@ -11,12 +11,12 @@
 package littleware.apps.lgo;
 
 import com.google.inject.Inject;
-import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.pickle.HumanPicklerProvider;
+import littleware.base.feedback.Feedback;
 
 /**
  * Get the asset at a given path

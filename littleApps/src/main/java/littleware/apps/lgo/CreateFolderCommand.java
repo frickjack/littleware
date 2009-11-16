@@ -13,7 +13,6 @@ package littleware.apps.lgo;
 import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPath;
@@ -22,6 +21,7 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.Whatever;
+import littleware.base.feedback.Feedback;
 
 /**
  * Create a generic asset that inherits most properties from its parent
@@ -30,11 +30,11 @@ public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
     private final AssetSearchManager            osearch;
     private final AssetManager                  omgrAsset;
     private final AssetPathFactory              ofactoryPath;
-    private final AssetType<? extends Asset>    otypeCreate;
+    private final AssetType    otypeCreate;
     /**
      * Allow subtypes to specialize based on asset-type
      */
-    protected CreateFolderCommand( String sName, AssetType<? extends Asset> typeCreate,
+    protected CreateFolderCommand( String sName, AssetType typeCreate,
             AssetSearchManager search,
             AssetManager mgrAsset,
             AssetPathFactory factoryPath,
@@ -98,10 +98,8 @@ public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
             throw new LgoException ( "Failed to load parent of: " + path );
         }
         final String sComment = mapArgs.get( Option.comment.toString() );
-        Asset aNew = AssetType.createSubfolder( otypeCreate, path.getBasename(),
-                aParent
-                );
-        aNew.setComment( sComment );
+        final Asset aNew = otypeCreate.create().parent(aParent).name( path.getBasename() ).
+            comment( sComment ).build();
         try {
             return omgrAsset.saveAsset( aNew, "CreateFolderCommand" );
         } catch ( Exception ex ) {

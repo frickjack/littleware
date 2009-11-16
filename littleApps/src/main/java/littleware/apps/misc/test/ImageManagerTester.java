@@ -60,14 +60,12 @@ public class ImageManagerTester extends LittleTest {
     public void testBasicImage () {
         try {
             BufferedImage img = ImageIO.read(ImageManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.jpg"));
-            Asset         a_test = osession;
+            Asset         a_test = osession.copy().transaction(-1).build();
 
-            // First try to load an image under a_test
-            a_test.setTransactionCount(-1);  // don't worry about synchronization
-            final Maybe<BufferedImage> maybe_load1 = omgrImage.loadImage( a_test.getObjectId () );
+            final Maybe<BufferedImage> maybe_load1 = omgrImage.loadImage( a_test.getId () );
             a_test = omgrImage.saveImage(a_test, img, "saving new reference image" );
             assertTrue( "Able to load image after save",
-                    omgrImage.loadImage( a_test.getObjectId() ).isSet()
+                    omgrImage.loadImage( a_test.getId() ).isSet()
                     );
             omgrImage.deleteImage(a_test, "cleaning up test image" );
         } catch (Exception ex) {

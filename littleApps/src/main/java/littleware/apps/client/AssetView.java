@@ -10,6 +10,9 @@
 
 package littleware.apps.client;
 
+import littleware.base.feedback.LittleTool;
+import littleware.base.feedback.Feedback;
+
 
 /**
  * An AssetView underlies a UI component viewing 

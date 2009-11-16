@@ -13,9 +13,9 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.LgoException;
 import littleware.apps.lgo.ListChildrenCommand;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
 
 /**
@@ -34,7 +34,7 @@ public class ListChildrenTester extends LittleTest {
 
     public void testListChildren() {
         try {
-            final String sResult = ocomTest.runCommandLine( new LoggerUiFeedback(), getTestHome() );
+            final String sResult = ocomTest.runCommandLine( new LoggerFeedback(), getTestHome() );
             olog.log( Level.INFO, "List children under " + getTestHome() + " + got: " + sResult );
             assertTrue( "Found some children under " + getTestHome(),
                     sResult.split( "\n" ).length > 0

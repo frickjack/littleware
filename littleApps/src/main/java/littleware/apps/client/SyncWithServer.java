@@ -12,7 +12,6 @@ package littleware.apps.client;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mysql.jdbc.AssertionFailedException;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import littleware.asset.client.LittleServiceEvent;
 import littleware.asset.client.LittleServiceListener;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
-import littleware.base.UUIDFactory;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.client.ClientCache;
 import org.osgi.framework.BundleActivator;
@@ -77,7 +75,7 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
         this.libAsset = libAsset;
         this.cache = cache;
         try {
-            littleHomeId = search.getAssetAtPath(pathFactory.createPath("/littleware.home")).get().getObjectId();
+            littleHomeId = search.getAssetAtPath(pathFactory.createPath("/littleware.home")).get().getId();
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -129,7 +127,7 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
                 final AssetModel model = libAsset.get( data.getId() );
 
                 if ( (null != model) 
-                        && (model.getAsset().getTransactionCount() < data.getTransaction()) ) {
+                        && (model.getAsset().getTransaction() < data.getTransaction()) ) {
                     result.add( data.getId() );
                 } else if ( (null == model)
                         && data.getFrom().isSet()
@@ -181,8 +179,8 @@ public class SyncWithServer implements BundleActivator, Runnable, LittleServiceL
                     final Maybe<Asset> maybe = search.getAsset( id );
                     if ( maybe.isSet() ) {
                         final Asset asset = maybe.get();
-                        log.log( Level.FINE, "Syncing asset " + asset.getObjectId() + ", " + asset.getName() +
-                                ", " + asset.getTransactionCount()
+                        log.log( Level.FINE, "Syncing asset " + asset.getId() + ", " + asset.getName() +
+                                ", " + asset.getTransaction()
                                 );
                         libAsset.syncAsset( maybe.get() );
                     }

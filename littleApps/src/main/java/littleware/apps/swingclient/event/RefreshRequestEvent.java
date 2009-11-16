@@ -10,7 +10,7 @@
 
 package littleware.apps.swingclient.event;
 
-import littleware.apps.client.LittleEvent;
+import littleware.base.feedback.LittleEvent;
 
 /**
  * Event fired on user request to refresh view with fresh

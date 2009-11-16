@@ -13,7 +13,6 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.DeleteAssetCommand;
 import littleware.apps.lgo.LgoException;
 import littleware.asset.Asset;
@@ -22,6 +21,7 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.base.AssertionFailedException;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
 
 /**
@@ -47,9 +47,9 @@ public class DeleteAssetTester extends LittleTest {
     public void setUp() {
         try {
             final Asset aHome = osearch.getByName( osHome, AssetType.HOME ).get();
-            oaDelete = osearch.getAssetFrom( aHome.getObjectId(), osName ).getOr( null );
+            oaDelete = osearch.getAssetFrom( aHome.getId(), osName ).getOr( null );
             if ( null == oaDelete ) {
-                Asset aNew = AssetType.createSubfolder( AssetType.GENERIC, osName, aHome);
+                final Asset aNew = AssetType.GENERIC.create().parent( aHome ).name( osName ).build();
                 oaDelete = omgrAsset.saveAsset( aNew, "Setup test asset" );
             }
         } catch ( RuntimeException ex ) {
@@ -77,7 +77,7 @@ public class DeleteAssetTester extends LittleTest {
     public void testCommand() {
         try {
             assertTrue( "Delete asset ran ok",
-                    null != ocommand.runSafe( new LoggerUiFeedback(), osTestPath )
+                    null != ocommand.runSafe( new LoggerFeedback(), osTestPath )
                 );
         } catch ( LgoException ex ) {
             olog.log ( Level.WARNING, "Command failed", ex );

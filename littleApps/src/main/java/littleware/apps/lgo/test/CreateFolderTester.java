@@ -13,13 +13,13 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.CreateFolderCommand;
 import littleware.apps.lgo.LgoException;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.base.Maybe;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
 
 /**
@@ -39,11 +39,11 @@ public class CreateFolderTester extends LittleTest {
     public void setUp() {
         try {
             final Asset aHome = getTestHome( osearch );
-            final Maybe<Asset> maybeDelete = osearch.getAssetFrom( aHome.getObjectId(),
+            final Maybe<Asset> maybeDelete = osearch.getAssetFrom( aHome.getId(),
                     "testCreateFolder"
                     );
             if ( maybeDelete.isSet() ) {
-                omgrAsset.deleteAsset( maybeDelete.get().getObjectId(), "test cleanup" );
+                omgrAsset.deleteAsset( maybeDelete.get().getId(), "test cleanup" );
             }
         } catch ( Exception ex ) {
             olog.log( Level.WARNING, "Failed test setup", ex );
@@ -70,7 +70,7 @@ public class CreateFolderTester extends LittleTest {
 
     public void testCreate() {
         try {
-            Asset aNew = ocomTest.runCommand( new LoggerUiFeedback(),
+            Asset aNew = ocomTest.runCommand( new LoggerFeedback(),
                     "/" + getTestHome() + "/testCreateFolder"
                     );
             assertTrue( "Created asset", null != aNew );

@@ -25,19 +25,18 @@ import javax.swing.*;
 
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
-import littleware.apps.client.LoggerUiFeedback;
-import littleware.apps.client.Feedback;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.ExtendedAssetViewController;
 import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
-import littleware.base.AssertionFailedException;
 import littleware.base.EventBarrier;
 import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
+import littleware.base.feedback.Feedback;
+import littleware.base.feedback.LoggerFeedback;
 
 /**
  * Launch a Swing browser, and return the whatever
@@ -135,7 +134,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
             try {
                 final Asset a_start = osearch.getAssetAtPath(opathFactory.createPath(sStartPath)).get();
                 olib.syncAsset(a_start);
-                setStart(a_start.getObjectId());
+                setStart(a_start.getId());
             } catch (Exception e) {
                 feedback.log(Level.WARNING, "Unable to load asset at path: " + sStartPath + ", caught: " + e);
             }
@@ -173,7 +172,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        createGUI(Maybe.emptyIfNull(stuff.browser.getAssetModel().getAsset().getObjectId()));
+                        createGUI(Maybe.emptyIfNull(stuff.browser.getAssetModel().getAsset().getId()));
                     }
                 });
 
@@ -223,7 +222,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    barrier.publishEventData(stuff.browser.getAssetModel().getAsset().getObjectId());
+                    barrier.publishEventData(stuff.browser.getAssetModel().getAsset().getId());
                     stuff.jframe.dispose();
                 }
             });
@@ -278,7 +277,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
                         new littleware.security.auth.ClientServiceGuice(),
                         new PropertiesGuice(littleware.base.PropertiesLoader.get().loadProperties())
                     });
-            Feedback feedback = new LoggerUiFeedback();
+            Feedback feedback = new LoggerFeedback();
             LgoBrowserCommand command = injector.getInstance(LgoBrowserCommand.class);
             command.runDynamic(feedback,
                     "/littleware.home/");

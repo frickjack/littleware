@@ -19,9 +19,9 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import java.util.Set;
-import littleware.apps.client.Feedback;
 import littleware.base.Whatever;
 import littleware.base.XmlResourceBundle;
+import littleware.base.feedback.Feedback;
 
 /**
  * Simple help-command baseclass just builds up

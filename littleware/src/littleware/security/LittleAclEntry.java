@@ -30,6 +30,7 @@ public interface LittleAclEntry extends AclEntry, Asset {
     @ImplementedBy(AclEntryBuilder.class)
     public interface Builder extends AssetBuilder {
         public Builder addPermission(Permission permission);
+        public Builder removePermission( Permission permission );
 
         public void setNegative();
         public Builder negative();

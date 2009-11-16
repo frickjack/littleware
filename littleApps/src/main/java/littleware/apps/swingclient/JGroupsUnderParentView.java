@@ -21,6 +21,7 @@ import javax.swing.*;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
+import littleware.base.feedback.Feedback;
 import littleware.base.swing.ListModelIterator;
 import littleware.security.*;
 
@@ -72,7 +73,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
             // find the group in the list model
             final int i_size = olmodel_groups.getSize ();
             for ( int i_pos=0; i_pos < i_size; ++i_pos ) {
-                if ( ((Asset) olmodel_groups.getElementAt( i_pos )).getObjectId ().equals ( group_source.getObjectId () ) ) {
+                if ( ((Asset) olmodel_groups.getElementAt( i_pos )).getId ().equals ( group_source.getId () ) ) {
                     olmodel_groups.set ( i_pos, group_source );
                     break;
                 }
@@ -159,7 +160,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
               r_list.hasNext ();
               )
         {
-            AssetModel  amodel_group = olib_asset.get ( ((Asset) r_list.next ()).getObjectId () );
+            AssetModel  amodel_group = olib_asset.get ( ((Asset) r_list.next ()).getId () );
             if ( null != amodel_group ) {
                 amodel_group.removeLittleListener ( olisten_children );
             }
@@ -170,7 +171,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
             List<Asset>  v_groups = new ArrayList<Asset> ();
             {
                 Collection<UUID>    v_ids = new ArrayList<UUID> ();  // serializable collection
-                v_ids.addAll ( om_search.getAssetIdsFrom ( a_root.getObjectId (), SecurityAssetType.GROUP ).values () );
+                v_ids.addAll ( om_search.getAssetIdsFrom ( a_root.getId (), SecurityAssetType.GROUP ).values () );
                 v_groups.addAll ( om_search.getAssets ( v_ids ) );
             }
             Collections.sort ( v_groups, new Comparator<Asset> () {

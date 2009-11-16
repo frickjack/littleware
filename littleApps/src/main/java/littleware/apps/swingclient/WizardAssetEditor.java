@@ -25,6 +25,7 @@ import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.event.*;
+import littleware.base.feedback.Feedback;
 
 /** 
  * Base class for a Wizard based AssetEditor.
@@ -127,18 +128,7 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
         oeditor_internal.saveLocalChanges ( m_asset, s_message );
     }
     
-    
-    @Override
-	public void	addUndoableEditListener( UndoableEditListener listen_edit ) {
-        oeditor_internal.addUndoableEditListener ( listen_edit );
-    }
-	
-    @Override
-	public void     removeUndoableEditListener( UndoableEditListener listen_edit ) {
-        oeditor_internal.removeUndoableEditListener ( listen_edit );
-    }
-    
-    
+        
     @Override
     public void	addLittleListener( LittleListener listen_little ) {
 		oeditor_internal.addLittleListener ( listen_little );
@@ -151,7 +141,7 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
 	}
     
     @Override
-    public Asset   changeLocalAsset () {
+    public AssetBuilder   changeLocalAsset () {
         return oeditor_internal.changeLocalAsset ();
     }
     

@@ -233,7 +233,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
     public void setLink ( Asset a_linkto ) {
         owalink_edit.setLink ( a_linkto );
         if ( null != a_linkto ) {
-            setFallbackAsset ( olib_asset.get ( a_linkto.getObjectId () ) );
+            setFallbackAsset ( olib_asset.get ( a_linkto.getId () ) );
         }
     }
     
@@ -264,7 +264,4 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
     }
 }
 
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

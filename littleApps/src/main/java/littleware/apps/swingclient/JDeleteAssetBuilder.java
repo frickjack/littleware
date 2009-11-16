@@ -13,7 +13,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,13 +28,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
-import littleware.apps.client.Feedback;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetTreeTool;
 import littleware.base.Maybe;
+import littleware.base.feedback.Feedback;
 import littleware.base.swing.GridBagWrap;
 import littleware.base.swing.JTextAppender;
 
@@ -158,7 +157,7 @@ public class JDeleteAssetBuilder implements DeleteAssetStrategy.Builder {
                             for (AssetWithPath pair : vDelete) {
                                 try {
                                     feedback.info("Deleting: " + pair.getPath());
-                                    manager.deleteAsset(pair.getAsset().getObjectId(), "Deleting asset");
+                                    manager.deleteAsset(pair.getAsset().getId(), "Deleting asset");
                                     log.log(Level.FINE, "Setting progress " + iCount++ + "/" + vDelete.size());
                                     feedback.setProgress(iCount, vDelete.size());
                                 } catch (Exception ex) {
@@ -274,7 +273,7 @@ public class JDeleteAssetBuilder implements DeleteAssetStrategy.Builder {
                                 final List<AssetWithPath> vResult = new ArrayList<AssetWithPath>();
                                 for (Asset asset : vAsset) {
                                     final AssetPath path = pathFactory.toRootedPath(
-                                            pathFactory.createPath(asset.getObjectId()));
+                                            pathFactory.createPath(asset.getId()));
                                     feedback.info(path.toString());
                                     vResult.add(new AssetWithPath(asset, path));
                                 }

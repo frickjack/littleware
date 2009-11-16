@@ -54,7 +54,8 @@ public interface LittleAcl extends Acl, Asset {
         /**
          * Utility since our Acl implementation does not care who the caller is
          */
-        public boolean addEntry(LittleAclEntry entry);
+        public Builder addEntry(LittleAclEntry entry);
+        public Builder removeEntry(LittleAclEntry entry);
 
         @Override
         public Builder copy( Asset source );

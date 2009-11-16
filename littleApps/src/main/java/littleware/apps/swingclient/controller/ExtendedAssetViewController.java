@@ -14,7 +14,6 @@ import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.beans.PropertyChangeEvent;
-import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -24,7 +23,6 @@ import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
 
 import com.nexes.wizard.Wizard;
-import java.awt.Dimension;
 import java.beans.PropertyChangeListener;
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
@@ -35,6 +33,7 @@ import littleware.apps.swingclient.JDeleteAssetBuilder;
 import littleware.apps.swingclient.event.*;
 import littleware.apps.swingclient.wizard.CreateAssetWizard;
 import littleware.asset.Asset;
+import littleware.asset.AssetBuilder;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
@@ -111,33 +110,25 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
             AssetModel amodel_edit = null;
             
             if ( event_little instanceof CreateRequestEvent ) {
-                CreateRequestEvent event_create = (CreateRequestEvent) event_little;
-                AssetModel         amodel_view = event_create.getAssetModel ();
-                Asset              a_new = AssetType.GENERIC.create ();
-                
-                a_new.setName ( "username.new_asset" );
+                final CreateRequestEvent event_create = (CreateRequestEvent) event_little;
+                final AssetModel         amodel_view = event_create.getAssetModel ();
+                final AssetBuilder       assetBuilder = AssetType.GENERIC.create ().
+                        ownerId ( oa_session.getOwnerId () ).
+                        name ( "username.new_asset" );
 
                 int                       i_create_result = Wizard.ERROR_RETURN_CODE;
                 final   CreateAssetWizard wizard_create = oprovideWizard.get();
                 try {
-                    wizard_create.setAssetModel(olib_asset.syncAsset( a_new ) );
                     // Give the asset local changes not in the AssetModelLibrary
                     if ( null != amodel_view ) {
-                        Asset a_from = amodel_view.getAsset ();
-                        Asset a_local = wizard_create.changeLocalAsset();
-                        // issue as change after setting initial asset-model
-                        // so library detects from-id change
-                        a_local.setFromId ( a_from.getObjectId () );
-                        a_local.setHomeId ( a_from.getHomeId () );
-                        a_local.setOwnerId ( oa_session.getOwnerId () );
-                        a_local.setAclId ( a_from.getAclId () );
+                        assetBuilder.parent( amodel_view.getAsset() );
                     }
-
+                    wizard_create.setAssetModel(olib_asset.syncAsset( assetBuilder.build() ) );
                     i_create_result = wizard_create.showModalDialog ();
                     
                     if ( Wizard.FINISH_RETURN_CODE != i_create_result ) {
                         // new-asset creation canceled for some reason - 
-                        olib_asset.remove ( a_new.getObjectId () );
+                        olib_asset.remove ( assetBuilder.getId () );
                         amodel_edit = null;
                     } else {
                         // Note - asset-model may be replaced with a new object
@@ -148,12 +139,12 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                         
                 } catch ( Exception e ) {
                     olog_generic.log ( Level.WARNING, "Asset-create caught unexpected", e );
-                    olib_asset.remove ( a_new.getObjectId () );
+                    olib_asset.remove ( assetBuilder.getId () );
                     JOptionPane.showMessageDialog(null, "Could not create new asset, caught: " + e,
                                                   "alert", 
                                                   JOptionPane.ERROR_MESSAGE
                                                   );  
-                    olib_asset.remove ( a_new.getObjectId () );
+                    olib_asset.remove ( assetBuilder.getId () );
                     amodel_edit = null;
                 }
             } else {
@@ -177,7 +168,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
             final DeleteRequestEvent  event_delete = (DeleteRequestEvent) event_little;
             final AssetModel          amodel_delete = event_delete.getAssetModel ();
             final Asset               a_delete = amodel_delete.getAsset ();
-            final JDeleteAssetBuilder.JDeletePanel delete = buildDelete.build( a_delete.getObjectId() );
+            final JDeleteAssetBuilder.JDeletePanel delete = buildDelete.build( a_delete.getId() );
             final JDialog             dialog = new JDialog();
             dialog.setTitle( "Delete Asset Subtree" );
             dialog.add(delete);

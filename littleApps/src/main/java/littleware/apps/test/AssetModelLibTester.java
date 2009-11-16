@@ -56,19 +56,19 @@ public class AssetModelLibTester extends LittleTest {
      */
     public void testModelLibrary() {
         // couple bogus test assets - donot save to repository
-        final Asset a_bogus1 = AssetType.GENERIC.create();
-        final Asset a_bogus2 = AssetType.GENERIC.create();
+        final Asset a_bogus1 = AssetType.GENERIC.create().name("bogus1").build();
+        final Asset a_bogus2 = AssetType.GENERIC.create().name("bogus2").build();
 
 
         try {
             final Asset a_test = osession;
 
-            olibAsset.remove(a_test.getObjectId());
+            olibAsset.remove(a_test.getId());
 
             assertTrue("Simple sync is ok",
                     olibAsset.syncAsset(a_test).getAsset() == a_test);
             assertTrue("No retrieval if not necessary",
-                    olibAsset.retrieveAssetModel(a_test.getObjectId(), osearch).get().getAsset() == a_test
+                    olibAsset.retrieveAssetModel(a_test.getId(), osearch).get().getAsset() == a_test
                     );
 
             final AssetModel amodel_everybody =
@@ -90,7 +90,7 @@ public class AssetModelLibTester extends LittleTest {
                     SecurityAssetType.GROUP
                     ).isSet()
                     );
-            olibAsset.remove( amodel_everybody.getAsset ().getObjectId () );
+            olibAsset.remove( amodel_everybody.getAsset ().getId () );
             assertTrue( "ModelLibrary getByName cleared after remove",
                     !olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                         SecurityAssetType.GROUP
@@ -103,23 +103,23 @@ public class AssetModelLibTester extends LittleTest {
                 public void eventFromModel(LittleEvent event_property) {
                     // just do something - anything
                     olog.log( Level.INFO, "Test editor received event from model, setting value to 5" );
-                    a_bogus2.setValue(5);
+                    changeLocalAsset().setValue(5);
                 }
             };
             edit_bogus.setAssetModel(olibAsset.syncAsset(a_bogus1)); //addPropertyChangeListener ( listen_assetprop );
-            a_bogus2.setFromId(a_bogus1.getObjectId());
             // Adding a_bogus2 to the asset repository should trigger a Property.assetsLinkingFrom
             // property-change event on listeners to a_bogus1 AssetModel
-            olibAsset.syncAsset(a_bogus2);
+            olibAsset.syncAsset( a_bogus2.copy().fromId(a_bogus1.getId()).
+                       transaction( a_bogus2.getTransaction() + 1 ).build()
+                       );
             Thread.sleep(4000); // let any asynchrony work itself out
-            assertTrue("AssetModel cascading properties correctly", 5 == a_bogus2.getValue());
-
+            assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().getValue() );
         } catch (Exception e) {
             olog.log(Level.WARNING, "Caught unexpected: " + e, e );
             assertTrue("Caught unexpected: " + e, false);
         } finally {
-            olibAsset.remove(a_bogus1.getObjectId());
-            olibAsset.remove(a_bogus2.getObjectId());
+            olibAsset.remove(a_bogus1.getId());
+            olibAsset.remove(a_bogus2.getId());
         }
     }
 
@@ -130,13 +130,13 @@ public class AssetModelLibTester extends LittleTest {
     public void testSessionHookup() {
         try {
             assertTrue( "SearchManager is a service", osearch instanceof LittleService );
-            olibAsset.remove( osession.getObjectId() );
+            olibAsset.remove( osession.getId() );
             assertTrue( "Session removed from model library",
-                    null == olibAsset.get( osession.getObjectId() )
+                    null == olibAsset.get( osession.getId() )
                     );
-            osearch.getAsset( osession.getObjectId() );
+            osearch.getAsset( osession.getId() );
             assertTrue( "Asset automatically added to model library on load",
-                    null != olibAsset.get( osession.getObjectId() )
+                    null != olibAsset.get( osession.getId() )
                     );
             // Make sure that our client cache is getting wired up
             assertTrue( "Client cache registration looks ok",

@@ -269,7 +269,7 @@ public class JAssetLink extends JLabel implements LittleTool {
      */
     public void setLink ( Asset a_linkto ) {
         if ( null != a_linkto ) {
-            ou_asset_link = a_linkto.getObjectId();
+            ou_asset_link = a_linkto.getId();
         } else {
             ou_asset_link = null;
         }

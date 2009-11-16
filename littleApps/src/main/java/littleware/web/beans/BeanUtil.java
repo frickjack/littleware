@@ -62,8 +62,7 @@ public class BeanUtil {
         AssetManager m_asset = m_helper.getService(ServiceType.ASSET_MANAGER);
         Date t_end = new Date();
         t_end.setTime(t_end.getTime() + 100 * 24 * 60 * 60 * 1000L);
-        a_session.setEndDate(t_end);
-        a_session =  m_asset.saveAsset(a_session, "extend session 100 days");
+        a_session =  m_asset.saveAsset(a_session.copy().endDate(t_end).build(), "extend session 100 days").narrow();
     }
 
     /**
@@ -118,7 +117,7 @@ public class BeanUtil {
                     }
                 }
                 if ( null == ou_webhome_id ) {
-                    ou_webhome_id = om_admin.getService( ServiceType.ASSET_SEARCH ).getByName( "littleware.web_home", AssetType.HOME ).get().getObjectId ();
+                    ou_webhome_id = om_admin.getService( ServiceType.ASSET_SEARCH ).getByName( "littleware.web_home", AssetType.HOME ).get().getId ();
                 }
                 ob_initialized = true;
             } catch (RuntimeException e) {

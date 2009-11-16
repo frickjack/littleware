@@ -243,17 +243,26 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
         }
     }
 
-    final ImmutableSet.Builder<LittleAclEntry>  entrySetBuilder = ImmutableSet.builder();
+    //-------------
+
+    final Set<LittleAclEntry>  entrySet = new HashSet<LittleAclEntry>();
 
 
     @Override
-    public boolean addEntry(LittleAclEntry entry) {
+    public LittleAcl.Builder addEntry(LittleAclEntry entry) {
         if ( ! entry.getFromId().equals( getId() ) ) {
             throw new IllegalArgumentException( "Entry does not link from new ACL" );
         }
-        entrySetBuilder.add(entry);
-        return true;
+        entrySet.add(entry);
+        return this;
     }
+
+    @Override
+    public LittleAcl.Builder removeEntry( LittleAclEntry entry ) {
+        entrySet.remove(entry);
+        return this;
+    }
+
 
 
 
@@ -264,14 +273,14 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
         for( final Enumeration<AclEntry> it = acl.entries();
              it.hasMoreElements();
         ) {
-            entrySetBuilder.add( (LittleAclEntry) it.nextElement() );
+            entrySet.add( (LittleAclEntry) it.nextElement() );
         }
         return this;
     }
 
     @Override
     public LittleAcl build() {
-        return new AclAsset( this, entrySetBuilder.build() );
+        return new AclAsset( this, ImmutableSet.copyOf(entrySet) );
     }
 }
 

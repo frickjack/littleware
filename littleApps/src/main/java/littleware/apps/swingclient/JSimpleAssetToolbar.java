@@ -236,7 +236,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                             try {
                                 AssetPath  path_goto = ofactoryPath.createPath ( s_path );
                                 AssetModel model_goto = olib_asset.syncAsset ( om_search.getAssetAtPath ( path_goto ).get() );
-                                ou_goto = model_goto.getAsset ().getObjectId ();
+                                ou_goto = model_goto.getAsset ().getId ();
                                 oview_component.setAssetModel ( model_goto );
                             } catch ( Exception e ) {
                                 olog_generic.log ( Level.INFO, "Caught unexpected: " + e + ", " +
@@ -297,7 +297,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
              && (null != oview_component.getAssetModel ())
              ) {
             final Asset           aNav = oview_component.getAssetModel ().getAsset ();
-            final UUID            u_nav = aNav.getObjectId ();
+            final UUID            u_nav = aNav.getId ();
             
             if ( null != u_nav ) {
                 if ( null == aNav.getFromId() ) {
@@ -440,7 +440,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
 
             AssetModel model_view = oview_component.getAssetModel ();
             if ( null != model_view ) {
-                olist_navigation.add ( model_view.getAsset ().getObjectId () );
+                olist_navigation.add ( model_view.getAsset ().getId () );
                 oi_nav_position = olist_navigation.size ();
             }
         }

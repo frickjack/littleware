@@ -72,15 +72,15 @@ public class JDeleteAssetTester extends LittleTest {
         tearDown();
         try {
             final Asset home = getTestHome(search);
-            final Asset aTest = AssetType.createSubfolder(AssetType.GENERIC, TestFolder, home);
+            final Asset aTest = AssetType.GENERIC.create().name( TestFolder ).parent( home).build();
             final List<Asset> vCreate = new ArrayList<Asset>();
             vCreate.add(aTest);
             for (String sName : Arrays.asList("A", "B", "C")) {
-                final Asset aFolder = AssetType.createSubfolder(AssetType.GENERIC, sName, aTest);
+                final Asset aFolder = AssetType.GENERIC.create().name( sName ).parent( aTest).build();
                 vCreate.add(aFolder);
                 for (String sSuffix : Arrays.asList("A", "B", "C")) {
-                    final Asset aChild = AssetType.createSubfolder(AssetType.GENERIC, sName + sSuffix,
-                            aFolder);
+                    final Asset aChild = AssetType.GENERIC.create().name( sName + sSuffix ).
+                            parent(aFolder).build();
                     vCreate.add(aChild);
                 }
             }
@@ -96,12 +96,12 @@ public class JDeleteAssetTester extends LittleTest {
         try {
             final Asset home = getTestHome(search);
             final Maybe<Asset> maybe = search.getAssetAtPath(
-                    pathFactory.createPath(home.getObjectId(), TestFolder));
+                    pathFactory.createPath(home.getId(), TestFolder));
             if (maybe.isSet()) {
-                final List<Asset> vDelete = treeTool.loadBreadthFirst(maybe.get().getObjectId());
+                final List<Asset> vDelete = treeTool.loadBreadthFirst(maybe.get().getId());
                 Collections.reverse(vDelete);
                 for (Asset aDelete : vDelete) {
-                    manager.deleteAsset(aDelete.getObjectId(), "test cleanup");
+                    manager.deleteAsset(aDelete.getId(), "test cleanup");
                 }
             }
         } catch (Exception ex) {
@@ -127,7 +127,7 @@ public class JDeleteAssetTester extends LittleTest {
         try {
             data = new TestData(
                     search.getAssetAtPath(
-                    pathFactory.createPath(getTestHome(search).getObjectId(), TestFolder)).get());
+                    pathFactory.createPath(getTestHome(search).getId(), TestFolder)).get());
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed to retrieve test asset", ex);
             fail("Exception loading test asset: " + ex);
@@ -164,7 +164,7 @@ public class JDeleteAssetTester extends LittleTest {
                     (data.eventList.size() > 1) && data.eventList.get(0).getPropertyName().equals("state") && data.eventList.get(0).getNewValue().equals(DeleteAssetStrategy.State.Scanning));
             // Make sure our asset was actually deleted
             assertTrue("Root asset deleted",
-                    !search.getAsset(data.testAsset.getObjectId()).isSet());
+                    !search.getAsset(data.testAsset.getId()).isSet());
 
         } catch (Exception ex) {
             fail("Exception: " + ex);
@@ -176,7 +176,7 @@ public class JDeleteAssetTester extends LittleTest {
                 SwingUtilities.isEventDispatchThread());
         try {
             final JDeleteAssetBuilder.JDeletePanel delete = builder.build(
-                    data.testAsset.getObjectId());
+                    data.testAsset.getId());
 
             final JDialog dialog = new JDialog();
             dialog.setModal(false);

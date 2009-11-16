@@ -22,14 +22,12 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
@@ -48,7 +46,6 @@ import littleware.apps.client.AbstractAssetView;
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.client.AssetView;
-import littleware.apps.client.Feedback;
 import littleware.base.feedback.LittleEvent;
 import littleware.base.feedback.LittleListener;
 import littleware.apps.client.event.AssetModelEvent;
@@ -57,6 +54,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.base.Maybe;
+import littleware.base.feedback.Feedback;
 import littleware.base.stat.Timer;
 import littleware.base.swing.JUtil;
 
@@ -154,7 +152,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                         } else if (data instanceof Asset) {
                             oview_util.fireLittleEvent(
                                     new NavRequestEvent(JAssetFamilyView.this,
-                                    ((Asset) data).getObjectId(),
+                                    ((Asset) data).getId(),
                                     NavRequestEvent.NavMode.GENERIC));
                         }
                     }
@@ -185,7 +183,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                 } else if (info instanceof AssetNameId) {
                     addChildren(node, ((AssetNameId) info).getId());
                 } else if (info instanceof Asset) {
-                    addChildren(node, ((Asset) info).getObjectId());
+                    addChildren(node, ((Asset) info).getId());
                 }
                 Component w_root = JUtil.findRoot(JAssetFamilyView.this);
                 w_root.validate();
@@ -392,7 +390,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
             // handle littleware.home special case
             if (!littleHomeId.isSet()) {
                 littleHomeId = Maybe.something(
-                        osearch.getByName("littleware.home", AssetType.HOME).get().getObjectId());
+                        osearch.getByName("littleware.home", AssetType.HOME).get().getId());
             }
             if (uParent.equals(littleHomeId.get())) {
                 final DefaultMutableTreeNode homeNode = new DefaultMutableTreeNode("(Home Assets)");
@@ -441,13 +439,13 @@ public class JAssetFamilyView extends JPanel implements AssetView {
         DefaultMutableTreeNode nodeMe = null;
 
         if (null != aView.getFromId()) {
-            nodeMe = addChildren(nodeParent, aView.getFromId()).get(aView.getObjectId());
+            nodeMe = addChildren(nodeParent, aView.getFromId()).get(aView.getId());
         }
         if (null == nodeMe) {
             nodeMe = new DefaultMutableTreeNode(aView);
             nodeParent.add(nodeMe);
         }
-        addChildren(nodeMe, aView.getObjectId());
+        addChildren(nodeMe, aView.getId());
 
         ojTree.setModel(model);
         final TreePath pathMe = new TreePath(new Object[]{nodeRoot, nodeParent, nodeMe});

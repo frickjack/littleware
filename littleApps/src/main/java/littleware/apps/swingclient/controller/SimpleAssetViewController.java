@@ -26,6 +26,8 @@ import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.apps.swingclient.event.RefreshRequestEvent;
 import littleware.asset.AssetRetriever;
 import littleware.base.Maybe;
+import littleware.base.feedback.Feedback;
+import littleware.base.feedback.NullFeedback;
 import littleware.security.auth.client.ClientCache;
 
 /** 
@@ -104,7 +106,7 @@ public class SimpleAssetViewController implements LittleListener {
             if ( (null == u_destination)
                  || (
                      (null != oview_control.getAssetModel ())
-                     && u_destination.equals ( oview_control.getAssetModel ().getAsset ().getObjectId () )
+                     && u_destination.equals ( oview_control.getAssetModel ().getAsset ().getId () )
                      )
                  ) {
                 // No need to navigate
@@ -143,7 +145,7 @@ public class SimpleAssetViewController implements LittleListener {
             try {
                 olog_generic.log( Level.FINE, "REFRESH!" );
                 oclientCache.getCache().clear();
-                final UUID uAsset = oview_control.getAssetModel().getAsset().getObjectId();
+                final UUID uAsset = oview_control.getAssetModel().getAsset().getId();
                 olib_asset.syncAsset(
                         om_retriever.getAsset( uAsset ).get()
                         );

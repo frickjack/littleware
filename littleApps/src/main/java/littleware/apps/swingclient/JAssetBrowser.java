@@ -12,7 +12,6 @@ package littleware.apps.swingclient;
 import littleware.base.feedback.LittleListener;
 import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -25,9 +24,9 @@ import java.util.logging.Level;
 import littleware.apps.client.*;
 import littleware.apps.client.event.AssetModelEvent;
 import littleware.asset.*;
-import littleware.base.swing.JUtil;
 import littleware.apps.swingclient.event.*;
 import littleware.base.Maybe;
+import littleware.base.feedback.Feedback;
 
 /**
  * Asset viewer/navigater.
@@ -302,7 +301,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
             ob_in_update = true;
             omodel_children.clear();
             try {
-                Map<String, UUID> v_children = om_retriever.getAssetIdsFrom(oview_support.getAssetModel().getAsset().getObjectId(), null);
+                Map<String, UUID> v_children = om_retriever.getAssetIdsFrom(oview_support.getAssetModel().getAsset().getId(), null);
                 olog_generic.log(Level.FINE, "Syncing child UI: " + v_children.size() + " children");
                 for (UUID u_value : v_children.values()) {
                     omodel_children.addElement(u_value);

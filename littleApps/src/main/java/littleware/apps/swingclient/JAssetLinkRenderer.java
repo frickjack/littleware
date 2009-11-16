@@ -42,7 +42,6 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
     private final static Logger olog_generic = Logger.getLogger(JAssetLinkRenderer.class.getName());
     private static Clipboard oclip_copy = null;
 
-
     static {
         try {
             oclip_copy = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -54,17 +53,16 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         }
     }
     private static final long serialVersionUID = 4817821870438116270L;
-
     private final IconLibrary olib_icon;
     private final ThumbManager omgrThumb;
     private final AssetSearchManager osearch;
     private final AssetModelLibrary olibAsset;
-    private final JLabel     ojLabel = new JLabel ("uninitialized", SwingConstants.LEFT);
+    private final JLabel ojLabel = new JLabel("uninitialized", SwingConstants.LEFT);
+
     {
         ojLabel.setForeground(Color.BLUE);
     }
     private boolean obRenderThumb = false;
-
     private final DefaultTreeCellRenderer orenderTree = new DefaultTreeCellRenderer();
     private final DefaultListCellRenderer orenderList = new DefaultListCellRenderer();
     private final DefaultTableCellRenderer orenderTable = new DefaultTableCellRenderer();
@@ -76,6 +74,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
     public boolean isRenderThumbnail() {
         return obRenderThumb;
     }
+
     public void setRenderThumbnail(boolean bRenderThumb) {
         obRenderThumb = bRenderThumb;
     }
@@ -126,14 +125,14 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
      */
     @Override
     public Component getTableCellRendererComponent(JTable table, Object x_value, boolean isSelected, boolean hasFocus, int row, int column) {
-        orenderTable.getTableCellRendererComponent( table, x_value, isSelected, hasFocus, row, column );
-        configureUnknown( x_value, orenderTable );
+        orenderTable.getTableCellRendererComponent(table, x_value, isSelected, hasFocus, row, column);
+        configureUnknown(x_value, orenderTable);
         return orenderTable;
         /*..
         if (isSelected) {
-            setBackground(table.getSelectionBackground());
+        setBackground(table.getSelectionBackground());
         } else {
-            setBackground(table.getBackground());
+        setBackground(table.getBackground());
         }
         setFont(table.getFont());
         setOpaque(true);
@@ -155,18 +154,17 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
             int i_index,
             boolean b_selected,
             boolean b_hasfocus) {
-        orenderList.getListCellRendererComponent( wlist_assets, x_value, i_index,
-                b_selected, b_hasfocus
-                );
-        configureUnknown( x_value, orenderList );
+        orenderList.getListCellRendererComponent(wlist_assets, x_value, i_index,
+                b_selected, b_hasfocus);
+        configureUnknown(x_value, orenderList);
         return orenderList;
         /*..
         if (b_selected) {
-            setBackground(wlist_assets.getSelectionBackground());
-            setForeground(wlist_assets.getSelectionForeground());
+        setBackground(wlist_assets.getSelectionBackground());
+        setForeground(wlist_assets.getSelectionForeground());
         } else {
-            setBackground(wlist_assets.getBackground());
-            setForeground(wlist_assets.getForeground());
+        setBackground(wlist_assets.getBackground());
+        setForeground(wlist_assets.getForeground());
         }
         setEnabled(wlist_assets.isEnabled());
         setFont(wlist_assets.getFont());
@@ -174,7 +172,6 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         return this;
          */
     }
-
 
     /**
      * This is the only method defined by TableCellRenderer.
@@ -194,21 +191,20 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
                 b_expanded, b_leaf, i_row,
                 b_hasFocus);
         if ((null != x_value) && (x_value instanceof DefaultMutableTreeNode)) { // add this check - necessary at bootstrap
-            configureUnknown( ((DefaultMutableTreeNode) x_value).getUserObject(), orenderTree );
+            configureUnknown(((DefaultMutableTreeNode) x_value).getUserObject(), orenderTree);
         } else {
-            configureUnknown( x_value, orenderTree );
+            configureUnknown(x_value, orenderTree);
         }
         // Make sure some icon is set for tree expander
-        if ( orenderTree.getIcon() == null ) {
+        if (orenderTree.getIcon() == null) {
             orenderTree.setIcon(this.olib_icon.lookupIcon(AssetType.GENERIC));
         }
         return orenderTree;
     }
 
-
-    private void configureLabel(UUID u_id, JLabel jLabelRender ) {
+    private void configureLabel(UUID u_id, JLabel jLabelRender) {
         jLabelRender.setIcon(null);
-        
+
         if (null == u_id) {
             jLabelRender.setForeground(null);
             jLabelRender.setText("<html><i>null</i></html>");
@@ -219,9 +215,9 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         jLabelRender.setText(s_name);
         try {
             final Maybe<AssetModel> maybe = olibAsset.retrieveAssetModel(u_id, osearch);
-            if ( maybe.isSet() ) {
+            if (maybe.isSet()) {
                 final Asset a_linkto = maybe.get().getAsset();
-                configureLabel(a_linkto, jLabelRender );
+                configureLabel(a_linkto, jLabelRender);
             }
         } catch (RuntimeException e) {
             throw e;
@@ -236,61 +232,57 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         }
     }
 
-
-    public void configureLabel( Asset a_linkto, JLabel jLabelRender ) {
+    public void configureLabel(Asset a_linkto, JLabel jLabelRender) {
         if (null == a_linkto) {
             jLabelRender.setForeground(null);
-            jLabelRender.setIcon( null );
+            jLabelRender.setIcon(null);
             jLabelRender.setText("<html><i>null</i></html>");
             return;
         }
-        
-        Icon iconType = olib_icon.lookupIcon(a_linkto);
-        UUID uThumb = a_linkto.getObjectId();
 
-        if ( 
-                (
-                a_linkto.getAssetType().isA( AssetType.LINK )
-                || a_linkto.getAssetType().isA( SecurityAssetType.GROUP_MEMBER)
-                || a_linkto.getAssetType().isA( SecurityAssetType.ACL_ENTRY)
-                )
-              && (null != a_linkto.getToId() )
-             ) {
+        Icon iconType = olib_icon.lookupIcon(a_linkto);
+        UUID uThumb = a_linkto.getId();
+
+        if ((a_linkto.getAssetType().isA(AssetType.LINK) || a_linkto.getAssetType().isA(SecurityAssetType.GROUP_MEMBER) || a_linkto.getAssetType().isA(SecurityAssetType.ACL_ENTRY)) && (null != a_linkto.getToId())) {
             try {
                 // Try to incorporate the "to" asset info
                 final Icon iconBase = iconType;
-                final Icon iconTo = olib_icon.lookupIcon( a_linkto.getToAsset(osearch));
+                final Maybe<Asset> maybeTo = osearch.getAsset(a_linkto.getToId());
+                if (maybeTo.isSet()) {
+                    final Icon iconTo = olib_icon.lookupIcon(maybeTo.get());
 
-                iconType = new Icon() {
-                    @Override
-                    public int getIconWidth () {
-                        return iconBase.getIconWidth() + iconTo.getIconHeight();
-                    }
+                    iconType = new Icon() {
 
-                    @Override
-                    public void paintIcon(Component c, Graphics g, int x, int y) {
-                        iconBase.paintIcon(c, g, x, y);
-                        iconTo.paintIcon(c, g, x + iconBase.getIconWidth(), y );
-                    }
-
-                    @Override
-                    public int getIconHeight() {
-                        if ( iconBase.getIconHeight() > iconTo.getIconHeight () ) {
-                            return iconBase.getIconHeight();
-                        } else {
-                            return iconTo.getIconHeight();
+                        @Override
+                        public int getIconWidth() {
+                            return iconBase.getIconWidth() + iconTo.getIconHeight();
                         }
-                    }
-                };
-                uThumb = a_linkto.getToId();
-            } catch ( Exception ex ) {
-                olog_generic.log( Level.WARNING, "Dangling to asset - failed to retrieve " + a_linkto.getObjectId() );
+
+                        @Override
+                        public void paintIcon(Component c, Graphics g, int x, int y) {
+                            iconBase.paintIcon(c, g, x, y);
+                            iconTo.paintIcon(c, g, x + iconBase.getIconWidth(), y);
+                        }
+
+                        @Override
+                        public int getIconHeight() {
+                            if (iconBase.getIconHeight() > iconTo.getIconHeight()) {
+                                return iconBase.getIconHeight();
+                            } else {
+                                return iconTo.getIconHeight();
+                            }
+                        }
+                    };
+                    uThumb = a_linkto.getToId();
+                }
+            } catch (Exception ex) {
+                olog_generic.log(Level.WARNING, "Dangling to asset - failed to retrieve " + a_linkto.getId());
             }
         }
-        
+
         if (obRenderThumb) {
             try {
-                Thumb thumb = omgrThumb.loadThumb( uThumb );
+                Thumb thumb = omgrThumb.loadThumb(uThumb);
                 if (!thumb.isFallback()) {
                     final Icon iconBase = iconType;
                     final ImageIcon iconThumb = new ImageIcon(thumb.getThumb()) {
@@ -307,7 +299,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
                 }
             } catch (Exception ex) {
                 jLabelRender.setIcon(iconType);
-                olog_generic.log(Level.WARNING, "Failed to load thumbnail for asset " + a_linkto.getObjectId());
+                olog_generic.log(Level.WARNING, "Failed to load thumbnail for asset " + a_linkto.getId());
             }
         } else {
             jLabelRender.setIcon(iconType);
@@ -315,7 +307,6 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
 
         jLabelRender.setText(a_linkto.getName());
     }
-
 }
 
 

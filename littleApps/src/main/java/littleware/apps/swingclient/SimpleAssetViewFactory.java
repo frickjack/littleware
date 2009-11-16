@@ -20,8 +20,8 @@ import java.util.logging.Level;
 import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.security.SecurityAssetType;
-import littleware.apps.tracker.TrackerAssetType;
-import littleware.apps.tracker.swing.JQView;
+//import littleware.apps.tracker.TrackerAssetType;
+//import littleware.apps.tracker.swing.JQView;
 
 /**
  * Simple AssetViewFactory implementation that just
@@ -55,13 +55,13 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
     @Inject
     public SimpleAssetViewFactory ( Provider<JGenericAssetView> provide_generic,
             Provider<JGroupView> provide_group,
-            Provider<JAclView> provide_acl,
-            Provider<JQView>   provide_queue
+            Provider<JAclView> provide_acl
+            //,Provider<JQView>   provide_queue
             ) {
         registerProvider( AssetType.GENERIC, provide_generic, JGenericAssetView.class );
         registerProvider( SecurityAssetType.GROUP, provide_group, JGroupView.class );
         registerProvider( SecurityAssetType.ACL, provide_acl, JAclView.class );
-        registerProvider( TrackerAssetType.QUEUE, provide_queue, JQView.class );
+        //registerProvider( TrackerAssetType.QUEUE, provide_queue, JQView.class );
     }
     
     @Override

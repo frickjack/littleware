@@ -99,7 +99,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
         {
             opanel_acl = oprovideAssetPanel.get();
             opanel_acl.setInstructions( "Enter AssetPath to ACL" );
-            final List<AssetType<? extends Asset>> vLegal = new ArrayList<AssetType<? extends Asset>>();
+            final List<AssetType> vLegal = new ArrayList<AssetType>();
             vLegal.add( SecurityAssetType.ACL );
             opanel_acl.setLegalAssetType( vLegal );
         }
@@ -133,24 +133,15 @@ public class CreateAssetWizard extends WizardAssetEditor {
                     public void aboutToHidePanel() {
                         AssetTypeSelector select_atype = opanel_atype.getAssetTypeSelector();
                         if (!getLocalAsset().getAssetType().equals(select_atype.getSelectedAssetType())) {
-                            Asset a_old = getLocalAsset();
-                            Asset a_new = select_atype.getSelectedAssetType().create();
-                            a_new.setObjectId(a_old.getObjectId());
-                            a_new.setName(a_old.getName());
-                            olib_asset.remove( a_new.getObjectId() );
+                            final Asset oldTypeAsset = getLocalAsset();
+                            final Asset newTypeAsset = select_atype.getSelectedAssetType().create().copy( oldTypeAsset ).build();
+                            olib_asset.remove( newTypeAsset.getId() );
                             // register bald model with library, so
                             // update events get fired on save
-                            setAssetModel(olib_asset.syncAsset(a_new));
-
-                            a_new = changeLocalAsset();
-                            a_new.setFromId(a_old.getFromId());
-                            a_new.setAclId(a_old.getAclId());
-                            a_new.setToId(a_old.getToId());
-                            a_new.setHomeId( a_old.getHomeId() );
-                            a_new.setComment(a_old.getComment());
+                            setAssetModel(olib_asset.syncAsset(newTypeAsset));
                         }
                         if ( getLocalAsset().getAssetType().equals( AssetType.HOME ) ) {
-                            changeLocalAsset().setHomeId( getLocalAsset().getObjectId() );
+                            changeLocalAsset().setHomeId( getLocalAsset().getId() );
                         }
                     }
                 });

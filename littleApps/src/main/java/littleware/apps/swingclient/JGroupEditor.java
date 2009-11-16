@@ -92,14 +92,9 @@ public class JGroupEditor extends JGenericAssetEditor  {
      */
     private void uiAddNewMember () {
         try {
-            AssetType<LittlePrincipal>         n_type = SecurityAssetType.PRINCIPAL; //(AssetType) owcombo_ptype.getSelectedItem ();
-            String            s_name = owtext_add.getText ();
-            LittlePrincipal   p_new = om_search.getByName ( s_name, n_type ).get();
-            LittleGroup       group_local = this.getLocalAsset ().narrow( LittleGroup.class );
-            if ( group_local.addMember ( p_new ) ) {
-                omodel_memberlist.addElement ( p_new );
-                this.setHasLocalChanges ( true );
-            }
+            final String            name = owtext_add.getText ();
+            final LittlePrincipal   principal = om_search.getByName ( name, SecurityAssetType.PRINCIPAL ).get().narrow();
+            ((LittleGroup.Builder) this.changeLocalAsset ()).add(principal);
         } catch ( Exception e ) {
             olog_generic.log ( Level.INFO, "Failed adding new member, caught: " + e +
                                ", " + BaseException.getStackTrace ( e )

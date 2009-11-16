@@ -20,12 +20,11 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import littleware.base.feedback.LittleEvent;
 import littleware.base.feedback.LittleListener;
-import littleware.apps.client.Feedback;
-import littleware.apps.client.LoggerUiFeedback;
-import littleware.apps.client.NullFeedback;
 import littleware.base.swing.SwingAdapter;
 import littleware.base.feedback.UiMessageEvent;
 import littleware.base.Whatever;
+import littleware.base.feedback.Feedback;
+import littleware.base.feedback.NullFeedback;
 
 /**
  * Simple Swing feedback component logs progress to a

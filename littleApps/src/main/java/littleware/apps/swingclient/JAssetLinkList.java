@@ -21,7 +21,6 @@ import java.util.UUID;
 import javax.swing.*;
 import java.util.logging.Logger;
 
-import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.apps.swingclient.event.*;
 
@@ -130,7 +129,7 @@ public class JAssetLinkList extends JPanel implements LittleTool {
                         return;
                     } else if (xGo instanceof Asset) {
                         otool_handler.fireLittleEvent(new NavRequestEvent(JAssetLinkList.this,
-                                ((Asset) xGo).getObjectId(),
+                                ((Asset) xGo).getId(),
                                 NavRequestEvent.NavMode.GENERIC));
                     } else if (xGo instanceof UUID) {
                         otool_handler.fireLittleEvent(new NavRequestEvent(JAssetLinkList.this,

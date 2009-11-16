@@ -108,20 +108,20 @@ public class SwingClientTester extends LittleTest {
      */
     public void testAssetModelLibrary() {
         // couple bogus test assets - donot save to repository
-        final Asset a_bogus1 = AssetType.GENERIC.create();
-        final Asset a_bogus2 = AssetType.GENERIC.create();
+        final Asset a_bogus1 = AssetType.GENERIC.create().name("bogus1").build();
+        final Asset a_bogus2 = AssetType.GENERIC.create().name("bogus2").build();
 
 
         try {
             final Asset a_test = om_helper.getSession();
             final AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
 
-            olib_asset.remove(a_test.getObjectId());
+            olib_asset.remove(a_test.getId());
 
             assertTrue("Simple sync is ok",
                     olib_asset.syncAsset(a_test).getAsset() == a_test);
             assertTrue("No retrieval if not necessary",
-                    olib_asset.retrieveAssetModel(a_test.getObjectId(), m_search).get().getAsset() == a_test
+                    olib_asset.retrieveAssetModel(a_test.getId(), m_search).get().getAsset() == a_test
                     );
             
             AssetModel amodel_everybody =
@@ -143,7 +143,7 @@ public class SwingClientTester extends LittleTest {
                     SecurityAssetType.GROUP
                     ) != null
                     );
-            olib_asset.remove( amodel_everybody.getAsset ().getObjectId () );
+            olib_asset.remove( amodel_everybody.getAsset ().getId () );
             assertTrue( "ModelLibrary getByName cleared after remove",
                     olib_asset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     SecurityAssetType.GROUP
@@ -156,24 +156,23 @@ public class SwingClientTester extends LittleTest {
                 public void eventFromModel(LittleEvent event_property) {
                     // just do something - anything
                     olog_generic.log( Level.INFO, "Test editor received event from model, setting value to 5" );
-                    a_bogus2.setValue(5);
+                    changeLocalAsset().setValue(5);
                 }
             };
             edit_bogus.setAssetModel(olib_asset.syncAsset(a_bogus1)); //addPropertyChangeListener ( listen_assetprop );
-            a_bogus2.setFromId(a_bogus1.getObjectId());
             // Adding a_bogus2 to the asset repository should trigger a Property.assetsLinkingFrom
             // property-change event on listeners to a_bogus1 AssetModel
-            olib_asset.syncAsset(a_bogus2);
+            olib_asset.syncAsset(a_bogus2.copy().fromId(a_bogus1.getId()).build());
             Thread.sleep(4000); // let any asynchrony work itself out
-            assertTrue("AssetModel cascading properties correctly", 5 == a_bogus2.getValue());
+            assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().getValue());
 
         } catch (Exception e) {
             olog_generic.log(Level.WARNING, "Caught unexpected: " + e + ", " +
                     BaseException.getStackTrace(e));
             assertTrue("Caught unexpected: " + e, false);
         } finally {
-            olib_asset.remove(a_bogus1.getObjectId());
-            olib_asset.remove(a_bogus2.getObjectId());
+            olib_asset.remove(a_bogus1.getId());
+            olib_asset.remove(a_bogus2.getId());
         }
     }
 
@@ -195,7 +194,7 @@ public class SwingClientTester extends LittleTest {
                             String s_session_info = null;
                             if (event_little.isSuccessful()) {
                                 try {
-                                    UUID u_session = ((SessionHelper) event_little.getResult()).getSession().getObjectId();
+                                    UUID u_session = ((SessionHelper) event_little.getResult()).getSession().getId();
                                     s_session_info = "session id: " + u_session.toString();
                                 } catch (Exception e) {
                                     s_session_info = "ERROR loading session: caught unexpected: " + e;
@@ -234,7 +233,7 @@ public class SwingClientTester extends LittleTest {
 
             olog_generic.log(Level.INFO, "GETTING GROUP: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
             final LittleGroup group_everybody = m_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP).get();
+                    SecurityAssetType.GROUP).get().narrow();
             AssetModel model_everybody = olib_asset.syncAsset(group_everybody);
             olog_generic.log(Level.INFO, "GROUP SYNCED: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
 
@@ -247,7 +246,7 @@ public class SwingClientTester extends LittleTest {
                     "Hit OK when test successfully done"));
 
             final LittleAcl acl_everybody = m_search.getByName(LittleAcl.ACL_EVERYBODY_READ,
-                    SecurityAssetType.ACL).get();
+                    SecurityAssetType.ACL).get().narrow();
             JComponent w_acl = (JComponent) ofactory_view.createView(olib_asset.syncAsset(acl_everybody));
             //w_acl.setPreferredSize ( new Dimension ( 800, 700 ) );  // force big
             assertTrue("User confirmed acl-viewer UI functional",
@@ -321,15 +320,15 @@ public class SwingClientTester extends LittleTest {
 
             if (true) { // Simple group editor
                 final LittleGroup group_everybody = m_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                        SecurityAssetType.GROUP).get();
-                LittleGroup group_test = m_search.getByName("group.littleware.test_user",
+                        SecurityAssetType.GROUP).get().narrow();
+                LittleGroup group_test = (LittleGroup) m_search.getByName("group.littleware.test_user",
                                                         SecurityAssetType.GROUP
-                                                        ).get();
+                                                        ).getOr(null);
                 if ( null == group_test ) {
                     final AssetManager saver = om_helper.getService( ServiceType.ASSET_MANAGER );
-                    group_test = saver.saveAsset( AssetType.createSubfolder( SecurityAssetType.GROUP, "group.littleware.test_user", getTestHome( m_search) ),
+                    group_test = saver.saveAsset( SecurityAssetType.GROUP.create().name( "group.littleware.test_user" ).parent( getTestHome( m_search) ).build(),
                             "Setup test asset"
-                            );
+                            ).narrow();
                 }
                 group_test.addMember(group_everybody);
 
@@ -346,19 +345,22 @@ public class SwingClientTester extends LittleTest {
             }
             if (true) { // Simple acl editor
                 final String s_acl_name = "SwingClientTester.acl";
-                LittleAcl acl_test = m_search.getByName(s_acl_name,
-                        SecurityAssetType.ACL).get();
+                LittleAcl acl_test = (LittleAcl) m_search.getByName(s_acl_name,
+                        SecurityAssetType.ACL).getOr(null);
                 if (null == acl_test) {
                     final Asset a_testhome = m_search.getByName("littleware.test_home", AssetType.HOME).get();
-                    final LittleGroup groupEverbody = m_search.getByName( "group.littleware.everybody", SecurityAssetType.GROUP ).get();
-                    acl_test = AssetType.createSubfolder(SecurityAssetType.ACL, s_acl_name, a_testhome);
-                    acl_test.setAclId( acl_test.getObjectId() );
-                    acl_test.setComment("AclEditor test acl");
-                    acl_test.setOwnerId(om_helper.getSession().getOwnerId());
-                    final LittleAclEntry entry = SecurityAssetType.ACL_ENTRY.create();
-                    entry.setPrincipal(groupEverbody);
-                    acl_test.addEntry( entry );
-                    om_helper.getService(ServiceType.ASSET_MANAGER).saveAsset(acl_test, "Setting up test asset");
+                    final LittleGroup groupEverbody = m_search.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP ).get().narrow();
+                    final LittleAcl.Builder builder = (LittleAcl.Builder) SecurityAssetType.ACL.create().name( s_acl_name ).parent( a_testhome).
+                                    comment("AclEditor test acl");
+                    builder.setAclId( builder.getId() );
+                    builder.addEntry(
+                        SecurityAssetType.ACL_ENTRY.create().
+                                            principal(groupEverbody).
+                                            addPermission( LittlePermission.READ ).
+                                            build()
+                                            );
+
+                    acl_test = om_helper.getService(ServiceType.ASSET_MANAGER).saveAsset(builder.build(), "Setting up test asset");
                 }
                 AssetModel model_test = olib_asset.syncAsset(acl_test);
                 JComponent wedit_acl = (JComponent) ofactory_edit.createView(model_test); // Add AclEditor to Factory!!!
@@ -381,8 +383,7 @@ public class SwingClientTester extends LittleTest {
      * Run the create-asset wizard through a test
      */
     public void testWizardCreate() {
-        Asset a_new = AssetType.GENERIC.create();
-        a_new.setName("test_asset");
+        Asset a_new = AssetType.GENERIC.create().name("test_asset").build();
 
         try {
             AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
@@ -397,7 +398,7 @@ public class SwingClientTester extends LittleTest {
                     BaseException.getStackTrace(e));
             assertTrue("Caught unexpected: " + e, false);
         } finally {
-            olib_asset.remove(a_new.getObjectId());
+            olib_asset.remove(a_new.getId());
         }
     }
 
@@ -424,7 +425,7 @@ public class SwingClientTester extends LittleTest {
 
                 a_folder = AssetType.GENERIC.create();
                 a_folder.setHomeId(u_home);
-                a_folder.setAclId(acl_everybody.getObjectId());
+                a_folder.setAclId(acl_everybody.getId());
                 a_folder.setFromId(u_home);
                 a_folder.setName(s_foldername);
                 a_folder = m_asset.saveAsset(a_folder, "Setting up test folder");
@@ -433,13 +434,13 @@ public class SwingClientTester extends LittleTest {
                 group_copy.sync(group_everybody);
                 group_copy.setHomeId(u_home);
                 group_copy.setName(s_foldername + ".copy1");
-                group_copy.setObjectId(factory_uuid.create());
-                group_copy.setFromId(a_folder.getObjectId());
-                group_copy.setAclId(acl_everybody.getObjectId());
+                group_copy.setId(factory_uuid.create());
+                group_copy.setFromId(a_folder.getId());
+                group_copy.setAclId(acl_everybody.getId());
                 group_copy.setOwnerId(a_folder.getOwnerId());
                 m_asset.saveAsset(group_copy, "Setting up test GROUP 1");
 
-                group_copy.setObjectId(factory_uuid.create());
+                group_copy.setId(factory_uuid.create());
                 group_copy.setName(s_foldername + ".copy2");
                 m_asset.saveAsset(group_copy, "Setup up test GROUP 2");
             }

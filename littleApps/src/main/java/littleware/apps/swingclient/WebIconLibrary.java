@@ -28,8 +28,8 @@ import littleware.asset.Asset;
 import littleware.base.AssertionFailedException;
 import littleware.asset.AssetType;
 import littleware.security.SecurityAssetType;
-import littleware.apps.addressbook.AddressAssetType;
-import littleware.apps.tracker.TrackerAssetType;
+//import littleware.apps.addressbook.AddressAssetType;
+//import littleware.apps.tracker.TrackerAssetType;
 
 /**
  * Icon library that builds icons from images
@@ -131,6 +131,7 @@ public class WebIconLibrary implements IconLibrary {
         ov_asset_urls.put ( AssetType.HOME,
                                                "/geronimo/home_16.gif" 
                              );
+        /*..
         ov_asset_urls.put ( AddressAssetType.CONTACT,
                                                        "/geronimo/addbk_16.gif" 
                              );
@@ -146,6 +147,7 @@ public class WebIconLibrary implements IconLibrary {
         ov_asset_urls.put ( TrackerAssetType.QUEUE,
                                                        "/geronimo/trafficlight_green_16.png" 
                              );
+         */
         ov_asset_urls.put ( AssetType.LINK,
                                                        "/geronimo/link_16.gif" 
                              );        

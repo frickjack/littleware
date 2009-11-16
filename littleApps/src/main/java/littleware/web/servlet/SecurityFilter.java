@@ -14,12 +14,12 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.util.logging.Logger;
 import java.io.IOException;
-import java.security.*;
 
 import java.util.logging.Level;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
 import littleware.base.Maybe;
+import littleware.security.LittleAcl;
+import littleware.security.LittleGroup;
 import littleware.security.LittlePermission;
 import littleware.security.LittleUser;
 import littleware.security.SecurityAssetType;
@@ -91,13 +91,13 @@ public class SecurityFilter implements Filter {
             try {
                 if (sAccessSpec.startsWith("group:")) {
                     final String group = sAccessSpec.substring("group:".length());
-                    return search.getByName(group, SecurityAssetType.GROUP).get().isMember(user);
+                    return search.getByName(group, SecurityAssetType.GROUP).get().narrow( LittleGroup.class ).isMember(user);
                 } else if (sAccessSpec.startsWith("acl:read:")) {
                     final String acl = sAccessSpec.substring("acl:read:".length());
-                    return search.getByName(acl, SecurityAssetType.ACL).get().checkPermission(user, LittlePermission.READ);
+                    return search.getByName(acl, SecurityAssetType.ACL).get().narrow( LittleAcl.class ).checkPermission(user, LittlePermission.READ);
                 } else if (sAccessSpec.startsWith("acl:write:")) {
                     final String acl = sAccessSpec.substring("acl:write:".length());
-                    return search.getByName(acl, SecurityAssetType.ACL).get().checkPermission(user, LittlePermission.WRITE);
+                    return search.getByName(acl, SecurityAssetType.ACL).get().narrow( LittleAcl.class ).checkPermission(user, LittlePermission.WRITE);
                 } else {
                     log.log(Level.WARNING, "Unknown access spec must be in (group:, acl:read:, acl:write:): " + sAccessSpec);
                     return false;

@@ -32,6 +32,8 @@ import littleware.asset.*;
 import littleware.base.UUIDFactory;
 import littleware.apps.swingclient.event.*;
 import littleware.base.Maybe;
+import littleware.base.feedback.Feedback;
+import littleware.base.feedback.LoggerFeedback;
 import littleware.base.swing.GridBagWrap;
 
 /** 
@@ -53,7 +55,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
 
 
     {
-        oview_util.setFeedback( new LoggerUiFeedback( olog ) );
+        oview_util.setFeedback( new LoggerFeedback( olog ) );
 
         // Should only happen on call to setAssetModel ...
         oview_util.addPropertyChangeListener(new PropertyChangeListener() {
@@ -421,9 +423,9 @@ public class JGenericAssetView extends JPanel implements AssetView {
         owlabel_type.setIcon(olib_icon.lookupIcon(a_data));
 
         owlink_name.setLink(a_data);
-        owlabel_id.setText(UUIDFactory.makeCleanString(a_data.getObjectId()));
+        owlabel_id.setText(UUIDFactory.makeCleanString(a_data.getId()));
         owlabel_value.setText(a_data.getValue().toString());
-        owlabel_transaction.setText(Long.toString(a_data.getTransactionCount()));
+        owlabel_transaction.setText(Long.toString(a_data.getTransaction()));
 
         updateLabelInfo(owlink_acl, a_data.getAclId());
         updateLabelInfo(owlink_to, a_data.getToId());

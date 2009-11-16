@@ -1,21 +1,22 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.web.test;
 
-import java.util.*;
-import java.sql.*;
-import java.security.*;
-import java.security.acl.*;
-import javax.security.auth.login.*;
-import javax.mail.*;
 
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import junit.framework.*;
 
-import littleware.base.*;
 import littleware.web.*;
 import littleware.web.beans.*;
-import littleware.apps.addressbook.*;
 
 /**
  * TestFixture instantiates different littleware.web.beans beans,
@@ -45,7 +46,7 @@ public class BeanTester extends TestCase {
         setUp();
     }
 
-
+    /**...
     public void testUpdateContactBean () {
         try {
             UpdateContactBean bean_test = new UpdateContactBean();
@@ -64,7 +65,7 @@ public class BeanTester extends TestCase {
 
     /**
      * Test the SessionBean
-     */
+     *
     public void testNewUserBean() {
         NewUserBean bean_test = new NewUserBean();
 
@@ -82,7 +83,7 @@ public class BeanTester extends TestCase {
 
     /**
      * Make sure that the NewUserBean can send an e-mail to us
-     */
+     *
     public void testNewUserEmail() {
         try {
             NewUserBean bean_test = new NewUserBean ();
@@ -100,7 +101,7 @@ public class BeanTester extends TestCase {
             assertTrue("Caught unexepcted: " + e, false);
         }
     }
-
+    */
 
     /**
      * Make sure the DefaultsBean got its data ok
@@ -111,6 +112,4 @@ public class BeanTester extends TestCase {
                 null != bean_default.getDefaults().get("contact_email"));
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

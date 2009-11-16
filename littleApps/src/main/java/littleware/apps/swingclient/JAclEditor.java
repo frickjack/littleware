@@ -31,7 +31,6 @@ import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
-import littleware.base.NoSuchThingException;
 import littleware.security.*;
 import littleware.security.LittleAcl.Builder;
 
@@ -223,10 +222,11 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
                     final LittleAclEntry entry = maybeEntry.get().copy().removePermission(perm_selected).build();
                      
                     if ( ! entry.permissions ().hasMoreElements () ) {
-                        
+                        aclBuilder.removeEntry(entry);
+                    } else {
+                        aclBuilder.addEntry ( entry );
                     }
                     model_memberlist.removeElement ( p_selected );
-                    this.setHasLocalChanges ( true );
                 }
             }
         } catch ( Exception e ) {

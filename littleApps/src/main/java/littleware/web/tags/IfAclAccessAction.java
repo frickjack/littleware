@@ -1,12 +1,19 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.web.tags;
 
-import java.util.Set;
-import java.util.Iterator;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.jstl.core.ConditionalTagSupport;
-import java.security.acl.Acl;
 
 import littleware.asset.*;
 import littleware.security.*;
@@ -62,6 +69,7 @@ public class IfAclAccessAction extends ConditionalTagSupport {
      *
      * @exception JspTagException on failure to access littleware backend
      */
+    @Override
     public boolean condition () throws JspTagException {
         if ( null == om_helper ) {
             olog_generic.log ( Level.INFO, "No SessionHelper provided for ACL check" );
@@ -79,7 +87,7 @@ public class IfAclAccessAction extends ConditionalTagSupport {
                 return false;
             }
         
-            final Acl  acl_check = m_search.getByName ( os_acl, SecurityAssetType.ACL ).get();
+            final LittleAcl  acl_check = m_search.getByName ( os_acl, SecurityAssetType.ACL ).get().narrow();
             return acl_check.checkPermission ( p_caller, operm_access );
         } catch ( RuntimeException e ) {
             throw e;
@@ -90,7 +98,3 @@ public class IfAclAccessAction extends ConditionalTagSupport {
 	}
 	
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

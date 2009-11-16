@@ -60,7 +60,7 @@ public class JAssetPathPanel extends JPanel {
     
     private AssetPath                  opath_current = null;
     private UUID                       ou_asset = null;
-    private List<AssetType<? extends Asset>>            ov_legal = new ArrayList<AssetType<? extends Asset>> ();
+    private List<AssetType>            ov_legal = new ArrayList<AssetType> ();
     private AssetView                  oview_asset = null;
     private JDialog                    owbrowser_root = null;
     
@@ -181,7 +181,7 @@ public class JAssetPathPanel extends JPanel {
                 @Override
                 public void actionPerformed( ActionEvent evt_action ) {
                     try {
-                        UUID u_asset = oview_asset.getAssetModel ().getAsset ().getObjectId ();
+                        UUID u_asset = oview_asset.getAssetModel ().getAsset ().getId ();
                         setAssetPath ( opathFactory.createPath ( u_asset ) );
                         owbrowser_root.setVisible( false );
                     } catch ( Exception e ) {
@@ -344,7 +344,7 @@ public class JAssetPathPanel extends JPanel {
         }
 
         opath_current = path_asset;
-        ou_asset = a_link.getObjectId ();
+        ou_asset = a_link.getId ();
         owtext_info.setText ( path_asset.toString () );
         //owbutton_browse.setEnabled( true );
     }
@@ -373,10 +373,10 @@ public class JAssetPathPanel extends JPanel {
      * Empty implies no restrictions on type.
      * Listed in order of display.
      */
-    public List<AssetType<? extends Asset>> getLegalAssetType () {
+    public List<AssetType> getLegalAssetType () {
         return ov_legal;
     }
-    public void setLegalAssetType ( List<AssetType<? extends Asset>> v_legal ) {
+    public void setLegalAssetType ( List<AssetType> v_legal ) {
         ov_legal = v_legal;
     }
     

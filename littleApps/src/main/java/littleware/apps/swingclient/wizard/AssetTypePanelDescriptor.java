@@ -62,14 +62,10 @@ public class AssetTypePanelDescriptor extends WizardPanelDescriptor {
         int             i_index = getSelector ().getIndexOf ( n_active );
         
         if ( i_index < 0 ) {
-            List<AssetType> v_options = getSelector ().getAssetTypeOptions ();
-            if ( v_options.isEmpty () ) {
-                v_options.add ( n_active );
-                getSelector ().setAssetTypeOptions ( v_options );
-            } else {
-                oeditor_parent.changeLocalAsset ().setAssetType ( v_options.get( 0 ) );
-            }
-            i_index = 0;
+            final List<AssetType> v_options = getSelector ().getAssetTypeOptions ();
+            v_options.add ( n_active );
+            getSelector ().setAssetTypeOptions ( v_options );
+            i_index = v_options.size() - 1;
         }
         getSelector ().setSelectedAssetTypeIndex ( i_index );
     }
@@ -85,9 +81,13 @@ public class AssetTypePanelDescriptor extends WizardPanelDescriptor {
      */
     @Override
     public void aboutToHidePanel () {
+        /*.. NOOP - let parent take care fo asset-type change ...
         if ( ! oeditor_parent.getLocalAsset ().getAssetType ().equals ( getSelector ().getSelectedAssetType () ) ) {
-            oeditor_parent.changeLocalAsset ().setAssetType ( getSelector ().getSelectedAssetType () );
+            oeditor_parent.getAssetModel().syncAsset(
+                    getSelector ().getSelectedAssetType ().create().copy( oeditor_parent.getLocalAsset() ).build()
+                    );
         }
+         */
     }
     
 }

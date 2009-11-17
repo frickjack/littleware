@@ -12,7 +12,6 @@ package littleware.security.test;
 import com.google.inject.Inject;
 import java.util.*;
 import java.security.*;
-import javax.security.auth.login.*;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -21,10 +20,8 @@ import java.util.logging.Level;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.security.*;
-import littleware.security.auth.*;
 import littleware.base.BaseException;
 import littleware.test.LittleTest;
-import littleware.test.ServerTestLauncher;
 
 /**
  * TestFixture runs SecurityMnaager implementations
@@ -50,6 +47,7 @@ public class AccountManagerTester extends LittleTest {
     private static Object getGuardedResource(String s_resource_bundle, String s_resource) {
         return AccessController.doPrivileged(new GetGuardedResourceAction(s_resource_bundle, s_resource));
     }
+    private final LittleUser caller;
 
     /**
      * Constructor registers the AccountManager to test against.
@@ -63,10 +61,12 @@ public class AccountManagerTester extends LittleTest {
     public AccountManagerTester(String s_name,
             AccountManager m_account,
             AssetManager m_asset,
-            AssetSearchManager search) {
+            AssetSearchManager search,
+            LittleUser caller ) {
         om_account = m_account;
         om_asset = m_asset;
         osearch = search;
+        this.caller = caller;
         setName("testGetPrincipals");
     }
 
@@ -96,43 +96,6 @@ public class AccountManagerTester extends LittleTest {
         }
     }
 
-    /**
-     * Test interaction between AccountManager.updateUser
-     * and LoginManager login.
-     */
-    public void testPasswordUpdate() {
-        try {
-            LittleUser p_user = om_account.getAuthenticatedUser();
-            assertTrue("Test running as " + ServerTestLauncher.OS_TEST_USER,
-                    ServerTestLauncher.OS_TEST_USER.equals(ServerTestLauncher.OS_TEST_USER));
-            olog_generic.log(Level.INFO, "Changing password for " + ServerTestLauncher.OS_TEST_USER);
-
-            try {
-                String s_password = "whatever";
-                om_account.updateUser(p_user, s_password, "change password");
-                Principal p_login = LoginTester.runLoginTest(ServerTestLauncher.OS_TEST_USER, s_password, this);
-                assertTrue("Login ok", p_login.getName().equals(ServerTestLauncher.OS_TEST_USER));
-                try {
-                    LoginContext x_login = new LoginContext("littleware.security.simplelogin",
-                            new SimpleNamePasswordCallbackHandler(p_user.getName(), "bogus"));
-                    x_login.login();
-                    assertTrue("Should have failed login with bogus password", false);
-                } catch (LoginException e) {
-                    olog_generic.log(Level.INFO, "Password check ok");
-                }
-            } finally {
-                om_account.updateUser(p_user, ServerTestLauncher.OS_TEST_USER_PASSWORD, "restore password");
-            }
-            final LittlePrincipal x_user = osearch.getByName(ServerTestLauncher.OS_TEST_USER, SecurityAssetType.PRINCIPAL).get().narrow();
-            final LittlePrincipal x_tmp = osearch.getByName("group." + ServerTestLauncher.OS_TEST_USER, SecurityAssetType.PRINCIPAL).get().narrow();
-
-        } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught unexpected: " + e +
-                    ", " + BaseException.getStackTrace(e));
-            assertTrue("Caught unexpected exception: " + e + ", " +
-                    BaseException.getStackTrace(e), false);
-        }
-    }
 
     /**
      * Just verify that incrementQuota increments the quota asset.
@@ -140,12 +103,11 @@ public class AccountManagerTester extends LittleTest {
      */
     public void testQuota() {
         try {
-            LittleUser p_me = om_account.getAuthenticatedUser();
-            Quota a_quota_before = om_account.getQuota(p_me);
+            Quota a_quota_before = om_account.getQuota(caller);
             assertTrue("Got a quota we can test against",
                     (null != a_quota_before) && (a_quota_before.getQuotaLimit() > 0) && (a_quota_before.getQuotaCount() >= 0));
             om_account.incrementQuotaCount();
-            Quota a_quota_after = om_account.getQuota(p_me);
+            Quota a_quota_after = om_account.getQuota(caller);
             assertTrue("Quota incremented by 1: " + a_quota_before.getQuotaCount() +
                     " -> " + a_quota_after.getQuotaCount(),
                     a_quota_before.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
@@ -166,7 +128,6 @@ public class AccountManagerTester extends LittleTest {
     public void testGroupUpdate() {
         try {
             final String name = "group.littleware.test_user";
-            final LittleUser caller = om_account.getAuthenticatedUser();
             LittleGroup groupTest = (LittleGroup) osearch.getByName(name, SecurityAssetType.GROUP).getOr(null);
             if (null == groupTest) {
                 groupTest = om_asset.saveAsset(

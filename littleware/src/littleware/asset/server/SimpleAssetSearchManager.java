@@ -22,6 +22,7 @@ import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.*;
 import littleware.db.*;
+import littleware.security.LittleUser;
 
 /**
  * Simple implementation of Asset-search interface.  
@@ -40,8 +41,9 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     public SimpleAssetSearchManager(DbAssetManager dbMgr,
             AssetSpecializerRegistry specialRegistry,
             Provider<LittleTransaction> provideTrans,
-            PermissionCache  cachePermission ) {
-        super(dbMgr, specialRegistry, provideTrans, cachePermission );
+            PermissionCache  cachePermission,
+            Provider<LittleUser> provideCaller ) {
+        super(dbMgr, specialRegistry, provideTrans, cachePermission, provideCaller );
         this.dbMgr = dbMgr;
         this.provideTrans = provideTrans;
     }

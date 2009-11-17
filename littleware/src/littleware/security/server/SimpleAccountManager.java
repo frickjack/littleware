@@ -41,6 +41,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     private final DbAuthManager om_dbauth;
     private final QuotaUtil om_quota;
     private final Provider<LittleTransaction> oprovideTrans;
+    private final Provider<LittleUser> provideCaller;
 
     /**
      * Constructor injects dependencies
@@ -54,12 +55,14 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             AssetSearchManager m_searcher,
             //DbAuthManager m_dbauth,
             QuotaUtil m_quota,
-            Provider<LittleTransaction> provideTrans) {
+            Provider<LittleTransaction> provideTrans,
+            Provider<LittleUser> provideCaller ) {
         om_asset = m_asset;
         om_search = m_searcher;
         om_dbauth = null; //m_dbauth;
         om_quota = m_quota;
         oprovideTrans = provideTrans;
+        this.provideCaller = provideCaller;
     }
 
     /**
@@ -201,8 +204,8 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.USER.equals(a_new.getAssetType())) {
             // We need to setup a quota
-            LittleUser p_caller = this.getAuthenticatedUser();
-            Quota a_caller_quota = om_quota.getQuota(p_caller, om_search);
+            final LittleUser caller = provideCaller.get();
+            Quota a_caller_quota = om_quota.getQuota(caller, om_search);
             if (null != a_caller_quota) {
                 final Quota.Builder quotaBuilder = a_caller_quota.copy();
 
@@ -331,7 +334,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     @Override
     public int incrementQuotaCount() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return om_quota.incrementQuotaCount(getAuthenticatedUser(), om_asset, om_search);
+        return om_quota.incrementQuotaCount(provideCaller.get(), om_asset, om_search);
     }
     private static Factory<UUID> ofactory_uuid = UUIDFactory.getFactory();
 
@@ -388,15 +391,6 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         return (s_password.length() > 5);
     }
 
-    @Override
-    public LittleUser getAuthenticatedUser() throws NotAuthenticatedException, ManagerException {
-        LittleUser p_result = SecurityAssetType.getAuthenticatedUserOrNull();
-
-        if (null == p_result) {
-            throw new NotAuthenticatedException("No user authenticated");
-        }
-        return p_result;
-    }
 
     @Override
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException,

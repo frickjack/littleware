@@ -39,6 +39,7 @@ public class LocalAssetRetriever implements AssetRetriever {
     private final AssetSpecializerRegistry oregistry_special;
     private final Provider<? extends LittleTransaction> oprovideTrans;
     private final PermissionCache ocachePermission;
+    private final Provider<LittleUser> provideCaller;
 
     /**
      * Constructor stashes DbManager, and CacheManager
@@ -46,11 +47,13 @@ public class LocalAssetRetriever implements AssetRetriever {
     public LocalAssetRetriever(DbAssetManager m_db,
             AssetSpecializerRegistry registry_special,
             Provider<? extends LittleTransaction> provideTrans,
-            PermissionCache cachePermission) {
+            PermissionCache cachePermission,
+            Provider<LittleUser> provideCaller ) {
         om_db = m_db;
         oregistry_special = registry_special;
         oprovideTrans = provideTrans;
         ocachePermission = cachePermission;
+        this.provideCaller = provideCaller;
     }
 
     @Override
@@ -111,9 +114,9 @@ public class LocalAssetRetriever implements AssetRetriever {
                 return a_result;
             }
 
-            final LittleUser p_caller = SecurityAssetType.getAuthenticatedUserOrNull();
+            final LittleUser caller = provideCaller.get();
 
-            if (null == p_caller) {
+            if (null == caller) {
 
                 if (a_result.getAssetType().equals(SecurityAssetType.SESSION)) {
                     /**
@@ -126,13 +129,13 @@ public class LocalAssetRetriever implements AssetRetriever {
                 throw new AccessDeniedException("Unauthenticated caller");
             }
 
-            if (p_caller.getId().equals(a_result.getOwnerId()) || ocachePermission.isAdmin(p_caller, this)) {
+            if (caller.getId().equals(a_result.getOwnerId()) || ocachePermission.isAdmin(caller, this)) {
                 // Owner can read his own freakin' asset
                 return a_result;
             }
             // Need to check ACL
-            if (!ocachePermission.checkPermission(p_caller, LittlePermission.READ, this, a_result.getAclId())) {
-                throw new AccessDeniedException("Caller " + p_caller.getName() + " does not have permission to access asset " +
+            if (!ocachePermission.checkPermission(caller, LittlePermission.READ, this, a_result.getAclId())) {
+                throw new AccessDeniedException("Caller " + caller.getName() + " does not have permission to access asset " +
                         a_result.getName() + "(" + a_result.getAssetType() + ", " + a_result.getId() + ")");
             }
 

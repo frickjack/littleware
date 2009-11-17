@@ -78,9 +78,8 @@ public class IfAclAccessAction extends ConditionalTagSupport {
         
         try {
             AssetSearchManager  m_search = om_helper.getService ( ServiceType.ASSET_SEARCH );
-            LittleUser          p_caller = SecurityAssetType.getAuthenticatedUserOrNull (
-                                            om_helper.getSession ().getSubject ( m_search )
-                                                                                  );
+            LittleUser          p_caller = 
+                                            om_helper.getSession ().getSubject ( m_search ).getPrincipals( LittleUser.class ).iterator().next();
             
             if ( null == p_caller ) {
                 olog_generic.log ( Level.INFO, "unable to retrive LitteUser for ACL check" );

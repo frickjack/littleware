@@ -173,26 +173,5 @@ public abstract class SecurityAssetType extends AssetType {
         }
     };
 
-    /**
-     * Extract the LittleUser from the Subject Principal set,
-     * or return null if no LittleUser present
-     */
-    public static LittleUser getAuthenticatedUserOrNull(Subject j_user) {
-        if (null == j_user) {
-            return null;
-        }
-        Set<LittleUser> v_user = j_user.getPrincipals(LittleUser.class);
-        if (v_user.isEmpty()) {
-            return null;
-        }
-        return v_user.iterator().next();
-    }
-
-    /**
-     * Shortcut to getAuthenticatedUserOrNull ( Subject.getSubject () )
-     */
-    public static LittleUser getAuthenticatedUserOrNull() {
-        return getAuthenticatedUserOrNull(Subject.getSubject(AccessController.getContext()));
-    }
 }
 

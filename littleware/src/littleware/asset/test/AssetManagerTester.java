@@ -10,6 +10,7 @@
 package littleware.asset.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -30,6 +31,7 @@ public class AssetManagerTester extends LittleTest {
     private AssetSearchManager om_search = null;
     private List<Asset> ov_cleanup_list = new ArrayList<Asset>();
     public final static String MS_TEST_HOME = "littleware.test_home";
+    private final Provider<LittleUser> provideCaller;
 
     /**
      * Stash AssetManager instance to run tests against
@@ -39,9 +41,11 @@ public class AssetManagerTester extends LittleTest {
      * @param m_search to verify test results against
      */
     @Inject
-    public AssetManagerTester(AssetManager m_asset, AssetSearchManager m_search) {
+    public AssetManagerTester(AssetManager m_asset, AssetSearchManager m_search,
+            Provider<LittleUser> provideCaller ) {
         om_asset = m_asset;
         om_search = m_search;
+        this.provideCaller = provideCaller;
         setName("testAssetCreation");
     }
 
@@ -71,7 +75,7 @@ public class AssetManagerTester extends LittleTest {
 
             olog_generic.log(Level.INFO, "Running with test home: " + home);
 
-            final LittleUser user = SecurityAssetType.getAuthenticatedUserOrNull();
+            final LittleUser user = provideCaller.get();
             assertTrue("Have an authenticated user", null != user);
             final String s_name = "test_" + (new Date()).getTime();
 

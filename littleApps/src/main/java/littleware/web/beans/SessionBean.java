@@ -13,7 +13,6 @@ package littleware.web.beans;
 import java.security.*;
 import java.util.logging.Logger;
 import java.rmi.RemoteException;
-import javax.servlet.http.*;
 
 import littleware.apps.client.*;
 import littleware.security.*;
@@ -56,7 +55,7 @@ public class SessionBean {
     public void setHelper(SessionHelper m_helper) throws RemoteException, AssetException,
             BaseException, GeneralSecurityException {
         AssetSearchManager m_search = m_helper.getService(ServiceType.ASSET_SEARCH);        
-        ouser = m_helper.getService( ServiceType.ACCOUNT_MANAGER ).getAuthenticatedUser();
+        ouser = m_search.getAsset(m_helper.getSession().getOwnerId()).get().narrow();
         helper = m_helper;
     }
     

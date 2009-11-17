@@ -77,6 +77,7 @@ public class SimpleAssetManager implements AssetManager {
             };
     //private final DeleteCBProvider provideBucketCB;
     private final PermissionCache permissionCache;
+    private final Provider<LittleUser> provideCaller;
 
     /**
      * Constructor sets up internal data source.
@@ -98,7 +99,8 @@ public class SimpleAssetManager implements AssetManager {
             AssetSpecializerRegistry registry_special,
             Provider<LittleTransaction> provideTrans,
             //littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB,
-            PermissionCache cachePermission) {
+            PermissionCache cachePermission,
+            Provider<LittleUser> provideCaller ) {
         search = m_search;
         dbMgr = m_db;
         quotaUtil = quota;
@@ -106,16 +108,7 @@ public class SimpleAssetManager implements AssetManager {
         this.provideTrans = provideTrans;
         //this.provideBucketCB = provideBucketCB;
         this.permissionCache = cachePermission;
-    }
-
-    /** Internal utility */
-    private LittleUser getAuthenticatedUser() throws NotAuthenticatedException {
-        LittleUser user = SecurityAssetType.getAuthenticatedUserOrNull();
-
-        if (null == user) {
-            throw new NotAuthenticatedException("No user authenticated");
-        }
-        return user;
+        this.provideCaller = provideCaller;
     }
 
     /**
@@ -131,12 +124,12 @@ public class SimpleAssetManager implements AssetManager {
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         try {
-            final LittlePrincipal p_caller = this.getAuthenticatedUser();
+            final LittlePrincipal caller = provideCaller.get();
             // Get the asset for ourselves - make sure it's a valid asset
             Asset asset = search.getAsset(u_asset).get();
             final AssetBuilder builder = asset.getAssetType().create().copy( asset );
             builder.setLastUpdateDate(new Date());
-            builder.setLastUpdaterId(p_caller.getId());
+            builder.setLastUpdaterId(caller.getId());
             builder.setLastUpdate(s_update_comment);
             // make sure caller has write permission too ...
             asset = saveAsset(builder.build(), s_update_comment);
@@ -170,7 +163,7 @@ public class SimpleAssetManager implements AssetManager {
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         log.log(Level.FINE, "Check enter");
-        final LittleUser userCaller = this.getAuthenticatedUser();
+        final LittleUser userCaller = provideCaller.get();
         // Get the asset for ourselves - make sure it's a valid asset
         Asset oldAsset = null;
         final AssetBuilder builder = asset.getAssetType().create().copy( asset );

@@ -90,17 +90,6 @@ public interface AccountManager extends Remote {
     @ReadOnly
     boolean isValidPassword(String s_password) throws RemoteException;
 
-    /**
-     * Convenience function accesses the thread's access-control context
-     * and returns the currently authenticated LittleUser that the
-     * thread is executing as, or null if no authentication is current.
-     *
-     * @return authenticated user
-     * @exception ManagerException on other error condition
-     */
-    public
-    @ReadOnly
-    LittleUser getAuthenticatedUser() throws GeneralSecurityException, RemoteException;
 
     /**
      * Get the end of the quota-chain associated with the given user.

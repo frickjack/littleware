@@ -7,8 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
-
 package littleware.test;
 
 import com.google.inject.Binder;
@@ -16,10 +14,13 @@ import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.base.EventBarrier;
 import littleware.security.auth.GuiceOSGiBootstrap;
+import littleware.security.auth.LittleBootstrap;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkEvent;
@@ -31,15 +32,22 @@ import org.osgi.framework.FrameworkListener;
  */
 public class TestFactory {
 
+    private static final Logger log = Logger.getLogger(TestFactory.class.getName());
+
+    public static class SetupBarrier extends EventBarrier<TestSuite> {
+    }
+
     /**
      * Internal class - only visible to avoid Guice AOP
      */
     public static class SuiteActivator implements BundleActivator {
+
         private final TestSuite suite;
         private final EventBarrier<TestSuite> barrier;
+
         @Inject
-        public SuiteActivator( @Named("TestFactory.Suite" ) final TestSuite userTestSuite,
-                @Named("TestFactory.SuiteBarrier") EventBarrier<TestSuite> barrier ) {
+        public SuiteActivator(@Named("TestFactory.Suite") final TestSuite userTestSuite,
+                SetupBarrier barrier) {
             this.suite = userTestSuite;
             this.barrier = barrier;
         }
@@ -50,7 +58,7 @@ public class TestFactory {
 
                 @Override
                 public synchronized void frameworkEvent(FrameworkEvent evt) {
-                    if ((evt.getType() == FrameworkEvent.STARTED) ) {
+                    if ((evt.getType() == FrameworkEvent.STARTED)) {
                         ctx.removeFrameworkListener(this);
                         barrier.publishEventData(suite);
                     }
@@ -60,11 +68,27 @@ public class TestFactory {
 
         @Override
         public void stop(BundleContext ctx) throws Exception {
-            
+        }
+    }
+
+    public static class ShutdownTest extends TestCase {
+
+        private final LittleBootstrap bootstrap;
+
+        public ShutdownTest(LittleBootstrap bootstrap) {
+            super("shutdownLittleware");
+            this.bootstrap = bootstrap;
         }
 
+        public void shutdownLittleware() {
+            try {
+                bootstrap.shutdown();
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Shutdown failed", ex);
+                fail("Shutdown failed: " + ex);
+            }
+        }
     }
-    
 
     /**
      * Bootstrap a littleware environment, and
@@ -72,32 +96,26 @@ public class TestFactory {
      * environment that shuts down
      * the environment in the last test.
      */
-    public TestSuite build( final GuiceOSGiBootstrap bootstrap,
-            final Class<? extends TestSuite> testSuiteClass
-            ) {
-        final EventBarrier<TestSuite>  suiteBarrier = new EventBarrier<TestSuite>();
+    public TestSuite build(final GuiceOSGiBootstrap bootstrap,
+            final Class<? extends TestSuite> testSuiteClass) {
+        final SetupBarrier suiteBarrier = new SetupBarrier();
         bootstrap.getGuiceModule().add(
                 new Module() {
-            @Override
-            public void configure(Binder binder) {
-                binder.bind( TestSuite.class ).annotatedWith( Names.named( "TestFactory.Suite" )).to( testSuiteClass );
-                binder.bind( EventBarrier.class ).annotatedWith( Names.named( "TestFactory.SuiteBarrier" )).toInstance(suiteBarrier);
-            }
-        }
-                );
+
+                    @Override
+                    public void configure(Binder binder) {
+                        binder.bind(TestSuite.class).annotatedWith(Names.named("TestFactory.Suite")).to(testSuiteClass);
+                        binder.bind(SetupBarrier.class).toInstance(suiteBarrier);
+                    }
+                });
         bootstrap.getOSGiActivator().add(SuiteActivator.class);
         bootstrap.bootstrap();
         try {
             final TestSuite suite = suiteBarrier.waitForEventData();
-            suite.addTest( new TestCase( "shutdownLittleware" ) {
-                public void shutdownLittleware() {
-                    bootstrap.shutdown();
-                }
-            }
-            );
+            suite.addTest(new ShutdownTest( bootstrap ) );
             return suite;
         } catch (InterruptedException ex) {
-            throw new IllegalStateException( "Test setup interrupted", ex );
+            throw new IllegalStateException("Test setup interrupted", ex);
         }
     }
 
@@ -105,6 +123,7 @@ public class TestFactory {
      * Internal class - only visible to avoid Guice AOP
      */
     public static class ClientData {
+
         private final Class<? extends TestSuite> suiteClass;
         private final TestFactory factory;
 
@@ -125,10 +144,10 @@ public class TestFactory {
         public EventBarrier<TestSuite> getBarrier() {
             return barrier;
         }
-        
-        public ClientData( GuiceOSGiBootstrap bootstrap,
+
+        public ClientData(GuiceOSGiBootstrap bootstrap,
                 Class<? extends TestSuite> suiteClass,
-                TestFactory factory ) {
+                TestFactory factory) {
             this.suiteClass = suiteClass;
             this.bootstrap = bootstrap;
             this.factory = factory;
@@ -136,25 +155,24 @@ public class TestFactory {
     }
 
     public static class ServerActivator implements BundleActivator {
+
         private final ClientData clientData;
 
         @Inject
-        public ServerActivator( ClientData clientData
-               ) {
+        public ServerActivator(ClientData clientData) {
             this.clientData = clientData;
         }
 
         @Override
-        public void start( final BundleContext ctx) throws Exception {
+        public void start(final BundleContext ctx) throws Exception {
             ctx.addFrameworkListener(new FrameworkListener() {
 
                 @Override
                 public synchronized void frameworkEvent(FrameworkEvent evt) {
-                    if ((evt.getType() == FrameworkEvent.STARTED) ) {
+                    if ((evt.getType() == FrameworkEvent.STARTED)) {
                         ctx.removeFrameworkListener(this);
                         clientData.getBarrier().publishEventData(
-                            clientData.getFactory().build( clientData.getBootstrap(), clientData.getSuiteClass() )
-                                );
+                                clientData.getFactory().build(clientData.getBootstrap(), clientData.getSuiteClass()));
                     }
                 }
             });
@@ -164,7 +182,6 @@ public class TestFactory {
         @Override
         public void stop(BundleContext ctx) throws Exception {
         }
-
     }
 
     /**
@@ -174,32 +191,31 @@ public class TestFactory {
      * as a client in the client environment, then shuts
      * down both environments.
      */
-    public TestSuite build( final GuiceOSGiBootstrap serverBootstrap,
+    public TestSuite build(final GuiceOSGiBootstrap serverBootstrap,
             final GuiceOSGiBootstrap clientBootstrap,
-            final Class<? extends TestSuite> testSuiteClass
-            ) {
-        final ClientData     data = new ClientData( clientBootstrap, testSuiteClass, this );
-        serverBootstrap.getGuiceModule().add( new Module() {
+            final Class<? extends TestSuite> testSuiteClass) {
+        final ClientData data = new ClientData(clientBootstrap, testSuiteClass, this);
+        serverBootstrap.getGuiceModule().add(new Module() {
 
             @Override
             public void configure(Binder binder) {
-                binder.bind( ClientData.class ).toInstance(data);
+                binder.bind(ClientData.class).toInstance(data);
             }
-        } );
-        serverBootstrap.getOSGiActivator().add(ServerActivator.class );
+        });
+        serverBootstrap.getOSGiActivator().add(ServerActivator.class);
         try {
             serverBootstrap.bootstrap();
             final TestSuite suite = data.getBarrier().waitForEventData();
             suite.addTest(
-                    new TestCase( "shutdownLittlewareServer" ) {
-                public void shutdownLittlewareServer() {
-                    serverBootstrap.shutdown();
-                }
-            }
-                    );
+                    new TestCase("shutdownLittlewareServer") {
+
+                        public void shutdownLittlewareServer() {
+                            serverBootstrap.shutdown();
+                        }
+                    });
             return suite;
         } catch (InterruptedException ex) {
-            throw new IllegalStateException( "Bootstrap failed", ex );
+            throw new IllegalStateException("Bootstrap failed", ex);
         }
     }
 }

@@ -40,10 +40,8 @@ import littleware.test.LittleTest;
  * of XML-based getData/setData via annotations.
  */
 public class SwingClientTester extends LittleTest {
-
-    private static final Logger olog_generic = Logger.getLogger(SwingClientTester.class.getName());
+    private static final Logger log = Logger.getLogger(SwingClientTester.class.getName());
     private final IconLibrary olib_icon;
-    private final SessionHelper om_helper;
     private final AssetModelLibrary olib_asset;
     private final AssetViewFactory ofactory_view;
     private final AssetEditorFactory ofactory_edit;
@@ -51,11 +49,17 @@ public class SwingClientTester extends LittleTest {
     private final Provider<JAssetBrowser> oprovideBrowser;
     private final Provider<ExtendedAssetViewController> oprovideController;
     private final Provider<JSimpleAssetToolbar> oprovideToolbar;
+    private Asset    testHome;
+    private final AssetSearchManager search;
+    private final LittleSession session;
+    private final AssetManager saver;
 
     
     /** Inject dependencies */
     @Inject
-    public SwingClientTester( SessionHelper m_helper,
+    public SwingClientTester( AssetSearchManager search,
+            LittleSession session,
+            AssetManager saver,
         AssetModelLibrary lib_asset, IconLibrary lib_icon,
         AssetViewFactory factory_view,
         AssetEditorFactory factory_edit,
@@ -64,7 +68,9 @@ public class SwingClientTester extends LittleTest {
         Provider<ExtendedAssetViewController>  provideController,
         Provider<JSimpleAssetToolbar>  provideToolbar
         ) {
-        om_helper = m_helper;
+        this.search = search;
+        this.session = session;
+        this.saver = saver;
         olib_asset = lib_asset;
         olib_icon = lib_icon;
         ofactory_view = factory_view;
@@ -80,6 +86,12 @@ public class SwingClientTester extends LittleTest {
      */
     @Override
     public void setUp() {
+        try {
+            testHome = getTestHome( search );
+        } catch ( Exception ex ) {
+            log.log( Level.SEVERE, "Setup failed", ex );
+            fail( "Caught: " + ex );
+        }
     }
 
     /** Do nothing	 */
@@ -91,13 +103,12 @@ public class SwingClientTester extends LittleTest {
     public void testClientSession () {
         try {
             // assert that the login session has a non-zero duration
-            LittleSession session = om_helper.getSession();
             assertTrue( "Session t_end (" + session.getEndDate() + ") > t_start (" +
                     session.getStartDate() + ")",
                     session.getEndDate().getTime() > (session.getStartDate().getTime () + 60 * 1000)
                     );
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught unexpected: " + e + ", " +
+            log.log(Level.WARNING, "Caught unexpected: " + e + ", " +
                     BaseException.getStackTrace(e));
             assertTrue("Caught unexpected: " + e, false);
         }
@@ -113,19 +124,18 @@ public class SwingClientTester extends LittleTest {
 
 
         try {
-            final Asset a_test = om_helper.getSession();
-            final AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
+            final Asset a_test = session;
 
             olib_asset.remove(a_test.getId());
 
             assertTrue("Simple sync is ok",
                     olib_asset.syncAsset(a_test).getAsset() == a_test);
             assertTrue("No retrieval if not necessary",
-                    olib_asset.retrieveAssetModel(a_test.getId(), m_search).get().getAsset() == a_test
+                    olib_asset.retrieveAssetModel(a_test.getId(), search).get().getAsset() == a_test
                     );
             
             AssetModel amodel_everybody =
-                    olib_asset.syncAsset( m_search.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP, 
+                    olib_asset.syncAsset( search.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     SecurityAssetType.GROUP ).get()
                     );
             assertTrue( "ModelLibrary getByName inheritance aware 1",
@@ -155,7 +165,7 @@ public class SwingClientTester extends LittleTest {
                 @Override
                 public void eventFromModel(LittleEvent event_property) {
                     // just do something - anything
-                    olog_generic.log( Level.INFO, "Test editor received event from model, setting value to 5" );
+                    log.log( Level.INFO, "Test editor received event from model, setting value to 5" );
                     changeLocalAsset().setValue(5);
                 }
             };
@@ -167,7 +177,7 @@ public class SwingClientTester extends LittleTest {
             assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().getValue());
 
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught unexpected: " + e + ", " +
+            log.log(Level.WARNING, "Caught unexpected: " + e + ", " +
                     BaseException.getStackTrace(e));
             assertTrue("Caught unexpected: " + e, false);
         } finally {
@@ -209,7 +219,7 @@ public class SwingClientTester extends LittleTest {
                     JLittleDialog.showTestDialog(wm_session,
                     "login a few times, and verify result"));
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught: " + e +
+            log.log(Level.WARNING, "Caught: " + e +
                     ", " + BaseException.getStackTrace(e));
             assertTrue("Caught: " + e, false);
         }
@@ -221,8 +231,7 @@ public class SwingClientTester extends LittleTest {
      */
     public void testJAssetViews() {
         try {
-            AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
-            AssetModel model_asset = olib_asset.syncAsset(om_helper.getSession());
+            AssetModel model_asset = olib_asset.syncAsset(session);
             JComponent w_asset = (JComponent) ofactory_view.createView(model_asset);
 
             //w_asset.setPreferredSize ( new Dimension ( 800, 700 ) );  // force big
@@ -231,11 +240,11 @@ public class SwingClientTester extends LittleTest {
                     "play with the AssetView widget. \n" +
                     "Hit OK when test successfully done"));
 
-            olog_generic.log(Level.INFO, "GETTING GROUP: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
-            final LittleGroup group_everybody = m_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+            log.log(Level.INFO, "GETTING GROUP: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
+            final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     SecurityAssetType.GROUP).get().narrow();
             AssetModel model_everybody = olib_asset.syncAsset(group_everybody);
-            olog_generic.log(Level.INFO, "GROUP SYNCED: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
+            log.log(Level.INFO, "GROUP SYNCED: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
 
             JComponent wview_group = (JComponent) ofactory_view.createView(model_everybody);
             wview_group.setPreferredSize(new Dimension(800, 700));  // force big
@@ -245,7 +254,7 @@ public class SwingClientTester extends LittleTest {
                     "play with the GroupView widget. \n" +
                     "Hit OK when test successfully done"));
 
-            final LittleAcl acl_everybody = m_search.getByName(LittleAcl.ACL_EVERYBODY_READ,
+            final LittleAcl acl_everybody = search.getByName(LittleAcl.ACL_EVERYBODY_READ,
                     SecurityAssetType.ACL).get().narrow();
             JComponent w_acl = (JComponent) ofactory_view.createView(olib_asset.syncAsset(acl_everybody));
             //w_acl.setPreferredSize ( new Dimension ( 800, 700 ) );  // force big
@@ -254,7 +263,7 @@ public class SwingClientTester extends LittleTest {
                     "play with the AclView widget. \n" +
                     "Hit OK when test successfully done"));
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught: " + e +
+            log.log(Level.WARNING, "Caught: " + e +
                     ", " + BaseException.getStackTrace(e));
             assertTrue("Caught: " + e, false);
         }
@@ -265,8 +274,7 @@ public class SwingClientTester extends LittleTest {
      */
     public void testJAssetBrowser() {
         try {
-            AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
-            AssetModel model_asset = olib_asset.syncAsset(om_helper.getSession());
+            AssetModel model_asset = olib_asset.syncAsset(session);
             JComponent wbrowser_asset = oprovideBrowser.get();
             SimpleAssetViewController listen_control = oprovideController.get();
             listen_control.setControlView((AssetView) wbrowser_asset);
@@ -303,7 +311,7 @@ public class SwingClientTester extends LittleTest {
                     "Hit OK when test successfully done"));
 
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught: " + e +
+            log.log(Level.WARNING, "Caught: " + e +
                     ", " + BaseException.getStackTrace(e));
             assertTrue("Caught: " + e, false);
         }
@@ -314,23 +322,20 @@ public class SwingClientTester extends LittleTest {
      */
     public void testJEditor() {
         try {
-            final AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
-
-            olib_asset.syncAsset(om_helper.getSession());
+            olib_asset.syncAsset(session);
 
             if (true) { // Simple group editor
-                final LittleGroup group_everybody = m_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                         SecurityAssetType.GROUP).get().narrow();
-                LittleGroup group_test = (LittleGroup) m_search.getByName("group.littleware.test_user",
+                LittleGroup group_test = (LittleGroup) search.getByName("group.littleware.test_user",
                                                         SecurityAssetType.GROUP
                                                         ).getOr(null);
                 if ( null == group_test ) {
-                    final AssetManager saver = om_helper.getService( ServiceType.ASSET_MANAGER );
-                    group_test = saver.saveAsset( SecurityAssetType.GROUP.create().name( "group.littleware.test_user" ).parent( getTestHome( m_search) ).build(),
+                    group_test = saver.saveAsset( SecurityAssetType.GROUP.create().name( "group.littleware.test_user" ).parent( getTestHome( search) ).build(),
                             "Setup test asset"
                             ).narrow();
                 }
-                group_test.addMember(group_everybody);
+                group_test = group_test.copy().add(group_everybody).build();
 
                 assertTrue("Test group " + group_test.getName() + " has members",
                         group_test.members().hasMoreElements());
@@ -345,11 +350,11 @@ public class SwingClientTester extends LittleTest {
             }
             if (true) { // Simple acl editor
                 final String s_acl_name = "SwingClientTester.acl";
-                LittleAcl acl_test = (LittleAcl) m_search.getByName(s_acl_name,
+                LittleAcl acl_test = (LittleAcl) search.getByName(s_acl_name,
                         SecurityAssetType.ACL).getOr(null);
                 if (null == acl_test) {
-                    final Asset a_testhome = m_search.getByName("littleware.test_home", AssetType.HOME).get();
-                    final LittleGroup groupEverbody = m_search.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP ).get().narrow();
+                    final Asset a_testhome = search.getByName("littleware.test_home", AssetType.HOME).get();
+                    final LittleGroup groupEverbody = search.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP ).get().narrow();
                     final LittleAcl.Builder builder = (LittleAcl.Builder) SecurityAssetType.ACL.create().name( s_acl_name ).parent( a_testhome).
                                     comment("AclEditor test acl");
                     builder.setAclId( builder.getId() );
@@ -360,7 +365,7 @@ public class SwingClientTester extends LittleTest {
                                             build()
                                             );
 
-                    acl_test = om_helper.getService(ServiceType.ASSET_MANAGER).saveAsset(builder.build(), "Setting up test asset");
+                    acl_test = saver.saveAsset(builder.build(), "Setting up test asset");
                 }
                 AssetModel model_test = olib_asset.syncAsset(acl_test);
                 JComponent wedit_acl = (JComponent) ofactory_edit.createView(model_test); // Add AclEditor to Factory!!!
@@ -373,7 +378,7 @@ public class SwingClientTester extends LittleTest {
             }
 
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught: " + e +
+            log.log(Level.WARNING, "Caught: " + e +
                     ", " + BaseException.getStackTrace(e));
             assertTrue("Caught: " + e, false);
         }
@@ -386,7 +391,6 @@ public class SwingClientTester extends LittleTest {
         Asset a_new = AssetType.GENERIC.create().name("test_asset").build();
 
         try {
-            AssetSearchManager m_search = om_helper.getService(ServiceType.ASSET_SEARCH);
             final CreateAssetWizard wizard_create = oprovideWizard.get();
             wizard_create.setAssetModel( olib_asset.syncAsset(a_new));
             assertTrue("User closed create-asset wizard ok",
@@ -394,7 +398,7 @@ public class SwingClientTester extends LittleTest {
             assertTrue("Asset-create wizard has asset changes",
                     ((AssetEditor) wizard_create).getHasLocalChanges());
         } catch ( Throwable e) {
-            olog_generic.log(Level.INFO, "Caught unexpected: " + e + ", " +
+            log.log(Level.INFO, "Caught unexpected: " + e + ", " +
                     BaseException.getStackTrace(e));
             assertTrue("Caught unexpected: " + e, false);
         } finally {

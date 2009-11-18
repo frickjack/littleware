@@ -24,7 +24,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
 import littleware.base.PropertiesLoader;
 import org.apache.felix.framework.Felix;

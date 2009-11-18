@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.test;
 
 import com.google.inject.Inject;
@@ -34,33 +33,33 @@ import littleware.test.LittleTest;
  * the ServiceProviderListener.
  */
 public class AssetModelLibTester extends LittleTest {
-    private static final Logger       olog = Logger.getLogger( AssetModelLibTester.class.getName() );
 
-    private final AssetModelLibrary   olibAsset;
-    private final LittleSession       osession;
-    private final AssetSearchManager  osearch;
+    private static final Logger olog = Logger.getLogger(AssetModelLibTester.class.getName());
+    private final AssetModelLibrary olibAsset;
+    private final LittleSession osession;
+    private final AssetSearchManager osearch;
 
     @Inject
-    public AssetModelLibTester( AssetModelLibrary libAsset,
+    public AssetModelLibTester(AssetModelLibrary libAsset,
             LittleSession session,
-            AssetSearchManager search
-            ) {
+            AssetSearchManager search) {
         olibAsset = libAsset;
         osearch = search;
         osession = session;
-        setName( "testModelLibrary");
+        setName("testModelLibrary");
     }
 
     /**
      * Run the injected AssetModelLibrary through a few simple tests
      */
     public void testModelLibrary() {
-        // couple bogus test assets - donot save to repository
-        final Asset a_bogus1 = AssetType.GENERIC.create().name("bogus1").build();
-        final Asset a_bogus2 = AssetType.GENERIC.create().name("bogus2").build();
-
-
+        Asset a_bogus1 = null;
+        Asset a_bogus2 = null;
         try {
+            // couple bogus test assets - donot save to repository
+            final Asset home = getTestHome(osearch);
+            a_bogus1 = AssetType.GENERIC.create().name("bogus1").parent(home).build();
+            a_bogus2 = AssetType.GENERIC.create().name("bogus2").parent(home).build();
             final Asset a_test = osession;
 
             olibAsset.remove(a_test.getId());
@@ -68,54 +67,43 @@ public class AssetModelLibTester extends LittleTest {
             assertTrue("Simple sync is ok",
                     olibAsset.syncAsset(a_test).getAsset() == a_test);
             assertTrue("No retrieval if not necessary",
-                    olibAsset.retrieveAssetModel(a_test.getId(), osearch).get().getAsset() == a_test
-                    );
+                    olibAsset.retrieveAssetModel(a_test.getId(), osearch).get().getAsset() == a_test);
 
             final AssetModel amodel_everybody =
-                    olibAsset.syncAsset( osearch.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                                                        SecurityAssetType.GROUP ).get()
-                    );
-            assertTrue( "ModelLibrary getByName inheritance aware 1",
-                    olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.PRINCIPAL
-                    ).isSet()
-                    );
-            assertTrue( "ModelLibrary getByName inheritance aware 2",
-                    ! olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                            SecurityAssetType.USER
-                        ).isSet()
-                    );
-            assertTrue( "ModelLibrary getByName inheritance aware 3",
-                    olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP
-                    ).isSet()
-                    );
-            olibAsset.remove( amodel_everybody.getAsset ().getId () );
-            assertTrue( "ModelLibrary getByName cleared after remove",
-                    !olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                        SecurityAssetType.GROUP
-                    ).isSet()
-                    );
+                    olibAsset.syncAsset(osearch.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    SecurityAssetType.GROUP).get());
+            assertTrue("ModelLibrary getByName inheritance aware 1",
+                    olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    SecurityAssetType.PRINCIPAL).isSet());
+            assertTrue("ModelLibrary getByName inheritance aware 2",
+                    !olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    SecurityAssetType.USER).isSet());
+            assertTrue("ModelLibrary getByName inheritance aware 3",
+                    olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    SecurityAssetType.GROUP).isSet());
+            olibAsset.remove(amodel_everybody.getAsset().getId());
+            assertTrue("ModelLibrary getByName cleared after remove",
+                    !olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    SecurityAssetType.GROUP).isSet());
 
             final AssetEditor edit_bogus = new AbstractAssetEditor(this) {
 
                 @Override
                 public void eventFromModel(LittleEvent event_property) {
                     // just do something - anything
-                    olog.log( Level.INFO, "Test editor received event from model, setting value to 5" );
+                    olog.log(Level.INFO, "Test editor received event from model, setting value to 5");
                     changeLocalAsset().setValue(5);
                 }
             };
             edit_bogus.setAssetModel(olibAsset.syncAsset(a_bogus1)); //addPropertyChangeListener ( listen_assetprop );
             // Adding a_bogus2 to the asset repository should trigger a Property.assetsLinkingFrom
             // property-change event on listeners to a_bogus1 AssetModel
-            olibAsset.syncAsset( a_bogus2.copy().fromId(a_bogus1.getId()).
-                       transaction( a_bogus2.getTransaction() + 1 ).build()
-                       );
+            olibAsset.syncAsset(a_bogus2.copy().fromId(a_bogus1.getId()).
+                    transaction(a_bogus2.getTransaction() + 1).build());
             Thread.sleep(4000); // let any asynchrony work itself out
-            assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().getValue() );
+            assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().getValue());
         } catch (Exception e) {
-            olog.log(Level.WARNING, "Caught unexpected: " + e, e );
+            olog.log(Level.WARNING, "Caught unexpected: " + e, e);
             assertTrue("Caught unexpected: " + e, false);
         } finally {
             olibAsset.remove(a_bogus1.getId());
@@ -129,23 +117,19 @@ public class AssetModelLibTester extends LittleTest {
      */
     public void testSessionHookup() {
         try {
-            assertTrue( "SearchManager is a service", osearch instanceof LittleService );
-            olibAsset.remove( osession.getId() );
-            assertTrue( "Session removed from model library",
-                    null == olibAsset.get( osession.getId() )
-                    );
-            osearch.getAsset( osession.getId() );
-            assertTrue( "Asset automatically added to model library on load",
-                    null != olibAsset.get( osession.getId() )
-                    );
+            assertTrue("SearchManager is a service", osearch instanceof LittleService);
+            olibAsset.remove(osession.getId());
+            assertTrue("Session removed from model library",
+                    null == olibAsset.get(osession.getId()));
+            osearch.getAsset(osession.getId());
+            assertTrue("Asset automatically added to model library on load",
+                    null != olibAsset.get(osession.getId()));
             // Make sure that our client cache is getting wired up
-            assertTrue( "Client cache registration looks ok",
-                    SimpleLittleService.getCacheCount() > 0
-                    );
-        } catch ( Exception ex ) {
-            olog.log( Level.WARNING, "Test failed" , ex );
-            fail( "Caught exception: " + ex );
+            assertTrue("Client cache registration looks ok",
+                    SimpleLittleService.getCacheCount() > 0);
+        } catch (Exception ex) {
+            olog.log(Level.WARNING, "Test failed", ex);
+            fail("Caught exception: " + ex);
         }
     }
-    
 }

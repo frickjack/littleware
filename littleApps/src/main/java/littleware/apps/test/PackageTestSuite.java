@@ -18,27 +18,33 @@ import javax.swing.SwingUtilities;
 import junit.framework.*;
 
 import littleware.apps.client.ClientBootstrap;
+import littleware.apps.filebucket.server.BucketServerActivator;
+import littleware.apps.filebucket.server.BucketServerGuice;
 import littleware.apps.misc.test.ImageManagerTester;
 import littleware.apps.misc.test.ThumbManagerTester;
 import littleware.base.AssertionFailedException;
+import littleware.security.auth.ClientServiceGuice;
+import littleware.security.auth.GuiceOSGiBootstrap;
+import littleware.security.auth.SimpleNamePasswordCallbackHandler;
+import littleware.security.auth.server.ServerBootstrap;
+import littleware.test.TestFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
  * Test suite for littleware.asset package
  */
-public class PackageTestSuite extends TestSuite implements BundleActivator {
-
-    private static PackageTestSuite osingleton = null;
-    private static final Logger olog = Logger.getLogger(PackageTestSuite.class.getName());
+public class PackageTestSuite extends TestSuite {
+    private static final Logger log = Logger.getLogger(PackageTestSuite.class.getName());
 
     /** Inject server-connected sessionHelper */
     @Inject
-    public PackageTestSuite(Provider<AddressBookTester> provide_address_test,
+    public PackageTestSuite(
+            //Provider<AddressBookTester> provide_address_test,
             Provider<SwingClientTester> provide_swing_test,
             Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
-            Provider<TrackerTester> provide_tracker_test,
+            //Provider<TrackerTester> provide_tracker_test,
             Provider<ImageManagerTester> provide_image_test,
             Provider<ThumbManagerTester> provide_thumb_test,
             littleware.apps.lgo.test.PackageTestSuite suiteLgo,
@@ -74,11 +80,13 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
             this.addTest(test);
         }
 
+        /*..
         if (b_run) {
             TestCase test = provide_address_test.get();
             test.setName("testAddressBook");
             this.addTest(test);
         }
+         */
         if (false) {
             this.addTest(provide_swing_test.get().putName("testJSessionManager"));
         }
@@ -112,19 +120,18 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
                 test.setName("testBucket");
                 this.addTest(test);
             }
-            // disable tracker tests for now
+            /** disable tracker tests for now
             if (false) {
                 this.addTest(provide_tracker_test.get().putName("testTracker"));
                 this.addTest(provide_tracker_test.get().putName("testTrackerSwing"));
-            }
+            } */
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new AssertionFailedException("Failed to get started");
         }
 
-        olog.log(Level.INFO, "PackageTestSuite() ok ...");
-        osingleton = this;
+        log.log(Level.INFO, "PackageTestSuite() ok ...");
     }
 
     /**
@@ -132,38 +139,18 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
      * of the OSGi bootstrap process
      */
     public static Test suite() {
-        if (null == osingleton) {
-            throw new IllegalStateException("PackageTestSuite not initialized - cannot bootstrap test");
+        try {
+            final GuiceOSGiBootstrap serverBoot = new ServerBootstrap( true );
+            serverBoot.getGuiceModule().add( new BucketServerGuice() );
+            serverBoot.getOSGiActivator().add( BucketServerActivator.class );
+            return (new TestFactory()).build( serverBoot,
+                new ClientBootstrap( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" ))),
+                PackageTestSuite.class
+                );
+        } catch ( RuntimeException ex ) {
+            log.log( Level.SEVERE, "Test setup failed", ex );
+            throw ex;
         }
-        return osingleton;
     }
 
-    /**
-     * Launch the JUNIT TestRunner
-     */
-    @Override
-    public void start(BundleContext ctx) {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                junit.swingui.TestRunner.main(
-                        new String[]{"-noloading",
-                            PackageTestSuite.class.getName()
-                        });
-            //junit.textui.TestRunner.main( v_launch_args );
-            }
-        });
-    }
-
-    /** NOOP */
-    @Override
-    public void stop(BundleContext ctx) {
-    }
-
-    public static void main(String[] vArgs) {
-        ClientBootstrap bootstrap = new ClientBootstrap();
-        bootstrap.getOSGiActivator().add(PackageTestSuite.class);
-        bootstrap.bootstrap();
-    }
 }

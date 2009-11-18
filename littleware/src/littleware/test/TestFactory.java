@@ -54,16 +54,25 @@ public class TestFactory {
 
         @Override
         public void start(final BundleContext ctx) throws Exception {
+            log.log( Level.FINE, "SuiteActivator started" );
+            // FrameworkEvent.STARTED never comes when running
+            // multiple OSGi environments ... ugh!
+            barrier.publishEventData(suite);
+            /*..
             ctx.addFrameworkListener(new FrameworkListener() {
 
                 @Override
                 public synchronized void frameworkEvent(FrameworkEvent evt) {
                     if ((evt.getType() == FrameworkEvent.STARTED)) {
                         ctx.removeFrameworkListener(this);
+                        log.log( Level.FINE, "OSGi started, publishing TestSuite" );
                         barrier.publishEventData(suite);
+                    } else {
+                        log.log( Level.FINE, "Got event: " + evt );
                     }
                 }
             });
+             */
         }
 
         @Override
@@ -109,12 +118,16 @@ public class TestFactory {
                     }
                 });
         bootstrap.getOSGiActivator().add(SuiteActivator.class);
-        bootstrap.bootstrap();
+        
         try {
+            bootstrap.bootstrap();
+            log.log( Level.INFO, "Waiting for OSGi startup ..." );
             final TestSuite suite = suiteBarrier.waitForEventData();
             suite.addTest(new ShutdownTest( bootstrap ) );
+            log.log( Level.INFO, "Returning TestSuite" );
             return suite;
-        } catch (InterruptedException ex) {
+        } catch (Exception ex) {
+            log.log( Level.SEVERE, "Bootstrap failed", ex );
             throw new IllegalStateException("Test setup interrupted", ex);
         }
     }
@@ -171,8 +184,14 @@ public class TestFactory {
                 public synchronized void frameworkEvent(FrameworkEvent evt) {
                     if ((evt.getType() == FrameworkEvent.STARTED)) {
                         ctx.removeFrameworkListener(this);
-                        clientData.getBarrier().publishEventData(
+                        log.log( Level.INFO, "Launching client test ..." );
+                        try {
+                            clientData.getBarrier().publishEventData(
                                 clientData.getFactory().build(clientData.getBootstrap(), clientData.getSuiteClass()));
+                        } catch ( Exception ex ) {
+                            log.log( Level.WARNING, "Failed client-test launch", ex);
+                            clientData.getBarrier().publishEventData(null);
+                        }
                     }
                 }
             });
@@ -213,6 +232,7 @@ public class TestFactory {
                             serverBootstrap.shutdown();
                         }
                     });
+            log.log( Level.INFO, "Returning TestSuite" );
             return suite;
         } catch (InterruptedException ex) {
             throw new IllegalStateException("Bootstrap failed", ex);

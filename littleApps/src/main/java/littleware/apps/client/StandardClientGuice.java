@@ -15,15 +15,24 @@ import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+import littleware.apps.filebucket.BucketManager;
+import littleware.apps.filebucket.BucketServiceType;
+import littleware.apps.filebucket.client.BucketManagerService;
 import littleware.asset.pickle.AssetHumanPickler;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.security.auth.LittleSession;
+import littleware.security.auth.ServiceType;
+
 
 
 /**
  * Typical Guice setup for littleware.apps.client setup
  */
 public class StandardClientGuice implements Module {
+    public StandardClientGuice() {
+        final ServiceType forceLoad = BucketServiceType.BUCKET_MANAGER;
+    }
+
     /**
      * Just inject the LittleSession into things that
      * want an asset-model injected into the constructor
@@ -50,5 +59,6 @@ public class StandardClientGuice implements Module {
         binder.bind( AssetModel.class ).toProvider( DefaultModelProvider.class );
         binder.bind( AssetHumanPickler.class ).toProvider( HumanPicklerProvider.class );
         binder.bind( HumanPicklerProvider.class ).in( Scopes.SINGLETON );
+        binder.bind( BucketManager.class ).to( BucketManagerService.class );
     }
 }

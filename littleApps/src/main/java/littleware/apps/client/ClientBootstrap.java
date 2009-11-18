@@ -48,13 +48,11 @@ public class ClientBootstrap extends AbstractGOBootstrap {
     public static class Activator implements BundleActivator {
         private final ExecutorService executor;
         private final SessionHelper helper;
-        //private final CompositeCacheManager cacheManager;
 
         @Inject
         public Activator(ExecutorService executor, SessionHelper helper ) { //, CompositeCacheManager cacheManager) {
             this.executor = executor;
             this.helper = helper;
-            //this.cacheManager = cacheManager;
         }
 
         @Override
@@ -64,7 +62,6 @@ public class ClientBootstrap extends AbstractGOBootstrap {
 
         @Override
         public void stop(BundleContext ctx) throws Exception {
-            //cacheManager.shutDown();
             ((LittleService) helper).stop( ctx );
             if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
@@ -72,36 +69,6 @@ public class ClientBootstrap extends AbstractGOBootstrap {
         }
     }
 
-    /**
-     * Utility Guice module binds JCS cache manager
-     * and LittleBootstrap
-     */
-    private static class CacheModule implements Module {
-
-        @Override
-        public void configure(Binder binder) {
-            /*..
-            // Setup CompositeCacheManager
-            final CompositeCacheManager manager = CompositeCacheManager.getUnconfiguredInstance();
-            final PropertiesLoader propLoader = PropertiesLoader.get();
-            final Properties props;
-            try {
-                props = propLoader.loadProperties("littlecache.properties");
-            } catch (IOException ex) {
-                throw new AssertionFailedException("Failed to load cache properties", ex);
-            }
-            final String cachePath = propLoader.getLittleHome().toString() + "/jcsCache";
-            props.setProperty("jcs.auxiliary.DC.attributes.DiskPath", cachePath);
-            manager.configure(props);
-            binder.bind(CompositeCacheManager.class).toInstance(manager);
-            try {
-                binder.bind(JCS.class).toInstance(JCS.getInstance("littleware"));
-            } catch (CacheException ex) {
-                throw new AssertionFailedException( "Failed to initialize JCS", ex );
-            }
-             */
-        }
-    }
     private final ClientServiceGuice clientGuice;
 
     /**

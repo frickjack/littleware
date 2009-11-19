@@ -1,10 +1,10 @@
 package littleware.security;
 
 import com.google.inject.ImplementedBy;
-import java.security.Principal;
-import java.security.acl.AclEntry;
 
 import java.security.acl.Permission;
+import java.util.Collection;
+import java.util.Enumeration;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 
@@ -17,13 +17,17 @@ import littleware.asset.AssetBuilder;
  * attributes to be consistent with the Acl it belongs to.
  * NOTE: each entry can belong to only one ACL
  */
-public interface LittleAclEntry extends AclEntry, Asset {
+public interface LittleAclEntry extends Asset {
 
     /**
      * Covariant return-type: LittlePrincipal
      */
-    @Override
     public LittlePrincipal getPrincipal ();
+    public boolean checkPermission(Permission permission);
+    public Collection<Permission> getPermissions();
+    public Enumeration<Permission> permissions();
+    public boolean isNegative();
+    
     @Override
     public Builder copy();
 
@@ -37,6 +41,11 @@ public interface LittleAclEntry extends AclEntry, Asset {
 
         public void setPrincipal( LittlePrincipal principal );
         public Builder principal ( LittlePrincipal principal );
+
+        /**
+         * Synonym for parent()
+         */
+        public Builder acl( LittleAcl acl );
 
         @Override
         public LittleAclEntry build();

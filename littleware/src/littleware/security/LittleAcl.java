@@ -13,6 +13,9 @@ import com.google.inject.ImplementedBy;
 import java.security.acl.Acl;
 import java.security.Principal;
 
+import java.security.acl.Permission;
+import java.util.Collection;
+import java.util.Enumeration;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.base.Maybe;
@@ -25,15 +28,21 @@ import littleware.base.Maybe;
  * Littleware repository.
  * Override Acl methods with no-exception versions.
  */
-public interface LittleAcl extends Acl, Asset {
+public interface LittleAcl extends Asset {
 
     public final static String ACL_EVERYBODY_READ = "acl.littleware.everybody.read";
 
     /**
-     * Throws UnsupportedOperationException - do getOwner(...).isOwner(...) instead
+     * Get enumeration view of the ACL entries.
      */
-    @Override
-    public boolean isOwner(Principal p_owner);
+    public Enumeration<LittleAclEntry> entries();
+
+    public Collection<LittleAclEntry> getEntries();
+    /**
+     * Get the permissions associated with the given principal
+     */
+    public Collection<Permission> getPermissions(LittlePrincipal principal);
+    public boolean checkPermission(LittlePrincipal user, Permission permission);
 
     /**
      * Little utility - get the entry associated with the given Principal,
@@ -43,11 +52,11 @@ public interface LittleAcl extends Acl, Asset {
      * @param isNegative do we want the postive or negative entry ?
      * @return entry's entry or null if p_entry entry not in this Acl
      */
-    public Maybe<LittleAclEntry> getEntry(Principal entry, boolean isNegative );
+    public Maybe<LittleAclEntry> getEntry(Principal entry, boolean isNegative);
 
     @Override
     public Builder copy();
-    
+
     @ImplementedBy(SimpleACLBuilder.class)
     public interface Builder extends AssetBuilder {
 
@@ -55,13 +64,13 @@ public interface LittleAcl extends Acl, Asset {
          * Utility since our Acl implementation does not care who the caller is
          */
         public Builder addEntry(LittleAclEntry entry);
+
         public Builder removeEntry(LittleAclEntry entry);
 
         @Override
-        public Builder copy( Asset source );
+        public Builder copy(Asset source);
 
         @Override
         public LittleAcl build();
     }
-
 }

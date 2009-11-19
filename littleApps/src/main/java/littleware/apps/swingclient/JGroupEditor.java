@@ -18,14 +18,13 @@ import java.awt.event.ActionEvent;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.Principal;
 import javax.swing.*;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
-import littleware.base.NoSuchThingException;
 import littleware.security.*;
+import littleware.security.LittleGroup.Builder;
 
 
 /**
@@ -95,6 +94,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
             final String            name = owtext_add.getText ();
             final LittlePrincipal   principal = om_search.getByName ( name, SecurityAssetType.PRINCIPAL ).get().narrow();
             ((LittleGroup.Builder) this.changeLocalAsset ()).add(principal);
+            omodel_memberlist.addElement( principal );
         } catch ( Exception e ) {
             olog_generic.log ( Level.INFO, "Failed adding new member, caught: " + e +
                                ", " + BaseException.getStackTrace ( e )
@@ -110,12 +110,12 @@ public class JGroupEditor extends JGenericAssetEditor  {
      */
     private void uiDeleteMembers () {
         try {
-            final LittleGroup       group_local = this.getLocalAsset ().narrow( LittleGroup.class );
+            final LittleGroup.Builder    groupBuilder = (Builder) this.changeLocalAsset ();
             Object[] v_selected = owlist_members.getSelectedValues ();
             
-            for ( Object x_selected : v_selected ) {
-                group_local.removeMember ( (LittlePrincipal) x_selected );
-                omodel_memberlist.removeElement ( x_selected );
+            for ( Object selected : v_selected ) {
+                groupBuilder.remove ( (LittlePrincipal) selected );
+                omodel_memberlist.removeElement ( selected );
                 this.setHasLocalChanges ( true );
             }
         } catch ( Exception e ) {
@@ -284,15 +284,10 @@ public class JGroupEditor extends JGenericAssetEditor  {
             return;
         }
         setTabEnabled ( owpanel_build, true );
-        LittleGroup      group_view = model_view.getAsset ().narrow( LittleGroup.class );
-        java.util.List<LittlePrincipal>  v_members = new ArrayList<LittlePrincipal> ();
+        final LittleGroup      group_view = getAssetModel().getAsset().narrow();
+        java.util.List<LittlePrincipal>  v_members = new ArrayList<LittlePrincipal> ( group_view.getMembers() );
         
         owlink_group.setLink ( group_view );
-        for ( Enumeration<? extends Principal> enum_members = group_view.members ();
-              enum_members.hasMoreElements ();
-              ) {
-            v_members.add ( (LittlePrincipal) enum_members.nextElement () );
-        }
         Collections.sort ( v_members, 
                            new Comparator<LittlePrincipal> () {
             @Override
@@ -306,7 +301,6 @@ public class JGroupEditor extends JGenericAssetEditor  {
             omodel_memberlist.addElement ( p_member );
         } 
         setHasLocalChanges ( false );
-    }
-    
+    }    
 }
 

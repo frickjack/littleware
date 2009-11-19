@@ -12,10 +12,9 @@ package littleware.security;
 import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.security.Principal;
 import java.security.acl.*;
 
+import littleware.security.LittleAclEntry.Builder;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParserFactory;
@@ -23,7 +22,6 @@ import javax.xml.parsers.SAXParser;
 import java.io.StringReader;
 
 import littleware.asset.*;
-import littleware.asset.xml.XmlDataAsset;
 import littleware.base.*;
 
 /**
@@ -41,6 +39,18 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
     @Override
     public LittleAclEntry build() {
         return new Entry( this, principal, permissionSet );
+    }
+
+    @Override
+    public Builder parent( Asset value ) {
+        super.parent( (LittleAcl) value );
+        return this;
+    }
+
+    @Override
+    public Builder acl(LittleAcl acl) {
+        super.parent( acl );
+        return this;
     }
 
     private static class Entry extends SimpleAssetBuilder.SimpleAsset implements LittleAclEntry {
@@ -67,35 +77,12 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
             return principal;
         }
 
-        @Override
-        public LittleAclEntry clone() {
-            return new AclEntryBuilder().copy(this).build().narrow();
-        }
-
-        @Override
-        public boolean setPrincipal(Principal user) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public void setNegativePermissions() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
 
         @Override
         public boolean isNegative() {
             return (getValue() == 0);
         }
 
-        @Override
-        public boolean addPermission(Permission permission) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean removePermission(Permission permission) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
 
         /**
          * Check if the specified permission is part of this entry
@@ -104,13 +91,17 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
          * @return true if in entry, false otherwise
          */
         @Override
-        public boolean checkPermission(Permission x_permission) {
-            return permissionSet.contains(x_permission);
+        public boolean checkPermission(Permission permission) {
+            return permissionSet.contains(permission);
         }
 
         @Override
         public Enumeration<Permission> permissions() {
             return Collections.enumeration(permissionSet);
+        }
+        @Override
+        public Collection<Permission> getPermissions() {
+            return permissionSet;
         }
 
         @Override

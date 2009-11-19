@@ -13,7 +13,6 @@ import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import java.security.Principal;
 
 
 
@@ -62,12 +61,10 @@ public class AssetSearchManagerTester extends LittleTest {
 
             final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     SecurityAssetType.GROUP).get().narrow();
-            for (Enumeration<? extends Principal> enum_members = group_everybody.members();
-                    enum_members.hasMoreElements();) {
-                LittlePrincipal p_member = (LittlePrincipal) enum_members.nextElement();
-                Set<UUID> v_links = search.getAssetIdsTo(p_member.getId(),
+            for (LittlePrincipal member : group_everybody.getMembers() ) {
+                Set<UUID> v_links = search.getAssetIdsTo(member.getId(),
                         SecurityAssetType.GROUP_MEMBER);
-                assertTrue("Group member as links TO it: " + p_member,
+                assertTrue("Group member as links TO it: " + member,
                         !v_links.isEmpty());
             }
         } catch (Exception e) {

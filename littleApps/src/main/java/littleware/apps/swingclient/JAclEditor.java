@@ -8,7 +8,6 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
 package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
@@ -18,7 +17,6 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.security.acl.AclEntry;
 import java.security.acl.Permission;
 import java.util.*;
 import java.util.logging.Logger;
@@ -184,7 +182,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
             final LittleAclEntry entry = acl_local.getEntry ( principal, false ).getOr(null);
             lib_asset.syncAsset ( principal );
             if ( null == entry ) {
-                entryBuilder = SecurityAssetType.ACL_ENTRY.create ().
+                entryBuilder = SecurityAssetType.ACL_ENTRY.create ().acl( acl_local ).
                         principal( principal );
             } else {
                 entryBuilder = entry.copy();
@@ -400,7 +398,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
         LittleAcl              acl_view = getLocalAsset ().narrow( LittleAcl.class );
         owlink_acl.setLink ( acl_view );
         
-        Enumeration<AclEntry>  enum_entry = acl_view.entries ();
+        Enumeration<LittleAclEntry>  enum_entry = acl_view.entries ();
         java.util.Map<LittlePermission,List<LittlePrincipal>>  map_members = 
             new HashMap<LittlePermission,List<LittlePrincipal>> ();
         

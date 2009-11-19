@@ -8,7 +8,10 @@ import littleware.asset.AssetBuilder;
  * Slight extention of Principal interface
  * to support notion of a principal id and comment
  */
-public interface LittleGroup extends LittlePrincipal, java.security.acl.Group {	
+public interface LittleGroup extends LittlePrincipal {
+
+    public Collection<LittlePrincipal> getMembers();
+    public boolean isMember( LittlePrincipal member);
 
     @Override
     public Builder copy();

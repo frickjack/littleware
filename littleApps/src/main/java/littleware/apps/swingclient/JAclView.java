@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.apps.client.*;
-import littleware.apps.misc.ThumbManager;
 import littleware.asset.*;
 import littleware.security.*;
 
@@ -49,7 +48,7 @@ public class JAclView extends JAssetWithChildrenView {
         LittleAcl acl_view = model_view.getAsset ().narrow( LittleAcl.class );
 
         StringBuilder    sb_perms = new StringBuilder( 128 );
-        for ( Enumeration<AclEntry> enum_members = acl_view.entries ();
+        for ( Enumeration<LittleAclEntry> enum_members = acl_view.entries ();
               enum_members.hasMoreElements ();
               ) {
             LittleAclEntry  acl_entry = (LittleAclEntry) enum_members.nextElement ();

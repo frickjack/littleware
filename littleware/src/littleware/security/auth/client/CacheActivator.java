@@ -11,9 +11,7 @@ package littleware.security.auth.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.security.Principal;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -85,11 +83,9 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
                 if (asset.getAssetType().isA(SecurityAssetType.GROUP)) {
                     // go ahead and harvest group members
                     final LittleGroup group = asset.narrow();
-                    for (Enumeration<? extends Principal> i = group.members();
-                            i.hasMoreElements();) {
-                        final LittlePrincipal p = (LittlePrincipal) i.nextElement();
-                        if ( ! asset.equals( p ) ) {
-                            put(p.getId().toString(), p);  // recurse over nexted groups
+                    for ( LittlePrincipal member : group.getMembers() ) {
+                        if ( ! asset.equals( member ) ) {
+                            put(member.getId().toString(), member);  // recurse over nexted groups
                         }
                     }
                 }

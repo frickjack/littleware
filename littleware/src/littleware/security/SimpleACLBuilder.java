@@ -35,10 +35,11 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
     }
 
     private class AclAsset extends SimpleAssetBuilder.SimpleAsset implements LittleAcl {
-        private Map<Principal, AclEntry> positiveUserEntries;
-        private Map<Principal, AclEntry> negativeUserEntries;
-        private Map<Principal, AclEntry> positiveGroupEntries;
-        private Map<Principal, AclEntry> negativeGroupEntries;
+        private Map<Principal, LittleAclEntry> positiveUserEntries;
+        private Map<Principal, LittleAclEntry> negativeUserEntries;
+        private Map<Principal, LittleAclEntry> positiveGroupEntries;
+        private Map<Principal, LittleAclEntry> negativeGroupEntries;
+        private Collection<LittleAclEntry> entries;
 
         /** For serialization */
         public AclAsset() {}
@@ -46,10 +47,10 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
         public AclAsset(SimpleACLBuilder builder,
                 Collection<LittleAclEntry> entries ) {
             super( builder );
-            final ImmutableMap.Builder<Principal,AclEntry> positiveUserBuilder = ImmutableMap.builder();
-            final ImmutableMap.Builder<Principal,AclEntry> positiveGroupBuilder = ImmutableMap.builder();
-            final ImmutableMap.Builder<Principal,AclEntry> negativeUserBuilder = ImmutableMap.builder();
-            final ImmutableMap.Builder<Principal,AclEntry> negativeGroupBuilder = ImmutableMap.builder();
+            final ImmutableMap.Builder<Principal,LittleAclEntry> positiveUserBuilder = ImmutableMap.builder();
+            final ImmutableMap.Builder<Principal,LittleAclEntry> positiveGroupBuilder = ImmutableMap.builder();
+            final ImmutableMap.Builder<Principal,LittleAclEntry> negativeUserBuilder = ImmutableMap.builder();
+            final ImmutableMap.Builder<Principal,LittleAclEntry> negativeGroupBuilder = ImmutableMap.builder();
 
             for( LittleAclEntry entry : entries ) {
                 if ( entry.isNegative() ) {
@@ -70,59 +71,52 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
             this.positiveGroupEntries = positiveGroupBuilder.build();
             this.negativeUserEntries = negativeUserBuilder.build();
             this.negativeGroupEntries = negativeGroupBuilder.build();
+            this.entries = entries;
         }
 
-        @Override
-        public void setName(Principal p_caller, String s_name) {
-            throw new UnsupportedOperationException();
-        }
 
         /**
          * Get enumeration view of the ACL entries.
-         * The returned entries are read-only - must clone()
-         * to get a modifiable version.
          */
         @Override
-        public Enumeration<AclEntry> entries() {
-            List<AclEntry> v_entries = new ArrayList<AclEntry>();
-
-            v_entries.addAll(positiveUserEntries.values());
-            v_entries.addAll(negativeUserEntries.values());
-            v_entries.addAll(positiveGroupEntries.values());
-            v_entries.addAll(negativeGroupEntries.values());
-            return Collections.enumeration(v_entries);
+        public Enumeration<LittleAclEntry> entries() {
+            return Collections.enumeration(entries);
+        }
+        @Override
+        public Collection<LittleAclEntry> getEntries() {
+            return entries;
         }
 
         @Override
-        public boolean checkPermission(Principal p_user, Permission perm_access) {
-            if (negativeUserEntries.containsKey(p_user) && ((AclEntry) negativeUserEntries.get(p_user)).checkPermission(perm_access)) {
+        public boolean checkPermission(LittlePrincipal user, Permission permission) {
+            if (negativeUserEntries.containsKey(user) && ((AclEntry) negativeUserEntries.get(user)).checkPermission(permission)) {
                 return false;
-            } else if (positiveUserEntries.containsKey(p_user) && ((AclEntry) positiveUserEntries.get(p_user)).checkPermission(perm_access)) {
+            } else if (positiveUserEntries.containsKey(user) && ((AclEntry) positiveUserEntries.get(user)).checkPermission(permission)) {
                 return true;
             } else {
                 // Loop over all the groups
                 for (Iterator<Principal> r_i = negativeGroupEntries.keySet().iterator();
                         r_i.hasNext();) {
                     Group p_group = (Group) r_i.next();
-                    if (p_group.isMember(p_user) && ((AclEntry) negativeGroupEntries.get(p_group)).checkPermission(perm_access)) {
+                    if (p_group.isMember(user) && ((AclEntry) negativeGroupEntries.get(p_group)).checkPermission(permission)) {
                         return false;
                     }
                 }
 
-                log.log(Level.FINE, "Checking " + p_user.getName() + " permission on ACL " +
+                log.log(Level.FINE, "Checking " + user.getName() + " permission on ACL " +
                         this.getName());
 
-                for (Iterator<Map.Entry<Principal, AclEntry>> r_i = positiveGroupEntries.entrySet().iterator();
+                for (Iterator<Map.Entry<Principal, LittleAclEntry>> r_i = positiveGroupEntries.entrySet().iterator();
                         r_i.hasNext();) {
-                    Map.Entry<Principal, AclEntry> x_entry = r_i.next();
+                    Map.Entry<Principal, LittleAclEntry> x_entry = r_i.next();
                     Group p_group = (Group) x_entry.getKey();
-                    final boolean isMember = p_group.isMember(p_user);
+                    final boolean isMember = p_group.isMember(user);
 
-                    log.log(Level.FINE, "Checking " + p_user.getName() + " membership in group " +
+                    log.log(Level.FINE, "Checking " + user.getName() + " membership in group " +
                             p_group.getName() + ": " + isMember);
 
                     if (isMember &&
-                            x_entry.getValue().checkPermission(perm_access)) {
+                            x_entry.getValue().checkPermission(permission)) {
                         return true;
                     }
                 }
@@ -132,14 +126,13 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
         }
 
         @Override
-        public Enumeration<Permission> getPermissions(Principal x_principal) {
-            Set<Permission> v_perms = new HashSet<Permission>();
-
+        public Collection<Permission> getPermissions(LittlePrincipal principal) {
+            final Set<Permission> v_perms = new HashSet<Permission>();
             // Build up the list of positive group permissions for this principal
             for (Iterator<Principal> r_i = positiveGroupEntries.keySet().iterator();
                     r_i.hasNext();) {
                 Group p_group = (Group) r_i.next();
-                if (p_group.isMember(x_principal)) {
+                if (p_group.isMember(principal)) {
                     v_perms.addAll(Collections.list(
                             ((AclEntry) positiveGroupEntries.get(p_group)).permissions()));
                 }
@@ -148,24 +141,24 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
             for (Iterator<Principal> r_i = negativeGroupEntries.keySet().iterator();
                     r_i.hasNext();) {
                 Group p_group = (Group) r_i.next();
-                if (p_group.isMember(x_principal)) {
+                if (p_group.isMember(principal)) {
                     v_perms.removeAll(Collections.list(
                             ((AclEntry) negativeGroupEntries.get(p_group)).permissions()));
                 }
             }
 
             // Add in the postive user permissions
-            AclEntry x_lookup = positiveUserEntries.get(x_principal);
+            LittleAclEntry x_lookup = positiveUserEntries.get(principal);
             if (null != x_lookup) {
                 v_perms.addAll(Collections.list(x_lookup.permissions()));
             }
 
-            x_lookup = negativeUserEntries.get(x_principal);
+            x_lookup = negativeUserEntries.get(principal);
             if (null != x_lookup) {
                 v_perms.removeAll(Collections.list(((AclEntry) x_lookup).permissions()));
             }
 
-            return Collections.enumeration(v_perms);
+            return ImmutableSet.copyOf(v_perms);
         }
 
         /**
@@ -175,7 +168,7 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
          * @param b_negative set true if we want the negative entry
          * @return one of the internal ov_ maps
          */
-        private Map<Principal, AclEntry> getCacheForEntry(Principal principal,
+        private Map<Principal, LittleAclEntry> getCacheForEntry(Principal principal,
                 boolean isNegative) {
             if (isNegative) { // x_entry.isNegative () )
                 if (principal instanceof Group) {
@@ -196,46 +189,23 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
          * @param x_entry that we want to add or remove
          * @return one of the internal ov_ maps
          */
-        private Map<Principal, AclEntry> getCacheForEntry(AclEntry x_entry) {
+        private Map<Principal, LittleAclEntry> getCacheForEntry(AclEntry x_entry) {
             return getCacheForEntry(x_entry.getPrincipal(), x_entry.isNegative());
         }
 
         
         @Override
         public Maybe<LittleAclEntry> getEntry(Principal principal, boolean negative) {
-            final Map<Principal, AclEntry> entryMap = getCacheForEntry(principal, negative);
+            final Map<Principal, LittleAclEntry> entryMap = getCacheForEntry(principal, negative);
             return Maybe.emptyIfNull( (LittleAclEntry) entryMap.get(principal) );
         }
 
-        @Override
-        public boolean addEntry(Principal p_caller, AclEntry x_entry) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isOwner(Principal p_owner) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean deleteOwner(Principal p_caller, Principal p_owner) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean addOwner(Principal p_caller, Principal p_owner) {
-            throw new UnsupportedOperationException();
-        }
 
         @Override
         public String toString() {
             return "ACL " + this.getName() + " (" + this.getId() + ")";
         }
 
-        @Override
-        public boolean removeEntry(Principal caller, AclEntry entry) throws NotOwnerException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
 
         @Override
         public Builder copy() {
@@ -269,8 +239,11 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
     @Override
     public LittleAcl.Builder copy(Asset source) {
         super.copy(source);
+        if ( ! (source instanceof LittleAcl) ) {
+            return this;
+        }
         final LittleAcl acl = source.narrow();
-        for( final Enumeration<AclEntry> it = acl.entries();
+        for( final Enumeration<LittleAclEntry> it = acl.entries();
              it.hasMoreElements();
         ) {
             entrySet.add( (LittleAclEntry) it.nextElement() );

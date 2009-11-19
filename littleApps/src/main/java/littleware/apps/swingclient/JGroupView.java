@@ -12,12 +12,10 @@ package littleware.apps.swingclient;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.security.Principal;
 import java.util.*;
 import java.util.logging.Logger;
 
 import littleware.apps.client.*;
-import littleware.apps.misc.ThumbManager;
 import littleware.asset.*;
 import littleware.security.SecurityAssetType;
 import littleware.security.LittleGroup;
@@ -46,10 +44,8 @@ public class JGroupView extends JAssetWithChildrenView {
         super.setTabEnabled ( true );
         LittleGroup group_view = model_view.getAsset ().narrow( LittleGroup.class );
         
-        for ( Enumeration<? extends Principal> enum_members = group_view.members ();
-              enum_members.hasMoreElements ();
-              ) {
-            v_childinfo.put ( (LittlePrincipal) enum_members.nextElement (), null );
+        for ( LittlePrincipal member : group_view.getMembers () ) {
+            v_childinfo.put ( member, null );
         }
         return v_childinfo;
     }

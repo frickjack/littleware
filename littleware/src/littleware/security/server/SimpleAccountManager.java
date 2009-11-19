@@ -102,7 +102,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
                 SecurityAssetType.GROUP_MEMBER);
 
 
-        Set<UUID> v_members = new HashSet<UUID>();
+        final Set<UUID> v_members = new HashSet<UUID>();
         for (Asset a_link : v_link_assets) {
             log.log(Level.FINE, "Got link UUID " + a_link.getToId());
             v_members.add(a_link.getToId());
@@ -293,20 +293,17 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             final Set<Principal> v_before = new HashSet<Principal>();
 
             if (null != a_pre_update) {
-                v_before.addAll(Collections.list(a_pre_update.narrow(LittleGroup.class).members()));
+                v_before.addAll(a_pre_update.narrow(LittleGroup.class).getMembers());
             }
 
             final List<LittlePrincipal> v_add = new ArrayList<LittlePrincipal>();
-            final Set<UUID> v_members = new HashSet<UUID>();
+            final Set<UUID> memberSet = new HashSet<UUID>();
 
             // Get the list of new group members that need added
-            for (Enumeration<? extends Principal> enum_new = group.members();
-                    enum_new.hasMoreElements();) {
-                final LittlePrincipal p_new = (LittlePrincipal) enum_new.nextElement();
-
-                v_members.add(p_new.getId());
-                if (!v_before.remove(p_new)) {
-                    v_add.add(p_new);
+            for (LittlePrincipal member : group.getMembers() ) {
+                memberSet.add(member.getId());
+                if (!v_before.remove(member)) {
+                    v_add.add(member);
                 }
             }
 
@@ -317,7 +314,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
                         SecurityAssetType.GROUP_MEMBER);
                 final List<Asset> v_member_links = om_search.getAssets(v_children.values());
                 for (Asset a_link : v_member_links) {
-                    if (!v_members.contains(a_link.getToId())) {
+                    if (!memberSet.contains(a_link.getToId())) {
                         assetMgr.deleteAsset(a_link.getId(), "member no longer in group");
                     }
                 }

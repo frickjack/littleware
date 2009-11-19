@@ -86,7 +86,6 @@ public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> 
                         AccountManager.LITTLEWARE_ADMIN_GROUP,
                         SecurityAssetType.GROUP
                         ).get().narrow();
-                groupAdmin.addMember(userNew);
                 omgrAsset.saveAsset( groupAdmin.copy().add(userNew).build()
                         , "Added user " + sName );
             } catch ( Exception ex ) {

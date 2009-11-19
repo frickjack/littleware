@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.swingclient.wizard;
 
 import littleware.base.feedback.LittleEvent;
@@ -42,9 +41,8 @@ import littleware.security.SecurityAssetType;
  */
 public class CreateAssetWizard extends WizardAssetEditor {
 
-    private static final Logger olog_generic = Logger.getLogger( CreateAssetWizard.class.getName() );
+    private static final Logger olog_generic = Logger.getLogger(CreateAssetWizard.class.getName());
     private final Provider<JAssetPathPanel> oprovideAssetPanel;
-
 
     /**
      * Panel ids for the initial panels.
@@ -62,23 +60,20 @@ public class CreateAssetWizard extends WizardAssetEditor {
         PickTo,
         FinalReview;
     }
+    private final IconLibrary olib_icon;
+    private final AssetModelLibrary olib_asset;
+    private final AssetManager om_asset;
+    private final AssetSearchManager om_search;
+    private final AssetPathFactory opathFactory;
+    private final AssetViewFactory ofactory_view;
+    private final ResourceBundle obundle_labels;
 
-    
-    
-    private final  IconLibrary olib_icon;
-    private final  AssetModelLibrary olib_asset;
-    private final  AssetManager om_asset;
-    private final  AssetSearchManager om_search  ;
-    private final  AssetPathFactory opathFactory;
-    private final   AssetViewFactory     ofactory_view;
-    private final   ResourceBundle       obundle_labels;
     {
         try {
-            obundle_labels = ResourceBundle.getBundle ( "littleware.apps.swingclient.wizard.resources.WizardSupport");
-        } catch ( RuntimeException e ) {
-            olog_generic.log ( Level.SEVERE, "Caught unexpected: " + e + ", " +
-                    BaseException.getStackTrace( e ) 
-                    );
+            obundle_labels = ResourceBundle.getBundle("littleware.apps.swingclient.wizard.resources.WizardSupport");
+        } catch (RuntimeException e) {
+            olog_generic.log(Level.SEVERE, "Caught unexpected: " + e + ", " +
+                    BaseException.getStackTrace(e));
             throw e;
         }
     }
@@ -98,10 +93,10 @@ public class CreateAssetWizard extends WizardAssetEditor {
         opanel_name = new JTextFieldPanel("Enter asset name", 1, 50);
         {
             opanel_acl = oprovideAssetPanel.get();
-            opanel_acl.setInstructions( "Enter AssetPath to ACL" );
+            opanel_acl.setInstructions("Enter AssetPath to ACL");
             final List<AssetType> vLegal = new ArrayList<AssetType>();
-            vLegal.add( SecurityAssetType.ACL );
-            opanel_acl.setLegalAssetType( vLegal );
+            vLegal.add(SecurityAssetType.ACL);
+            opanel_acl.setLegalAssetType(vLegal);
         }
         opanel_from = oprovideAssetPanel.get();
         opanel_from.setInstructions("Enter AssetPath to FROM asset");
@@ -134,14 +129,14 @@ public class CreateAssetWizard extends WizardAssetEditor {
                         AssetTypeSelector select_atype = opanel_atype.getAssetTypeSelector();
                         if (!getLocalAsset().getAssetType().equals(select_atype.getSelectedAssetType())) {
                             final Asset oldTypeAsset = getLocalAsset();
-                            final Asset newTypeAsset = select_atype.getSelectedAssetType().create().copy( oldTypeAsset ).build();
-                            olib_asset.remove( newTypeAsset.getId() );
+                            final Asset newTypeAsset = select_atype.getSelectedAssetType().create().copy(oldTypeAsset).build();
+                            olib_asset.remove(newTypeAsset.getId());
                             // register bald model with library, so
                             // update events get fired on save
                             setAssetModel(olib_asset.syncAsset(newTypeAsset));
                         }
-                        if ( getLocalAsset().getAssetType().equals( AssetType.HOME ) ) {
-                            changeLocalAsset().setHomeId( getLocalAsset().getId() );
+                        if (getLocalAsset().getAssetType().equals(AssetType.HOME)) {
+                            changeLocalAsset().setHomeId(getLocalAsset().getId());
                         }
                     }
                 });
@@ -184,17 +179,18 @@ public class CreateAssetWizard extends WizardAssetEditor {
                     public BasicPanel getBackPanelDescriptor() {
                         return BasicPanel.PickName;
                     }
+
                     @Override
                     public Object getNextPanelDescriptor() {
                         return BasicPanel.PickFrom;
                     }
 
-            @Override
+                    @Override
                     public UUID getAssetId() {
                         return getLocalAsset().getAclId();
                     }
 
-            @Override
+                    @Override
                     public void setAssetId(UUID u_asset) {
                         changeLocalAsset().setAclId(u_asset);
                     }
@@ -204,27 +200,25 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 opathFactory,
                 opanel_from) {
 
-            @Override
+                    @Override
                     public BasicPanel getBackPanelDescriptor() {
                         return BasicPanel.PickAcl;
                     }
 
-            @Override
+                    @Override
                     public Object getNextPanelDescriptor() {
                         return BasicPanel.PickTo;
                     }
 
-            @Override
+                    @Override
                     public UUID getAssetId() {
                         return getLocalAsset().getFromId();
                     }
 
-            @Override
+                    @Override
                     public void setAssetId(UUID u_asset) {
                         changeLocalAsset().setFromId(u_asset);
-                        if ( (null != u_asset)
-                                && (! changeLocalAsset().getAssetType().equals( AssetType.HOME ))
-                           ) {
+                        if ((null != u_asset) && (!changeLocalAsset().getAssetType().equals(AssetType.HOME))) {
                             // Must have same HOME when linking FROM an asset
                             try {
                                 AssetModel model_from = olib_asset.retrieveAssetModel(u_asset, om_search).get();
@@ -243,22 +237,22 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 opathFactory,
                 opanel_to) {
 
-            @Override
+                    @Override
                     public BasicPanel getBackPanelDescriptor() {
                         return BasicPanel.PickFrom;
                     }
 
-            @Override
+                    @Override
                     public Object getNextPanelDescriptor() {
                         return BasicPanel.PickComment;
                     }
 
-            @Override
+                    @Override
                     public UUID getAssetId() {
                         return getLocalAsset().getToId();
                     }
 
-            @Override
+                    @Override
                     public void setAssetId(UUID u_asset) {
                         changeLocalAsset().setToId(u_asset);
                     }
@@ -267,27 +261,27 @@ public class CreateAssetWizard extends WizardAssetEditor {
                 new WizardPanelDescriptor(BasicPanel.PickComment,
                 opanel_comment) {
 
-            @Override
+                    @Override
                     public BasicPanel getBackPanelDescriptor() {
                         return BasicPanel.PickTo;
                     }
 
-            @Override
+                    @Override
                     public Object getNextPanelDescriptor() {
                         return WizardPanelDescriptor.FINISH;
                     }
 
-            @Override
+                    @Override
                     public void aboutToDisplayPanel() {
                         opanel_comment.setText(getLocalAsset().getComment());
                     }
 
-            @Override
+                    @Override
                     public void displayingPanel() {
                         opanel_comment.requestFocus();
                     }
 
-            @Override
+                    @Override
                     public void aboutToHidePanel() {
                         if (!getLocalAsset().getComment().equals(opanel_comment.getText())) {
                             changeLocalAsset().setComment(opanel_comment.getText());
@@ -315,8 +309,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
             AssetViewFactory factory_view,
             AssetModel amodel_start,
             Provider<JAssetPathPanel> provideAssetPanel,
-            AssetPathFactory pathFactory
-            ) {
+            AssetPathFactory pathFactory) {
         super(m_asset, m_search, lib_asset, lib_icon);
 
         oprovideAssetPanel = provideAssetPanel;
@@ -331,20 +324,26 @@ public class CreateAssetWizard extends WizardAssetEditor {
         initializePanels();
     }
 
-
     /**
      * Get the set of legal asset-types to restrict the user selection to.
      * Empty implies no restrictions on type.
      * Listed in order of display.
      */
-    public List<AssetType> getLegalAssetType () {
+    public List<AssetType> getLegalAssetType() {
         return opanel_atype.getAssetTypeSelector().getAssetTypeOptions();
     }
-    public void setLegalAssetType ( List<AssetType> v_legal ) {
+
+    public void setLegalAssetType(List<AssetType> v_legal) {
         opanel_atype.getAssetTypeSelector().setAssetTypeOptions(v_legal);
     }
 
-
+    /**
+     * Create-asset wizard always has local changes!
+     */
+    @Override
+    public boolean getHasLocalChanges() {
+        return true;
+    }
 
     @Override
     protected void eventFromModel(LittleEvent evt_model) {
@@ -352,13 +351,11 @@ public class CreateAssetWizard extends WizardAssetEditor {
 
     /** Verify that the comment from the last panel is set */
     @Override
-    public void saveLocalChanges ( AssetManager m_asset, String s_message
-                                       ) throws BaseException, AssetException,
-                                               RemoteException, GeneralSecurityException
-    {
+    public void saveLocalChanges(AssetManager m_asset, String s_message) throws BaseException, AssetException,
+            RemoteException, GeneralSecurityException {
         if (!getLocalAsset().getComment().equals(opanel_comment.getText())) {
             changeLocalAsset().setComment(opanel_comment.getText());
         }
-        super.saveLocalChanges( m_asset, s_message );
+        super.saveLocalChanges(m_asset, s_message);
     }
 }

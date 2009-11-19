@@ -80,11 +80,9 @@ public class AccountManagerTester extends LittleTest {
                     AccountManager.LITTLEWARE_ADMIN_GROUP,
                     SecurityAssetType.GROUP).get().narrow();
 
-            for (Enumeration<? extends Principal> enum_x = groupAdmin.members();
-                    enum_x.hasMoreElements();) {
-                LittlePrincipal p_member = (LittlePrincipal) enum_x.nextElement();
-                olog_generic.log(Level.INFO, "Got admin group member: " + p_member.getName() +
-                        " (" + p_member.getId() + ")");
+            for (LittlePrincipal member : groupAdmin.getMembers() ) {
+                olog_generic.log(Level.INFO, "Got admin group member: " + member.getName() +
+                        " (" + member.getId() + ")");
             }
             assertTrue("administrator should be member of admin group",
                     groupAdmin.isMember(userAdmin));
@@ -143,7 +141,7 @@ public class AccountManagerTester extends LittleTest {
                 assertTrue( caller.getName() + " added to " + copy.getName(),
                     copy.isMember( caller )
                     );
-                final Set<Principal> memberSet = new HashSet<Principal>( Collections.list( copy.members() ) );
+                final Set<Principal> memberSet = new HashSet<Principal>( copy.getMembers() );
                 assertTrue( caller.getName() + " in members copy of " + copy.getName(),
                         memberSet.contains(caller)
                         );

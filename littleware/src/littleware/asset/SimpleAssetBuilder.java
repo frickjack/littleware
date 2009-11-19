@@ -338,12 +338,6 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public AssetBuilder copy(Asset source) {
-        if (!getAssetType().equals(source.getAssetType())) {
-            throw new IllegalArgumentException("Mismatching asset-types at sync: " +
-                    this.getAssetType() + " != " +
-                    source.getAssetType());
-        }
-
         setId(source.getId());
         setTransaction(source.getTransaction());
         setCreatorId(source.getCreatorId());

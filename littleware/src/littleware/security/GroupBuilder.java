@@ -12,9 +12,11 @@ package littleware.security;
 import com.google.common.collect.ImmutableSet;
 
 import com.google.common.collect.Sets;
-import java.security.Principal;
-import java.util.*;
 
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import littleware.asset.Asset;
 import littleware.asset.SimpleAssetBuilder;
 
@@ -74,6 +76,9 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
     @Override
     public LittleGroup.Builder copy( Asset source ) {
         super.copy( source );
+        if ( ! (source instanceof GroupAsset) ) {
+            return this;
+        }
         return addAll( ((GroupAsset) source).memberSet );
     }
 
@@ -115,8 +120,8 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
          * Method is syncrhonized to avoid issues manipulating that internal cache.
          */
         @Override
-        public boolean isMember(Principal member) {
-            return memberCache.contains( (LittlePrincipal) member);
+        public boolean isMember( LittlePrincipal member) {
+            return memberCache.contains( member);
         }
 
         /**
@@ -125,19 +130,10 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
          * @return enumeration
          */
         @Override
-        public Enumeration<? extends Principal> members() {
-            return Collections.enumeration( memberSet );
+        public Collection<LittlePrincipal> getMembers() {
+            return memberSet;
         }
 
-        @Override
-        public boolean addMember(Principal user) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean removeMember(Principal user) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
 
         @Override
         public Builder copy() {

@@ -89,7 +89,8 @@ public class TestFactory {
             this.bootstrap = bootstrap;
         }
 
-        public void shutdownLittleware() {
+        @Override
+        public void runTest() {
             try {
                 bootstrap.shutdown();
             } catch (Exception ex) {
@@ -97,6 +98,7 @@ public class TestFactory {
                 fail("Shutdown failed: " + ex);
             }
         }
+
     }
 
     /**
@@ -228,7 +230,8 @@ public class TestFactory {
             suite.addTest(
                     new TestCase("shutdownLittlewareServer") {
 
-                        public void shutdownLittlewareServer() {
+                        @Override
+                        public void runTest() {
                             serverBootstrap.shutdown();
                         }
                     });

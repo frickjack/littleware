@@ -13,16 +13,15 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.security.GeneralSecurityException;
-import java.security.Principal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
 import littleware.base.Whatever;
 import littleware.security.LittleGroup;
+import littleware.security.LittlePrincipal;
 import littleware.security.SecurityAssetType;
 
 /**
@@ -118,10 +117,8 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         // Can move out to separate registered handler later if we want
         if ( aIn.getAssetType().isA( SecurityAssetType.GROUP ) ) {
             final LittleGroup group = aIn.narrow( LittleGroup.class );
-            for( Enumeration<? extends Principal> member = group.members();
-                member.hasMoreElements();
-            ) {
-                appendProperty( sb, "groupmember", member.nextElement().getName() );
+            for( LittlePrincipal member : group.getMembers() ) {
+                appendProperty( sb, "groupmember", member.getName() );
             }
         }
         pickleData( sb, aIn );

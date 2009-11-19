@@ -14,7 +14,6 @@ import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.security.*;
-import java.security.acl.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -88,7 +87,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
         if (SecurityAssetType.ACL.equals(asset.getAssetType())) {
             final LittleAcl acl = asset.narrow();
 
-            for (Enumeration<AclEntry> entries = ((LittleAcl) asset).entries();
+            for (Enumeration<LittleAclEntry> entries = ((LittleAcl) asset).entries();
                     entries.hasMoreElements();) {
                 final LittleAclEntry startEntry = (LittleAclEntry) entries.nextElement();
                 final LittlePrincipal principal = search.getAsset( startEntry.getToId() ).get().narrow();
@@ -108,15 +107,15 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
         if (SecurityAssetType.ACL.equals(a_now.getAssetType())) {
             Set<UUID> v_now_entries = new HashSet<UUID>();
 
-            for (Enumeration<AclEntry> v_entries = ((LittleAcl) a_now).entries();
+            for (Enumeration<LittleAclEntry> v_entries = ((LittleAcl) a_now).entries();
                     v_entries.hasMoreElements();) {
-                LittleAclEntry acl_entry = (LittleAclEntry) v_entries.nextElement();
+                LittleAclEntry acl_entry = v_entries.nextElement();
 
                 if (null != acl_entry.getId()) {
                     v_now_entries.add(acl_entry.getId());
                 }
             }
-            for (Enumeration<AclEntry> v_entries = ((LittleAcl) a_pre_update).entries();
+            for (Enumeration<LittleAclEntry> v_entries = ((LittleAcl) a_pre_update).entries();
                     v_entries.hasMoreElements();) {
                 LittleAclEntry acl_entry = (LittleAclEntry) v_entries.nextElement();
                 if (!v_now_entries.contains(acl_entry.getId())) {
@@ -132,9 +131,9 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.ACL.equals(a_deleted.getAssetType())) {
             // Delete all the ACL_ENTRY assets off this thing
-            for (Enumeration<AclEntry> v_entries = ((LittleAcl) a_deleted).entries();
+            for (Enumeration<LittleAclEntry> v_entries = ((LittleAcl) a_deleted).entries();
                     v_entries.hasMoreElements();) {
-                final LittleAclEntry a_cleanup = (LittleAclEntry) v_entries.nextElement();
+                final LittleAclEntry a_cleanup = v_entries.nextElement();
                 m_asset.deleteAsset(a_cleanup.getId(), "Cleanup after ACL delete");
             }
         }

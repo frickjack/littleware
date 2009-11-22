@@ -11,12 +11,17 @@ package littleware.base;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 
 /**
  * Little assertion class.
  */
 public abstract class Whatever {
-
+    private static final Logger log = Logger.getLogger(Whatever.class.getName() );
+    
     /** (null == sIn) || sIn.equals( "" ) */
     public static boolean empty(String sIn) {
         return (null == sIn) || sIn.trim().equals("");
@@ -114,5 +119,53 @@ public abstract class Whatever {
         }
         return Maybe.empty();
     }
+
+    /**
+     * Call the given action on the Swing dispatch thread.
+     * Just invokes call directly if already on dispatch thread -
+     * otherwise dispatches with event barrier.
+     *
+     * @exception IllegalStateException of call throws exception
+     */
+    public static <T> T callOnSwingDispatcher( final Callable<T> call ) {
+        if ( SwingUtilities.isEventDispatchThread() ) {
+            log.log( Level.FINE, "Running on dispatch thread" );
+            try {
+                return call.call();
+            } catch ( Exception ex ) {
+                throw new IllegalStateException( "Failed call", ex );
+            }
+        }
+        final IllegalStateException failure = new IllegalStateException( "Dispatch failed" );
+        final EventBarrier<Object> barrier = new EventBarrier<Object>();
+        SwingUtilities.invokeLater(
+                new Runnable() {
+
+            @Override
+            public void run() {
+                Object result = failure;
+                try {
+                    result = call.call();
+                } catch ( Exception ex ) {
+                    log.log( Level.WARNING, "Dispatcher call failed", ex );
+                } finally {
+                    barrier.publishEventData(result);
+                }
+            }
+        }
+                );
+        try {
+            log.log( Level.FINE, "Waiting on barrier" );
+            final Object result = barrier.waitForEventData();
+            if ( result == failure ) {
+                throw failure;
+            }
+            return (T) result;
+        } catch (InterruptedException ex) {
+            throw new IllegalStateException( "Swing dispatch interrupted", ex );
+        }
+    }
+
+    
     public static final String NEWLINE = System.getProperty("line.separator");
 }

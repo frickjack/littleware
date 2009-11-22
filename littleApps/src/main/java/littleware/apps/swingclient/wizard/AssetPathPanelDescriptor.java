@@ -90,7 +90,7 @@ public abstract class AssetPathPanelDescriptor extends WizardPanelDescriptor {
             owPanelPath.setAssetPath ( owPanelPath.getText () );
             UUID u_old = getAssetId ();
             UUID u_new = owPanelPath.getAssetId ();
-            if ( ! littleware.base.Whatever.equalsSafe ( u_old, u_new ) ) {
+            if ( ! littleware.base.Whatever.get().equalsSafe ( u_old, u_new ) ) {
                 setAssetId ( u_new );
             }
         } catch ( Exception e ) {

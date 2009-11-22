@@ -118,7 +118,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
 
             // a_old is null at initial register time
             final UUID uFromOld = (null == a_old) ? null : a_old.getFromId();
-            if (!Whatever.equalsSafe(uFromOld, a_new.getFromId() )) {
+            if (!Whatever.get().equalsSafe(uFromOld, a_new.getFromId() )) {
                 for (UUID uFrom : Arrays.asList(uFromOld, a_new.getFromId() )) {
                     if ( null == uFrom ) {
                         continue;
@@ -136,7 +136,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
             }
             // a_old is null at initial register time
             final UUID uToOld = (null == a_old) ? null : a_old.getToId();
-            if (!Whatever.equalsSafe(uToOld, a_new.getToId() )) {
+            if (!Whatever.get().equalsSafe(uToOld, a_new.getToId() )) {
                 for (UUID uTo : Arrays.asList(uToOld, a_new.getToId() )) {
                     if ( null == uTo ) {
                         continue;

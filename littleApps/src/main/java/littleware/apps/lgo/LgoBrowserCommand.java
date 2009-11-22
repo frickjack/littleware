@@ -127,7 +127,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
     @Override
     public Maybe<UUID> runSafe(Feedback feedback, String sPathIn) {
         String sStartPath = sPathIn;
-        if (Whatever.empty(sStartPath) && (!getArgs().isEmpty())) {
+        if (Whatever.get().empty(sStartPath) && (!getArgs().isEmpty())) {
             sStartPath = getArgs().get(0);
         }
         if (null != sStartPath) {

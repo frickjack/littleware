@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.io.ObjectStreamException;
-import java.security.Permission;
 
 
 /**
@@ -62,7 +61,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
          */
         private synchronized void registerMemberIfNecessary(T member ) {
             if (!ov_id_map.containsKey(member.getObjectId())) {
-                Whatever.check("DynamicEnums have unique names", !ov_name_map.containsKey(member.getName()));
+                Whatever.get().check("DynamicEnums have unique names", !ov_name_map.containsKey(member.getName()));
                 ov_id_map.put(member.getObjectId(), member);
                 ov_name_map.put(member.getName(), member);
             }
@@ -173,7 +172,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
         os_name = s_name;
         oc_enumtype = c_type;
 
-        Whatever.check("Only valid subtypes may join a DynamicEnum set", c_type.isInstance(this));
+        Whatever.get().check("Only valid subtypes may join a DynamicEnum set", c_type.isInstance(this));
         registerMemberIfNecessary(oc_enumtype);
     }
 

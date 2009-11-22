@@ -80,7 +80,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             }
 
             // Specialize the asset
-            littleware.base.Whatever.check("Got a valid id", a_result.getId() != null);
+            littleware.base.Whatever.get().check("Got a valid id", a_result.getId() != null);
             final Asset aSecure = secureAndSpecialize(a_result);
             return Maybe.something(aSecure);
         } finally {

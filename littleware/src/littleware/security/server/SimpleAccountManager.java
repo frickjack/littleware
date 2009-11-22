@@ -77,7 +77,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
         if (a_in.getAssetType().equals(SecurityAssetType.USER) || a_in.getAssetType().equals(SecurityAssetType.QUOTA)) {
             return a_in;
         }
-        Whatever.check("AccountManager is not the specializer for: " +
+        Whatever.get().check("AccountManager is not the specializer for: " +
                 a_in.getAssetType(),
                 a_in.getAssetType().equals(SecurityAssetType.GROUP));
         log.log(Level.FINE, "Narrowing group: " + a_in.getName());
@@ -93,7 +93,7 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
          * This check not true after a member group/user has been deleted.
          * Cleanup takes place at update time for this group.
          *
-        Whatever.check ( "got expected number of assets: " + v_links.size () + " == " + v_link_assets.size (), 
+        Whatever.get().check ( "got expected number of assets: " + v_links.size () + " == " + v_link_assets.size (),
         v_links.size () == v_link_assets.size () 
         );
          */

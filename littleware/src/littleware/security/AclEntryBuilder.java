@@ -125,8 +125,8 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
             }
             final LittleAclEntry entry = (LittleAclEntry) other;
             return super.equals( entry )
-                || ( Whatever.equalsSafe(entry.getFromId(), getFromId() )
-                    && Whatever.equalsSafe( entry.getToId(), getToId() )
+                || ( Whatever.get().equalsSafe(entry.getFromId(), getFromId() )
+                    && Whatever.get().equalsSafe( entry.getToId(), getToId() )
                     && entry.isNegative() == isNegative()
                     );
         }

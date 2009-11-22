@@ -72,7 +72,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
         final Map<String,String> mapOpt = new HashMap<String,String>();
         mapOpt.put( sPathOption, sDefaultPath );
         final String sPath = processArgs( mapOpt, getArgs() ).get( sPathOption );
-        if ( Whatever.empty( sPath ) ) {
+        if ( Whatever.get().empty( sPath ) ) {
             throw new LgoArgException( "Must specify path to list children under" );
         }
         try {
@@ -106,7 +106,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
         for( String sChild : vChildren ) {
             sb.append( mapChildren.get( sChild ).toString() ).append( "," ).
                     append( path.toString() ).append( "/" ).append( sChild ).
-                    append( Whatever.NEWLINE );
+                    append( Whatever.get().NEWLINE );
         }
         return sb.toString();
     }

@@ -78,7 +78,7 @@ public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
 
         final Map<String,String> mapArgs = processArgs( mapDefault, getArgs() );
         for ( Option opt : Option.values() ) {
-            if ( Whatever.empty( mapArgs.get( Option.path.toString() ) ) ) {
+            if ( Whatever.get().empty( mapArgs.get( Option.path.toString() ) ) ) {
                 throw new LgoArgException( "Missing required argument: " + opt );
             }
         }

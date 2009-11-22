@@ -58,7 +58,7 @@ public class DeleteAssetCommand extends AbstractLgoCommand<String,UUID> {
         final  String  sPath = mapArgs.get( Option.path.toString() );
         final  String  sComment = mapArgs.get( Option.comment.toString() );
 
-        if ( Whatever.empty(sPath)) {
+        if ( Whatever.get().empty(sPath)) {
             throw new LgoArgException ( "Must specify path to asset to delete" );
         }
         final AssetPath   path;

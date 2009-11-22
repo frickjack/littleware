@@ -55,10 +55,10 @@ public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> 
                 Option.name.toString(), Option.admin.toString()
                 );
         String sName = mapArg.get( Option.name.toString() );
-        if ( Whatever.empty( sName ) ) {
+        if ( Whatever.get().empty( sName ) ) {
             sName = sDefaultName;
         }
-        if ( Whatever.empty( sName ) ) {
+        if ( Whatever.get().empty( sName ) ) {
             throw new LgoArgException ( "Required argument --name not set" );
         }
         final String sFolder = "/littleware.home/Users";
@@ -79,7 +79,7 @@ public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> 
             throw new LgoException( "Failed to create new user: " + sName, ex );
         }
 
-        final boolean bAdmin = ! Whatever.empty( mapArg.get( Option.admin.toString() ) );
+        final boolean bAdmin = ! Whatever.get().empty( mapArg.get( Option.admin.toString() ) );
         if ( bAdmin ) {
             try {
                 final LittleGroup groupAdmin = osearch.getByName(

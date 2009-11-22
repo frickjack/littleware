@@ -17,13 +17,23 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 /**
- * Little assertion class.
+ * Little utility class.  Implemented as singleton - retrieve with
+ * Whatever.get()
  */
-public abstract class Whatever {
+public class Whatever {
     private static final Logger log = Logger.getLogger(Whatever.class.getName() );
+    public static final String NEWLINE = System.getProperty("line.separator");
+
+    protected Whatever() {}
+    private static final Whatever singleton = new Whatever();
+
+    public static Whatever get() {
+        return singleton;
+    }
+    
     
     /** (null == sIn) || sIn.equals( "" ) */
-    public static boolean empty(String sIn) {
+    public boolean empty(String sIn) {
         return (null == sIn) || sIn.trim().equals("");
     }
 
@@ -33,7 +43,7 @@ public abstract class Whatever {
      * @param s_message associated with this check
      * @param b_assert set true if all is ok, false if assertion failed
      */
-    public static void check(String s_message, boolean b_assert) {
+    public void check(String s_message, boolean b_assert) {
         if (!b_assert) {
             throw new AssertionFailedException(s_message);
         }
@@ -45,7 +55,7 @@ public abstract class Whatever {
      * @return true if x_a.equals( x_b ) or (x_a == x_b == null) -
      *          does not throw NullException
      */
-    public static boolean equalsSafe(Object x_a, Object x_b) {
+    public boolean equalsSafe(Object x_a, Object x_b) {
         return (((null == x_a) && (null == x_b)) || ((null != x_a) && (null != x_b) && x_a.equals(x_b)));
     }
 
@@ -54,7 +64,7 @@ public abstract class Whatever {
      *
      * @return true if x_a.equals( x_b ) and not null
      */
-    public static boolean equalsSafeNotNull(Object x_a, Object x_b) {
+    public boolean equalsSafeNotNull(Object x_a, Object x_b) {
         return ((null != x_a) && (null != x_b) && x_a.equals(x_b));
     }
 
@@ -66,7 +76,7 @@ public abstract class Whatever {
      * @return string pulled from reader
      * @exception IOException if something goes wrong
      */
-    public static String readAll(Reader read_all) throws IOException {
+    public String readAll(Reader read_all) throws IOException {
         final int i_buffer = 10240;
         char[] v_buffer = new char[i_buffer];
         StringBuilder sb_result = new StringBuilder(i_buffer);
@@ -87,7 +97,7 @@ public abstract class Whatever {
      *
      * @return stack trace from catching a bogus exception
      */
-    public static String getStackTrace() {
+    public String getStackTrace() {
         try {
             throw new Exception("Get Stack Trace");
         } catch (Exception e) {
@@ -103,7 +113,7 @@ public abstract class Whatever {
      * @param vJoin strings to append with cJoin separator
      * @return joined string
      */
-    public static String join(char cJoin, String... vJoin) {
+    public String join(char cJoin, String... vJoin) {
         StringBuilder sb = new StringBuilder();
         for (String sJoin : vJoin) {
             sb.append(cJoin).append(sJoin);
@@ -111,7 +121,7 @@ public abstract class Whatever {
         return sb.toString();
     }
 
-    public static <T extends Enum<T>> Maybe<T> findEnumIgnoreCase(String lookFor, T[] values) {
+    public <T extends Enum<T>> Maybe<T> findEnumIgnoreCase(String lookFor, T[] values) {
         for (T scan : values) {
             if (lookFor.equalsIgnoreCase(scan.toString())) {
                 return Maybe.something(scan);
@@ -127,7 +137,7 @@ public abstract class Whatever {
      *
      * @exception IllegalStateException of call throws exception
      */
-    public static <T> T callOnSwingDispatcher( final Callable<T> call ) {
+    public <T> T callOnSwingDispatcher( final Callable<T> call ) {
         if ( SwingUtilities.isEventDispatchThread() ) {
             log.log( Level.FINE, "Running on dispatch thread" );
             try {
@@ -166,6 +176,4 @@ public abstract class Whatever {
         }
     }
 
-    
-    public static final String NEWLINE = System.getProperty("line.separator");
 }

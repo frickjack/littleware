@@ -296,7 +296,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
                     final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset ();
-                    if ( ! Whatever.equalsSafe( aSelect.getId(), getLocalAsset().getOwnerId() ) ) {
+                    if ( ! Whatever.get().equalsSafe( aSelect.getId(), getLocalAsset().getOwnerId() ) ) {
                         changeLocalAsset().setOwnerId( aSelect.getId() );
                         owalink_owner.setLink ( aSelect.getId() );
                     }
@@ -310,7 +310,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
                     final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset ();
-                    if ( ! Whatever.equalsSafe(aSelect.getId() , getLocalAsset().getAclId() )) {
+                    if ( ! Whatever.get().equalsSafe(aSelect.getId() , getLocalAsset().getAclId() )) {
                         changeLocalAsset().setAclId( aSelect.getId() );
                         owalink_acl.setLink ( aSelect.getId() );
                     }
@@ -324,7 +324,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
                     final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset ();
-                    if ( ! Whatever.equalsSafe( aSelect.getId() , getLocalAsset().getToId() ) ){
+                    if ( ! Whatever.get().equalsSafe( aSelect.getId() , getLocalAsset().getToId() ) ){
                         changeLocalAsset().setToId( aSelect.getId() );
                         owalink_to.setLink ( aSelect.getId() );
                     }
@@ -338,7 +338,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             public void receiveLittleEvent ( LittleEvent event_edit ) {
                 if ( event_edit instanceof SelectAssetEvent ) {
                     final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset ();
-                    if ( ! Whatever.equalsSafe(aSelect.getId(), getLocalAsset().getFromId() )) {
+                    if ( ! Whatever.get().equalsSafe(aSelect.getId(), getLocalAsset().getFromId() )) {
                         changeLocalAsset().setFromId( aSelect.getId() );
                         owalink_from.setLink ( aSelect.getId() );
                     }

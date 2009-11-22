@@ -111,7 +111,7 @@ public class SimpleCacheManager implements CacheManager {
                 ov_null_entries.add(u_key);
                 return ocache_asset.remove(u_key);
             } else {
-                Whatever.check("Key must go with value in asset-cache", a_value.getId().equals(u_key));
+                Whatever.get().check("Key must go with value in asset-cache", a_value.getId().equals(u_key));
 
                 JdbcDbWriter<Asset> db_writer = om_db.makeDbAssetSaver();
                 db_writer.saveObject( a_value);
@@ -279,7 +279,7 @@ public class SimpleCacheManager implements CacheManager {
             JdbcDbWriter<Map<String, UUID>> db_writer = om_db.makeDbHomeIdsSaver();
             db_writer.saveObject( v_home_ids);
         } catch (SQLException e) {
-            Whatever.check("Data access failure: " + e, false);
+            Whatever.get().check("Data access failure: " + e, false);
         }
     }
 
@@ -311,7 +311,7 @@ public class SimpleCacheManager implements CacheManager {
             JdbcDbWriter<Map<String, UUID>> db_writer = om_db.makeDbAssetIdsFromSaver(u_source, n_type);
             db_writer.saveObject( v_data);
         } catch (SQLException e) {
-            Whatever.check("Data access failure: " + e, false);
+            Whatever.get().check("Data access failure: " + e, false);
         }
     }
 
@@ -343,7 +343,7 @@ public class SimpleCacheManager implements CacheManager {
             JdbcDbWriter<Set<UUID>> db_writer = om_db.makeDbAssetIdsToSaver(u_to, n_type);
             db_writer.saveObject( v_data);
         } catch (SQLException e) {
-            Whatever.check("Data access failure: " + e, false);
+            Whatever.get().check("Data access failure: " + e, false);
         }
     }
 

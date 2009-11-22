@@ -64,7 +64,7 @@ public class GetRootPathCommand extends AbstractLgoCommand<AssetPath,AssetPath> 
         final  Map<String,String>  mapArgs = processArgs( mapOptions, getArgs() );
         final  String  sPath = mapArgs.get( Option.path.toString() );
 
-        if ( Whatever.empty(sPath)) {
+        if ( Whatever.get().empty(sPath)) {
             throw new LgoArgException ( "Must specify path to asset to delete" );
         }
         final AssetPath   path;

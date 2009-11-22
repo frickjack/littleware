@@ -75,7 +75,7 @@ public class SetImageCommand extends AbstractLgoCommand<String,Boolean> {
         mapOption.put( Option.path.toString(), sDefaultPath );
         final Map<String,String> mapArgs = processArgs( mapOption, getArgs() );
         for ( Option option : Option.values() ) {
-            if ( Whatever.empty( mapArgs.get( option.toString() ) )) {
+            if ( Whatever.get().empty( mapArgs.get( option.toString() ) )) {
                 throw new LgoArgException( "missing required arg: " + option );
             }
         }

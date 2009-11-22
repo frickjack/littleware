@@ -154,7 +154,7 @@ public class JGroupListView extends JPanel {
                 
                 Asset a_removed = (Asset) tnode_group.getUserObject ();
                 Asset a_selected = getSelectedGroup ();
-                if ( Whatever.equalsSafeNotNull ( a_removed, a_selected ) ) {
+                if ( Whatever.get().equalsSafeNotNull ( a_removed, a_selected ) ) {
                     setSelectedGroup ( null );
                 }
             }
@@ -204,7 +204,7 @@ public class JGroupListView extends JPanel {
      * @param group_selected may be null, otherwise must be Group in the Model
      */
     private void setSelectedGroup ( LittleGroup group_selected ) {
-        if ( ! Whatever.equalsSafe ( group_selected, ogroup_selected ) ) {
+        if ( ! Whatever.get().equalsSafe ( group_selected, ogroup_selected ) ) {
             LittleGroup  group_old = ogroup_selected;
             ogroup_selected = group_selected;
             opropsupport.firePropertyChange ( Property.selectedGroup.toString (), 

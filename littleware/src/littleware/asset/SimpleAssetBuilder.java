@@ -489,7 +489,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
         return this;
     }
 
-    protected static class SimpleAsset extends SimpleCacheableObject implements Asset, Serializable {
+    public static class SimpleAsset extends SimpleCacheableObject implements Asset, Serializable {
         private UUID homeId;
         private UUID ownerId;
         private UUID fromId;

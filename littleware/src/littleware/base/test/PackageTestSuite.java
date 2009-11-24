@@ -60,7 +60,8 @@ public class PackageTestSuite extends TestSuite {
 
             this.addTest(new ScriptTester("testCharUtil", m_script, "javascript"));
         }
-        if (b_run) {
+        if (false) {
+            // These tests require UI access - won't run under Hudson
             this.addTest(new SwingTester("testJTextAppender"));
             this.addTest(new SwingTester("testJScriptRunner"));
             this.addTest(new SwingTester("testListModelIterator"));

@@ -98,4 +98,34 @@
      </jar>
 </target>
 
+<target depends="jar" name="test-hudson">
+  <mkdir dir="${test.reports}"/>
+  <junit fork="yes" printsummary="no" haltonfailure="no">
+    <jvmarg value="-Xms300m" />
+    <jvmarg value="-Xmx300m" />
+    <jvmarg value="-Dlittleware.properties=properties/littleware.properties" />
+    <jvmarg value="-Djava.util.logging.config.file=properties/logging.properties" />
+    <jvmarg value="-Dlittleware_jdbc.properties=properties/littleware_jdbc.properties" />
+    <jvmarg value="-Djava.security.manager" />
+    <jvmarg value="-Djava.security.policy=properties/littleware.policy" />
+    <jvmarg value="-Dlittleware.install=." />
+    <batchtest fork="yes" todir="${test.reports}" >
+      <fileset dir="${build.classes.dir}">
+        <include name="littleware/test/PackageTestSuite.class" />
+      </fileset>
+    </batchtest>
+    <formatter type="xml" />
+    <classpath path="${run.classpath}" />
+  </junit>
+
+<!--
+  <junitreport todir="${test.reports}">
+    <fileset dir="${test.reports}">
+      <include name="TEST-*.xml" />
+    </fileset>
+    <report todir="${test.reports}" />
+  </junitreport>
+  -->
+</target>
+
 </project>

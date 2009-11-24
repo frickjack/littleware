@@ -10,8 +10,6 @@
 package littleware.security;
 
 import com.google.inject.ImplementedBy;
-import java.security.acl.Acl;
-import java.security.Principal;
 
 import java.security.acl.Permission;
 import java.util.Collection;
@@ -52,7 +50,7 @@ public interface LittleAcl extends Asset {
      * @param isNegative do we want the postive or negative entry ?
      * @return entry's entry or null if p_entry entry not in this Acl
      */
-    public Maybe<LittleAclEntry> getEntry(Principal entry, boolean isNegative);
+    public Maybe<LittleAclEntry> getEntry(LittlePrincipal entry, boolean isNegative);
 
     @Override
     public Builder copy();

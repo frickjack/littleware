@@ -97,6 +97,11 @@ public class SimpleLittleTransaction extends AbstractLittleTransaction
         return oconn_db;
     }
 
+    @Override
+    public long getTransaction() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     /**
      * Little extended Savepoint that includes both a JDBC savepoint
      * and a position into the deferTillTransactionEnd command list

@@ -62,7 +62,8 @@ public class DbGuice implements Module {
                 data.setDriverUrl(s_url);
                 data.setUser( "ignore" );
                 data.setPassword( "ignore" );
-                data.setMaximumConnectionCount(10);
+                data.setMinimumConnectionCount(10);
+                data.setMaximumConnectionCount(30);
                 data.setMaximumActiveTime(60000);
                 binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(data);
 

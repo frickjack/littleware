@@ -7,11 +7,11 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.security.auth;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import java.io.File;
@@ -24,14 +24,17 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
+import littleware.base.EventBarrier;
 import littleware.base.PropertiesGuice;
 import littleware.base.PropertiesLoader;
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.cache.BundleCache;
 import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
 
 /**
  * Base implementation of GuiceOSGiBootstrap that
@@ -50,30 +53,60 @@ import org.osgi.framework.BundleException;
  * for a client and server to coexist in the same VM.
  */
 public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
-    private static final Logger olog = Logger.getLogger( AbstractGOBootstrap.class.getName() );
 
-    private final List<Module>  ovGuice = new ArrayList<Module>();
+    private static final Logger log = Logger.getLogger(AbstractGOBootstrap.class.getName());
+
+
+    private static class SetupActivator implements BundleActivator {
+
+        private final EventBarrier<Object> barrier;
+
+        @Inject
+        public SetupActivator(EventBarrier<Object> barrier) {
+            this.barrier = barrier;
+        }
+
+        @Override
+        public void start(final BundleContext ctx) throws Exception {
+            ctx.addFrameworkListener(new FrameworkListener() {
+
+                @Override
+                public synchronized void frameworkEvent(FrameworkEvent evt) {
+                    if ((evt.getType() == FrameworkEvent.STARTED)) {
+                        ctx.removeFrameworkListener(this);
+                        log.log(Level.INFO, "Launching client test ...");
+                        barrier.publishEventData(null);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void stop(BundleContext ctx) throws Exception {
+        }
+    }
+    private final List<Module> guiceModule = new ArrayList<Module>();
+    private final List<Class<? extends BundleActivator>> osgiBundle = new ArrayList<Class<? extends BundleActivator>>();
+    private final boolean obServer;
+
     {
         try {
-            ovGuice.add(
-                    new PropertiesGuice( PropertiesLoader.get().loadProperties() )
-                    );
-            ovGuice.add(
+            guiceModule.add(
+                    new PropertiesGuice(PropertiesLoader.get().loadProperties()));
+            guiceModule.add(
                     new Module() {
-                @Override
-                public void configure(Binder binder) {
-                    binder.bind( GuiceOSGiBootstrap.class ).toInstance( AbstractGOBootstrap.this );
-                }
-            }
-                    );
-        } catch ( IOException ex ) {
-            throw new AssertionFailedException( "Failed default Guice setup", ex );
+
+                        @Override
+                        public void configure(Binder binder) {
+                            binder.bind(GuiceOSGiBootstrap.class).toInstance(AbstractGOBootstrap.this);
+                        }
+                    });
+
+        } catch (IOException ex) {
+            throw new AssertionFailedException("Failed default setup", ex);
         }
     }
 
-    private final List<Class<? extends BundleActivator>>  ovOSGi = new ArrayList<Class<? extends BundleActivator>>();
-    private final boolean obServer;
-    
     /**
      * Inject bootstrap environment
      * 
@@ -82,10 +115,10 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      * @param bServer true to indicate server bootstrap, false indicates client -
      *                few small conditional code blocks
      */
-    protected AbstractGOBootstrap( List<Module> vAddGuice, List<Class<? extends BundleActivator>> vAddOSGi,
-            boolean bServer ) {
-        ovGuice.addAll( vAddGuice );
-        ovOSGi.addAll( vAddOSGi );
+    protected AbstractGOBootstrap(List<Module> vAddGuice, List<Class<? extends BundleActivator>> vAddOSGi,
+            boolean bServer) {
+        guiceModule.addAll(vAddGuice);
+        osgiBundle.addAll(vAddOSGi);
         obServer = bServer;
     }
 
@@ -99,8 +132,8 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      *        to change bootstrap behavior
      */
     @Override
-    public List<Module>  getGuiceModule() {
-        return ovGuice;
+    public List<Module> getGuiceModule() {
+        return guiceModule;
     }
 
     /**
@@ -112,58 +145,55 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      */
     @Override
     public List<Class<? extends BundleActivator>> getOSGiActivator() {
-        return ovOSGi;
+        return osgiBundle;
     }
-
-    private boolean   ob_bootstrap = false;
-    private Felix     ofelix = null;
+    private boolean bootstrapDone = false;
+    private Felix felix = null;
 
     /**
      * Internal method loads extra modules and bundles
      * from the lw/lw_client littleware properties.
      */
-    protected void addInfoFromProperties () {
+    protected void addBundlesFromProperties() {
         try {
             /**
              * Load extensions from property file.
              * It's possible for client and server to exist
              * in same VM, so may need to bootstrap separate modules.
              */
-            final String   sGuiceName = obServer ? "lw.guice_module" : "lw_client.guice_module";
-            final String   sBundleName = obServer ? "lw.osgi_bundle" : "lw_client.osgi_bundle";
+            final String sGuiceName = obServer ? "lw.guice_module" : "lw_client.guice_module";
+            final String sBundleName = obServer ? "lw.osgi_bundle" : "lw_client.osgi_bundle";
 
             final Properties propLittleware = PropertiesLoader.get().loadProperties();
-            final String sModules = propLittleware.getProperty( sGuiceName, "");
-            if ( sModules.length () > 0 ) {
-                olog.log( Level.INFO, "Loading custom guice modules: " + sModules );
-                for ( String s_mod : sModules.split( "[:,; ]+" ) ) {
+            final String sModules = propLittleware.getProperty(sGuiceName, "");
+            if (sModules.length() > 0) {
+                log.log(Level.INFO, "Loading custom guice modules: " + sModules);
+                for (String s_mod : sModules.split("[:,; ]+")) {
                     try {
-                        ovGuice.add (
-                                (Module) Class.forName(s_mod).newInstance()
-                                );
-                    } catch ( Exception ex ) {
-                        olog.log( Level.SEVERE, "Failed to load Guice module: " + s_mod, ex );
-                        throw new AssertionFailedException( "Failed to load Guice module: " + s_mod, ex );
+                        guiceModule.add(
+                                (Module) Class.forName(s_mod).newInstance());
+                    } catch (Exception ex) {
+                        log.log(Level.SEVERE, "Failed to load Guice module: " + s_mod, ex);
+                        throw new AssertionFailedException("Failed to load Guice module: " + s_mod, ex);
                     }
                 }
             }
-            final String sBundles = propLittleware.getProperty( sBundleName, "");
-            if ( sBundles.length () > 0 ) {
-                olog.log( Level.INFO, "Loading custom OSGi bundles: " + sBundles );
-                for ( String sBundle : sBundles.split( "[:,; ]+" ) ) {
+            final String sBundles = propLittleware.getProperty(sBundleName, "");
+            if (sBundles.length() > 0) {
+                log.log(Level.INFO, "Loading custom OSGi bundles: " + sBundles);
+                for (String sBundle : sBundles.split("[:,; ]+")) {
                     try {
-                        ovOSGi.add (
-                                (Class<? extends BundleActivator>) Class.forName(sBundle)
-                                );
-                    } catch ( Exception ex ) {
-                        olog.log( Level.SEVERE, "Failed to load OSGi bundle: " + sBundle, ex );
-                        throw new AssertionFailedException( "Failed to load OSGi bundle: " + sBundle, ex );
+                        osgiBundle.add(
+                                (Class<? extends BundleActivator>) Class.forName(sBundle));
+                    } catch (Exception ex) {
+                        log.log(Level.SEVERE, "Failed to load OSGi bundle: " + sBundle, ex);
+                        throw new AssertionFailedException("Failed to load OSGi bundle: " + sBundle, ex);
                     }
                 }
             }
 
-        } catch ( IOException ex ) {
-            throw new AssertionFailedException( "Unable to load littleware.properties", ex );
+        } catch (IOException ex) {
+            throw new AssertionFailedException("Unable to load littleware.properties", ex);
         }
 
     }
@@ -178,68 +208,77 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      * @exception IllegalStateException if bootstrap has already run
      * @exception IOException on failure to load init daa
      */
-    protected Injector bootstrapInternal () {
-        if ( ob_bootstrap ) {
-            throw new IllegalStateException ( "Bootstrap already run" );
+    protected Injector bootstrapInternal() {
+        if (bootstrapDone) {
+            throw new IllegalStateException("Bootstrap already run");
         }
-        if ( ovOSGi.isEmpty() ) {
-            throw new IllegalStateException( "Empty OSGi bundle list - nothing to do!");
+        if (osgiBundle.isEmpty()) {
+            throw new IllegalStateException("Empty OSGi bundle list - nothing to do!");
         }
 
-        addInfoFromProperties();
+        addBundlesFromProperties();
 
         final Injector injector = Guice.createInjector(
-                ovGuice
-                );
+                guiceModule);
 
-        if ( obServer ) {
+        if (obServer) {
             // Inject the local SessionManager for clients accessing SessionUtil
-            final SessionManager mgr_session = injector.getInstance( SessionManager.class );
-            injector.injectMembers( SessionUtil.get() );
+            final SessionManager mgr_session = injector.getInstance(SessionManager.class);
+            injector.injectMembers(SessionUtil.get());
         }
-        
+
         // Get Guice injected instances of the OSGi BundleActivators,
         // and bootstrap OSGi
-        final Map<String,Object> map_felix = new HashMap<String,Object>();
-        final List<BundleActivator> v_activate = new ArrayList<BundleActivator> ();
-        for( Class<? extends BundleActivator> class_act : ovOSGi ) {
-            v_activate.add( injector.getInstance( class_act ) );
+        final Map<String, Object> felixPropertyMap = new HashMap<String, Object>();
+        final List<BundleActivator> activatorList = new ArrayList<BundleActivator>();
+        for (Class<? extends BundleActivator> class_act : osgiBundle) {
+            activatorList.add(injector.getInstance(class_act));
         }
+        
+        final EventBarrier<Object> barrier = new EventBarrier<Object>();
+        activatorList.add(
+                new SetupActivator( barrier )
+                );
         //System.setProperty( "org.osgi.framework.storage", PropertiesLoader.get().getLittleHome().toString() + "/osgi_cache" );
-        if ( ! obServer ) {
+        if (!obServer) {
             // setup cache under little home
             final File cacheDir = PropertiesLoader.get().getLittleHome().
-                    getOr( new File( System.getProperty("java.io.tmpdir" ) ) );
-            map_felix.put( BundleCache.CACHE_ROOTDIR_PROP, cacheDir.toString() );
+                    getOr(new File(System.getProperty("java.io.tmpdir")));
+            felixPropertyMap.put(BundleCache.CACHE_ROOTDIR_PROP, cacheDir.toString());
         }
-        map_felix.put( FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, v_activate );
-        ofelix = new Felix( map_felix );
+        felixPropertyMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activatorList);
+        felix = new Felix(felixPropertyMap);
         try {
-            ofelix.start();
+            felix.start();
         } catch (BundleException ex) {
-            throw new AssertionFailedException( "Failed to bootstrap Felix OSGi", ex );
+            throw new AssertionFailedException("Failed to bootstrap Felix OSGi", ex);
         }
-
-        ob_bootstrap = true;
+        log.log( Level.INFO, "Waiting for OSGi startup ..." );
+        try {
+            barrier.waitForEventData();
+        } catch (InterruptedException ex) {
+            throw new IllegalStateException( "Bootstrap interrupted", ex );
+        }
+        bootstrapDone = true;
         return injector;
     }
 
     @Override
     public void shutdown() {
         try {
-            olog.log( Level.FINE, "Shutting down ..." );
-            ofelix.stop();
-            ofelix.waitForStop( 5000 );
-        } catch ( RuntimeException ex ) {
+            log.log(Level.FINE, "Shutting down ...");
+            felix.stop();
+            felix.waitForStop(5000);
+        } catch (RuntimeException ex) {
             throw ex;
-        } catch ( Exception ex ) {
-            olog.log( Level.WARNING, "Felix shutdown caught exception", ex );
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Felix shutdown caught exception", ex);
         }
 
     }
 
     @Override
-    public void bootstrap () {
+    public void bootstrap() {
         bootstrapInternal();
     }
 }

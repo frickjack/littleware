@@ -22,57 +22,59 @@ import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.*;
 import littleware.db.*;
+import littleware.security.LittleUser;
 
 /**
  * Simple implementation of Asset-search interface.  
  */
 public class SimpleAssetSearchManager extends LocalAssetRetriever implements AssetSearchManager {
 
-    private static final Logger olog_generic = Logger.getLogger(SimpleAssetSearchManager.class.getName());
-    private final DbAssetManager om_db;
-    private final Provider<LittleTransaction> oprovideTrans;
-    private final AssetPathFactory opathFactory = new SimpleAssetPathFactory(this);
+    private static final Logger log = Logger.getLogger(SimpleAssetSearchManager.class.getName());
+    private final DbAssetManager dbMgr;
+    private final Provider<LittleTransaction> provideTrans;
+    private final AssetPathFactory pathFactory = new SimpleAssetPathFactory(this);
 
     /**
      * Constructor stashes DataSource, DbManager, and CacheManager
      */
     @Inject
-    public SimpleAssetSearchManager(DbAssetManager m_db,
-            AssetSpecializerRegistry registry_special,
+    public SimpleAssetSearchManager(DbAssetManager dbMgr,
+            AssetSpecializerRegistry specialRegistry,
             Provider<LittleTransaction> provideTrans,
-            PermissionCache  cachePermission ) {
-        super(m_db, registry_special, provideTrans, cachePermission );
-        om_db = m_db;
-        oprovideTrans = provideTrans;
+            PermissionCache  cachePermission,
+            Provider<LittleUser> provideCaller ) {
+        super(dbMgr, specialRegistry, provideTrans, cachePermission, provideCaller );
+        this.dbMgr = dbMgr;
+        this.provideTrans = provideTrans;
     }
 
     @Override
-    public <T extends Asset> Maybe<T> getByName(String s_name, AssetType<T> n_type) throws BaseException, AssetException,
+    public Maybe<Asset> getByName(String name, AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        if (!n_type.isNameUnique()) {
-            throw new InvalidAssetTypeException("getByName requires name-unique type: " + n_type);
+        if (!type.isNameUnique()) {
+            throw new InvalidAssetTypeException("getByName requires name-unique type: " + type);
         }
 
         // cache miss
         final Set<Asset> v_load;
-        final LittleTransaction trans = oprovideTrans.get();
+        final LittleTransaction trans = provideTrans.get();
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
         try {
             try {
-                DbReader<Set<Asset>, String> db_reader = om_db.makeDbAssetsByNameLoader(s_name, n_type);
+                DbReader<Set<Asset>, String> db_reader = dbMgr.makeDbAssetsByNameLoader(name, type);
 
                 v_load = db_reader.loadObject(null);
             } catch (SQLException e) {
-                olog_generic.log(Level.SEVERE, "Caught unexpected: " + e);
+                log.log(Level.SEVERE, "Caught unexpected: " + e);
                 throw new DataAccessException("Unexpected caught: " + e, e);
             }
 
             if (v_load.isEmpty()) {
-                return Maybe.empty("No asset " + s_name + "/:type:" + n_type);
+                return Maybe.empty("No asset " + name + "/:type:" + type);
             }
             final Asset a_load = v_load.iterator().next();
-            v_cycle_cache.put(a_load.getObjectId(), a_load);
-            return Maybe.something((T) secureAndSpecialize(a_load));
+            v_cycle_cache.put(a_load.getId(), a_load);
+            return Maybe.something( secureAndSpecialize(a_load));
         } finally {
             trans.endDbAccess(v_cycle_cache);
         }
@@ -88,12 +90,12 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     public SortedMap<AssetPath, Maybe<Asset>> getAssetsAlongPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         // setup a cycle cache
-        final LittleTransaction trans = oprovideTrans.get();
+        final LittleTransaction trans = provideTrans.get();
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 
         try {
             if (path_asset.hasRootBacktrack()) {
-                return getAssetsAlongPath(opathFactory.normalizePath(path_asset));
+                return getAssetsAlongPath(pathFactory.normalizePath(path_asset));
             }
 
             SortedMap<AssetPath, Maybe<Asset>> mapResult = null;
@@ -122,7 +124,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                         maybeResult = getAsset(maybeParent.get().getToId());
                     }
                 } else {
-                    maybeResult = getAssetFrom(maybeParent.get().getObjectId(), s_name);
+                    maybeResult = getAssetFrom(maybeParent.get().getId(), s_name);
                 }
 
             } else {
@@ -166,24 +168,24 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 
     /** Need to code this guy up */
     @Override
-    public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> v_check) throws BaseException, RemoteException {
-        final LittleTransaction trans = oprovideTrans.get();
+    public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> checkMap) throws BaseException, RemoteException {
+        final LittleTransaction trans = provideTrans.get();
         final Map<UUID, Asset> v_cache = trans.startDbAccess();
         final Map<UUID, Long> v_result = new HashMap<UUID, Long>();
 
         try {
-            for (Map.Entry<UUID, Long> entry_x : v_check.entrySet()) {
+            for (Map.Entry<UUID, Long> entry_x : checkMap.entrySet()) {
                 Asset a_check = getAssetOrNullInsecure(entry_x.getKey());
                 if (null != a_check) {
                     // asset exists
-                    if (a_check.getTransactionCount() >
+                    if (a_check.getTransaction() >
                             entry_x.getValue()) {
                         // client is out of date
-                        v_result.put(a_check.getObjectId(),
-                                a_check.getTransactionCount());
-                        olog_generic.log(Level.FINE, "Transaction count missync for: " + a_check);
+                        v_result.put(a_check.getId(),
+                                a_check.getTransaction());
+                        log.log(Level.FINE, "Transaction count missync for: " + a_check);
                     } else {
-                        olog_generic.log(Level.FINE, "Transaction count ok for: " + a_check);
+                        log.log(Level.FINE, "Transaction count ok for: " + a_check);
                     }
                 } else { // asset does not exist
                     v_result.put(entry_x.getKey(), null);
@@ -196,11 +198,11 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     }
 
     @Override
-    public Set<UUID> getAssetIdsTo(UUID u_to,
-            AssetType<? extends Asset> n_type) throws BaseException, AssetException,
+    public Set<UUID> getAssetIdsTo(UUID toId,
+            AssetType type ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         try {
-            final DbReader<Set<UUID>, String> sql_reader = om_db.makeDbAssetIdsToLoader(u_to, n_type);
+            final DbReader<Set<UUID>, String> sql_reader = dbMgr.makeDbAssetIdsToLoader(toId, type );
             return sql_reader.loadObject(null);
         } catch (SQLException e) {
             throw new DataAccessException("Caught unexpected: " + e);
@@ -209,11 +211,11 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 
     @Override
     public List<IdWithClock> checkTransactionLog( UUID homeId, long minTransaction) throws BaseException, RemoteException {
-        final LittleTransaction trans = oprovideTrans.get();
+        final LittleTransaction trans = provideTrans.get();
         final Map<UUID, Asset> v_cache = trans.startDbAccess();
 
         try {
-            final DbReader<List<IdWithClock>, Long> sql_reader = om_db.makeLogLoader( homeId );
+            final DbReader<List<IdWithClock>, Long> sql_reader = dbMgr.makeLogLoader( homeId );
             return sql_reader.loadObject( minTransaction );
         } catch ( SQLException ex ) {
             throw new DataAccessException( "Data access error: " + ex );

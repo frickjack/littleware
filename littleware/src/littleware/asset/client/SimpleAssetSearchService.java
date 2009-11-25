@@ -59,8 +59,8 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     }
 
     @Override
-    public <T extends Asset> Maybe<T> getByName(String s_name, AssetType<T> n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final Maybe<T> result = oserver.getByName( s_name, n_type );
+    public Maybe<Asset> getByName(String s_name, AssetType n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final Maybe<Asset> result = oserver.getByName( s_name, n_type );
         if ( result.isSet() ) {
             fireServiceEvent( new AssetLoadEvent( this, result.get() ) );
         }
@@ -105,7 +105,7 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     }
 
     @Override
-    public Set<UUID> getAssetIdsTo(UUID u_to, AssetType<? extends Asset> n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Set<UUID> getAssetIdsTo(UUID u_to, AssetType n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Cache<String,Object> cache = getCache().getCache();
         final String sKey = u_to.toString() + "idsTo" + n_type;
         Set<UUID> setResult = (Set<UUID>) cache.get( sKey );
@@ -152,7 +152,7 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
         }
         final List<Asset> newAssets = oserver.getAssets( missingIds );
         for( Asset asset : newAssets ) {
-            assetMap.put( asset.getObjectId(), asset );
+            assetMap.put( asset.getId(), asset );
             fireServiceEvent( new AssetLoadEvent( this, asset ) );
         }
         final List<Asset> result = new ArrayList<Asset>();
@@ -171,7 +171,7 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final String sKey = u_from.toString() + n_type;
         final Cache<String,Object> cache = getCache().getCache();
         Map<String,UUID> mapResult = (Map<String,UUID>) cache.get( sKey );
@@ -183,7 +183,7 @@ public class SimpleAssetSearchService extends SimpleLittleService implements Ass
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         if ( null == n_type ) {
             throw new NullPointerException( "Null type argument to getAssetIdsFrom" );
         }

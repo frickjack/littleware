@@ -1,8 +1,18 @@
+/*
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.asset.xml;
 
 import org.xml.sax.helpers.*;
 
-import littleware.asset.Asset; 
+import littleware.asset.AssetBuilder;
 
 /**
  * Utility interface for asset-types that store formatted
@@ -10,7 +20,7 @@ import littleware.asset.Asset;
  * but automatically extract that data at asset load time
  * via setData for access by specialized accessors.
  */
-public interface XmlDataAsset extends Asset {
+public interface XmlDataAsset extends AssetBuilder {
 	/**
 	 * Hook to get the SAX Handler that
 	 * can handle parsing the XML data returned
@@ -22,6 +32,4 @@ public interface XmlDataAsset extends Asset {
 	 */
 	public DefaultHandler getSaxDataHandler ();
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

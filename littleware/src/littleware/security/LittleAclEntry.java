@@ -1,8 +1,12 @@
 package littleware.security;
 
-import java.security.acl.AclEntry;
+import com.google.inject.ImplementedBy;
 
+import java.security.acl.Permission;
+import java.util.Collection;
+import java.util.Enumeration;
 import littleware.asset.Asset;
+import littleware.asset.AssetBuilder;
 
 
 /**
@@ -13,24 +17,40 @@ import littleware.asset.Asset;
  * attributes to be consistent with the Acl it belongs to.
  * NOTE: each entry can belong to only one ACL
  */
-public interface LittleAclEntry extends AclEntry, Asset {
-    /** Covariant return-type clone */
-    public LittleAclEntry clone ();
+public interface LittleAclEntry extends Asset {
 
-    /**
-     * Set this entry read-only.  Once set cannot be undone
-	 */
-	public void setReadOnly ();
-    
-    /** Is this entry ReadOnly ? */
-    public boolean isReadOnly ();
-    
     /**
      * Covariant return-type: LittlePrincipal
      */
     public LittlePrincipal getPrincipal ();
+    public boolean checkPermission(Permission permission);
+    public Collection<Permission> getPermissions();
+    public Enumeration<Permission> permissions();
+    public boolean isNegative();
+    
+    @Override
+    public Builder copy();
+
+    @ImplementedBy(AclEntryBuilder.class)
+    public interface Builder extends AssetBuilder {
+        public Builder addPermission(Permission permission);
+        public Builder removePermission( Permission permission );
+
+        public void setNegative();
+        public Builder negative();
+
+        public void setPrincipal( LittlePrincipal principal );
+        public Builder principal ( LittlePrincipal principal );
+
+        /**
+         * Synonym for parent()
+         */
+        public Builder acl( LittleAcl acl );
+
+        @Override
+        public LittleAclEntry build();
+    }
+    
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

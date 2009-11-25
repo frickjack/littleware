@@ -100,7 +100,4 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
      */
     public AssetPath getParent ();
     
-    /** Covariant return-type clone */
-    public AssetPath clone ();
-    
 }

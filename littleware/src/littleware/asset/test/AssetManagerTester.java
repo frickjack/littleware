@@ -10,11 +10,11 @@
 package littleware.asset.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import junit.framework.*;
 
 import littleware.asset.*;
 import littleware.base.*;
@@ -31,6 +31,7 @@ public class AssetManagerTester extends LittleTest {
     private AssetSearchManager om_search = null;
     private List<Asset> ov_cleanup_list = new ArrayList<Asset>();
     public final static String MS_TEST_HOME = "littleware.test_home";
+    private final Provider<LittleUser> provideCaller;
 
     /**
      * Stash AssetManager instance to run tests against
@@ -40,9 +41,11 @@ public class AssetManagerTester extends LittleTest {
      * @param m_search to verify test results against
      */
     @Inject
-    public AssetManagerTester(AssetManager m_asset, AssetSearchManager m_search) {
+    public AssetManagerTester(AssetManager m_asset, AssetSearchManager m_search,
+            Provider<LittleUser> provideCaller ) {
         om_asset = m_asset;
         om_search = m_search;
+        this.provideCaller = provideCaller;
         setName("testAssetCreation");
     }
 
@@ -53,7 +56,7 @@ public class AssetManagerTester extends LittleTest {
     public void tearDown() {
         try {
             for (Asset a_cleanup : ov_cleanup_list) {
-                om_asset.deleteAsset(a_cleanup.getObjectId(), "Cleanup after test");
+                om_asset.deleteAsset(a_cleanup.getId(), "Cleanup after test");
             }
         } catch (Exception e) {
             olog_generic.log(Level.INFO, "Failed to cleanup all test assets, caught: " + e);
@@ -72,53 +75,55 @@ public class AssetManagerTester extends LittleTest {
 
             olog_generic.log(Level.INFO, "Running with test home: " + home);
 
-            LittleUser user = SecurityAssetType.getAuthenticatedUserOrNull();
+            final LittleUser user = provideCaller.get();
             assertTrue("Have an authenticated user", null != user);
-            String s_name = "test_" + (new Date());
+            final String s_name = "test_" + (new Date()).getTime();
 
             final Date t_now = new Date();
-            Asset a_test = AssetType.GENERIC.create();
-            a_test.setName(s_name);
-            a_test.setData("<data>no data </data>");
-            a_test.setToId(null);
-            a_test.setFromId(user.getObjectId());
-            a_test.setOwnerId(user.getObjectId());
-            a_test.setValue( 55 );
-            a_test.setState( 3 );
-            // Round end-date off to nearest second
-            a_test.setEndDate(new Date(t_now.getTime() - t_now.getTime() % 1000 + 1000 * 60 * 60L));
-
             olog_generic.log(Level.INFO, "Saving new asset");
-            a_test = om_asset.saveAsset(a_test, "new asset");
+            final Asset a_test = om_asset.saveAsset(
+                    AssetType.GENERIC.create().
+                    name(s_name).
+                    data("<data>no data </data>").
+                    parent(user).
+                    ownerId(user.getId()).
+                    value(55).
+                    state(3).
+                    // Round end-date off to nearest second
+                    endDate(new Date(t_now.getTime() - t_now.getTime() % 1000 + 1000 * 60 * 60L)).
+                    build(),
+                    "new asset");
 
             olog_generic.log(Level.INFO, "Just created asset: " + s_name);
             assertTrue("Created an asset with some valid data",
-                    (a_test.getObjectId() != null) && a_test.getName().equals(s_name) && a_test.getAssetType().equals(AssetType.GENERIC) && t_now.getTime() < a_test.getEndDate().getTime() && a_test.getTransactionCount() > 0);
+                    (a_test.getId() != null) && a_test.getName().equals(s_name) && a_test.getAssetType().equals(AssetType.GENERIC) && t_now.getTime() < a_test.getEndDate().getTime() && a_test.getTransaction() > 0);
 
-            Asset a_clone = a_test.clone();
+            final Asset a_clone = a_test.copy().build();
             assertTrue("Able to clone new asset",
-                    a_test.equals(a_clone) && a_clone.getName().equals(a_test.getName()) && a_clone.getAssetType().equals(a_test.getAssetType()) && a_clone.getTransactionCount() == a_test.getTransactionCount());
+                    a_test.equals(a_clone) && a_clone.getName().equals(a_test.getName()) && a_clone.getAssetType().equals(a_test.getAssetType()) && a_clone.getTransaction() == a_test.getTransaction());
 
             // Try to update the asset
-            a_test.setData("<data> some data </data>");
-            a_test = om_asset.saveAsset(a_test, "data update");
-            assertTrue("Transaction count increases: " + a_test.getTransactionCount(),
-                    a_test.getTransactionCount() > a_clone.getTransactionCount());
-            a_test = om_search.getAsset(a_test.getObjectId()).get();
+            
+            final Asset a_save = om_asset.saveAsset(
+                    a_test.copy().data("<data> some data </data>").build(),
+                    "data update"
+                    );
+            assertTrue("Transaction count increases: " + a_save.getTransaction(),
+                    a_save.getTransaction() > a_clone.getTransaction());
+            final Asset a_load = om_search.getAsset(a_test.getId()).get();
             assertTrue("Able to load new asset and data matches",
-                    a_test.equals(a_clone) && a_clone.getName().equals(a_test.getName()) && a_clone.getAssetType().equals(a_test.getAssetType())
-                    && a_clone.getEndDate().equals(a_test.getEndDate())
-                    && (a_test.getValue() == 55.0)
-                    && (a_test.getState() == 3)
+                    a_load.equals(a_clone) && a_clone.getName().equals(a_load.getName())
+                    && a_clone.getAssetType().equals(a_load.getAssetType())
+                    && a_clone.getEndDate().equals(a_load.getEndDate())
+                    && (a_load.getValue() == 55.0) && (a_load.getState() == 3)
                     );
 
-
             // Delete the asset
-            om_asset.deleteAsset(a_clone.getObjectId(), "Cleanup test case");
+            om_asset.deleteAsset(a_clone.getId(), "Cleanup test case");
 
-            assertTrue("No longer able to retrieve deleted asset: " + a_clone.getObjectId(),
-                    !om_search.getAsset(a_test.getObjectId()).isSet());
-
+            assertTrue("No longer able to retrieve deleted asset: " + a_clone.getId(),
+                    !om_search.getAsset(a_test.getId()).isSet()
+                    );
         } catch (Exception e) {
             olog_generic.log(Level.WARNING, "Caught: " + e +
                     ", " + BaseException.getStackTrace(e));

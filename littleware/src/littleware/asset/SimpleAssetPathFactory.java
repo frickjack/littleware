@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.UUID;
 
-import littleware.apps.client.AssetModelLibrary;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.ParseException;
@@ -71,7 +70,7 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
 
         // byname AssetPath - default type littleware.HOME, default name s_root
         String s_name = s_root;
-        AssetType<?>  atype = AssetType.HOME;
+        AssetType    atype = AssetType.HOME;
         final int    i_type = s_root.indexOf ( ":type:" );
 
         if (s_root.startsWith(AssetPathFactory.PathRootPrefix.ById.toString())) {
@@ -194,7 +193,7 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
             }
             a_root = maybeParent.get();
         }
-        return createPath ( a_root.getObjectId (), s_normal );
+        return createPath ( a_root.getId (), s_normal );
     }
 
     @Override
@@ -233,7 +232,7 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
         if ( aRoot.getAssetType().isNameUnique() ) {
             return normalizePath( createPath( aRoot.getName(), aRoot.getAssetType(), sbSubrootPath.toString() ) );
         } else {
-            return normalizePath( createPath( aRoot.getObjectId(), sbSubrootPath.toString() ) );
+            return normalizePath( createPath( aRoot.getId(), sbSubrootPath.toString() ) );
         }
     }
 

@@ -33,8 +33,8 @@ import littleware.base.BaseException;
  */
 public final class HumanPicklerProvider implements Provider<AssetHumanPickler> {
 
-    private final Map<AssetType<? extends Asset>,Provider<? extends AssetHumanPickler>> omapType2Provider =
-            new HashMap<AssetType<? extends Asset>,Provider<? extends AssetHumanPickler>>();
+    private final Map<AssetType,Provider<? extends AssetHumanPickler>> omapType2Provider =
+            new HashMap<AssetType,Provider<? extends AssetHumanPickler>>();
 
     private final Provider<? extends AssetHumanPickler> oprovideDefault;
 
@@ -73,7 +73,7 @@ public final class HumanPicklerProvider implements Provider<AssetHumanPickler> {
      * @param atype to provide a custom pickler for
      * @param provideSpecial pickler factory
      */
-    public void registerSpecializer( AssetType<?> atype,
+    public void registerSpecializer( AssetType atype,
             Provider<? extends AssetHumanPickler> provideSpecial
             )
     {
@@ -93,7 +93,7 @@ public final class HumanPicklerProvider implements Provider<AssetHumanPickler> {
         @Override
         public void pickle(Asset x, Writer writer) throws AssetException, BaseException, GeneralSecurityException, IOException {
             Provider<? extends AssetHumanPickler> provider = null;
-            for ( AssetType<? extends Asset> atype = x.getAssetType();
+            for ( AssetType atype = x.getAssetType();
                   (null == provider) && (atype != null);
                   atype = atype.getSuperType().getOr(null)
                   ) {

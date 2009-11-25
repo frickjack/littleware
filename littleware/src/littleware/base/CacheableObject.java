@@ -24,28 +24,16 @@ import java.util.UUID;
  * between sets of objects cached on separate systems.
  */
 public interface CacheableObject extends Comparable<CacheableObject>, Cloneable, java.io.Serializable {
-	/** 
-	 * Set the global id associated with the master object
-	 * this object is a copy of.
-	 */
-	public void setObjectId ( UUID u_id );
 	
 	/**
 	 * Get the object id
 	 */
-	public UUID getObjectId ();
+	public UUID getId ();
 	
-	/**
-	 * Reset the transaction counter
-	 */
-	public void setTransactionCount ( long l_transaction );
 	
 	/**
 	 * Get the transaction count
 	 */
-	public long getTransactionCount ();
-	
-	/** Implementors must expose safe clone() call */
-	public CacheableObject clone();
+	public long getTransaction ();
 }
 

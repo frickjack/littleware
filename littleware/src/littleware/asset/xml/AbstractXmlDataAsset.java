@@ -16,10 +16,16 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import java.io.*;
 
-import littleware.asset.SimpleAsset;
+import littleware.asset.AssetType;
+import littleware.asset.SimpleAssetBuilder;
 import littleware.base.ParseException;
+import littleware.base.ValidationException;
 
-public abstract class AbstractXmlDataAsset extends SimpleAsset implements XmlDataAsset {
+public abstract class AbstractXmlDataAsset extends SimpleAssetBuilder implements XmlDataAsset {
+    public AbstractXmlDataAsset( AssetType assetType ) {
+        super( assetType );
+    }
+
     /**
      * Procedurally generate XML data.
      * 
@@ -34,7 +40,7 @@ public abstract class AbstractXmlDataAsset extends SimpleAsset implements XmlDat
      * Uses a ContentHandler retrieved from getContentHandler.
      */
     @Override
-    public void setData(String s_xml) throws ParseException {
+    public void setData(String s_xml)  {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -46,7 +52,7 @@ public abstract class AbstractXmlDataAsset extends SimpleAsset implements XmlDat
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new ParseException("Failed to parse: " + e, e);
+            throw new ValidationException("Failed to parse: " + e, e);
         }
     }
 

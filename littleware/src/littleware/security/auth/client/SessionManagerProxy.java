@@ -73,7 +73,7 @@ public class SessionManagerProxy implements SessionManager {
                 SessionHelper m_helper = om_session.login(s_name, s_password,
                         s_session_comment);
                 return new SessionHelperProxy(m_helper, this,
-                        m_helper.getSession().getObjectId());
+                        m_helper.getSession().getId());
             } catch (RemoteException e) {
                 ohandler_remote.handle(e);
             }

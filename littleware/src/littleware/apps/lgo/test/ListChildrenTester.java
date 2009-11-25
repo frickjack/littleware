@@ -11,11 +11,14 @@
 package littleware.apps.lgo.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.client.LoggerUiFeedback;
 import littleware.apps.lgo.LgoException;
 import littleware.apps.lgo.ListChildrenCommand;
+import littleware.asset.AssetType;
 import littleware.test.LittleTest;
 
 /**
@@ -24,24 +27,40 @@ import littleware.test.LittleTest;
 public class ListChildrenTester extends LittleTest {
     private static Logger olog = Logger.getLogger( ListChildrenTester.class.getName() );
 
-    private final ListChildrenCommand ocomTest;
+    private final Provider<ListChildrenCommand> provideCommand;
 
     @Inject
-    ListChildrenTester( ListChildrenCommand comTest ) {
+    ListChildrenTester( Provider<ListChildrenCommand> provideCommand ) {
         setName( "testListChildren" );
-        ocomTest = comTest;
+        this.provideCommand = provideCommand;
     }
 
     public void testListChildren() {
         try {
-            final String sResult = ocomTest.runCommandLine( new LoggerUiFeedback(), getTestHome() );
+            final String sResult = provideCommand.get().runCommandLine( new LoggerUiFeedback(), getTestHome() );
             olog.log( Level.INFO, "List children under " + getTestHome() + " + got: " + sResult );
             assertTrue( "Found some children under " + getTestHome(),
                     sResult.split( "\n" ).length > 0
                     );
+            {
+                final ListChildrenCommand command = provideCommand.get();
+                command.processArgs( Arrays.asList( "-path", getTestHome() ));
+                final ListChildrenCommand.Data testData = command.getDataFromArgs( getTestHome() );
+                assertTrue( "Empty asset-type detected in args parsing", testData.getChildType().isEmpty() );
+            }
+            {
+                final ListChildrenCommand command = provideCommand.get();
+                command.processArgs( Arrays.asList( "-type", AssetType.GENERIC.toString() ));
+                final ListChildrenCommand.Data testData = command.getDataFromArgs( getTestHome() );
+                assertTrue( "Generic asset-type detected in args parsing: " + testData.getChildType(),
+                        testData.getChildType().isSet() && testData.getChildType().get().equals( AssetType.GENERIC )
+                        );
+            }
+
         } catch ( LgoException ex ) {
             olog.log( Level.WARNING, "Failed test", ex );
             assertTrue( "Caught exception: " + ex, false );
         }
     }
+
 }

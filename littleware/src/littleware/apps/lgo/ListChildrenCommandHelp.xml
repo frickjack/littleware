@@ -9,6 +9,7 @@
       List the children under a given path:
 
       ls -path /path/to/parent
+      ls -path /path/to/parent -type childType
   </description>
   <shortname>ls</shortname>
 </help>

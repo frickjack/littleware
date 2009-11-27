@@ -36,10 +36,8 @@ public class PackageTestSuite extends ServerTestLauncher {
     @Inject
     public PackageTestSuite(
             littleware.base.test.PackageTestSuite suite_base,
-            //littleware.db.test.PackageTestSuite suite_db,
             littleware.asset.test.PackageTestSuite suite_asset,
             littleware.security.test.PackageTestSuite suite_security,
-            littleware.security.auth.server.SimpleDbLoginConfiguration config,
             AssetSearchManager search) {
         super(PackageTestSuite.class.getName(), search);
         // disable server tests

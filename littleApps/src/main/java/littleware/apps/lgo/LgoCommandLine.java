@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -179,7 +181,11 @@ public class LgoCommandLine implements BundleActivator, Runnable {
                 // TODO - add some smarter parsing
                 for (String sProcess : sClean.split("\\s+")) {
                     if (sProcess.trim().length() > 0) {
-                        vProcess.add(sProcess);
+                        if ( sProcess.indexOf( "%" ) < 0 ) {
+                            vProcess.add( sProcess );
+                        } else {
+                            vProcess.add( URLDecoder.decode( sProcess, "UTF8"));
+                        }
                     }
                 }
             }

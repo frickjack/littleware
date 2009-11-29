@@ -21,7 +21,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,10 +32,7 @@ import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.security.auth.LittleBootstrap;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
+import littleware.security.auth.RunnerActivator;
 
 /**
  * Command-line based lgo launcher.
@@ -46,7 +42,7 @@ import org.osgi.framework.FrameworkListener;
  * for launching each command.  Typical syntax is:
  *     lgo command-name command-args
  */
-public class LgoCommandLine implements BundleActivator, Runnable {
+public class LgoCommandLine extends RunnerActivator {
 
     private static final Logger olog = Logger.getLogger(LgoCommandLine.class.getName());
     private static String[] ovArgs;
@@ -89,25 +85,6 @@ public class LgoCommandLine implements BundleActivator, Runnable {
     }
     private boolean obRunning = false;
 
-    /** Launch worker thread once OSGi has started */
-    @Override
-    public void start(final BundleContext ctx) throws Exception {
-        if (!obRunning) {
-            ctx.addFrameworkListener(new FrameworkListener() {
-
-                @Override
-                public synchronized void frameworkEvent(FrameworkEvent evt) {
-                    if ((evt.getType() == FrameworkEvent.STARTED) && (!obRunning)) {
-                        obRunning = true;
-                        ctx.removeFrameworkListener(this);
-                        // launch onto dispatch thread
-                        //SwingUtilities.invokeLater( LgoCommandLine.this );
-                        new Thread(LgoCommandLine.this).start();
-                    }
-                }
-            });
-        }
-    }
 
     /**
      * Issue the given command
@@ -241,10 +218,6 @@ public class LgoCommandLine implements BundleActivator, Runnable {
         }
     }
 
-    /** NOOP */
-    @Override
-    public void stop(BundleContext ctx) throws Exception {
-    }
 
     private static String[] getArgs() {
         return ovArgs;

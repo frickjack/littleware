@@ -12,17 +12,15 @@ package littleware.apps.lgo.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import javax.swing.SwingUtilities;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import littleware.apps.client.ClientBootstrap;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import littleware.test.TestFactory;
 
 /**
  * littleware.apps.lgo package test suite
  */
-public class PackageTestSuite extends TestSuite implements BundleActivator {
+public class PackageTestSuite extends TestSuite {
     private static PackageTestSuite  osingleton = null;
 
     @Inject
@@ -64,41 +62,7 @@ public class PackageTestSuite extends TestSuite implements BundleActivator {
      * of the OSGi bootstrap process
      */
     public static Test suite() {
-        if ( null == osingleton ) {
-            throw new IllegalStateException ( "PackageTestSuite not initialized - cannot bootstrap test" );
-        }
-        return osingleton;
+        return (new TestFactory()).build( new ClientBootstrap(), PackageTestSuite.class );
     }
 
-    /**
-     * Launch the JUNIT TestRunner
-     */
-    @Override
-    public void start(BundleContext ctx) {
-        SwingUtilities.invokeLater( new Runnable () {
-
-            @Override
-            public void run() {
-                junit.swingui.TestRunner.main(
-                        new String[] { "-noloading",
-                        PackageTestSuite.class.getName()
-                }
-                );
-                //junit.textui.TestRunner.main( v_launch_args );
-            }
-        }
-        );
-    }
-
-    /** NOOP */
-    @Override
-    public void stop( BundleContext ctx ) {
-    }
-
-
-    public static void main( String[] vArgs ) {
-        ClientBootstrap bootstrap = new ClientBootstrap();
-        bootstrap.getOSGiActivator().add( PackageTestSuite.class );
-        bootstrap.bootstrap();
-    }
 }

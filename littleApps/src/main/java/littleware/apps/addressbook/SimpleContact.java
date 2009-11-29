@@ -17,7 +17,7 @@ import littleware.asset.xml.*;
 /**
  * Simple implementation of Contact interface
  */
-public class SimpleContact extends SimpleXmlDataAsset implements Contact {
+public class SimpleContact extends SimpleXmlAssetBuilder implements Contact {
 
     private static final long serialVersionUID = -6466853250780135276L;
     private String os_first_name = null;

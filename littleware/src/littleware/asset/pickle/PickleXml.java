@@ -457,7 +457,7 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
 		}
 
         io_data.write ( "<asset:data>" );
-		if ( a_in instanceof XmlDataAsset ) {
+		if ( a_in instanceof XmlAssetBuilder ) {
 			io_data.write ( a_in.getData () );
 		} else {
             io_data.write( XmlSpecial.encode( a_in.getData() ) );

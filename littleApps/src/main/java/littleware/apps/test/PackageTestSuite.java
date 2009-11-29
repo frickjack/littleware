@@ -14,7 +14,6 @@ import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import javax.swing.SwingUtilities;
 import junit.framework.*;
 
 import littleware.apps.client.ClientBootstrap;
@@ -28,8 +27,6 @@ import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.SimpleNamePasswordCallbackHandler;
 import littleware.security.auth.server.ServerBootstrap;
 import littleware.test.TestFactory;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
 /**
  * Test suite for littleware.asset package

@@ -26,7 +26,7 @@ import littleware.base.ParseException;
 /**
  * Simple implementation of Address interface
  */
-public class SimpleAddress extends SimpleXmlDataAsset implements Address {	
+public class SimpleAddress extends SimpleXmlAssetBuilder implements Address {
 	private static final Logger  olog_generic = Logger.getLogger ( SimpleAddress.class.getName() );
     private static final long serialVersionUID = -709805384566333171L;
 	

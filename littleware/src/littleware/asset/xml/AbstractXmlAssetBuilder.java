@@ -21,8 +21,8 @@ import littleware.asset.SimpleAssetBuilder;
 import littleware.base.ParseException;
 import littleware.base.ValidationException;
 
-public abstract class AbstractXmlDataAsset extends SimpleAssetBuilder implements XmlDataAsset {
-    public AbstractXmlDataAsset( AssetType assetType ) {
+public abstract class AbstractXmlAssetBuilder extends SimpleAssetBuilder implements XmlAssetBuilder {
+    public AbstractXmlAssetBuilder( AssetType assetType ) {
         super( assetType );
     }
 

@@ -20,8 +20,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.base.EventBarrier;
 import littleware.security.auth.GuiceOSGiBootstrap;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import littleware.security.auth.RunnerActivator;
 
 /**
  * Utility to setup TestSuite that can bootstrap
@@ -37,7 +36,7 @@ public class TestFactory {
     /**
      * Internal class - only visible to avoid Guice AOP
      */
-    public static class SuiteActivator implements BundleActivator {
+    public static class SuiteActivator extends RunnerActivator {
 
         private final TestSuite suite;
         private final EventBarrier<TestSuite> barrier;
@@ -50,16 +49,13 @@ public class TestFactory {
         }
 
         @Override
-        public void start(final BundleContext ctx) throws Exception {
+        public void run() {
             log.log(Level.FINE, "SuiteActivator started");
             // FrameworkEvent.STARTED never comes when running
             // multiple OSGi environments ... ugh!
             barrier.publishEventData(suite);
         }
 
-        @Override
-        public void stop(BundleContext ctx) throws Exception {
-        }
     }
 
 

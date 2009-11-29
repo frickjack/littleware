@@ -20,7 +20,7 @@ import littleware.asset.AssetBuilder;
  * but automatically extract that data at asset load time
  * via setData for access by specialized accessors.
  */
-public interface XmlDataAsset extends AssetBuilder {
+public interface XmlAssetBuilder extends AssetBuilder {
 	/**
 	 * Hook to get the SAX Handler that
 	 * can handle parsing the XML data returned

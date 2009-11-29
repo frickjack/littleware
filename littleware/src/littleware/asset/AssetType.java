@@ -12,8 +12,6 @@ package littleware.asset;
 
 import java.util.*;
 import java.util.logging.Logger;
-import java.security.AccessController;
-import java.security.Permission;
 
 import littleware.base.*;
 

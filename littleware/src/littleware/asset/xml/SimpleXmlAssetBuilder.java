@@ -35,9 +35,9 @@ import littleware.base.AssertionFailedException;
  * XmlDataSetter handlers that map XML elements to getter and
  * setter methods on an asset instance object.
  */
-public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
+public abstract class SimpleXmlAssetBuilder extends AbstractXmlAssetBuilder {
 
-    private static final Logger olog_generic = Logger.getLogger(SimpleXmlDataAsset.class.getName());
+    private static final Logger olog_generic = Logger.getLogger(SimpleXmlAssetBuilder.class.getName());
     private HashMap<String, XmlDataSetter> ov_element_in = new HashMap<String, XmlDataSetter>();
     private HashMap<String, XmlDataSetter> ov_attribute_in = new HashMap<String, XmlDataSetter>();
     private HashMap<String, XmlDataGetter> ov_element_out = new HashMap<String, XmlDataGetter>();
@@ -129,7 +129,7 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
      * @param s_prefix to prefix XML tags with for getData()
      * @param s_root unqualified root-element name
      */
-    protected SimpleXmlDataAsset(String s_namespace,
+    protected SimpleXmlAssetBuilder(String s_namespace,
             String s_prefix,
             String s_root,
             AssetType assetType ) {
@@ -152,7 +152,7 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
         StringBuilder s_result = new StringBuilder();
 
         for (Map.Entry<String, XmlDataGetter> map_entry : ov_attribute_out.entrySet()) {
-            String s_data = map_entry.getValue().getData(SimpleXmlDataAsset.this);
+            String s_data = map_entry.getValue().getData(SimpleXmlAssetBuilder.this);
 
             if (null != s_data) {
                 s_result.append(map_entry.getKey()).append("=\"");
@@ -173,7 +173,7 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
         StringBuilder s_result = new StringBuilder();
 
         for (Map.Entry<String, XmlDataGetter> map_entry : ov_element_out.entrySet()) {
-            String s_data = map_entry.getValue().getData(SimpleXmlDataAsset.this);
+            String s_data = map_entry.getValue().getData(SimpleXmlAssetBuilder.this);
 
             if (null != s_data) {
                 s_result.append('<').append(os_prefix).append(':').
@@ -251,7 +251,7 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
                     for (int i = 0; i < i_attrs; ++i) {
                         XmlDataSetter xml_setter = ov_attribute_in.get(v_attrs.getQName(i));
                         if (null != xml_setter) {
-                            xml_setter.setData(SimpleXmlDataAsset.this, v_attrs.getValue(i));
+                            xml_setter.setData(SimpleXmlAssetBuilder.this, v_attrs.getValue(i));
                         }
                     }
                 } catch (ParseException e) {
@@ -277,7 +277,7 @@ public abstract class SimpleXmlDataAsset extends AbstractXmlDataAsset {
 
                 if (null != xml_setter) {
                     try {
-                        xml_setter.setData(SimpleXmlDataAsset.this, os_buffer.toString());
+                        xml_setter.setData(SimpleXmlAssetBuilder.this, os_buffer.toString());
                     } catch (ParseException e) {
                         throw new SAXException("Bad XmlDataSetter data", e);
                     }

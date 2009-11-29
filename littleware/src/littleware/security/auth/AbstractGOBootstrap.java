@@ -281,4 +281,9 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
     public void bootstrap() {
         bootstrapInternal();
     }
+
+    @Override
+    public <T> T bootstrap( Class<T> bootClass ) {
+        return bootstrapInternal().getInstance(bootClass);
+    }
 }

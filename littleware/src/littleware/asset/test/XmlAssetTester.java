@@ -26,7 +26,7 @@ import littleware.asset.xml.*;
 import littleware.base.*;
 
 /**
- * Tester for the SimpleXmlDataAsset Asset super class handling
+ * Tester for the SimpleXmlAssetBuilder Asset super class handling
  * of XML-based getData/setData via annotations.
  */
 public class XmlAssetTester extends TestCase {
@@ -58,7 +58,7 @@ public class XmlAssetTester extends TestCase {
     /**
      * Little test class
      */
-    public static class TestBuilder extends SimpleXmlDataAsset {
+    public static class TestBuilder extends SimpleXmlAssetBuilder {
 
         private String os_foo = "foo";
         private String os_bla = "bla";
@@ -148,7 +148,7 @@ public class XmlAssetTester extends TestCase {
     }
 
     /**
-     * Run the TestBuilder SimpleXmlDataAsset test subtype through some getData/setData
+     * Run the TestBuilder SimpleXmlAssetBuilder test subtype through some getData/setData
      * tests and XML verification.
      */
     public void testXmlAsset() {

@@ -29,7 +29,7 @@ import littleware.apps.filebucket.*;
 /**
  * Simple implementation of Comment interface.
  */
-public class SimpleComment extends SimpleAssetBuilder implements Comment, XmlDataAsset {
+public class SimpleComment extends SimpleAssetBuilder implements Comment, XmlAssetBuilder {
     private static final String  OS_BUCKET_PATH = "comment.txt";
     private String  os_summary = null;
     

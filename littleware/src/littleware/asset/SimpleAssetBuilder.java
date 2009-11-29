@@ -388,7 +388,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
     }
 
     @Override
-    public final AssetBuilder name(String value) {
+    public AssetBuilder name(String value) {
         setName(value);
         return this;
     }
@@ -418,7 +418,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
     }
 
     @Override
-    public final AssetBuilder comment(String value) {
+    public AssetBuilder comment(String value) {
         setComment(value);
         return this;
     }
@@ -442,13 +442,13 @@ public class SimpleAssetBuilder implements AssetBuilder {
     }
 
     @Override
-    public final AssetBuilder fromId(UUID value) {
+    public AssetBuilder fromId(UUID value) {
         setFromId(value);
         return this;
     }
 
     @Override
-    public final AssetBuilder toId(UUID value) {
+    public AssetBuilder toId(UUID value) {
         setToId(value);
         return this;
     }

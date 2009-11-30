@@ -43,7 +43,7 @@ is divided into following sections:
         <property file="nbproject/private/private.properties"/>
     </target>
     <target depends="-pre-init,-init-private" name="-init-libraries">
-        <property location="../../../../share/Local/jar\nblibraries.properties" name="libraries.1.path"/>
+        <property location="C:\Documents and Settings\rdp0004\My Documents\Code\share\Local\jar\nblibraries.properties" name="libraries.1.path"/>
         <dirname file="${libraries.1.path}" property="libraries.1.dir.nativedirsep"/>
         <pathconvert dirsep="/" property="libraries.1.dir">
             <path path="${libraries.1.dir.nativedirsep}"/>

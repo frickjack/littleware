@@ -98,7 +98,7 @@
      </jar>
 </target>
 
-<target depends="jar" name="test-hudson">
+<target depends="jar,javadoc" name="test-hudson">
   <mkdir dir="${test.reports}"/>
   <junit fork="yes" printsummary="no" haltonfailure="no">
     <jvmarg value="-Xms300m" />

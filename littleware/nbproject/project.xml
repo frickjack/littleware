@@ -13,8 +13,5 @@
                 <root id="test.properties.dir"/>
             </test-roots>
         </data>
-        <libraries xmlns="http://www.netbeans.org/ns/ant-project-libraries/1">
-            <definitions>C:\Documents and Settings\rdp0004\My Documents\Code\share\Local\jar\nblibraries.properties</definitions>
-        </libraries>
     </configuration>
 </project>

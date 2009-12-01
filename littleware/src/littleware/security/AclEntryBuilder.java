@@ -12,7 +12,7 @@ package littleware.security;
 import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import java.util.logging.Logger;
-import java.security.acl.*;
+
 
 import littleware.security.LittleAclEntry.Builder;
 import org.xml.sax.*;
@@ -21,6 +21,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import java.io.StringReader;
 
+import java.security.acl.Permission;
 import littleware.asset.*;
 import littleware.base.*;
 

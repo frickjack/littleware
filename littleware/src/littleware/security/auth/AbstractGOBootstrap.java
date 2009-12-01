@@ -74,7 +74,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
                 public synchronized void frameworkEvent(FrameworkEvent evt) {
                     if ((evt.getType() == FrameworkEvent.STARTED)) {
                         ctx.removeFrameworkListener(this);
-                        log.log(Level.INFO, "Launching client test ...");
+                        log.log(Level.FINE, "Triggering startup barrier ...");
                         barrier.publishEventData(null);
                     }
                 }
@@ -253,7 +253,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         } catch (BundleException ex) {
             throw new AssertionFailedException("Failed to bootstrap Felix OSGi", ex);
         }
-        log.log( Level.INFO, "Waiting for OSGi startup ..." );
+        log.log( Level.FINE, "Waiting for OSGi startup ..." );
         try {
             barrier.waitForEventData();
         } catch (InterruptedException ex) {

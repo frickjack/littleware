@@ -15,7 +15,6 @@ import java.security.acl.Permission;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +38,7 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
         super(SecurityAssetType.ACL);
     }
 
-    private class AclAsset extends SimpleAssetBuilder.SimpleAsset implements LittleAcl {
+    private static class AclAsset extends SimpleAssetBuilder.SimpleAsset implements LittleAcl {
         private Map<LittlePrincipal, LittleAclEntry> positiveUserEntries;
         private Map<LittlePrincipal, LittleAclEntry> negativeUserEntries;
         private Map<LittleGroup, LittleAclEntry> positiveGroupEntries;

@@ -1,0 +1,31 @@
+<body>
+The littleware.apps.addressbook package defines 
+the {@link littleware.apps.addressbook.Address} 
+and {@link littleware.apps.addressbook.Contact} asset types
+which fascilitate the development of applications
+that need to track and group address information.
+
+<p>
+A {@link littleware.apps.addressbook.Address} asset is a simple
+data bucket indexing different types of addresses
+(email, snailmail, phone, ...) associated with
+a given location ({@link littleware.apps.addressbook.AddressType}).
+A {@link littleware.apps.addressbook.Contact} asset is simply
+a colllection of Address interfaces.
+</p>
+
+<p>
+A client should interact with the classes in this package
+via the normal Asset mechanisms.
+<ul>
+<li> Create a new asset via its AddressAssetType factory: <br />
+        Address addr_new = AddressAssetType.ADDRESS.create ();
+		</li>
+<li> Search for, load, and save an asset via the managers in
+       the littleware.asset package. <br />
+	   Address addr_load = (Address) m_asset_retriever.getAssetOrNull( uuid_address );
+	   </li>
+</ul>
+</p>
+
+</body>

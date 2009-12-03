@@ -42,8 +42,8 @@ import littleware.base.feedback.LoggerFeedback;
  * Launch a Swing browser, and return the whatever
  */
 public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
-
-    private final static Logger olog = Logger.getLogger(LgoBrowserCommand.class.getName());
+    private final static Logger log = Logger.getLogger(LgoBrowserCommand.class.getName());
+    
     private final AssetSearchManager osearch;
     private final AssetModelLibrary olib;
     private final AssetPathFactory opathFactory;
@@ -51,7 +51,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
     private final Provider<ExtendedAssetViewController> provideControl;
     private final Provider<JSimpleAssetToolbar> provideToolbar;
     private final EventBarrier<UUID> barrier = new EventBarrier<UUID>();
-    private Maybe<UUID> maybeResult = Maybe.empty();
+
 
     /**
      * Container for the different Swing components
@@ -139,6 +139,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
                 feedback.log(Level.WARNING, "Unable to load asset at path: " + sStartPath + ", caught: " + e);
             }
         }
+        Maybe<UUID> maybeResult = Maybe.empty();
         if (SwingUtilities.isEventDispatchThread()) {
             createGUI(Maybe.emptyIfNull(getStart()));
         } else {
@@ -153,7 +154,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
                 maybeResult = Maybe.emptyIfNull(barrier.waitForEventData());
             } catch (InterruptedException ex) {
                 feedback.info("Interrupted waiting for browser result: " + ex);
-                olog.log(Level.WARNING, "Caught exception", ex);
+                log.log(Level.WARNING, "Caught exception", ex);
             }
         }
         return maybeResult;
@@ -208,10 +209,10 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
                 if ( maybeModel.isSet() ) {
                     stuff.browser.setAssetModel( maybeModel.get() );
                 } else {
-                    olog.log( Level.INFO, "Requested initial asset model does not exist: " + getStart() );
+                    log.log( Level.INFO, "Requested initial asset model does not exist: " + getStart() );
                 }
             } catch (Exception e) {
-                olog.log(Level.INFO, "Failed to load initial asset model " + getStart(), e);
+                log.log(Level.INFO, "Failed to load initial asset model " + getStart(), e);
             }
         }
 
@@ -282,7 +283,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
             command.runDynamic(feedback,
                     "/littleware.home/");
         } catch (final Exception ex) {
-            olog.log(Level.SEVERE, "Failed command, caught: " + ex, ex);
+            log.log(Level.SEVERE, "Failed command, caught: " + ex, ex);
             try {
                 final Runnable runner = new Runnable() {
 
@@ -294,12 +295,12 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
                 if (SwingUtilities.isEventDispatchThread()) {
                     runner.run();
                 } else {
-                    olog.log(Level.INFO, "Waiting for user input ...");
+                    log.log(Level.INFO, "Waiting for user input ...");
                     SwingUtilities.invokeAndWait(runner);
                 }
 
             } catch (Exception ex1) {
-                olog.log(Level.SEVERE, null, ex1);
+                log.log(Level.SEVERE, null, ex1);
             }
 
             System.exit(1);

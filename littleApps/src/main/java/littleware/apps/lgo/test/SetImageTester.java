@@ -41,7 +41,7 @@ public class SetImageTester extends LittleTest {
         try {
             ocomTest.processArgs( Arrays.asList(
                     "-path", getTestHome(),
-                    "-image", "marilyn.jpg"
+                    "-image", "../littleware/marilyn.jpg"
                     ));
             ocomTest.runSafe( new LoggerFeedback(), "" );
         } catch ( Exception ex ) {

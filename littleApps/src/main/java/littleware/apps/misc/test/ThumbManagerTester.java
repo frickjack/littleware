@@ -69,12 +69,14 @@ public class ThumbManagerTester extends LittleTest {
             final Thumb thumb_default = omgrThumb.loadThumb( osession.getId () );
             assertTrue ( "Loaded defualt thumb", thumb_default.isFallback () );
 
+            /*...
             assertTrue( "Default thumb ok",
                     JLittleDialog.showTestDialog(
                         new JLabel( new ImageIcon( thumb_default.getThumb() ) ),
                         "Verify default thumbnail"
                                 )
                     );
+             */
             // ok - frick things up a bit
             final BufferedImage imgTest = ImageIO.read(ThumbManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.jpg") );
             omgrImage.saveImage(osession, 

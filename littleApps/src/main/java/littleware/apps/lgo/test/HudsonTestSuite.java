@@ -1,6 +1,6 @@
 /*
  * Copyright 2009 Reuben Pasquini All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * You may not use this file except in compliance with the
@@ -18,12 +18,13 @@ import littleware.apps.client.ClientBootstrap;
 import littleware.test.TestFactory;
 
 /**
- * littleware.apps.lgo package test suite
+ * littleware.apps.lgo package test suite safe for run in
+ * Hudson server environment
  */
-public class PackageTestSuite extends HudsonTestSuite {
+public class HudsonTestSuite extends TestSuite {
 
     @Inject
-    public PackageTestSuite( Provider<ArgParserTester> factoryArgTester,
+    public HudsonTestSuite( Provider<ArgParserTester> factoryArgTester,
             Provider<DeleteAssetTester> factoryDeleteTester,
             Provider<XmlLgoHelpTester> factoryXmlHelpTester,
             Provider<SetImageTester> factoryImageTester,
@@ -31,21 +32,24 @@ public class PackageTestSuite extends HudsonTestSuite {
             Provider<GetAssetTester> factoryGetTester,
             Provider<CreateFolderTester> factoryCreateTester,
             Provider<GetByNameTester> factoryByNameTester,
-            Provider<BrowserCommandTest> factoryBrowserTest,
             Provider<RootPathCommandTest> factoryRootPathTest
             )
     {
-        super( factoryArgTester, factoryDeleteTester,
-                factoryXmlHelpTester, factoryImageTester,
-                factoryChildrenTester, factoryGetTester,
-                factoryCreateTester, factoryByNameTester,
-                factoryRootPathTest
-                );
-        setName( PackageTestSuite.class.getName() );
+        super( HudsonTestSuite.class.getName() );
 
         if ( true ) {
-            this.addTest( factoryBrowserTest.get() );
+            this.addTest( factoryRootPathTest.get() );
         }
+        if ( true ) {
+            this.addTest( factoryArgTester.get() );
+            this.addTest( factoryDeleteTester.get() );
+            this.addTest( factoryXmlHelpTester.get() );
+            this.addTest( factoryImageTester.get() );
+            this.addTest( factoryChildrenTester.get() );
+            this.addTest( factoryGetTester.get() );
+            this.addTest( factoryCreateTester.get() );
+        }
+        this.addTest( factoryByNameTester.get() );
     }
 
     /**
@@ -53,7 +57,7 @@ public class PackageTestSuite extends HudsonTestSuite {
      * of the OSGi bootstrap process
      */
     public static Test suite() {
-        return (new TestFactory()).build( new ClientBootstrap(), PackageTestSuite.class );
+        return (new TestFactory()).build( new ClientBootstrap(), HudsonTestSuite.class );
     }
 
 }

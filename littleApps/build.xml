@@ -71,4 +71,35 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+<target depends="jar,javadoc" name="test-hudson">
+  <mkdir dir="${test.reports}"/>
+  <junit fork="yes" printsummary="no" haltonfailure="no">
+    <jvmarg value="-Xms300m" />
+    <jvmarg value="-Xmx300m" />
+    <jvmarg value="-Dlittleware.properties=${test.properties.dir}/littleware.properties" />
+    <jvmarg value="-Djava.util.logging.config.file=${test.properties.dir}/logging.properties" />
+    <jvmarg value="-Dlittleware_jdbc.properties=${test.properties.dir}/littleware_jdbc.properties" />
+    <jvmarg value="-Djava.security.manager" />
+    <jvmarg value="-Djava.security.policy=${test.properties.dir}/littleware.policy" />
+    <jvmarg value="-Dlittleware.install=${test.properties.dir}/.." />
+    <batchtest fork="yes" todir="${test.reports}" >
+      <fileset dir="${build.classes.dir}">
+        <include name="littleware/apps/test/HudsonTestSuite.class" />
+      </fileset>
+    </batchtest>
+    <formatter type="xml" />
+    <classpath path="${run.classpath}" />
+  </junit>
+
+<!--
+  <junitreport todir="${test.reports}">
+    <fileset dir="${test.reports}">
+      <include name="TEST-*.xml" />
+    </fileset>
+    <report todir="${test.reports}" />
+  </junitreport>
+  -->
+</target>
+
 </project>

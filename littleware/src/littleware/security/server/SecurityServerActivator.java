@@ -43,6 +43,7 @@ public class SecurityServerActivator implements BundleActivator {
         registry.registerService( SecurityAssetType.QUOTA, (AssetSpecializer) mgr_account );
         registry.registerService( SecurityAssetType.USER, (AssetSpecializer) mgr_account );
         registry.registerService( SecurityAssetType.ACL, (AssetSpecializer) mgr_acl );
+        registry.registerService( SecurityAssetType.ACL_ENTRY, (AssetSpecializer) mgr_acl );
     }
 
     /**

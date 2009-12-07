@@ -34,7 +34,7 @@ public class DbAssetDeleter implements DbWriter<Asset> {
     @Override
     public void saveObject(Asset asset) throws SQLException {
         final EntityManager entMgr = oprovideTrans.get().getEntityManager();
-        final AssetEntity entity = entMgr.find( AssetEntity.class, UUIDFactory.makeCleanString( asset.getObjectId() ) );
+        final AssetEntity entity = entMgr.find( AssetEntity.class, UUIDFactory.makeCleanString( asset.getId() ) );
         entMgr.remove(entity);
     }
 

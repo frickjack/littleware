@@ -49,10 +49,6 @@ public class RmiAccountManager extends LittleRemoteObject implements AccountMana
         return om_proxy.isValidPassword(s_password);
     }
 
-    @Override
-    public LittleUser getAuthenticatedUser() throws GeneralSecurityException, RemoteException {
-        return om_proxy.getAuthenticatedUser();
-    }
 
     @Override
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException,

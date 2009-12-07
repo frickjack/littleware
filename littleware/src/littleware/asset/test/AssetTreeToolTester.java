@@ -54,34 +54,34 @@ public class AssetTreeToolTester extends LittleTest {
         try {
             final Asset     home = getTestHome( search );
             Maybe<Asset> maybeRoot = search.getAssetAtPath(
-                    pathFactory.createPath(home.getObjectId(), "TreeToolTester" )
+                    pathFactory.createPath(home.getId(), "TreeToolTester" )
                     );
             if ( ! maybeRoot.isSet() ) {
                 maybeRoot = Maybe.something(
                         manager.saveAsset(
-                            AssetType.createSubfolder( AssetType.GENERIC, "TreeToolTester", home),
+                            AssetType.GENERIC.create().name( "TreeToolTester" ).parent( home).build(),
                             "Setup test"
                             )
                         );
             }
             final Asset aParent = maybeRoot.get();
-            final Map<String,UUID> mapChildren = search.getAssetIdsFrom( aParent.getObjectId(), null );
+            final Map<String,UUID> mapChildren = search.getAssetIdsFrom( aParent.getId(), null );
             for ( int i=0; i < 3; ++i ) {
                 final String sChild = "Child" + i;
                 final Maybe<UUID> maybeChildId = Maybe.emptyIfNull(mapChildren.get( sChild ));
                 final Asset aChild;
                 final Map<String,UUID> mapBrat;
                 if ( ! maybeChildId.isSet() ) {
-                    aChild = manager.saveAsset( AssetType.createSubfolder(AssetType.GENERIC, sChild, aParent), "Setup test");
+                    aChild = manager.saveAsset( AssetType.GENERIC.create().name( sChild ).parent( aParent).build(), "Setup test");
                     mapBrat = Collections.emptyMap();
                 } else {
                     aChild = search.getAsset( maybeChildId.get() ).get();
-                    mapBrat = search.getAssetIdsFrom( aChild.getObjectId(), null );
+                    mapBrat = search.getAssetIdsFrom( aChild.getId(), null );
                 }
                 for( int j=0; j <= i; ++j ) {
                     final String sBrat = "Brat" + j;
                     if ( ! mapBrat.containsKey( sBrat ) ) {
-                        manager.saveAsset( AssetType.createSubfolder(AssetType.GENERIC, sBrat, aChild),
+                        manager.saveAsset( AssetType.GENERIC.create().name(sBrat).parent( aChild).build(),
                                 "Setup test"
                                 );
                     }
@@ -101,7 +101,7 @@ public class AssetTreeToolTester extends LittleTest {
             final List<Asset> vTree = treeTool.loadBreadthFirst(
                     search.getAssetAtPath(
                         pathFactory.createPath( "/" + getTestHome() + "/" + "TreeToolTester" )
-                        ).get().getObjectId()
+                        ).get().getId()
                     );
             assertTrue( "Tree has expected size (10): " + vTree.size(),
                     10 == vTree.size()

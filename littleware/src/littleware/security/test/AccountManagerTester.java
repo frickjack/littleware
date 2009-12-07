@@ -12,7 +12,6 @@ package littleware.security.test;
 import com.google.inject.Inject;
 import java.util.*;
 import java.security.*;
-import javax.security.auth.login.*;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -20,12 +19,9 @@ import java.util.logging.Level;
 
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
 import littleware.security.*;
-import littleware.security.auth.*;
 import littleware.base.BaseException;
 import littleware.test.LittleTest;
-import littleware.test.ServerTestLauncher;
 
 /**
  * TestFixture runs SecurityMnaager implementations
@@ -51,6 +47,7 @@ public class AccountManagerTester extends LittleTest {
     private static Object getGuardedResource(String s_resource_bundle, String s_resource) {
         return AccessController.doPrivileged(new GetGuardedResourceAction(s_resource_bundle, s_resource));
     }
+    private final LittleUser caller;
 
     /**
      * Constructor registers the AccountManager to test against.
@@ -64,10 +61,12 @@ public class AccountManagerTester extends LittleTest {
     public AccountManagerTester(String s_name,
             AccountManager m_account,
             AssetManager m_asset,
-            AssetSearchManager search) {
+            AssetSearchManager search,
+            LittleUser caller ) {
         om_account = m_account;
         om_asset = m_asset;
         osearch = search;
+        this.caller = caller;
         setName("testGetPrincipals");
     }
 
@@ -76,17 +75,14 @@ public class AccountManagerTester extends LittleTest {
      */
     public void testGetPrincipals() {
         try {
-            final LittleUser userAdmin = osearch.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get();
+            final LittleUser userAdmin = osearch.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow();
             final LittleGroup groupAdmin = osearch.getByName(
                     AccountManager.LITTLEWARE_ADMIN_GROUP,
-                    SecurityAssetType.GROUP
-                    ).get();
+                    SecurityAssetType.GROUP).get().narrow();
 
-            for (Enumeration<? extends Principal> enum_x = groupAdmin.members();
-                    enum_x.hasMoreElements();) {
-                LittlePrincipal p_member = (LittlePrincipal) enum_x.nextElement();
-                olog_generic.log(Level.INFO, "Got admin group member: " + p_member.getName() +
-                        " (" + p_member.getObjectId() + ")");
+            for (LittlePrincipal member : groupAdmin.getMembers() ) {
+                olog_generic.log(Level.INFO, "Got admin group member: " + member.getName() +
+                        " (" + member.getId() + ")");
             }
             assertTrue("administrator should be member of admin group",
                     groupAdmin.isMember(userAdmin));
@@ -98,43 +94,6 @@ public class AccountManagerTester extends LittleTest {
         }
     }
 
-    /**
-     * Test interaction between AccountManager.updateUser
-     * and LoginManager login.
-     */
-    public void testPasswordUpdate() {
-        try {
-            LittleUser p_user = om_account.getAuthenticatedUser();
-            assertTrue("Test running as " + ServerTestLauncher.OS_TEST_USER,
-                    ServerTestLauncher.OS_TEST_USER.equals(ServerTestLauncher.OS_TEST_USER));
-            olog_generic.log(Level.INFO, "Changing password for " + ServerTestLauncher.OS_TEST_USER);
-
-            try {
-                String s_password = "whatever";
-                om_account.updateUser(p_user, s_password, "change password");
-                Principal p_login = LoginTester.runLoginTest(ServerTestLauncher.OS_TEST_USER, s_password, this);
-                assertTrue("Login ok", p_login.getName().equals(ServerTestLauncher.OS_TEST_USER));
-                try {
-                    LoginContext x_login = new LoginContext("littleware.security.simplelogin",
-                            new SimpleNamePasswordCallbackHandler(p_user.getName(), "bogus"));
-                    x_login.login();
-                    assertTrue("Should have failed login with bogus password", false);
-                } catch (LoginException e) {
-                    olog_generic.log(Level.INFO, "Password check ok");
-                }
-            } finally {
-                om_account.updateUser(p_user, ServerTestLauncher.OS_TEST_USER_PASSWORD, "restore password");
-            }
-            final Principal x_user = osearch.getByName(ServerTestLauncher.OS_TEST_USER, SecurityAssetType.PRINCIPAL ).get();
-            final Principal x_tmp = osearch.getByName("group." + ServerTestLauncher.OS_TEST_USER, SecurityAssetType.PRINCIPAL ).get();
-
-        } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught unexpected: " + e +
-                    ", " + BaseException.getStackTrace(e));
-            assertTrue("Caught unexpected exception: " + e + ", " +
-                    BaseException.getStackTrace(e), false);
-        }
-    }
 
     /**
      * Just verify that incrementQuota increments the quota asset.
@@ -142,19 +101,17 @@ public class AccountManagerTester extends LittleTest {
      */
     public void testQuota() {
         try {
-            LittleUser p_me = om_account.getAuthenticatedUser();
-            Quota a_quota_before = om_account.getQuota(p_me);
+            Quota a_quota_before = om_account.getQuota(caller);
             assertTrue("Got a quota we can test against",
                     (null != a_quota_before) && (a_quota_before.getQuotaLimit() > 0) && (a_quota_before.getQuotaCount() >= 0));
             om_account.incrementQuotaCount();
-            Quota a_quota_after = om_account.getQuota(p_me);
+            Quota a_quota_after = om_account.getQuota(caller);
             assertTrue("Quota incremented by 1: " + a_quota_before.getQuotaCount() +
                     " -> " + a_quota_after.getQuotaCount(),
                     a_quota_before.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
             // Verify get/setData parsing
-            String s_data = a_quota_after.getData();
-            a_quota_after.setData(a_quota_after.getData());
-            assertTrue("get/setData consistency", s_data.equals(a_quota_after.getData()));
+            assertTrue("get/setData consistency",
+                    a_quota_after.getData().equals(a_quota_after.copy().data(a_quota_after.getData()).build().getData()));
         } catch (Exception e) {
             olog_generic.log(Level.WARNING, "Caught unexpected: " + e +
                     ", " + BaseException.getStackTrace(e));
@@ -169,33 +126,35 @@ public class AccountManagerTester extends LittleTest {
     public void testGroupUpdate() {
         try {
             final String name = "group.littleware.test_user";
-            final LittleUser caller = om_account.getAuthenticatedUser();
-            LittleGroup groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).getOr(null);
-            if ( null == groupTest ) {
-                groupTest = AssetType.createSubfolder( SecurityAssetType.GROUP, name, getTestHome(osearch) );
-                groupTest.addMember(caller);
-                groupTest = om_asset.saveAsset(groupTest, "setup test group" );
+            LittleGroup groupTest = (LittleGroup) osearch.getByName(name, SecurityAssetType.GROUP).getOr(null);
+            if (null == groupTest) {
+                groupTest = om_asset.saveAsset(
+                        SecurityAssetType.GROUP.create().add(caller).name(name).parent(getTestHome(osearch)).
+                        build(), "setup test group").narrow();
+                assertTrue( caller.getName() + " is member of new group " + groupTest.getName(),
+                        groupTest.isMember(caller)
+                        );
             }
-            
-
-            if (groupTest.removeMember(caller)) {
-                groupTest = om_asset.saveAsset(groupTest, "Removed tester " + caller.getName());
+            if ( ! groupTest.isMember( caller ) ) {
+                LittleGroup copy = groupTest.copy().add(caller).build();
+                copy = copy.getAssetType().create().copy( copy ).build().narrow();
+                assertTrue( caller.getName() + " added to " + copy.getName(),
+                    copy.isMember( caller )
+                    );
+                final Set<Principal> memberSet = new HashSet<Principal>( copy.getMembers() );
+                assertTrue( caller.getName() + " in members copy of " + copy.getName(),
+                        memberSet.contains(caller)
+                        );
+                groupTest = om_asset.saveAsset(copy, "Add tester " + caller.getName());
             }
-            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
-            assertTrue("Already removed caller as primary member of group",
-                    !groupTest.removeMember(caller));
-            assertTrue("Added caller to test group: " + caller.getName(),
-                    groupTest.addMember(caller));
-            groupTest = om_asset.saveAsset(groupTest, "Added tester " + caller.getName());
-
-            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
-            assertTrue("Able to remove caller " + caller.getName() + " from test group",
-                    groupTest.removeMember(caller));
-            groupTest = om_asset.saveAsset(groupTest, "Removed tester " + caller.getName());
-
-            groupTest = osearch.getByName(name, SecurityAssetType.GROUP ).get();
-            assertTrue("Already removed caller as primary member of group 2nd time",
-                    !groupTest.removeMember(caller));
+            assertTrue( caller.getName() + " is member of " + groupTest.getName(),
+                    groupTest.isMember( caller )
+                    );
+            groupTest = om_asset.saveAsset(groupTest.copy().remove(caller).build(), "Removed tester " + caller.getName());
+            groupTest = osearch.getByName(name, SecurityAssetType.GROUP).get().narrow();
+            assertTrue( caller.getName() + " is not a member of " + groupTest.getName(),
+                    !groupTest.isMember(caller)
+                    );
         } catch (Exception e) {
             olog_generic.log(Level.INFO, "Caught: " + e + ", " + BaseException.getStackTrace(e));
             assertTrue("Should not have caught: " + e, false);

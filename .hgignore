@@ -9,6 +9,7 @@ CVS
 ^littleware_client
 ^littleware/ddl/derbycache
 nbproject/private
+/bucketRoot/
 ^scratch
 \.pyc$
 ~$

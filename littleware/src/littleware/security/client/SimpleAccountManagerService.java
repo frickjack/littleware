@@ -64,12 +64,6 @@ public class SimpleAccountManagerService extends SimpleLittleService implements 
         return oserver.isValidPassword( s_password );
     }
 
-    @Override
-    public LittleUser getAuthenticatedUser() throws GeneralSecurityException, RemoteException {
-        LittleUser result = oserver.getAuthenticatedUser();
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
-        return result;
-    }
 
     @Override
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException, GeneralSecurityException, RemoteException {

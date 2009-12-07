@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="littleware" default="default" basedir=".">
+    <description>Builds, tests, and runs the project littleware.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <!--
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="littleware-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+ <target name="-post-jar" 
+	 description="build littleClient.jar"
+      >
+      <jar id="jarclient" jarfile="dist/littleClient.jar"
+	basedir="build/classes"
+        index="true"
+	level="9"
+     >
+   <exclude name="derby/**" />
+   <exclude name="mysql/**" />
+   <exclude name="postgres/**" />
+   <exclude name="littleware/META-INF/**" />
+   <exclude name="littleware/apps/calendar/**" />
+   <exclude name="littleware/alarmClock/**" />
+   <exclude name="littleware/apps/backup/**" />
+   <exclude name="littleware/browser/**" />
+   <exclude name="littleware/calendar/**" />
+   <exclude name="littleware/cookbook/**" />
+   <exclude name="littleware/db/**" />
+   <exclude name="trash/**" />
+   <exclude name="3rdparty/**" />
+   <exclude name="**/server/**" />
+   <exclude name="**/test/**" />
+   <exclude name="**/web/**" />
+     </jar>
+</target>
+
+<target depends="jar" name="test-hudson">
+  <mkdir dir="${test.reports}"/>
+  <junit fork="yes" printsummary="no" haltonfailure="no">
+    <jvmarg value="-Xms300m" />
+    <jvmarg value="-Xmx300m" />
+    <jvmarg value="-Dlittleware.properties=${test.properties.dir}/littleware.properties" />
+    <jvmarg value="-Djava.util.logging.config.file=${test.properties.dir}/logging.properties" />
+    <jvmarg value="-Dlittleware_jdbc.properties=${test.properties.dir}/littleware_jdbc.properties" />
+    <jvmarg value="-Djava.security.manager" />
+    <jvmarg value="-Djava.security.policy=${test.properties.dir}/littleware.policy" />
+    <jvmarg value="-Dlittleware.install=${test.properties.dir}/.." />
+    <batchtest fork="yes" todir="${test.reports}" >
+      <fileset dir="${build.classes.dir}">
+        <include name="littleware/test/PackageTestSuite.class" />
+      </fileset>
+    </batchtest>
+    <formatter type="xml" />
+    <classpath path="${run.classpath}" />
+  </junit>
+
+<!--
+  <junitreport todir="${test.reports}">
+    <fileset dir="${test.reports}">
+      <include name="TEST-*.xml" />
+    </fileset>
+    <report todir="${test.reports}" />
+  </junitreport>
+  -->
+</target>
+
+</project>

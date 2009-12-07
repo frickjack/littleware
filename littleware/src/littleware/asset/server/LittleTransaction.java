@@ -90,6 +90,15 @@ public interface LittleTransaction {
      * @exception RuntimeException if db commit/rollback fails
      */
     public void endDbUpdate ( boolean b_rollback );
+
+    /**
+     * Get the transaction-count for the current db-update
+     *
+     * @return transaction-counter to assign to every asset's transaction property
+     *             saved during the current transacton
+     * @exception IllegalStateException if not in a transaction
+     */
+    public long getTransaction();
     
     /**
      * If isDbUpdating(), then defer the given Runnable action until

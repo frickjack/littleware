@@ -40,4 +40,12 @@ public interface GuiceOSGiBootstrap extends LittleBootstrap {
      */
     public List<Class<? extends BundleActivator>> getOSGiActivator();
 
+    /**
+     * Boot the littleware runtime and return a guice-injected
+     * instance of the given class.
+     * 
+     * @param bootClass to instantiate
+     * @return injected object upon system startup 
+     */
+    public <T> T bootstrap( Class<T> bootClass );
 }

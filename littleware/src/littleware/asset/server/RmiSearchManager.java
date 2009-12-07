@@ -100,7 +100,7 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return om_proxy.getAssetIdsFrom( u_from, n_type, i_state );
     }
 

@@ -18,7 +18,6 @@ import java.util.logging.Level;
 import junit.framework.*;
 
 import littleware.asset.*;
-import littleware.base.AssertionFailedException;
 import littleware.security.*;
 import littleware.security.auth.*;
 
@@ -52,20 +51,16 @@ public class PackageTestSuite extends TestSuite {
         boolean b_run = true;
 
         if (b_run) {
-            try {
-                final LittleUser administrator = search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get();
-
-                this.addTest(new AclTester("testAcl", SecurityAssetType.ACL.create(), administrator, search));
-            } catch (Exception e) {
-                throw new AssertionFailedException("Caught unexpected during test initialization: " + e, e);
-            }
+            this.addTest(provideAclTester.get().putName("testAcl"));
         }
 
         if (b_run) {
             this.addTest(provideAccountTester.get().putName("testGetPrincipals"));
-            this.addTest(provideAccountTester.get().putName("testQuota"));
             //this.addTest(provideAccountTester.get().putName("testPasswordUpdate"));
             this.addTest(provideAccountTester.get().putName("testGroupUpdate"));
+        }
+        if (false) {  // disable quota testing for now 
+            this.addTest(provideAccountTester.get().putName("testQuota"));
         }
         if (b_run) {
             this.addTest(provideAclTester.get().putName("testAclLoad"));

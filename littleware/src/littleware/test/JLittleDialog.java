@@ -15,13 +15,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import javax.swing.*;
-import littleware.base.EventBarrier;
-import littleware.base.Whatever;
 
 /**
  * Just a utility container to fascilitate launching

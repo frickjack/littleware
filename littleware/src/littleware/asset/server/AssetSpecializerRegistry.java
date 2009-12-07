@@ -16,6 +16,6 @@ import littleware.base.LittleRegistry;
 /**
  * Registry for AssetSpecializer's.
  */
-public interface AssetSpecializerRegistry extends LittleRegistry<AssetType<?>,AssetSpecializer> {
+public interface AssetSpecializerRegistry extends LittleRegistry<AssetType,AssetSpecializer> {
 
 }

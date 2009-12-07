@@ -24,12 +24,8 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
 
     /**
      * Do-nothing constructor intended for deserialization only.
-     * Does a permission-check against littleware.security.resource.newpickle -
-     * make sure some foreign-code frickjack isn't inserting some code on us.
      */
     protected PickleType() {
-        Permission perm_newpickle = new AccessPermission("newpickle");
-        AccessController.checkPermission(perm_newpickle);
     }
 
     /**
@@ -37,7 +33,7 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
      * for the default implementation of getObjectId() and getName()
      */
     protected PickleType(UUID u_id, String s_name) {
-        super(u_id, s_name, PickleType.class, new AccessPermission("newpickle"));
+        super(u_id, s_name, PickleType.class);
     }
 
     /** Shortcut to DynamicEnum.getMembers */
@@ -66,7 +62,7 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
      * @exception PickleClassException if no handler is
      *      registered for the given asset-type for littleware.asset.Asset
      */
-    public abstract PickleMaker<Asset> createPickleMaker(AssetType<? extends Asset> n_asset)
+    public abstract PickleMaker<Asset> createPickleMaker(AssetType n_asset)
             throws PickleClassException;
 
     /**
@@ -87,7 +83,7 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
     /**
      * Return true if hasPickleMaker( n_asset ) will succeed
      */
-    public boolean hasPickleMaker(AssetType<? extends Asset> n_asset) {
+    public boolean hasPickleMaker(AssetType n_asset) {
         try {
             PickleMaker<Asset> pickle_maker = createPickleMaker(n_asset);
             return (pickle_maker != null);
@@ -99,7 +95,6 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
      * Properties mapping AssetTypes to XML PickleMaker classes
      */
     private static Properties oprop_xml = null;
-    
 
     static {
         Properties prop_defaults = new Properties();
@@ -128,8 +123,8 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
             new PickleType(UUIDFactory.parseUUID("388054B5354A43BCB5C06FDFF4E85DB4"),
             "littleware.XML_PICKLE_MAKER") {
 
-        @Override
-                public AssetXmlPickler createPickleMaker(AssetType<? extends Asset> n_asset) throws PickleClassException {
+                @Override
+                public AssetXmlPickler createPickleMaker(AssetType n_asset) throws PickleClassException {
                     String s_classname = oprop_xml.getProperty(n_asset.getName());
 
                     if (null == s_classname) {

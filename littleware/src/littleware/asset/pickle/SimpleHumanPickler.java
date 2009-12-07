@@ -13,16 +13,15 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.security.GeneralSecurityException;
-import java.security.Principal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
 import littleware.base.Whatever;
 import littleware.security.LittleGroup;
+import littleware.security.LittlePrincipal;
 import littleware.security.SecurityAssetType;
 
 /**
@@ -99,7 +98,7 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         sb.append(Whatever.NEWLINE).append("AssetBegin: ").append(Whatever.NEWLINE);
         appendProperty(sb, "name", aIn.getName());
         appendProperty(sb, "type", aIn.getAssetType());
-        appendProperty(sb, "id", aIn.getObjectId());
+        appendProperty(sb, "id", aIn.getId());
         appendProperty(sb, "home", aIn.getHomeId());
         appendProperty(sb, "acl", aIn.getAclId());
         appendProperty(sb, "from", aIn.getFromId());
@@ -108,20 +107,18 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         appendProperty(sb, "creator", aIn.getCreatorId());
         appendProperty(sb, "createDate", aIn.getCreateDate());
         appendProperty(sb, "updater", aIn.getLastUpdaterId());
-        appendProperty(sb, "updateDate", aIn.getLastAccessDate());
+        appendProperty(sb, "updateDate", aIn.getLastUpdateDate());
         appendProperty(sb, "startDate", aIn.getStartDate());
         appendProperty(sb, "endDate", aIn.getEndDate());
-        appendProperty(sb, "transaction", Long.toString(aIn.getTransactionCount()));
+        appendProperty(sb, "transaction", Long.toString(aIn.getTransaction()));
         appendProperty( sb, "comment", aIn.getComment() );
         appendProperty( sb, "value", aIn.getValue() );
         // Go ahead and add some special handling of GROUP type assets here.
         // Can move out to separate registered handler later if we want
         if ( aIn.getAssetType().isA( SecurityAssetType.GROUP ) ) {
             final LittleGroup group = aIn.narrow( LittleGroup.class );
-            for( Enumeration<? extends Principal> member = group.members();
-                member.hasMoreElements();
-            ) {
-                appendProperty( sb, "groupmember", member.nextElement().getName() );
+            for( LittlePrincipal member : group.getMembers() ) {
+                appendProperty( sb, "groupmember", member.getName() );
             }
         }
         pickleData( sb, aIn );

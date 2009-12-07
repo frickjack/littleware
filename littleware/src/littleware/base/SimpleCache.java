@@ -9,6 +9,8 @@
  */
 package littleware.base;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.Singleton;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -16,26 +18,25 @@ import java.util.logging.Logger;
  * Simple Cache implementation using FIFO replacement policy.
  * Methods are synchronzied internally.
  */
+@Singleton
 public class SimpleCache<K, V> implements Cache<K, V> {
+    private static final Logger log = Logger.getLogger( SimpleCache.class.getName() );
+    public static final int MIN_AGEOUT_SECS = 10;
+    public static final int MIN_SIZE = 10;
 
     private int oi_ageout_secs = 300;
     private int oi_size = 3000;
-    private Map<K, CacheEntry> ov_cache = new HashMap<K, CacheEntry>();
+    private Map<K, CacheEntry> entryMap = new HashMap<K, CacheEntry>();
     // List of CacheEntry (below) objects
-    private List<CacheEntry> ov_entries = new LinkedList<CacheEntry>();
-    private static Logger olog_generic = Logger.getLogger("littleware.base.SimpleCache");
-    public static final int MIN_AGEOUT_SECS = 10;
-    public static final int MIN_SIZE = 10;
+    private List<CacheEntry> entryList = new LinkedList<CacheEntry>();
 
     /**
      * Internal data bucket
      */
     private class CacheEntry {
-
-        private Date ot_created = new Date();
-        private K ox_key;
-        private V ox_value;
-        private boolean ob_in_cache = true;
+        private final Date ot_created = new Date();
+        private final K ox_key;
+        private final V ox_value;
 
         /**
          * Constructor sets internal key/value,
@@ -56,15 +57,6 @@ public class SimpleCache<K, V> implements Cache<K, V> {
 
         public V getValue() {
             return ox_value;
-        }
-
-        public boolean getInCache() {
-            return ob_in_cache;
-        }
-
-        /** Set this entry getInCache() value to false */
-        public void markOutOfCache() {
-            ob_in_cache = false;
         }
 
         /** Equals operation only true if exactly the same object */
@@ -145,21 +137,21 @@ public class SimpleCache<K, V> implements Cache<K, V> {
      */
     @Override
     public synchronized V put(K x_key, V x_value) {
-        CacheEntry x_entry = new CacheEntry(x_key, x_value);
-        CacheEntry x_old_entry = ov_cache.put(x_key, x_entry);
-
-        ov_entries.add(x_entry);
-        if (null != x_old_entry) {
-            x_old_entry.markOutOfCache();
-            return x_old_entry.getValue();
+        final CacheEntry entry = new CacheEntry(x_key, x_value);
+        final CacheEntry oldEntry = entryMap.put(x_key, entry);
+        
+        if (null != oldEntry) {
+            entryList.remove( oldEntry );
+            entryList.add(entry);
+            return oldEntry.getValue();
         }
+        entryList.add(entry);
         // Just added an entry, need to make sure we haven't overflowed the cache
-        for (int i_size = ov_entries.size();
+        for (int i_size = entryList.size();
                 i_size > oi_size;
                 --i_size) {
-            x_old_entry = (CacheEntry) ov_entries.remove(0);
-            ov_cache.remove(x_old_entry.getKey());
-            x_old_entry.markOutOfCache();
+            final CacheEntry removeEntry = (CacheEntry) entryList.remove(0);
+            entryMap.remove(removeEntry.getKey());
         }
         return null;
     }
@@ -171,48 +163,48 @@ public class SimpleCache<K, V> implements Cache<K, V> {
      * @return the cache entry value, or null if no entry or aged out
      */
     @Override
-    public synchronized V get(K x_key) {
-        CacheEntry x_entry = ov_cache.get(x_key);
+    public synchronized V get(K key) {
+        final CacheEntry entry = entryMap.get(key);
 
-        if (null == x_entry) {
+        if (null == entry) {
             return null;
         }
-        Date t_now = new Date();
-        if (x_entry.getCreateDate().getTime() + oi_ageout_secs * 1000 < t_now.getTime()) {
-            x_entry.markOutOfCache();
+        final Date t_now = new Date();
+        if (entry.getCreateDate().getTime() + oi_ageout_secs * 1000 < t_now.getTime()) {
+            remove( key );
             return null;
         }
-        return x_entry.getValue();
+        return entry.getValue();
     }
 
     /**
      * Flush the entry associated with the given key out of the cache
      */
     @Override
-    public synchronized V remove(K x_key) {
-        CacheEntry x_entry = ov_cache.remove(x_key);
+    public synchronized V remove(K key) {
+        final CacheEntry entry = entryMap.remove(key);
 
-        if (null != x_entry) {
-            x_entry.markOutOfCache();
-            ov_entries.remove(x_entry);
-            return x_entry.getValue();
+        if (null != entry) {
+            entryList.remove(entry);
+            return entry.getValue();
         }
         return (V) null;
     }
 
     @Override
     public synchronized void clear() {
-        ov_cache.clear();
-        ov_entries.clear();
+        entryMap.clear();
+        entryList.clear();
     }
 
     @Override
     public synchronized Map<K, V> cacheContents() {
-        Map<K, V> v_copy = new HashMap<K, V>();
-        for (CacheEntry x_entry : ov_cache.values()) {
-            v_copy.put(x_entry.getKey(), x_entry.getValue());
+        final ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
+        for (CacheEntry entry : entryMap.values()) {
+            builder.put(entry.getKey(), entry.getValue());
         }
-        return v_copy;
+
+        return builder.build();
     }
 
     @Override
@@ -222,12 +214,12 @@ public class SimpleCache<K, V> implements Cache<K, V> {
 
     @Override
     public synchronized boolean isEmpty() {
-        return ov_cache.isEmpty();
+        return entryMap.isEmpty();
     }
 
     @Override
     public synchronized int size() {
-        return ov_cache.size();
+        return entryMap.size();
     }
 }
 

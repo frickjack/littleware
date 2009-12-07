@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.lang.reflect.*;
 
+import javax.security.auth.Subject;
 import junit.framework.*;
 
 import littleware.asset.*;
@@ -28,6 +29,7 @@ import littleware.asset.server.RmiAssetManager;
 import littleware.asset.server.SimpleAssetManager;
 import littleware.asset.server.SimpleAssetSearchManager;
 import littleware.base.stat.*;
+import littleware.security.LittleUser;
 
 /**
  * Test suite for littleware.asset package
@@ -50,7 +52,8 @@ public class PackageTestSuite extends TestSuite {
             Provider<AssetRetrieverTester> provideRetrieverTest,
             Provider<AssetPathTester> providePathTester,
             Provider<AssetTreeToolTester> provideTreeTester,
-            Provider<AssetSearchManagerTester> provideSearchTest
+            Provider<AssetSearchManagerTester> provideSearchTest,
+            Provider<LittleUser> provideCaller
             ) {
         super(PackageTestSuite.class.getName());
         boolean b_run = true;
@@ -88,10 +91,6 @@ public class PackageTestSuite extends TestSuite {
 
         //AssetRetriever     m_retriever = new LocalAssetRetriever ( om_dbasset, om_cache, oregistry_special );
         //AssetSearchManager m_search = new SimpleAssetSearchManager ( om_dbasset, om_cache, oregistry_special );
-
-        if (b_run) {
-            this.addTest(new AssetBuilderTester("testBuild"));
-        }
         if (b_run) {
             this.addTest(provideRetrieverTest.get());
             this.addTest(provideRetrieverTest.get().putName("testAssetType") );
@@ -107,15 +106,18 @@ public class PackageTestSuite extends TestSuite {
 
         if (b_run) {
             try {
+                final Subject subject = new Subject();
+                subject.getPrincipals().add( provideCaller.get() );
                 InvocationHandler handler_asset = new littleware.security.auth.SubjectInvocationHandler<AssetManager>(
-                        null, m_asset, new SimpleSampler());
+                        subject, m_asset, new SimpleSampler()
+                        );
 
                 AssetManager m_proxy = (AssetManager) Proxy.newProxyInstance(AssetManager.class.getClassLoader(),
                         new Class[]{AssetManager.class},
                         handler_asset);
                 this.addTest(new AssetManagerTester(
                         new RmiAssetManager(m_proxy),
-                        m_search));
+                        m_search, provideCaller ));
             } catch (Exception e) {
                 throw new littleware.base.AssertionFailedException("Failed to setup RmiAssetManager, caught: " + e, e);
             }

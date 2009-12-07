@@ -14,10 +14,6 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.addressbook.server.AddressServerActivator;
-import littleware.apps.filebucket.server.BucketServerActivator;
-import littleware.apps.filebucket.server.BucketServerGuice;
-import littleware.apps.tracker.server.TrackerServerActivator;
 import littleware.asset.server.AssetServerGuice;
 import littleware.asset.server.db.jpa.HibernateGuice;
 import littleware.asset.server.db.jpa.J2EEGuice;
@@ -65,16 +61,12 @@ public class ServerBootstrap extends AbstractGOBootstrap {
                   bHibernate ? new HibernateGuice() : new J2EEGuice(),
                     new AssetServerGuice (),
                     new AuthServerGuice(),
-                    new BucketServerGuice(),
                     new SecurityServerGuice (),
                     new DbGuice()
                     ),
             Arrays.asList(
                 ServerActivator.class,
-                SecurityServerActivator.class,
-                TrackerServerActivator.class,
-                AddressServerActivator.class,
-                BucketServerActivator.class
+                SecurityServerActivator.class
             ),
             true
             );

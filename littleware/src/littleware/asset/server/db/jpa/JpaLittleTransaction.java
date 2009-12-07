@@ -19,4 +19,5 @@ import littleware.asset.server.LittleTransaction;
  */
 public interface JpaLittleTransaction extends LittleTransaction {
     public EntityManager getEntityManager ();
+
 }

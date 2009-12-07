@@ -111,15 +111,13 @@ public class SimpleCacheManager implements CacheManager {
                 ov_null_entries.add(u_key);
                 return ocache_asset.remove(u_key);
             } else {
-                final Asset a_cache = a_value.clone();
-
-                Whatever.check("Key must go with value in asset-cache", a_cache.getObjectId().equals(u_key));
+                Whatever.get().check("Key must go with value in asset-cache", a_value.getId().equals(u_key));
 
                 JdbcDbWriter<Asset> db_writer = om_db.makeDbAssetSaver();
-                db_writer.saveObject( a_cache);
+                db_writer.saveObject( a_value);
 
                 ov_null_entries.remove(u_key);
-                return ocache_asset.put(u_key, a_cache);
+                return ocache_asset.put(u_key, a_value);
             }
         } catch (SQLException e) {
             throw new AssertionFailedException("Failure updating cache, caught: " + e, e);
@@ -137,7 +135,7 @@ public class SimpleCacheManager implements CacheManager {
         if (null == a_result) {
             return null;
         }
-        return a_result.clone();
+        return a_result;
     }
 
     /**
@@ -281,7 +279,7 @@ public class SimpleCacheManager implements CacheManager {
             JdbcDbWriter<Map<String, UUID>> db_writer = om_db.makeDbHomeIdsSaver();
             db_writer.saveObject( v_home_ids);
         } catch (SQLException e) {
-            Whatever.check("Data access failure: " + e, false);
+            Whatever.get().check("Data access failure: " + e, false);
         }
     }
 
@@ -313,7 +311,7 @@ public class SimpleCacheManager implements CacheManager {
             JdbcDbWriter<Map<String, UUID>> db_writer = om_db.makeDbAssetIdsFromSaver(u_source, n_type);
             db_writer.saveObject( v_data);
         } catch (SQLException e) {
-            Whatever.check("Data access failure: " + e, false);
+            Whatever.get().check("Data access failure: " + e, false);
         }
     }
 
@@ -345,13 +343,13 @@ public class SimpleCacheManager implements CacheManager {
             JdbcDbWriter<Set<UUID>> db_writer = om_db.makeDbAssetIdsToSaver(u_to, n_type);
             db_writer.saveObject( v_data);
         } catch (SQLException e) {
-            Whatever.check("Data access failure: " + e, false);
+            Whatever.get().check("Data access failure: " + e, false);
         }
     }
 
 
     @Override
-    public <T extends Asset> Maybe<T> getByName(String s_name, AssetType<T> n_type) throws DataAccessException,
+    public Maybe<Asset> getByName(String s_name, AssetType n_type) throws DataAccessException,
             AssetException, NoSuchThingException, AccessDeniedException, GeneralSecurityException {
         if (oprovideTrans.get().isDbUpdating()) {
             throw new CacheMissException("In transaction");
@@ -366,7 +364,7 @@ public class SimpleCacheManager implements CacheManager {
             if (v_data.isEmpty()) {
                 return null;
             }
-            return Maybe.emptyIfNull( (T) getAssetOrNull(v_data.iterator().next()) );
+            return Maybe.emptyIfNull( getAssetOrNull(v_data.iterator().next()) );
         } catch (SQLException e) {
             throw new DataAccessException("frickjack: " + e, e);
         }
@@ -420,7 +418,7 @@ public class SimpleCacheManager implements CacheManager {
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType<? extends Asset> n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<String, UUID> getAssetIdsFrom(UUID u_from, AssetType n_type, int i_state) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

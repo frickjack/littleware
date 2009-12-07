@@ -1,0 +1,12 @@
+
+
+grant codeBase "file:${littleware.install}/Contents/Resources/Java/*" {
+        // allow access to littleware connection pool 
+	//permission littleware.db.SqlResourceAccessPermission  "*";
+
+	permission java.security.AllPermission;
+};
+
+grant {
+	permission java.security.AllPermission;
+};

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<help fullname="littleware.apps.lgo.CreateLockCommand"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>Create a littleware.LOCK asset at a given path</synopsis>
+  <description>
+      Create a lock at a given path.  The lock must have
+   a globally unique (amongst locks) basename.  The new lock inherits
+   properties (acl, home) from its parent:
+
+      mklock --path /path/to/lock [--comment comment]
+  </description>
+  <shortname>mklock</shortname>
+</help>

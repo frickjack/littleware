@@ -61,7 +61,7 @@ public class SimpleCLBuilder extends AbstractBuilder {
                 sb.append( "Assets under " ).append( path ).append( ": " ).
                         append( Whatever.NEWLINE );
                 final List<String> children = new ArrayList<String>(
-                        search.getAssetIdsFrom( maybe.get().getObjectId() ).keySet()
+                        search.getAssetIdsFrom( maybe.get().getId() ).keySet()
                         );
                 Collections.sort( children );
                 for ( String child : children ) {

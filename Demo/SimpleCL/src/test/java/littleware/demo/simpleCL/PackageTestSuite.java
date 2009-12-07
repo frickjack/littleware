@@ -15,16 +15,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.apps.client.ClientBootstrap;
-import littleware.base.AssertionFailedException;
-import littleware.base.EventBarrier;
+import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.LittleBootstrap;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
+import littleware.security.auth.SimpleNamePasswordCallbackHandler;
+import littleware.security.auth.server.ServerBootstrap;
+import littleware.test.TestFactory;
 
 /**
  * Test suite for simpleCL package
@@ -38,50 +35,16 @@ public class PackageTestSuite extends TestSuite {
             ) {
         super( PackageTestSuite.class.getName() );
         this.addTest( provideSimpleCL.get() );
-        this.addTest( new TestCase( "testShutdown" ) {
-            public void testShutdown () {
-                bootstrap.shutdown();
-            }
-        });
     }
 
-    public static class TestLauncher implements BundleActivator {
-        public static EventBarrier<TestSuite> barrier = new EventBarrier<TestSuite>();
-        private final PackageTestSuite suite;
-
-        @Inject
-        public TestLauncher( PackageTestSuite suite ) {
-            this.suite = suite;
-        }
-
-        @Override
-        public void start( final BundleContext ctx) throws Exception {
-            ctx.addFrameworkListener(new FrameworkListener() {
-
-                @Override
-                public synchronized void frameworkEvent(FrameworkEvent evt) {
-                    if ( evt.getType() == FrameworkEvent.STARTED ) {
-                        ctx.removeFrameworkListener(this);
-                        barrier.publishEventData(suite);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void stop(BundleContext ctx) throws Exception {
-        }
-    }
     
     public static TestSuite suite() {
-        final ClientBootstrap bootstrap = new ClientBootstrap( "localhost" );
-        bootstrap.getOSGiActivator().add( TestLauncher.class );
-        try {
-            return TestLauncher.barrier.waitForEventData();
-        } catch (InterruptedException ex) {
-            log.log( Level.WARNING, "Failed bootstrap", ex );
-            throw new AssertionFailedException( "Failed bootstrap", ex );
-        }
+        final ServerBootstrap bootServer = new ServerBootstrap( true );
+        final ClientBootstrap bootstrap = new ClientBootstrap(
+                new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla"))
+                );
+        //return (new TestFactory()).build(bootstrap, PackageTestSuite.class );
+        return (new TestFactory()).build( bootServer, bootstrap, PackageTestSuite.class );
     }
 
     public static void main( String[] v_args ) {

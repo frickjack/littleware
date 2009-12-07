@@ -13,13 +13,14 @@ package littleware.demo.simpleCL;
 
 import com.google.inject.internal.ImmutableList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Just implement an argv property for AppBuilder implementations
  */
 public abstract class AbstractBuilder implements AppBuilder {
-    private List<String> argv;
+    private List<String> argv = Collections.emptyList();
 
     protected List<String> getArgv() {
         return argv;

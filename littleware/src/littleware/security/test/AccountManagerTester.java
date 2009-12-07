@@ -10,9 +10,11 @@
 package littleware.security.test;
 
 import com.google.inject.Inject;
-import java.util.*;
-import java.security.*;
 
+
+import java.security.Principal;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -34,19 +36,6 @@ public class AccountManagerTester extends LittleTest {
     private final AccountManager om_account;
     private final AssetManager om_asset;
 
-    /**
-     * Little utility that invokes a PriviledgedAction to
-     * access the specified GuardedObject in the specified
-     * resource bundle
-     *
-     * @param s_resource_bundle to lookup
-     * @param s_resource that corresponds to a GuardedObject to access
-     * @return whatever the GuardedObject is guarding - invoke Guard
-     *                within a local PriviledgedAction
-     */
-    private static Object getGuardedResource(String s_resource_bundle, String s_resource) {
-        return AccessController.doPrivileged(new GetGuardedResourceAction(s_resource_bundle, s_resource));
-    }
     private final LittleUser caller;
 
     /**

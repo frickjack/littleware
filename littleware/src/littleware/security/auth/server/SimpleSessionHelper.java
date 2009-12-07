@@ -71,10 +71,10 @@ public class SimpleSessionHelper implements SessionHelper {
             GeneralSecurityException, RemoteException {
         try {
             LittleSession.Builder sessionBuilder = SecurityAssetType.SESSION.create();
-            LittleUser p_caller = Subject.getSubject(AccessController.getContext()).
+            final LittleUser caller = Subject.getSubject(AccessController.getContext()).
                     getPrincipals(LittleUser.class).iterator().next();
 
-            sessionBuilder.setName(p_caller.getName() + ", " + sessionBuilder.getStartDate().getTime());
+            sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getStartDate().getTime());
             sessionBuilder.setComment(s_session_comment);
 
             for (int i = 0; i < 20; ++i) {
@@ -84,7 +84,7 @@ public class SimpleSessionHelper implements SessionHelper {
                     return om_session.getSessionHelper(session.getId());
                 } catch (AlreadyExistsException e) {
                     if (i < 10) {
-                        sessionBuilder.setName(p_caller.getName() + ", " + sessionBuilder.getStartDate().getTime() + "," + i);
+                        sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getStartDate().getTime() + "," + i);
                     } else {
                         throw new AccessDeniedException("Too many simultaneous session setups running for user: " + sessionBuilder.getName());
                     }

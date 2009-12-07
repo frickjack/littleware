@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -130,8 +130,8 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
         ostat_call = stat_call;
 
         // Make sure the calling code has permission to setup a privileged proxy!
-        Permission perm_proxy = new AccessPermission("privileged_proxy");
-        AccessController.checkPermission(perm_proxy);
+        // disable this for now! ... Permission perm_proxy = new AccessPermission("privileged_proxy");
+        // AccessController.checkPermission(perm_proxy);
     }
 
     /**

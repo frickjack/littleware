@@ -12,6 +12,7 @@
 package littleware.demo.simpleCL;
 
 import com.google.inject.Inject;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.test.LittleTest;
@@ -31,7 +32,8 @@ public class SimpleCLTester extends LittleTest {
 
     public void testSimpleCL() {
         try {
-            final String result = builder.build().call();
+            final String result = builder.argv( Arrays.asList( "/littleware.home" ) ).
+                    build().call();
             log.log( Level.INFO, "SimpleCL result: " + result );
             assertTrue( "littleware.home/ includes Users in children",
                     result.indexOf( "Users" ) > 0 

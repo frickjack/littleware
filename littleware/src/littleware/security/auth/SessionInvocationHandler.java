@@ -58,33 +58,17 @@ public class SessionInvocationHandler<T> extends SubjectInvocationHandler<T> {
 		}
 	}
 	
+    @Override
 	public Object	invoke( Object proxy, Method method_call, Object[] v_args) throws Throwable {			
 		Date           t_now = new Date ();
 		PrivilegedExceptionAction  act_getsession = new PrivilegedExceptionAction () {
+            @Override
 			public LittleSession run () throws BaseException, GeneralSecurityException,
 			AssetException, RemoteException {
 				 return om_helper.getSession ();
 			}
 		};
 
-                /*..
-		LittleSession a_session = null;
-		try {
-			a_session = (LittleSession) AccessController.doPrivileged ( new MakePrivilegedAction( act_getsession ) );
-			//a_session = (LittleSession) Subject.doAs ( getCaller (), act_getsession );
-		} catch ( PrivilegedActionException e ) {
-			throw e.getCause ();
-		}
-		
-		if ( t_now.getTime () > a_session.getEndDate ().getTime () ) {
-			throw new SessionExpiredException ( UUIDFactory.makeCleanString ( a_session.getObjectId () ) );
-		}
-		if ( a_session.isReadOnly () 
-			 && (! method_call.isAnnotationPresent( ReadOnly.class ) )
-			 ) {
-			throw new ReadOnlyException ();
-		}
-                 */
 		return super.invoke ( proxy, method_call, v_args );
 	}
 }

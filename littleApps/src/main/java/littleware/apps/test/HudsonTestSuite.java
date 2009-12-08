@@ -21,7 +21,6 @@ import littleware.apps.client.ClientBootstrap;
 import littleware.apps.filebucket.server.BucketServerActivator;
 import littleware.apps.filebucket.server.BucketServerGuice;
 import littleware.apps.misc.test.ImageManagerTester;
-import littleware.apps.misc.test.ThumbManagerTester;
 import littleware.base.AssertionFailedException;
 import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.GuiceOSGiBootstrap;
@@ -42,7 +41,6 @@ public class HudsonTestSuite extends TestSuite {
             Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
             Provider<ImageManagerTester> provide_image_test,
-            Provider<ThumbManagerTester> provide_thumb_test,
             littleware.apps.lgo.test.HudsonTestSuite suiteLgo
             )
     {
@@ -54,10 +52,6 @@ public class HudsonTestSuite extends TestSuite {
             this.addTest(suiteLgo);
         }
 
-
-        if (b_run) {
-            this.addTest(provide_thumb_test.get());
-        }
         if (b_run) {
             this.addTest( provide_image_test.get() );
         }

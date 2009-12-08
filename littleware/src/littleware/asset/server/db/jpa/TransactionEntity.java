@@ -20,7 +20,7 @@ import javax.persistence.Table;
  * Homebrew transaction counter.  Increment this within a transaction block.
  */
 @Entity(name="customTransaction")
-@Table( name="littleTran", schema="littleware" )
+@Table( name="littleTran" )
 public class TransactionEntity implements Serializable {
     private static final long serialVersionUID = -7258744014535464437L;
     private long olTransaction = 0;

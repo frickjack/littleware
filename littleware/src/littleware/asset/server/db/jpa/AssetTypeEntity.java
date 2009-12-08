@@ -19,7 +19,7 @@ import littleware.base.UUIDFactory;
  * Read-only entity corresponds to AssetType representation in database
  */
 @Entity(name = "AssetType")
-@Table(name = "x_asset_type", schema = "littleware")
+@Table(name = "x_asset_type" )
 public class AssetTypeEntity implements Serializable {
 
     private static final long serialVersionUID = -5941689038183213001L;
@@ -59,7 +59,7 @@ public class AssetTypeEntity implements Serializable {
     }
 
     @OneToMany()
-    @JoinTable(name = "x_asset_type_tree", schema = "littleware",
+    @JoinTable(name = "x_asset_type_tree", 
     joinColumns = {@JoinColumn(name = "s_ancestor_id")},
     inverseJoinColumns = {@JoinColumn(name = "s_descendent_id")})
     public List<AssetTypeEntity> getSubtypeList() {

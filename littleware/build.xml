@@ -107,6 +107,7 @@
     <jvmarg value="-Djava.util.logging.config.file=${test.properties.dir}/logging.properties" />
     <jvmarg value="-Dlittleware_jdbc.properties=${test.properties.dir}/littleware_jdbc.properties" />
     <jvmarg value="-Djava.security.manager" />
+    <jvmarg value="-Djava.awt.headless=true" />
     <jvmarg value="-Djava.security.policy=${test.properties.dir}/littleware.policy" />
     <jvmarg value="-Dlittleware.install=${test.properties.dir}/.." />
     <batchtest fork="yes" todir="${test.reports}" >

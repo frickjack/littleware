@@ -24,7 +24,7 @@ import littleware.base.UUIDFactory;
  * JPA Entity wrapper for an Asset
  */
 @Entity(name = "Asset")
-@Table(name = "asset", schema = "littleware")
+@Table(name = "asset" )
 public class AssetEntity implements Serializable {
 
     private static final long serialVersionUID = 3354255899393564321L;

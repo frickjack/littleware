@@ -204,4 +204,16 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
             endDbAccess ();
         }
     }
+
+    private final Map<String,Object> dataMap = new HashMap<String,Object>();
+
+    @Override
+    public void putData( String key, Object value ) {
+        dataMap.put( key, value );
+    }
+
+    @Override
+    public Object getData( String key ) {
+        return dataMap.get( key );
+    }
 }

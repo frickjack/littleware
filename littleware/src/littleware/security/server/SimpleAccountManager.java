@@ -28,17 +28,15 @@ import littleware.asset.*;
 import littleware.asset.server.QuotaUtil;
 import littleware.asset.server.LittleTransaction;
 import littleware.security.*;
-import littleware.security.auth.server.db.*;
 
 /**
  * Simple security-manager implementation
  */
 public class SimpleAccountManager extends NullAssetSpecializer implements AccountManager, AssetSpecializer {
 
-    private static final Logger log = Logger.getLogger("littleware.security.server.SimpleAccountManager");
+    private static final Logger log = Logger.getLogger(SimpleAccountManager.class.getName());
     private final AssetManager om_asset;
     private final AssetSearchManager om_search;
-    private final DbAuthManager om_dbauth;
     private final QuotaUtil om_quota;
     private final Provider<LittleTransaction> oprovideTrans;
     private final Provider<LittleUser> provideCaller;
@@ -53,13 +51,11 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
     @Inject
     public SimpleAccountManager(AssetManager m_asset,
             AssetSearchManager m_searcher,
-            //DbAuthManager m_dbauth,
             QuotaUtil m_quota,
             Provider<LittleTransaction> provideTrans,
             Provider<LittleUser> provideCaller ) {
         om_asset = m_asset;
         om_search = m_searcher;
-        om_dbauth = null; //m_dbauth;
         om_quota = m_quota;
         oprovideTrans = provideTrans;
         this.provideCaller = provideCaller;
@@ -333,61 +329,6 @@ public class SimpleAccountManager extends NullAssetSpecializer implements Accoun
             GeneralSecurityException, RemoteException {
         return om_quota.incrementQuotaCount(provideCaller.get(), om_asset, om_search);
     }
-    private static Factory<UUID> ofactory_uuid = UUIDFactory.getFactory();
-
-    @Override
-    public LittleUser createUser(LittleUser p_new,
-            String s_password) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        final UUID id = ofactory_uuid.create();
-        return updateUser((LittleUser) p_new.copy().id(id).ownerId(id).build(),
-                s_password, "new user");
-    }
-
-    @Override
-    public LittleUser updateUser(LittleUser p_update, String s_password,
-            String s_update_comment) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        throw new UnsupportedOperationException("Disabled for now - moving to JPA, AD, OpenID ...");
-        /*...
-        if (!isValidPassword(s_password)) {
-        throw new IllegalNameException("Illegal password: " + s_password);
-        }
-
-        final LittleTransaction trans_update = oprovideTrans.get();
-
-        try {
-        boolean b_rollback = true;
-
-        trans_update.startDbUpdate();
-        try {
-        p_update = om_asset.saveAsset(p_update, s_update_comment);
-        try {
-        DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(p_update.getId());
-        sql_password.saveObject(s_password);
-        } catch (SQLException e) {
-        throw new DataAccessException("Falure updating password, caught: " + e, e);
-        }
-        b_rollback = false;
-        return p_update;
-        } finally {
-        trans_update.endDbUpdate(b_rollback);
-        }
-        } catch (SQLException e) {
-        throw new DataAccessException("Unexpected SQLException", e);
-        }
-        ... */
-    }
-
-    @Override
-    public boolean isValidPassword(String s_password) {
-        if (null == s_password) {
-            return false;
-        }
-        s_password = s_password.trim();
-        return (s_password.length() > 5);
-    }
-
 
     @Override
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException,

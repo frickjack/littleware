@@ -30,25 +30,6 @@ public class RmiAccountManager extends LittleRemoteObject implements AccountMana
         return om_proxy.incrementQuotaCount();
     }
 
-    @Override
-    public LittleUser createUser(LittleUser p_user,
-            String s_password) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        return om_proxy.createUser(p_user, s_password);
-    }
-
-    @Override
-    public LittleUser updateUser(LittleUser p_update, String s_password,
-            String s_update_comment) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        return om_proxy.updateUser(p_update, s_password, s_update_comment);
-    }
-
-    @Override
-    public boolean isValidPassword(String s_password) throws RemoteException {
-        return om_proxy.isValidPassword(s_password);
-    }
-
 
     @Override
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException,

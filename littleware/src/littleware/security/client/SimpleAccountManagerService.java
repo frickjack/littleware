@@ -45,25 +45,6 @@ public class SimpleAccountManagerService extends SimpleLittleService implements 
         return oserver.incrementQuotaCount();
     }
 
-    @Override
-    public LittleUser createUser(LittleUser p_user, String s_password) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        LittleUser result = oserver.createUser( p_user, s_password );
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
-        return result;
-    }
-
-    @Override
-    public LittleUser updateUser(LittleUser p_update, String s_password, String s_update_comment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        LittleUser result = oserver.updateUser( p_update, s_password, s_update_comment );
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
-        return result;
-    }
-
-    @Override
-    public boolean isValidPassword(String s_password) throws RemoteException {
-        return oserver.isValidPassword( s_password );
-    }
-
 
     @Override
     public Quota getQuota(LittleUser p_user) throws BaseException, AssetException, GeneralSecurityException, RemoteException {

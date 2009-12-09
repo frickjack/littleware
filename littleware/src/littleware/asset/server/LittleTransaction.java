@@ -10,7 +10,6 @@
 
 package littleware.asset.server;
 
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -96,7 +95,7 @@ public interface LittleTransaction {
      *
      * @return transaction-counter to assign to every asset's transaction property
      *             saved during the current transacton
-     * @exception IllegalStateException if not in a transaction
+     * @exception IllegalStateException if not in an update transaction
      */
     public long getTransaction();
     
@@ -106,4 +105,14 @@ public interface LittleTransaction {
      * just run it now.
      */
     public void deferTillTransactionEnd ( Runnable run_later );
+
+    /**
+     * Allow methods in transaction to attach support data to the transaction
+     */
+    public void putData( String key, Object value );
+
+    /**
+     * Return data previously attached via putData, or null if no data assigned to key
+     */
+    public Object getData( String key );
 }

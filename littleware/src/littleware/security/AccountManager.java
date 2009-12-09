@@ -9,13 +9,14 @@
  */
 package littleware.security;
 
-import java.util.*;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 import java.rmi.Remote;
+import java.util.UUID;
+import littleware.asset.AssetException;
+import littleware.base.BaseException;
+import littleware.base.ReadOnly;
 
-import littleware.base.*;
-import littleware.asset.*;
 
 /**
  * Interface to a central security manager for managing
@@ -48,47 +49,7 @@ public interface AccountManager extends Remote {
     int incrementQuotaCount() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
-    /**
-     * Create a new user
-     *
-     * @param p_new asset with user data initialized - object-id gets reset
-     * @param s_password must obey system password rules - ignored for Group type
-     * @param s_comment to attach to account
-     * @return p_user with updates applied
-     * @exception IllegalNameException if name or password are not valid
-     * @exception DataAccessException on failure to contact data store
-     * @exception AccessDeniedException if caller has insufficient privileges
-     * @exception ManagerException on other error condition
-     * @exception NoSuchThingException if try to reference some invalid home asset or whatever
-     */
-    public LittleUser createUser(LittleUser p_user,
-            String s_password) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
 
-    /**
-     * Edit the given user asset
-     *
-     * @param p_update principal to edit - all Asset related data in this object is updated
-     * @param s_password to assign to the principal, "" to leave unchanged
-     * @param n_status to enable/disable user login privileges
-     * @param s_update_comment to assign, "" to leave unchanged
-     * @return p_user with updates applied
-     * @exception NotOwnerException if caller does not have permission
-     * @exception DataAccessException on failure to contact data store
-     * @exception ManagerException on other error condition
-     * @exception IllegalNameException if invalid password given
-     */
-    public LittleUser updateUser(LittleUser p_update, String s_password,
-            String s_update_comment) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
-
-    /**
-     * Return true if this Manager will assign the given password to a Principal.
-     * Typical requirements are at least 9 characters including at least one letter and one number.
-     */
-    public
-    @ReadOnly
-    boolean isValidPassword(String s_password) throws RemoteException;
 
 
     /**
@@ -98,7 +59,7 @@ public interface AccountManager extends Remote {
      *                              assigned to the user
      * @exception NoSuchThingException if quota not found
      */
-    public Quota getQuota(LittleUser p_user) throws BaseException, AssetException,
+    public Quota getQuota(LittleUser user) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 }
 

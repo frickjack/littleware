@@ -148,7 +148,7 @@ public class SubjectInvocationHandler<T> implements InvocationHandler {
     public Object invoke(Object proxy, Method method_call, Object[] v_args) throws Throwable {
         final Timer timer_run = Timer.startTimer();
 
-        PrivilegedExceptionAction<Object> act_run = new RunAction(method_call, v_args);
+        final PrivilegedExceptionAction<Object> act_run = new RunAction(method_call, v_args);
         /*...
         PrivilegedExceptionAction<AccessControlContext> act_super = new PrivilegedExceptionAction<AccessControlContext> () {
         public AccessControlContext run () throws Exception {

@@ -46,44 +46,53 @@ public class AssetTreeTemplate {
             return exists;
         }
     }
-    private final String name;
-    private final AssetType type;
+
+    
+    private final AssetBuilder builder;
 
     public List<AssetTreeTemplate> getChildren() {
         return children;
     }
 
+    public AssetBuilder getBuilder() {
+        return builder;
+    }
     public String getName() {
-        return name;
+        return builder.getName();
+    }
+    public AssetType getType() {
+        return builder.getAssetType();
     }
 
-    public AssetType getType() {
-        return type;
-    }
     private final List<AssetTreeTemplate> children;
 
     public AssetTreeTemplate(String name, AssetTreeTemplate... children) {
-        this.name = name;
-        this.type = AssetType.GENERIC;
+        this.builder = AssetType.GENERIC.create().name( name );
         this.children = new ImmutableList.Builder<AssetTreeTemplate>().addAll(Arrays.asList(children)).build();
     }
 
     public AssetTreeTemplate(String name, Collection<? extends AssetTreeTemplate> children) {
-        this.name = name;
-        this.type = AssetType.GENERIC;
+        this.builder = AssetType.GENERIC.create().name( name );
         this.children = ImmutableList.copyOf(children);
     }
 
+    public AssetTreeTemplate( AssetBuilder builder, Collection<? extends AssetTreeTemplate> children) {
+        this.builder = builder;
+        this.children = ImmutableList.copyOf( children );
+    }
+
+    public AssetTreeTemplate( AssetBuilder builder, AssetTreeTemplate ... children ) {
+        this.builder = builder;
+        this.children = new ImmutableList.Builder<AssetTreeTemplate>().addAll(Arrays.asList(children)).build();
+    }
 
     public AssetTreeTemplate(String name, AssetType type, AssetTreeTemplate... children) {
-        this.name = name;
-        this.type = type;
+        this.builder = type.create().name( name );
         this.children = new ImmutableList.Builder<AssetTreeTemplate>().addAll(Arrays.asList(children)).build();
     }
 
     public AssetTreeTemplate( String name, AssetType type, Collection<? extends AssetTreeTemplate> children ) {
-        this.name = name;
-        this.type = type;
+        this.builder = type.create().name( name );
         this.children = ImmutableList.copyOf( children );
     }
 
@@ -101,28 +110,23 @@ public class AssetTreeTemplate {
         Maybe<Asset> maybe = Maybe.empty();
 
         if ( null != parent ) {
-            maybe = search.getAssetFrom(parent.getId(), name);
+            maybe = search.getAssetFrom(parent.getId(), builder.getName() );
         } 
-        if ( maybe.isEmpty() && type.isNameUnique() ) {
-            maybe = search.getByName(name, type);
+        if ( maybe.isEmpty() && builder.getAssetType().isNameUnique() ) {
+            maybe = search.getByName( builder.getName(), builder.getAssetType() );
         }
         
-        
-        final ImmutableList.Builder<AssetInfo> builder = ImmutableList.builder();
+        final ImmutableList.Builder<AssetInfo> resultBuilder = ImmutableList.builder();
         final Asset asset;
         if (maybe.isEmpty()) {
-            final AssetBuilder assetBuilder;
             if ( null != parent ) {
-                assetBuilder = type.create().parent(parent).name( name );
-            } else {
-                assetBuilder = type.create();
-                assetBuilder.setName( name );
+                builder.parent( parent );
+            } 
+            if ( builder.getAssetType().isA( AssetType.HOME ) ) {
+                builder.setFromId(null);
             }
-            if ( type.isA( AssetType.HOME ) ) {
-                assetBuilder.setFromId(null);
-            }
-            asset = assetBuilder.build();
-            builder.add( new AssetInfo( asset, false ) );
+            asset = builder.build();
+            resultBuilder.add( new AssetInfo( asset, false ) );
         } else {
             asset = maybe.get();
             if ( (null != parent)
@@ -132,12 +136,12 @@ public class AssetTreeTemplate {
                         asset.getName() + " (" + asset.getAssetType() + ")"
                         );
             }
-            builder.add( new AssetInfo( asset, true ) );
+            resultBuilder.add( new AssetInfo( asset, true ) );
         }
 
         for (AssetTreeTemplate child : children) {
-            builder.addAll( child.visit(asset, search ) );
+            resultBuilder.addAll( child.visit(asset, search ) );
         }
-        return builder.build();
+        return resultBuilder.build();
     }
 }

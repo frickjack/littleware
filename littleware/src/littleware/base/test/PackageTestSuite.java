@@ -55,15 +55,9 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(new XmlSpecialTester("testEncodeDecode"));
             this.addTest(littleware.base.stat.test.PackageTestSuite.suite());
         }
-        if (b_run) {
-            ScriptRunner m_script = ScriptRunnerFactory.getFactory().create();
-
-            this.addTest(new ScriptTester("testCharUtil", m_script, "javascript"));
-        }
         if (false) {
             // These tests require UI access - won't run under Hudson
             this.addTest(new SwingTester("testJTextAppender"));
-            this.addTest(new SwingTester("testJScriptRunner"));
             this.addTest(new SwingTester("testListModelIterator"));
         }
         olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");

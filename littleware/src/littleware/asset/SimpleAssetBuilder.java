@@ -35,7 +35,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
     private final AssetType assetType;
     private String comment = "";
     private String lastUpdate = "";
-    private String name = "never_initialized";
+    private String name = "";
     private float value = 0;
     private UUID ownerId = null;
     private String data = "";
@@ -484,7 +484,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
     }
 
     @Override
-    public final AssetBuilder state(int value) {
+    public AssetBuilder state(int value) {
         setState(value);
         return this;
     }

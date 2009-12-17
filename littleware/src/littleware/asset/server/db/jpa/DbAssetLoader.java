@@ -36,10 +36,10 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
     }
 
     @Override
-    public Asset loadObject(UUID uId) throws SQLException {
+    public Asset loadObject(UUID id) throws SQLException {
         final EntityManager entMgr = oprovideTrans.get().getEntityManager();
         final AssetEntity ent = entMgr.find( AssetEntity.class,
-                UUIDFactory.makeCleanString(uId)
+                UUIDFactory.makeCleanString(id)
                 );
         try {
             if ( null != ent ) {
@@ -48,7 +48,7 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
                 return null;
             }
         } catch (AssetException ex) {
-            throw new SQLException( "Failed data load", ex );
+            throw new SQLException( "Failed data load for " + id, ex );
         }
     }
 

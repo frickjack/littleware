@@ -23,6 +23,10 @@ import java.util.UUID;
 public abstract class AssetBuilderWrapper implements AssetBuilder {
     private final AssetBuilder builder;
 
+    protected final AssetBuilder getBuilder() {
+        return builder;
+    }
+
     protected AssetBuilderWrapper( AssetBuilder builder ) {
         this.builder = builder;
     }

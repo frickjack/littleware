@@ -10,8 +10,10 @@
 package littleware.security;
 
 import java.rmi.RemoteException;
+import java.util.Date;
 import java.util.UUID;
 import java.security.GeneralSecurityException;
+import littleware.security.Quota.Builder;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
@@ -79,6 +81,97 @@ public class QuotaBuilder extends SimpleAssetBuilder implements Quota.Builder {
         return this;
     }
 
+    @Override
+    public Quota.Builder name(String value) {
+        super.name( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder creatorId(UUID value) {
+        super.creatorId( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder lastUpdaterId(UUID value) {
+        super.lastUpdaterId( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder aclId(UUID value) {
+        super.aclId( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder ownerId(UUID value) {
+        super.ownerId( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder comment(String value) {
+        super.comment( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder lastUpdate(String value) {
+        super.lastUpdate( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder homeId(UUID value) {
+        super.homeId( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder fromId(UUID value) {
+        super.fromId( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder toId(UUID value) {
+        super.toId(value); return this;
+    }
+
+    @Override
+    public Quota.Builder startDate(Date value) {
+        super.startDate( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder endDate(Date value) {
+        super.endDate( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder createDate(Date value) {
+        super.createDate( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder lastUpdateDate(Date value) {
+        super.lastUpdateDate( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder value(float value) {
+        super.value( value ); return this;
+    }
+
+    @Override
+    public Quota.Builder state(int value) {
+        super.state(value); return this;
+    }
+
+    @Override
+    public Builder transaction(long value) {
+        super.transaction( value ); return this;
+    }
+
+    @Override
+    public Builder copy(Asset source) {
+        super.copy(source); return this;
+    }
+
+
     /**
      * SAX parser handler
      */
@@ -117,7 +210,7 @@ public class QuotaBuilder extends SimpleAssetBuilder implements Quota.Builder {
      * Parse XML data to determine quota limit and supporting info
      */
     @Override
-    public void setData(String value) {
+    public Quota.Builder data(String value) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -127,6 +220,7 @@ public class QuotaBuilder extends SimpleAssetBuilder implements Quota.Builder {
             sax_parser.parse(new InputSource(new StringReader(value)),
                     sax_handler);
             limit = sax_handler.getParseLimit();
+            return this;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

@@ -13,6 +13,7 @@ import com.google.inject.ImplementedBy;
 import java.rmi.RemoteException;
 import java.util.UUID;
 import java.security.GeneralSecurityException;
+import java.util.Date;
 
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
@@ -92,6 +93,64 @@ public interface Quota extends Asset {
          * Shortcut for setQuotaCount ( getQuotaCount () + 1 )
          */
         public Builder incrementQuotaCount();
+
+        @Override
+        public Builder name(String value);
+
+        @Override
+        public Builder creatorId(UUID value);
+
+        @Override
+        public Builder lastUpdaterId(UUID value);
+
+        @Override
+        public Builder aclId(UUID value);
+
+        @Override
+        public Builder ownerId(UUID value);
+
+        @Override
+        public Builder comment(String value);
+
+        @Override
+        public Builder lastUpdate(String value);
+
+        @Override
+        public Builder data(String value);
+
+        @Override
+        public Builder homeId(UUID value);
+
+        @Override
+        public Builder fromId(UUID value);
+
+        @Override
+        public Builder toId(UUID value);
+
+        @Override
+        public Builder startDate(Date value);
+
+        @Override
+        public Builder endDate(Date value);
+
+        @Override
+        public Builder createDate(Date value);
+
+        @Override
+        public Builder lastUpdateDate(Date value);
+
+        @Override
+        public Builder value(float value);
+
+        @Override
+        public Builder state(int value);
+
+        @Override
+        public Builder transaction(long value);
+
+        @Override
+        public Builder copy(Asset source);
+
 
         @Override
         public Quota build();

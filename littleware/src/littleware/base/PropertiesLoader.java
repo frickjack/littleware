@@ -211,7 +211,7 @@ public class PropertiesLoader {
         prop_filedata = new Properties();
         ov_cache.put( s_name, prop_filedata );
         {
-            InputStream istream = PropertiesLoader.class.getClassLoader().getResourceAsStream(s_name);
+            final InputStream istream = PropertiesLoader.class.getClassLoader().getResourceAsStream(s_name);
             if ( null != istream ) {
                 try {
                     prop_filedata.load(istream);

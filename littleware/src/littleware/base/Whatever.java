@@ -11,6 +11,7 @@ package littleware.base;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +24,7 @@ import javax.swing.SwingUtilities;
 public class Whatever {
     private static final Logger log = Logger.getLogger(Whatever.class.getName() );
     public static final String NEWLINE = System.getProperty("line.separator");
+    public static final Charset UTF8 = Charset.forName( "UTF-8" );
 
     protected Whatever() {}
     private static final Whatever singleton = new Whatever();

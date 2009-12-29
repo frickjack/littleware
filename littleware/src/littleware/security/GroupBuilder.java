@@ -16,9 +16,12 @@ import com.google.common.collect.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.SimpleAssetBuilder;
+import littleware.security.LittleGroup.Builder;
 
 /**
  * Implement java.security.Group interface for tracking groups as principles in 
@@ -82,6 +85,97 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
         return addAll( ((GroupAsset) source).memberSet );
     }
 
+    @Override
+    public LittleGroup.Builder name(String value) {
+        super.name( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder creatorId(UUID value) {
+        super.creatorId( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder lastUpdaterId(UUID value) {
+        super.lastUpdaterId( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder aclId(UUID value) {
+        super.aclId( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder ownerId(UUID value) {
+        super.ownerId( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder comment(String value) {
+        super.comment( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder lastUpdate(String value) {
+        super.lastUpdate( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder homeId(UUID value) {
+        super.homeId( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder fromId(UUID value) {
+        super.fromId( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder toId(UUID value) {
+        super.toId(value); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder startDate(Date value) {
+        super.startDate( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder endDate(Date value) {
+        super.endDate( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder createDate(Date value) {
+        super.createDate( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder lastUpdateDate(Date value) {
+        super.lastUpdateDate( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder value(float value) {
+        super.value( value ); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder state(int value) {
+        super.state(value); return this;
+    }
+
+    @Override
+    public LittleGroup.Builder transaction(long value) {
+        super.transaction( value ); return this;
+    }
+
+    @Override
+    public Builder data(String value) {
+        super.data( value ); return this;
+    }
+
+
 
     private static class GroupAsset extends SimpleAssetBuilder.SimpleAsset implements LittleGroup {
         // Internal dynamic lookup cache - saves results of one lookup for reuse next time
@@ -136,7 +230,7 @@ public class GroupBuilder extends SimpleAssetBuilder implements LittleGroup.Buil
 
 
         @Override
-        public Builder copy() {
+        public LittleGroup.Builder copy() {
             return (Builder) super.copy();
         }
     }

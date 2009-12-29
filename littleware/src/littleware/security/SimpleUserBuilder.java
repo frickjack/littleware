@@ -22,7 +22,7 @@ public class SimpleUserBuilder extends SimpleAssetBuilder implements LittleUser.
 
     /** Do-nothing constructor for java.io.Serializable */
     public SimpleUserBuilder() {
-        super(SecurityAssetType.USER);
+        super( SecurityAssetType.USER );
     }
 
     @Override
@@ -45,11 +45,12 @@ public class SimpleUserBuilder extends SimpleAssetBuilder implements LittleUser.
     }
 
     @Override
-    public void setState( int state ) {
+    public LittleUser.Builder state( int state ) {
         if ( (state < 0) || (state > Status.values().length - 1) ) {
             throw new IllegalArgumentException( "Illegal user state: " + state );
         }
-        super.setState( state );
+        super.state( state );
+        return this;
     }
 
 

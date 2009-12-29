@@ -54,6 +54,96 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
         return this;
     }
 
+    @Override
+    public Builder name(String value) {
+        super.name( value ); return this;
+    }
+
+    @Override
+    public Builder creatorId(UUID value) {
+        super.creatorId( value ); return this;
+    }
+
+    @Override
+    public Builder lastUpdaterId(UUID value) {
+        super.lastUpdaterId( value ); return this;
+    }
+
+    @Override
+    public Builder aclId(UUID value) {
+        super.aclId( value ); return this;
+    }
+
+    @Override
+    public Builder ownerId(UUID value) {
+        super.ownerId( value ); return this;
+    }
+
+    @Override
+    public Builder comment(String value) {
+        super.comment( value ); return this;
+    }
+
+    @Override
+    public Builder lastUpdate(String value) {
+        super.lastUpdate( value ); return this;
+    }
+
+    @Override
+    public Builder homeId(UUID value) {
+        super.homeId( value ); return this;
+    }
+
+    @Override
+    public Builder fromId(UUID value) {
+        super.fromId( value ); return this;
+    }
+
+    @Override
+    public Builder toId(UUID value) {
+        super.toId(value); return this;
+    }
+
+    @Override
+    public Builder startDate(Date value) {
+        super.startDate( value ); return this;
+    }
+
+    @Override
+    public Builder endDate(Date value) {
+        super.endDate( value ); return this;
+    }
+
+    @Override
+    public Builder createDate(Date value) {
+        super.createDate( value ); return this;
+    }
+
+    @Override
+    public Builder lastUpdateDate(Date value) {
+        super.lastUpdateDate( value ); return this;
+    }
+
+    @Override
+    public Builder value(float value) {
+        super.value( value ); return this;
+    }
+
+    @Override
+    public Builder state(int value) {
+        super.state(value); return this;
+    }
+
+    @Override
+    public Builder transaction(long value) {
+        super.transaction( value ); return this;
+    }
+
+    @Override
+    public Builder copy( Asset value ) {
+        super.copy( value ); return this;
+    }
+
     private static class Entry extends SimpleAssetBuilder.SimpleAsset implements LittleAclEntry {
 
         private static final long serialVersionUID = -5342316532664742997L;
@@ -250,7 +340,7 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
      * on the supplied data
      */
     @Override
-    public void setData(String data) {
+    public LittleAclEntry.Builder data(String data) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -260,6 +350,7 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
             sax_parser.parse(new InputSource(new StringReader(data)),
                     sax_handler);
             permissionSet = sax_handler.getPermissions();
+            return this;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
@@ -267,11 +358,6 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
         }
     }
 
-    @Override
-    public LittleAclEntry.Builder copy( Asset other ) {
-        super.copy( other );
-        return principal( ((Entry) other).principal );
-    }
 
     /**
      * Add the specified permission to this Acl entry

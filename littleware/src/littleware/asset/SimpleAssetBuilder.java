@@ -194,140 +194,220 @@ public class SimpleAssetBuilder implements AssetBuilder {
      * @exception AssetException if given an illegal name
      */
     @Override
-    public void setName(String value) {
+    public final void setName(String value) {
+        name( value );
+    }
+
+    @Override
+    public AssetBuilder name( String value ) {
         if ((-1 < value.indexOf('/')) || value.startsWith("..")) {
             throw new IllegalArgumentException("Illegal asset name: " + value);
         }
         final String sOld = name;
         name = value;
         firePropertyChange(value, sOld, value);
+        return this;
     }
 
     @Override
-    public void setCreatorId(UUID u_creator) {
+    public final void setCreatorId(UUID value) {
+        creatorId( value );
+    }
+    @Override
+    public AssetBuilder creatorId( UUID value ) {
         final UUID old = creatorId;
-        creatorId = u_creator;
-        firePropertyChange("creatorId", old, u_creator);
+        creatorId = value;
+        firePropertyChange("creatorId", old, value);
+        return this;
     }
 
     @Override
-    public void setLastUpdaterId(UUID u_last_updater) {
+    public final void setLastUpdaterId(UUID value) {
+        lastUpdaterId( value );
+    }
+    @Override
+    public AssetBuilder lastUpdaterId( UUID value ) {
         final UUID old = lastUpdater;
-        lastUpdater = u_last_updater;
+        lastUpdater = value;
         firePropertyChange("lastUpdaterId", old, lastUpdater);
+        return this;
     }
 
     @Override
-    public void setAclId(UUID u_acl) {
+    public final void setAclId(UUID value) {
+        aclId( value );
+    }
+    @Override
+    public AssetBuilder aclId( UUID value ) {
         final UUID old = aclId;
-        aclId = u_acl;
+        aclId = value;
         firePropertyChange("aclId", old, aclId);
+        return this;
     }
 
     /** Create a new owner object with x_owner as the only non-admin member */
     @Override
-    public void setOwnerId(UUID u_owner) {
+    public final void setOwnerId(UUID value) {
+        ownerId( value );
+    }
+    @Override
+    public AssetBuilder ownerId( UUID value ) {
         final UUID old = ownerId;
-        ownerId = u_owner;
+        ownerId = value;
         firePropertyChange("owner", old, ownerId);
+        return this;
     }
 
     @Override
-    public void setComment(String s_comment) {
+    public final void setComment(String value) {
+        comment( value );
+    }
+    @Override
+    public AssetBuilder comment( String value ) {
         final String old = comment;
-        comment = s_comment;
+        comment = value;
         firePropertyChange("comment", old, comment);
+        return this;
     }
 
     @Override
-    public void setLastUpdate(String s_last_update) {
+    public final void setLastUpdate(String value) {
+        lastUpdate( value );
+    }
+    @Override
+    public AssetBuilder lastUpdate( String value ) {
         final String old = lastUpdate;
-        lastUpdate = s_last_update;
-        firePropertyChange("lastUpdate", old, s_last_update);
+        lastUpdate = value;
+        firePropertyChange("lastUpdate", old, value);
+        return this;
     }
 
     @Override
-    public void setData(String value) {
+    public final void setData(String value) {
+        data( value );
+    }
+    @Override
+    public AssetBuilder data( String value ) {
         if (value.length() > DATA_LIMIT) {
             throw new ValidationException("Data exceeds 1024 characters");
         }
         final String old = data;
         data = value;
         firePropertyChange("data", old, value);
+        return this;
     }
 
     @Override
-    public void setHomeId(UUID value) {
+    public final void setHomeId(UUID value) {
+        homeId( value );
+    }
+    @Override
+    public AssetBuilder homeId( UUID value ) {
         final UUID old = homeId;
         homeId = value;
         firePropertyChange("homeId", old, homeId);
+        return this;
     }
 
     @Override
-    public void setFromId(UUID value) {
+    public final void setFromId(UUID value) {
+        fromId( value );
+    }
+    @Override
+    public AssetBuilder fromId( UUID value ) {
         final UUID old = fromId;
         fromId = value;
         firePropertyChange("fromId", old, fromId);
+        return this;
     }
 
     @Override
-    public void setToId(UUID u_to) {
+    public final void setToId(UUID value) {
+        toId( value );
+    }
+    @Override
+    public AssetBuilder toId(UUID value) {
         final UUID old = toId;
-        toId = u_to;
+        toId = value;
         firePropertyChange("toId", old, toId);
+        return this;
     }
 
     @Override
-    public void setStartDate(Date t_start) {
+    public final void setStartDate(Date value) {
+        startDate( value );
+    }
+    @Override
+    public AssetBuilder startDate( Date value ) {
         final Date old = startDate;
-        startDate = t_start;
+        startDate = value;
         firePropertyChange("startDate", old, startDate);
+        return this;
     }
 
     @Override
-    public void setEndDate(Date t_end) {
+    public final void setEndDate(Date value) {
+        endDate( value );
+    }
+    @Override
+    public AssetBuilder endDate( Date value ) {
         final Date old = endDate;
-        endDate = t_end;
+        endDate = value;
         firePropertyChange("endDate", old, endDate);
+        return this;
     }
 
     @Override
-    public void setCreateDate(Date t_create_date) {
+    public final void setCreateDate(Date value) {
+        createDate( value );
+    }
+    @Override
+    public AssetBuilder createDate( Date value ) {
         final Date old = createDate;
-        createDate = t_create_date;
+        createDate = value;
         firePropertyChange("createDate", old, createDate);
+        return this;
     }
 
     @Override
-    public void setLastUpdateDate(Date t_update_date) {
+    public final void setLastUpdateDate(Date value) {
+        lastUpdateDate( value );
+    }
+    @Override
+    public AssetBuilder lastUpdateDate( Date value ) {
         final Date old = updateDate;
-        updateDate = t_update_date;
+        updateDate = value;
         firePropertyChange("lastUpdateDate", old, updateDate);
+        return this;
     }
 
     @Override
-    public void setValue(float f_value) {
+    public final void setValue(float value) {
+        value( value );
+    }
+    @Override
+    public AssetBuilder value( float value ) {
         final float old = value;
-        value = f_value;
-        firePropertyChange("value", old, f_value);
+        this.value = value;
+        firePropertyChange("value", old, value);
+        return this;
     }
 
     @Override
-    public void setTransaction(long value) {
+    public final void setTransaction(long value) {
+        transaction( value );
+    }
+    @Override
+    public AssetBuilder transaction( long value ) {
         final long old = transaction;
         transaction = value;
         firePropertyChange("transactionCount", old, value);
+        return this;
     }
 
     @Override
     public long getTransaction() {
         return transaction;
-    }
-
-    @Override
-    public final AssetBuilder transaction(long value) {
-        setTransaction(value);
-        return this;
     }
 
     @Override
@@ -368,126 +448,29 @@ public class SimpleAssetBuilder implements AssetBuilder {
     }
 
     @Override
-    public void setState(int iState) {
+    public final void setState(int value) {
+        state( value );
+    }
+    @Override
+    public AssetBuilder state( int value ) {
         final int old = state;
-        state = iState;
-        firePropertyChange("state", old, iState);
+        state = value;
+        firePropertyChange("state", old, value);
+        return this;
     }
 
     @Override
-    public void setId(UUID value) {
+    public final void setId(UUID value) {
+        id( value );
+    }
+    @Override
+    public AssetBuilder id( UUID value ) {
         final UUID old = value;
         id = value;
         firePropertyChange("id", old, value);
-    }
-
-    @Override
-    public final AssetBuilder id(UUID value) {
-        setId(value);
         return this;
     }
 
-    @Override
-    public AssetBuilder name(String value) {
-        setName(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder creatorId(UUID value) {
-        setCreatorId(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder lastUpdaterId(UUID value) {
-        setLastUpdaterId(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder aclId(UUID value) {
-        setAclId(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder ownerId(UUID value) {
-        setOwnerId(value);
-        return this;
-    }
-
-    @Override
-    public AssetBuilder comment(String value) {
-        setComment(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder lastUpdate(String value) {
-        setLastUpdate(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder data(String value) {
-        setData(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder homeId(UUID value) {
-        setHomeId(value);
-        return this;
-    }
-
-    @Override
-    public AssetBuilder fromId(UUID value) {
-        setFromId(value);
-        return this;
-    }
-
-    @Override
-    public AssetBuilder toId(UUID value) {
-        setToId(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder startDate(Date value) {
-        setStartDate(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder endDate(Date value) {
-        setEndDate(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder createDate(Date value) {
-        setCreateDate(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder lastUpdateDate(Date value) {
-        setLastUpdateDate(value);
-        return this;
-    }
-
-    @Override
-    public final AssetBuilder value(float value) {
-        setValue(value);
-        return this;
-    }
-
-    @Override
-    public AssetBuilder state(int value) {
-        setState(value);
-        return this;
-    }
 
     public static class SimpleAsset extends SimpleCacheableObject implements Asset, Serializable {
         private UUID homeId;

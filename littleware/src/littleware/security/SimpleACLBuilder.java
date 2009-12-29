@@ -14,15 +14,18 @@ import com.google.common.collect.ImmutableSet;
 import java.security.acl.Permission;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.asset.*;
 import littleware.base.Maybe;
+import littleware.security.LittleAcl.Builder;
 
 /**
  * Simple implementation of ACL.
@@ -251,6 +254,98 @@ public class SimpleACLBuilder extends SimpleAssetBuilder implements LittleAcl.Bu
     public LittleAcl build() {
         return new AclAsset( this, ImmutableSet.copyOf(entrySet) );
     }
+
+    @Override
+    public LittleAcl.Builder name(String value) {
+        super.name( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder creatorId(UUID value) {
+        super.creatorId( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder lastUpdaterId(UUID value) {
+        super.lastUpdaterId( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder aclId(UUID value) {
+        super.aclId( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder ownerId(UUID value) {
+        super.ownerId( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder comment(String value) {
+        super.comment( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder lastUpdate(String value) {
+        super.lastUpdate( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder homeId(UUID value) {
+        super.homeId( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder fromId(UUID value) {
+        super.fromId( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder toId(UUID value) {
+        super.toId(value); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder startDate(Date value) {
+        super.startDate( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder endDate(Date value) {
+        super.endDate( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder createDate(Date value) {
+        super.createDate( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder lastUpdateDate(Date value) {
+        super.lastUpdateDate( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder value(float value) {
+        super.value( value ); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder state(int value) {
+        super.state(value); return this;
+    }
+
+    @Override
+    public LittleAcl.Builder transaction(long value) {
+        super.transaction( value ); return this;
+    }
+
+    @Override
+    public Builder data(String value) {
+        super.data( value ); return this;
+    }
+
+
 }
 
 

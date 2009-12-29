@@ -4,7 +4,9 @@ import com.google.inject.ImplementedBy;
 
 import java.security.acl.Permission;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 
@@ -22,35 +24,43 @@ public interface LittleAclEntry extends Asset {
     /**
      * Covariant return-type: LittlePrincipal
      */
-    public LittlePrincipal getPrincipal ();
+    public LittlePrincipal getPrincipal();
+
     public boolean checkPermission(Permission permission);
+
     public Collection<Permission> getPermissions();
+
     public Enumeration<Permission> permissions();
+
     public boolean isNegative();
-    
+
     @Override
     public Builder copy();
 
     @ImplementedBy(AclEntryBuilder.class)
     public interface Builder extends AssetBuilder {
+
         public Builder addPermission(Permission permission);
-        public Builder removePermission( Permission permission );
+
+        public Builder removePermission(Permission permission);
 
         public void setNegative();
+
         public Builder negative();
 
-        public void setPrincipal( LittlePrincipal principal );
-        public Builder principal ( LittlePrincipal principal );
+        public void setPrincipal(LittlePrincipal principal);
+
+        public Builder principal(LittlePrincipal principal);
 
         /**
          * Synonym for parent()
          */
-        public Builder acl( LittleAcl acl );
+        public Builder acl(LittleAcl acl);
+
 
         @Override
         public LittleAclEntry build();
     }
-    
 }
 
 

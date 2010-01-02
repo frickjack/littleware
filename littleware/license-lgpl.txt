@@ -1,7 +1,7 @@
 <#if licenseFirst??>
 ${licenseFirst}
 </#if>
-${licensePrefix}Copyright 2009,2010 Reuben Pasquini All rights reserved.
+${licensePrefix}Copyright 2010 Reuben Pasquini All rights reserved.
 ${licensePrefix}
 ${licensePrefix}The contents of this file are subject to the terms of the
 ${licensePrefix}Lesser GNU General Public License (LGPL) Version 2.1.

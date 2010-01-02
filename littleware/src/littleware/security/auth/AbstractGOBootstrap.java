@@ -250,7 +250,8 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         felix = new Felix(felixPropertyMap);
         try {
             felix.start();
-        } catch (BundleException ex) {
+        } catch ( Exception ex ) {
+            log.log( Level.SEVERE, "OSGi bootstrap failed", ex );
             throw new AssertionFailedException("Failed to bootstrap Felix OSGi", ex);
         }
         log.log( Level.FINE, "Waiting for OSGi startup ..." );

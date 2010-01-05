@@ -251,12 +251,14 @@ public class ClientServiceGuice implements LittleGuiceModule {
         try {
             if (host.isSet()) {
                 // connect to default server
-                ohelper = authenticate(SessionUtil.get().getSessionManager(host.get(), SessionUtil.get().getRegistryPort()), callback, 3);
+                final int port = SessionUtil.get().getRegistryPort();
+                olog.log( Level.FINE, "Authenticating to " + host + "/" + port );
+                ohelper = authenticate(SessionUtil.get().getSessionManager(host.get(), port), callback, 3);
             } else {
                 ohelper = authenticate(SessionUtil.get().getSessionManager(), callback, 3);
             }
         } catch (Exception ex) {
-            throw new AssertionFailedException("Failed to authenticate to " + SessionUtil.get().getRegistryHost(), ex);
+            throw new AssertionFailedException("Failed to authenticate: " + host.getOr( SessionUtil.get().getRegistryHost() ), ex);
         }
 
     }

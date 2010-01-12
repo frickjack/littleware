@@ -1,7 +1,7 @@
 
 -- ..................................................
 -- littleware.home
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -9,7 +9,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 ) VALUES ( 
        'BD46E5588F9D4F41A6310100FE68DCB4', 'littleware.home', 
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.home' ),
+       getTypeId( 'littleware.home' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -22,7 +22,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 
 -- .....
 -- littleware.administrator
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -30,7 +30,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 ) VALUES (
        '00000000000000000000000000000000', 'littleware.administrator',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.user' ),
+       getTypeId( 'littleware.user' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -43,7 +43,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 
 
 -- littleware.test_user
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -51,7 +51,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 ) VALUES (
        '7AC5D21049254265B224B7512EFCF0D1', 'littleware.test_user',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.user' ),
+       getTypeId( 'littleware.user' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '7AC5D21049254265B224B7512EFCF0D1',
@@ -64,7 +64,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 
 -- ......
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -72,7 +72,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 ) VALUES (
        'D589EABED8EA43C1890DBF3CF1F9689A', 'littleware.test_home',
        'D589EABED8EA43C1890DBF3CF1F9689A', 1,
-       littleware.getTypeId( 'littleware.home' ),
+       getTypeId( 'littleware.home' ),
        '7AC5D21049254265B224B7512EFCF0D1',
        '7AC5D21049254265B224B7512EFCF0D1',
        '7AC5D21049254265B224B7512EFCF0D1',
@@ -89,7 +89,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 
 -- ......
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -98,7 +98,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        '89A1CB79B5944447BED9F38D398A7D12',
        'group.littleware.administrator',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.group' ),
+       getTypeId( 'littleware.group' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -111,7 +111,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 
 -- ......
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -120,7 +120,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        'D701C9B3C9B7453299E89A0161DDC242',
        'group.littleware.everybody',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.group' ),
+       getTypeId( 'littleware.group' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -134,7 +134,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 -- ......
 
 -- admin in admin group
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -143,7 +143,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        'B6ECCDEF7A8D4452AAC52716FA380795',
        'administrator',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.group_member' ),
+       getTypeId( 'littleware.group_member' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -156,7 +156,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
       );
 
 -- admin in everybody group
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -165,7 +165,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        'CA9FFC8762674DB8AF28DD8955B07D98',
        'administrator',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.group_member' ),
+       getTypeId( 'littleware.group_member' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -180,7 +180,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 	   
 
 -- test_user in everybody group
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -189,7 +189,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        '6EDBC32311B943ECAE7A572F0FC2BB91',
        'test_user',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.group_member' ),
+       getTypeId( 'littleware.group_member' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -202,7 +202,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
       );
 
 -- acl
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -211,7 +211,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        'F4CEDAA07B574FFFA27E0BA87078DC34',
        'acl.littleware.everybody.read',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.acl' ),
+       getTypeId( 'littleware.acl' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -224,7 +224,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
       );
 
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -233,7 +233,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        'A20FF0A0829A433FBA7CF90B128F4FDF',
        'group.littleware.everybody.positive',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       littleware.getTypeId( 'littleware.acl_entry' ),
+       getTypeId( 'littleware.acl_entry' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -249,7 +249,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 	   
 
 -- service-type entries
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -258,7 +258,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        'EDACB6E64AD54169AC72A2490D06E6B6',
        'littleware.service_home',
        'EDACB6E64AD54169AC72A2490D06E6B6', 1,
-       littleware.getTypeId( 'littleware.home' ),
+       getTypeId( 'littleware.home' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -269,16 +269,16 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        NULL, NULL
       );
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
 	t_start, t_end
 ) VALUES (
        'FD4C5F5B4C904AC6BDC9ECA891C39543',
-       'littleware.asset_manager_service',
+       'asset_manager_service',
        'EDACB6E64AD54169AC72A2490D06E6B6', 1,
-       littleware.getTypeId( 'littleware.service' ),
+       getTypeId( 'littleware.service' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -289,16 +289,16 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        NULL, NULL
       );
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
 	t_start, t_end
 ) VALUES (
        '56A05693C0874780A716DEFA4E262F6F',
-       'littleware.asset_search_service',
+       'asset_search_service',
        'EDACB6E64AD54169AC72A2490D06E6B6', 1,
-       littleware.getTypeId( 'littleware.service' ),
+       getTypeId( 'littleware.service' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',

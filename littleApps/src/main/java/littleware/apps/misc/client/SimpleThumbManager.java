@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.security.GeneralSecurityException;
+import java.util.Date;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +46,7 @@ import littleware.base.Whatever;
  */
 public class SimpleThumbManager implements ThumbManager {
 
-    private static final Logger olog = Logger.getLogger(SimpleThumbManager.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleThumbManager.class.getName());
     private final AssetSearchManager search;
 
     protected static class SimpleThumb implements ThumbManager.Thumb {
@@ -90,8 +91,26 @@ public class SimpleThumbManager implements ThumbManager {
             return renderIcon();
         }
     }
-    private final Cache<UUID, ThumbManager.Thumb> ocache =
-            new SimpleCache<UUID, ThumbManager.Thumb>(100000, 10);
+
+    protected static class CacheInfo {
+        private final Thumb thumb;
+        private final Date birth;
+
+        public Date getBirth() {
+            return birth;
+        }
+
+        public Thumb getThumb() {
+            return thumb;
+        }
+        public CacheInfo( Thumb thumb, Date birth ) {
+            this.thumb = thumb;
+            this.birth = birth;
+        }
+    }
+    
+    private final Cache<UUID, CacheInfo> ocache =
+            new SimpleCache<UUID, CacheInfo>(100000, 1000 );
     private final ImageManager omgrImage;
     private final File dirCache = new File(PropertiesLoader.get().getLittleHome().getOr( new File( System.getProperty( "java.io.tmpdir" ) )), "thumbCache");
     private RenderedImage oimgDefault;
@@ -114,10 +133,11 @@ public class SimpleThumbManager implements ThumbManager {
         this.search = search;
     }
 
+
     /** Check the in-memory and on-disk cache */
-    protected Maybe<Thumb> cacheGet(UUID id)
+    protected Maybe<CacheInfo> cacheGet(UUID id)
             throws BaseException, GeneralSecurityException, IOException {
-        Maybe<Thumb> maybeThumb = Maybe.emptyIfNull(ocache.get(id));
+        Maybe<CacheInfo> maybeThumb = Maybe.emptyIfNull(ocache.get(id));
         if (maybeThumb.isSet()) {
             return maybeThumb;
         }
@@ -132,7 +152,7 @@ public class SimpleThumbManager implements ThumbManager {
             try {
                 transaction = Long.parseLong(reader.readLine().trim());
             } catch (Exception ex) {
-                olog.log(Level.WARNING, "Failed to parse " + infoFile);
+                log.log(Level.WARNING, "Failed to parse " + infoFile);
             } finally {
                 reader.close();
             }
@@ -147,20 +167,44 @@ public class SimpleThumbManager implements ThumbManager {
         return cachePut(id, maybe);
     }
 
-    protected Maybe<Thumb> cachePut(UUID id, Maybe<? extends RenderedImage> maybe)
+    /**
+     * Allow subtypes to override a cache entry
+     * @param id
+     * @param maybe
+     * @return
+     */
+    protected Maybe<CacheInfo> cachePut( UUID id, Maybe<? extends RenderedImage> maybe )
+            throws BaseException,
+            GeneralSecurityException, IOException {
+        return cachePut( id, maybe, new Date() );
+    }
+    
+    /**
+     * Cache the given image for the given asset
+     *
+     * @param id
+     * @param maybe may be empty if cacheing fact that no thumb is available
+     * @param birth when image was created - can be used to decide if
+     *                 some other image represents an update or not
+     * @return
+     * @throws BaseException
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    private Maybe<CacheInfo> cachePut( UUID id, Maybe<? extends RenderedImage> maybe, Date birth )
             throws BaseException,
             GeneralSecurityException, IOException {
         if (maybe.isEmpty()) {
-            ocache.put(id, othumbDefault);
+            ocache.put(id, new CacheInfo( othumbDefault, new Date() ));
             return Maybe.empty();
         }
         final RenderedImage img = maybe.get();
-        final Maybe<Thumb> result;
+        final Maybe<CacheInfo> result;
         if ((img.getWidth() > getWidth()) || (img.getHeight() > getHeight())) {
             final Image scale = scaleImage(img, getWidth(), getHeight() );
-            result = Maybe.something((Thumb) new SimpleThumb(scale));
+            result = Maybe.something( new CacheInfo( (Thumb) new SimpleThumb(scale), birth ) );
         } else {
-            result = Maybe.something((Thumb) new SimpleThumb( (Image) img));
+            result = Maybe.something( new CacheInfo( (Thumb) new SimpleThumb( (Image) img ), birth ) );
         }
         ocache.put(id, result.get());
         // Save to file
@@ -168,7 +212,7 @@ public class SimpleThumbManager implements ThumbManager {
             dirCache.mkdirs();
         }
         { // write out file
-            final Image imgWrite = result.get().getThumb();
+            final Image imgWrite = result.get().getThumb().getThumb();
             final File infoFile = new File(dirCache, UUIDFactory.makeCleanString(id) + ".info");
             final File jpgFile = new File(dirCache, UUIDFactory.makeCleanString(id) + ".jpg");
             final Maybe<Asset> maybeAsset = search.getAsset(id);
@@ -182,7 +226,7 @@ public class SimpleThumbManager implements ThumbManager {
             } finally {
                 writer.close();
             }
-            ImageIO.write( (RenderedImage) result.get().getThumb(), "jpg", jpgFile);
+            ImageIO.write( (RenderedImage) result.get().getThumb().getThumb(), "jpg", jpgFile);
         }
         return result;
     }
@@ -236,9 +280,13 @@ public class SimpleThumbManager implements ThumbManager {
 
     @Override
     public Thumb loadThumb(UUID u_asset) throws BaseException, GeneralSecurityException, IOException {
-        Maybe<Thumb> maybeThumb = cacheGet(u_asset);
+        Maybe<CacheInfo> maybeThumb = cacheGet(u_asset);
         if (maybeThumb.isEmpty()) {
-            return cachePut(u_asset, omgrImage.loadImage(u_asset)).getOr(othumbDefault);
+            final Maybe<CacheInfo> maybeCache = cachePut(u_asset, omgrImage.loadImage(u_asset));
+            if ( maybeCache.isSet() ) {
+                return maybeCache.get().getThumb();
+            }
+            return othumbDefault;
         } else {
             return othumbDefault;
         }

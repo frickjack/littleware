@@ -227,14 +227,6 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
                 sb_help.append( Whatever.NEWLINE );
             }
             return sb_help.toString ();
-
         }
-    }
-    
-    @Override
-    public EzHelpCommand clone () {
-        return (EzHelpCommand) super.clone();
-
-    }
-    
+    }    
 }

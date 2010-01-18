@@ -256,10 +256,6 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
         stuff.jframe.setVisible( true );
     }
 
-    @Override
-    public LgoBrowserCommand clone() {
-        return (LgoBrowserCommand) super.clone();
-    }
 
     /**
      * Launch a browser with the session
@@ -280,7 +276,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
                     });
             Feedback feedback = new LoggerFeedback();
             LgoBrowserCommand command = injector.getInstance(LgoBrowserCommand.class);
-            command.runDynamic(feedback,
+            command.runCommand(feedback,
                     "/littleware.home/");
         } catch (final Exception ex) {
             log.log(Level.SEVERE, "Failed command, caught: " + ex, ex);

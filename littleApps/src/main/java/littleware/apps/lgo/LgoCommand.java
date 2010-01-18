@@ -26,7 +26,7 @@ import littleware.base.feedback.Feedback;
  * run methods should return a Handle for querying and killing
  * the child thread.
  */
-public interface LgoCommand <InType,OutType> extends Cloneable {
+public interface LgoCommand<InType,OutType> {
     /**
      * Getter for globally unique command name property.
      * Use normal reverse-DNS technique to
@@ -90,25 +90,20 @@ public interface LgoCommand <InType,OutType> extends Cloneable {
               ) throws LgoException;
        
 
-      /**
-       * Run in case where caller is not 
-       * keeping track of the type of the input object.
-       *
-       * @param feedback for UI feedback on progress, etc. - not a data channel
-       * @param x_in cast internally to InType
-       * @return result of command
-       * @throws littleware.apps.lgo.LgoException
-       * @throws ClassCastException on failure to cast x_in to a supported type
-       */
-      public OutType runDynamic ( Feedback feedback,
-              Object x_in ) throws LgoException;
+
+       /**
+        * Run in case where caller is not
+        * keeping track of the type of the input object.
+        *
+        * @param feedback for UI feedback on progress, etc. - not a data channel
+        * @param x_in cast internally to InType
+        * @return result of command
+        * @throws littleware.apps.lgo.LgoException
+        * @throws ClassCastException on failure to cast x_in to a supported type
+        */
+       public OutType runDynamic ( Feedback feedback,
+               Object x_in ) throws LgoException;      
       
       /** Run type-safe */
-      public OutType runSafe( Feedback feedback, InType in ) throws LgoException;
-      
-      /** 
-       * Specialization of clone - no exception, and return LgoCommand
-       * instance.
-       */
-      public LgoCommand clone ();
+      public OutType runSafe( Feedback feedback, InType in ) throws LgoException;      
 }

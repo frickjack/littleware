@@ -188,6 +188,11 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
         return runDynamic( feedback, s_in );
     }
 
+    @Override
+    public Tout runDynamic( Feedback feedback, Object in ) throws LgoException {
+        return runSafe( feedback, (Tin) in );
+    }
+
     /** Just calls runCommand().toString() */
     @Override
     public String runCommandLine( Feedback feedback, String s_in ) throws LgoException {
@@ -195,22 +200,6 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
         return (null == result) ? null : result.toString ();
     }
 
-    /** Just does a direct cast (Tin) x_in */
     @Override
-    public Tout runDynamic ( Feedback feedback, Object x_in ) throws LgoException {
-        return runSafe( feedback, (Tin) x_in );
-    }
-    
-    @Override
-    public abstract Tout runSafe( Feedback feedback, Tin in ) throws LgoException;
-    
-    /** Subtypes should override via normal clone() rules */
-    @Override
-    public AbstractLgoCommand clone () {
-        try {
-            return (AbstractLgoCommand) super.clone();
-        } catch ( CloneNotSupportedException e ) {
-            throw new AssertionFailedException( "Clone whatever ?", e );
-        }
-    }
+    public abstract Tout runSafe( Feedback feedback, Tin in ) throws LgoException;    
 }

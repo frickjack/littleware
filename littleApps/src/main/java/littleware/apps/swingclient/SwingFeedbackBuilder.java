@@ -9,6 +9,7 @@
  */
 package littleware.apps.swingclient;
 
+import com.google.inject.Provider;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import littleware.base.feedback.LittleEvent;
 import littleware.base.feedback.LittleListener;
@@ -24,6 +26,7 @@ import littleware.base.feedback.UiMessageEvent;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
+import littleware.base.swing.JTextAreaAppender;
 
 /**
  * Simple Swing feedback component logs progress to a
@@ -32,7 +35,7 @@ import littleware.base.feedback.NullFeedback;
  * Builder just builds a null feedback with listeners
  * registered to update the given components.
  */
-public class SwingFeedbackBuilder {
+public class SwingFeedbackBuilder implements Provider<FeedbackBundle>{
 
     private static final Logger log = Logger.getLogger(SwingFeedbackBuilder.class.getName());
 
@@ -107,5 +110,36 @@ public class SwingFeedbackBuilder {
             final JLabel jlabelTitle,
             final Appendable appender) {
         return build(jprogress, jlabelTitle, appender, log);
+    }
+
+
+    public FeedbackBundle get() {
+        final JTextArea jtext = new JTextArea( 3, 50 );
+        final JProgressBar jprogress = new JProgressBar();
+        final JLabel       jtitle = new JLabel();
+        final Appendable   appender = new JTextAreaAppender( jtext, 10000 );
+        final Feedback     fb = build( jprogress, jtitle, appender );
+        return new FeedbackBundle() {
+
+            @Override
+            public JProgressBar getProgress() {
+                return jprogress;
+            }
+
+            @Override
+            public JTextArea getText() {
+                return jtext;
+            }
+
+            @Override
+            public JLabel getTitle() {
+                return jtitle;
+            }
+
+            @Override
+            public Feedback getFeedback() {
+                return fb;
+            }
+        };
     }
 }

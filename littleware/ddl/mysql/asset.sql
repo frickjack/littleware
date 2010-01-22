@@ -17,7 +17,7 @@
 CREATE TABLE littleTran (
 	i_id          INTEGER PRIMARY KEY,
 	l_transaction BIGINT
-);
+) ENGINE INNODB CHARACTER SET UTF8;
 
 INSERT INTO littleTran( i_id, l_transaction ) VALUES ( 1, 1 );
 
@@ -33,7 +33,7 @@ CREATE TABLE x_permission (
 	s_name        VARCHAR(32) UNIQUE NOT NULL,
 	s_comment     VARCHAR(128) NOT NULL,
 	t_created     TIMESTAMP NOT NULL DEFAULT now()
-);
+) ENGINE INNODB CHARACTER SET UTF8;
 
 INSERT INTO x_permission (s_id, s_name, s_comment)
     VALUES ( 'EEB72C11DE934015BE42FA6FA9423EAC', 'read', 'read permission' );
@@ -58,7 +58,7 @@ CREATE TABLE x_asset_type (
     b_name_unique BOOLEAN NOT NULL,
     x_parent_type VARCHAR(32) REFERENCES x_asset_type( s_id ),
 	t_created     TIMESTAMP NOT NULL DEFAULT now()
-);
+) ENGINE INNODB CHARACTER SET UTF8;
 
 
 
@@ -70,7 +70,7 @@ CREATE TABLE x_asset_type_tree (
          s_ancestor_id           VARCHAR(32) NOT NULL REFERENCES x_asset_type(s_id),
          s_descendent_id     VARCHAR(32) NOT NULL REFERENCES x_asset_type( s_id ),
          PRIMARY KEY (s_ancestor_id, s_descendent_id)
-         );
+         ) ENGINE INNODB CHARACTER SET UTF8;
 
 
 
@@ -237,7 +237,7 @@ CREATE TABLE asset (
 	t_last_accessed     TIMESTAMP,
 	t_start             TIMESTAMP NULL DEFAULT NULL,  -- let asset correspond to timed event
 	t_end               TIMESTAMP NULL DEFAULT NULL
-);
+) ENGINE INNODB CHARACTER SET UTF8;
 
 
 
@@ -277,7 +277,7 @@ t_copied            TIMESTAMP DEFAULT now(),   -- date of transaction-history cr
 	t_last_accessed     TIMESTAMP,
 	t_start             TIMESTAMP,  -- let asset correspond to timed event
 	t_end               TIMESTAMP
-);
+) ENGINE INNODB CHARACTER SET UTF8;
 
 
 

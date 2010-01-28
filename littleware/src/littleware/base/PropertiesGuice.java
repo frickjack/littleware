@@ -12,7 +12,9 @@ package littleware.base;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,11 +28,32 @@ import javax.mail.Session;
  */
 public class PropertiesGuice implements Module {
 
-    private static final Logger olog = Logger.getLogger(PropertiesGuice.class.getName());
-    private final Properties oprop;
+    private static final Logger log = Logger.getLogger(PropertiesGuice.class.getName());
+    private final Properties properties;
 
     public PropertiesGuice(Properties prop) {
-        oprop = prop;
+        properties = prop;
+    }
+
+    /**
+     * Get an editable reference to the properties underlying
+     * this module.  The properties may be edited/overriden
+     * before Guice configuration.
+     */
+    public Properties getProperties() {
+        return properties;
+    }
+
+    /**
+     * Shortcut injects this( PropertiesLoader.loadProps( propPath )
+     */
+    public PropertiesGuice( String propPath ) throws IOException {
+        this( PropertiesLoader.get().loadProperties(propPath));
+    }
+
+    /** Shortcut to PropertiesLoader.loadProperties() */
+    public PropertiesGuice() throws IOException  {
+        this( PropertiesLoader.get().loadProperties() );
     }
 
     /**
@@ -43,27 +66,27 @@ public class PropertiesGuice implements Module {
      */
     public void bindKeyValue(Binder binder, String sKey, String sValue) {
         binder.bindConstant().annotatedWith(Names.named(sKey)).to(sValue);
-        if (sKey.startsWith("int.")) {
+        final String clean = sValue.trim();
+        if ( clean.startsWith( "http://" ) ) {
             try {
-                int i_value = Integer.parseInt(sValue);
-                binder.bindConstant().annotatedWith(Names.named(sKey)).to(i_value);
-            } catch (NumberFormatException ex) {
-                olog.log(Level.WARNING, "Failed to parse as integer property starting with 'int.': " + sKey +
-                        ", " + sValue, ex);
+                final URL url = new URL( clean );
+                binder.bind( URL.class ).annotatedWith( Names.named( sKey ) ).toInstance(url);
+            } catch ( MalformedURLException ex ) {
+                log.log( Level.WARNING, "Failed to parse URL-like value: " + clean );
             }
         }
     }
 
     @Override
     public void configure(Binder binder) {
-        for (String sKey : oprop.stringPropertyNames()) {
-            final String sValue = oprop.getProperty(sKey);
+        for (String sKey : properties.stringPropertyNames()) {
+            final String sValue = properties.getProperty(sKey);
             bindKeyValue(binder, sKey, sValue);
         }
-        if ( oprop.containsKey( "mail.smtp.host" ) ) {
+        if ( properties.containsKey( "mail.smtp.host" ) ) {
             // then bind mail session
             binder.bind( Session.class ).toInstance(
-                    Session.getInstance(oprop)
+                    Session.getInstance(properties)
                     );
         }
     }

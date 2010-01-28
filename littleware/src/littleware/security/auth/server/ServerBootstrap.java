@@ -7,16 +7,17 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.security.auth.server;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.server.AssetServerGuice;
 import littleware.asset.server.db.jpa.HibernateGuice;
 import littleware.asset.server.db.jpa.J2EEGuice;
+import littleware.base.PropertiesLoader;
 import littleware.db.DbGuice;
 import littleware.security.auth.AbstractGOBootstrap;
 import littleware.security.auth.LittleBootstrap;
@@ -43,10 +44,11 @@ import littleware.security.server.SecurityServerGuice;
  * the SessionHelper from which the manager is derived.
  */
 public class ServerBootstrap extends AbstractGOBootstrap {
-    private static final Logger olog = Logger.getLogger( ServerBootstrap.class.getName() );
+
+    private static final Logger log = Logger.getLogger(ServerBootstrap.class.getName());
 
     public ServerBootstrap() {
-        this( false );
+        this(false);
     }
 
     /**
@@ -54,38 +56,40 @@ public class ServerBootstrap extends AbstractGOBootstrap {
      * initialization - just used for running regression tests.
      */
     @VisibleForTesting
-    public ServerBootstrap( boolean bHibernate ) {
+    public ServerBootstrap(boolean bHibernate) {
         super(
-                  Arrays.asList(
-                  //new PostgresGuice(),
-                  bHibernate ? new HibernateGuice() : new J2EEGuice(),
-                    new AssetServerGuice (),
-                    new AuthServerGuice(),
-                    new SecurityServerGuice (),
-                    new DbGuice()
-                    ),
-            Arrays.asList(
+                Arrays.asList(
+                //new PostgresGuice(),
+                bHibernate ? new HibernateGuice() : new J2EEGuice(),
+                new AssetServerGuice(),
+                new AuthServerGuice(),
+                new SecurityServerGuice()),
+                Arrays.asList(
                 ServerActivator.class,
-                SecurityServerActivator.class
-            ),
-            true
-            );
+                SecurityServerActivator.class),
+                true);
+        try {
+            getGuiceModule().add(
+                    new DbGuice(
+                    PropertiesLoader.get().loadProperties("littleware_jdbc.properties")));
+        } catch (IOException ex) {
+            log.log(Level.INFO, "Skipping littleware_jdbc.properties injection", ex);
+        }
     }
 
-
-    public static void main ( String[] v_argv ) {
-        olog.log( Level.INFO, "Testing OSGi bootstrap" );
-        LittleBootstrap boot = new ServerBootstrap ();
+    public static void main(String[] v_argv) {
+        log.log(Level.INFO, "Testing OSGi bootstrap");
+        LittleBootstrap boot = new ServerBootstrap();
         boot.bootstrap();
-        olog.log( Level.INFO, "Sleeping 10 seconds before shutdown" );
+        log.log(Level.INFO, "Sleeping 10 seconds before shutdown");
         try {
             Thread.sleep(10000);
             boot.shutdown();
-            olog.log( Level.INFO, "Shutdown issued, sleep 5 seconds before exit" );
-            Thread.sleep( 5000 );
+            log.log(Level.INFO, "Shutdown issued, sleep 5 seconds before exit");
+            Thread.sleep(5000);
         } catch (InterruptedException ex) {
-            olog.log(Level.SEVERE, null, ex);
+            log.log(Level.SEVERE, null, ex);
         }
-        System.exit( 0 );
+        System.exit(0);
     }
 }

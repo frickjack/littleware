@@ -28,23 +28,36 @@ import javax.sql.DataSource;
 import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesGuice;
 import littleware.base.PropertiesLoader;
+import oracle.jdbc.pool.OracleDataSource;
 
 /**
- * Setup DataSource bindings from littleware_jdbc.properties in the GUICE module.
+ * Specialization extends PropertiesGuice with ability to
+ * setup DataSource bindings.
  * Logs and eats exceptions setting up DataSource bindings.
- * Just extends PropertiesGuice( littleware_jdbc.properties )
  */
-public class DbGuice implements Module {
+public class DbGuice extends PropertiesGuice {
 
-    private static final Logger olog = Logger.getLogger(DbGuice.class.getName());
+    private static final Logger log = Logger.getLogger(DbGuice.class.getName());
+
+    public DbGuice(Properties props) {
+        super(props);
+    }
+
+    public DbGuice(String propPath) throws IOException {
+        super(propPath);
+    }
+
+    public DbGuice() throws IOException {
+        super();
+    }
 
     /**
      * Simple DataSource binder for now
      */
-    private void bindDataSource(Binder binder, String s_name,
+    public void bindDataSource(Binder binder, String s_name,
             String s_url) throws SQLException, NamingException {
         // just hard code to embedded derby provider for now
-        olog.log(Level.INFO, "Binding DataSource " + s_name + " to " + s_url);
+        log.log(Level.INFO, "Binding DataSource " + s_name + " to " + s_url);
         if (s_url.startsWith("jdbc:derby:")) {
             // figure out if its an embedded or network datasource
             final Pattern pattern = Pattern.compile("jdbc:derby://(\\w+):(\\d+)/(.+)$");
@@ -58,10 +71,10 @@ public class DbGuice implements Module {
                 binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(dataSource);
                  * */
                 org.logicalcobwebs.proxool.ProxoolDataSource data = new org.logicalcobwebs.proxool.ProxoolDataSource(s_name);
-                data.setDriver( org.apache.derby.jdbc.ClientDriver.class.getName() );
+                data.setDriver(org.apache.derby.jdbc.ClientDriver.class.getName());
                 data.setDriverUrl(s_url);
-                data.setUser( "ignore" );
-                data.setPassword( "ignore" );
+                data.setUser("ignore");
+                data.setPassword("ignore");
                 data.setMinimumConnectionCount(10);
                 data.setMaximumConnectionCount(30);
                 data.setMaximumActiveTime(60000);
@@ -72,13 +85,10 @@ public class DbGuice implements Module {
                 data.setDatabaseName(s_url.substring("jdbc:derby:".length()));
                 binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(data);
             }
-        /*...
-        No need to support Oracle yet ...
         } else if (s_url.startsWith("jdbc:oracle:")) {
-        OracleDataSource data = new OracleDataSource();
-        data.setURL(s_url);
-        binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(data);
-        ..*/
+            final OracleDataSource data = new OracleDataSource();
+            data.setURL(s_url);
+            binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(data);
         } else if (s_url.startsWith("jdbc:postgresql:")) {
             org.logicalcobwebs.proxool.ProxoolDataSource data = new org.logicalcobwebs.proxool.ProxoolDataSource(s_name);
             data.setDriver(org.postgresql.Driver.class.getName());
@@ -108,31 +118,20 @@ public class DbGuice implements Module {
             DataSource data = (DataSource) new InitialContext().lookup(s_url.substring("jndi:".length()));
             binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(data);
         } else {
-            olog.log(Level.INFO, "Not autobinding datasource of unknown type: " + s_name + " - " + s_url);
+            log.log(Level.INFO, "Not autobinding datasource of unknown type: " + s_name + " - " + s_url);
         }
     }
 
     @Override
-    public void configure(Binder binder) {
-        try {
-            final Properties props = PropertiesLoader.get().loadProperties("littleware_jdbc.properties");
-            new PropertiesGuice(props) {
-
-                @Override
-                public void bindKeyValue(Binder binder, String sKey, String sValue) {
-                    super.bindKeyValue(binder, sKey, sValue);
-                    if (sKey.startsWith("datasource")) {
-                        try {
-                            bindDataSource(binder, sKey, sValue);
-                        } catch (Exception ex) {
-                            throw new IllegalArgumentException("Unable to bind datasource: " + sKey + " - " + sValue,
-                                    ex);
-                        }
-                    }
-                }
-            }.configure(binder);
-        } catch (IOException ex) {
-            throw new AssertionFailedException("Unable to load littleware_jdbc.properties file", ex);
+    public void bindKeyValue(Binder binder, String sKey, String sValue) {
+        super.bindKeyValue(binder, sKey, sValue);
+        if (sKey.startsWith("datasource")) {
+            try {
+                bindDataSource(binder, sKey, sValue);
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("Unable to bind datasource: " + sKey + " - " + sValue,
+                        ex);
+            }
         }
     }
 }

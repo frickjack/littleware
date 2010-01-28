@@ -78,7 +78,7 @@
 	basedir="build/classes"
         index="true"
 	level="9"
-     >
+     >     
    <exclude name="derby/**" />
    <exclude name="mysql/**" />
    <exclude name="postgres/**" />
@@ -95,6 +95,7 @@
    <exclude name="**/server/**" />
    <exclude name="**/test/**" />
    <exclude name="**/web/**" />
+   <fileset dir="build/classes" includes="**/DbGuice*" />
      </jar>
 </target>
 

@@ -267,7 +267,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
     public static void main(String[] v_args) {
         try {
             final Injector injector = Guice.createInjector(new Module[]{
-                        new EzModule(),
+                        new LgoGuice(),
                         new littleware.apps.swingclient.StandardSwingGuice(),
                         new littleware.apps.client.StandardClientGuice(),
                         new littleware.apps.misc.StandardMiscGuice(),

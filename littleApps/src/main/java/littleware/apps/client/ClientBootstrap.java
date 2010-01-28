@@ -17,7 +17,8 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import littleware.apps.lgo.EzModule;
+import littleware.apps.lgo.LgoActivator;
+import littleware.apps.lgo.LgoGuice;
 import littleware.asset.client.LittleService;
 import littleware.base.Maybe;
 import littleware.security.auth.AbstractGOBootstrap;
@@ -90,7 +91,7 @@ public class ClientBootstrap extends AbstractGOBootstrap {
     public ClientBootstrap(ClientServiceGuice clientGuice) {
         super(
                 Arrays.asList(
-                new EzModule(),
+                new LgoGuice(),
                 new littleware.apps.swingclient.StandardSwingGuice(),
                 new littleware.apps.client.StandardClientGuice(),
                 new littleware.apps.misc.StandardMiscGuice(),
@@ -109,6 +110,7 @@ public class ClientBootstrap extends AbstractGOBootstrap {
         this.getOSGiActivator().add(CacheActivator.class);
         this.getOSGiActivator().add(Activator.class);
         this.getOSGiActivator().add(SyncWithServer.class );
+        this.getOSGiActivator().add(LgoActivator.class );
         this.clientGuice = clientGuice;
     }
 

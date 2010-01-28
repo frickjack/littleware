@@ -14,7 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,47 +43,27 @@ import littleware.security.auth.RunnerActivator;
  */
 public class LgoCommandLine extends RunnerActivator {
 
-    private static final Logger olog = Logger.getLogger(LgoCommandLine.class.getName());
-    private static String[] ovArgs;
-    private final LgoCommandDictionary omgrCommand;
-    private final LgoHelpLoader omgrHelp;
-    private final LittleBootstrap obootstrap;
+    private static final Logger log = Logger.getLogger(LgoCommandLine.class.getName());
+    private static String[] globalArgs;
 
-    /**
-     * Inject dependencies
-     */
+    private final LgoCommandDictionary commandMgr;
+    private final LgoHelpLoader helpMgr;
+    private final LittleBootstrap bootstrap;
+    private final LgoServer.ServerBuilder serverBuilder;
+
+    /** Inject dependencies */
     @Inject
     public LgoCommandLine(
-            LgoCommandDictionary mgrCommand,
-            LgoHelpLoader mgrHelp,
+            LgoCommandDictionary commandMgr,
+            LgoHelpLoader helpMgr,
             LittleBootstrap bootstrap,
-            Provider<EzHelpCommand> comHelp,
-            Provider<XmlEncodeCommand> comXml,
-            Provider<LgoBrowserCommand> comBrowse,
-            Provider<DeleteAssetCommand> comDelete,
-            Provider<ListChildrenCommand> comLs,
-            Provider<GetAssetCommand> comGet,
-            Provider<CreateFolderCommand> comFolder,
-            Provider<CreateUserCommand> comUser,
-            Provider<CreateLockCommand> comLock,
-            Provider<GetByNameCommand> comNameGet,
-            Provider<SetImageCommand> comSetImage,
-            Provider<GetRootPathCommand> comRootPath) {
-        omgrCommand = mgrCommand;
-        omgrHelp = mgrHelp;
-        obootstrap = bootstrap;
-
-        for (Provider<? extends LgoCommand<?, ?>> command : // need to move this into a properties file
-                Arrays.asList(
-                comHelp, comXml, comBrowse, comDelete, comLs, comGet,
-                comFolder, comUser, comLock, comNameGet, comSetImage,
-                comRootPath)) {
-            mgrCommand.setCommand(mgrHelp, command);
-        }
-
+            LgoServer.ServerBuilder serverBuilder
+            ) {
+        this.commandMgr = commandMgr;
+        this.helpMgr = helpMgr;
+        this.bootstrap = bootstrap;
+        this.serverBuilder = serverBuilder;
     }
-    private boolean obRunning = false;
-
 
     /**
      * Issue the given command
@@ -96,10 +75,10 @@ public class LgoCommandLine extends RunnerActivator {
      * @return command exit-status
      */
     private int processCommand(String sCommand, List<String> vProcess, String sArg, Feedback feedback) {
-        LgoCommand<?, ?> command = omgrCommand.buildCommand(sCommand);
+        final LgoCommand<?, ?> command = commandMgr.buildCommand(sCommand);
         try {
             if (null == command) {
-                System.out.print(omgrCommand.buildCommand("help").runCommandLine(feedback, ""));
+                System.out.print(commandMgr.buildCommand("help").runCommandLine(feedback, ""));
                 return 1;
             }
 
@@ -111,7 +90,7 @@ public class LgoCommandLine extends RunnerActivator {
             System.out.println("Command failed, caught exception: " +
                     BaseException.getStackTrace(ex));
             try {
-                System.out.print(omgrCommand.buildCommand("help").runCommand(feedback, command.getName()).toString());
+                System.out.print(commandMgr.buildCommand("help").runCommand(feedback, command.getName()).toString());
             } catch (LgoException ex2) {
                 throw new AssertionFailedException("Help command should not fail", ex2);
             }
@@ -137,12 +116,16 @@ public class LgoCommandLine extends RunnerActivator {
         final StringBuilder sb = new StringBuilder();
         System.out.println("LGO>>");
         for (String sLine = reader.readLine(); null != sLine; sLine = reader.readLine()) {
+            if ( Thread.interrupted() ) {
+                log.log(Level.INFO, "LGO processing thread interrupted - exiting loop" );
+                return;
+            }
             String sClean = sLine.trim();
             if (sClean.length() == 0) {
                 continue;
             }
             String sCommand = sClean;
-            final List<String> vProcess = new ArrayList<String>();
+            final List<String> commandTokens = new ArrayList<String>();
             String sArg = "";
             final int iFirstSpace = sClean.indexOf(" ");
 
@@ -150,6 +133,7 @@ public class LgoCommandLine extends RunnerActivator {
                 sCommand = sClean.substring(0, iFirstSpace);
                 sClean = sClean.substring(iFirstSpace);
 
+                // -- marks end of argumnts, pass rest of string as input-string
                 final int iDashDash = sClean.indexOf(" -- ");
                 if (iDashDash >= 0) {
                     sArg = sClean.substring(iDashDash + 3).trim();
@@ -159,9 +143,9 @@ public class LgoCommandLine extends RunnerActivator {
                 for (String sProcess : sClean.split("\\s+")) {
                     if (sProcess.trim().length() > 0) {
                         if ( sProcess.indexOf( "%" ) < 0 ) {
-                            vProcess.add( sProcess );
+                            commandTokens.add( sProcess );
                         } else {
-                            vProcess.add( URLDecoder.decode( sProcess, "UTF8"));
+                            commandTokens.add( URLDecoder.decode( sProcess, "UTF8"));
                         }
                     }
                 }
@@ -169,58 +153,66 @@ public class LgoCommandLine extends RunnerActivator {
             if (sCommand.equalsIgnoreCase("exit")) {
                 break;
             }
-            processCommand(sCommand, vProcess, sArg, feedback);
+            processCommand(sCommand, commandTokens, sArg, feedback);
             System.out.println("LGO>>");
         }
     }
 
     @Override
     public void run() {
-        olog.log(Level.FINE, "Running on Swing dispatch thread");
-        String[] vArgs = getArgs();
+        log.log(Level.FINE, "Running on Swing dispatch thread");
+        final String[] argsArray = getArgs();
         int iExitStatus = 0;
+        Maybe<LgoServer> maybeServer = Maybe.empty();
 
         try {
             final Feedback feedback = new LoggerFeedback();
 
-            if (vArgs.length == 0) { // launch help command by default
-                System.out.print(omgrCommand.buildCommand("help").runCommandLine(feedback, ""));
+            if (argsArray.length == 0) { // launch help command by default
+                System.out.print(commandMgr.buildCommand("help").runCommandLine(feedback, ""));
                 return;
             }
-            final String sCommand = vArgs[0];
-            if (sCommand.equalsIgnoreCase("pipe")) {
+            final String command = argsArray[0];
+            if (command.equalsIgnoreCase("pipe")) {
                 processPipe(feedback);
                 return;
             }
-            List<String> vProcess = new ArrayList<String>();
-            StringBuilder sb_in = new StringBuilder();
+            final List<String> cleanArgs = new ArrayList<String>();
+            final StringBuilder sb = new StringBuilder();
 
-            for (int i = 1; i < vArgs.length; ++i) {
-                String s_arg = vArgs[i];
-                if (s_arg.equals("--")) {
+            for (int i = 1; i < argsArray.length; ++i) {
+                final String arg = argsArray[i];
+                if (arg.equals("--")) {
                     // everything after -- goes into runCommand
-                    for (int j = i + 1; j < vArgs.length; ++j) {
-                        sb_in.append(vArgs[j]).append(" ");
+                    for (int j = i + 1; j < argsArray.length; ++j) {
+                        sb.append(argsArray[j]).append(" ");
                         // Note: trim() sb_in.toString before passing to run
                     }
                     break;
                 }
-                vProcess.add(s_arg);
+                cleanArgs.add(arg);
             }
-
-            iExitStatus = processCommand(sCommand, vProcess, sb_in.toString().trim(), feedback);
+            if ( command.equalsIgnoreCase( "server" ) ) {
+                log.log( Level.INFO, "Launching lgo server ..." );
+                maybeServer = Maybe.something( serverBuilder.launch() );
+                return;
+            }
+            iExitStatus = processCommand(command, cleanArgs, sb.toString().trim(), feedback);
         } catch (Exception e) {
             iExitStatus = 1;
-            olog.log(Level.SEVERE, "Failed command, caught: " + e, e);
+            log.log(Level.SEVERE, "Failed command, caught: " + e, e);
         } finally {
-            obootstrap.shutdown();
-            System.exit(iExitStatus);
+            if ( maybeServer.isEmpty() ) {
+                // don't shutdown if we launched a background server
+                bootstrap.shutdown();
+                System.exit(iExitStatus);
+            }
         }
     }
 
 
     private static String[] getArgs() {
-        return ovArgs;
+        return globalArgs;
     }
 
     /**
@@ -234,7 +226,7 @@ public class LgoCommandLine extends RunnerActivator {
      * @param bootClient to add LittleCommandLine.class to and bootstrap()
      */
     public static void launch(String[] vArgs, ClientBootstrap bootClient) {
-        ovArgs = vArgs;
+        globalArgs = vArgs;
         /*... just for testing in serverless environment ... 
         {
         // Try to start an internal server for now just for testing
@@ -252,9 +244,9 @@ public class LgoCommandLine extends RunnerActivator {
                 throw new IllegalArgumentException("Malformed URL: " + sUrl);
             }
             if (vArgs.length > 2) {
-                ovArgs = Arrays.copyOfRange(vArgs, 2, vArgs.length );
+                globalArgs = Arrays.copyOfRange(vArgs, 2, vArgs.length );
             } else {
-                ovArgs = new String[0];
+                globalArgs = new String[0];
             }
         }
         bootClient.getOSGiActivator().add(LgoCommandLine.class);

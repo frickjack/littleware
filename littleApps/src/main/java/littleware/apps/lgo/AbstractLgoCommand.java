@@ -196,7 +196,7 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
     /** Just calls runCommand().toString() */
     @Override
     public String runCommandLine( Feedback feedback, String s_in ) throws LgoException {
-        Object result = runCommand( feedback, s_in );
+        final Object result = runCommand( feedback, s_in );
         return (null == result) ? null : result.toString ();
     }
 

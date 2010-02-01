@@ -32,11 +32,13 @@ public class HudsonTestSuite extends TestSuite {
             Provider<GetAssetTester> factoryGetTester,
             Provider<CreateFolderTester> factoryCreateTester,
             Provider<GetByNameTester> factoryByNameTester,
-            Provider<RootPathCommandTest> factoryRootPathTest
+            Provider<RootPathCommandTest> factoryRootPathTest,
+            Provider<LgoServerTester> factoryServerTest
             )
     {
         super( HudsonTestSuite.class.getName() );
 
+        this.addTest( factoryServerTest.get() );
         if ( true ) {
             this.addTest( factoryRootPathTest.get() );
         }

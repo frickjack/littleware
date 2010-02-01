@@ -41,17 +41,16 @@ import littleware.base.feedback.LoggerFeedback;
 /**
  * Launch a Swing browser, and return the whatever
  */
-public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
+public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<Maybe<UUID>>> {
+
     private final static Logger log = Logger.getLogger(LgoBrowserCommand.class.getName());
-    
-    private final AssetSearchManager osearch;
-    private final AssetModelLibrary olib;
-    private final AssetPathFactory opathFactory;
+    private final AssetSearchManager search;
+    private final AssetModelLibrary assetLib;
+    private final AssetPathFactory pathFactory;
     private final Provider<JAssetBrowser> provideBrowser;
     private final Provider<ExtendedAssetViewController> provideControl;
     private final Provider<JSimpleAssetToolbar> provideToolbar;
-    private final EventBarrier<UUID> barrier = new EventBarrier<UUID>();
-
+    private final EventBarrier<Maybe<UUID>> barrier = new EventBarrier<Maybe<UUID>>();
 
     /**
      * Container for the different Swing components
@@ -101,9 +100,9 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
         this.provideBrowser = provideBrowser;
         this.provideControl = provideControl;
         this.provideToolbar = provideToolbar;
-        osearch = search;
-        olib = lib;
-        opathFactory = pathFactory;
+        this.search = search;
+        this.assetLib = lib;
+        this.pathFactory = pathFactory;
     }
     private UUID ou_start = UUIDFactory.parseUUID("00000000000000000000000000000000");
 
@@ -125,39 +124,39 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
      * @return where the user stops browsing
      */
     @Override
-    public Maybe<UUID> runSafe(Feedback feedback, String sPathIn) {
+    public EventBarrier<Maybe<UUID>> runSafe(Feedback feedback, String sPathIn) {
         String sStartPath = sPathIn;
         if (Whatever.get().empty(sStartPath) && (!getArgs().isEmpty())) {
             sStartPath = getArgs().get(0);
         }
         if (null != sStartPath) {
             try {
-                final Asset a_start = osearch.getAssetAtPath(opathFactory.createPath(sStartPath)).get();
-                olib.syncAsset(a_start);
+                final Asset a_start = search.getAssetAtPath(pathFactory.createPath(sStartPath)).get();
+                assetLib.syncAsset(a_start);
                 setStart(a_start.getId());
             } catch (Exception e) {
                 feedback.log(Level.WARNING, "Unable to load asset at path: " + sStartPath + ", caught: " + e);
             }
         }
-        Maybe<UUID> maybeResult = Maybe.empty();
-        if (SwingUtilities.isEventDispatchThread()) {
-            createGUI(Maybe.emptyIfNull(getStart()));
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
 
-                @Override
-                public void run() {
-                    createGUI(Maybe.emptyIfNull(getStart()));
-                }
-            });
-            try {
-                maybeResult = Maybe.emptyIfNull(barrier.waitForEventData());
-            } catch (InterruptedException ex) {
-                feedback.info("Interrupted waiting for browser result: " + ex);
-                log.log(Level.WARNING, "Caught exception", ex);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                createGUI(Maybe.emptyIfNull(getStart()));
             }
+        });
+        /**
+         * Do not block command-thread.
+         * Can add support for asynchronous results later if needed ...
+         *
+        try {
+        maybeResult = Maybe.emptyIfNull(barrier.waitForEventData());
+        } catch (InterruptedException ex) {
+        feedback.info("Interrupted waiting for browser result: " + ex);
+        log.log(Level.WARNING, "Caught exception", ex);
         }
-        return maybeResult;
+         */
+        return barrier;
     }
 
     /**
@@ -178,9 +177,10 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
                 });
 
         final JMenuItem jQuit = new JMenuItem(new AbstractAction("Exit") {
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                stuff.jframe.setVisible( false );
+                stuff.jframe.setVisible(false);
                 stuff.jframe.dispose();
             }
         });
@@ -188,7 +188,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
         jNewBrowser.setMnemonic(KeyEvent.VK_N);
         jQuit.setMnemonic(KeyEvent.VK_X);
 
-        jMenuFile.add( jNewBrowser );
+        jMenuFile.add(jNewBrowser);
         jMenuFile.add(jQuit);
         jMenuFile.setMnemonic(KeyEvent.VK_F);
         jBar.add(jMenuFile);
@@ -205,11 +205,11 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
         stuff.toolbar.addLittleListener(control);
         if (maybeStart.isSet()) {
             try {
-                final Maybe<AssetModel> maybeModel = olib.retrieveAssetModel(maybeStart.get(), osearch);
-                if ( maybeModel.isSet() ) {
-                    stuff.browser.setAssetModel( maybeModel.get() );
+                final Maybe<AssetModel> maybeModel = assetLib.retrieveAssetModel(maybeStart.get(), search);
+                if (maybeModel.isSet()) {
+                    stuff.browser.setAssetModel(maybeModel.get());
                 } else {
-                    log.log( Level.INFO, "Requested initial asset model does not exist: " + getStart() );
+                    log.log(Level.INFO, "Requested initial asset model does not exist: " + getStart());
                 }
             } catch (Exception e) {
                 log.log(Level.INFO, "Failed to load initial asset model " + getStart(), e);
@@ -223,7 +223,9 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    barrier.publishEventData(stuff.browser.getAssetModel().getAsset().getId());
+                    barrier.publishEventData(
+                            Maybe.something( stuff.browser.getAssetModel().getAsset().getId() )
+                            );
                     stuff.jframe.dispose();
                 }
             });
@@ -236,15 +238,14 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
                 @Override
                 public void windowClosing(WindowEvent ev) {
                     if (!barrier.isDataReady()) {
-                        barrier.publishEventData(null);
+                        barrier.publishEventData( Maybe.empty( UUID.class ) );
                     }
-
                 }
 
                 @Override
                 public void windowClosed(WindowEvent e) {
                     if (!barrier.isDataReady()) {
-                        barrier.publishEventData(null);
+                        barrier.publishEventData( Maybe.empty( UUID.class ) );
                     }
 
                 }
@@ -253,9 +254,8 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, Maybe<UUID>> {
         }
 
         stuff.jframe.pack();
-        stuff.jframe.setVisible( true );
+        stuff.jframe.setVisible(true);
     }
-
 
     /**
      * Launch a browser with the session

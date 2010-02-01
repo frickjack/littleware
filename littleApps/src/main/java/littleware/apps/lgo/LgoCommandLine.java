@@ -32,6 +32,7 @@ import littleware.base.feedback.LoggerFeedback;
 import littleware.security.auth.LittleBootstrap;
 
 import littleware.security.auth.RunnerActivator;
+import org.osgi.framework.BundleContext;
 
 /**
  * Command-line based lgo launcher.
@@ -69,12 +70,12 @@ public class LgoCommandLine extends RunnerActivator {
      * Issue the given command
      *
      * @param sCommand to lookup and run
-     * @param vProcess argument to pass to processArgs
+     * @param processArgs argument to pass to processArgs
      * @param sArg to pass to command.runCommandLine
      * @param feedback to pass to command.runCommandLine
      * @return command exit-status
      */
-    private int processCommand(String sCommand, List<String> vProcess, String sArg, Feedback feedback) {
+    private int processCommand(String sCommand, List<String> processArgs, String sArg, Feedback feedback) {
         final LgoCommand<?, ?> command = commandMgr.buildCommand(sCommand);
         try {
             if (null == command) {
@@ -82,7 +83,7 @@ public class LgoCommandLine extends RunnerActivator {
                 return 1;
             }
 
-            command.processArgs(vProcess);
+            command.processArgs(processArgs);
 
             String sResult = command.runCommandLine(feedback, sArg);
             System.out.println((null == sResult) ? "null" : sResult);
@@ -158,12 +159,13 @@ public class LgoCommandLine extends RunnerActivator {
         }
     }
 
+    Maybe<LgoServer> maybeServer = Maybe.empty();
+
     @Override
     public void run() {
         log.log(Level.FINE, "Running on Swing dispatch thread");
         final String[] argsArray = getArgs();
         int iExitStatus = 0;
-        Maybe<LgoServer> maybeServer = Maybe.empty();
 
         try {
             final Feedback feedback = new LoggerFeedback();
@@ -251,6 +253,15 @@ public class LgoCommandLine extends RunnerActivator {
         }
         bootClient.getOSGiActivator().add(LgoCommandLine.class);
         bootClient.bootstrap();
+    }
+
+    @Override
+    public void stop( BundleContext ctx ) throws Exception {
+        if ( maybeServer.isSet() ) {
+            maybeServer.get().shutdown();
+            maybeServer = Maybe.empty();
+        }
+        super.stop( ctx );
     }
 
     /** Just launch( vArgs, new ClientBootstrap() ); on the event-dispatch thread */

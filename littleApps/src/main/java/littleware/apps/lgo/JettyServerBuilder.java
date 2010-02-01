@@ -11,14 +11,12 @@ package littleware.apps.lgo;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.nio.BlockingChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -28,18 +26,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 @Singleton
 public class JettyServerBuilder implements LgoServer.ServerBuilder {
     private static final Logger log = Logger.getLogger( JettyServerBuilder.class.getName() );
+    private final LgoServlet servlet;
 
+    public static final int serverPort = 9898;
     
-    private class HelloServlet extends HttpServlet {
-        @Override
-        public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-            response.setContentType("text/html");
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().println("<h1>Hello World</h1>");
-            response.getWriter().println("session=" + request.getSession(true).getId());
-        }
-    }
-
     private static class JettyServer implements LgoServer {
         private final Server server;
         public JettyServer( Server server ) {
@@ -65,21 +55,25 @@ public class JettyServerBuilder implements LgoServer.ServerBuilder {
     }
 
     @Inject
-    public JettyServerBuilder() {
+    public JettyServerBuilder( LgoServlet servlet ) {
+        this.servlet = servlet;
     }
 
     @Override
     public LgoServer launch() {
-        final Server server = new Server(9898);
-
+        final Server server = new Server();
+        final Connector connector = new BlockingChannelConnector();
+        connector.setPort( serverPort );
+        connector.setHost( "127.0.0.1" );
+        server.addConnector(connector);
         final ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
+        context.setContextPath("/n9n");
         server.setHandler(context);
 
-        context.addServlet(new ServletHolder(new HelloServlet()),"/*");
+        context.addServlet(new ServletHolder(servlet),"/lgo/*");
         try {
             server.start();
-            server.join();
+            //server.join();
         } catch (Exception ex) {
             throw new IllegalStateException( "Failed server launch", ex );
         }

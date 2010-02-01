@@ -168,7 +168,7 @@ public abstract class AbstractLgoCommand<Tin,Tout> implements LgoCommand<Tin,Tou
             i_read >= 0;
             i_read = reader.read( v_buffer )
             ) {
-            writer.write( runCommand( feedback, new String( v_buffer, 0, i_read ) ).toString() );
+            writer.write( runCommandLine( feedback, new String( v_buffer, 0, i_read ) ) );
         }
     }
             

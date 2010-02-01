@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.LgoBrowserCommand;
+import littleware.base.EventBarrier;
 import littleware.base.Maybe;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
@@ -35,8 +36,9 @@ public class BrowserCommandTest extends LittleTest {
 
     public void testBrowserCommand() {
         try {
-            final Maybe<UUID> maybe = command.runCommand( new LoggerFeedback(), "/littleware.home" );
-            assertTrue( "User selected something to pass test", maybe.isSet() );
+            final EventBarrier<Maybe<UUID>> barrier = command.runCommand( new LoggerFeedback(), "/littleware.home" );
+            // Browser actually launches into background as of 2010/01/28
+            assertTrue( "User selected something to pass test", barrier.waitForEventData().isSet() );
         } catch ( Exception ex ) {
             log.log( Level.INFO, "Failed test", ex );
             fail( "Caught " + ex );

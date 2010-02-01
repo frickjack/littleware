@@ -14,8 +14,8 @@ package littleware.base;
  * Simple event barrier.
  */
 public class EventBarrier<T> {
-    private boolean  obEventReady = false;
-    private T        odata = null;
+    private boolean  isEventReady = false;
+    private T        data = null;
 
     /**
      * Wait for event data to be published
@@ -24,10 +24,10 @@ public class EventBarrier<T> {
      * @throws java.lang.InterruptedException
      */
     public synchronized T  waitForEventData() throws InterruptedException {
-        while ( ! obEventReady ) {
+        while ( ! isEventReady ) {
             wait();
         }
-        return odata;
+        return data;
     }
 
     /**
@@ -37,17 +37,22 @@ public class EventBarrier<T> {
      * @exception IllegalStateException if event data already published to this barrier
      */
     public synchronized void publishEventData( T data ) {
-        if ( obEventReady ) {
+        if ( isEventReady ) {
             throw new IllegalStateException( "Event data already published" );
         }
-        odata = data;
-        obEventReady = true;
+        this.data = data;
+        isEventReady = true;
         notifyAll();
     }
     
     /** Non-blocking check to see if the event-data is ready */
     public boolean isDataReady () {
-        return obEventReady;
+        return isEventReady;
+    }
+
+    @Override
+    public String toString() {
+        return "EventBarrier(isEventReady: " + isEventReady + ")";
     }
 
 }

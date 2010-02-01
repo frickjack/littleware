@@ -13,7 +13,6 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import littleware.apps.client.ClientBootstrap;
 import littleware.test.TestFactory;
 
@@ -32,14 +31,15 @@ public class PackageTestSuite extends HudsonTestSuite {
             Provider<CreateFolderTester> factoryCreateTester,
             Provider<GetByNameTester> factoryByNameTester,
             Provider<BrowserCommandTest> factoryBrowserTest,
-            Provider<RootPathCommandTest> factoryRootPathTest
+            Provider<RootPathCommandTest> factoryRootPathTest,
+            Provider<LgoServerTester> factoryServerTest
             )
     {
         super( factoryArgTester, factoryDeleteTester,
                 factoryXmlHelpTester, factoryImageTester,
                 factoryChildrenTester, factoryGetTester,
                 factoryCreateTester, factoryByNameTester,
-                factoryRootPathTest
+                factoryRootPathTest, factoryServerTest
                 );
         setName( PackageTestSuite.class.getName() );
 

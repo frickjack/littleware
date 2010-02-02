@@ -693,7 +693,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public Asset build() {
-        validateOrFail();
+        validate();
         return new SimpleAsset( getAssetType(), getId(), getHomeId(), getOwnerId(),
                 getFromId(), getToId(), getAclId(), getTransaction(),
                 getName(), getState(),
@@ -702,14 +702,10 @@ public class SimpleAssetBuilder implements AssetBuilder {
                 getStartDate(), getEndDate(), getValue(), getData() );
     }
 
-    @Override
-    public boolean validate() {
-        return validator.validate(this);
-    }
 
     @Override
-    public void validateOrFail() {
-        validator.build(this).validateOrFail();
+    public void validate() {
+        validator.build(this).validate();
     }
 
     @Override

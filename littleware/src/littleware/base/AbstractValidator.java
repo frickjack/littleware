@@ -16,12 +16,25 @@ package littleware.base;
  */
 public abstract class AbstractValidator implements Validator {
     /**
-     * Just call validate and throw exception on failure
+     * Utility wrapps validator.validate() in try {} catch {},
+     * returns Maybe( exception.getMessage() ) if exception caught,
+     * otherwise Maybe.empty() if validation ok.
      */
-    @Override
-    public final void validateOrFail() {
-        if ( ! validate() ) {
-            throw new ValidationException( this.getClass().getName() );
+    public static Maybe<String> check( Validator validator ) {
+        try {
+            validator.validate();
+            return Maybe.empty();
+        } catch ( Exception ex ) {
+            return Maybe.something( ex.getMessage() );
+        }
+    }
+    
+    /**
+     * Utility throws new ValidationException( message ) if ! test
+     */
+    public static void assume( boolean test, String message ) throws ValidationException {
+        if ( ! test ) {
+            throw new ValidationException( message );
         }
     }
 }

@@ -25,8 +25,10 @@ public class AssetDataValidator {
     public Validator build( final String data ) {
         return new AbstractValidator(){
             @Override
-            public boolean validate() {
-                return AssetDataValidator.this.validate( data );
+            public void validate() {
+                assume( AssetDataValidator.this.validate( data ),
+                        "Asset data < 1024 characters"
+                        );
             }
         };
     }
@@ -37,8 +39,10 @@ public class AssetDataValidator {
     public Validator build( final AssetBuilder builder ) {
         return new AbstractValidator(){
             @Override
-            public boolean validate() {
-                return AssetDataValidator.this.validate( builder.getData() );
+            public void validate() {
+                assume( AssetDataValidator.this.validate( builder.getData() ),
+                        "Asset data < 1024 characters"
+                        );
             }
         };
     }

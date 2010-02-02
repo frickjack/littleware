@@ -36,10 +36,6 @@ public class SimpleABValidator implements AssetBuilderValidator {
         this( new AssetNameValidator(), new AssetDataValidator() );
     }
 
-    @Override
-    public boolean validate( AssetBuilder builder ) {
-        return build( builder ).validate();
-    }
 
     @Override
     public Validator build( final AssetBuilder builder ) {
@@ -49,8 +45,8 @@ public class SimpleABValidator implements AssetBuilderValidator {
                 new AbstractValidator(){
 
             @Override
-            public boolean validate() {
-                return (null != builder.getId())
+            public void validate() {
+                assume( (null != builder.getId())
                         && (null != builder.getHomeId())
                         && (
                             AssetType.HOME.equals( builder.getAssetType() )
@@ -59,8 +55,9 @@ public class SimpleABValidator implements AssetBuilderValidator {
                         && (
                             AssetType.HOME.equals( builder.getAssetType() )
                             ^ (! builder.getId().equals( builder.getHomeId() ))
-                            )
-                            ;
+                            ),
+                            "Home-id, From-id check passed"
+                            );
             }
         }
         ) {};

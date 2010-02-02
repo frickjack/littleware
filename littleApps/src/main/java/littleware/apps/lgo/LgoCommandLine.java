@@ -42,28 +42,25 @@ import org.osgi.framework.BundleContext;
  * for launching each command.  Typical syntax is:
  *     lgo command-name command-args
  */
-public class LgoCommandLine extends RunnerActivator {
+public class LgoCommandLine {
 
     private static final Logger log = Logger.getLogger(LgoCommandLine.class.getName());
-    private static String[] globalArgs;
 
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
     private final LittleBootstrap bootstrap;
-    private final LgoServer.ServerBuilder serverBuilder;
+    
 
     /** Inject dependencies */
     @Inject
     public LgoCommandLine(
             LgoCommandDictionary commandMgr,
             LgoHelpLoader helpMgr,
-            LittleBootstrap bootstrap,
-            LgoServer.ServerBuilder serverBuilder
+            LittleBootstrap bootstrap
             ) {
         this.commandMgr = commandMgr;
         this.helpMgr = helpMgr;
         this.bootstrap = bootstrap;
-        this.serverBuilder = serverBuilder;
     }
 
     /**
@@ -75,7 +72,7 @@ public class LgoCommandLine extends RunnerActivator {
      * @param feedback to pass to command.runCommandLine
      * @return command exit-status
      */
-    private int processCommand(String sCommand, List<String> processArgs, String sArg, Feedback feedback) {
+    public int processCommand(String sCommand, List<String> processArgs, String sArg, Feedback feedback) {
         final LgoCommand<?, ?> command = commandMgr.buildCommand(sCommand);
         try {
             if (null == command) {
@@ -100,71 +97,15 @@ public class LgoCommandLine extends RunnerActivator {
         return 0;
     }
 
+
     /**
-     * Read command-lines from StdIn.
-     * Command has form:
-     *      name  args* [ -- arg]
-     * Treat "exit" command as special escape.
+     * Run the LgoCommand specifiedby the given args array
+     *
+     * @param argsArray lgo command line arguments
+     * @return command exit code
      */
-    private void processPipe(Feedback feedback) throws IOException {
-        final BufferedReader reader;
-        try {
-            reader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-        } catch (UnsupportedEncodingException ex) {
-            throw new AssertionFailedException("What the frick?", ex);
-        }
-
-        final StringBuilder sb = new StringBuilder();
-        System.out.println("LGO>>");
-        for (String sLine = reader.readLine(); null != sLine; sLine = reader.readLine()) {
-            if ( Thread.interrupted() ) {
-                log.log(Level.INFO, "LGO processing thread interrupted - exiting loop" );
-                return;
-            }
-            String sClean = sLine.trim();
-            if (sClean.length() == 0) {
-                continue;
-            }
-            String sCommand = sClean;
-            final List<String> commandTokens = new ArrayList<String>();
-            String sArg = "";
-            final int iFirstSpace = sClean.indexOf(" ");
-
-            if (iFirstSpace > 0) {
-                sCommand = sClean.substring(0, iFirstSpace);
-                sClean = sClean.substring(iFirstSpace);
-
-                // -- marks end of argumnts, pass rest of string as input-string
-                final int iDashDash = sClean.indexOf(" -- ");
-                if (iDashDash >= 0) {
-                    sArg = sClean.substring(iDashDash + 3).trim();
-                    sClean = sClean.substring(0, iDashDash).trim();
-                }
-                // TODO - add some smarter parsing
-                for (String sProcess : sClean.split("\\s+")) {
-                    if (sProcess.trim().length() > 0) {
-                        if ( sProcess.indexOf( "%" ) < 0 ) {
-                            commandTokens.add( sProcess );
-                        } else {
-                            commandTokens.add( URLDecoder.decode( sProcess, "UTF8"));
-                        }
-                    }
-                }
-            }
-            if (sCommand.equalsIgnoreCase("exit")) {
-                break;
-            }
-            processCommand(sCommand, commandTokens, sArg, feedback);
-            System.out.println("LGO>>");
-        }
-    }
-
-    Maybe<LgoServer> maybeServer = Maybe.empty();
-
-    @Override
-    public void run() {
+    public int run( String[] argsArray ) {
         log.log(Level.FINE, "Running on Swing dispatch thread");
-        final String[] argsArray = getArgs();
         int iExitStatus = 0;
 
         try {
@@ -172,13 +113,9 @@ public class LgoCommandLine extends RunnerActivator {
 
             if (argsArray.length == 0) { // launch help command by default
                 System.out.print(commandMgr.buildCommand("help").runCommandLine(feedback, ""));
-                return;
+                return 1;
             }
             final String command = argsArray[0];
-            if (command.equalsIgnoreCase("pipe")) {
-                processPipe(feedback);
-                return;
-            }
             final List<String> cleanArgs = new ArrayList<String>();
             final StringBuilder sb = new StringBuilder();
 
@@ -194,28 +131,17 @@ public class LgoCommandLine extends RunnerActivator {
                 }
                 cleanArgs.add(arg);
             }
-            if ( command.equalsIgnoreCase( "server" ) ) {
-                log.log( Level.INFO, "Launching lgo server ..." );
-                maybeServer = Maybe.something( serverBuilder.launch() );
-                return;
-            }
             iExitStatus = processCommand(command, cleanArgs, sb.toString().trim(), feedback);
         } catch (Exception e) {
             iExitStatus = 1;
             log.log(Level.SEVERE, "Failed command, caught: " + e, e);
         } finally {
-            if ( maybeServer.isEmpty() ) {
-                // don't shutdown if we launched a background server
-                bootstrap.shutdown();
-                System.exit(iExitStatus);
-            }
+            bootstrap.shutdown();
         }
+        return iExitStatus;
     }
 
 
-    private static String[] getArgs() {
-        return globalArgs;
-    }
 
     /**
      * Look at the first argument to determine 
@@ -224,11 +150,10 @@ public class LgoCommandLine extends RunnerActivator {
      * to the command.runCommand method.
      * Should run on event-dispatch thread.
      * 
-     * @param vArgs command-line args
+     * @param argsIn command-line args
      * @param bootClient to add LittleCommandLine.class to and bootstrap()
      */
-    public static void launch(String[] vArgs, ClientBootstrap bootClient) {
-        globalArgs = vArgs;
+    public static void launch( final String[] argsIn, ClientBootstrap bootClient) {
         /*... just for testing in serverless environment ... 
         {
         // Try to start an internal server for now just for testing
@@ -236,33 +161,49 @@ public class LgoCommandLine extends RunnerActivator {
         bootServer.bootstrap();
         }
         ...*/
+        String[] cleanArgs = argsIn;
+
         // Currently only support -url argument
-        if ((vArgs.length > 1) && vArgs[0].matches("^-+[uU][rR][lL]")) {
-            final String sUrl = vArgs[1];
+        if ((argsIn.length > 1) && argsIn[0].matches("^-+[uU][rR][lL]")) {
+            final String sUrl = argsIn[1];
             try {
                 final URL url = new URL(sUrl);
                 bootClient.setHost(Maybe.something(url.getHost()));
             } catch (MalformedURLException ex) {
                 throw new IllegalArgumentException("Malformed URL: " + sUrl);
             }
-            if (vArgs.length > 2) {
-                globalArgs = Arrays.copyOfRange(vArgs, 2, vArgs.length );
+            if (argsIn.length > 2) {
+                cleanArgs = Arrays.copyOfRange(argsIn, 2, argsIn.length );
             } else {
-                globalArgs = new String[0];
+                cleanArgs = new String[0];
             }
         }
-        bootClient.getOSGiActivator().add(LgoCommandLine.class);
-        bootClient.bootstrap();
+        if ( cleanArgs.length > 0 ) {
+            final String command = cleanArgs[0];
+            
+            if (command.equalsIgnoreCase("pipe")) {
+                bootClient.getOSGiActivator().add( LgoPipeActivator.class );
+                bootClient.bootstrap();
+                //processPipe(feedback);
+                return;
+            }
+            if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
+                log.log( Level.INFO, "Launching lgo server ..." );
+                bootClient.getOSGiActivator().add( LgoServerActivator.class );
+                bootClient.bootstrap();
+                return;
+            }
+            if ( command.equals( "jserver" ) ) { // launch lgo server - jnlp environment
+                log.log( Level.INFO, "Launching lgo jnlp server ..." );
+                bootClient.getOSGiActivator().add( JLgoServerActivator.class );
+                bootClient.bootstrap();
+                return;
+            }
+        } 
+        final LgoCommandLine cl = bootClient.bootstrap( LgoCommandLine.class );
+        cl.run( cleanArgs );
     }
 
-    @Override
-    public void stop( BundleContext ctx ) throws Exception {
-        if ( maybeServer.isSet() ) {
-            maybeServer.get().shutdown();
-            maybeServer = Maybe.empty();
-        }
-        super.stop( ctx );
-    }
 
     /** Just launch( vArgs, new ClientBootstrap() ); on the event-dispatch thread */
     public static void main(final String[] vArgs) {

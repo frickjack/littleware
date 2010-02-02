@@ -55,7 +55,7 @@ public abstract class RunnerActivator implements BundleActivator, Runnable {
     }
 
     @Override
-    public void stop(BundleContext arg0) throws Exception {
+    public void stop(BundleContext ctx) throws Exception {
         if ( maybeFuture.isSet() && (! maybeFuture.get().isDone() ) ) {
             maybeFuture.get().cancel(true);
             maybeFuture = Maybe.empty();

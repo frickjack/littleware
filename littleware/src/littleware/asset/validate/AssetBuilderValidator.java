@@ -18,6 +18,5 @@ import littleware.base.Validator;
  * before building an Asset
  */
 public interface AssetBuilderValidator {
-    public boolean validate( AssetBuilder builder );
     public Validator build( final AssetBuilder builder );
 }

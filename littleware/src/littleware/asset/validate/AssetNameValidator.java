@@ -26,8 +26,10 @@ public class AssetNameValidator {
     public Validator build( final String assetName ) {
         return new AbstractValidator() {
             @Override
-            public boolean validate() {
-                return AssetNameValidator.this.validate( assetName );
+            public void validate() {
+                assume( AssetNameValidator.this.validate( assetName ),
+                        "Valid asset name: " + assetName
+                        );
             }
         };
     }
@@ -36,8 +38,9 @@ public class AssetNameValidator {
         return new AbstractValidator(){
 
             @Override
-            public boolean validate() {
-                return AssetNameValidator.this.validate( builder.getName() );
+            public void validate() {
+                assume( AssetNameValidator.this.validate( builder.getName() ),
+                        "Valid asset name: " + builder.getName() );
             }
         };
     }

@@ -344,14 +344,10 @@ public abstract class AssetBuilderWrapper implements AssetBuilder {
         builder.removePropertyChangeListener( listen_props );
     }
 
-    @Override
-    public boolean validate() {
-        return builder.validate();
-    }
 
     @Override
-    public void validateOrFail() {
-        builder.validateOrFail();
+    public void validate() {
+        builder.validate();
     }
 
 }

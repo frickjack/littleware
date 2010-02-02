@@ -29,21 +29,12 @@ public class CompoundValidator implements Validator {
     }
 
     @Override
-    public final boolean validate() {
+    public final void validate() {
         for( Validator check : validatorSet ) {
-            if ( ! check.validate() ) {
-                return false;
-            }
+            check.validate();
         }
-        return true;
     }
 
-    @Override
-    public final void validateOrFail() {
-        for( Validator check: validatorSet ) {
-            check.validateOrFail();
-        }
-    }
 
     public static Validator build( Validator ... validators ) {
         return new CompoundValidator( validators );

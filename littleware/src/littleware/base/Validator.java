@@ -13,16 +13,9 @@ package littleware.base;
  * Standard interface for validation test
  */
 public interface Validator {
-
     /**
-     * @return true if validation succeeds and ready to call build()
-     */
-    public boolean validate();
-
-    /**
-     * if ( ! validate ) { throw ValidationException; }
-     *
      * @exception ValidateException on validation failure
      */
-    public void validateOrFail();
+    public void validate() throws ValidationException;
+
 }

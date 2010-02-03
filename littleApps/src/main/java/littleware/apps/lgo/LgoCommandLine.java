@@ -14,25 +14,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import littleware.apps.client.ClientBootstrap;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
+import littleware.base.EventBarrier;
 import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
-import littleware.security.auth.LittleBootstrap;
 
-import littleware.security.auth.RunnerActivator;
-import org.osgi.framework.BundleContext;
 
 /**
  * Command-line based lgo launcher.
@@ -48,19 +42,16 @@ public class LgoCommandLine {
 
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
-    private final LittleBootstrap bootstrap;
     
 
     /** Inject dependencies */
     @Inject
     public LgoCommandLine(
             LgoCommandDictionary commandMgr,
-            LgoHelpLoader helpMgr,
-            LittleBootstrap bootstrap
+            LgoHelpLoader helpMgr
             ) {
         this.commandMgr = commandMgr;
         this.helpMgr = helpMgr;
-        this.bootstrap = bootstrap;
     }
 
     /**
@@ -82,9 +73,16 @@ public class LgoCommandLine {
 
             command.processArgs(processArgs);
 
-            String sResult = command.runCommandLine(feedback, sArg);
-            System.out.println((null == sResult) ? "null" : sResult);
-        } catch (LgoException ex) {
+            if ( command instanceof LgoBrowserCommand ) {
+                // HACK!
+                // Hard-code browser command exception for now ...
+                final EventBarrier<Maybe<UUID>> barrier = ((LgoBrowserCommand) command).runCommand(feedback, sArg);
+                System.out.println( barrier.waitForEventData().toString() );
+            } else {
+                final String sResult = command.runCommandLine(feedback, sArg);
+                System.out.println((null == sResult) ? "null" : sResult);
+            }
+        } catch (Exception ex) {
             System.out.println("Command failed, caught exception: " +
                     BaseException.getStackTrace(ex));
             try {
@@ -135,9 +133,7 @@ public class LgoCommandLine {
         } catch (Exception e) {
             iExitStatus = 1;
             log.log(Level.SEVERE, "Failed command, caught: " + e, e);
-        } finally {
-            bootstrap.shutdown();
-        }
+        } 
         return iExitStatus;
     }
 
@@ -201,7 +197,9 @@ public class LgoCommandLine {
             }
         } 
         final LgoCommandLine cl = bootClient.bootstrap( LgoCommandLine.class );
-        cl.run( cleanArgs );
+        final int exitCode = cl.run( cleanArgs );
+        bootClient.shutdown();
+        System.exit( exitCode );
     }
 
 

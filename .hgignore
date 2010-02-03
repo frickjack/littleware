@@ -1,0 +1,15 @@
+CVS
+^littleware/lib
+^littleware/applet_test
+/build/
+^littleware/LittleTestCache
+^littleware/littleTest
+/dist/
+^littleware/doc
+^littleware_client
+^littleware/ddl/derbycache
+nbproject/private
+/bucketRoot/
+^scratch
+\.pyc$
+~$

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<help fullname="littleware.apps.lgo.GetRootPathCommand"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>Convert the given path to a rooted path</synopsis>
+  <description>
+      Get the human-readable home-rooted path if possible for
+      the given path.
+
+      abspath -path path2convert
+  </description>
+  <shortname>abspath</shortname>
+</help>

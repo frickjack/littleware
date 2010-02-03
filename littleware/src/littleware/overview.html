@@ -1,0 +1,103 @@
+<body>
+The littleware javadoc contains API documentation for both the littleware
+client and server jar APIs.
+The littleware developed code documented here is licensed under
+the <a href="http://www.fsf.org/licensing/licenses/info/GPLv2.html"> GPLv2 </a>
+license, copyright 2007.
+
+<p>
+This document primarily provides information supporting a developer
+working on a littleware client tool.
+The littleware client API is a subset of the littleware server API.
+The littleware server is the deployed littleware component that manages
+access to the backend RMDS, and exports RMI and SOAP (still under development)
+based services to clients.
+Only code that integrates directly into the littleware server should
+use the littleware.jar server library.
+Every other codebase should develop against the littleClient.jar
+library - including web portals, scripts, standalone applications,
+and plugins to third party packages.
+</p>
+<p>
+Littleware provides a middleware system by which client applications
+may manage sets of interrelated digital assets.
+Most littleware client applications will follow the same few steps
+to bootstrap their connection with a littleware server.
+<ul>
+<li> Obtain a {@link littleware.security.auth.SessionManager} instance via
+      one of the static factory methods exported by {@link littleware.security.auth.SessionUtil}
+         </li>
+<li> Use the SessionManager to authenticate a user, and acquire a
+    {@link littleware.security.auth.SessionHelper}. 
+    Each SessionHelper is associated with a {@link littleware.security.auth.LittleSession}
+    type asset.
+     </li>
+</ul>
+</p>
+<p>
+The ASSET_MANAGER and ASSET_SEARCH {@link littleware.security.auth.ServiceType}
+services provide the basic littleware APIs ({@link littleware.asset.AssetManager}
+and {@link littleware.asset.AssetSearchManager} respectively)
+for creating and retrieving assets from the littleware asset repository.
+A client may also create a new asset object via the factory objects defined
+as static members of {@link littleware.asset.AssetType} and other
+AssetType implements (like {@link littleware.security.SecurityAssetType}.
+Once a client successfully retrieves an Asset, then he may invoke
+whatever public methods are exported by that Asset&apos;s API,
+but changes to the Asset are not reflected in the littleware asset
+repository until the asset is saved via the {@link littleware.asset.AssetManager}
+API or some similar mechanism.
+</p>
+<p>
+The {@link littleware.asset.Asset} interface defines the core set
+of data that all asset types ({@link littleware.asset.AssetType})
+share in common.  Every asset has a java.security.acl.Owner and
+a {@link littleware.security.LittleAcl} (extending java.security.acl.Acl)
+object associated with it.  An asset&apos;s owner and acl control access to that asset,
+except for assets of type {@link littleware.security.LittleUser}
+and {@link littleware.security.LittleGroup} (implementing the java.security.Principal
+and java.security.Group JAAS APIs) - which every use has READ access to,
+but only the owner has WRITE access to.  The littleware manages permissions
+via the {@link littleware.security.LittlePermission} based implementation
+of java.security.acl.Permission.
+</p>
+<p>
+There are several examples of littleware client applications bundled 
+with the littleClient.jar library.  The source code for these apps is
+available for free download from the littleware home page.
+<ul>
+<li> {@link littleware.apps.swingclient.JToolkit} provides a wizard like
+          API to various littleware GUI controls. </li>
+<li> {@link littleware.web.applet.Toolbox} incorporates the {@link littleware.apps.swingclient.JToolkit}
+        widget into an applet. </li>
+<li> {@link littleware.web.tags.IfAclAccessAction} implements a JSP tag that
+        checks whether a named acl grants a SessionHelper user session a particular 
+        type of access permission. </li>
+<li> {@link littleware.web.servlet.SecurityFilter} attaches a SubjectDomainCombiner to
+      a servlet&apos;s {@link java.security.AccessControlContext} 
+      based on the SessionHelper registered with the login information stored
+      in a well known web-session bean. </li>
+</ul>
+</p>
+
+<hr />
+
+    littleware asset tracker <br />
+    Copyright (C) 2007 Reuben Pasquini <br />
+
+<p>
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License version 2.1 as published by the Free Software Foundation.
+</p>
+<p>
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+</p>
+<br />
+Last modified: 01/23/2007 <br />
+
+
+</body>

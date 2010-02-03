@@ -51,6 +51,10 @@ public class LgoServerActivator implements BundleActivator {
                     log.log(Level.INFO, "Running automatic shutdown");
                     maybeFuture = Maybe.empty();
                     bootstrap.shutdown();
+                    // give everything a little extra time to shut down
+                    Thread.sleep( 10000 );
+                } catch ( Exception ex ) {
+                    log.log( Level.WARNING, "Unexpected exception on auto-shutdown", ex );
                 } finally {
                     System.exit(0);
                 }

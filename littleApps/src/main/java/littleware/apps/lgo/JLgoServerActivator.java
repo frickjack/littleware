@@ -21,10 +21,10 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import littleware.base.Maybe;
 import littleware.base.swing.GridBagWrap;
+import littleware.security.auth.LittleBootstrap;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -52,8 +52,9 @@ public class JLgoServerActivator extends LgoServerActivator {
     };
 
     @Inject
-    public JLgoServerActivator(LgoServer.ServerBuilder serverBuilder) {
-        super(serverBuilder);
+    public JLgoServerActivator(LgoServer.ServerBuilder serverBuilder,
+            LittleBootstrap bootstrap ) {
+        super(serverBuilder, bootstrap );
     }
 
     @Override
@@ -89,7 +90,6 @@ public class JLgoServerActivator extends LgoServerActivator {
         } catch (UnavailableServiceException ex) {
             log.log(Level.WARNING, "Failed to register as SingleInstanceService with JNLP", ex);
         }
-
     }
 
     @Override

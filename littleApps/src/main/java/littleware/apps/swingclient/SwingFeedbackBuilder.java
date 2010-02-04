@@ -140,6 +140,11 @@ public class SwingFeedbackBuilder implements Provider<FeedbackBundle>{
             public Feedback getFeedback() {
                 return fb;
             }
+
+            @Override
+            public Feedback get() {
+                return getFeedback();
+            }
         };
     }
 }

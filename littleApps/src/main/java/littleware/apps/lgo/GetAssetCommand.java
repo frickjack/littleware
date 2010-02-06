@@ -21,7 +21,7 @@ import littleware.base.feedback.Feedback;
 /**
  * Get the asset at a given path
  */
-public class GetAssetCommand extends AbstractCreateCommand<AssetPath,Asset> {
+public class GetAssetCommand extends AbstractAssetCommand<AssetPath,Asset> {
     private final AssetSearchManager osearch;
     private final AssetPathFactory ofactoryPath;
 

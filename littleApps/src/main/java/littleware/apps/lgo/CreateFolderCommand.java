@@ -26,7 +26,7 @@ import littleware.base.feedback.Feedback;
 /**
  * Create a generic asset that inherits most properties from its parent
  */
-public class CreateFolderCommand extends AbstractCreateCommand<String,Asset> {
+public class CreateFolderCommand extends AbstractAssetCommand<String,Asset> {
     private final AssetSearchManager            osearch;
     private final AssetManager                  omgrAsset;
     private final AssetPathFactory              ofactoryPath;

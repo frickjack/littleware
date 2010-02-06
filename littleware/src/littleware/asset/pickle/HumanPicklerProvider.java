@@ -11,6 +11,7 @@
 package littleware.asset.pickle;
 
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -31,7 +32,8 @@ import littleware.base.BaseException;
  *
  * @TODO clean this up, generalize for different picklers, and improve type-lookup performance
  */
-public final class HumanPicklerProvider implements Provider<AssetHumanPickler> {
+@Singleton
+public class HumanPicklerProvider implements Provider<AssetHumanPickler> {
 
     private final Map<AssetType,Provider<? extends AssetHumanPickler>> omapType2Provider =
             new HashMap<AssetType,Provider<? extends AssetHumanPickler>>();

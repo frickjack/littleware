@@ -10,6 +10,7 @@
 
 package littleware.apps.lgo;
 
+import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import org.osgi.framework.BundleContext;
  * the LgoCommandDictionary
  */
 public class LgoActivator implements BundleActivator {
+
 
     /** Inject dependencies */
     @Inject
@@ -38,7 +40,8 @@ public class LgoActivator implements BundleActivator {
             Provider<CreateLockCommand> comLock,
             Provider<GetByNameCommand> comNameGet,
             Provider<SetImageCommand> comSetImage,
-            Provider<GetRootPathCommand> comRootPath) {
+            Provider<GetRootPathCommand> comRootPath,
+            GsonProvider gsonProvider ) {
         for (Provider<? extends LgoCommand<?, ?>> command : // need to move this into a properties file
                 Arrays.asList(
                 comHelp, comXml, comBrowse, comDelete, comLs, comGet,
@@ -46,6 +49,9 @@ public class LgoActivator implements BundleActivator {
                 comRootPath)) {
             commandMgr.setCommand(helpMgr, command);
         }
+        gsonProvider.registerSerializer(SimpleAssetListBuilder.AssetList.class,
+                new SimpleAssetListBuilder.GsonSerializer()
+                );
     }
 
     /** NOOP */

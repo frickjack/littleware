@@ -30,10 +30,12 @@ public class PackageTestSuite extends TestSuite {
             littleware.base.test.PackageTestSuite suite_base,
             littleware.asset.test.PackageTestSuite suite_asset,
             littleware.security.test.PackageTestSuite suite_security,
-            AssetSearchManager search) {
+            AssetSearchManager search
+            )
+    {
         super(PackageTestSuite.class.getName());
         // disable server tests
-        final boolean bRun = true;
+        final boolean bRun = false;
 
         log.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {

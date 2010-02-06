@@ -19,14 +19,14 @@ import littleware.base.feedback.Feedback;
  * Extends AbstractLgoCommand with a runCommandLine implementation
  * that runs an asset result through a HumanPickler
  */
-public abstract class AbstractCreateCommand<Tin,Tout extends Asset>
+public abstract class AbstractAssetCommand<Tin,Tout extends Asset>
         extends AbstractLgoCommand<Tin,Tout>
 {
-    private final HumanPicklerProvider oprovidePickler;
+    private final HumanPicklerProvider providePickler;
 
-    protected AbstractCreateCommand( String sName, HumanPicklerProvider providePickler ) {
+    protected AbstractAssetCommand( String sName, HumanPicklerProvider providePickler ) {
         super(sName);
-        oprovidePickler = providePickler;
+        this.providePickler = providePickler;
     }
 
     /**
@@ -36,7 +36,7 @@ public abstract class AbstractCreateCommand<Tin,Tout extends Asset>
     public String runCommandLine( Feedback feedback, String sIn ) throws LgoException {
         try {
             StringWriter writer = new StringWriter();
-            oprovidePickler.get().pickle( runDynamic(feedback,sIn ), writer);
+            providePickler.get().pickle( runDynamic(feedback,sIn ), writer);
             return writer.toString();
         } catch ( LgoException ex ) {
             throw ex;

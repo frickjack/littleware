@@ -28,7 +28,7 @@ import littleware.asset.*;
  */
 public abstract class PickleType extends DynamicEnum<PickleType> {
 
-    private static Logger olog_generic = Logger.getLogger(PickleType.class.getName());
+    private static final Logger log = Logger.getLogger(PickleType.class.getName());
 
     /**
      * Do-nothing constructor intended for deserialization only.

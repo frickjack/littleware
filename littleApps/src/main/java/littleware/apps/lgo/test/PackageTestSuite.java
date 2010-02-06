@@ -32,14 +32,15 @@ public class PackageTestSuite extends HudsonTestSuite {
             Provider<GetByNameTester> factoryByNameTester,
             Provider<BrowserCommandTest> factoryBrowserTest,
             Provider<RootPathCommandTest> factoryRootPathTest,
-            Provider<LgoServerTester> factoryServerTest
+            Provider<LgoServerTester> factoryServerTest,
+            Provider<GsonTester> provideGsonTester
             )
     {
         super( factoryArgTester, factoryDeleteTester,
                 factoryXmlHelpTester, factoryImageTester,
                 factoryChildrenTester, factoryGetTester,
                 factoryCreateTester, factoryByNameTester,
-                factoryRootPathTest, factoryServerTest
+                factoryRootPathTest, factoryServerTest, provideGsonTester
                 );
         setName( PackageTestSuite.class.getName() );
 

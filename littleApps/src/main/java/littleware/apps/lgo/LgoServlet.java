@@ -9,8 +9,12 @@
  */
 package littleware.apps.lgo;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -19,9 +23,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import littleware.asset.Asset;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
+import littleware.security.LittleGroup;
 import littleware.security.auth.LittleBootstrap;
 
 /**
@@ -32,15 +38,18 @@ public class LgoServlet extends HttpServlet {
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
     private final LittleBootstrap bootstrap;
+    private final Provider<Gson> jsonProvider;
 
     @Inject
     public LgoServlet(
             LgoCommandDictionary commandMgr,
             LgoHelpLoader helpMgr,
-            LittleBootstrap bootstrap) {
+            LittleBootstrap bootstrap,
+            Provider<Gson> jsonProvider ) {
         this.commandMgr = commandMgr;
         this.helpMgr = helpMgr;
         this.bootstrap = bootstrap;
+        this.jsonProvider = jsonProvider;
     }
     private final Feedback feedback = new NullFeedback();
 
@@ -60,8 +69,17 @@ public class LgoServlet extends HttpServlet {
         }
         command.processArgs(processArgs);
 
-        final String result = command.runCommandLine(feedback, sArg);
-        return (null == result) ? "null" : result;
+        final Gson gson = jsonProvider.get();
+        final Object output = command.runDynamic(feedback, sArg);
+        final String result;
+        if ( output instanceof  Asset ) {
+            result = gson.toJson( output, Asset.class );
+        } else if ( output instanceof LgoHelp ) {
+            result = output.toString();
+        } else {
+            result = gson.toJson( output );
+        }
+        return (null == result) ? "" : result;
     }
 
     @Override

@@ -51,7 +51,7 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private final DateFormat oformatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    protected final DateFormat oformatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     /**
@@ -113,6 +113,7 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         appendProperty(sb, "transaction", Long.toString(aIn.getTransaction()));
         appendProperty( sb, "comment", aIn.getComment() );
         appendProperty( sb, "value", aIn.getValue() );
+        appendProperty( sb, "state", aIn.getState() );
         // Go ahead and add some special handling of GROUP type assets here.
         // Can move out to separate registered handler later if we want
         if ( aIn.getAssetType().isA( SecurityAssetType.GROUP ) ) {

@@ -33,7 +33,8 @@ public class HudsonTestSuite extends TestSuite {
             Provider<CreateFolderTester> factoryCreateTester,
             Provider<GetByNameTester> factoryByNameTester,
             Provider<RootPathCommandTest> factoryRootPathTest,
-            Provider<LgoServerTester> factoryServerTest
+            Provider<LgoServerTester> factoryServerTest,
+            Provider<GsonTester> provideGsonTester
             )
     {
         super( HudsonTestSuite.class.getName() );
@@ -52,6 +53,7 @@ public class HudsonTestSuite extends TestSuite {
             this.addTest( factoryCreateTester.get() );
         }
         this.addTest( factoryByNameTester.get() );
+        this.addTest( provideGsonTester.get() );
     }
 
     /**

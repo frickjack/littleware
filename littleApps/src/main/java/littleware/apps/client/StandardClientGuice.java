@@ -10,6 +10,8 @@
 
 package littleware.apps.client;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Module;
@@ -52,13 +54,13 @@ public class StandardClientGuice implements Module {
         }
 
     }
+
     
     @Override
     public void configure( Binder binder ) {
         binder.bind( AssetModelLibrary.class ).to( SimpleAssetModelLibrary.class ).in( Scopes.SINGLETON );
         binder.bind( AssetModel.class ).toProvider( DefaultModelProvider.class );
         binder.bind( AssetHumanPickler.class ).toProvider( HumanPicklerProvider.class );
-        binder.bind( HumanPicklerProvider.class ).in( Scopes.SINGLETON );
         binder.bind( BucketManager.class ).to( BucketManagerService.class );
     }
 }

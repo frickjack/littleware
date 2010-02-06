@@ -76,8 +76,13 @@ public class LgoServerActivator implements BundleActivator {
             maybeFuture.get().cancel(false);
             maybeFuture = Maybe.empty();
         }
-        if (!executor.isShutdown()) {
-            executor.shutdown();
-        }
+        executor.schedule( new Runnable() {
+
+            @Override
+            public void run() {
+                log.log( Level.INFO, "Exiting application ..." );
+                System.exit( 0 );
+            }
+        }, 5, TimeUnit.SECONDS );
     }
 }

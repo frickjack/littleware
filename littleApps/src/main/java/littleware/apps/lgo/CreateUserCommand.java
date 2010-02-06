@@ -29,7 +29,7 @@ import littleware.security.SecurityAssetType;
  * Create a new littleware.USER asset at /littleware.home/Users/name.
  * Return the new user's objectid.
  */
-public class CreateUserCommand extends AbstractCreateCommand<String,LittleUser> {
+public class CreateUserCommand extends AbstractAssetCommand<String,LittleUser> {
     private final AssetSearchManager osearch;
     private final AssetManager omgrAsset;
     private final AssetPathFactory ofactoryPath;

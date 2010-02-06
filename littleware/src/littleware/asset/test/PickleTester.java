@@ -26,29 +26,18 @@ import littleware.test.LittleTest;
  * and exercises them a bit.
  */
 public class PickleTester extends LittleTest {
+    private static final Logger log = Logger.getLogger(PickleTester.class.getName());
 
-    private static final Logger olog_generic = Logger.getLogger(PickleTester.class.getName());
-    private final Provider<? extends PickleMaker<Asset>> oprovidePickler;
+    private final Provider<? extends PickleMaker<Asset>> picklerProvider;
 
     /**
      * Constructor stashes PickleType to test against
      */
     public PickleTester(Provider<? extends PickleMaker<Asset>> providePickler) {
         setName("testPickleTwice");
-        oprovidePickler = providePickler;
+        this.picklerProvider = providePickler;
     }
 
-    /**
-     * No seutp necessary
-     */
-    @Override
-    public void setUp() {
-    }
-
-    /** No tearDown necessary  */
-    @Override
-    public void tearDown() {
-    }
 
     /**
      * Stupid little test - check whether pickling an AssetType.GENERIC
@@ -57,7 +46,7 @@ public class PickleTester extends LittleTest {
      */
     public void testPickleTwice() {
         try {
-            final Asset a_test = AssetType.GENERIC.create().
+            final Asset testAsset = AssetType.GENERIC.create().
                     name("bogus_pickletest_asset").
                     homeId(UUID.randomUUID()).
                     fromId(UUID.randomUUID()).
@@ -66,19 +55,19 @@ public class PickleTester extends LittleTest {
                     lastUpdaterId(UUID.randomUUID()).
                     lastUpdate("Bla bla").build();
 
-            StringWriter io_string = new StringWriter();
-            oprovidePickler.get().pickle(a_test, io_string);
-            String s_first = io_string.toString();
-            olog_generic.log(Level.INFO, "First pickle of test asset got: " + s_first);
+            final StringWriter stringWriter = new StringWriter();
+            picklerProvider.get().pickle(testAsset, stringWriter);
+            final String firstPickle = stringWriter.toString();
+            log.log(Level.INFO, "First pickle of test asset got: " + firstPickle);
 
-            io_string.getBuffer().setLength(0);
-            oprovidePickler.get().pickle(a_test, io_string);
-            String s_second = io_string.toString();
-            assertTrue("Pickle twice, got same result", s_first.equals(s_second));
-        } catch (Exception e) {
-            olog_generic.log(Level.INFO, "Caught unexected: " + e + ", " +
-                    BaseException.getStackTrace(e));
-            assertTrue("Caught unexpected: " + e, false);
+            stringWriter.getBuffer().setLength(0);
+            picklerProvider.get().pickle(testAsset, stringWriter);
+            final String secondPickle = stringWriter.toString();
+            assertTrue("Pickle twice, got same result", firstPickle.equals(secondPickle));
+        } catch (Exception ex) {
+            log.log(Level.INFO, "Caught unexected: " + ex + ", " +
+                    BaseException.getStackTrace(ex));
+            assertTrue("Caught unexpected: " + ex, false);
         }
     }
 }

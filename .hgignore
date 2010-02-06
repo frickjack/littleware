@@ -10,6 +10,7 @@ CVS
 ^littleware/ddl/derbycache
 nbproject/private
 /bucketRoot/
+/cachedir/
 ^scratch
 \.pyc$
 ~$

@@ -10,6 +10,8 @@
 
 package littleware.apps.lgo;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
@@ -27,14 +29,16 @@ public class LgoGuice implements Module {
      *      <li> Move command mapping to a properties file</li>
      *      <li> Setup XML multilingual help system </li>
      *      </ul>
-     * @param binder_in
+     * @param binder
      */
     @Override
-    public void configure( Binder binder_in ) {
+    public void configure( Binder binder ) {
         // Use provider - problem with class loader in Tomcat environment
-        binder_in.bind( LgoCommandDictionary.class ).to( EzLgoCommandDictionary.class )
+        binder.bind( LgoCommandDictionary.class ).to( EzLgoCommandDictionary.class )
                 .in( Scopes.SINGLETON );
-        binder_in.bind( LgoHelpLoader.class ).to( XmlLgoHelpLoader.class )
-                .in( Scopes.SINGLETON );                         
+        binder.bind( LgoHelpLoader.class ).to( XmlLgoHelpLoader.class )
+                .in( Scopes.SINGLETON );
+        binder.bind( GsonBuilder.class ).toInstance( new GsonBuilder() );
+        binder.bind( Gson.class ).toProvider( GsonProvider.class );
     }
 }

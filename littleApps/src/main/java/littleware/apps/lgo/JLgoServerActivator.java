@@ -35,7 +35,7 @@ public class JLgoServerActivator extends LgoServerActivator {
 
     private static final Logger log = Logger.getLogger(JLgoServerActivator.class.getName());
     private Maybe<SingleInstanceService> maybeService = Maybe.empty();
-    private JFrame   jmessage = null;
+    private JFrame jmessage = null;
     private SingleInstanceListener listener = new SingleInstanceListener() {
 
         @Override
@@ -44,7 +44,7 @@ public class JLgoServerActivator extends LgoServerActivator {
 
                 @Override
                 public void run() {
-                    jmessage.setVisible( true );
+                    jmessage.setVisible(true);
                 }
             });
 
@@ -53,8 +53,8 @@ public class JLgoServerActivator extends LgoServerActivator {
 
     @Inject
     public JLgoServerActivator(LgoServer.ServerBuilder serverBuilder,
-            LittleBootstrap bootstrap ) {
-        super(serverBuilder, bootstrap );
+            LittleBootstrap bootstrap) {
+        super(serverBuilder, bootstrap);
     }
 
     @Override
@@ -65,21 +65,19 @@ public class JLgoServerActivator extends LgoServerActivator {
             @Override
             public void run() {
                 jmessage = new JFrame();
-                final GridBagWrap gb = GridBagWrap.wrap( jmessage );
-                gb.remainderX().anchorCenter().gridheight( 4 ).fillBoth().add(
-                        new JLabel( "<html>n9n server running: http://localhost:9898/n9n/lgo/help</html>" )
-                        ).newRow();
+                final GridBagWrap gb = GridBagWrap.wrap(jmessage);
+                gb.remainderX().anchorCenter().gridheight(4).fillBoth().add(
+                        new JLabel("<html>n9n server running: http://localhost:9898/n9n/lgo/help</html>")).newRow();
                 gb.fillNone().gridwidth(1).gridheight(1).add(
-                        new JButton( new AbstractAction( "Ok" ) {
+                        new JButton(new AbstractAction("Ok") {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         jmessage.setVisible(false);
                     }
-                } )
-                        );
+                }));
                 jmessage.pack();
-                jmessage.setVisible( true );
+                jmessage.setVisible(true);
             }
         });
 
@@ -94,15 +92,11 @@ public class JLgoServerActivator extends LgoServerActivator {
 
     @Override
     public void stop(BundleContext ctx) throws Exception {
-        try {
-            if (maybeService.isSet()) {
-                maybeService.get().removeSingleInstanceListener(listener);
-                maybeService = Maybe.empty();
-            }
-            super.stop(ctx);
-            jmessage.dispose();
-        } finally {
-            System.exit(1);
+        if (maybeService.isSet()) {
+            maybeService.get().removeSingleInstanceListener(listener);
+            maybeService = Maybe.empty();
         }
+        jmessage.dispose();
+        super.stop(ctx);
     }
 }

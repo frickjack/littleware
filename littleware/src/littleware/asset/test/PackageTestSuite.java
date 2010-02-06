@@ -35,8 +35,7 @@ import littleware.security.LittleUser;
  * Test suite for littleware.asset package
  */
 public class PackageTestSuite extends TestSuite {
-
-    private static final Logger olog_generic = Logger.getLogger(PackageTestSuite.class.getName());
+    private static final Logger log = Logger.getLogger(PackageTestSuite.class.getName());
 
     /**
      * Inject dependencies necessary to setup the TestSuite
@@ -127,7 +126,7 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(new XmlAssetTester("testXmlAsset"));
         }
 
-        olog_generic.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
+        log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 }
 

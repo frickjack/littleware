@@ -183,6 +183,7 @@ public class LgoCommandLine {
                 //processPipe(feedback);
                 return;
             }
+
             if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
                 log.log( Level.INFO, "Launching lgo server ..." );
                 bootClient.getOSGiActivator().add( LgoServerActivator.class );

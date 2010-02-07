@@ -28,7 +28,7 @@ public class JettyServerBuilder implements LgoServer.ServerBuilder {
     private static final Logger log = Logger.getLogger( JettyServerBuilder.class.getName() );
     private final LgoServlet servlet;
 
-    public static final int serverPort = 9898;
+    public static final int serverPort = 19898;
     
     private static class JettyServer implements LgoServer {
         private final Server server;

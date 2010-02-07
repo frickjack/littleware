@@ -10,7 +10,6 @@
 
 package littleware.apps.lgo;
 
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.Arrays;

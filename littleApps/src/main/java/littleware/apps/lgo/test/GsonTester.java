@@ -37,6 +37,7 @@ public class GsonTester extends LittleTest {
 
     public void testGson() {
         try {
+            log.log( Level.INFO, "Running testGson ..." );
             final Asset testAsset = getTestHome( search );
             final String result = gson.toJson( testAsset, Asset.class );
             log.log( Level.INFO, "Gson serialization returned: " + result );

@@ -38,12 +38,12 @@ public class HudsonTestSuite extends TestSuite {
             )
     {
         super( HudsonTestSuite.class.getName() );
-
-        this.addTest( factoryServerTest.get() );
-        if ( true ) {
+        final boolean go = true;
+        if ( go ) {
+            this.addTest( factoryServerTest.get() );
             this.addTest( factoryRootPathTest.get() );
         }
-        if ( true ) {
+        if ( go ) {
             this.addTest( factoryArgTester.get() );
             this.addTest( factoryDeleteTester.get() );
             this.addTest( factoryXmlHelpTester.get() );
@@ -52,8 +52,12 @@ public class HudsonTestSuite extends TestSuite {
             this.addTest( factoryGetTester.get() );
             this.addTest( factoryCreateTester.get() );
         }
-        this.addTest( factoryByNameTester.get() );
-        this.addTest( provideGsonTester.get() );
+        if ( go ) {
+            this.addTest( factoryByNameTester.get() );
+        }
+        if ( go ) {
+            this.addTest( provideGsonTester.get() );
+        }
     }
 
     /**

@@ -43,6 +43,7 @@ public class CreateFolderTester extends LittleTest {
                     "testCreateFolder"
                     );
             if ( maybeDelete.isSet() ) {
+                olog.log( Level.INFO, "Cleaning up previous test" );
                 omgrAsset.deleteAsset( maybeDelete.get().getId(), "test cleanup" );
             }
         } catch ( Exception ex ) {
@@ -70,7 +71,8 @@ public class CreateFolderTester extends LittleTest {
 
     public void testCreate() {
         try {
-            Asset aNew = ocomTest.runCommand( new LoggerFeedback(),
+            olog.log( Level.INFO, "Creating test folder ..." );
+            final Asset aNew = ocomTest.runCommand( new LoggerFeedback(),
                     "/" + getTestHome() + "/testCreateFolder"
                     );
             assertTrue( "Created asset", null != aNew );

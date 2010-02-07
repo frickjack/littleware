@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
@@ -39,13 +41,14 @@ import littleware.security.SecurityAssetType;
  */
 @Singleton
 public class GsonProvider implements Provider<Gson> {
+    private static final Logger log = Logger.getLogger( GsonProvider.class.getName() );
     private final GsonBuilder gsonBuilder;
     private final Map<AssetType, JsonSerializer<Asset>> typeMap = new HashMap<AssetType, JsonSerializer<Asset>>();
     private final JsonSerializer<Asset> defaultSerializer = new AssetSerializer();
 
-    private synchronized JsonSerializer<Asset> lookupSerializer(AssetType type) {
-        for (AssetType scan = type; type != null;
-                scan = type.getSuperType().getOr(null)) {
+    private synchronized JsonSerializer<Asset> lookupSerializer( final AssetType type) {
+        for (AssetType scan = type; scan != null;
+                scan = scan.getSuperType().getOr(null)) {
             final JsonSerializer<Asset> result = typeMap.get(scan);
             if (null != result) {
                 return result;
@@ -132,7 +135,6 @@ public class GsonProvider implements Provider<Gson> {
                     members.add(new JsonPrimitive(member.getName()));
                 }
                 result.add("members", members);
-                return result;
             }
 
             return result;
@@ -153,7 +155,6 @@ public class GsonProvider implements Provider<Gson> {
 
         gsonBuilder.registerTypeAdapter(UUID.class,
                 new JsonSerializer<UUID>() {
-
                     @Override
                     public JsonElement serialize(UUID t, Type type, JsonSerializationContext jsc) {
                         return new JsonPrimitive(t.toString());
@@ -161,7 +162,6 @@ public class GsonProvider implements Provider<Gson> {
                 });
         gsonBuilder.registerTypeAdapter(AssetPath.class,
                 new JsonSerializer<AssetPath>() {
-
                     @Override
                     public JsonElement serialize(AssetPath t, Type type, JsonSerializationContext jsc) {
                         return new JsonPrimitive(t.toString());
@@ -169,7 +169,6 @@ public class GsonProvider implements Provider<Gson> {
                 });
         gsonBuilder.registerTypeAdapter(AssetType.class,
                 new JsonSerializer<AssetType>() {
-
                     @Override
                     public JsonElement serialize(AssetType t, Type type, JsonSerializationContext jsc) {
                         return new JsonPrimitive(t.toString());
@@ -179,9 +178,8 @@ public class GsonProvider implements Provider<Gson> {
                 new HelpSerializer()
                 );
 
-
         gsonBuilder.registerTypeAdapter(Asset.class,
-                new AssetDelegateSerializer());
-
+                new AssetDelegateSerializer()
+                );
     }
 }

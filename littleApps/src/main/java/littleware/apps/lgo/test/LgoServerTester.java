@@ -15,6 +15,7 @@ import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.apps.lgo.JettyServerBuilder;
 import littleware.apps.lgo.LgoServer;
 import littleware.apps.lgo.LgoServer.ServerBuilder;
 import littleware.test.LittleTest;
@@ -36,7 +37,8 @@ public class LgoServerTester extends LittleTest {
         final LgoServer    server = serverBuilder.launch();
         final WebConversation wc = new WebConversation();
         try {
-            final String urlString = "http://localhost:9898/n9n/lgo/ls?path=littleware.test_home";
+            final String urlString = "http://localhost:" +
+                    JettyServerBuilder.serverPort + "/n9n/lgo/ls?path=littleware.test_home";
             final WebResponse response = wc.getResponse( urlString );
             final String      data = response.getText();
             log.log( Level.INFO, "Response from " + urlString + " -- " + data );

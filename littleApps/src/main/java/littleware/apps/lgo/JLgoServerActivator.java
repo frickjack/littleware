@@ -67,7 +67,8 @@ public class JLgoServerActivator extends LgoServerActivator {
                 jmessage = new JFrame();
                 final GridBagWrap gb = GridBagWrap.wrap(jmessage);
                 gb.remainderX().anchorCenter().gridheight(4).fillBoth().add(
-                        new JLabel("<html>n9n server running: http://localhost:9898/n9n/lgo/help</html>")).newRow();
+                        new JLabel("<html>n9n server running: http://localhost:" +
+                        JettyServerBuilder.serverPort + "/n9n/lgo/help</html>")).newRow();
                 gb.fillNone().gridwidth(1).gridheight(1).add(
                         new JButton(new AbstractAction("Ok") {
 

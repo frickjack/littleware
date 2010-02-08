@@ -10,6 +10,7 @@
 
 package littleware.asset.server;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,12 +44,16 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
 
     @Override
     public Map<UUID,Asset> startDbAccess () {
-        Date t_now = new Date ();
+        final Date t_now = new Date ();
 
         if ( (oi_count > 0)
              && (t_now.getTime () > ot_notzero.getTime () + 300000)
              ) {
-            olog_generic.log ( Level.WARNING, "Cyclecache not zeroed for over 5 minutes - probably missing a recycle() call" );
+            try {
+                throw new AssertionFailedException();
+            } catch ( Exception ex ) {
+                olog_generic.log ( Level.WARNING, "Cyclecache not zeroed for over 5 minutes - probably missing a recycle() call", ex );
+            }
             // do not vomit log messages - reset timer back 100 seconds
             ot_notzero = new Date ( new Date().getTime() - 200000 );
         } else if ( oi_count == 0 ) {

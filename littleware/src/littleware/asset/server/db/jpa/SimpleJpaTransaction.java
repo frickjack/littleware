@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.server.db.jpa;
 
 import com.google.inject.Inject;
@@ -25,29 +24,29 @@ import littleware.asset.server.AbstractLittleTransaction;
  * JPA supported implementation of LittleTransaction stuff
  */
 public class SimpleJpaTransaction extends AbstractLittleTransaction implements JpaLittleTransaction {
-    private static final Logger olog = Logger.getLogger( SimpleJpaTransaction.class.getName() );
+
+    private static final Logger olog = Logger.getLogger(SimpleJpaTransaction.class.getName());
     private final Provider<EntityManager> oprovideEntMgr;
-    private EntityManager    oentMgr = null;
+    private EntityManager oentMgr = null;
 
     @Inject
-    SimpleJpaTransaction( Provider<EntityManager> provideEntMgr ) {
+    SimpleJpaTransaction(Provider<EntityManager> provideEntMgr) {
         oprovideEntMgr = provideEntMgr;
     }
-
-    private int   oiLevel = 0;
+    private int oiLevel = 0;
 
     @Override
-    public Map<UUID,Asset> startDbAccess() {
+    public Map<UUID, Asset> startDbAccess() {
         ++oiLevel;
         return super.startDbAccess();
     }
 
     @Override
-    public EntityManager getEntityManager () {
+    public EntityManager getEntityManager() {
         if (oiLevel < 1) {
             throw new IllegalStateException("Must setup transaction block before accessing getEntityManager");
         }
-        if ( null == oentMgr ) {
+        if (null == oentMgr) {
             oentMgr = oprovideEntMgr.get();
         }
         return oentMgr;
@@ -55,53 +54,59 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
 
     @Override
     protected void endDbAccess(int iLevel) {
-        if ( (0 == iLevel) && (null != oentMgr) ) {
+        if ((0 == iLevel) && (null != oentMgr)) {
             oentMgr.close();
             oentMgr = null;
         }
     }
-
     private long transactionCounter = -1L;
 
     @Override
     public long getTransaction() {
-        if ( ! isDbUpdating() ) {
-            throw new IllegalStateException( "Update-transaction not initialized" );
+        if (!isDbUpdating()) {
+            throw new IllegalStateException("Update-transaction not initialized");
         }
-        if ( transactionCounter < 0 ) {
-            throw new IllegalStateException( "Internal error - invalid transaction counter: " + transactionCounter );
+        if (transactionCounter < 0) {
+            throw new IllegalStateException("Internal error - invalid transaction counter: " + transactionCounter);
         }
         return transactionCounter;
     }
 
     @Override
     public void startDbUpdate() {
-        if ( ! isDbUpdating() ) {
-            if ( null == oentMgr ) {
+        if (!isDbUpdating()) {
+            if (null == oentMgr) {
                 oentMgr = oprovideEntMgr.get();
             }
             oentMgr.getTransaction().begin();
-            final TransactionEntity trans = oentMgr.find( TransactionEntity.class, new Integer(1) );
+            final TransactionEntity trans = oentMgr.find(TransactionEntity.class, new Integer(1));
             transactionCounter = trans.getTransaction() + 1;
-            trans.setTransaction( transactionCounter );
+            trans.setTransaction(transactionCounter);
         }
         super.startDbUpdate();
     }
 
     @Override
     protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) {
-        if ( 0 == iUpdateLevel ) {
-            if ( b_rollback ) {
-                oentMgr.getTransaction().rollback();
-            } else {
-                oentMgr.getTransaction().commit();
+        if (0 == iUpdateLevel) {
+            try {
+                if ( oentMgr.getTransaction().getRollbackOnly() ) {
+                    oentMgr.getTransaction().rollback();
+                    if ( ! b_rollback ) {
+                        throw new IllegalStateException( "Attempt to commit rollback-only transaction" );
+                    }
+                } else if (b_rollback) {
+                    oentMgr.getTransaction().rollback();
+                } else {
+                    oentMgr.getTransaction().commit();
+                }
+            } finally {
+                transactionCounter = -1L;
             }
-            //oentMgr.flush();
-            transactionCounter = -1L;
-            olog.log( Level.FINE, "Transaction complete, rollback: " + b_rollback );
-        } else if ( b_rollback ) {
-            throw new IllegalStateException( "Nested rollback not supported by this transaction implementation" );
+            olog.log(Level.FINE, "Transaction complete, rollback: " + b_rollback);
+        } else if (b_rollback) {
+            oentMgr.getTransaction().setRollbackOnly();
+            throw new IllegalStateException("Nested rollback not supported by this transaction implementation");
         }
     }
-
 }

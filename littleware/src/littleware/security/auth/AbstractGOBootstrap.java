@@ -42,9 +42,10 @@ import org.osgi.framework.FrameworkListener;
  * OSGi BundleActivators to bring up clients and
  * servers in different configurations.
  * The guice module list starts out with a PropertiesGuice
- * instance loading littleware.properties,
- * and the bootstrap loads additional guice modules from
+ * instance loading littleware.properties.
+ * The bootstrap loads additional guice modules from
  * the lw.guice_module property or lw_client.guice_module property
+ * in littleware.properties and System.getProperties
  * depending on whether the environment is server or client.
  * Similarly loads
  * additional OSGi bundle classes from the lw.osgi_bundle property
@@ -165,8 +166,9 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
             final String sBundleName = obServer ? "lw.osgi_bundle" : "lw_client.osgi_bundle";
 
             final Properties propLittleware = PropertiesLoader.get().loadProperties();
-            final String sModules = propLittleware.getProperty(sGuiceName, "");
-            if (sModules.length() > 0) {
+            final String sModules = propLittleware.getProperty(sGuiceName, "") +
+                    ":" + System.getProperty( sGuiceName, "" );
+            if (sModules.length() > 1) {
                 log.log(Level.INFO, "Loading custom guice modules: " + sModules);
                 for (String s_mod : sModules.split("[:,; ]+")) {
                     try {
@@ -178,8 +180,9 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
                     }
                 }
             }
-            final String sBundles = propLittleware.getProperty(sBundleName, "");
-            if (sBundles.length() > 0) {
+            final String sBundles = propLittleware.getProperty(sBundleName, "") +
+                    ":" + System.getProperty( sBundleName, "" );
+            if (sBundles.length() > 1) {
                 log.log(Level.INFO, "Loading custom OSGi bundles: " + sBundles);
                 for (String sBundle : sBundles.split("[:,; ]+")) {
                     try {

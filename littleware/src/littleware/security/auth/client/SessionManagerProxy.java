@@ -27,11 +27,11 @@ import littleware.asset.AssetException;
  */
 public class SessionManagerProxy implements SessionManager {
 
-    private static final Logger olog_generic = Logger.getLogger(SessionManagerProxy.class.getName());
-    private SessionManager om_session = null;
-    private URL ourl_session = null;
+    private static final Logger log = Logger.getLogger(SessionManagerProxy.class.getName());
+    private  SessionManager sessionMgr = null;
+    private final URL sessionUrl;
     /** Setup RemoteException handler */
-    private RemoteExceptionHandler ohandler_remote = new RemoteExceptionHandler() {
+    private final RemoteExceptionHandler remoteExceptionHandler = new RemoteExceptionHandler() {
 
         /**
          * Try to lookup the freaking SessionManager on the name server again
@@ -41,11 +41,11 @@ public class SessionManagerProxy implements SessionManager {
         public void handle(RemoteException e_remote) throws RemoteException {
             super.handle(e_remote);
             try {
-                om_session = SessionUtil.get ().getSessionManager(
-                        ourl_session.getHost(),
-                        ourl_session.getPort());
+                sessionMgr = SessionUtil.get ().getSessionManager(
+                        sessionUrl.getHost(),
+                        sessionUrl.getPort());
             } catch (Exception e) {
-                olog_generic.log(Level.WARNING, "Retry handler failed to reconnect to down SessionManager, caught: " +
+                log.log(Level.WARNING, "Retry handler failed to reconnect to down SessionManager, caught: " +
                         e + ", " + BaseException.getStackTrace(e));
             }
             try { // sleep between retries
@@ -59,8 +59,8 @@ public class SessionManagerProxy implements SessionManager {
      * Stash the wrapped manager and the URL it came from
      */
     public SessionManagerProxy(SessionManager m_session, URL url_session) {
-        om_session = m_session;
-        ourl_session = url_session;
+        sessionMgr = m_session;
+        sessionUrl = url_session;
     }
 
     @Override
@@ -70,12 +70,12 @@ public class SessionManagerProxy implements SessionManager {
             GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                SessionHelper m_helper = om_session.login(s_name, s_password,
+                SessionHelper m_helper = sessionMgr.login(s_name, s_password,
                         s_session_comment);
                 return new SessionHelperProxy(m_helper, this,
                         m_helper.getSession().getId());
             } catch (RemoteException e) {
-                ohandler_remote.handle(e);
+                remoteExceptionHandler.handle(e);
             }
         }
     }
@@ -87,16 +87,17 @@ public class SessionManagerProxy implements SessionManager {
 
         while (true) {
             try {
-                SessionHelper m_helper = om_session.getSessionHelper(u_session);
+                SessionHelper m_helper = sessionMgr.getSessionHelper(u_session);
 
                 return new SessionHelperProxy(m_helper, this, u_session);
             } catch (RemoteException e) {
-                ohandler_remote.handle(e);
+                remoteExceptionHandler.handle(e);
             }
         }
     }
 
     public URL getUrl() throws RemoteException {
-        return ourl_session;
+        return sessionUrl;
     }
+
 }

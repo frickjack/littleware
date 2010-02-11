@@ -35,7 +35,7 @@ public abstract class AbstractAssetCommand<Tin,Tout extends Asset>
     @Override
     public String runCommandLine( Feedback feedback, String sIn ) throws LgoException {
         try {
-            StringWriter writer = new StringWriter();
+            final StringWriter writer = new StringWriter();
             providePickler.get().pickle( runDynamic(feedback,sIn ), writer);
             return writer.toString();
         } catch ( LgoException ex ) {

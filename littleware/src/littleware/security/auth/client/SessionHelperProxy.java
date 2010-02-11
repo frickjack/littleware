@@ -323,6 +323,18 @@ public class SessionHelperProxy implements SessionHelperService {
             }
         }
     }
+
+    @Override
+    public String getServerVersion() throws RemoteException {
+        while (true) {
+            try {
+                return om_real.getServerVersion();
+            } catch (RemoteException e) {
+                ohandler_remote.handle(e);
+            }
+        }
+    }
+
     private transient List<LittleServiceListener> ovListener = new ArrayList<LittleServiceListener>();
 
     /**
@@ -347,4 +359,6 @@ public class SessionHelperProxy implements SessionHelperService {
             service.removeServiceListener(listener);
         }
     }
+
+
 }

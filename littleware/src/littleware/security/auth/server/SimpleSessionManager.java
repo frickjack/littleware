@@ -41,35 +41,33 @@ import org.joda.time.DateTime;
  */
 public class SimpleSessionManager extends LittleRemoteObject implements SessionManager {
 
-    private static final Logger olog_generic = Logger.getLogger(SimpleSessionManager.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleSessionManager.class.getName());
     private static final long serialVersionUID = 8144056326046717141L;
-    private final AssetSearchManager om_search;
-    private final AssetManager om_asset;
-    private final ServiceProviderRegistry oreg_service;
-    private final Map<UUID, WeakReference<SessionHelper>> ov_session_map = new HashMap<UUID, WeakReference<SessionHelper>>();
-    private static SimpleSessionManager om_session = null;
-    private final Sampler ostatSessionHelper = new SimpleSampler();
-    private final Provider<UserTreeBuilder> provideUserTree;
+    private final AssetSearchManager search;
+    private final AssetManager assetMgr;
+    private final ServiceProviderRegistry serviceRegistry;
+    private final Map<UUID, WeakReference<SessionHelper>> sessionCache = new HashMap<UUID, WeakReference<SessionHelper>>();
+    private static SimpleSessionManager sessionMgr = null;
+    private final Sampler statSampler = new SimpleSampler();
+    private final Provider<UserTreeBuilder> userTreeBuilder;
 
     /**
      * Inject dependencies
      */
     @Inject
-    public SimpleSessionManager(AssetManager m_asset, 
+    public SimpleSessionManager(AssetManager m_asset,
             AssetSearchManager m_search,
             ServiceProviderRegistry reg_service,
-            Provider<UserTreeBuilder> provideUserTree
-            ) throws RemoteException
-    {
+            Provider<UserTreeBuilder> provideUserTree ) throws RemoteException {
         //super( littleware.security.auth.SessionUtil.getRegistryPort() );
-        om_asset = m_asset;
-        om_search = m_search;
-        if (null != om_session) {
+        assetMgr = m_asset;
+        search = m_search;
+        if (null != sessionMgr) {
             throw new IllegalStateException("SimpleSessionManager must be a singleton");
         }
-        om_session = this;
-        oreg_service = reg_service;
-        this.provideUserTree = provideUserTree;
+        sessionMgr = this;
+        serviceRegistry = reg_service;
+        this.userTreeBuilder = provideUserTree;
     }
 
     /**
@@ -82,6 +80,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private LittleUser createUser(String s_name) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
 
     /**
      * Privileged action creates a session-asset
@@ -109,17 +108,17 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                     "Sessions", Integer.toString(now.getYear()),
                     now.toString("MM"),
                     now.toString("dd"));
-            Asset parent = om_search.getByName("littleware.home", AssetType.HOME).get();
+            Asset parent = search.getByName("littleware.home", AssetType.HOME).get();
             for (String childName : pathList) {
-                final Maybe<Asset> maybe = om_search.getAssetFrom(parent.getId(), childName);
+                final Maybe<Asset> maybe = search.getAssetFrom(parent.getId(), childName);
                 if (maybe.isSet()) {
                     parent = maybe.get();
                     continue;
                 }
                 final Asset child = AssetType.GENERIC.create().parent(parent).name(childName).build();
-                parent = om_asset.saveAsset(child, os_session_comment);
+                parent = assetMgr.saveAsset(child, os_session_comment);
             }
-            return om_asset.saveAsset(osession.copy().fromId(parent.getId()).homeId(parent.getHomeId()).build(),
+            return assetMgr.saveAsset(osession.copy().fromId(parent.getId()).homeId(parent.getHomeId()).build(),
                     os_session_comment).narrow();
         }
     }
@@ -127,18 +126,32 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     /**
      * Internal utility to setup RmiSessionHelper given a session asset
      *
-     * @param a_session to setup and cache a new SessionHelper for
+     * @param session to setup and cache a new SessionHelper for
      */
-    private SessionHelper setupNewHelper(LittleSession a_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Subject j_caller = a_session.getSubject(om_search);
-        SessionHelper m_helper = new SimpleSessionHelper(a_session.getId(), om_search, om_asset, this, oreg_service);
-        InvocationHandler handler_helper = new SubjectInvocationHandler(j_caller, m_helper, ostatSessionHelper );
-        SessionHelper m_proxy = (SessionHelper) Proxy.newProxyInstance(SessionHelper.class.getClassLoader(),
+    private SessionHelper setupNewHelper(LittleSession session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final Subject caller = session.getSubject(search);
+        final SessionHelper helper = new SimpleSessionHelper(session.getId(), search, assetMgr, this, serviceRegistry);
+        final InvocationHandler handler = new SubjectInvocationHandler(caller, helper, statSampler );
+        final SessionHelper proxy = (SessionHelper) Proxy.newProxyInstance(SessionHelper.class.getClassLoader(),
                 new Class[]{SessionHelper.class},
-                handler_helper);
-        SessionHelper m_rmi = new RmiSessionHelper(m_proxy);
-        ov_session_map.put(a_session.getId(), new WeakReference(m_rmi));
-        return m_rmi;
+                handler);
+        final SessionHelper rmiWrapper = new RmiSessionHelper(proxy);
+        sessionCache.put(session.getId(), new WeakReference(rmiWrapper));
+        return rmiWrapper;
+    }
+
+    private static void handlePrivilegedException(PrivilegedActionException exIn) throws BaseException, GeneralSecurityException {
+        try {
+            throw exIn.getCause();
+        } catch (BaseException ex) {
+            throw ex;
+        } catch (GeneralSecurityException ex) {
+            throw ex;
+        } catch (Throwable ex) {
+            // do not include cause - since result is passed over RMI,
+            // and cause class may not be in client classpath
+            throw new DataAccessException("Caught exception: " + ex);
+        }
     }
 
     /**
@@ -151,8 +164,8 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         try {
             x_login = new LoginContext("littleware.login",
                     new SimpleNamePasswordCallbackHandler(s_name, s_password));
-        } catch ( Exception ex ) {
-            olog_generic.log(Level.INFO, "Assuming pass-through login - no littleware.login context available", ex);
+        } catch (Exception ex) {
+            log.log(Level.INFO, "Assuming pass-through login - no littleware.login context available", ex);
             j_caller = new Subject();
         }
         if (null != x_login) {
@@ -169,43 +182,35 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             throw new LoginException("Failed to authenticate");
         }
 
-        final Subject j_admin = new Subject();
-        j_admin.getPrincipals().add(om_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow( LittlePrincipal.class ));
-        j_admin.setReadOnly();
+        final Subject adminSubject = new Subject();
+        adminSubject.getPrincipals().add(search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow(LittlePrincipal.class));
+        adminSubject.setReadOnly();
 
         // Do a little LoginContext sim - need to clean this up
         // Who am I running as now ?  What the frick ?
-        Maybe<? extends Asset> maybeUser = om_search.getByName(s_name, SecurityAssetType.USER);
+        Maybe<? extends Asset> maybeUser = search.getByName(s_name, SecurityAssetType.USER);
         if (!maybeUser.isSet()) {
             try {
-                maybeUser = Subject.doAs(j_admin, new PrivilegedExceptionAction<Maybe<Asset>>() {
+                maybeUser = Subject.doAs(adminSubject, new PrivilegedExceptionAction<Maybe<Asset>>() {
+
                     @Override
                     public Maybe<Asset> run() throws BaseException, GeneralSecurityException, RemoteException {
-                        for( AssetTreeTemplate.AssetInfo treeInfo : provideUserTree.get().user( s_name ).build().visit( om_search.getByName("littleware.home", AssetType.HOME).get(), om_search ) ) {
-                            if ( ! treeInfo.getAssetExists() ) {
-                                om_asset.saveAsset( treeInfo.getAsset(), "Setup new user: " + s_name );
+                        for (AssetTreeTemplate.AssetInfo treeInfo : userTreeBuilder.get().user(s_name).build().visit(search.getByName("littleware.home", AssetType.HOME).get(), search)) {
+                            if (!treeInfo.getAssetExists()) {
+                                assetMgr.saveAsset(treeInfo.getAsset(), "Setup new user: " + s_name);
                             }
                         }
-                        return om_search.getByName(s_name, SecurityAssetType.USER);
+                        return search.getByName(s_name, SecurityAssetType.USER);
                     }
                 });
             } catch (PrivilegedActionException ex) {
-                olog_generic.log(Level.INFO, "Failed to setup new user", ex);
-                try {
-                    throw ex.getCause();
-                } catch (BaseException ex2) {
-                    throw ex2;
-                } catch (GeneralSecurityException ex2) {
-                    throw ex2;
-                } catch (RuntimeException ex2) {
-                    throw ex2;
-                } catch (Throwable ex2) {
-                    throw new AssertionFailedException("Unexpected exception", ex2);
-                }
+                log.log(Level.INFO, "Failed to setup new user", ex);
+                handlePrivilegedException(ex);
+                throw new AssertionFailedException("Should not make it here");
             }
         }
 
-        j_caller.getPrincipals().add(maybeUser.get().narrow( LittleUser.class ));
+        j_caller.getPrincipals().add(maybeUser.get().narrow(LittleUser.class));
         /*... disable for now ...
         javax.security.auth.spi.LoginModule module = new PasswordDbLoginModule();
         module.initialize ( j_caller, 
@@ -227,24 +232,17 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         // Create the session asset as the admin user - session has null from-id
         final PrivilegedExceptionAction act_setup_session = new SetupSessionAction(sessionBuilder.build(), s_session_comment);
         try {
-            try {
-                return setupNewHelper((LittleSession) Subject.doAs(j_admin, act_setup_session));
-            } catch (PrivilegedActionException e) {
-                throw e.getException();
-            }
-        } catch (BaseException e) {
-            throw e;
-        } catch (GeneralSecurityException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new DataAccessException("Caught :" + e, e);
+            return setupNewHelper((LittleSession) Subject.doAs(adminSubject, act_setup_session));
+        } catch (PrivilegedActionException e) {
+            handlePrivilegedException(e);
+            throw new AssertionFailedException("Should not make it here");
         }
     }
 
     @Override
     public SessionHelper getSessionHelper(UUID u_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         // Note that the SessionHelper will take care of doing SessionExpired checks, etc.
-        WeakReference<SessionHelper> ref_helper = ov_session_map.get(u_session);
+        WeakReference<SessionHelper> ref_helper = sessionCache.get(u_session);
 
         if (null != ref_helper) {
             SessionHelper m_helper = ref_helper.get();
@@ -256,12 +254,12 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                     throw new SessionExpiredException("Expired at: " + m_helper.getSession().getEndDate());
                 }
             } else {
-                ov_session_map.remove(u_session);
+                sessionCache.remove(u_session);
             }
         }
 
         try {
-            final LittleSession a_session = om_search.getAsset(u_session).get().narrow(LittleSession.class);
+            final LittleSession a_session = search.getAsset(u_session).get().narrow(LittleSession.class);
             return setupNewHelper(a_session);
         } catch (GeneralSecurityException e) {
             throw new AccessDeniedException("Caught unexpected: " + e, e);

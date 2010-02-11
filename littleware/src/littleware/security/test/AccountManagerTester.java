@@ -31,11 +31,10 @@ import littleware.test.LittleTest;
  */
 public class AccountManagerTester extends LittleTest {
 
-    private static final Logger olog_generic = Logger.getLogger(AccountManagerTester.class.getName());
-    private final AssetSearchManager osearch;
-    private final AccountManager om_account;
-    private final AssetManager om_asset;
-
+    private static final Logger log = Logger.getLogger(AccountManagerTester.class.getName());
+    private final AssetSearchManager search;
+    private final AccountManager accountMgr;
+    private final AssetManager assetMgr;
     private final LittleUser caller;
 
     /**
@@ -47,14 +46,14 @@ public class AccountManagerTester extends LittleTest {
      * @param m_asset to do saveAsset/deleteAsset/... calls against
      */
     @Inject
-    public AccountManagerTester(String s_name,
+    public AccountManagerTester(
             AccountManager m_account,
             AssetManager m_asset,
             AssetSearchManager search,
             LittleUser caller ) {
-        om_account = m_account;
-        om_asset = m_asset;
-        osearch = search;
+        this.accountMgr = m_account;
+        this.assetMgr = m_asset;
+        this.search = search;
         this.caller = caller;
         setName("testGetPrincipals");
     }
@@ -64,19 +63,19 @@ public class AccountManagerTester extends LittleTest {
      */
     public void testGetPrincipals() {
         try {
-            final LittleUser userAdmin = osearch.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow();
-            final LittleGroup groupAdmin = osearch.getByName(
+            final LittleUser userAdmin = search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow();
+            final LittleGroup groupAdmin = search.getByName(
                     AccountManager.LITTLEWARE_ADMIN_GROUP,
                     SecurityAssetType.GROUP).get().narrow();
 
             for (LittlePrincipal member : groupAdmin.getMembers() ) {
-                olog_generic.log(Level.INFO, "Got admin group member: " + member.getName() +
+                log.log(Level.INFO, "Got admin group member: " + member.getName() +
                         " (" + member.getId() + ")");
             }
             assertTrue("administrator should be member of admin group",
                     groupAdmin.isMember(userAdmin));
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught unexpected: " + e +
+            log.log(Level.WARNING, "Caught unexpected: " + e +
                     ", " + BaseException.getStackTrace(e));
             assertTrue("Caught unexpected exception: " + e + ", " +
                     BaseException.getStackTrace(e), false);
@@ -90,11 +89,11 @@ public class AccountManagerTester extends LittleTest {
      */
     public void testQuota() {
         try {
-            Quota a_quota_before = om_account.getQuota(caller);
+            Quota a_quota_before = accountMgr.getQuota(caller);
             assertTrue("Got a quota we can test against",
                     (null != a_quota_before) && (a_quota_before.getQuotaLimit() > 0) && (a_quota_before.getQuotaCount() >= 0));
-            om_account.incrementQuotaCount();
-            Quota a_quota_after = om_account.getQuota(caller);
+            accountMgr.incrementQuotaCount();
+            Quota a_quota_after = accountMgr.getQuota(caller);
             assertTrue("Quota incremented by 1: " + a_quota_before.getQuotaCount() +
                     " -> " + a_quota_after.getQuotaCount(),
                     a_quota_before.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
@@ -102,7 +101,7 @@ public class AccountManagerTester extends LittleTest {
             assertTrue("get/setData consistency",
                     a_quota_after.getData().equals(a_quota_after.copy().data(a_quota_after.getData()).build().getData()));
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught unexpected: " + e +
+            log.log(Level.WARNING, "Caught unexpected: " + e +
                     ", " + BaseException.getStackTrace(e));
             assertTrue("Caught unexpected exception: " + e + ", " +
                     BaseException.getStackTrace(e), false);
@@ -115,10 +114,10 @@ public class AccountManagerTester extends LittleTest {
     public void testGroupUpdate() {
         try {
             final String name = "group.littleware.test_user";
-            LittleGroup groupTest = (LittleGroup) osearch.getByName(name, SecurityAssetType.GROUP).getOr(null);
+            LittleGroup groupTest = (LittleGroup) search.getByName(name, SecurityAssetType.GROUP).getOr(null);
             if (null == groupTest) {
-                groupTest = om_asset.saveAsset(
-                        SecurityAssetType.GROUP.create().add(caller).name(name).parent(getTestHome(osearch)).
+                groupTest = assetMgr.saveAsset(
+                        SecurityAssetType.GROUP.create().add(caller).name(name).parent(getTestHome(search)).
                         build(), "setup test group").narrow();
                 assertTrue( caller.getName() + " is member of new group " + groupTest.getName(),
                         groupTest.isMember(caller)
@@ -134,18 +133,18 @@ public class AccountManagerTester extends LittleTest {
                 assertTrue( caller.getName() + " in members copy of " + copy.getName(),
                         memberSet.contains(caller)
                         );
-                groupTest = om_asset.saveAsset(copy, "Add tester " + caller.getName());
+                groupTest = assetMgr.saveAsset(copy, "Add tester " + caller.getName());
             }
             assertTrue( caller.getName() + " is member of " + groupTest.getName(),
                     groupTest.isMember( caller )
                     );
-            groupTest = om_asset.saveAsset(groupTest.copy().remove(caller).build(), "Removed tester " + caller.getName());
-            groupTest = osearch.getByName(name, SecurityAssetType.GROUP).get().narrow();
+            groupTest = assetMgr.saveAsset(groupTest.copy().remove(caller).build(), "Removed tester " + caller.getName());
+            groupTest = search.getByName(name, SecurityAssetType.GROUP).get().narrow();
             assertTrue( caller.getName() + " is not a member of " + groupTest.getName(),
                     !groupTest.isMember(caller)
                     );
         } catch (Exception e) {
-            olog_generic.log(Level.INFO, "Caught: " + e + ", " + BaseException.getStackTrace(e));
+            log.log(Level.INFO, "Caught: " + e + ", " + BaseException.getStackTrace(e));
             assertTrue("Should not have caught: " + e, false);
         }
     }

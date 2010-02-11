@@ -9,7 +9,6 @@
  */
 package littleware.apps.test;
 
-import littleware.base.feedback.LittleListener;
 import littleware.base.feedback.LittleTool;
 import littleware.base.feedback.LittleEvent;
 import littleware.test.JLittleDialog;
@@ -17,7 +16,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
-import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import javax.swing.*;
@@ -169,45 +167,6 @@ public class SwingClientTester extends LittleTest {
         } finally {
             olib_asset.remove(a_bogus1.getId());
             olib_asset.remove(a_bogus2.getId());
-        }
-    }
-
-    /**
-     * Popup a JSessionManager for the tester to verify
-     */
-    public void testJSessionManager() {
-        try {
-            // Force RMI
-            SessionUtil util = SessionUtil.get();
-            SessionManager m_session = util.getSessionManager(util.getRegistryHost(), util.getRegistryPort());
-
-            final JSessionManager wm_session = new JSessionManager(m_session);
-            wm_session.addLittleListener(
-                    new LittleListener() {
-
-                        @Override
-                        public void receiveLittleEvent(LittleEvent event_little) {
-                            String s_session_info = null;
-                            if (event_little.isSuccessful()) {
-                                try {
-                                    UUID u_session = ((SessionHelper) event_little.getResult()).getSession().getId();
-                                    s_session_info = "session id: " + u_session.toString();
-                                } catch (Exception e) {
-                                    s_session_info = "ERROR loading session: caught unexpected: " + e;
-                                }
-                            }
-                            JOptionPane.showConfirmDialog(wm_session, event_little.getOperation() +
-                                    " was successful ? " + event_little.isSuccessful() +
-                                    ", " + s_session_info);
-                        }
-                    });
-            assertTrue("User confirmed JSessionManager UI functional",
-                    JLittleDialog.showTestDialog(wm_session,
-                    "login a few times, and verify result"));
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Caught: " + e +
-                    ", " + BaseException.getStackTrace(e));
-            assertTrue("Caught: " + e, false);
         }
     }
 

@@ -7,8 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
-
 package littleware.security.auth;
 
 import java.rmi.Remote;
@@ -18,7 +16,6 @@ import java.security.GeneralSecurityException;
 import littleware.asset.*;
 import littleware.asset.client.LittleService;
 import littleware.base.*;
-
 
 /**
  * After a Principal has authenticated itself,
@@ -39,33 +36,44 @@ import littleware.base.*;
  * both read and write methods (ex: AclManager).
  */
 public interface SessionHelper extends Remote {
-	/**
-	 * Get the session asset this SessionHelper is associated with
-	 *
-	 * @exception SessionExpiredException if the session this helper is
-	 *          associated with is no longer active
-	 */
-	public @ReadOnly LittleSession getSession () throws BaseException, AssetException, 
-	GeneralSecurityException, RemoteException;
-	
-		
-	/**
-	 * Get the AssetManager setup to excute on behalf of this session's principal
-	 *
-	 * @param n_type of the service desired
-	 * @return the service manager - caller should cast to appropriate type
-	 * @exception SessionExpiredException if the session this helper is
-	 *          associated with is no longer active
-	 */
-	public @ReadOnly <T extends LittleService> T getService ( ServiceType<T> n_type ) throws BaseException, AssetException,
-		GeneralSecurityException, RemoteException;
-	
-	/**
-	 * Create a new session for this user
-	 */
-	public SessionHelper createNewSession ( String s_session_comment )
-		throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
-									
+
+    /**
+     * Get the session asset this SessionHelper is associated with
+     *
+     * @exception SessionExpiredException if the session this helper is
+     *          associated with is no longer active
+     */
+    public
+    @ReadOnly
+    LittleSession getSession() throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
+    /**
+     * Get the AssetManager setup to excute on behalf of this session's principal
+     *
+     * @param serviceType of the service desired
+     * @return the service manager - caller should cast to appropriate type
+     * @exception SessionExpiredException if the session this helper is
+     *          associated with is no longer active
+     */
+    public
+    @ReadOnly
+    <T extends LittleService> T getService(ServiceType<T> serviceType) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
+    /**
+     * Create a new session for this user
+     */
+    public SessionHelper createNewSession(String sessionComment)
+            throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
+    /**
+     * Get the server-side version string.
+     * Provides mechanism for long-running clients to decide whether
+     * they need to restart with a new code base.
+     * Just retrieves data string from /littleware.home/ServerVersion asset.
+     */
+    public String getServerVersion() throws RemoteException;
 }
 

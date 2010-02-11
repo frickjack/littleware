@@ -13,10 +13,12 @@ import java.rmi.RemoteException;
 import java.util.UUID;
 import java.security.*;
 import javax.security.auth.*;
+import littleware.asset.Asset;
 
 import littleware.asset.AssetException;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.AssetType;
 import littleware.asset.client.LittleService;
 import littleware.security.auth.*;
 import littleware.security.AccessDeniedException;
@@ -95,6 +97,23 @@ public class SimpleSessionHelper implements SessionHelper {
             throw new AssertionFailedException("Caught: " + e, e);
         } catch (NoSuchThingException e) {
             throw new AssertionFailedException("Caught: " + e, e);
+        }
+    }
+
+    @Override
+    public String getServerVersion() throws RemoteException {
+        // Create the session asset as the admin user - session has null from-id
+        try {
+            final String name = "ServerVersion";
+            final Asset home = om_search.getByName("littleware.home", AssetType.HOME).get();
+            final Maybe<Asset> maybe = om_search.getAssetFrom(home.getId(), name);
+            if (maybe.isSet()) {
+                return maybe.get().getData();
+            }
+            return om_asset.saveAsset(AssetType.GENERIC.create().parent(home).name(name).data("v0.0").build(),
+                    "Setup v0.0 ServerVersion node").getData();
+        } catch (Exception ex) {
+            throw new AssertionFailedException("Unexpected exception: " + ex);
         }
     }
 }

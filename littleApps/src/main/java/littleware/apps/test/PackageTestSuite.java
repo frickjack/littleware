@@ -77,17 +77,6 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(test);
         }
 
-        /*..
-        if (b_run) {
-            TestCase test = provide_address_test.get();
-            test.setName("testAddressBook");
-            this.addTest(test);
-        }
-         */
-        if (false) {
-            this.addTest(provide_swing_test.get().putName("testJSessionManager"));
-        }
-
         if (b_run) {
             this.addTest(provide_swing_test.get().putName("testJAssetViews"));
         }

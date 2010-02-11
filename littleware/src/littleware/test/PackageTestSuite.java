@@ -30,12 +30,10 @@ public class PackageTestSuite extends TestSuite {
             littleware.base.test.PackageTestSuite suite_base,
             littleware.asset.test.PackageTestSuite suite_asset,
             littleware.security.test.PackageTestSuite suite_security,
-            AssetSearchManager search
-            )
-    {
+            AssetSearchManager search) {
         super(PackageTestSuite.class.getName());
         // disable server tests
-        final boolean bRun = false;
+        final boolean bRun = true;
 
         log.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
@@ -66,35 +64,18 @@ public class PackageTestSuite extends TestSuite {
         }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
-    private static TestSuite suite = null;
 
     /**
      * Just call through to ServerTestLauncher.suite() - should only
      * invoke when this is the master SeverTestLauncher TestSuite.
      */
     public static Test suite() {
-        if (null != suite) {
-            return suite;
-        } else {
-            log.log( Level.WARNING, "Guice 2.0 has an AOP bug that may throw an exception booting in test-runner class-loader" );
-            try {
-                return (new TestFactory()).build(new ServerBootstrap(true), PackageTestSuite.class);
-            } catch (RuntimeException ex) {
-                log.log(Level.SEVERE, "Test setup failed", ex);
-                throw ex;
-            }
+        log.log(Level.WARNING, "Guice 2.0 has an AOP bug that may throw an exception booting in test-runner class-loader");
+        try {
+            return (new TestFactory()).build(new ServerBootstrap(true), PackageTestSuite.class);
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
+            throw ex;
         }
-    }
-
-    /**
-     * Boot the littleware server OSGi environment,
-     * and register this master test suite as a BundleActivator.
-     */
-    public static void main(String[] args) {
-        String[] launchArgs = {"-noloading", "littleware.test.PackageTestSuite"};
-        suite = (new TestFactory()).build(new ServerBootstrap(true), PackageTestSuite.class);
-        
-        junit.swingui.TestRunner.main(launchArgs);
-        //junit.textui.TestRunner.main( v_launch_args );
     }
 }

@@ -9,10 +9,12 @@
  */
 package littleware.security.auth;
 
+import java.rmi.RemoteException;
 import java.util.logging.Logger;
 
 import com.google.inject.Binder;
 import com.google.inject.Provider;
+import com.google.inject.name.Names;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,8 +61,8 @@ import littleware.security.client.AccountManagerService;
  */
 public class ClientServiceGuice implements LittleGuiceModule {
 
-    private static final Logger olog = Logger.getLogger(ClientServiceGuice.class.getName());
-    private SessionHelper ohelper = null;
+    private static final Logger log = Logger.getLogger(ClientServiceGuice.class.getName());
+    private SessionHelper helper = null;
     private Maybe<CallbackHandler> maybeHandler = Maybe.empty();
     private Maybe<String> host = Maybe.empty();
 
@@ -82,7 +84,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
      * @param helper
      */
     public ClientServiceGuice(SessionHelper helper) {
-        ohelper = helper;
+        this.helper = helper;
     }
 
     /**
@@ -114,12 +116,12 @@ public class ClientServiceGuice implements LittleGuiceModule {
 
     @Override
     public SessionHelper getSessionHelper() {
-        return ohelper;
+        return helper;
     }
 
     @Override
     public void setSessionHelper(SessionHelper helper) {
-        ohelper = helper;
+        this.helper = helper;
     }
 
     private static <T extends LittleService> Provider<T> bind(final Binder binder,
@@ -140,7 +142,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
             }
         };
         binder.bind(service.getInterface()).toProvider(provider);
-        olog.log(Level.FINE, "Just bound service " + service + " interface " + service.getInterface().getName());
+        log.log(Level.FINE, "Just bound service " + service + " interface " + service.getInterface().getName());
         return provider;
     }
     private static final String os_propfile = "latest_session.properties";
@@ -170,7 +172,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
         try {
             prop_session = PropertiesLoader.get().loadProperties(os_propfile);
         } catch (IOException ex) {
-            olog.log(Level.FINE, "Unable to load " + os_propfile + ", proceeding ...");
+            log.log(Level.FINE, "Unable to load " + os_propfile + ", proceeding ...");
         }
 
         String s_name = prop_session.getProperty(os_name_key,
@@ -190,7 +192,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 // ok
                 return helper;
             } catch (Exception ex) {
-                olog.log(Level.FINE, "Failed to connect to session: " + s_session_id + ", continueing", ex);
+                log.log(Level.FINE, "Failed to connect to session: " + s_session_id + ", continueing", ex);
             }
         }
 
@@ -215,7 +217,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 } catch (IOException ex) {
                     throw ex;
                 } catch (Exception ex) {
-                    olog.log(Level.WARNING, "Failed to authenticate to " + SessionUtil.get().getRegistryHost(),
+                    log.log(Level.WARNING, "Failed to authenticate to " + SessionUtil.get().getRegistryHost(),
                             ex);
                     throw new FailedLoginException("Unable to authenticate: " + ex.getMessage());
                 }
@@ -229,7 +231,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                         PropertiesLoader.get().safelySave(prop_session,
                                 new File(maybeHome.get(), os_propfile));
                     } catch (IOException ex) {
-                        olog.log(Level.FINE, "Failed to save session info", ex);
+                        log.log(Level.FINE, "Failed to save session info", ex);
                     }
                 }
                 return helper;
@@ -238,7 +240,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 throw ex;
                  */
             } catch (Exception ex) {
-                olog.log(Level.FINE, "Failed login attempt " + i, ex);
+                log.log(Level.FINE, "Failed login attempt " + i, ex);
             } finally {
                 v_callback[2] = new TextOutputCallback(TextOutputCallback.ERROR, "Login Failed");
             }
@@ -252,10 +254,10 @@ public class ClientServiceGuice implements LittleGuiceModule {
             if (host.isSet()) {
                 // connect to default server
                 final int port = SessionUtil.get().getRegistryPort();
-                olog.log( Level.FINE, "Authenticating to " + host + "/" + port );
-                ohelper = authenticate(SessionUtil.get().getSessionManager(host.get(), port), callback, 3);
+                log.log( Level.FINE, "Authenticating to " + host + "/" + port );
+                helper = authenticate(SessionUtil.get().getSessionManager(host.get(), port), callback, 3);
             } else {
-                ohelper = authenticate(SessionUtil.get().getSessionManager(), callback, 3);
+                helper = authenticate(SessionUtil.get().getSessionManager(), callback, 3);
             }
         } catch (Exception ex) {
             throw new AssertionFailedException("Failed to authenticate: " + host.getOr( SessionUtil.get().getRegistryHost() ), ex);
@@ -272,7 +274,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
      */
     @Override
     public void configure(Binder binder) {
-        if (null == ohelper) {
+        if (null == helper) {
             if (maybeHandler.isSet()) {
                 // NOTE: avoid swing calls in server environment!
                 authenticate(maybeHandler.get());
@@ -292,27 +294,27 @@ public class ClientServiceGuice implements LittleGuiceModule {
                     throw new AssertionFailedException("Failed to init dialog callback handler", ex);
                 }
             }
-            if (null == ohelper) {
+            if (null == helper) {
                 throw new AssertionFailedException("Failed authentication");
             }
         }
 
         for (ServiceType<? extends LittleService> service : ServiceType.getMembers()) {
-            olog.log(Level.FINE, "Binding service provider: " + service);
-            bind(binder, service, ohelper);
+            log.log(Level.FINE, "Binding service provider: " + service);
+            bind(binder, service, helper);
         }
 
         // Frick - need to bind core interfaces here explicitly
         binder.bind(AssetSearchManager.class).to(AssetSearchService.class);
         binder.bind(AccountManager.class).to(AccountManagerService.class);
         binder.bind(AssetManager.class).to(AssetManagerService.class);
-        binder.bind(SessionHelper.class).toInstance(ohelper);
+        binder.bind(SessionHelper.class).toInstance(helper);
         binder.bind(LittleSession.class).toProvider(new Provider<LittleSession>() {
 
             @Override
             public LittleSession get() {
                 try {
-                    return ohelper.getSession();
+                    return helper.getSession();
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {
@@ -320,13 +322,19 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 }
             }
         });
+        try {
+            binder.bindConstant().annotatedWith(Names.named("littleware.startupServerVersion")).to(helper.getServerVersion());
+        } catch (RemoteException ex) {
+            throw new AssertionFailedException( "Failed to bind littleware.startupServerVersion constant", ex );
+        }
+
         binder.bind(LittleUser.class).toProvider(new Provider<LittleUser>() {
 
             @Override
             public LittleUser get() {
                 try {
-                    final AssetSearchManager search = ohelper.getService(ServiceType.ASSET_SEARCH);
-                    return search.getAsset(ohelper.getSession().getOwnerId()).get().narrow(LittleUser.class);
+                    final AssetSearchManager search = helper.getService(ServiceType.ASSET_SEARCH);
+                    return search.getAsset(helper.getSession().getOwnerId()).get().narrow(LittleUser.class);
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {
@@ -337,7 +345,7 @@ public class ClientServiceGuice implements LittleGuiceModule {
         binder.bind(ExecutorService.class).toInstance(Executors.newFixedThreadPool(4));
         binder.bind(AssetRetriever.class).to(AssetSearchManager.class);
 
-        olog.log(Level.FINE, "Forcing load of SecurityAssetType and AssetType: " +
+        log.log(Level.FINE, "Forcing load of SecurityAssetType and AssetType: " +
                 AssetType.HOME + ", " + SecurityAssetType.USER);
     }
 }

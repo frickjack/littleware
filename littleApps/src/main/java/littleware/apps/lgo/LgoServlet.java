@@ -10,46 +10,61 @@
 package littleware.apps.lgo;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import littleware.asset.Asset;
-import littleware.base.Whatever;
+import littleware.asset.AssetPath;
+import littleware.asset.AssetSearchManager;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
-import littleware.security.LittleGroup;
 import littleware.security.auth.LittleBootstrap;
+import littleware.security.auth.SessionHelper;
 
 /**
  * Lgo command servlet for embedded server
  */
 public class LgoServlet extends HttpServlet {
+    private static final Logger log = Logger.getLogger( LgoServlet.class.getName() );
 
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
     private final LittleBootstrap bootstrap;
     private final Provider<Gson> jsonProvider;
+    private final AssetSearchManager search;
+    private final SessionHelper helper;
+    private final String serverVersion;
+    private Date  lastVersionCheck = new Date();
 
     @Inject
     public LgoServlet(
             LgoCommandDictionary commandMgr,
             LgoHelpLoader helpMgr,
             LittleBootstrap bootstrap,
-            Provider<Gson> jsonProvider ) {
+            Provider<Gson> jsonProvider,
+            AssetSearchManager search,
+            SessionHelper helper,
+            @Named("littleware.startupServerVersion") String serverVersion
+            ) {
         this.commandMgr = commandMgr;
         this.helpMgr = helpMgr;
         this.bootstrap = bootstrap;
         this.jsonProvider = jsonProvider;
+        this.search = search;
+        this.helper = helper;
+        this.serverVersion = serverVersion;
     }
     private final Feedback feedback = new NullFeedback();
 
@@ -74,6 +89,8 @@ public class LgoServlet extends HttpServlet {
         final String result;
         if ( output instanceof  Asset ) {
             result = gson.toJson( output, Asset.class );
+        } else if ( output instanceof AssetPath ) {
+            result = gson.toJson( output, AssetPath.class );
         } else if ( output instanceof LgoHelp ) {
             result = output.toString();
         } else {
@@ -132,5 +149,29 @@ public class LgoServlet extends HttpServlet {
         }
         response.getWriter().println( result.replaceAll( "<", "&lt;").replaceAll( ">", "&gt;") );
         response.getWriter().println("</data></pre></body></html>");
+        // Finally, check if the server has booted up a new version on us
+        checkServerVersion();
+    }
+
+    private void checkServerVersion() {
+        boolean shutdown = false;
+        try {
+            final Date now = new Date();
+            if ( now.getTime() > lastVersionCheck.getTime() + 120000 ) {
+                // check every 2 minutes
+                lastVersionCheck = now;
+                final String currentVersion = helper.getServerVersion();
+                if ( ! serverVersion.equals( currentVersion ) ) {
+                    log.log( Level.WARNING, "Shutting down after server version check: " + serverVersion + " != " + currentVersion );
+                    shutdown = true;
+                }
+            }
+        } catch ( Exception ex ) {
+            log.log( Level.WARNING, "Failed server version check, shutting down", ex );
+            shutdown = true;
+        }
+        if ( shutdown ) {
+            bootstrap.shutdown();
+        }
     }
 }

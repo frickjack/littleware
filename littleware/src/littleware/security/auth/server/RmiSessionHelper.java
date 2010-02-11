@@ -28,23 +28,25 @@ import littleware.security.auth.*;
 public class RmiSessionHelper extends LittleRemoteObject implements SessionHelper {
     private static final long serialVersionUID = 3828770977132694491L;
 
-    SessionHelper om_helper = null;
+    private final SessionHelper coreHelper;
 
     /**
      * Constructor sets up a SessionInvocationHandler based wrapper
      * around the given helper implementation.
      */
-    public RmiSessionHelper(SessionHelper m_helper) throws RemoteException {
+    public RmiSessionHelper(SessionHelper helper) throws RemoteException {
         //super( littleware.security.auth.SessionUtil.getRegistryPort() );        
-        om_helper = m_helper;
+        coreHelper = helper;
     }
 
+    @Override
     public LittleSession getSession() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return om_helper.getSession();
+        return coreHelper.getSession();
     }
 
-    public <T extends LittleService> T getService(ServiceType<T> n_type) throws BaseException, AssetException,
+    @Override
+    public <T extends LittleService> T getService(ServiceType<T> serviceType ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         /*..
         if ( n_type.equals( ServiceType.SESSION_HELPER ) ) {
@@ -52,16 +54,22 @@ public class RmiSessionHelper extends LittleRemoteObject implements SessionHelpe
             return (T) this;
         }
          */
-        return om_helper.getService(n_type);
+        return coreHelper.getService(serviceType );
     }
 
     /**
      * Create a new session for this user
      */
+    @Override
     public SessionHelper createNewSession(String s_session_comment)
             throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return om_helper.createNewSession(s_session_comment);
+        return coreHelper.createNewSession(s_session_comment);
+    }
+
+    @Override
+    public String getServerVersion() throws RemoteException {
+        return coreHelper.getServerVersion();
     }
 }
 

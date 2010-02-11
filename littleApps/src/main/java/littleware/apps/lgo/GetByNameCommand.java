@@ -21,10 +21,7 @@ import littleware.asset.AssetType;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.feedback.Feedback;
 
-/**
- *
- * @author pasquini
- */
+
 public class GetByNameCommand extends AbstractAssetCommand<String,Asset> {
     private static final Logger olog = Logger.getLogger( GetByNameCommand.class.getName() );
     private final AssetSearchManager osearch;

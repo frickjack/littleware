@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.test;
 
 import com.google.inject.Inject;
@@ -15,13 +14,11 @@ import com.google.inject.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.apps.client.ClientBootstrap;
 import littleware.apps.filebucket.server.BucketServerActivator;
 import littleware.apps.filebucket.server.BucketServerGuice;
 import littleware.apps.misc.test.ImageManagerTester;
-import littleware.base.AssertionFailedException;
 import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.SimpleNamePasswordCallbackHandler;
@@ -41,19 +38,21 @@ public class HudsonTestSuite extends TestSuite {
             Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
             Provider<ImageManagerTester> provide_image_test,
-            littleware.apps.lgo.test.HudsonTestSuite suiteLgo
-            )
-    {
+            littleware.apps.lgo.test.HudsonTestSuite lgoSuite,
+            littleware.web.test.PackageTestSuite webSuite) {
         super(HudsonTestSuite.class.getName());
 
         boolean b_run = true;
 
         if (b_run) {
-            this.addTest(suiteLgo);
+            this.addTest(lgoSuite);
+        }
+        if (b_run) {
+            this.addTest(webSuite);
         }
 
         if (b_run) {
-            this.addTest( provide_image_test.get() );
+            this.addTest(provide_image_test.get());
         }
 
         if (b_run) {
@@ -63,16 +62,8 @@ public class HudsonTestSuite extends TestSuite {
             this.addTest(provide_model_test.get().putName("testSessionHookup"));
         }
 
-        try {
-            if (b_run) {
-                TestCase test = provide_bucket_test.get();
-                test.setName("testBucket");
-                this.addTest(test);
-            }
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AssertionFailedException("Failed to get started");
+        if (b_run) {
+            this.addTest(provide_bucket_test.get());
         }
 
         log.log(Level.INFO, "HudsonTestSuite() ok ...");
@@ -84,15 +75,14 @@ public class HudsonTestSuite extends TestSuite {
      */
     public static Test suite() {
         try {
-            final GuiceOSGiBootstrap serverBoot = new ServerBootstrap( true );
-            serverBoot.getGuiceModule().add( new BucketServerGuice() );
-            serverBoot.getOSGiActivator().add( BucketServerActivator.class );
-            return (new TestFactory()).build( serverBoot,
-                new ClientBootstrap( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" ))),
-                HudsonTestSuite.class
-                );
-        } catch ( RuntimeException ex ) {
-            log.log( Level.SEVERE, "Test setup failed", ex );
+            final GuiceOSGiBootstrap serverBoot = new ServerBootstrap(true);
+            serverBoot.getGuiceModule().add(new BucketServerGuice());
+            serverBoot.getOSGiActivator().add(BucketServerActivator.class);
+            return (new TestFactory()).build(serverBoot,
+                    new ClientBootstrap(new ClientServiceGuice(new SimpleNamePasswordCallbackHandler("littleware.test_user", "bla"))),
+                    HudsonTestSuite.class);
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
             throw ex;
         }
     }

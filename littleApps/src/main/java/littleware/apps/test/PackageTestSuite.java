@@ -19,9 +19,7 @@ import junit.framework.*;
 import littleware.apps.client.ClientBootstrap;
 import littleware.apps.filebucket.server.BucketServerActivator;
 import littleware.apps.filebucket.server.BucketServerGuice;
-import littleware.apps.misc.test.ImageManagerTester;
 import littleware.apps.misc.test.ThumbManagerTester;
-import littleware.base.AssertionFailedException;
 import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.SimpleNamePasswordCallbackHandler;
@@ -37,14 +35,9 @@ public class PackageTestSuite extends TestSuite {
     /** Inject server-connected sessionHelper */
     @Inject
     public PackageTestSuite(
-            //Provider<AddressBookTester> provide_address_test,
+            HudsonTestSuite      hudsonSuite,
             Provider<SwingClientTester> provide_swing_test,
-            Provider<AssetModelLibTester> provide_model_test,
-            Provider<BucketTester> provide_bucket_test,
-            //Provider<TrackerTester> provide_tracker_test,
-            Provider<ImageManagerTester> provide_image_test,
             Provider<ThumbManagerTester> provide_thumb_test,
-            littleware.apps.lgo.test.PackageTestSuite suiteLgo,
             Provider<JAssetFamilyTester> provideFamilyTest,
             Provider<SwingFeedbackTester> provideFeedbackTest,
             Provider<JDeleteAssetTester> provideDeleteTest
@@ -54,8 +47,8 @@ public class PackageTestSuite extends TestSuite {
 
         boolean b_run = true;
         
-        if (b_run) {
-            this.addTest(suiteLgo);
+        if ( b_run ) {
+            this.addTest( hudsonSuite );
         }
 
         if ( b_run ) {
@@ -72,10 +65,6 @@ public class PackageTestSuite extends TestSuite {
         if (b_run) {
             this.addTest(provide_thumb_test.get());
         }
-        if (b_run) {
-            TestCase test = provide_image_test.get();
-            this.addTest(test);
-        }
 
         if (b_run) {
             this.addTest(provide_swing_test.get().putName("testJAssetViews"));
@@ -88,33 +77,10 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(provideFamilyTest.get());
         }
         if (b_run) {
-            this.addTest(provide_model_test.get());
-        }
-        if (b_run) {
-            this.addTest(provide_model_test.get().putName("testSessionHookup"));
-        }
-        if (b_run) {
             this.addTest(provide_swing_test.get().putName("testJEditor"));
         }
         if (b_run) {
             this.addTest(provide_swing_test.get().putName("testWizardCreate"));
-        }
-
-        try {
-            if (b_run) {
-                TestCase test = provide_bucket_test.get();
-                test.setName("testBucket");
-                this.addTest(test);
-            }
-            /** disable tracker tests for now
-            if (false) {
-                this.addTest(provide_tracker_test.get().putName("testTracker"));
-                this.addTest(provide_tracker_test.get().putName("testTrackerSwing"));
-            } */
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AssertionFailedException("Failed to get started");
         }
 
         log.log(Level.INFO, "PackageTestSuite() ok ...");

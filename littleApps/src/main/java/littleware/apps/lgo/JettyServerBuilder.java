@@ -13,6 +13,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.HttpServlet;
+import littleware.web.servlet.EmbeddedServletBuilder;
+import littleware.web.servlet.ThumbServlet;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
@@ -26,9 +29,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 @Singleton
 public class JettyServerBuilder implements LgoServer.ServerBuilder {
     private static final Logger log = Logger.getLogger( JettyServerBuilder.class.getName() );
-    private final LgoServlet servlet;
 
     public static final int serverPort = 19898;
+    private final HttpServlet lgoServlet;
+    private final HttpServlet thumbServlet;
     
     private static class JettyServer implements LgoServer {
         private final Server server;
@@ -55,8 +59,10 @@ public class JettyServerBuilder implements LgoServer.ServerBuilder {
     }
 
     @Inject
-    public JettyServerBuilder( LgoServlet servlet ) {
-        this.servlet = servlet;
+    public JettyServerBuilder( LgoServlet lgoServlet, ThumbServlet thumbServlet,
+            EmbeddedServletBuilder servletBuilder ) {
+        this.lgoServlet = servletBuilder.build( lgoServlet );
+        this.thumbServlet = servletBuilder.build( thumbServlet );
     }
 
     @Override
@@ -70,7 +76,8 @@ public class JettyServerBuilder implements LgoServer.ServerBuilder {
         context.setContextPath("/n9n");
         server.setHandler(context);
 
-        context.addServlet(new ServletHolder(servlet),"/lgo/*");
+        context.addServlet(new ServletHolder(lgoServlet),"/lgo/*");
+        context.addServlet(new ServletHolder(thumbServlet),"/thumb/*");
         try {
             server.start();
             //server.join();

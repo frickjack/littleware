@@ -23,7 +23,7 @@ public abstract class InjectMeBean {
 
     public GuiceBean  getGuiceBean () { return guiceBean; }
     /**
-     * Invokes gbean.injectMe( this ) first time called
+     * Invokes gbean.injectMembers( this ) first time called
      *
      * @exception IllegalStateException if called multiple times
      */

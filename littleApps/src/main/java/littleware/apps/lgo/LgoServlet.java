@@ -22,34 +22,35 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetSearchManager;
+import littleware.base.EventBarrier;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
 import littleware.security.auth.LittleBootstrap;
 import littleware.security.auth.SessionHelper;
+import littleware.web.servlet.LittleServlet;
 
 /**
  * Lgo command servlet for embedded server
  */
-public class LgoServlet extends HttpServlet {
+public class LgoServlet extends LittleServlet {
     private static final Logger log = Logger.getLogger( LgoServlet.class.getName() );
 
-    private final LgoCommandDictionary commandMgr;
-    private final LgoHelpLoader helpMgr;
-    private final LittleBootstrap bootstrap;
-    private final Provider<Gson> jsonProvider;
-    private final AssetSearchManager search;
-    private final SessionHelper helper;
-    private final String serverVersion;
+    private LgoCommandDictionary commandMgr;
+    private LgoHelpLoader helpMgr;
+    private LittleBootstrap bootstrap;
+    private Provider<Gson> jsonProvider;
+    private AssetSearchManager search;
+    private SessionHelper helper;
+    private String serverVersion;
     private Date  lastVersionCheck = new Date();
 
     @Inject
-    public LgoServlet(
+    public void injectMe(
             LgoCommandDictionary commandMgr,
             LgoHelpLoader helpMgr,
             LittleBootstrap bootstrap,
@@ -93,23 +94,17 @@ public class LgoServlet extends HttpServlet {
             result = gson.toJson( output, AssetPath.class );
         } else if ( output instanceof LgoHelp ) {
             result = output.toString();
+        } else if ( output instanceof EventBarrier ) {
+            result = gson.toJson( "EventBarrier" );
         } else {
             result = gson.toJson( output );
         }
         return (null == result) ? "" : result;
     }
 
-    @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doCommon(request, response);
-    }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doCommon(request, response);
-    }
-
-    public void doCommon(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGetOrPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String input = "";
         final List<String> argList = new ArrayList<String>();
         for (Enumeration keyEnum = request.getParameterNames();

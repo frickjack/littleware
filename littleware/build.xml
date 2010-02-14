@@ -104,6 +104,7 @@
   <junit fork="yes" printsummary="no" haltonfailure="no">
     <jvmarg value="-Xms300m" />
     <jvmarg value="-Xmx300m" />
+    <jvmarg value="-Djava.awt.headless=true" />
     <jvmarg value="-Dlittleware.properties=${test.properties.dir}/littleware.properties" />
     <jvmarg value="-Djava.util.logging.config.file=${test.properties.dir}/logging.properties" />
     <jvmarg value="-Dlittleware_jdbc.properties=${test.properties.dir}/littleware_jdbc.properties" />

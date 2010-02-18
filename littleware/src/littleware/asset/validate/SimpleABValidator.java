@@ -20,20 +20,25 @@ import littleware.base.Validator;
 public class SimpleABValidator implements AssetBuilderValidator {
     private final AssetNameValidator nameValidator;
     private final AssetDataValidator dataValidator;
+    private final AssetAttrValidator attrValidator;
 
     @Inject
     public SimpleABValidator( AssetNameValidator nameValidator,
-            AssetDataValidator dataValidator
+            AssetDataValidator dataValidator,
+            AssetAttrValidator attrValidator
             ) {
         this.nameValidator = nameValidator;
         this.dataValidator = dataValidator;
+        this.attrValidator = attrValidator;
     }
 
     /**
      * Self injecting constructor
      */
     public SimpleABValidator() {
-        this( new AssetNameValidator(), new AssetDataValidator() );
+        this( new AssetNameValidator(), new AssetDataValidator(),
+                new AssetAttrValidator()
+                );
     }
 
 
@@ -42,6 +47,7 @@ public class SimpleABValidator implements AssetBuilderValidator {
         return new CompoundValidator(
                 nameValidator.build(builder),
                 dataValidator.build( builder ),
+                attrValidator.build(builder),
                 new AbstractValidator(){
 
             @Override

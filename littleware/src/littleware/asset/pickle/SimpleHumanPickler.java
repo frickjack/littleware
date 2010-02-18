@@ -15,7 +15,10 @@ import java.io.Writer;
 import java.security.GeneralSecurityException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
@@ -94,7 +97,7 @@ public class SimpleHumanPickler implements AssetHumanPickler {
     /** @TODO internationalize this with a ResourceBundle */
     @Override
     public void pickle(Asset aIn, Writer writer) throws AssetException, BaseException, GeneralSecurityException, IOException {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(Whatever.NEWLINE).append("AssetBegin: ").append(Whatever.NEWLINE);
         appendProperty(sb, "name", aIn.getName());
         appendProperty(sb, "type", aIn.getAssetType());
@@ -114,6 +117,16 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         appendProperty( sb, "comment", aIn.getComment() );
         appendProperty( sb, "value", aIn.getValue() );
         appendProperty( sb, "state", aIn.getState() );
+        final Iterator<String> mapLabel = Arrays.asList( "-attr-", "-link-", "-date-" ).iterator();
+        for( Map<String,?> dataMap : Arrays.asList( aIn.getAttributeMap(),
+                                                    aIn.getLinkMap(), aIn.getDateMap()
+                                                    )
+                                                    ) {
+           final String label = mapLabel.next();
+           for( Map.Entry<String,?> entry : dataMap.entrySet() ) {
+               appendProperty( sb, label + entry.getKey(), entry.getValue() );
+           }
+        }
         // Go ahead and add some special handling of GROUP type assets here.
         // Can move out to separate registered handler later if we want
         if ( aIn.getAssetType().isA( SecurityAssetType.GROUP ) ) {

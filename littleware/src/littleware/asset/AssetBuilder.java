@@ -10,6 +10,7 @@
 package littleware.asset;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 import littleware.base.LittleBean;
 import littleware.base.Validator;
@@ -104,6 +105,21 @@ public interface AssetBuilder extends LittleBean, Validator {
     public long getTransaction();
     public void setTransaction( long value );
     public AssetBuilder transaction( long value );
+
+    /** name must be less than 20 characters */
+    public AssetBuilder  putLink( String name, UUID value );
+    public Map<String,UUID> getLinkMap();
+    public AssetBuilder removeLink( String name );
+
+    /** name must be less than 20 characters */
+    public AssetBuilder putDate( String name, Date value );
+    public Map<String,Date> getDateMap();
+    public AssetBuilder removeDate( String name );
+
+    /** name must be less than 20 characters, value less than 128 */
+    public AssetBuilder putAttribute( String name, String value );
+    public Map<String,String> getAttributeMap();
+    public AssetBuilder removeAttribute( String name );
 
     /**
      * Copy all the builder properties from the given

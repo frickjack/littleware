@@ -64,7 +64,6 @@ class DbByNameLoader implements DbReader<Set<Asset>, String> {
         try {
             final Set<Asset> vResult = new HashSet<Asset>();
             for (AssetEntity ent : vInfo) {
-
                 vResult.add(ent.buildAsset());
             }
             return vResult;

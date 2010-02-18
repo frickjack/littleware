@@ -11,7 +11,9 @@ package littleware.asset;
 
 import java.util.UUID;
 import java.util.Date;
+import java.util.Map;
 import littleware.base.CacheableObject;
+import littleware.base.Maybe;
 
 /**
  * Asset data-bucket base-class.
@@ -107,6 +109,39 @@ public interface Asset extends CacheableObject {
      * @return integer asset state
      */
     public Integer getState();
+    /**
+     * Return human-readable state based on integer state and locale
+     */
+    public String  getStateString();
+
+
+    /**
+     * Index of supplemental links extending from this node
+     */
+    public Map<String,UUID> getLinkMap();
+    /**
+     * Shortcut for Maybe.emtpyIfNull( getLinks().get( name ) )
+     */
+    public Maybe<UUID> getLink( String key );
+
+    /**
+     * Index of supplemental date info associated with this node
+     */
+    public Map<String,Date> getDateMap();
+    /**
+     * Shortcut for Maybe.emtpyIfNull( getDates().get( name ) )
+     */
+    public Maybe<Date> getDate( String key );
+
+
+    /**
+     * Get user-supplied attributes attached to this node
+     */
+    public Map<String,String>  getAttributeMap();
+    /**
+     * Shortcut for Maybe.emptyIfNull( getUserAttributes().get( name ) )
+     */
+    public Maybe<String> getAttribute( String key );
 
     /**
      * Shortcut for a.getAssetType().create().copy( a )

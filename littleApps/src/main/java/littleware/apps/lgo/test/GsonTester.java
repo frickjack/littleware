@@ -12,6 +12,7 @@ package littleware.apps.lgo.test;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -38,7 +39,10 @@ public class GsonTester extends LittleTest {
     public void testGson() {
         try {
             log.log( Level.INFO, "Running testGson ..." );
-            final Asset testAsset = getTestHome( search );
+            final Asset testAsset = getTestHome( search ).copy().
+                    putAttribute( "test", "test" ).
+                    putLink( "bla", UUID.randomUUID() ).
+                    build();
             final String result = gson.toJson( testAsset, Asset.class );
             log.log( Level.INFO, "Gson serialization returned: " + result );
             final Pattern pattern = Pattern.compile( "\"home\"\\s*:\\s*\"" + testAsset.getHomeId().toString() );

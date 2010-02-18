@@ -23,8 +23,10 @@ import com.google.inject.Singleton;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -84,9 +86,9 @@ public class GsonProvider implements Provider<Gson> {
         }
     }
 
-    public static class AssetSerializer implements JsonSerializer<Asset> {
+    private final static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static class AssetSerializer implements JsonSerializer<Asset> {
 
         public DateFormat getDateFormat() {
             return dateFormat;
@@ -129,6 +131,16 @@ public class GsonProvider implements Provider<Gson> {
             result.addProperty("value", asset.getValue());
             result.addProperty("state", asset.getState());
             result.addProperty("data", asset.getData());
+            final Iterator<String>  itLabel = Arrays.asList( "attrMap", "linkMap", "dateMap" ).iterator();
+            for( Map<String,?> dataMap : Arrays.asList( asset.getAttributeMap(),
+                    asset.getLinkMap(), asset.getDateMap())
+                    ) {
+                final JsonObject obj = new JsonObject();
+                for( Map.Entry<String,?> entry : dataMap.entrySet() ) {
+                    obj.add(entry.getKey(), jsc.serialize( entry.getValue() ) );
+                }
+                obj.add( itLabel.next(), obj );
+            }
             if (asset.getAssetType().isA(SecurityAssetType.GROUP)) {
                 final JsonArray members = new JsonArray();
                 for (LittlePrincipal member : ((LittleGroup) asset).getMembers()) {
@@ -158,6 +170,13 @@ public class GsonProvider implements Provider<Gson> {
                     @Override
                     public JsonElement serialize(UUID t, Type type, JsonSerializationContext jsc) {
                         return new JsonPrimitive(t.toString());
+                    }
+                });
+        gsonBuilder.registerTypeAdapter(Date.class,
+                new JsonSerializer<Date>() {
+                    @Override
+                    public JsonElement serialize(Date t, Type type, JsonSerializationContext jsc) {
+                        return new JsonPrimitive( dateFormat.format(t) );
                     }
                 });
         gsonBuilder.registerTypeAdapter(AssetPath.class,

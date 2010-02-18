@@ -249,7 +249,41 @@ CREATE INDEX asset_typename_idx ON asset ( s_pk_type, s_name );
 CREATE INDEX asset_transaction_idx ON asset( l_last_transaction );
 
 
+--
+-- Asset key/value attributes
+--
+CREATE TABLE asset_attr (
+   i_id   SERIAL PRIMARY KEY,
+   s_asset_id    VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+   s_key         VARCHAR(20) NOT NULL,
+   s_value       VARCHAR(128)
+) ENGINE INNODB CHARACTER SET UTF8;
 
+CREATE UNIQUE INDEX asset_attr_idx ON asset_attr (s_asset_id, s_key );
+
+--
+-- Asset links
+--
+CREATE TABLE asset_link (
+    i_id SERIAL PRIMARY KEY,
+    s_asset_id VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+    s_key      VARCHAR(20) NOT NULL,
+    s_value     VARCHAR(32)
+) ENGINE INNODB CHARACTER SET UTF8;
+
+CREATE UNIQUE INDEX asset_link_idx ON asset_link (s_asset_id, s_key );
+
+--
+-- Asset dates
+--
+CREATE TABLE asset_date (
+    i_id SERIAL PRIMARY KEY,
+    s_asset_id VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+    s_key      VARCHAR(20) NOT NULL,
+    t_value    TIMESTAMP NULL DEFAULT NULL
+) ENGINE INNODB CHARACTER SET UTF8;
+
+CREATE UNIQUE INDEX asset_date_idx ON asset_date (s_asset_id, s_key );
 
 --
 -- Track basic asset history
@@ -285,9 +319,14 @@ CREATE UNIQUE INDEX asset_history_min_idx ON asset_history ( s_id, l_min_transac
 CREATE UNIQUE INDEX asset_history_max_idx ON asset_history ( s_id, l_max_transaction );
 CREATE INDEX asset_history_idx ON asset_history ( s_id, t_copied );
 
-GRANT SELECT, UPDATE ON littleTran TO littleware_user;
-GRANT SELECT ON x_permission TO littleware_user;
-GRANT SELECT ON x_asset_type TO littleware_user;
-GRANT SELECT ON x_asset_type_tree TO littleware_user;
-GRANT SELECT, UPDATE, INSERT, DELETE ON asset TO littleware_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON asset_history TO littleware_user;
+GRANT SELECT, UPDATE ON littleTran TO 'littleware_user'@'localhost';
+GRANT SELECT ON x_permission TO 'littleware_user'@'localhost';
+GRANT SELECT ON x_asset_type TO 'littleware_user'@'localhost';
+GRANT SELECT ON x_asset_type_tree TO 'littleware_user'@'localhost';
+GRANT SELECT, UPDATE, INSERT, DELETE ON asset TO 'littleware_user'@'localhost';
+
+GRANT SELECT, UPDATE, INSERT, DELETE ON asset_attr TO 'littleware_user'@'localhost';
+GRANT SELECT, UPDATE, INSERT, DELETE ON asset_link TO 'littleware_user'@'localhost';
+GRANT SELECT, UPDATE, INSERT, DELETE ON asset_date TO 'littleware_user'@'localhost';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON asset_history TO 'littleware_user'@'localhost';

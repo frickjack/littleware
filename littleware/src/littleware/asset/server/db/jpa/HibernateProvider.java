@@ -55,6 +55,9 @@ public class HibernateProvider implements Provider<EntityManagerFactory> {
         if (null == ofactory) {
             final Ejb3Configuration config = new org.hibernate.ejb.Ejb3Configuration(). //addAnnotatedClass( classOf[SimpleProqUpload] ).
                     addAnnotatedClass(AssetEntity.class).
+                    addAnnotatedClass(AssetAttribute.class).
+                    addAnnotatedClass(AssetDate.class).
+                    addAnnotatedClass(AssetLink.class).
                     addAnnotatedClass(TransactionEntity.class).
                     addAnnotatedClass(AssetTypeEntity.class);
             //config.setProperty("hibernate.show_sql", "true"); //.jdbc:derby://localhost:1527/littleware

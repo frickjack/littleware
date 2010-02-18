@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009,2010 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -26,10 +26,10 @@ import littleware.test.LittleTest;
  */
 public class AssetManagerTester extends LittleTest {
 
-    private static final Logger olog_generic = Logger.getLogger(AssetManagerTester.class.getName());
-    private AssetManager om_asset = null;
-    private AssetSearchManager om_search = null;
-    private List<Asset> ov_cleanup_list = new ArrayList<Asset>();
+    private static final Logger log = Logger.getLogger(AssetManagerTester.class.getName());
+    private final AssetManager assetMgr;
+    private final AssetSearchManager searchMgr;
+    private final List<Asset> cleanupList = new ArrayList<Asset>();
     public final static String MS_TEST_HOME = "littleware.test_home";
     private final Provider<LittleUser> provideCaller;
 
@@ -43,8 +43,8 @@ public class AssetManagerTester extends LittleTest {
     @Inject
     public AssetManagerTester(AssetManager m_asset, AssetSearchManager m_search,
             Provider<LittleUser> provideCaller ) {
-        om_asset = m_asset;
-        om_search = m_search;
+        assetMgr = m_asset;
+        searchMgr = m_search;
         this.provideCaller = provideCaller;
         setName("testAssetCreation");
     }
@@ -55,13 +55,13 @@ public class AssetManagerTester extends LittleTest {
     @Override
     public void tearDown() {
         try {
-            for (Asset a_cleanup : ov_cleanup_list) {
-                om_asset.deleteAsset(a_cleanup.getId(), "Cleanup after test");
+            for (Asset a_cleanup : cleanupList) {
+                assetMgr.deleteAsset(a_cleanup.getId(), "Cleanup after test");
             }
         } catch (Exception e) {
-            olog_generic.log(Level.INFO, "Failed to cleanup all test assets, caught: " + e);
+            log.log(Level.INFO, "Failed to cleanup all test assets, caught: " + e);
         } finally {
-            ov_cleanup_list.clear();
+            cleanupList.clear();
         }
     }
 
@@ -70,18 +70,18 @@ public class AssetManagerTester extends LittleTest {
      */
     public void testAssetCreation() {
         try {
-            final Asset home = om_search.getByName(MS_TEST_HOME, AssetType.HOME).get();
+            final Asset home = searchMgr.getByName(MS_TEST_HOME, AssetType.HOME).get();
             final Asset acl = null;
 
-            olog_generic.log(Level.INFO, "Running with test home: " + home);
+            log.log(Level.INFO, "Running with test home: " + home);
 
             final LittleUser user = provideCaller.get();
             assertTrue("Have an authenticated user", null != user);
             final String s_name = "test_" + (new Date()).getTime();
 
             final Date t_now = new Date();
-            olog_generic.log(Level.INFO, "Saving new asset");
-            final Asset a_test = om_asset.saveAsset(
+            log.log(Level.INFO, "Saving new asset");
+            final Asset a_test = assetMgr.saveAsset(
                     AssetType.GENERIC.create().
                     name(s_name).
                     data("<data>no data </data>").
@@ -91,26 +91,53 @@ public class AssetManagerTester extends LittleTest {
                     state(3).
                     // Round end-date off to nearest second
                     endDate(new Date(t_now.getTime() - t_now.getTime() % 1000 + 1000 * 60 * 60L)).
+                    putAttribute( "test", "test" ).
+                    putLink( "test", UUID.randomUUID() ).
+                    putDate( "test", new Date() ).
                     build(),
                     "new asset");
 
-            olog_generic.log(Level.INFO, "Just created asset: " + s_name);
+            log.log(Level.INFO, "Just created asset: " + s_name);
             assertTrue("Created an asset with some valid data",
-                    (a_test.getId() != null) && a_test.getName().equals(s_name) && a_test.getAssetType().equals(AssetType.GENERIC) && t_now.getTime() < a_test.getEndDate().getTime() && a_test.getTransaction() > 0);
+                    (a_test.getId() != null) && a_test.getName().equals(s_name) && a_test.getAssetType().equals(AssetType.GENERIC)
+                    && t_now.getTime() < a_test.getEndDate().getTime()
+                    && (a_test.getTransaction() > 0)
+                    && a_test.getDate("test").isSet()
+                    && a_test.getAttribute( "test" ).getOr( "frick" ).equals( "test" )
+                    && a_test.getLink("test" ).isSet()
+                    );
 
             final Asset a_clone = a_test.copy().build();
             assertTrue("Able to clone new asset",
-                    a_test.equals(a_clone) && a_clone.getName().equals(a_test.getName()) && a_clone.getAssetType().equals(a_test.getAssetType()) && a_clone.getTransaction() == a_test.getTransaction());
+                    a_test.equals(a_clone) && a_clone.getName().equals(a_test.getName())
+                    && a_clone.getAssetType().equals(a_test.getAssetType())
+                    && a_clone.getTransaction() == a_test.getTransaction()
+                    && a_clone.getAttributeMap().equals( a_test.getAttributeMap() )
+                    && a_clone.getDateMap().equals( a_test.getDateMap() )
+                    && a_clone.getLinkMap().equals( a_test.getLinkMap() )
+                    );
 
             // Try to update the asset
-            
-            final Asset a_save = om_asset.saveAsset(
-                    a_test.copy().data("<data> some data </data>").build(),
+            final Asset a_save = assetMgr.saveAsset(
+                    a_test.copy().data("<data> some data </data>").
+                    removeAttribute( "test" ).putAttribute( "test2", "test2" ).
+                    removeLink( "test" ).putLink( "test2", UUID.randomUUID() ).
+                    removeDate( "test" ).putDate( "test2", new Date() ).
+                    build(),
                     "data update"
                     );
             assertTrue("Transaction count increases: " + a_save.getTransaction(),
-                    a_save.getTransaction() > a_clone.getTransaction());
-            final Asset a_load = om_search.getAsset(a_test.getId()).get();
+                    a_save.getTransaction() > a_clone.getTransaction()
+                    );
+            assertTrue( "Property maps updated on save",
+                    (a_save.getAttributeMap().size() == 1)
+                    && (a_save.getLinkMap().size() == 1)
+                    && (a_save.getDateMap().size() == 1)
+                    && a_save.getAttribute( "test2" ).isSet()
+                    && a_save.getLink( "test2" ).isSet()
+                    && a_save.getDate( "test2" ).isSet()
+                    );
+            final Asset a_load = searchMgr.getAsset(a_test.getId()).get();
             assertTrue("Able to load new asset and data matches",
                     a_load.equals(a_clone) && a_clone.getName().equals(a_load.getName())
                     && a_clone.getAssetType().equals(a_load.getAssetType())
@@ -119,13 +146,13 @@ public class AssetManagerTester extends LittleTest {
                     );
 
             // Delete the asset
-            om_asset.deleteAsset(a_clone.getId(), "Cleanup test case");
+            assetMgr.deleteAsset(a_clone.getId(), "Cleanup test case");
 
             assertTrue("No longer able to retrieve deleted asset: " + a_clone.getId(),
-                    !om_search.getAsset(a_test.getId()).isSet()
+                    !searchMgr.getAsset(a_test.getId()).isSet()
                     );
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught: " + e +
+            log.log(Level.WARNING, "Caught: " + e +
                     ", " + BaseException.getStackTrace(e));
             assertTrue("Caught: " + e, false);
         }

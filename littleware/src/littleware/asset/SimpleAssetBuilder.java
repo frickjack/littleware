@@ -9,6 +9,7 @@
  */
 package littleware.asset;
 
+import com.google.common.collect.ImmutableMap;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
@@ -50,6 +51,13 @@ public class SimpleAssetBuilder implements AssetBuilder {
     private PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
     private long transaction = -1L;
     private final AssetBuilderValidator validator;
+    private final Map<String,UUID>   linkMap = new HashMap<String,UUID>();
+    private final Map<String,UUID>   roLinkMap = Collections.unmodifiableMap( linkMap );
+    private final Map<String,String> attributeMap = new HashMap<String,String>();
+    private final Map<String,String> roAttributeMap = Collections.unmodifiableMap( attributeMap );
+    private final Map<String,Date>   dateMap = new HashMap<String,Date>();
+    private final Map<String,Date>   roDateMap = Collections.unmodifiableMap( dateMap );
+
 
     /** 
      * Wrapper fires property change if property changes, and
@@ -416,6 +424,13 @@ public class SimpleAssetBuilder implements AssetBuilder {
                 this.getName() + " (" + this.getId() + ")";
     }
 
+    private static <T> void copyMap( Map<String,T> source, Map<String,T> dest ) {
+        dest.clear();
+        for( Map.Entry<String,T> entry : source.entrySet() ) {
+            dest.put( entry.getKey(), entry.getValue() );
+        }
+    }
+
     @Override
     public AssetBuilder copy(Asset source) {
         setId(source.getId());
@@ -439,6 +454,9 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
         setCreateDate(source.getCreateDate());
         setLastUpdateDate(source.getLastUpdateDate());
+        copyMap( source.getLinkMap(), linkMap );
+        copyMap( source.getDateMap(), dateMap );
+        copyMap( source.getAttributeMap(), attributeMap );
         return this;
     }
 
@@ -471,6 +489,57 @@ public class SimpleAssetBuilder implements AssetBuilder {
         return this;
     }
 
+    @Override
+    public AssetBuilder putLink(String name, UUID value) {
+        linkMap.put( name, value );
+        return this;
+    }
+
+    @Override
+    public Map<String, UUID> getLinkMap() {
+        return roLinkMap;
+    }
+
+    @Override
+    public AssetBuilder putDate(String name, Date value) {
+        dateMap.put( name, value );
+        return this;
+    }
+
+    @Override
+    public Map<String, Date> getDateMap() {
+        return roDateMap;
+    }
+
+    @Override
+    public AssetBuilder putAttribute(String name, String value) {
+        attributeMap.put( name, value );
+        return this;
+    }
+
+    @Override
+    public Map<String, String> getAttributeMap() {
+        return roAttributeMap;
+    }
+
+    @Override
+    public AssetBuilder removeLink(String name) {
+        linkMap.remove( name );
+        return this;
+    }
+
+    @Override
+    public AssetBuilder removeDate(String name) {
+        dateMap.remove( name );
+        return this;
+    }
+
+    @Override
+    public AssetBuilder removeAttribute(String name) {
+        attributeMap.remove( name );
+        return this;
+    }
+
 
     public static class SimpleAsset extends SimpleCacheableObject implements Asset, Serializable {
         private UUID homeId;
@@ -491,6 +560,9 @@ public class SimpleAssetBuilder implements AssetBuilder {
         private AssetType type;
         private Float value;
         private String data;
+        private Map<String,String>  attributeMap;
+        private Map<String,Date>    dateMap;
+        private Map<String,UUID>    linkMap;
 
         /** Do nothing constructor for serilization */
         protected SimpleAsset() {}
@@ -499,7 +571,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
                 UUID aclId, long transaction, String name, Integer state,
                 Date createDate, UUID creatorId, String comment,
                 Date lastUpdateDate, UUID lastUpdaterId, String lastUpdate,
-                Date startDate, Date endDate, Float value, String data ) {
+                Date startDate, Date endDate, Float value, String data,
+                ImmutableMap<String,String> attributeMap,
+                ImmutableMap<String,Date> dateMap,
+                ImmutableMap<String,UUID> linkMap
+                ) {
             super( id, transaction );
             this.type = type;
             this.homeId = homeId;
@@ -519,6 +595,9 @@ public class SimpleAssetBuilder implements AssetBuilder {
             this.endDate = endDate;
             this.value = value;
             this.data = data;
+            this.dateMap = dateMap;
+            this.attributeMap = attributeMap;
+            this.linkMap = linkMap;
         }
 
         /** Extract properties from builder */
@@ -533,7 +612,10 @@ public class SimpleAssetBuilder implements AssetBuilder {
                 builder.getLastUpdateDate(), builder.getLastUpdaterId(),
                 builder.getLastUpdate(),
                 builder.getStartDate(), builder.getEndDate(),
-                builder.getValue(), builder.getData()
+                builder.getValue(), builder.getData(),
+                ImmutableMap.copyOf( builder.getAttributeMap() ),
+                ImmutableMap.copyOf( builder.getDateMap() ),
+                ImmutableMap.copyOf( builder.getLinkMap() )
                 );
         }
 
@@ -688,18 +770,48 @@ public class SimpleAssetBuilder implements AssetBuilder {
         public AssetBuilder copy() {
             return getAssetType().create().copy(this);
         }
+
+        @Override
+        public String getStateString() {
+            return getState().toString();
+        }
+
+        @Override
+        public Map<String, UUID> getLinkMap() {
+            return linkMap;
+        }
+
+        @Override
+        public Maybe<UUID> getLink(String key) {
+            return Maybe.emptyIfNull( linkMap.get( key ) );
+        }
+
+        @Override
+        public Map<String, Date> getDateMap() {
+            return dateMap;
+        }
+
+        @Override
+        public Maybe<Date> getDate(String key) {
+            return Maybe.emptyIfNull( dateMap.get( key ) );
+        }
+
+        @Override
+        public Map<String, String> getAttributeMap() {
+            return attributeMap;
+        }
+
+        @Override
+        public Maybe<String> getAttribute(String key) {
+            return Maybe.emptyIfNull ( attributeMap.get( key ) );
+        }
         
     }
 
     @Override
     public Asset build() {
         validate();
-        return new SimpleAsset( getAssetType(), getId(), getHomeId(), getOwnerId(),
-                getFromId(), getToId(), getAclId(), getTransaction(),
-                getName(), getState(),
-                getCreateDate(), getCreatorId(), getComment(),
-                getLastUpdateDate(), getLastUpdaterId(), getLastUpdate(),
-                getStartDate(), getEndDate(), getValue(), getData() );
+        return new SimpleAsset( this );
     }
 
 

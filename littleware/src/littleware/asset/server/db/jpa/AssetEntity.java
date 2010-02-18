@@ -11,6 +11,9 @@ package littleware.asset.server.db.jpa;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import javax.persistence.*;
 
@@ -26,7 +29,6 @@ import littleware.base.UUIDFactory;
 @Entity(name = "Asset")
 @Table(name = "asset" )
 public class AssetEntity implements Serializable {
-
     private static final long serialVersionUID = 3354255899393564321L;
     private String osId = null;
     private String osName = null;
@@ -49,6 +51,44 @@ public class AssetEntity implements Serializable {
     private Date otAccess = null;
     private Date otStart = null;
     private Date otEnd = null;
+
+    private Set<AssetAttribute> attributeSet;
+
+    @OneToMany(targetEntity=AssetAttribute.class,
+            cascade=CascadeType.ALL,
+            mappedBy="assetId")
+    public Set<AssetAttribute> getAttributeSet() {
+        return attributeSet;
+    }
+    public void setAttributeSet( Set<AssetAttribute> value ) {
+        this.attributeSet = value;
+    }
+    
+
+    private Set<AssetLink> linkSet;
+
+    @OneToMany(targetEntity=AssetLink.class,
+            cascade=CascadeType.ALL,
+            mappedBy="assetId")
+    public Set<AssetLink> getLinkSet() {
+        return linkSet;
+    }
+    public void setLinkSet( Set<AssetLink> value ) {
+        this.linkSet = value;
+    }
+
+    private Set<AssetDate> dateSet;
+
+    @OneToMany(targetEntity=AssetDate.class,
+            cascade=CascadeType.ALL,
+            mappedBy="assetId")
+    public Set<AssetDate> getDateSet() {
+        return dateSet;
+    }
+    public void setDateSet( Set<AssetDate> value ) {
+        this.dateSet = value;
+    }
+
 
     @Id
     @Column(name = "s_id", length = 32)
@@ -276,6 +316,15 @@ public class AssetEntity implements Serializable {
             builder.setStartDate(getStart());
             builder.setLastUpdateDate(getTimeUpdated());
             builder.setTransaction(getLastTransaction());
+            for( AssetAttribute scan : getAttributeSet() ) {
+                builder.putAttribute( scan.getKey(), scan.getValue() );
+            }
+            for( AssetLink scan : getLinkSet() ) {
+                builder.putLink( scan.getKey(), UUIDFactory.parseUUID(scan.getValue()) );
+            }
+            for( AssetDate scan : getDateSet() ) {
+                builder.putDate( scan.getKey(), scan.getValue() );
+            }
             return builder.build();
         } catch (Exception ex) {
             throw new AssetBuildException("Not enough data to build asset", ex);
@@ -286,31 +335,52 @@ public class AssetEntity implements Serializable {
      * Build an entity from the given asset.
      * Usually workflow call when preparing to save an asset.
      *
-     * @param aImport to map to an entity to persist
+     * @param asset to map to an entity to persist
      * @return AssetEntity ready to persist
      */
-    public static AssetEntity buildEntity(Asset aImport) {
+    public static AssetEntity buildEntity(Asset asset) {
         final AssetEntity entity = new AssetEntity();
-        entity.setObjectId(UUIDFactory.makeCleanString(aImport.getId()));
-        entity.setTypeId(UUIDFactory.makeCleanString(aImport.getAssetType().getObjectId()));
-        entity.setName(aImport.getName());
-        entity.setValue(aImport.getValue());
-        entity.setState(aImport.getState());
-        entity.setData(aImport.getData());
-        entity.setFromId(stringOrNull(aImport.getFromId()));
-        entity.setToId(stringOrNull(aImport.getToId()));
-        entity.setAclId(stringOrNull(aImport.getAclId()));
-        entity.setComment(aImport.getComment());
-        entity.setCreatorId(stringOrNull(aImport.getCreatorId()));
-        entity.setLastUpdaterId(stringOrNull(aImport.getLastUpdaterId()));
-        entity.setOwnerId(UUIDFactory.makeCleanString(aImport.getOwnerId()));
-        entity.setLastChange(aImport.getLastUpdate());
-        entity.setHomeId(UUIDFactory.makeCleanString(aImport.getHomeId()));
-        entity.setTimeCreated(aImport.getCreateDate());
-        entity.setEnd(aImport.getEndDate());
-        entity.setStart(aImport.getStartDate());
-        entity.setTimeUpdated(aImport.getLastUpdateDate());
-        entity.setLastTransaction(aImport.getTransaction());
+        entity.setObjectId(UUIDFactory.makeCleanString(asset.getId()));
+        entity.setTypeId(UUIDFactory.makeCleanString(asset.getAssetType().getObjectId()));
+        entity.setName(asset.getName());
+        entity.setValue(asset.getValue());
+        entity.setState(asset.getState());
+        entity.setData(asset.getData());
+        entity.setFromId(stringOrNull(asset.getFromId()));
+        entity.setToId(stringOrNull(asset.getToId()));
+        entity.setAclId(stringOrNull(asset.getAclId()));
+        entity.setComment(asset.getComment());
+        entity.setCreatorId(stringOrNull(asset.getCreatorId()));
+        entity.setLastUpdaterId(stringOrNull(asset.getLastUpdaterId()));
+        entity.setOwnerId(UUIDFactory.makeCleanString(asset.getOwnerId()));
+        entity.setLastChange(asset.getLastUpdate());
+        entity.setHomeId(UUIDFactory.makeCleanString(asset.getHomeId()));
+        entity.setTimeCreated(asset.getCreateDate());
+        entity.setEnd(asset.getEndDate());
+        entity.setStart(asset.getStartDate());
+        entity.setTimeUpdated(asset.getLastUpdateDate());
+        entity.setLastTransaction(asset.getTransaction());
+        {
+            final Set<AssetAttribute> attributeSet = new HashSet<AssetAttribute>();
+            for ( final Map.Entry<String,String> scan : asset.getAttributeMap().entrySet() ) {
+                attributeSet.add( AssetAttribute.build( scan.getKey(), scan.getValue() ));
+            }
+            entity.setAttributeSet( attributeSet );
+        }
+        {
+            final Set<AssetLink> linkSet = new HashSet<AssetLink>();
+            for ( final Map.Entry<String,UUID> scan : asset.getLinkMap().entrySet() ) {
+                linkSet.add( AssetLink.build( scan.getKey(), UUIDFactory.makeCleanString(scan.getValue() )));
+            }
+            entity.setLinkSet(linkSet);
+        }
+        {
+            final Set<AssetDate> dateSet = new HashSet<AssetDate>();
+            for ( final Map.Entry<String,Date> scan : asset.getDateMap().entrySet() ) {
+                dateSet.add( AssetDate.build( scan.getKey(), scan.getValue() ) );
+            }
+            entity.setDateSet( dateSet );
+        }
         return entity;
     }
 }

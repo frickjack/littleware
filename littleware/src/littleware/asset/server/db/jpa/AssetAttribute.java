@@ -20,8 +20,9 @@ public class AssetAttribute {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column( name="s_asset_id", length=32 )
-    private String assetId;
+    @ManyToOne
+    @JoinColumn( name="s_asset_id" )
+    private AssetEntity asset;
 
     @Column( name="s_key", length=20)
     private String key;
@@ -41,7 +42,6 @@ public class AssetAttribute {
 
     
     public long getId() { return id; }
-    public String getAssetId() { return assetId; }
     public String getKey() { return key; }
     public String getValue() { return value; }
 

@@ -55,8 +55,10 @@ public class AssetEntity implements Serializable {
     private Set<AssetAttribute> attributeSet;
 
     @OneToMany(targetEntity=AssetAttribute.class,
+            fetch=FetchType.EAGER,
             cascade=CascadeType.ALL,
-            mappedBy="assetId")
+            mappedBy="asset"
+            )
     public Set<AssetAttribute> getAttributeSet() {
         return attributeSet;
     }
@@ -68,8 +70,9 @@ public class AssetEntity implements Serializable {
     private Set<AssetLink> linkSet;
 
     @OneToMany(targetEntity=AssetLink.class,
+            fetch=FetchType.EAGER,
             cascade=CascadeType.ALL,
-            mappedBy="assetId")
+            mappedBy="asset")
     public Set<AssetLink> getLinkSet() {
         return linkSet;
     }
@@ -80,8 +83,9 @@ public class AssetEntity implements Serializable {
     private Set<AssetDate> dateSet;
 
     @OneToMany(targetEntity=AssetDate.class,
+            fetch=FetchType.EAGER,
             cascade=CascadeType.ALL,
-            mappedBy="assetId")
+            mappedBy="asset")
     public Set<AssetDate> getDateSet() {
         return dateSet;
     }

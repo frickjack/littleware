@@ -26,6 +26,9 @@ public class AssetAttrValidator {
         for( Map<String,?> index : Arrays.asList( builder.getLinkMap(),
                 builder.getDateMap(), builder.getAttributeMap()
                 )) {
+            if ( index.size() > 15 ) {
+                return Maybe.something( "Attr map exceeds 15 entries" );
+            }
             for( String key : index.keySet() ) {
                 if ( key.length() > 20 ) {
                     return Maybe.something( "Illegal key - 20 char limit: " + key );

@@ -1,0 +1,35 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="scratch"/>
+    <configurations>
+    	<conf name="server"  description="server side RMI services jar"/>
+        <conf name="client"  description="client side RMI services binding jar"/>
+        <!--
+    	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
+    	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
+    	<conf name="test" extends="cc-impl" visibility="private" description="for testing our framework"/>
+        -->
+    </configurations>
+    <publications>
+    	<artifact name="littleware" ext="jar" type="jar"  conf="server" />
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+        <!--
+    	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
+    	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
+        -->
+    </publications>
+    
+    <dependencies>
+        <dependency org="org.apache.derby" name="derby" rev="10.5.3.0"/>
+        <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-CR-1"/>
+        <dependency org="com.google.inject" name="guice" rev="2.0" />
+        <dependency org="joda-time" name="joda-time" rev="1.6" />
+        <dependency org="com.google.code.gson" name="gson" rev="1.4" />
+        <dependency org="com.google.collections" name="google-collections" rev="1.0-rc5" />
+        <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="2.0.4" />
+        <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" />
+        <!--
+        <dependency org="commons-cli" name="commons-cli" rev="1.0"/>
+        -->
+    </dependencies>
+
+</ivy-module>

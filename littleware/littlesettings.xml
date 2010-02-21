@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivysettings>
+    <settings defaultResolver="default"/>
+    <caches artifactPattern="[organisation]/[module]/[type]s/[artifact]-[revision](-[classifier]).[ext]" 
+        checkUpToDate="true"/>
+    <!-- disable digest check -->
+    <property name="ivy.checksums" value=""/>    
+    <resolvers>
+        <filesystem name="local">
+            <!--
+            <ivy pattern="${ivy.cache.dir}/[module]/ivy-[revision].xml"/>
+            <artifact pattern="${ivy.cache.dir}/[module]/[artifact]-[revision](-[classifier]).[ext]"/>
+            -->
+        </filesystem>
+        <ibiblio name="central" m2compatible="true" usepoms="false" root="http://repo1.maven.org/maven2"
+            pattern="[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+        <ibiblio name="jboss" m2compatible="true" usepoms="false" root="http://repository.jboss.org/maven2"
+            pattern="[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+        <ibiblio name="gson" m2compatible="true" usepoms="false" root="http://google-gson.googlecode.com/svn/mavenrepo"
+            pattern="[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+        <ibiblio name="google" m2compatible="true" usepoms="false" 
+        	root="http://google-maven-repository.googlecode.com/svn/repository/"
+        	pattern="[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+            
+
+            
+        <chain name="default" returnFirst="true">
+            <resolver ref="local"/>
+            <resolver ref="central"/>
+            <resolver ref="jboss"/>
+            <resolver ref="gson"/>
+            <resolver ref="google"/>
+        </chain>
+    </resolvers>
+</ivysettings>

@@ -215,6 +215,41 @@ CREATE INDEX asset_from_type_idx ON littleware.asset ( s_id_from, s_pk_type, i_s
 
 ------
 
+--
+-- Asset key/value attributes
+--
+CREATE TABLE asset_attr (
+   i_id   BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY,
+   s_asset_id    VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+   s_key         VARCHAR(20) NOT NULL,
+   s_value       VARCHAR(128)
+);
+
+CREATE UNIQUE INDEX asset_attr_idx ON asset_attr (s_asset_id, s_key );
+
+--
+-- Asset links
+--
+CREATE TABLE asset_link (
+    i_id BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY,
+    s_asset_id VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+    s_key      VARCHAR(20) NOT NULL,
+    s_value     VARCHAR(32)
+);
+
+CREATE UNIQUE INDEX asset_link_idx ON asset_link (s_asset_id, s_key );
+
+--
+-- Asset dates
+--
+CREATE TABLE asset_date (
+    i_id BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY,
+    s_asset_id VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+    s_key      VARCHAR(20) NOT NULL,
+    t_value    TIMESTAMP DEFAULT NULL
+);
+
+CREATE UNIQUE INDEX asset_date_idx ON asset_date (s_asset_id, s_key );
 
 -- ..................................................
 -- littleware.home

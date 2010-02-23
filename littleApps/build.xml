@@ -7,7 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="littleApps" default="default" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant"
+	name="littleApps" default="default" basedir=".">
     <description>Builds, tests, and runs the project littleApps.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -120,4 +121,33 @@
             </fileset>
         </javadoc>
     </target>
+    
+<ivy:settings file="${user.home}/.ivy2/littlesettings.xml" />
+
+<target name="resolve" description="-- retrieve dependencies with ivy">
+        <ivy:retrieve />
+        <pathconvert property="ivy.classpath.computed" dirsep="/" pathsep=":">
+            <path>
+                <fileset dir="lib" includes="*.jar"/>
+            </path>
+            <map from="${basedir}${file.separator}" to=""/>
+        </pathconvert>
+        <propertyfile file="nbproject/project.properties">
+            <entry operation="=" key="ivy.classpath" value="${ivy.classpath.computed}"/>
+        </propertyfile>
+    </target>
+
+
+<target name="-pre-init" depends="resolve" />
+
+
+<target name="publish" depends="resolve,-init-project,jar" description="publish to local ivy repository">
+	<ivy:publish
+			           resolver="local"
+			           pubrevision="2.0" 
+			           >
+             <artifacts pattern="${dist.dir}/[artifact].[ext]" />
+         </ivy:publish>
+    </target>
+    
 </project>

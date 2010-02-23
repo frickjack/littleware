@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="littleware" module="scratch"/>
+    <info organisation="littleware" module="littleware"/>
     <configurations>
     	<conf name="server"  description="server side RMI services jar"/>
         <conf name="client"  description="client side RMI services binding jar"/>
@@ -33,14 +33,16 @@
         <dependency org="org.slf4j" name="slf4j-simple" rev="1.5.8"/>
         <dependency org="log4j" name="log4j" rev="1.2.14"/>
         
-<!--
         <dependency org="javax" name="javaee-api" rev="6.0" />
-        --> 
+        
         <dependency org="javax.mail" name="mail" rev="1.4.3"/>
         <dependency org="dom4j" name="dom4j" rev="1.6.1"/>
         <dependency org="javassist" name="javassist" rev="3.11.0.GA"/>
         <dependency org="javax.transaction" name="jta" rev="1.1"/>
         <dependency org="antlr" name="antlr" rev="2.7.7"/>
+        <!--
+        <dependency org="proxool" name="proxool" rev="0.8.3"/>
+        -->
         
         <dependency org="com.google.inject" name="guice" rev="2.0" />
         <dependency org="joda-time" name="joda-time" rev="1.6" />
@@ -51,7 +53,10 @@
         <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" />
         <dependency org="org.apache.derby" name="derbyclient" rev="10.5.3.0_1" />
         <dependency org="junit" name="junit" rev="3.8.2" />
-        <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1" />
+        <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1" conf="*->*,!sources">
+           <exclude module=".+" ext="jar" type="src" matcher="regexp" />
+           <exclude module=".+servlet" matcher="regexp" />
+        </dependency>
         <dependency org="com.oracle" name="ojdbc6" rev="11g" />
         <dependency org="postgresql" name="postgresql" rev="8.4-701.jdbc4" />
         <dependency org="commons-collections" name="commons-collections" rev="3.2.1"/>

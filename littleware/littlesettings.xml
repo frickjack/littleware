@@ -11,6 +11,8 @@
             <ivy pattern="${ivy.cache.dir}/[module]/ivy-[revision].xml"/>
             <artifact pattern="${ivy.cache.dir}/[module]/[artifact]-[revision](-[classifier]).[ext]"/>
             -->
+            <ivy pattern="${user.home}/.ivy2/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
+            <artifact pattern="${user.home}/.ivy2/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />                                    
         </filesystem>
         <filesystem name="localMaven" m2compatible="true" >
             <ivy pattern="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />

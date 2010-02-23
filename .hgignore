@@ -1,4 +1,5 @@
 CVS
+derby.log
 ^littleware/lib
 ^littleware/applet_test
 /build/
@@ -12,5 +13,6 @@ nbproject/private
 /bucketRoot/
 /cachedir/
 ^scratch
+/lib/
 \.pyc$
 ~$

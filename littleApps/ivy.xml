@@ -1,0 +1,47 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="littleApps"/>
+    <!--
+    <configurations>
+    	<conf name="server"  description="server side RMI services jar"/>
+        <conf name="client"  description="client side RMI services binding jar"/>
+    	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
+    	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
+    	<conf name="test" extends="cc-impl" visibility="private" description="for testing our framework"/>
+    </configurations>
+    -->
+    <publications>
+    	<artifact name="littleApps" ext="jar" type="jar"  conf="*" />
+        <!--
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
+    	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
+        -->
+    </publications>
+    
+    <dependencies>    
+    
+      <dependency org="littleware" name="littleware" rev="2.0"/>
+      <dependency org="org.eclipse.jetty" name="jetty-continuation" rev="7.0.1.v20091125"/>
+      <dependency org="org.eclipse.jetty" name="jetty-http" rev="7.0.1.v20091125"/>
+      <dependency org="org.eclipse.jetty" name="jetty-io" rev="7.0.1.v20091125"/>
+      <dependency org="org.eclipse.jetty" name="jetty-server" rev="7.0.1.v20091125"/>
+      <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="7.0.1.v20091125"/>
+      <dependency org="org.eclipse.jetty" name="jetty-util" rev="7.0.1.v20091125"/>
+      <dependency org="org.eclipse.jetty" name="jetty-security" rev="7.0.1.v20091125"/>
+      
+      <dependency org="javanettasks" name="httpunit" rev="1.7"/>
+      <dependency org="org.easymock" name="easymock" rev="2.5.2"/>
+      <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525"/>
+
+      <!--
+    ${file.reference.httpunit.jar}:\
+    ${file.reference.js-1.6R5.jar}:\
+    ${file.reference.jtidy-4aug2000r7-dev.jar}:\
+    ${file.reference.nekohtml-0.9.5.jar}:\
+    ${file.reference.xercesImpl-2.6.1.jar}:\
+    ${file.reference.jnlp.jar}:\
+    ${file.reference.easymock-2.4.jar}
+       -->
+    </dependencies>
+
+</ivy-module>

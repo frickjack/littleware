@@ -148,9 +148,9 @@
         </propertyfile>
     </target>
 
-<!--
+
 <target name="-pre-init" depends="resolve" />
--->
+
 
 <target name="publish" depends="jar" description="publish to local ivy repository">
 	<ivy:publish artifactspattern="${dist.dir}/[artifact].[ext]"

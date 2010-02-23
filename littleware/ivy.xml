@@ -19,7 +19,8 @@
     </publications>
     
     <dependencies>
-        <dependency org="org.apache.derby" name="derby" rev="10.5.3.0"/>
+        <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-CR-1"/>
+        <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-CR-1"/>
         <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-CR-1"/>
         <dependency org="com.google.inject" name="guice" rev="2.0" />
         <dependency org="joda-time" name="joda-time" rev="1.6" />
@@ -27,6 +28,15 @@
         <dependency org="com.google.collections" name="google-collections" rev="1.0-rc5" />
         <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="2.0.4" />
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" />
+        <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" />
+        <dependency org="org.apache.derby" name="derbyclient" rev="10.5.3.0_1" />
+        <dependency org="junit" name="junit" rev="3.8.2" />
+        <!--
+        <dependency org="javax" name="javaee-api" rev="6.0" />
+        -->
+        <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1" />
+        <dependency org="com.oracle" name="ojdbc6" rev="11g" />
+        <dependency org="postgresql" name="postgresql" rev="8.4-701.jdbc4" />
         <!--
         <dependency org="commons-cli" name="commons-cli" rev="1.0"/>
         -->

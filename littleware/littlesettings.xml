@@ -42,6 +42,7 @@
             <resolver ref="local"/>
             <resolver ref="localMaven"/>
             <resolver ref="central"/>
+            <resolver ref="java.net"/>
             <resolver ref="jboss"/>
             <resolver ref="gson"/>
             <resolver ref="google"/>

@@ -136,16 +136,30 @@
 <ivy:settings file="${user.home}/.ivy2/littlesettings.xml" />
 
 <target name="resolve" description="-- retrieve dependencies with ivy">
-        <ivy:retrieve />
-        <pathconvert property="ivy.classpath.computed" dirsep="/" pathsep=":">
+        <ivy:retrieve conf="compile" pattern="lib/compile/[artifact]-[revision]-[type].[ext]" />
+        <pathconvert property="ivy.compile.classpath.computed" dirsep="/" pathsep=":">
             <path>
-                <fileset dir="lib" includes="*.jar"/>
+                <fileset dir="lib/compile" includes="*.jar"/>
             </path>
             <map from="${basedir}${file.separator}" to=""/>
         </pathconvert>
         <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.classpath" value="${ivy.classpath.computed}"/>
+            <entry operation="=" key="ivy.compile.classpath" value="${ivy.compile.classpath.computed}"/>
         </propertyfile>
+        
+        
+        <ivy:retrieve conf="standalone" pattern="lib/test/[artifact]-[revision]-[type].[ext]" />
+        <pathconvert property="ivy.standalone.classpath.computed" dirsep="/" pathsep=":">
+            <path>
+                <fileset dir="lib/test" includes="*.jar"/>
+            </path>
+            <map from="${basedir}${file.separator}" to=""/>
+        </pathconvert>
+        <propertyfile file="nbproject/project.properties">
+            <entry operation="=" key="ivy.test.classpath" value="${ivy.standalone.classpath.computed}"/>
+        </propertyfile>
+        
+        <ivy:resolve />        
     </target>
 
 

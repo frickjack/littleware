@@ -25,10 +25,10 @@ import javax.servlet.*;
  * TODO: configure GUICE injector bean initialization
  */
 public class BootstrapServlet extends HttpServlet {
-    private static final Logger olog = Logger.getLogger( BootstrapServlet.class.getName() );
+    private static final Logger log = Logger.getLogger( BootstrapServlet.class.getName() );
     private static final long serialVersionUID = 513807516080701142L;
 
-    private Exception        oex_error = null;
+    private Exception        lastError = null;
     private littleware.security.auth.server.ServerBootstrap  obootstrap = null;
     
     /**
@@ -45,18 +45,18 @@ public class BootstrapServlet extends HttpServlet {
             obootstrap = new ServerBootstrap();
             //boot.getOSGiActivator().add( PackageTestSuite.class );
             obootstrap.bootstrap();
-            olog.log( Level.INFO, "Littleware Bootstrap ok" );
+            log.log( Level.INFO, "Littleware Bootstrap ok" );
             //SessionUtil.get().getSessionManager ();
         } catch ( Exception ex ) {
-            oex_error = ex;
-            olog.log( Level.SEVERE, "Failed to bootstrap Littleware SessionManager", ex );
+            lastError = ex;
+            log.log( Level.SEVERE, "Failed to bootstrap Littleware SessionManager", ex );
             throw new ServletException( "Failed to bootstrap", ex );
         }
     }
 
     @Override
     public void destroy () {
-        olog.log( Level.INFO, "Attempting to shutdown littleware OSGi runtime" );
+        log.log( Level.INFO, "Attempting to shutdown littleware OSGi runtime" );
         obootstrap.shutdown();
     }
         
@@ -67,10 +67,10 @@ public class BootstrapServlet extends HttpServlet {
         
         writer.print( "<html>\n<head><title>Bootstrap Status</title></head>\n<body>");
         writer.print( "<h3>Bootstrap Status</h3>\n" );
-        if ( oex_error == null ) {
+        if ( lastError == null ) {
             writer.append( "<p> Bootstrap ok.</p>\n" );
         } else {
-            writer.append( "<p> Bootstrap failed, caught: " + oex_error.getMessage () +
+            writer.append( "<p> Bootstrap failed, caught: " + lastError.getMessage () +
                     ", see logs for details.</p>\n"
                     );
         }

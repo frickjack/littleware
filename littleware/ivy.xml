@@ -1,8 +1,10 @@
 <ivy-module version="2.0">
     <info organisation="littleware" module="littleware"/>
     <configurations>
-    	<conf name="server"  description="server side RMI services jar"/>
+        <conf name="compile" description="compile everything"/>
+    	<conf name="server"  description="server side RMI services jar for j2ee deploy"/>
         <conf name="client"  description="client side RMI services binding jar"/>
+        <conf name="standalone"  description="standalone server with client"/>
         <!--
     	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
     	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
@@ -10,7 +12,7 @@
         -->
     </configurations>
     <publications>
-    	<artifact name="littleware" ext="jar" type="jar"  conf="server" />
+    	<artifact name="littleware" ext="jar" type="jar"  conf="compile,server,standalone" />
         <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
         <!--
     	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
@@ -20,26 +22,32 @@
     
     <dependencies>    
     
-      <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-CR-1"/>
-  <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-CR-1"/>
-  <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-CR-1"/>
-  <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="3.2.0.Beta1"/>
+      <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-CR-1" conf="compile,standalone->*" />
+  <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-CR-1" conf="compile,standalone->*"/>
+  <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-CR-1" conf="compile,standalone->*" />
+  <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="3.2.0.Beta1" conf="standalone->*" />
         <!--
         <dependency org="little.hibernate" name="hibernate3" rev="3.5.0-CR-1"/>
            -->
-        <dependency org="org.hibernate.java-persistence" name="jpa-api" rev="2.0-cr-1"/>
+        <dependency org="org.hibernate.java-persistence" name="jpa-api" rev="2.0-cr-1" conf="standalone->*" />
         
-        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.8"/>
-        <dependency org="org.slf4j" name="slf4j-simple" rev="1.5.8"/>
-        <dependency org="log4j" name="log4j" rev="1.2.14"/>
-        
-        <dependency org="javax" name="javaee-api" rev="6.0" />
-        
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.8" conf="standalone->*" />
+        <dependency org="org.slf4j" name="slf4j-simple" rev="1.5.8" conf="standalone->*" />
+        <dependency org="log4j" name="log4j" rev="1.2.14" conf="standalone->*" />
+        <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="standalone->*">
+            <exclude module=".+" ext="jar" type="src" matcher="regexp" />
+        </dependency>
+        <dependency org="javassist" name="javassist" rev="3.11.0.GA" conf="standalone->*" />
+        <dependency org="javax.transaction" name="jta" rev="1.1" conf="standalone->*">
+           <exclude module=".+" ext="jar" type="src" matcher="regexp" />
+        </dependency>
+        <dependency org="antlr" name="antlr" rev="2.7.7" conf="standalone->*" />
+
+        <!--
+        <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525"/>
+                -->
+        <dependency org="javax" name="javaee-api" rev="6.0" conf="compile->*" />
         <dependency org="javax.mail" name="mail" rev="1.4.3"/>
-        <dependency org="dom4j" name="dom4j" rev="1.6.1"/>
-        <dependency org="javassist" name="javassist" rev="3.11.0.GA"/>
-        <dependency org="javax.transaction" name="jta" rev="1.1"/>
-        <dependency org="antlr" name="antlr" rev="2.7.7"/>
         <!--
         <dependency org="proxool" name="proxool" rev="0.8.3"/>
         -->
@@ -53,7 +61,8 @@
         <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" />
         <dependency org="org.apache.derby" name="derbyclient" rev="10.5.3.0_1" />
         <dependency org="junit" name="junit" rev="3.8.2" />
-        <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1" conf="*->*,!sources">
+        <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1"> 
+                <!-- conf="*-*,!sources" -->
            <exclude module=".+" ext="jar" type="src" matcher="regexp" />
            <exclude module=".+servlet" matcher="regexp" />
         </dependency>

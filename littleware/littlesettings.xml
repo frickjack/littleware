@@ -39,6 +39,13 @@
            <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
            <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         </url>            
+        <url name="n9n.ivy2">
+           <ivy pattern="http://n9n.mtvn.ad.viacom.com/repository/ivy2/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
+           <artifact pattern="http://n9n.mtvn.ad.viacom.com/repository/ivy2/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
+        </url>            
+        <ibiblio name="n9n.maven2" m2compatible="true" usepoms="false" 
+                root="http://n9n.mtvn.ad.viacom.com/repository/maven2/" />
+        	pattern="[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
             
         <chain name="default" returnFirst="true">
             <resolver ref="local"/>
@@ -49,6 +56,8 @@
             <resolver ref="gson"/>
             <resolver ref="google"/>
             <resolver ref="com.springsource.repository.bundles.external"/>
+            <resolver ref="n9n.ivy2"/>
+            <resolver ref="n9n.maven2"/>
         </chain>
     </resolvers>
 </ivysettings>

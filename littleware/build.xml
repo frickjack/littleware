@@ -173,7 +173,7 @@
 			           >
              <artifacts pattern="${dist.dir}/[artifact].[ext]" />
          </ivy:publish>
-         
+         <delete dir="${ivy.cache.dir}/littleware" />
     </target>
 
 </project>

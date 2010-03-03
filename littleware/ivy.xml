@@ -52,8 +52,11 @@
         <dependency org="proxool" name="proxool" rev="0.8.3"/>
         -->
         
+        <dependency org="com.google.inject" name="guice_no_aop" rev="2.0" />
+        <!--
         <dependency org="com.google.inject" name="guice" rev="2.0" />
         <dependency org="aopalliance" name="aopalliance" rev="1.0" />
+        -->
         <dependency org="joda-time" name="joda-time" rev="1.6" />
         <dependency org="com.google.code.gson" name="gson" rev="1.4" />
         <dependency org="com.google.collections" name="google-collections" rev="1.0-rc5" />

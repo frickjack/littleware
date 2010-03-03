@@ -135,8 +135,10 @@
 
 <!--
 <ivy:settings url="http://n9n.mtvn.ad.viacom.com/repository/littlesettings.xml" />
+<ivy:settings file="${user.home}/Documents/Code/repository/littlesettings.xml" />
 -->
 <ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
+
 
 <target name="resolve" description="-- retrieve dependencies with ivy">
         <ivy:retrieve conf="compile" pattern="lib/compile/[artifact]-[revision]-[type].[ext]" />

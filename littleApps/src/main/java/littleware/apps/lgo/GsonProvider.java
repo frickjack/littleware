@@ -124,6 +124,7 @@ public class GsonProvider implements Provider<Gson> {
             result.addProperty("createDate", toStringOrNull(asset.getCreateDate()));
             result.addProperty("updater", toStringOrNull(asset.getLastUpdaterId()));
             result.addProperty("updateDate", toStringOrNull(asset.getLastUpdateDate()));
+            result.addProperty( "updateComment", asset.getLastUpdate() );
             result.addProperty("startDate", toStringOrNull(asset.getStartDate()));
             result.addProperty("endDate", toStringOrNull(asset.getEndDate()));
             result.addProperty("transaction", Long.toString(asset.getTransaction()));

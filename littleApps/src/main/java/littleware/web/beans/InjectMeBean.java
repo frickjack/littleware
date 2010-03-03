@@ -12,6 +12,7 @@
 package littleware.web.beans;
 
 
+
 /**
  * Provides a default get/setGuiceBean implementation
  * where setGuiceBean does an 'injectMembers'

@@ -10,11 +10,13 @@
 package littleware.web.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Injector;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
@@ -25,7 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+import littleware.apps.client.ClientBootstrap;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
+import littleware.base.PropertiesLoader;
+import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.LittleBootstrap;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;
@@ -55,12 +61,45 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
 
     private static final Logger log = Logger.getLogger(LoginHandler.class.getName());
 
+    Maybe<GuiceBean> maybeGuest = Maybe.empty();
+
     /**
      * Inject an unauthenticated GuiceBean into the session
      */
     @Override
     public void sessionCreated(HttpSessionEvent event) {
-        event.getSession().setAttribute(WebBootstrap.littleGuice, new GuiceBean());
+        if (!maybeGuest.isSet()) {
+            /**
+             * Cache a littleware session for the guest user.
+             */
+            try {
+                final Properties properties = PropertiesLoader.get().loadProperties();
+                final String guest = properties.getProperty("web.guest");
+                final String guestPassword = properties.getProperty("web.guest.password");
+                if ((guest != null) && (guestPassword != null)) {
+                    final SessionManager manager = SessionUtil.get().getSessionManager();
+                    /// TODO - lookup guest password from littleware.properties or whatever
+                    final SessionHelper helper = manager.login("guest", "guest", "web login");
+                    new ClientBootstrap( new ClientServiceGuice( helper ) ) {
+                        @Override
+                        public void bootstrap() {
+                            maybeGuest = Maybe.something( (GuiceBean)
+                                    new GuiceBean( super.bootstrapInternal() ) {
+                                @Override
+                                public boolean isLoggedIn() { return false; }
+                            } );
+                        }
+                    }.bootstrap();
+                } 
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Failed to setup guest-user web-session - just using empty GuiceBean instead", ex );
+            } finally {
+                if ( maybeGuest.isEmpty() ) {
+                    maybeGuest = Maybe.something( new GuiceBean() );
+                }
+            }
+        }
+        event.getSession().setAttribute(WebBootstrap.littleGuice, maybeGuest.get());
     }
 
     /**
@@ -69,7 +108,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
      */
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {
-        final LittleBootstrap boot = (LittleBootstrap) event.getSession().getAttribute("littleBoot");
+        final LittleBootstrap boot = (LittleBootstrap) event.getSession().getAttribute(WebBootstrap.littleBoot);
         if (null != boot) {
             boot.shutdown();
             event.getSession().removeAttribute(WebBootstrap.littleBoot);
@@ -145,7 +184,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
         }
         if (action.equalsIgnoreCase("login")) {
             try {
-                login(request.getSession(), request.getParameter("user"), request.getParameter("password"));
+                login(request, request.getParameter("user"), request.getParameter("password"));
                 String forwardURL = request.getParameter("okURL");
                 if (null == forwardURL) {
                     forwardURL = this.getLoginOkURL();
@@ -171,7 +210,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
             }
         } else if (action.equalsIgnoreCase("logout")) {
             try {
-                logout(request.getSession() );
+                logout(request.getSession());
                 String forwardURL = request.getParameter("logoutURL");
                 if (null == forwardURL) {
                     forwardURL = this.getLogoutURL();
@@ -205,11 +244,17 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
      * @throws RemoteException
      */
     @VisibleForTesting
-    public void login(HttpSession session, String user,
+    public void login(HttpServletRequest request, String user,
             String password) throws BaseException, GeneralSecurityException, RemoteException, NotBoundException {
-        final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
-        if ((null != bean) && bean.isLoggedIn()) {
-            throw new IllegalStateException("Session already logged in");
+        HttpSession session = request.getSession( false );
+        if ( null != session ) {
+            final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
+            if ( null != bean ) {
+                // already logged in as another user - clear out that session, and create a new one
+                logout( session );
+                //throw new IllegalStateException("Session already logged in");
+                session = request.getSession( true );
+            }
         }
         final SessionManager manager = SessionUtil.get().getSessionManager();
         final SessionHelper helper = manager.login(user, password, "web login");

@@ -63,11 +63,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
 
     Maybe<GuiceBean> maybeGuest = Maybe.empty();
 
-    /**
-     * Inject an unauthenticated GuiceBean into the session
-     */
-    @Override
-    public void sessionCreated(HttpSessionEvent event) {
+    private void sessionCreated( HttpSession session ) {
         if (!maybeGuest.isSet()) {
             /**
              * Cache a littleware session for the guest user.
@@ -90,7 +86,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
                             } );
                         }
                     }.bootstrap();
-                } 
+                }
             } catch (Exception ex) {
                 log.log(Level.WARNING, "Failed to setup guest-user web-session - just using empty GuiceBean instead", ex );
             } finally {
@@ -99,7 +95,24 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
                 }
             }
         }
-        event.getSession().setAttribute(WebBootstrap.littleGuice, maybeGuest.get());
+        session.setAttribute(WebBootstrap.littleGuice, maybeGuest.get());
+    }
+
+    /**
+     * Inject an unauthenticated GuiceBean into the session
+     */
+    @Override
+    public void sessionCreated(HttpSessionEvent event) {
+        sessionCreated( event.getSession() );
+    }
+
+    private void sessionDestroyed( HttpSession session ) {
+        final LittleBootstrap boot = (LittleBootstrap) session.getAttribute(WebBootstrap.littleBoot);
+        if (null != boot) {
+            boot.shutdown();
+            session.removeAttribute(WebBootstrap.littleBoot);
+        }
+        session.removeAttribute(WebBootstrap.littleGuice);
     }
 
     /**
@@ -108,13 +121,10 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
      */
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {
-        final LittleBootstrap boot = (LittleBootstrap) event.getSession().getAttribute(WebBootstrap.littleBoot);
-        if (null != boot) {
-            boot.shutdown();
-            event.getSession().removeAttribute(WebBootstrap.littleBoot);
-        }
-        event.getSession().removeAttribute(WebBootstrap.littleGuice);
+        final HttpSession session = event.getSession();
+        sessionDestroyed( session );
     }
+    
     String loginOkURL = "/login/welcome.jsp";
     String loginFailedURL = "/login/ugh.jsp";
     String logoutURL = "/login/goodbye.jsp";
@@ -210,7 +220,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
             }
         } else if (action.equalsIgnoreCase("logout")) {
             try {
-                logout(request.getSession());
+                logout(request);
                 String forwardURL = request.getParameter("logoutURL");
                 if (null == forwardURL) {
                     forwardURL = this.getLogoutURL();
@@ -251,7 +261,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
             final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
             if ( null != bean ) {
                 // already logged in as another user - clear out that session, and create a new one
-                logout( session );
+                logout( request );
                 //throw new IllegalStateException("Session already logged in");
                 session = request.getSession( true );
             }
@@ -268,8 +278,9 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
      * @param session
      */
     @VisibleForTesting
-    public void logout(HttpSession session) {
-        sessionDestroyed(new HttpSessionEvent(session));
-        session.invalidate();
+    public void logout(HttpServletRequest request) {
+        sessionDestroyed(request.getSession());
+        request.getSession().invalidate();
+        sessionCreated( request.getSession( true ));
     }
 }

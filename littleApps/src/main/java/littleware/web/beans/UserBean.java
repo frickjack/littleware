@@ -14,7 +14,6 @@ package littleware.web.beans;
 import com.google.inject.Inject;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.inject.Named;
 import littleware.asset.AssetSearchManager;
 import littleware.base.AssertionFailedException;
 import littleware.security.AccountManager;
@@ -25,7 +24,7 @@ import littleware.security.SecurityAssetType;
 /**
  * Session scope bean gives access to logged in user
  */
-@Named
+@ManagedBean
 @SessionScoped
 public class UserBean extends InjectMeBean {
     private LittleUser user = null;
@@ -35,11 +34,6 @@ public class UserBean extends InjectMeBean {
     /** Is this user a member of the littleware admin group ? */
     public boolean    isAdmin() { return admin; }
     
-    @javax.inject.Inject
-    @Override
-    public void setGuiceBean( GuiceBean value ) {
-        super.setGuiceBean(value);
-    }
 
     @Inject
     public void injectMe( LittleUser user, AssetSearchManager search ) {

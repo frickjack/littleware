@@ -11,6 +11,8 @@
 
 package littleware.web.beans;
 
+import javax.faces.bean.ManagedProperty;
+
 
 
 /**
@@ -20,6 +22,7 @@ package littleware.web.beans;
  * Sort of a visitor pattern.
  */
 public abstract class InjectMeBean {
+    @ManagedProperty(value="#{littleGuice}")
     private GuiceBean  guiceBean = null;
 
     public GuiceBean  getGuiceBean () { return guiceBean; }
@@ -35,4 +38,5 @@ public abstract class InjectMeBean {
         gbean.injectMembers( this );
         guiceBean = gbean;
     }
+
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<help fullname="littleware.apps.lgo.CreateUserCommand"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>Create a littleware.USER under /littleware.home/Users/</synopsis>
+  <description>
+   Create a littleware.USER under /littleware.home/Users/
+
+      mkuser --name username [--admin admin]
+  </description>
+  <shortname>mkuser</shortname>
+  <shortname>adduser</shortname>
+</help>

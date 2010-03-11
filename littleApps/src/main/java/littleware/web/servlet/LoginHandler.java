@@ -11,11 +11,11 @@ package littleware.web.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Injector;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,10 +60,9 @@ import littleware.web.beans.GuiceBean;
 public class LoginHandler extends HttpServlet implements HttpSessionListener {
 
     private static final Logger log = Logger.getLogger(LoginHandler.class.getName());
-
     Maybe<GuiceBean> maybeGuest = Maybe.empty();
 
-    private void sessionCreated( HttpSession session ) {
+    private void sessionCreated(HttpSession session) {
         if (!maybeGuest.isSet()) {
             /**
              * Cache a littleware session for the guest user.
@@ -76,22 +75,25 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
                     final SessionManager manager = SessionUtil.get().getSessionManager();
                     /// TODO - lookup guest password from littleware.properties or whatever
                     final SessionHelper helper = manager.login("guest", "guest", "web login");
-                    new ClientBootstrap( new ClientServiceGuice( helper ) ) {
+                    new ClientBootstrap(new ClientServiceGuice(helper)) {
+
                         @Override
                         public void bootstrap() {
-                            maybeGuest = Maybe.something( (GuiceBean)
-                                    new GuiceBean( super.bootstrapInternal() ) {
+                            maybeGuest = Maybe.something((GuiceBean) new GuiceBean(super.bootstrapInternal()) {
+
                                 @Override
-                                public boolean isLoggedIn() { return false; }
-                            } );
+                                public boolean isLoggedIn() {
+                                    return false;
+                                }
+                            });
                         }
                     }.bootstrap();
                 }
             } catch (Exception ex) {
-                log.log(Level.WARNING, "Failed to setup guest-user web-session - just using empty GuiceBean instead", ex );
+                log.log(Level.WARNING, "Failed to setup guest-user web-session - just using empty GuiceBean instead", ex);
             } finally {
-                if ( maybeGuest.isEmpty() ) {
-                    maybeGuest = Maybe.something( new GuiceBean() );
+                if (maybeGuest.isEmpty()) {
+                    maybeGuest = Maybe.something(new GuiceBean());
                 }
             }
         }
@@ -103,10 +105,10 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
      */
     @Override
     public void sessionCreated(HttpSessionEvent event) {
-        sessionCreated( event.getSession() );
+        sessionCreated(event.getSession());
     }
 
-    private void sessionDestroyed( HttpSession session ) {
+    private void sessionDestroyed(HttpSession session) {
         final LittleBootstrap boot = (LittleBootstrap) session.getAttribute(WebBootstrap.littleBoot);
         if (null != boot) {
             boot.shutdown();
@@ -122,9 +124,8 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {
         final HttpSession session = event.getSession();
-        sessionDestroyed( session );
+        sessionDestroyed(session);
     }
-    
     String loginOkURL = "/login/welcome.jsp";
     String loginFailedURL = "/login/ugh.jsp";
     String logoutURL = "/login/goodbye.jsp";
@@ -194,27 +195,66 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
         }
         if (action.equalsIgnoreCase("login")) {
             try {
-                login(request, request.getParameter("user"), request.getParameter("password"));
+                final SessionManager manager = SessionUtil.get().getSessionManager();
+                final SessionHelper helper = manager.login(request.getParameter("user"), request.getParameter("password"), "web login");
+                // login ok!
                 String forwardURL = request.getParameter("okURL");
                 if (null == forwardURL) {
                     forwardURL = this.getLoginOkURL();
                 }
+                final HttpSession session = request.getSession();
+                {
+                    final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
+                    if (null != bean) {
+                        // already logged in as another user - clear out that session, and create a new one
+                        logout(request);
+                        // create a new session
+                        //session = request.getSession( true );
+                        //throw new IllegalStateException("Session already logged in");
+                    }
+                }
+                final WebBootstrap boot = new WebBootstrap(session, helper);
+                boot.bootstrap();
                 try {
-                    getServletConfig().getServletContext().getRequestDispatcher(forwardURL).forward(request, response);
-                } catch (IOException ex2) {
+                    //response.getWriter().println( "<html><head></head><body>OK</body></html>" );
+                    response.getWriter().println( "<html><head><meta http-equiv=\"refresh\" content=\"2;url=" +
+                            request.getContextPath() + forwardURL +
+                            "\"/></head><body>OK ... <a href=\"" +
+                            request.getContextPath() + forwardURL + "\">redirecting ...</a>" +
+                            "</body></html>" );
+                    //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+                    //response.setHeader("Location", forwardURL );
+                    //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).include(request, response);
+                    //response.sendRedirect( request.getContextPath() + forwardURL);
+                    return;
+                } catch (Exception ex2) {
+                    log.log(Level.WARNING, "Failed to forward to " + forwardURL, ex2);
                     throw new ServletException("Bad URL: " + forwardURL, ex2);
                 }
             } catch (ServletException ex) {
                 throw ex;
             } catch (Exception ex) {
+                log.log(Level.WARNING, "Login failed", ex);
+                //throw new ServletException( "Login failed", ex );
+
                 String forwardURL = request.getParameter("failedURL");
                 if (null == forwardURL) {
                     forwardURL = this.getLoginFailedURL();
                 }
                 request.setAttribute("exception", ex);
                 try {
-                    getServletConfig().getServletContext().getRequestDispatcher(forwardURL).forward(request, response);
-                } catch (IOException ex2) {
+                    response.getWriter().println( "<html><head><meta http-equiv=\"refresh\" content=\"2;url=" +
+                            request.getContextPath() + forwardURL +
+                            "\"/></head><body>OK ... <a href=\"" +
+                            request.getContextPath() + forwardURL + "\">redirecting ...</a>" +
+                            "</body></html>" );
+                    //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+                    //response.setHeader("Location", "http://yahoo.com");
+                    //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).include(request, response);
+                    //response.sendRedirect( request.getContextPath() + forwardURL);
+                    return;
+                } catch (Exception ex2) {
+                    log.log(Level.WARNING, "Failed to forward to " + forwardURL, ex2);
                     throw new ServletException("Bad URL: " + forwardURL, ex2);
                 }
             }
@@ -226,8 +266,20 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
                     forwardURL = this.getLogoutURL();
                 }
                 try {
-                    getServletConfig().getServletContext().getRequestDispatcher(forwardURL).forward(request, response);
-                } catch (IOException ex2) {
+                    response.getWriter().println( "<html><head><meta http-equiv=\"refresh\" content=\"2;url=" +
+                            request.getContextPath() + forwardURL +
+                            "\"/></head><body>OK ... <a href=\"" +
+                            request.getContextPath() + forwardURL + "\">redirecting ...</a>" +
+                            "</body></html>" );
+
+                    //response.getWriter().println( "<html><head></head><body>OK</body></html>" );
+                    //response.setStatus( HttpServletResponse.SC_MOVED_TEMPORARILY );
+                    //response.setHeader( "Location", "http://yahoo.com" );
+                    //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).forward(request, response);
+                    //response.sendRedirect( request.getContextPath() + forwardURL);
+                    return;
+                } catch (Exception ex2) {
+                    log.log(Level.WARNING, "Failed to forward to " + request.getContextPath() + "/" + forwardURL, ex2);
                     throw new ServletException("Bad URL: " + forwardURL, ex2);
                 }
             } catch (ServletException ex) {
@@ -236,40 +288,6 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
         } else {
             throw new IllegalArgumentException("Unknown action: " + action);
         }
-
-    }
-
-    /**
-     * Attempts to authenticate the user.
-     * On success, sets up a new session with a
-     * logged in GuiceBean.
-     * Throws IllegalStateException if session already logged
-     * in under a different user.
-     * 
-     * @param session
-     * @param user
-     * @param password
-     * @throws BaseException
-     * @throws GeneralSecurityException on authentication failure
-     * @throws RemoteException
-     */
-    @VisibleForTesting
-    public void login(HttpServletRequest request, String user,
-            String password) throws BaseException, GeneralSecurityException, RemoteException, NotBoundException {
-        HttpSession session = request.getSession( false );
-        if ( null != session ) {
-            final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
-            if ( null != bean ) {
-                // already logged in as another user - clear out that session, and create a new one
-                logout( request );
-                //throw new IllegalStateException("Session already logged in");
-                session = request.getSession( true );
-            }
-        }
-        final SessionManager manager = SessionUtil.get().getSessionManager();
-        final SessionHelper helper = manager.login(user, password, "web login");
-        final WebBootstrap boot = new WebBootstrap(session, helper);
-        boot.bootstrap();
     }
 
     /**
@@ -279,8 +297,15 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
      */
     @VisibleForTesting
     public void logout(HttpServletRequest request) {
-        sessionDestroyed(request.getSession());
-        request.getSession().invalidate();
-        sessionCreated( request.getSession( true ));
+        final HttpSession session = request.getSession();
+        sessionDestroyed(session);
+        
+        // Just unbind all the data in the session!
+        for (Enumeration<String> scan = session.getAttributeNames();
+                scan.hasMoreElements();) {
+            session.removeAttribute(scan.nextElement());
+        }
+        //session.invalidate();
+        sessionCreated( session );
     }
 }

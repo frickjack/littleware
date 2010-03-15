@@ -12,11 +12,13 @@
 package littleware.db.test;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
+import com.google.inject.Provider;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.sql.DataSource;
 import junit.framework.*;
+import littleware.security.auth.server.ServerBootstrap;
+import littleware.test.TestFactory;
 
 
 /**
@@ -24,17 +26,29 @@ import junit.framework.*;
  * for the littleware.db package.
  */
 public class PackageTestSuite extends TestSuite {
-    private static final Logger olog = Logger.getLogger( PackageTestSuite.class.getName() );
+    private static final Logger log = Logger.getLogger( PackageTestSuite.class.getName() );
 
     /**
      * Setup a test suite to exercise this package -
      * junit.swingui.TestRunner looks for this.
      */
     @Inject
-    public PackageTestSuite( @Named( "datasource.littleware" ) DataSource dsource ) {
+    public PackageTestSuite( Provider<ConnectionFactoryTester> provideFactoryTester ) {
         super( PackageTestSuite.class.getName() );
 
-        this.addTest(new ConnectionFactoryTester("testQuery", dsource, "SELECT 'Hello'"));
+        this.addTest( provideFactoryTester.get() );
+        this.addTest( provideFactoryTester.get().putName("testProxy"));
+    }
+
+
+    public static Test suite() {
+        log.log(Level.WARNING, "Guice 2.0 has an AOP bug that may throw an exception booting in test-runner class-loader");
+        try {
+            return (new TestFactory()).build(new ServerBootstrap(true), PackageTestSuite.class);
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
+            throw ex;
+        }
     }
 
 }

@@ -28,6 +28,7 @@ public class PackageTestSuite extends TestSuite {
     @Inject
     public PackageTestSuite(
             littleware.base.test.PackageTestSuite suite_base,
+            littleware.db.test.PackageTestSuite  suite_db,
             littleware.asset.test.PackageTestSuite suite_asset,
             littleware.security.test.PackageTestSuite suite_security,
             AssetSearchManager search) {
@@ -44,8 +45,7 @@ public class PackageTestSuite extends TestSuite {
 
             if (bRun) {
                 log.log(Level.INFO, "Trying to setup littleware.db test suite");
-                log.log(Level.INFO, "Test disabled ... does not apply when running with JPA");
-                //this.addTest( suite_db );
+                this.addTest( suite_db );
             }
 
             if (bRun) {

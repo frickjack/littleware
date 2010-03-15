@@ -10,7 +10,6 @@
 package littleware.db;
 
 import com.google.inject.Binder;
-import com.google.inject.Module;
 
 import com.google.inject.name.Names;
 import java.io.IOException;
@@ -25,9 +24,7 @@ import javax.naming.NamingException;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesGuice;
-import littleware.base.PropertiesLoader;
 import oracle.jdbc.pool.OracleDataSource;
 
 /**

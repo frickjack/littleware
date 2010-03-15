@@ -10,6 +10,9 @@
 
 package littleware.base;
 
+import com.google.inject.ProvidedBy;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import java.util.*;
 import java.io.*;
 import java.util.logging.Logger;
@@ -22,19 +25,34 @@ import java.util.logging.Level;
  * along a littleware specific search path starting with the classpath,
  * and progressing through littleware.home, user.home, etc. based locations.
  */
+@Singleton
+@ProvidedBy(PropertiesLoader.ProvideLoader.class)
 public class PropertiesLoader {
 
-    private static final Logger olog = Logger.getLogger( PropertiesLoader.class.getName() );
-    private static final Map<String, Properties> ov_cache = new HashMap<String, Properties>();
-    
-    private String os_littlehome_key = "littleware.home";
+    /**
+     * Allow PropertiesLoader GUICE injection
+     */
+    public static class ProvideLoader implements Provider<PropertiesLoader> {
+
+        @Override
+        public PropertiesLoader get() {
+            return PropertiesLoader.get();
+        }
+
+    }
+
+    private static final Logger log = Logger.getLogger( PropertiesLoader.class.getName() );
+    private static final Map<String, Properties> cache = new HashMap<String, Properties>();
+    private static final String LITTLEHOME = "littleware.home";
     
     private  final Maybe<File> maybeHome;
-    
+    private final Properties  defaultProperties;
+
+
     {
         Maybe<File> maybe = Maybe.empty();
         try {
-            String sHome = System.getProperty( os_littlehome_key );
+            String sHome = System.getProperty( LITTLEHOME );
             if ( null == sHome ) {
                 sHome = System.getProperty ( "user.home" );
                 if ( null != sHome ) {
@@ -51,7 +69,7 @@ public class PropertiesLoader {
                 }
             }
         } catch ( Exception ex ) {
-            olog.log( Level.WARNING, "Unable to access littleware.home", ex );
+            log.log( Level.WARNING, "Unable to access littleware.home", ex );
         } finally {
             maybeHome = maybe;
         }
@@ -111,26 +129,25 @@ public class PropertiesLoader {
         return "littleware.properties";
     }
     
-    private final Properties  oprop;
     
     
-    private static PropertiesLoader  oloader_default = null;
+    private static PropertiesLoader  singleton = null;
     
     /**
      * Get the default PropertiesLoader
      */
     public static final PropertiesLoader get () {
-        if ( null != oloader_default ) {
-            return oloader_default;
+        if ( null != singleton ) {
+            return singleton;
         }
-        synchronized ( olog ) {
-            if ( null != oloader_default ) {
-                return oloader_default;
+        synchronized ( log ) {
+            if ( null != singleton ) {
+                return singleton;
             }
 
             try {
-                oloader_default = new PropertiesLoader ();
-                return oloader_default;
+                singleton = new PropertiesLoader ();
+                return singleton;
             } catch ( IOException ex ) {
                 throw new AssertionFailedException( "Failed to initialize properties loader", ex );
             }
@@ -141,7 +158,7 @@ public class PropertiesLoader {
      * Shortcut for new PropoerteisLoader( PropertiesLoader.loadProperties( PropertiesLoader.getLittleProps () )
      */
     private PropertiesLoader () throws IOException {
-        oprop = loadProperties( getDefaultProps () );
+        defaultProperties = loadProperties( getDefaultProps () );
     }    
 
  
@@ -158,13 +175,13 @@ public class PropertiesLoader {
                 InputStream istream = new FileInputStream ( fh );
                 try {
                     prop_target.load( istream );
-                    olog.log( Level.INFO, "Loading " + fh );                    
+                    log.log( Level.INFO, "Loading " + fh );
                 } finally {
                     istream.close ();
                 }
             }
         } catch ( SecurityException ex ) {
-            olog.log ( Level.WARNING, "Insufficient privileges to scan prop file: " + fh, ex );
+            log.log ( Level.WARNING, "Insufficient privileges to scan prop file: " + fh, ex );
         }
     }
     
@@ -203,13 +220,13 @@ public class PropertiesLoader {
      * @exception IOException if file exists, but load fails
      */
     public synchronized Properties loadProperties(String s_name ) throws IOException {
-        Properties prop_filedata = ov_cache.get(s_name);
+        Properties prop_filedata = cache.get(s_name);
 
         if (null != prop_filedata) {
             return (Properties) prop_filedata.clone ();
         }
         prop_filedata = new Properties();
-        ov_cache.put( s_name, prop_filedata );
+        cache.put( s_name, prop_filedata );
         {
             final InputStream istream = PropertiesLoader.class.getClassLoader().getResourceAsStream(s_name);
             if ( null != istream ) {
@@ -230,7 +247,7 @@ public class PropertiesLoader {
                 loadPropsFromFile( prop_filedata, new File( s_path ) );
             } 
         } catch (SecurityException e) {
-            olog.log(Level.WARNING, "Insufficient privileges to access System property: " + s_name, e );
+            log.log(Level.WARNING, "Insufficient privileges to access System property: " + s_name, e );
         }
 
         return (Properties) prop_filedata.clone ();        
@@ -264,6 +281,25 @@ public class PropertiesLoader {
      */
     public Properties loadProperties () throws IOException {
         return loadProperties( getDefaultProps () );
+    }
+
+    /**
+     * Utility simplifies process of saving application-specific
+     * settings in an application level properties file.
+     *
+     * @param in default properties
+     * @param overrides override properties
+     * @return in.clone with properties in both in and overrides replaced
+     *                with the overrides properties
+     */
+    public Properties applyOverrides( Properties in, Properties overrides ) {
+        final Properties result = (Properties) in.clone();
+        for( Object key : overrides.keySet() ) {
+            if ( in.containsKey(key) ) {
+                result.setProperty( (String) key, (String) overrides.get(key) );
+            }
+        }
+        return result;
     }
 }
 

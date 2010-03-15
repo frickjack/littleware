@@ -9,8 +9,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
-
 package littleware.security.auth;
 
 import java.lang.reflect.*;
@@ -24,7 +22,6 @@ import littleware.base.*;
 import littleware.asset.AssetException;
 import littleware.base.stat.Sampler;
 
-
 /**
  * Specialization of SubjectInvocationHandler that pulls the Subject
  * out of a session asset, and periodically reloads the session to
@@ -34,42 +31,43 @@ import littleware.base.stat.Sampler;
  *             just re-authenticate at login time
  */
 public class SessionInvocationHandler<T> extends SubjectInvocationHandler<T> {
-	private SessionHelper     om_helper = null;
-		
-	/**
-	 * Stash the caller and real implementation for use at invoke() time
-	 *
-	 * @param a_session to invoke methods as, and
-	 *               periodically reload to check for session-expired
-	 *              and read-only session limitations
-	 * @param x_real object to call through to
-	 * @param log_call to log method calls to including who and how long to run
-	 * @param stat_call to report call runtime to
-	 * @param m_retriever local AssetRetriever to reload session-data with
-	 */
-	public SessionInvocationHandler ( Subject j_caller, T x_real, 
-									  Sampler stat_call, 
-									  SessionHelper m_helper
-									  ) {
-		super ( j_caller, x_real, stat_call );
-		om_helper = m_helper;
-		if ( null == j_caller ) {
-			throw new NullPointerException ( "Caller is null" );
-		}
-	}
-	
-    @Override
-	public Object	invoke( Object proxy, Method method_call, Object[] v_args) throws Throwable {			
-		Date           t_now = new Date ();
-		PrivilegedExceptionAction  act_getsession = new PrivilegedExceptionAction () {
-            @Override
-			public LittleSession run () throws BaseException, GeneralSecurityException,
-			AssetException, RemoteException {
-				 return om_helper.getSession ();
-			}
-		};
 
-		return super.invoke ( proxy, method_call, v_args );
-	}
+    private SessionHelper om_helper = null;
+
+    /**
+     * Stash the caller and real implementation for use at invoke() time
+     *
+     * @param a_session to invoke methods as, and
+     *               periodically reload to check for session-expired
+     *              and read-only session limitations
+     * @param x_real object to call through to
+     * @param log_call to log method calls to including who and how long to run
+     * @param stat_call to report call runtime to
+     * @param m_retriever local AssetRetriever to reload session-data with
+     */
+    public SessionInvocationHandler(Subject j_caller, T x_real,
+            Sampler stat_call,
+            SessionHelper m_helper) {
+        super(j_caller, x_real, stat_call);
+        om_helper = m_helper;
+        if (null == j_caller) {
+            throw new NullPointerException("Caller is null");
+        }
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method_call, Object[] v_args) throws Throwable {
+        Date t_now = new Date();
+        PrivilegedExceptionAction act_getsession = new PrivilegedExceptionAction() {
+
+            @Override
+            public LittleSession run() throws BaseException, GeneralSecurityException,
+                    AssetException, RemoteException {
+                return om_helper.getSession();
+            }
+        };
+
+        return super.invoke(proxy, method_call, v_args);
+    }
 }
 

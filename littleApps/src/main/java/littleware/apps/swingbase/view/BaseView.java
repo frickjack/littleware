@@ -10,16 +10,17 @@
 
 package littleware.apps.swingbase.view;
 
+import com.google.inject.ImplementedBy;
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import littleware.apps.swingbase.model.BaseData;
 import littleware.apps.swingclient.FeedbackBundle;
 import littleware.base.feedback.Feedback;
 
 /**
- *
- * @author pasquini
+ * Standard BaseView JFrame built via ViewBuilder nested interface.
  */
 public abstract class BaseView extends JFrame {
     private final JMenu  jtoolMenu;
@@ -47,9 +48,10 @@ public abstract class BaseView extends JFrame {
         return feedback;
     }
 
-    
+    @ImplementedBy(SimpleViewBuilder.class)
     public interface ViewBuilder {
-        public ViewBuilder  addMenuItem( Action menuItem );
+        public ViewBuilder  model( BaseData value );
+        public ViewBuilder  addToolMenuItem( Action menuItem );
         public ViewBuilder  contentPanel( JPanel jcontentPanel );
         public BaseView  build();
     }

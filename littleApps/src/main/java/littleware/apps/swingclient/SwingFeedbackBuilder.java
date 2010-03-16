@@ -113,6 +113,7 @@ public class SwingFeedbackBuilder implements Provider<FeedbackBundle>{
     }
 
 
+    @Override
     public FeedbackBundle get() {
         final JTextArea jtext = new JTextArea( 3, 50 );
         final JProgressBar jprogress = new JProgressBar();

@@ -20,7 +20,6 @@ import littleware.base.LittleBean;
 /**
  * Application session data
  */
-@Singleton
 @ImplementedBy(SimpleBaseData.class)
 public interface BaseData extends LittleBean {
     /**

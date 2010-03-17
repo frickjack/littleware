@@ -19,8 +19,6 @@ import com.google.inject.name.Names;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -342,7 +340,6 @@ public class ClientServiceGuice implements LittleGuiceModule {
                 }
             }
         });
-        binder.bind(ExecutorService.class).toInstance(Executors.newFixedThreadPool(4));
         binder.bind(AssetRetriever.class).to(AssetSearchManager.class);
 
         log.log(Level.FINE, "Forcing load of SecurityAssetType and AssetType: " +

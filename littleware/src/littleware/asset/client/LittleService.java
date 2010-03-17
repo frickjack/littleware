@@ -25,12 +25,10 @@ import org.osgi.framework.BundleActivator;
  */
 public interface LittleService extends java.io.Serializable, BundleActivator {
 	/**
-	 * Register a listener for LoginOkEvent and LoginFailedEvent
-	 * events triggered when the GUI calls SessionManager.login()
-	 * and SessionManager.getSessionHelper ().
-	 * Noop if listen_action is already registered as a listener.
+	 * Register a listener for service events.
+	 * Noop if listener is already registered as a listener.
 	 *
-	 * @param listen_action to add
+	 * @param listener to add
 	 */
 	public void	addServiceListener( LittleServiceListener listener ) ;
 

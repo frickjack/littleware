@@ -58,6 +58,10 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
     private static final Logger log = Logger.getLogger(AbstractGOBootstrap.class.getName());
 
 
+    /**
+     * Internal activator just triggers a barrier after
+     * receiving the OSGi framework-started event.
+     */
     private static class SetupActivator implements BundleActivator {
 
         private final EventBarrier<Object> barrier;
@@ -121,6 +125,13 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         guiceModule.addAll(vAddGuice);
         osgiBundle.addAll(vAddOSGi);
         obServer = bServer;
+    }
+    protected AbstractGOBootstrap( boolean bServer ) {
+        obServer = bServer;
+    }
+    /** Shortcut for this( false ) */
+    protected AbstractGOBootstrap() {
+        this( false );
     }
 
     /**

@@ -10,11 +10,14 @@
 
 package littleware.security.auth;
 
+import com.google.inject.ImplementedBy;
+
 /**
  * Just a little interface that a bootstrap class
  * should implement.  Start out using this on the
  * server side.
  */
+@ImplementedBy(GuiceOSGiBootstrap.class)
 public interface LittleBootstrap {
     /**
      * Bootstrap a littleware component on the client or server.

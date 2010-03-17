@@ -40,7 +40,7 @@ public abstract class BaseView extends JFrame {
         return jtoolMenu;
     }
 
-    public JPanel   getContentPanel() {
+    public JPanel   getBasicContent() {
         return jcontentPanel;
     }
 
@@ -52,7 +52,7 @@ public abstract class BaseView extends JFrame {
     public interface ViewBuilder {
         public ViewBuilder  model( BaseData value );
         public ViewBuilder  addToolMenuItem( Action menuItem );
-        public ViewBuilder  contentPanel( JPanel jcontentPanel );
+        public ViewBuilder  basicContent( JPanel jcontentPanel );
         public BaseView  build();
     }
 }

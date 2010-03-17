@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.validation.ValidationException;
 import littleware.base.PropertiesLoader;
+import littleware.base.ValidationException;
 
 /**
  * Simple direct implementation of BaseData

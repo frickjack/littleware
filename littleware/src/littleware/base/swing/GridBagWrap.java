@@ -68,6 +68,14 @@ public class GridBagWrap {
         return ogb;
     }
 
+    public int ipady() {
+        return ogb.ipady;
+    }
+    public GridBagWrap ipady( int value ) {
+        ogb.ipady = value;
+        return this;
+    }
+    
     /** Get/set anchor property */
     public GridBagWrap anchor( int iAnchor ) {
         ogb.anchor = iAnchor;
@@ -78,31 +86,35 @@ public class GridBagWrap {
     }
     /** Shortcut for anchor( GridBagConstraints.WEST ) */
     public GridBagWrap anchorWest () {
-        return anchor( GridBagConstraints.WEST );
+        return anchor( GridBagConstraints.LINE_START );
     }
     /** Shortcut for anchor( GridBagConstraints.EAST ) */
     public GridBagWrap anchorEast () {
-        return anchor( GridBagConstraints.EAST );
+        return anchor( GridBagConstraints.LINE_END );
     }
     /** Shortcut for anchor( GridBagConstraints.NORTH ) */
     public GridBagWrap anchorNorth () {
-        return anchor( GridBagConstraints.NORTH );
+        return anchor( GridBagConstraints.PAGE_START );
+    }
+    /** Shortcut for anchor( GridBagConstraints.NORTH ) */
+    public GridBagWrap anchorSouth () {
+        return anchor( GridBagConstraints.PAGE_END );
     }
     /** Shortcut for anchor( GridBagConstraints.NORTHEAST ) */
     public GridBagWrap anchorNorthEast () {
-        return anchor( GridBagConstraints.NORTHEAST );
+        return anchor( GridBagConstraints.FIRST_LINE_END );
     }
     /** Shortcut for anchor( GridBagConstraints.NORTHWEST ) */
     public GridBagWrap anchorNorthWest () {
-        return anchor( GridBagConstraints.NORTHWEST );
+        return anchor( GridBagConstraints.FIRST_LINE_START );
     }
     /** Shortcut for anchor( GridBagConstraints.SOUTHEAST ) */
     public GridBagWrap anchorSouthEast () {
-        return anchor( GridBagConstraints.SOUTHEAST );
+        return anchor( GridBagConstraints.LAST_LINE_END );
     }
     /** Shortcut for anchor( GridBagConstraints.SOUTHWEST ) */
     public GridBagWrap anchorSouthWest () {
-        return anchor( GridBagConstraints.SOUTHWEST );
+        return anchor( GridBagConstraints.LAST_LINE_START );
     }
     /** Shortcut for anchor( GridBagConstraints.CENTER ) */
     public GridBagWrap anchorCenter () {

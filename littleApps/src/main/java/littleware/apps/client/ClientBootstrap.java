@@ -12,61 +12,53 @@ package littleware.apps.client;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Module;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import littleware.apps.lgo.LgoActivator;
 import littleware.apps.lgo.LgoGuice;
 import littleware.asset.client.LittleService;
 import littleware.base.Maybe;
-import littleware.security.auth.AbstractGOBootstrap;
 import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.LittleBootstrap;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.client.CacheActivator;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 //import org.apache.jcs.JCS;
 //import org.apache.jcs.access.exception.CacheException;
 //import org.apache.jcs.engine.control.CompositeCacheManager;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
 /**
  * Client side OSGi bootstrap with Guice injection -
  * very similar to server side implementation.
  */
-public class ClientBootstrap extends AbstractGOBootstrap {
+public class ClientBootstrap extends NullBootstrap {
 
     private static final Logger log = Logger.getLogger(ClientBootstrap.class.getName());
 
-    /** 
+    /**
      * Utility activator takes care of shutting down the
      * executor service and the JCS cache, and bootstraps
      * the session helper.
      * Public for guice-no_aop access only.
      */
-    public static class Activator implements BundleActivator {
-        private final ExecutorService executor;
+    public static class HelperActivator implements BundleActivator {
+
         private final SessionHelper helper;
 
         @Inject
-        public Activator(ExecutorService executor, SessionHelper helper ) { //, CompositeCacheManager cacheManager) {
-            this.executor = executor;
+        public HelperActivator(SessionHelper helper) { //, CompositeCacheManager cacheManager) {
             this.helper = helper;
         }
 
         @Override
         public void start(BundleContext ctx) throws Exception {
-            ((LittleService) helper).start( ctx );
+            ((LittleService) helper).start(ctx);
         }
 
         @Override
         public void stop(BundleContext ctx) throws Exception {
-            ((LittleService) helper).stop( ctx );
-            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-            }
+            ((LittleService) helper).stop(ctx);
         }
     }
 
@@ -89,28 +81,27 @@ public class ClientBootstrap extends AbstractGOBootstrap {
      * Setup bootstrap with preconfigured ClientServiceGuice module.
      */
     public ClientBootstrap(ClientServiceGuice clientGuice) {
-        super(
-                Arrays.asList(
+        for (Module guice : Arrays.asList(
                 new LgoGuice(),
                 new littleware.apps.swingclient.StandardSwingGuice(),
                 new littleware.apps.client.StandardClientGuice(),
                 new littleware.apps.misc.StandardMiscGuice(),
-                clientGuice),
-                new ArrayList<Class<? extends BundleActivator>>(),
-                false
-                );
-        this.getGuiceModule().add(new Module() {
-            @Override
-            public void configure(Binder binder) {
-                binder.bind(LittleBootstrap.class).toInstance(ClientBootstrap.this);
-            }
-        });
-        //this.getGuiceModule().add(new CacheModule());
+                clientGuice,
+                new Module() {
+
+                    @Override
+                    public void configure(Binder binder) {
+                        binder.bind(LittleBootstrap.class).toInstance(ClientBootstrap.this);
+                    }
+                })) {
+            this.getGuiceModule().add(guice);
+        }
+
         this.getOSGiActivator().add(AssetModelServiceListener.class);
         this.getOSGiActivator().add(CacheActivator.class);
-        this.getOSGiActivator().add(Activator.class);
-        this.getOSGiActivator().add(SyncWithServer.class );
-        this.getOSGiActivator().add(LgoActivator.class );
+        this.getOSGiActivator().add(SyncWithServer.class);
+        this.getOSGiActivator().add(LgoActivator.class);
+        this.getOSGiActivator().add(HelperActivator.class);
         this.clientGuice = clientGuice;
     }
 

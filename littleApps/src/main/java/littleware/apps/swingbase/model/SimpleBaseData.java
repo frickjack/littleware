@@ -11,6 +11,7 @@ package littleware.apps.swingbase.model;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import java.beans.PropertyChangeListener;
@@ -29,6 +30,7 @@ import littleware.base.ValidationException;
  * Simple direct implementation of BaseData
  */
 @Singleton
+@ProvidedBy( SimpleBaseData.SBDProvider )
 public class SimpleBaseData implements BaseData {
     private static final Logger log = Logger.getLogger( SimpleBaseData.class.getName() );
 
@@ -50,22 +52,24 @@ public class SimpleBaseData implements BaseData {
      *        to establish the getProperties value
      */
     @Inject
-    public SimpleBaseData(@Named("BaseData.appName") String appName,
-            @Named("BaseData.version") String version,
-            @Named("BaseData.helpUrl") URL helpUrl,
-            @Named("BaseData.defaultProperties") Properties defaultProperties,
-            PropertiesLoader propertiesLoader) {
+    public SimpleBaseData(String appName,
+            String version,
+            URL helpUrl,
+            Properties props
+            ) {
+            
         if (!appName.matches("^\\w+$")) {
             throw new ValidationException("Illegal appname: " + appName);
         }
         this.appName = appName;
         this.version = version;
         this.helpUrl = helpUrl;
+        this.properties = props;
 
         Properties props = defaultProperties;
         try {
              props = propertiesLoader.applyOverrides(defaultProperties,
-                    propertiesLoader.loadProperties(appName));
+                    propertiesLoader.loadProperties(appName + ".properties"));
 
         } catch (Exception ex) {
             log.log( Level.WARNING, "Failed to load properties for " + appName, ex );
@@ -121,4 +125,25 @@ public class SimpleBaseData implements BaseData {
     }
 
     protected PropertyChangeSupport getSupport() { return support; }
+
+    @Singleton
+    public static class SBDProvider implements Provider<SimpleBaseData> {
+        public SBDProvider(@Named("BaseData.appName") String appName,
+            @Named("BaseData.version") String version,
+            @Named("BaseData.helpUrl") URL helpUrl,
+            @Named("BaseData.defaultProperties") Properties defaultProperties,
+            PropertiesLoader propertiesLoader
+            ) {
+            this.appName = appName;
+            this.version = version;
+            this.helpUrl = helpUrl;
+            this.defaultProperties = defaultProperties;
+
+        }
+        @Override
+        public SimpleBaseData get() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+    }
 }

@@ -13,11 +13,7 @@ import com.google.inject.Inject;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -34,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 import littleware.apps.swingbase.controller.ExitAction;
+import littleware.apps.swingbase.controller.HelpAction;
 import littleware.apps.swingbase.controller.ShutdownHandler;
 import littleware.apps.swingbase.model.BaseData;
 import littleware.apps.swingbase.view.BaseView.ViewBuilder;
@@ -55,6 +52,7 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
     private ShutdownHandler shutdownHandler;
     private Container rootContainer = new JFrame();
     private final ExitAction exitAction;
+    private final HelpAction helpAction;
 
     @Override
     public ViewBuilder container(Container value) {
@@ -105,11 +103,13 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
     public SimpleViewBuilder(FeedbackBundle fbBundle,
             LittleBootstrap bootstrap,
             ShutdownHandler shutdownHandler,
+            HelpAction helpAction,
             ExitAction exitAction) {
         this.fbBundle = fbBundle;
         this.bootstrap = bootstrap;
         this.shutdownHandler = shutdownHandler;
         this.exitAction = exitAction;
+        this.helpAction = helpAction;
     }
 
     @Override
@@ -144,6 +144,7 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
         for (Action action : menuActionList) {
             jmenu.add(action);
         }
+        jmenu.add( helpAction );
         final JPanel menuPanel = new JPanel();
         final JPanel feedbackPanel = new JPanel();
         final Color backgroundColor = new Color(137, 197, 230);
@@ -177,14 +178,6 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
                 10, 5, 20, 5, jcontentPanel.getBackground()));
 
         final View view = new View(rootContainer, jmenu, jcontentPanel, fbBundle);
-
-
-
-
-
-
-
-
         if (false) { // gb layout
             final GridBagWrap gb = GridBagWrap.wrap(rootContainer).fillNone();
             gb.anchorNorth().fillX().remainderX().add(menuPanel).newRow();
@@ -199,22 +192,6 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
         //gb.gridheight(4).fillBoth().add(fbBundle.getText());
 
         //rootContainer.setPreferredSize(new Dimension(800, 800));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         if (rootContainer instanceof JFrame) {
             final JFrame jframe = (JFrame) rootContainer;
             jmenu.add(exitAction);

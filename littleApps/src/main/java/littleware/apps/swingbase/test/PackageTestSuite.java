@@ -30,7 +30,7 @@ public class PackageTestSuite extends TestSuite {
         final NullBootstrap boot = new NullBootstrap();
         try {
             boot.getGuiceModule().add(new SwingBaseGuice("regressionTest", "v0.0",
-                    new URL("http://frickjack.com"), new Properties()));
+                    new URL("http://code.google.com/p/littleware/"), new Properties()));
         } catch (MalformedURLException ex) {
             throw new IllegalStateException("URL exception", ex);
         }

@@ -20,18 +20,27 @@ import littleware.base.LittleBean;
 /**
  * Application session data
  */
-@ImplementedBy(SimpleBaseData.class)
 public interface BaseData extends LittleBean {
     /**
      * Application name - key for session-properties storage
      */
     public String   getAppName();
     public String   getVersion();
-    public URL      getHelpURL();
+    public URL      getHelpUrl();
     public Map<String,String>   getProperties();
     /**
      * May only update already existing property, otherwise
      * IllegalArgumentException
      */
     public void     putProperty( String name, String value );
+
+    @ImplementedBy(SimpleBaseData.SBDBuilder.class)
+    public interface BDBuilder {
+        public BDBuilder appName( String value );
+        public BDBuilder version( String value );
+        public BDBuilder helpUrl( URL value );
+        public BDBuilder putAllProps( Map<String,String> value );
+        public BDBuilder putProp( String key, String value );
+        public BaseData build();
+    }
 }

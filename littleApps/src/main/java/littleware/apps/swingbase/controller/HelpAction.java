@@ -13,7 +13,6 @@ package littleware.apps.swingbase.controller;
 
 import com.google.inject.Inject;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,10 +36,10 @@ public class HelpAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            java.awt.Desktop.getDesktop().browse(new URI(data.getHelpURL().toString()));
+            java.awt.Desktop.getDesktop().browse(new URI(data.getHelpUrl().toString()));
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Failed to launch browser for " +
-                    data.getHelpURL() + " (" + ex + ")"
+                    data.getHelpUrl() + " (" + ex + ")"
                     );
             log.log( Level.WARNING, "Failed to open help URI", ex );
         }

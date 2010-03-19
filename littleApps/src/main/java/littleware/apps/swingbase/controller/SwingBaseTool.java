@@ -9,7 +9,7 @@
  */
 
 
-package littleware.apps.swingclient.controller;
+package littleware.apps.swingbase.controller;
 
 import com.google.inject.ImplementedBy;
 import java.io.IOException;

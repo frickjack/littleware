@@ -11,10 +11,37 @@
 
 package littleware.apps.swingbase.controller;
 
-/**
- *
- * @author rdp0004
- */
-public class SaveOptionsAction {
+import com.google.inject.Inject;
+import java.awt.event.ActionEvent;
+import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
+import littleware.apps.swingbase.model.BaseData;
 
+/**
+ * Save the properties associated with BaseData
+ */
+public class SaveOptionsAction extends AbstractAction {
+    private static final Logger log = Logger.getLogger( SaveOptionsAction.class.getName() );
+
+    private final BaseData data;
+    private final SwingBaseTool tool;
+
+    @Inject
+    public SaveOptionsAction( BaseData data, SwingBaseTool tool ) {
+        super( "Save" );
+        this.data = data;
+        this.tool = tool;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        try {
+            tool.saveProps(data);
+        } catch ( Exception ex ) {
+            JOptionPane.showMessageDialog(null, "Save failed: " + ex, "Error",
+                    JOptionPane.ERROR_MESSAGE
+                    );
+        }
+    }
 }

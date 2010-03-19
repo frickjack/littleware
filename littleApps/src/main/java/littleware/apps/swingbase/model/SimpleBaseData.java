@@ -10,75 +10,35 @@
 package littleware.apps.swingbase.model;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.PropertiesLoader;
 import littleware.base.ValidationException;
+
 
 /**
  * Simple direct implementation of BaseData
  */
-@Singleton
-@ProvidedBy( SimpleBaseData.SBDProvider )
 public class SimpleBaseData implements BaseData {
-    private static final Logger log = Logger.getLogger( SimpleBaseData.class.getName() );
 
+    private static final Logger log = Logger.getLogger(SimpleBaseData.class.getName());
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     private final String appName;
     private final String version;
     private final URL helpUrl;
     private Map<String, String> properties = Collections.emptyMap();
 
-    /**
-     * Constructor injects properties, and attempts to load
-     * saved properties overrides.
-     *
-     * @param appName
-     * @param version
-     * @param helpUrl
-     * @param defaultProperties establishes app defaults
-     * @param propertiesLoader loads saved defaults overlayed over defaultProperties
-     *        to establish the getProperties value
-     */
-    @Inject
-    public SimpleBaseData(String appName,
-            String version,
-            URL helpUrl,
-            Properties props
-            ) {
-            
-        if (!appName.matches("^\\w+$")) {
-            throw new ValidationException("Illegal appname: " + appName);
-        }
+    protected SimpleBaseData(String appName, String version, URL helpUrl,
+            Map<String, String> props) {
         this.appName = appName;
         this.version = version;
         this.helpUrl = helpUrl;
         this.properties = props;
-
-        Properties props = defaultProperties;
-        try {
-             props = propertiesLoader.applyOverrides(defaultProperties,
-                    propertiesLoader.loadProperties(appName + ".properties"));
-
-        } catch (Exception ex) {
-            log.log( Level.WARNING, "Failed to load properties for " + appName, ex );
-        }
-        final ImmutableMap.Builder<String,String> propBuilder = ImmutableMap.builder();
-        for( Map.Entry<Object,Object> entry : props.entrySet() ) {
-           propBuilder.put( (String) entry.getKey(), (String) entry.getValue() );
-        }
-        this.properties = propBuilder.build();
     }
 
     @Override
@@ -92,7 +52,7 @@ public class SimpleBaseData implements BaseData {
     }
 
     @Override
-    public URL getHelpURL() {
+    public URL getHelpUrl() {
         return helpUrl;
     }
 
@@ -103,14 +63,14 @@ public class SimpleBaseData implements BaseData {
 
     @Override
     public void putProperty(String key, String value) {
-        final Map<String,String> map = new HashMap<String,String>();
+        final Map<String, String> map = new HashMap<String, String>();
         map.putAll(properties);
-        if ( ! map.containsKey(key)) {
-            throw new IllegalArgumentException( "Invalid key: " + key );
+        if (!map.containsKey(key)) {
+            throw new IllegalArgumentException("Invalid key: " + key);
         }
-        final String old = map.get( key );
-        map.put( key, value );
-        properties = ImmutableMap.copyOf( map );
+        final String old = map.get(key);
+        map.put(key, value);
+        properties = ImmutableMap.copyOf(map);
         support.firePropertyChange(key, old, value);
     }
 
@@ -124,26 +84,57 @@ public class SimpleBaseData implements BaseData {
         support.removePropertyChangeListener(listener);
     }
 
-    protected PropertyChangeSupport getSupport() { return support; }
+    protected PropertyChangeSupport getSupport() {
+        return support;
+    }
 
     @Singleton
-    public static class SBDProvider implements Provider<SimpleBaseData> {
-        public SBDProvider(@Named("BaseData.appName") String appName,
-            @Named("BaseData.version") String version,
-            @Named("BaseData.helpUrl") URL helpUrl,
-            @Named("BaseData.defaultProperties") Properties defaultProperties,
-            PropertiesLoader propertiesLoader
-            ) {
-            this.appName = appName;
-            this.version = version;
-            this.helpUrl = helpUrl;
-            this.defaultProperties = defaultProperties;
+    public static class SBDBuilder implements BaseData.BDBuilder {
+        private String appName;
+        private String version;
+        private URL helpUrl;
+        private final Map<String,String>  properties = new HashMap<String,String>();
 
-        }
         @Override
-        public SimpleBaseData get() {
-            throw new UnsupportedOperationException("Not supported yet.");
+        public BDBuilder appName(String value) {
+            this.appName = value;
+            return this;
         }
 
+        @Override
+        public BDBuilder version(String value) {
+            this.version = value;
+            return this;
+        }
+
+        @Override
+        public BDBuilder helpUrl(URL value) {
+            this.helpUrl = value;
+            return this;
+        }
+
+        @Override
+        public BDBuilder putAllProps(Map<? extends Object, ? extends Object> value) {
+            for( Map.Entry<? extends Object,? extends Object> entry : value.entrySet() ) {
+                properties.put( entry.getKey().toString(), 
+                        entry.getValue().toString()
+                        );
+            }
+            return this;
+        }
+
+        @Override
+        public BDBuilder putProp(String key, String value) {
+            properties.put( key, value );
+            return this;
+        }
+
+        @Override
+        public BaseData build() {
+            if (!appName.matches("^\\w+$")) {
+                throw new ValidationException("Illegal appname: " + appName);
+            }
+            return new SimpleBaseData( appName, version, helpUrl, properties );
+        }
     }
 }

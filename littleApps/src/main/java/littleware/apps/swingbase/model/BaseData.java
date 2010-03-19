@@ -39,7 +39,10 @@ public interface BaseData extends LittleBean {
         public BDBuilder appName( String value );
         public BDBuilder version( String value );
         public BDBuilder helpUrl( URL value );
-        public BDBuilder putAllProps( Map<String,String> value );
+        /**
+         * Just invokes key.toString and value.toString
+         */
+        public BDBuilder putAllProps( Map<? extends Object,? extends Object> value );
         public BDBuilder putProp( String key, String value );
         public BaseData build();
     }

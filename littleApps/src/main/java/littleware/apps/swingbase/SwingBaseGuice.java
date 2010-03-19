@@ -11,15 +11,14 @@
 package littleware.apps.swingbase;
 
 import com.google.inject.Binder;
-import com.google.inject.Inject;
 import com.google.inject.Module;
-import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import java.net.URL;
 import java.util.Properties;
+import littleware.apps.swingbase.model.BaseData;
 import littleware.apps.swingclient.FeedbackBundle;
 import littleware.base.feedback.Feedback;
 
@@ -50,13 +49,16 @@ public class SwingBaseGuice implements Module {
         return fbBundle.getFeedback();
     }
 
+    @Provides @Singleton
+    public BaseData provideBaseData( BaseData.BDBuilder dataBuilder ) {
+        return dataBuilder.appName(appName).version(version).
+                helpUrl( helpUrl ).
+                putAllProps(defaultProperties).build();
+    }
+
     @Override
     public void configure(Binder binder) {
         binder.bind(FeedbackBundle.class).in( Scopes.SINGLETON );
-        binder.bindConstant().annotatedWith(Names.named("BaseData.appName" ) ).to( appName );
-        binder.bindConstant().annotatedWith(Names.named("BaseData.version" ) ).to( version );
-        binder.bind( URL.class ).annotatedWith(Names.named("BaseData.helpUrl" ) ).toInstance(helpUrl);
-        binder.bind( Properties.class ).annotatedWith(Names.named("BaseData.defaultProperties" ) ).toInstance( defaultProperties );
     }
 
 }

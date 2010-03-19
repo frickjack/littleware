@@ -29,6 +29,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
+import littleware.apps.swingbase.controller.EditOptionsAction;
 import littleware.apps.swingbase.controller.ExitAction;
 import littleware.apps.swingbase.controller.HelpAction;
 import littleware.apps.swingbase.controller.ShutdownHandler;
@@ -53,6 +54,7 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
     private Container rootContainer = new JFrame();
     private final ExitAction exitAction;
     private final HelpAction helpAction;
+    private final EditOptionsAction optionsAction;
 
     @Override
     public ViewBuilder container(Container value) {
@@ -104,12 +106,14 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
             LittleBootstrap bootstrap,
             ShutdownHandler shutdownHandler,
             HelpAction helpAction,
+            EditOptionsAction optionsAction,
             ExitAction exitAction) {
         this.fbBundle = fbBundle;
         this.bootstrap = bootstrap;
         this.shutdownHandler = shutdownHandler;
         this.exitAction = exitAction;
         this.helpAction = helpAction;
+        this.optionsAction = optionsAction;
     }
 
     @Override
@@ -144,7 +148,10 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
         for (Action action : menuActionList) {
             jmenu.add(action);
         }
-        jmenu.add( helpAction );
+        if (!baseData.getProperties().isEmpty()) {
+            jmenu.add(optionsAction);
+        }
+        jmenu.add(helpAction);
         final JPanel menuPanel = new JPanel();
         final JPanel feedbackPanel = new JPanel();
         final Color backgroundColor = new Color(137, 197, 230);
@@ -206,10 +213,6 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
                         }
                     });
         }
-
-
-
-
 
         return view;
     }

@@ -22,15 +22,23 @@ import littleware.test.TestFactory;
 public class PackageTestSuite extends TestSuite {
 
     @Inject
-    public PackageTestSuite(SwingBaseTester baseTester) {
+    public PackageTestSuite(SwingBaseTester baseTester,
+            BaseToolTester toolTester
+            ) {
+        this.addTest( toolTester );
         this.addTest(baseTester);
     }
 
     public static Test suite() {
         final NullBootstrap boot = new NullBootstrap();
         try {
-            boot.getGuiceModule().add(new SwingBaseGuice("regressionTest", "v0.0",
-                    new URL("http://code.google.com/p/littleware/"), new Properties()));
+            final Properties props = new Properties();
+            props.put("testProp", "bla bla bla" );
+            boot.getGuiceModule().add(
+                    new SwingBaseGuice("regressionTest", "v0.0",
+                    new URL("http://code.google.com/p/littleware/"), props
+                    )
+                    );
         } catch (MalformedURLException ex) {
             throw new IllegalStateException("URL exception", ex);
         }

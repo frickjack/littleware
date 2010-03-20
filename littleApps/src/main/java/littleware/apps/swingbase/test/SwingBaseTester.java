@@ -35,12 +35,10 @@ import littleware.test.LittleTest;
 public class SwingBaseTester extends LittleTest {
 
     private final static Logger log = Logger.getLogger(SwingBaseTester.class.getName());
-    private final BaseData model;
     private final ViewBuilder viewBuilder;
 
     @Inject
-    public SwingBaseTester(BaseData model, BaseView.ViewBuilder viewBuilder) {
-        this.model = model;
+    public SwingBaseTester(BaseView.ViewBuilder viewBuilder) {
         this.viewBuilder = viewBuilder;
         setName( "testSwingBase" );
     }
@@ -82,7 +80,7 @@ public class SwingBaseTester extends LittleTest {
                     add(jbuttonFailed);
             final Reference ref;
 
-            viewBuilder.basicContent(jcontent).model(model).
+            viewBuilder.basicContent(jcontent).
                     windowCloseHandler( new ShutdownHandler(){
                 @Override
                 public void requestShutdown() {

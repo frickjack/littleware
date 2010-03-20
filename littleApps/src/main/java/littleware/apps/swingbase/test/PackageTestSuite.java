@@ -16,6 +16,7 @@ import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import littleware.apps.client.NullBootstrap;
+import littleware.apps.swingbase.SwingBaseActivator;
 import littleware.apps.swingbase.SwingBaseGuice;
 import littleware.test.TestFactory;
 
@@ -39,6 +40,7 @@ public class PackageTestSuite extends TestSuite {
                     new URL("http://code.google.com/p/littleware/"), props
                     )
                     );
+            boot.getOSGiActivator().add( SwingBaseActivator.class );
         } catch (MalformedURLException ex) {
             throw new IllegalStateException("URL exception", ex);
         }

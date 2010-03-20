@@ -88,7 +88,7 @@ public class SimpleBaseData implements BaseData {
         return support;
     }
 
-    @Singleton
+    
     public static class SBDBuilder implements BaseData.BDBuilder {
         private String appName;
         private String version;

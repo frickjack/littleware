@@ -45,7 +45,7 @@ import littleware.security.auth.LittleBootstrap;
  */
 public class SimpleViewBuilder implements BaseView.ViewBuilder {
 
-    private BaseData baseData;
+    private BaseData model;
     private final List<Action> menuActionList = new ArrayList<Action>();
     private JPanel jcontentPanel;
     private final FeedbackBundle fbBundle;
@@ -107,6 +107,7 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
             ShutdownHandler shutdownHandler,
             HelpAction helpAction,
             EditOptionsAction optionsAction,
+            BaseData   model,
             ExitAction exitAction) {
         this.fbBundle = fbBundle;
         this.bootstrap = bootstrap;
@@ -114,13 +115,9 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
         this.exitAction = exitAction;
         this.helpAction = helpAction;
         this.optionsAction = optionsAction;
+        this.model = model;
     }
 
-    @Override
-    public ViewBuilder model(BaseData value) {
-        this.baseData = value;
-        return this;
-    }
 
     @Override
     public ViewBuilder addToolMenuItem(Action menuItem) {
@@ -148,7 +145,7 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
         for (Action action : menuActionList) {
             jmenu.add(action);
         }
-        if (!baseData.getProperties().isEmpty()) {
+        if (!model.getProperties().isEmpty()) {
             jmenu.add(optionsAction);
         }
         jmenu.add(helpAction);
@@ -161,7 +158,7 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
             menuPanel.setBackground(backgroundColor);
             menuPanel.setName("SimpleViewBuilder.menuPanel");
             menuPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-            menuPanel.add(new JLabel(baseData.getAppName() + " " + baseData.getVersion()));
+            menuPanel.add(new JLabel(model.getAppName() + " " + model.getVersion()));
             final JMenuBar jmenuBar = new JMenuBar();
             //jmenuBar.setBackground(backgroundColor);
             jmenuBar.setOpaque(false);
@@ -203,7 +200,7 @@ public class SimpleViewBuilder implements BaseView.ViewBuilder {
             final JFrame jframe = (JFrame) rootContainer;
             jmenu.add(exitAction);
             jframe.pack();
-            jframe.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            jframe.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             jframe.addWindowListener(
                     new WindowAdapter() {
 

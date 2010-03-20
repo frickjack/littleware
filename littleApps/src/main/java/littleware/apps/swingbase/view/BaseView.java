@@ -36,8 +36,6 @@ public interface BaseView {
     @ImplementedBy(SimpleViewBuilder.class)
     public interface ViewBuilder {
 
-        public ViewBuilder model(BaseData value);
-
         public ViewBuilder addToolMenuItem(Action value);
 
         public ViewBuilder basicContent(JPanel value);

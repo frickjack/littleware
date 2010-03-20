@@ -91,13 +91,12 @@
    <exclude name="littleware/browser/**" />
    <exclude name="littleware/calendar/**" />
    <exclude name="littleware/cookbook/**" />
-   <exclude name="littleware/db/**" />
    <exclude name="trash/**" />
    <exclude name="3rdparty/**" />
    <exclude name="**/server/**" />
    <exclude name="**/test/**" />
    <exclude name="**/web/**" />
-   <fileset dir="build/classes" includes="**/DbGuice*" />
+   <fileset dir="build/classes" includes="littleware/test/**" />
      </jar>
 </target>
 

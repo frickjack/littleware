@@ -10,16 +10,14 @@
 
 package littleware.base.feedback;
 
+import com.google.inject.ImplementedBy;
 import java.util.logging.Level;
 
 
 /**
- * Implementation may be passed as parameter
- * or set as object property to allow potentially
- * long running.  Subtypes may provide methods
- * for delivering partial results back to the
- * UI as a computation progresses.
+ * Simple UI-feedback mechanism for long-running tasks.
  */
+@ImplementedBy(LoggerFeedback.class)
 public interface Feedback extends LittleTool {
     /** 
      * Property tracks the progress of some

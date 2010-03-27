@@ -44,6 +44,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
     private final AssetModelLibrary olib_asset;
     private final AssetRetriever om_retriever;
     private final AbstractAssetView oview_support = new AbstractAssetView(this) {
+
         @Override
         public void eventFromModel(LittleEvent eventIn) {
             if (!(eventIn instanceof AssetModelEvent)) {
@@ -52,7 +53,8 @@ public class JAssetBrowser extends JPanel implements AssetView {
             final AssetModelEvent event = (AssetModelEvent) eventIn;
             SwingUtilities.invokeLater(
                     new Runnable() {
-                @Override
+
+                        @Override
                         public void run() {
                             if (AssetModel.Operation.assetsLinkingFrom.toString().equals(event.getOperation())) {
                                 // Need to update children view
@@ -64,10 +66,10 @@ public class JAssetBrowser extends JPanel implements AssetView {
                                 getFeedback().info("Asset in view deleted, moving to view " + uNew);
                                 try {
                                     final Maybe<AssetModel> maybe = lib.retrieveAssetModel(uNew, om_retriever);
-                                    if ( maybe.isSet() ) {
-                                        setAssetModel( maybe.get() );
+                                    if (maybe.isSet()) {
+                                        setAssetModel(maybe.get());
                                     } else {
-                                        setAssetModel( lib.retrieveAssetModel( deleted.getHomeId(), om_retriever ).get() );
+                                        setAssetModel(lib.retrieveAssetModel(deleted.getHomeId(), om_retriever).get());
                                     }
                                 } catch (Exception ex) {
                                     getFeedback().log(Level.WARNING, "Failed to update view after asset delete: " + ex);

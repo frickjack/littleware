@@ -14,6 +14,7 @@ import com.google.inject.name.Named;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.security.GeneralSecurityException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +29,7 @@ import littleware.asset.client.SimpleAssetSearchService;
 import littleware.asset.server.RmiAssetManager;
 import littleware.asset.server.RmiSearchManager;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
 import littleware.security.AccountManager;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
@@ -48,6 +50,8 @@ public class ServerActivator implements BundleActivator {
     private final SessionManager sessionMgr;
     private final CacheManager cacheMgr;
     private final int registryPort;
+    private Maybe<Registry> maybeRegistry = Maybe.empty();
+    private boolean  localRegistry = false;
 
     @Inject
     public ServerActivator(SessionManager mgr_session,
@@ -105,12 +109,14 @@ public class ServerActivator implements BundleActivator {
                 try {
                     log.log(Level.INFO, "Looking for RMI registry on port: " + i_port);
                     rmi_registry = LocateRegistry.createRegistry(i_port);
+                    localRegistry = true;
                 } catch (Exception e) {
-                    log.log(Level.SEVERE, "Failed to locate or start RMI registry on port " + i_port +
-                            " running without exporting root SessionManager object to RMI universe", e);
+                    log.log(Level.SEVERE, "Failed to start RMI registry on port " + i_port +
+                            " attempting to bind to already running registry", e);
 
                     rmi_registry = LocateRegistry.getRegistry(i_port);
                 }
+                maybeRegistry = Maybe.something(rmi_registry );
 
                 /**
                  * Need to wrap session manager with an invocation handler,
@@ -140,6 +146,13 @@ public class ServerActivator implements BundleActivator {
 
     @Override
     public void stop(BundleContext ctx) throws Exception {
+        if ( maybeRegistry.isSet() ) {
+            final Registry reg = maybeRegistry.get();
+            reg.unbind( "littleware/SessionManager" );
+            if( localRegistry ) {
+                UnicastRemoteObject.unexportObject( maybeRegistry.get(), true);
+            }
+        }
         log.log(Level.INFO, "littleware shutdown ok");
     }
 }

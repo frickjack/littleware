@@ -33,6 +33,10 @@ public class LittleDispatcher extends HttpServlet {
     private static final Logger log = Logger.getLogger(LittleDispatcher.class.getName());
     private final Map<String, Class<?>> dispatchMap = new HashMap<String, Class<?>>();
 
+    /**
+     * Servlet init accepts mapping from command-name to command-class where
+     * command class extends LittleDispatcher
+     */
     @Override
     public void init(ServletConfig config) {
         for (Enumeration<String> scan = config.getInitParameterNames();

@@ -18,6 +18,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +28,12 @@ import javax.swing.*;
 
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
+import littleware.apps.client.ClientBootstrap;
+import littleware.apps.swingbase.SwingBaseActivator;
+import littleware.apps.swingbase.SwingBaseGuice;
+import littleware.apps.swingbase.model.BaseData;
+import littleware.apps.swingbase.view.BaseView;
+import littleware.apps.swingbase.view.BaseView.ViewBuilder;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.ExtendedAssetViewController;
 import littleware.asset.Asset;
@@ -37,6 +46,7 @@ import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
+import littleware.security.LittleUser;
 
 /**
  * Launch a Swing browser, and return the whatever
@@ -50,6 +60,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
     private final Provider<JAssetBrowser> provideBrowser;
     private final Provider<ExtendedAssetViewController> provideControl;
     private final Provider<JSimpleAssetToolbar> provideToolbar;
+    private final LittleUser                defaultAsset;
     private final EventBarrier<Maybe<UUID>> barrier = new EventBarrier<Maybe<UUID>>();
 
     /**
@@ -61,7 +72,8 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
 
         public final JAssetBrowser browser = provideBrowser.get();
         public final JSimpleAssetToolbar toolbar = provideToolbar.get();
-        public final JFrame jframe = new JFrame("Asset Browser");
+        public final JPanel jpanel = new JPanel();
+        public final JFrame jframe = new JFrame( "Asset Browser" );
 
         {
             toolbar.setConnectedView(browser);
@@ -69,10 +81,12 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
             toolbar.getButton(JSimpleAssetToolbar.ButtonId.EDIT).setEnabled(true);
             toolbar.getButton(JSimpleAssetToolbar.ButtonId.DELETE).setEnabled(true);
 
-            jframe.setLayout(new BorderLayout());
-            jframe.add(toolbar, BorderLayout.NORTH);
-            jframe.add(browser, BorderLayout.CENTER);
+            jpanel.setLayout(new BorderLayout());
+            jpanel.add(toolbar, BorderLayout.NORTH);
+            jpanel.add(browser, BorderLayout.CENTER);
+            jframe.add( jpanel );
             jframe.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            browser.setAssetModel( assetLib.syncAsset( defaultAsset ) );
         }
     }
 
@@ -95,7 +109,8 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
             final Provider<JSimpleAssetToolbar> provideToolbar,
             AssetSearchManager search,
             AssetModelLibrary lib,
-            AssetPathFactory pathFactory) {
+            AssetPathFactory pathFactory,
+            LittleUser user) {
         super(LgoBrowserCommand.class.getName());
         this.provideBrowser = provideBrowser;
         this.provideControl = provideControl;
@@ -103,6 +118,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
         this.search = search;
         this.assetLib = lib;
         this.pathFactory = pathFactory;
+        this.defaultAsset = user;
     }
     private UUID ou_start = UUIDFactory.parseUUID("00000000000000000000000000000000");
 
@@ -140,6 +156,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
         }
 
         SwingUtilities.invokeLater(new Runnable() {
+
             @Override
             public void run() {
                 createGUI(Maybe.emptyIfNull(getStart()));
@@ -157,6 +174,13 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
         }
          */
         return barrier;
+    }
+
+    /**
+     * Allow hook to construct a new browser panel for swingbase app-launcher ...
+     */
+    private JPanel buildBrowserPanel() {
+        return (new UIStuff()).jpanel;
     }
 
     /**
@@ -224,8 +248,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     barrier.publishEventData(
-                            Maybe.something( stuff.browser.getAssetModel().getAsset().getId() )
-                            );
+                            Maybe.something(stuff.browser.getAssetModel().getAsset().getId()));
                     stuff.jframe.dispose();
                 }
             });
@@ -238,14 +261,14 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
                 @Override
                 public void windowClosing(WindowEvent ev) {
                     if (!barrier.isDataReady()) {
-                        barrier.publishEventData( Maybe.empty( UUID.class ) );
+                        barrier.publishEventData(Maybe.empty(UUID.class));
                     }
                 }
 
                 @Override
                 public void windowClosed(WindowEvent e) {
                     if (!barrier.isDataReady()) {
-                        barrier.publishEventData( Maybe.empty( UUID.class ) );
+                        barrier.publishEventData(Maybe.empty(UUID.class));
                     }
 
                 }
@@ -258,48 +281,71 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
     }
 
     /**
+     * Only visible for guice - not intended for outside use
+     */
+    public static class SwingBaseLauncher implements Runnable {
+        private final ViewBuilder viewBuilder;
+        private final LgoBrowserCommand browserCommand;
+        @Inject
+        public SwingBaseLauncher( BaseView.ViewBuilder viewBuilder, LgoBrowserCommand browserCommand ) {
+            this.viewBuilder = viewBuilder;
+            this.browserCommand = browserCommand;
+        }
+        @Override
+        public void run() {
+            viewBuilder.basicContent( browserCommand.buildBrowserPanel() ).build().getContainer().setVisible( true );
+        }
+
+    }
+
+    /**
      * Launch a browser with the session
      * loaded from littleware.properties.
      *
-     * @param v_args command-line args
+     * @param args command-line args
      * @TODO setup standard feedback mechanism in StandardSwingGuice
      */
-    public static void main(String[] v_args) {
+    public static void main(String[] args) {
         try {
-            final Injector injector = Guice.createInjector(new Module[]{
-                        new LgoGuice(),
-                        new littleware.apps.swingclient.StandardSwingGuice(),
-                        new littleware.apps.client.StandardClientGuice(),
-                        new littleware.apps.misc.StandardMiscGuice(),
-                        new littleware.security.auth.ClientServiceGuice(),
-                        new PropertiesGuice(littleware.base.PropertiesLoader.get().loadProperties())
-                    });
-            Feedback feedback = new LoggerFeedback();
-            LgoBrowserCommand command = injector.getInstance(LgoBrowserCommand.class);
-            command.runCommand(feedback,
-                    "/littleware.home/");
+            final ClientBootstrap bootClient = new ClientBootstrap();
+            // Currently only support -url argument
+            if ((args.length > 1) && args[0].matches("^-+[uU][rR][lL]")) {
+                final String sUrl = args[1];
+                try {
+                    final URL url = new URL(sUrl);
+                    bootClient.setHost(Maybe.something(url.getHost()));
+                } catch (MalformedURLException ex) {
+                    throw new IllegalArgumentException("Malformed URL: " + sUrl);
+                }
+            }
+            bootClient.getGuiceModule().add( new SwingBaseGuice( "littleBrowser", "v2.0",
+                    new URL( "http://code.google.com/p/littleware/" ),
+                    new Properties() )
+                    );
+            bootClient.getOSGiActivator().add( SwingBaseActivator.class );
+
+            SwingUtilities.invokeLater( new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        bootClient.bootstrap(SwingBaseLauncher.class).run();
+                    } catch ( Exception ex ) {
+                        log.log( Level.WARNING, "Launch failure", ex );
+                        JOptionPane.showMessageDialog(null, "Error: " + ex, "Launch failed", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } );
         } catch (final Exception ex) {
             log.log(Level.SEVERE, "Failed command, caught: " + ex, ex);
-            try {
-                final Runnable runner = new Runnable() {
-
+            SwingUtilities.invokeLater(
+                new Runnable() {
                     @Override
                     public void run() {
-                        JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage(), "Launch failed", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Error: " + ex, "Launch failed", JOptionPane.ERROR_MESSAGE);
                     }
-                };
-                if (SwingUtilities.isEventDispatchThread()) {
-                    runner.run();
-                } else {
-                    log.log(Level.INFO, "Waiting for user input ...");
-                    SwingUtilities.invokeAndWait(runner);
                 }
-
-            } catch (Exception ex1) {
-                log.log(Level.SEVERE, null, ex1);
-            }
-
-            System.exit(1);
+            );
         }
     }
 }

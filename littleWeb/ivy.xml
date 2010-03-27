@@ -1,0 +1,35 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="littleWeb"/>
+    <configurations>
+        <conf name="server"  description="deploy to j2ee container server"/>
+        <conf name="client"  description="jnlp webstart app dependencies"/>
+        <conf name="compile"  description="compile against api's only"/>
+        <!--
+    	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
+    	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
+    	<conf name="test" extends="cc-impl" visibility="private" description="for testing our framework"/>
+    	-->
+    </configurations>
+    <publications>
+    <!--
+    	<artifact name="littleApps" ext="jar" type="jar"  conf="*" />
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
+    	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
+        -->
+    </publications>
+    
+    <dependencies>        
+      <dependency org="littleware" name="littleApps" rev="2.0" conf="compile->compile;server->server;client->client" />
+      <dependency org="javax.jnlp" name="jnlp-servlet" rev="6" conf="server->*" />
+      <dependency org="littleware" name="littleIcons" rev="0.0" />
+<!-- Looks like MyFaces in incompatable with EE 6 for now ...      
+      <dependency org="org.apache.myfaces.tomahawk" name="tomahawk12" rev="1.1.9" conf="compile,server->*" />
+      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="compile,server->*" />
+      <dependency org="commons-validator" name="commons-validator" rev="1.3.1" conf="compile,server->*" />
+      <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="compile,server->*" />
+      <dependency org="commons-io" name="commons-io" rev="1.3.2" conf="compile,server->*" />
+-->      
+    </dependencies>
+
+</ivy-module>

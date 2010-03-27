@@ -132,7 +132,7 @@ public class SessionUtil {
             while (true) {
                 // Retry on RemoteException
                 try {
-                    SessionManager m_session = (SessionManager) Naming.lookup("//" + s_host + ":" + i_port + "/littleware/SessionManager");
+                    final SessionManager m_session = (SessionManager) Naming.lookup("//" + s_host + ":" + i_port + "/littleware/SessionManager");
                     return new SessionManagerProxy(m_session, new URL("http://" + s_host + ":" + i_port + "/littleware/SessionManager"));
                 } catch (RemoteException e) {
                     handler_retry.handle(e);

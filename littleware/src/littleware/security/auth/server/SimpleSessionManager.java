@@ -70,16 +70,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         this.userTreeBuilder = provideUserTree;
     }
 
-    /**
-     * Little auto-create user routine.
-     *
-     *
-     * @param s_name
-     * @return
-     */
-    private LittleUser createUser(String s_name) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
 
 
     /**

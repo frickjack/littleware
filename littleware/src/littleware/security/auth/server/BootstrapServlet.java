@@ -29,7 +29,7 @@ public class BootstrapServlet extends HttpServlet {
     private static final long serialVersionUID = 513807516080701142L;
 
     private Exception        lastError = null;
-    private littleware.security.auth.server.ServerBootstrap  obootstrap = null;
+    private littleware.security.auth.server.ServerBootstrap  bootstrap = null;
     
     /**
      * Start up the littleware backend
@@ -42,9 +42,9 @@ public class BootstrapServlet extends HttpServlet {
     	super.init(config);
 
         try {
-            obootstrap = new ServerBootstrap();
+            bootstrap = new ServerBootstrap();
             //boot.getOSGiActivator().add( PackageTestSuite.class );
-            obootstrap.bootstrap();
+            bootstrap.bootstrap();
             log.log( Level.INFO, "Littleware Bootstrap ok" );
             //SessionUtil.get().getSessionManager ();
         } catch ( Exception ex ) {
@@ -57,7 +57,7 @@ public class BootstrapServlet extends HttpServlet {
     @Override
     public void destroy () {
         log.log( Level.INFO, "Attempting to shutdown littleware OSGi runtime" );
-        obootstrap.shutdown();
+        bootstrap.shutdown();
     }
         
     @Override

@@ -133,7 +133,6 @@
 </target>
 
 <!--
-<ivy:settings url="http://n9n.mtvn.ad.viacom.com/repository/littlesettings.xml" />
 <ivy:settings file="${user.home}/Documents/Code/repository/littlesettings.xml" />
 -->
 <ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />

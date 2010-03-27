@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      >
+    <h:body>
+<ui:composition template="/WEB-INF/layout/standard.xhtml">
+  <ui:define name="title">little home</ui:define>
+  <ui:define name="content">
+      <div id="shows" class="infoBox">
+          <h2> Projects </h2>
+            <ul class="vmenu">
+                <ui:repeat var="projName" value="#{projectIndex.sortedProjectNames}">
+                    <li>
+                        <a href="#{facesContext.externalContext.requestContextPath}/project/overview.jsf?project=#{projName}">
+                        <img src="#{facesContext.externalContext.requestContextPath}/dispatch/thumb?path=/#{projName}" />
+                        <b><h:outputText value="#{projName}" /></b>
+                        </a>
+                        </li>
+                </ui:repeat>
+            </ul>
+
+      </div>
+      <div id="tools" class="infoBox">
+          <h2>Web Tools</h2>
+
+          <ul class="vmenu">
+              <li><h:outputLink value="#{facesContext.externalContext.requestContextPath}/inbox/inbox.jsf">
+                      <h:outputText value="#{userBean.user.name} Inbox" />
+                  </h:outputLink></li>
+          </ul>
+      </div>
+
+      <div id="apps" class="infoBox">
+            <h2>Desktop Apps</h2>
+            
+            <ul class="vmenu">
+                <li><a href="#{facesContext.externalContext.requestContextPath}/lib/jar/littleBrowser.jnlp"><b>littleBrowser</b></a>
+                </li>
+
+                <li><a href="#{facesContext.externalContext.requestContextPath}/lib/jar/littleDispatcher.jnlp"><b>littleDispatcher</b></a>
+                </li>
+            </ul>
+      </div>
+
+  </ui:define>
+</ui:composition>
+    </h:body>
+</html>

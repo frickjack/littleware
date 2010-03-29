@@ -10,74 +10,102 @@
 
 package littleware.apps.tracker;
 
-import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
-import java.io.StringReader;
-import java.io.IOException;
+import java.util.Date;
+import java.util.UUID;
+import littleware.apps.tracker.Comment.CommentBuilder;
+import littleware.base.CacheableObject;
+import littleware.base.Maybe;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.SAXParser;
 
-import littleware.base.BaseException;
-import littleware.base.ParseException;
 import littleware.asset.*;
 import littleware.asset.xml.*;
-import littleware.apps.filebucket.*;
 
 
 /**
  * Simple implementation of Comment interface.
  */
-public class SimpleComment extends SimpleAssetBuilder implements Comment, XmlAssetBuilder {
+public class SimpleComment extends SimpleAssetBuilder implements Comment.CommentBuilder {
     private static final String  OS_BUCKET_PATH = "comment.txt";
     private String  os_summary = null;
     
     /** Do nothing constructor */
     public SimpleComment () {
-        setAssetType ( TrackerAssetType.COMMENT );
+        super ( TrackerAssetType.COMMENT );
     }
     
-    @Override
+    
     public String getSummary () {
         return os_summary;
     }
-    
-    @Override
-    public String getBucketPath () { return OS_BUCKET_PATH; }
 
-    @Override
-    public int getMaxSummary() {
-        return SimpleAssetBuilder.DATA_LIMIT - 200;
+    
+    public String getFullText() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    
+    public String getStateString() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
+    public Maybe<UUID> getLink(String string) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
+    public Maybe<Date> getDate(String string) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
+    public Maybe<String> getAttribute(String string) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
+
     @Override
-    public void setSummary ( String s_summary ) {
-        if ( s_summary.length () > getMaxSummary() ) {
-            throw new IllegalArgumentException ( "Summary data exceeds size limit: " +
-                                        (SimpleAssetBuilder.DATA_LIMIT - 200)
-                                        );
-        }
-        os_summary = s_summary;
+    public CommentBuilder copy(Asset source) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public CommentBuilder parent(Asset value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setSummary(String value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public CommentBuilder summary(String value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setFullText(String value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public CommentBuilder fullText(String value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Comment build() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
-    @Override
-    public SimpleComment clone () {
-        return (SimpleComment) super.clone ();
-    }
-    
-    @Override
-    public void sync ( Asset a_other ) {
-        if ( this == a_other ) {
-            return;
-        } 
-        super.sync ( a_other );
-        os_summary = ((SimpleComment) a_other).os_summary;
-    }
+
     
     /**
      * SAX parser handler 
-	 */
+     */
 	private static class XmlDataHandler extends DefaultHandler {
         public StringBuilder  os_buffer = new StringBuilder ();
         
@@ -107,44 +135,8 @@ public class SimpleComment extends SimpleAssetBuilder implements Comment, XmlAss
         public String getSummary () { return os_buffer.toString (); }
 	}
     
-    
-    /**
-     * Parse XML data to determine data summary
-	 */
-    @Override
-	public void        setData ( String s_data ) throws ParseException
-	{
-		try {
-			SAXParserFactory factory = SAXParserFactory.newInstance();
-			factory.setNamespaceAware ( true );
-			SAXParser sax_parser = factory.newSAXParser();
-			XmlDataHandler  sax_handler = new XmlDataHandler ();
-			
-			sax_parser.parse( new InputSource ( new StringReader ( s_data ) ), 
-							  sax_handler 
-							  );
-			os_summary = sax_handler.getSummary ();
-		} catch ( RuntimeException e ) {
-			throw e;
-		} catch ( Exception e ) {
-			throw new ParseException ( "Failed to parse: " + e, e );
-		}
-	}
-	
-	/**
-     * Procedurally generate XML data
-	 */
-    @Override
-	public String    getData () 
-	{
-		String s_data = "<asset:comment xmlns:asset=\"" 
-                        + littleware.asset.pickle.XmlTranslator.OS_ASSET_NAMESPACE
-                        + "\">\n";
-		s_data += littleware.base.XmlSpecial.encode ( getSummary () );
-		s_data += "\n</asset:comment>";
-		return s_data;
-	}
 
+        /*..
     @Override
     public void saveComment ( BucketManager m_bucket, String s_comment
                               )  throws BaseException, GeneralSecurityException,
@@ -166,7 +158,8 @@ public class SimpleComment extends SimpleAssetBuilder implements Comment, XmlAss
                                               "clearing comment" ) 
                     );
     }
-
+         
+        
     @Override
     public String getComment ( BucketManager m_bucket 
                                )  throws BaseException, GeneralSecurityException,
@@ -174,18 +167,9 @@ public class SimpleComment extends SimpleAssetBuilder implements Comment, XmlAss
     {
         return m_bucket.readTextFromBucket ( this.getObjectId (), getBucketPath () );
     }
+*/
 
-    @Override
-    public boolean hasComment () {
-        return (getValue () > 0);
-    }
     
-    @Override
-    public DefaultHandler getSaxDataHandler () {
-		return new XmlDataHandler ();
-	}
-    
-
 }
 
 

@@ -1,6 +1,5 @@
 package littleware.apps.tracker;
 
-
 import littleware.asset.*;
 
 import littleware.base.UUIDFactory;
@@ -9,54 +8,42 @@ import littleware.base.UUIDFactory;
  * AssetType specializer and bucket for littleware.apps.tracker
  * based AssetTypes.
  */
-public abstract class TrackerAssetType<T extends Asset> extends AssetType<T> {
-	
-	public static final AssetType<Comment> COMMENT    = new AssetType<Comment> (
-																				UUIDFactory.parseUUID ( "FB8CC7B7C9324EC8953DE50A700344F3" ),
-																				"littleware.apps.tracker.COMMENT"
-                                                                                ) {
+public abstract class TrackerAssetType extends AssetType {
 
-		public Comment create () { return new SimpleComment (); }
+    public static final AssetType COMMENT = new AssetType(
+            UUIDFactory.parseUUID("FB8CC7B7C9324EC8953DE50A700344F3"), "littleware.apps.tracker.COMMENT") {
+
         @Override
-		public boolean mustBeAdminToCreate () { return false; }
-	};
-    
-    
-    public static final AssetType<Dependency> DEPENDENCY    = new AssetType<Dependency> (
-																				UUIDFactory.parseUUID ( "489F21E1D19B49F3B923E7B45609A811" ),
-																				"littleware.apps.tracker.DEPENDENCY"
-                                                                                ) {
-
-		public Dependency create () { 
-            return new SimpleDependency ();
+        public Comment.CommentBuilder create() {
+            return new SimpleComment();
         }
-        @Override
-		public boolean mustBeAdminToCreate () { return false; }
-	};
-    
-	public static final AssetType<Task> TASK    = new AssetType<Task> (
-																				UUIDFactory.parseUUID ( "84F04E04DCE947B2A00294949DC38628" ),
-																				"littleware.apps.tracker.TASK"
-																				) {
+    };
+    public static final AssetType DEPENDENCY = new AssetType(
+            UUIDFactory.parseUUID("489F21E1D19B49F3B923E7B45609A811"), "littleware.apps.tracker.DEPENDENCY") {
 
-		public Task create () { return new SimpleTask (); }
         @Override
-		public boolean mustBeAdminToCreate () { return false; }
-	};	
-    
-    public static final AssetType<Queue> QUEUE    = new AssetType<Queue> (
-                                                                       UUIDFactory.parseUUID ( "0FE9FBED5F6846E1865526A2BFBC5182" ),
-                                                                       "littleware.apps.tracker.QUEUE"
-                                                                       ) {
-
-		public Queue create () { 
-            return new SimpleQueue (); 
+        public AssetBuilder create() {
+            return null;
         }
+    };
+    public static final AssetType TASK = new AssetType(
+            UUIDFactory.parseUUID("84F04E04DCE947B2A00294949DC38628"),
+            "littleware.apps.tracker.TASK") {
+
         @Override
-		public boolean mustBeAdminToCreate () { return false; }
-	};	
+        public Task.TaskBuilder create() {
+            return null;
+        }
+    };
+    public static final AssetType QUEUE = new AssetType(
+            UUIDFactory.parseUUID("0FE9FBED5F6846E1865526A2BFBC5182"),
+            "littleware.apps.tracker.QUEUE") {
+
+        @Override
+        public AssetBuilder create() {
+            return null;
+        }
+    };
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

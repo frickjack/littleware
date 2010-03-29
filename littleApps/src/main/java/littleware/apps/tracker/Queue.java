@@ -21,7 +21,7 @@ import littleware.asset.Asset;
 
 /**
  * Interface for Queue assets.
- * The Task type assets pointing to a queue are the Queue&apos;s members.
+ * Need to rework this as a kind of iterator wrapping a QueueMgr ...
  */
 public interface Queue extends Asset {
         

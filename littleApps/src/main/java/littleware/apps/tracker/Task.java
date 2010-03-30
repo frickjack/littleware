@@ -20,6 +20,8 @@ public interface Task extends Asset {
 
     public TaskStatus getTaskStatus();
 
+    @Override
+    public Task.TaskBuilder copy();
 
     public interface TaskBuilder extends AssetBuilder {
 
@@ -30,6 +32,7 @@ public interface Task extends Asset {
          *                must use mergeWithTask to set that
          */
         public void setTaskStatus(TaskStatus value);
+        public TaskBuilder taskStatus( TaskStatus value );
 
     }
 }

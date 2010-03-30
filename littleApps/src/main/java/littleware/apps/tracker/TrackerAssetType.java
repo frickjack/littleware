@@ -15,7 +15,7 @@ public abstract class TrackerAssetType extends AssetType {
 
         @Override
         public Comment.CommentBuilder create() {
-            return new SimpleComment();
+            return new SimpleCommentBuilder();
         }
     };
     public static final AssetType DEPENDENCY = new AssetType(

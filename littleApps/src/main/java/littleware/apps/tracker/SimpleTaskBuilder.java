@@ -11,14 +11,27 @@
 package littleware.apps.tracker;
 
 
-import littleware.asset.*;
+import littleware.asset.SimpleAssetBuilder;
 
 
 /**
  * Simple implementation of Task
  */
-public class SimpleTask extends SimpleAssetBuilder {
-    public SimpleTask() {
+public class SimpleTaskBuilder extends SimpleAssetBuilder implements Task.TaskBuilder {
+    private TaskStatus status;
+
+    public SimpleTaskBuilder() {
         super( TrackerAssetType.TASK );
+    }
+
+    @Override
+    public final void setTaskStatus(TaskStatus value) {
+        taskStatus( value );
+    }
+
+    @Override
+    public SimpleTaskBuilder taskStatus(TaskStatus value) {
+        this.status = value;
+        return this;
     }
 }

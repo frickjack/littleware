@@ -36,6 +36,8 @@ public interface Comment extends Asset {
      */
     public String getFullText ();
     
+    @Override
+    public CommentBuilder copy();
     
     public interface CommentBuilder extends AssetBuilder {
         @Override

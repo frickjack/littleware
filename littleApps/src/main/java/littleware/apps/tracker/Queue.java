@@ -24,14 +24,5 @@ import littleware.asset.Asset;
  * Need to rework this as a kind of iterator wrapping a QueueMgr ...
  */
 public interface Queue extends Asset {
-        
-    /**
-     * Get the ids of tasks in this queue.
-     *
-     * @param m_tracker to access 
-     * @param n_status of tasks to retrieve - null to retrieve all tasks in the queue
-     * @return the list of ids of tasks in this queue with the given status that the caller has access to
-     */
-    public List<UUID> getTask( TaskStatus n_status );    
 }
 

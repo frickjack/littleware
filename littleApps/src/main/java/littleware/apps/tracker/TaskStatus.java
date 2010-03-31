@@ -6,17 +6,17 @@ package littleware.apps.tracker;
  * generic tools can key off of.
  */
 public enum TaskStatus {
-    IDLE,
-    DONE,
+    COMPLETE,
+    CANCELED,
     FAILED, 
-    MERGED, 
+    MERGED,
+    UNASSIGNED,
+    ASSIGNED,
     PROCESSING,
     STALLED,
-    WAITING_IN_Q, 
-    WAITING_ON_TASK
+    WAITING,
+    OTHER
 }
     
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

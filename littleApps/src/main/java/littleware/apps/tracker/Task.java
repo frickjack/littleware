@@ -10,8 +10,10 @@
 package littleware.apps.tracker;
 
 
+import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
+import littleware.base.Maybe;
 
 /**
  * Just provide an interface for all Tasks to implement
@@ -19,6 +21,12 @@ import littleware.asset.AssetBuilder;
 public interface Task extends Asset {
 
     public TaskStatus getTaskStatus();
+    public UUID       getQueueId();
+    /**
+     * Get user this task is currently assigned to if any
+     */
+    public Maybe<UUID>  getUserId();
+    public Maybe<UUID>  getParentTask();
 
     @Override
     public Task.TaskBuilder copy();

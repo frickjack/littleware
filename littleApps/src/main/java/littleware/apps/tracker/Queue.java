@@ -10,19 +10,15 @@
 
 package littleware.apps.tracker;
 
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
-import java.util.UUID;
-import java.util.List;
 
-import littleware.base.BaseException;
 import littleware.asset.Asset;
 
 
 /**
  * Interface for Queue assets.
- * Need to rework this as a kind of iterator wrapping a QueueMgr ...
+ * Need to rework this as a kind of iterator wrapping a TaskManager ...
  */
 public interface Queue extends Asset {
+
 }
 

@@ -11,6 +11,8 @@
 package littleware.apps.tracker;
 
 
+import littleware.apps.tracker.Task.TaskBuilder;
+import littleware.asset.Asset;
 import littleware.asset.SimpleAssetBuilder;
 
 
@@ -32,6 +34,18 @@ public class SimpleTaskBuilder extends SimpleAssetBuilder implements Task.TaskBu
     @Override
     public SimpleTaskBuilder taskStatus(TaskStatus value) {
         this.status = value;
+        return this;
+    }
+
+    @Override
+    public TaskBuilder parent(Asset value) {
+        super.parent( value );
+        return this;
+    }
+
+    @Override
+    public TaskBuilder copy(Asset value) {
+        super.copy( value );
         return this;
     }
 }

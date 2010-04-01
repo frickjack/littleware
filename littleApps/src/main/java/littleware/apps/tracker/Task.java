@@ -42,6 +42,11 @@ public interface Task extends Asset {
         public void setTaskStatus(TaskStatus value);
         public TaskBuilder taskStatus( TaskStatus value );
 
+        @Override
+        public TaskBuilder parent( Asset value );
+        @Override
+        public TaskBuilder copy( Asset value );
+
     }
 }
 

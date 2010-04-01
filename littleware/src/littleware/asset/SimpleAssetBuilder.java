@@ -433,6 +433,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public AssetBuilder copy(Asset source) {
+        if ( (! source.getAssetType().isA( getAssetType() ))
+                && (! getAssetType().isA(source.getAssetType() )
+                )) {
+            throw new IllegalArgumentException( "Asset type mismatch" );
+        }
         setId(source.getId());
         setTransaction(source.getTransaction());
         setCreatorId(source.getCreatorId());
@@ -538,6 +543,16 @@ public class SimpleAssetBuilder implements AssetBuilder {
     public AssetBuilder removeAttribute(String name) {
         attributeMap.remove( name );
         return this;
+    }
+
+    @Override
+    public <T extends AssetBuilder> T narrow(Class<T> type) {
+        return type.cast(this);
+    }
+
+    @Override
+    public <T extends AssetBuilder> T narrow() {
+        return (T) this;
     }
 
 

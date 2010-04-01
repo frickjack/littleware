@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.asset.client.ClientSessionActivator;
 import littleware.base.AssertionFailedException;
 import littleware.base.EventBarrier;
 import littleware.base.PropertiesGuice;
@@ -32,7 +33,6 @@ import org.apache.felix.framework.cache.BundleCache;
 import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
 
@@ -92,7 +92,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
     }
     private final List<Module> guiceModule = new ArrayList<Module>();
     private final List<Class<? extends BundleActivator>> osgiBundle = new ArrayList<Class<? extends BundleActivator>>();
-    private final boolean obServer;
+    private final boolean isServer;
 
     {
         try {
@@ -122,13 +122,16 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
      */
     protected AbstractGOBootstrap(List<Module> vAddGuice, List<Class<? extends BundleActivator>> vAddOSGi,
             boolean bServer) {
+        this( bServer );
         guiceModule.addAll(vAddGuice);
         osgiBundle.addAll(vAddOSGi);
-        obServer = bServer;
     }
+
     protected AbstractGOBootstrap( boolean bServer ) {
-        obServer = bServer;
+        isServer = bServer;
     }
+
+    
     /** Shortcut for this( false ) */
     protected AbstractGOBootstrap() {
         this( false );
@@ -173,8 +176,8 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
              * It's possible for client and server to exist
              * in same VM, so may need to bootstrap separate modules.
              */
-            final String sGuiceName = obServer ? "lw.guice_module" : "lw_client.guice_module";
-            final String sBundleName = obServer ? "lw.osgi_bundle" : "lw_client.osgi_bundle";
+            final String sGuiceName = isServer ? "lw.guice_module" : "lw_client.guice_module";
+            final String sBundleName = isServer ? "lw.osgi_bundle" : "lw_client.osgi_bundle";
 
             final Properties propLittleware = PropertiesLoader.get().loadProperties();
             final String sModules = propLittleware.getProperty(sGuiceName, "") +
@@ -235,7 +238,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         final Injector injector = Guice.createInjector(
                 guiceModule);
 
-        if (obServer) {
+        if (isServer) {
             // Inject the local SessionManager for clients accessing SessionUtil
             final SessionManager mgr_session = injector.getInstance(SessionManager.class);
             injector.injectMembers(SessionUtil.get());
@@ -254,7 +257,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
                 new SetupActivator( barrier )
                 );
         //System.setProperty( "org.osgi.framework.storage", PropertiesLoader.get().getLittleHome().toString() + "/osgi_cache" );
-        if (!obServer) {
+        if (!isServer) {
             // setup cache under little home
             final File cacheDir = PropertiesLoader.get().getLittleHome().
                     getOr(new File(System.getProperty("java.io.tmpdir")));

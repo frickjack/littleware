@@ -48,6 +48,7 @@ public interface Comment extends Asset {
         /**
          * Also sets summary property
          */
+        public String getFullText();
         public void setFullText( String value );
         public CommentBuilder fullText( String value );
         

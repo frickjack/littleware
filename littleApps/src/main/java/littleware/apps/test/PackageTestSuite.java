@@ -15,8 +15,8 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import junit.framework.*;
-
 import littleware.apps.client.ClientBootstrap;
+
 import littleware.apps.filebucket.server.BucketServerActivator;
 import littleware.apps.filebucket.server.BucketServerGuice;
 import littleware.apps.misc.test.ThumbManagerTester;

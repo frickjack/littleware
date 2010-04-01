@@ -31,7 +31,6 @@ import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.client.ClientBootstrap;
 import littleware.apps.swingbase.SwingBaseActivator;
 import littleware.apps.swingbase.SwingBaseGuice;
-import littleware.apps.swingbase.model.BaseData;
 import littleware.apps.swingbase.view.BaseView;
 import littleware.apps.swingbase.view.BaseView.ViewBuilder;
 import littleware.apps.swingclient.*;

@@ -11,13 +11,16 @@
 
 package littleware.web.beans;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import littleware.base.Maybe;
 
 /**
  * Attempt to marry littleware world with
  * web jsp/jsf servlet world.
  */
+@Singleton
 public class GuiceBean {
     private final Maybe<Injector> maybeInjector;
 
@@ -25,6 +28,7 @@ public class GuiceBean {
      * Inject the injector with which GuiceBean.injectMe
      * injects other beans.
      */
+    @Inject
     public GuiceBean( Injector injector ) {
         this.maybeInjector = Maybe.something( injector );
     }

@@ -10,11 +10,6 @@
 package littleware.web.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Injector;
-import java.io.PrintWriter;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -28,7 +23,6 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import littleware.apps.client.ClientBootstrap;
-import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.PropertiesLoader;
 import littleware.security.auth.ClientServiceGuice;

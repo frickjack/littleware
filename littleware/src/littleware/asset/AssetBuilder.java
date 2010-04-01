@@ -140,4 +140,10 @@ public interface AssetBuilder extends LittleBean, Validator {
      * @return new asset
      */
     public Asset build();
+
+    /** Cast this to the specified asset type ... little safer than simple cast */
+    public <T extends AssetBuilder> T narrow(Class<T> type);
+
+    public <T extends AssetBuilder> T narrow();
+
 }

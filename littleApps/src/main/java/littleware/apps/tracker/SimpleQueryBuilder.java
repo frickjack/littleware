@@ -11,22 +11,53 @@
 package littleware.apps.tracker;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Set;
+import java.util.Date;
 import java.util.UUID;
 import littleware.apps.tracker.TaskQuery.BuilderSetState;
 import littleware.base.Maybe;
+import littleware.security.LittleUser;
 
+/**
+ * Internal TaskQuery implementation.
+ * Clients should not access these classes directly -
+ * implementation will change over time.
+ */
 public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
-
-    public enum StatusMode {
-        Active,
-        Finished,
-        All,
-        InState;
-    }
     
-    public static class Query implements TaskQuery, Serializable {
+    public static class Query implements TaskQuery, TaskQuery.BuilderSetState,
+            TaskQuery.BuilderNarrow, TaskQuery.FinalBuilder, Serializable {
+
+        @Override
+        public BuilderNarrow anyStatus() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public BuilderNarrow minCreateDate(Date value) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public BuilderNarrow maxCreateDate(Date value) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public BuilderNarrow minModifyDate(Date value) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public BuilderNarrow maxModifyDate(Date value) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        public enum StatusMode {
+            Active,
+            Finished,
+            All,
+            InState;
+        }
+
         private UUID                    queueId;
         private StatusMode              statusMode = StatusMode.All;
         private Maybe<TaskStatus>       maybeStatus = Maybe.empty();
@@ -37,24 +68,55 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
         public Query( Queue queue ) {
             queueId = queue.getId();
         }
-        public Query( Queue queue, StatusMode statusMode ) {
-            this( queue );
-            this.statusMode = statusMode;
+
+        @Override
+        public BuilderNarrow active() {
+            statusMode = StatusMode.Active;
+            return this;
         }
-        public Query( Queue queue, TaskStatus status ) {
-            this( queue, StatusMode.InState );
-            this.maybeStatus = Maybe.something( status );
+
+        @Override
+        public BuilderNarrow finished() {
+            statusMode = StatusMode.Finished;
+            return this;
+        }
+
+        @Override
+        public BuilderNarrow inState(TaskStatus value) {
+            statusMode = statusMode.InState;
+            maybeStatus = Maybe.something( value );
+            return this;
+        }
+
+        @Override
+        public TaskQuery build() {
+            return this;
+        }
+
+        @Override
+        public BuilderNarrow assignedTo(LittleUser value) {
+            this.maybeAssignedTo = Maybe.something( value.getId() );
+            return this;
+        }
+
+        @Override
+        public BuilderNarrow submittedBy(LittleUser value) {
+            this.maybeSubmittedBy = Maybe.something(value.getId() );
+            return this;
         }
 
         public UUID getQueueId() { return queueId; }
         public StatusMode getStatusMode() {
             return statusMode;
         }
+        public Maybe<UUID> getAssignedTo() { return maybeAssignedTo; }
+        public Maybe<UUID> getSubmittedBy() { return maybeSubmittedBy; }
+        public Maybe<TaskStatus> getStatus() { return maybeStatus; }
     }
     
     @Override
     public BuilderSetState queue(Queue value) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new Query( value );
     }
 
 }

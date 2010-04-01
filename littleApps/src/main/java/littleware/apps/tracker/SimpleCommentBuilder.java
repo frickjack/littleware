@@ -9,38 +9,77 @@
  */
 package littleware.apps.tracker;
 
+import com.google.inject.Inject;
+
 import java.util.logging.Logger;
+import littleware.apps.filebucket.BucketManager;
 import littleware.apps.tracker.Comment.CommentBuilder;
 
 import littleware.asset.*;
+import littleware.base.AssertionFailedException;
+import littleware.base.LazyLoadException;
+import littleware.base.Maybe;
 
 /**
  * Simple implementation of Comment interface.
  */
 public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.CommentBuilder {
     private static final Logger log = Logger.getLogger( SimpleCommentBuilder.class.getName() );
+    public static final String  fullTextBucketPath = "commentFullText.txt";
 
     private static class SimpleComment extends SimpleAsset implements Comment {
+        private transient BucketManager bucketManager;
+        private Maybe<String>   maybeFullText = Maybe.empty();
 
-        @Override
-        public String getSummary() {
-            throw new UnsupportedOperationException("Not supported yet.");
+        public SimpleComment() {}
+        public SimpleComment( SimpleCommentBuilder builder ) {
+            super( builder );
+            maybeFullText = Maybe.something( builder.getFullText() );
+        }
+
+        /**
+         * Injection point at client-side deserialization time
+         * allows lazy-load of full-text comment from server.
+         * 
+         * @param bucketManager
+         */
+        @Inject
+        public void injectClientServices( BucketManager bucketManager ) {
+            this.bucketManager = bucketManager;
         }
 
         @Override
+        public String getSummary() {
+            return getData();
+        }
+
+
+        @Override
         public String getFullText() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            if ( maybeFullText.isEmpty() ) {
+                synchronized( this ) {
+                    if ( maybeFullText.isEmpty() ) {
+                        if ( null == bucketManager ) {
+                            throw new AssertionFailedException( "BucketManager not injected on cilent" );
+                        }
+                        try {
+                            maybeFullText = Maybe.something( bucketManager.readTextFromBucket(this.getId(), fullTextBucketPath) );
+                        } catch (Exception ex) {
+                            throw new LazyLoadException( "Failed to retrieve comment full text", ex );
+                        }
+                    }
+                }
+            }
+            return maybeFullText.get();
         }
 
         @Override
         public CommentBuilder copy() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return new SimpleCommentBuilder().copy( this );
         }
 
     }
-    
-    private static final String OS_BUCKET_PATH = "comment.txt";
-    private String os_summary = null;
+
     private String fullText = "";
 
     /** Do nothing constructor */
@@ -50,28 +89,40 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
 
     @Override
     public CommentBuilder copy(Asset source) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        super.copy( source );
+        return fullText( ((Comment) source).getFullText() );
     }
 
     @Override
     public CommentBuilder parent(Asset value) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        super.parent( value );
+        return this;
     }
 
 
     @Override
-    public void setFullText(String value) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public String getFullText() {
+        return fullText;
+    }
+    @Override
+    public final void setFullText(String value) {
+        fullText( value );
     }
 
     @Override
     public CommentBuilder fullText(String value) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        fullText = value;
+        if ( value.length() > 1000 ) {
+            setData( value.substring(0, 1000) + "..." );
+        } else {
+            setData( value );
+        }
+        return this;
     }
 
     @Override
     public Comment build() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new SimpleComment( this );
     }
 
 }

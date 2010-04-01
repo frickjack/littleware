@@ -42,7 +42,7 @@ public abstract class TrackerAssetType extends AssetType {
 
         @Override
         public Task.TaskBuilder create() {
-            return null;
+            return new SimpleTaskBuilder();
         }
     };
     public static final AssetType QUEUE = new AssetType(

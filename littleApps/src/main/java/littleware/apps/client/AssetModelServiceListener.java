@@ -33,15 +33,15 @@ import org.osgi.framework.BundleContext;
  * data in sync with remote repository.
  */
 public class AssetModelServiceListener implements LittleServiceListener, BundleActivator {
-    private static final Logger     olog = Logger.getLogger( AssetModelServiceListener.class.getName() );
+    private static final Logger     log = Logger.getLogger( AssetModelServiceListener.class.getName() );
 
-    private final AssetModelLibrary olibAsset;
+    private final AssetModelLibrary libAsset;
 
     @Inject
     public AssetModelServiceListener( SessionHelper helper,
             AssetModelLibrary libAsset
             ) {
-        olibAsset = libAsset;
+        this.libAsset = libAsset;
         if ( ! (helper instanceof LittleService) ) {
             throw new AssertionFailedException( "SessionHelper does not implement LittleService - this bundle only runs in client mode" );
         }
@@ -52,11 +52,11 @@ public class AssetModelServiceListener implements LittleServiceListener, BundleA
     public void receiveServiceEvent(LittleServiceEvent eventBase ) {
         if ( eventBase instanceof AssetLoadEvent ) {
             final AssetLoadEvent eventLoad = (AssetLoadEvent) eventBase;
-            olibAsset.syncAsset( eventLoad.getAsset() );
+            libAsset.syncAsset( eventLoad.getAsset() );
         } else if ( eventBase instanceof AssetDeleteEvent ) {
-            olibAsset.assetDeleted( ((AssetDeleteEvent) eventBase).getDeletedId() );
+            libAsset.assetDeleted( ((AssetDeleteEvent) eventBase).getDeletedId() );
         } else {
-            olog.log( Level.WARNING, "Not handling unknown service event of type: " +
+            log.log( Level.WARNING, "Not handling unknown service event of type: " +
                     eventBase.getClass().getName() );
         }
     }

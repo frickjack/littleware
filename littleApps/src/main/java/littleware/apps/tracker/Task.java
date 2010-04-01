@@ -26,21 +26,23 @@ public interface Task extends Asset {
      * Get user this task is currently assigned to if any
      */
     public Maybe<UUID>  getUserId();
-    public Maybe<UUID>  getParentTask();
+    
 
     @Override
     public Task.TaskBuilder copy();
 
     public interface TaskBuilder extends AssetBuilder {
 
-        /**
-         * Set the task status.
-         *
-         * @exception TaskStatusException if TaskStatus.MERGED.equals ( n_status ) -
-         *                must use mergeWithTask to set that
-         */
+        public TaskStatus getTaskStatus();
         public void setTaskStatus(TaskStatus value);
         public TaskBuilder taskStatus( TaskStatus value );
+
+        public UUID  getQueueId();
+
+        /**
+         * Similar to parent(), but sets from-id null
+         */
+        public TaskBuilder queue( Queue value );
 
         @Override
         public TaskBuilder parent( Asset value );

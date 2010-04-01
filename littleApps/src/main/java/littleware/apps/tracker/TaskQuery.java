@@ -11,6 +11,7 @@
 package littleware.apps.tracker;
 
 import com.google.inject.ImplementedBy;
+import java.util.Date;
 import littleware.security.LittleUser;
 
 /**
@@ -29,13 +30,20 @@ public interface TaskQuery {
     }
 
     public interface BuilderSetState extends FinalBuilder {
-        public BuilderSetUser active();
-        public BuilderSetUser finished();
-        public BuilderSetUser inState( TaskStatus value );
+        public BuilderNarrow  anyStatus();
+        public BuilderNarrow active();
+        public BuilderNarrow finished();
+        public BuilderNarrow inState( TaskStatus value );
     }
 
-    public interface BuilderSetUser extends FinalBuilder {
-        public FinalBuilder assignedTo( LittleUser value );
-        public FinalBuilder submittedBy( LittleUser value );
+    public interface BuilderNarrow extends FinalBuilder {
+        public BuilderNarrow assignedTo( LittleUser value );
+        public BuilderNarrow submittedBy( LittleUser value );
+        /** Supports new-task reports */
+        public BuilderNarrow minCreateDate( Date value );
+        public BuilderNarrow maxCreateDate( Date value );
+        /** Supports RSS feed */
+        public BuilderNarrow minModifyDate( Date value );
+        public BuilderNarrow maxModifyDate( Date value );
     }
 }

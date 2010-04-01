@@ -11,12 +11,8 @@
 package littleware.apps.tracker;
 
 
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
-import java.util.Date;
-import java.util.UUID;
 import littleware.asset.Asset;
-import littleware.base.BaseException;
+import littleware.asset.AssetBuilder;
 
 
 /**
@@ -24,61 +20,18 @@ import littleware.base.BaseException;
  * The task-set and iterator methods are lazy-load wrappers
  * around calls to TaskManager
  */
-public interface Queue extends Asset, TaskSet {
-    /**
-     * Shortcut for getAssets( getAssetIdsFrom( task ).values() )
-     */
-    public TaskSet   getSubtask() throws BaseException, GeneralSecurityException,
-            RemoteException;
+public interface Queue extends Asset {
 
-    /**
-     * Load the set of tasks in the given queue that have not yet
-     * entered a finished state (Complete, Canceled, ...)
-     * in reverse-creation-time order
-     *
-     * @param queueId id of queue task assigned to
-     */
-    public TaskSet    loadActiveTaskSet() throws BaseException, GeneralSecurityException,
-                  RemoteException;
+    @Override
+    public QueueBuilder copy();
 
-    /**
-     * Really an internal method - fascilitates dynamic load of TaskSet data ...
-     * @param queueId
-     * @param createdBefore
-     */
-    public TaskSet    loadActiveTaskSet( Date createdBefore ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadActiveTaskSet( UUID assignedToUserId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadActiveTaskSet( UUID assignedToUserId, Date createdBefore ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSet( TaskStatus status ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSet( TaskStatus status, Date createdBefore ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSet( TaskStatus status, UUID assignedToUserId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSet( TaskStatus status, UUID assignedToUserId, Date createdBefore  ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet   loadActiveTaskSubmittedBy( UUID submitterId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet   loadActiveTaskSubmittedBy( UUID submitterId, Date createdBefore ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSubmittedBy( TaskStatus status, UUID submitterId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSubmittedBy( TaskStatus status, UUID submitterId, Date createdBefore  ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-
+    public interface QueueBuilder extends AssetBuilder {
+        @Override
+        public QueueBuilder copy( Asset value );
+        @Override
+        public QueueBuilder parent( Asset value );
+        @Override
+        public Queue build();
+    }
 }
 

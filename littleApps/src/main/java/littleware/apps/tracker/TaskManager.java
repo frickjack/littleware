@@ -27,10 +27,27 @@ public interface TaskManager {
                   GeneralSecurityException, RemoteException;
     
     /**
-     * Shortcut for getAssets( getAssetIdsFrom( task ).values() )
+     * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.TASK ).values() )
      */
     public TaskSet   getSubtask( UUID task ) throws BaseException, GeneralSecurityException,
             RemoteException;
+
+    /**
+     * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.INPUT ).values() ) ...
+     */
+    public TaskSet  getInputs( UUID task ) throws BaseException,
+            GeneralSecurityException, RemoteException;
+    /**
+     * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.OUTPUT ).values() ) ...
+     */
+    public TaskSet  getOutputs( UUID task ) throws BaseException,
+            GeneralSecurityException, RemoteException;
+    /**
+     * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.DEPEND ).values() ) ...
+     * note that INPUT and OUTPUT are DEPEND subtypes
+     */
+    public TaskSet  getAllDependencies( UUID task ) throws BaseException,
+            GeneralSecurityException, RemoteException;
 
     /**
      * Load the set of tasks in the given queue that have not yet

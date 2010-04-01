@@ -45,9 +45,9 @@ public interface Comment extends Asset {
         @Override
         public CommentBuilder parent( Asset value );
 
-        public void setSummary ( String value );
-        public CommentBuilder summary( String value );
-
+        /**
+         * Also sets summary property
+         */
         public void setFullText( String value );
         public CommentBuilder fullText( String value );
         

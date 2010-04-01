@@ -58,15 +58,6 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public void setSummary(String value) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public CommentBuilder summary(String value) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
     @Override
     public void setFullText(String value) {

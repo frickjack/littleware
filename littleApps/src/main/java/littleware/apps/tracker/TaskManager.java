@@ -29,7 +29,7 @@ public interface TaskManager {
     /**
      * Shortcut for getAssets( getAssetIdsFrom( task ).values() )
      */
-    public List<Task>   getSubtask( UUID task ) throws BaseException, GeneralSecurityException,
+    public TaskSet   getSubtask( UUID task ) throws BaseException, GeneralSecurityException,
             RemoteException;
 
     /**

@@ -14,32 +14,24 @@ import littleware.base.*;
 public class NullAssetSpecializer implements AssetSpecializer {
 
     @Override
-	public <T extends Asset> T narrow ( T a_in, AssetRetriever m_retriever
-						  ) throws BaseException, AssetException, 
-	GeneralSecurityException, RemoteException
-	{
-		return a_in;
-	}
-	
-	public void postCreateCallback ( Asset a_new, AssetManager m_asset  							   
-									 ) throws BaseException, AssetException, 
-	GeneralSecurityException, RemoteException
-	{}
-	
-	
-	public void postUpdateCallback ( Asset a_pre_update, Asset a_now, AssetManager m_asset 
-									 ) throws BaseException, AssetException, 
-	GeneralSecurityException, RemoteException
-	{}
-	
-	
-	public void postDeleteCallback ( Asset a_deleted, AssetManager m_asset
-									 ) throws BaseException, AssetException, 
-	GeneralSecurityException, RemoteException
-	{}
-	
-}
+    public <T extends Asset> T narrow(T a_in, AssetRetriever m_retriever) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+        return a_in;
+    }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
+    @Override
+    public void postCreateCallback(Asset a_new, AssetManager m_asset) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+    }
+
+    @Override
+    public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager m_asset) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+    }
+
+    @Override
+    public void postDeleteCallback(Asset a_deleted, AssetManager m_asset) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+    }
+}
 

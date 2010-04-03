@@ -71,7 +71,11 @@ public class SimpleTaskBuilder extends SimpleAssetBuilder implements Task.TaskBu
 
     @Override
     public TaskBuilder parent(Asset value) {
-        super.parent(value);
+        if ( value instanceof Queue ) {
+            queue( (Queue) value );
+        } else {
+            super.parent(value);
+        }
         return this;
     }
 
@@ -88,9 +92,13 @@ public class SimpleTaskBuilder extends SimpleAssetBuilder implements Task.TaskBu
 
     @Override
     public TaskBuilder queue(Queue value) {
-        parent( value );
+        final UUID oldFromId = getFromId();
+        super.parent( value );
         this.putLink(QueueIdKey, value.getId() );
-        setFromId( null );
+        if ( null != oldFromId ) {
+            // might be a subtask setup
+            setFromId( oldFromId );
+        }
         return this;
     }
 

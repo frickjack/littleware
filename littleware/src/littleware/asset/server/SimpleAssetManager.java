@@ -68,10 +68,10 @@ public class SimpleAssetManager implements AssetManager {
                         protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) {
                         }
 
-                @Override
-                public long getTransaction() {
-                    throw new UnsupportedOperationException("Not supported yet.");
-                }
+                        @Override
+                        public long getTransaction() {
+                            throw new UnsupportedOperationException("Not supported yet.");
+                        }
                     };
                 }
             };
@@ -100,7 +100,7 @@ public class SimpleAssetManager implements AssetManager {
             Provider<LittleTransaction> provideTrans,
             //littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB,
             PermissionCache cachePermission,
-            Provider<LittleUser> provideCaller ) {
+            Provider<LittleUser> provideCaller) {
         search = m_search;
         dbMgr = m_db;
         quotaUtil = quota;
@@ -127,7 +127,7 @@ public class SimpleAssetManager implements AssetManager {
             final LittlePrincipal caller = provideCaller.get();
             // Get the asset for ourselves - make sure it's a valid asset
             Asset asset = search.getAsset(u_asset).get();
-            final AssetBuilder builder = asset.getAssetType().create().copy( asset );
+            final AssetBuilder builder = asset.getAssetType().create().copy(asset);
             builder.setLastUpdateDate(new Date());
             builder.setLastUpdaterId(caller.getId());
             builder.setLastUpdate(s_update_comment);
@@ -166,7 +166,7 @@ public class SimpleAssetManager implements AssetManager {
         final LittleUser userCaller = provideCaller.get();
         // Get the asset for ourselves - make sure it's a valid asset
         Asset oldAsset = null;
-        final AssetBuilder builder = asset.getAssetType().create().copy( asset );
+        final AssetBuilder builder = asset.getAssetType().create().copy(asset);
         log.log(Level.FINE, "Check ready");
         if (null == asset.getName()) {
             throw new IllegalArgumentException("May not save an asset with a null name");
@@ -188,6 +188,7 @@ public class SimpleAssetManager implements AssetManager {
         // Don't save the same asset more than once in this transaction
         final Map<UUID, Asset> v_save_cycle = provideSaveCycle.get().startDbAccess();
         final boolean bCallerIsAdmin = permissionCache.isAdmin(userCaller, search);
+        final boolean cycleSave;  // is this a save via a callback ?  - avoid infinite loops
 
         try {
             if (null == asset.getId()) {
@@ -196,11 +197,15 @@ public class SimpleAssetManager implements AssetManager {
                     // HOME asset type should reference itself
                     builder.setHomeId(asset.getId());
                 }
+                cycleSave = false;
             } else if (v_save_cycle.containsKey(asset.getId())) {
-                log.log(Level.WARNING, "Save cycle detected - not saving " + asset);
-                return asset;
+                //log.log(Level.WARNING, "Save cycle detected - not saving " + asset);
+                //return asset;
+                oldAsset = v_save_cycle.get(asset.getId());
+                cycleSave = true;
             } else {
                 oldAsset = search.getAsset(asset.getId()).getOr(null);
+                cycleSave = false;
             }
 
             //olog_generic.log(Level.FINE, "Check pre-save");
@@ -219,8 +224,8 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     // Only allow admins to create new users and homes, etc.
                     if (asset.getAssetType().isAdminToCreate() && (!bCallerIsAdmin)) {
-                        throw new AccessDeniedException("Must be in ADMIN group to create asset of type: " +
-                                asset.getAssetType());
+                        throw new AccessDeniedException("Must be in ADMIN group to create asset of type: "
+                                + asset.getAssetType());
                     }
                 } else {
                     // updating an existing asset
@@ -249,13 +254,13 @@ public class SimpleAssetManager implements AssetManager {
                             throw new AccessDeniedException("Caller " + userCaller + " does not have permission: " + LittlePermission.WRITE + " for asset: " + oldAsset.getId());
                         }
                         if (!oldAsset.getOwnerId().equals(asset.getOwnerId())) {
-                            throw new AccessDeniedException("Caller " + userCaller + " may not change owner on " +
-                                    oldAsset.getId() + " unless he is the owner");
+                            throw new AccessDeniedException("Caller " + userCaller + " may not change owner on "
+                                    + oldAsset.getId() + " unless he is the owner");
                         }
                         if (((oldAsset.getAclId() == null) && (asset.getAclId() != null)) || (!oldAsset.getAclId().equals(asset.getAclId()))) {
-                            throw new AccessDeniedException("Caller " + userCaller +
-                                    " may not change ACL on asset it does not own " +
-                                    oldAsset.getId());
+                            throw new AccessDeniedException("Caller " + userCaller
+                                    + " may not change ACL on asset it does not own "
+                                    + oldAsset.getId());
                         }
                     }
                 }
@@ -285,9 +290,9 @@ public class SimpleAssetManager implements AssetManager {
 
                     if ((!a_from.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search))) {
                         if (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_from.getAclId())) {
-                            throw new AccessDeniedException("Caller " + userCaller +
-                                    " may not link from asset " + a_from.getId() +
-                                    " without permission " + LittlePermission.WRITE);
+                            throw new AccessDeniedException("Caller " + userCaller
+                                    + " may not link from asset " + a_from.getId()
+                                    + " without permission " + LittlePermission.WRITE);
                         }
                     }
                     if ((!a_from.getHomeId().equals(asset.getHomeId()))) {
@@ -308,7 +313,7 @@ public class SimpleAssetManager implements AssetManager {
 
                 boolean b_rollback = true;
                 trans_save.startDbUpdate();
-                builder.setTransaction( trans_save.getTransaction() );
+                builder.setTransaction(trans_save.getTransaction());
                 try {
                     final Asset assetSave = builder.build();
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver();
@@ -319,8 +324,11 @@ public class SimpleAssetManager implements AssetManager {
 
                     if (null == oldAsset) {
                         specialRegistry.getService(assetSave.getAssetType()).postCreateCallback(assetSave, this);
-                    } else {
+                    } else if (!cycleSave) { // do not make multiple callbacks on same asset
                         specialRegistry.getService(assetSave.getAssetType()).postUpdateCallback(oldAsset, assetSave, this);
+                    } else {
+                        log.log(Level.FINE, "Bypassing save-callback on cycle-save asset " + assetSave.getId()
+                                + "/" + assetSave.getAssetType() + "/" + assetSave.getName());
                     }
 
                     final AssetType type = assetSave.getAssetType();
@@ -329,7 +337,8 @@ public class SimpleAssetManager implements AssetManager {
                     }
 
                     b_rollback = false;
-                    return (T) search.getAsset( assetSave.getId() ).get();
+                    // retrieve clean asset-copy - asset might have been resaved by callback
+                    return (T) search.getAsset(assetSave.getId()).get();
                 } finally {
                     trans_save.endDbUpdate(b_rollback);
                 }

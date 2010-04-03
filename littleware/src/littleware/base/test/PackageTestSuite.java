@@ -10,6 +10,7 @@
 
 package littleware.base.test;
 
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.logging.Logger;
@@ -24,13 +25,15 @@ import littleware.base.*;
  * for the littleware.base package.
  */
 public class PackageTestSuite extends TestSuite {
-    private static final Logger olog = Logger.getLogger( PackageTestSuite.class.getName() );
+    private static final Logger log = Logger.getLogger( PackageTestSuite.class.getName() );
     /**
      * Setup a test suite to exercise this package -
      * junit.swingui.TestRunner looks for this.
      */
     @Inject
-    public PackageTestSuite( Provider<WhateverTester> provideWhatever ) {
+    public PackageTestSuite( Provider<WhateverTester> provideWhatever,
+            Provider<FbIteratorTester> provideFbTester
+            ) {
         super( PackageTestSuite.class.getName() );
 
         boolean b_run = true;
@@ -55,21 +58,28 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(new XmlSpecialTester("testEncodeDecode"));
             this.addTest(littleware.base.stat.test.PackageTestSuite.suite());
         }
+        if ( b_run ) {
+            this.addTest( provideFbTester.get() );
+        }
         if (false) {
             // These tests require UI access - won't run under Hudson
             this.addTest(new SwingTester("testJTextAppender"));
             this.addTest(new SwingTester("testListModelIterator"));
         }
-        olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
+        log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
+    }
+
+    public static Test suite() {
+        return Guice.createInjector().getInstance(PackageTestSuite.class );
     }
 
     /**
      * Run through the various lilttleware.sql test cases
      */
     public static void main(String[] v_args) {
-        String[] v_launch_args = {"littleware.base.test.PackageTestSuite"};
+        String[] v_launch_args = {"-noloading", "littleware.base.test.PackageTestSuite"};
 
-        olog.setLevel(Level.ALL);  // log everything during testing
+        log.setLevel(Level.ALL);  // log everything during testing
         junit.swingui.TestRunner.main(v_launch_args);
         //junit.textui.TestRunner.main( v_launch_args );
     }

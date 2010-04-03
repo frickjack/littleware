@@ -26,31 +26,9 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
     
     public static class Query implements TaskQuery, TaskQuery.BuilderSetState,
             TaskQuery.BuilderNarrow, TaskQuery.FinalBuilder, Serializable {
-
-        @Override
-        public BuilderNarrow anyStatus() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public BuilderNarrow minCreateDate(Date value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public BuilderNarrow maxCreateDate(Date value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public BuilderNarrow minModifyDate(Date value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public BuilderNarrow maxModifyDate(Date value) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
+        private Maybe<Date> maybeMaxCreate;
+        private Maybe<Date> maybeMinModify;
+        private Maybe<Date> maybeMaxModify;
         public enum StatusMode {
             Active,
             Finished,
@@ -63,7 +41,42 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
         private Maybe<TaskStatus>       maybeStatus = Maybe.empty();
         private Maybe<UUID>             maybeAssignedTo = Maybe.empty();
         private Maybe<UUID>             maybeSubmittedBy = Maybe.empty();
+        private Maybe<Date>             maybeMinCreate = Maybe.empty();
 
+        @Override
+        public BuilderNarrow anyStatus() {
+            statusMode = StatusMode.All;
+            return this;
+        }
+
+        @Override
+        public BuilderNarrow minCreateDate(Date value) {
+            maybeMinCreate = Maybe.something( value );
+            return this;
+        }
+        public Maybe<Date> getMinCreateDate() { return maybeMinCreate; }
+
+        @Override
+        public BuilderNarrow maxCreateDate(Date value) {
+            maybeMaxCreate = Maybe.something( value );
+            return this;
+        }
+        public Maybe<Date> getMaxCreateDate() { return maybeMaxCreate; }
+
+        @Override
+        public BuilderNarrow minModifyDate(Date value) {
+            maybeMinModify = Maybe.something( value );
+            return this;
+        }
+        public Maybe<Date> getMinModifyDate() { return maybeMinModify; }
+
+        @Override
+        public BuilderNarrow maxModifyDate(Date value) {
+            maybeMaxModify = Maybe.something( value );
+            return this;
+        }
+        public Maybe<Date> getMaxModifyDate() { return maybeMaxModify; }
+        
         public Query() {}
         public Query( Queue queue ) {
             queueId = queue.getId();
@@ -118,5 +131,4 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
     public BuilderSetState queue(Queue value) {
         return new Query( value );
     }
-
 }

@@ -11,12 +11,15 @@
 
 package littleware.apps.tracker;
 
+import com.google.inject.ImplementedBy;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.UUID;
 import littleware.base.feedback.Feedback;
 
+
 /**
- *
- * @author rdp0004
+ * Iterable lazy-load task result
  */
 public interface TaskSet extends Iterable<Task> {
     /**
@@ -30,4 +33,9 @@ public interface TaskSet extends Iterable<Task> {
      * advances feedback progress on each call to next.
      */
     public Iterator<Task> iterator( Feedback feedback );
+
+    @ImplementedBy(SimpleTaskSetBuilder.class)
+    public interface IdSetBuilder {
+        public TaskSet build( Collection<UUID> idSet );
+    }
 }

@@ -11,21 +11,18 @@
 
 package littleware.apps.tracker;
 
+import com.google.inject.ImplementedBy;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
 import java.util.UUID;
 import littleware.base.BaseException;
 
 /**
  * Tool for placing tasks in queue
  */
+@ImplementedBy(SimpleTaskManager.class)
 public interface TaskManager {
-    public <T extends Task> T addTaskToQueue( T task, UUID queueId ) throws BaseException,
-                  GeneralSecurityException, RemoteException;
-    
     /**
      * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.TASK ).values() )
      */
@@ -37,11 +34,13 @@ public interface TaskManager {
      */
     public TaskSet  getInputs( UUID task ) throws BaseException,
             GeneralSecurityException, RemoteException;
+    
     /**
      * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.OUTPUT ).values() ) ...
      */
     public TaskSet  getOutputs( UUID task ) throws BaseException,
             GeneralSecurityException, RemoteException;
+
     /**
      * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.DEPEND ).values() ) ...
      * note that INPUT and OUTPUT are DEPEND subtypes
@@ -49,51 +48,10 @@ public interface TaskManager {
     public TaskSet  getAllDependencies( UUID task ) throws BaseException,
             GeneralSecurityException, RemoteException;
 
-    /**
-     * Load the set of tasks in the given queue that have not yet
-     * entered a finished state (Complete, Canceled, ...)
-     * in reverse-creation-time order
-     *
-     * @param queueId id of queue task assigned to
-     */
-    public TaskSet    loadActiveTaskSet( UUID queueId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-    /**
-     * Really an internal method - fascilitates dynamic load of TaskSet data ...
-     * @param queueId
-     * @param createdBefore
-     */
-    public TaskSet    loadActiveTaskSet( UUID queueId, Date createdBefore ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
+    public TaskSet  loadTaskSet( TaskQuery query ) throws BaseException,
+            GeneralSecurityException, RemoteException;
 
-    public TaskSet    loadActiveTaskSet( UUID queueId, UUID assignedToUserId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadActiveTaskSet( UUID queueId, UUID assignedToUserId, Date createdBefore ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-    
-    public TaskSet    loadTaskSet( UUID queueId, TaskStatus status ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSet( UUID queueId, TaskStatus status, Date createdBefore ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSet( UUID queueId, TaskStatus status, UUID assignedToUserId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSet( UUID queueId, TaskStatus status, UUID assignedToUserId, Date createdBefore  ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet   loadActiveTaskSubmittedBy( UUID queueId, UUID submitterId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet   loadActiveTaskSubmittedBy( UUID queueId, UUID submitterId, Date createdBefore ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSubmittedBy( UUID queueId, TaskStatus status, UUID submitterId ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
-
-    public TaskSet    loadTaskSubmittedBy( UUID queueId, TaskStatus status, UUID submitterId, Date createdBefore  ) throws BaseException, GeneralSecurityException,
-                  RemoteException;
+    public Collection<UUID>  runQuery( TaskQuery query ) throws BaseException,
+            GeneralSecurityException, RemoteException;
 
 }

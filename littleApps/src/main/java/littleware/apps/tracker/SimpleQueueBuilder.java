@@ -18,6 +18,7 @@ import littleware.asset.SimpleAssetBuilder;
 public class SimpleQueueBuilder extends SimpleAssetBuilder implements Queue.QueueBuilder {
 
     private static class SimpleQueue extends SimpleAsset implements Queue {
+
         public SimpleQueue() {}
         public SimpleQueue( SimpleQueueBuilder builder ) {
             super( builder );
@@ -27,11 +28,17 @@ public class SimpleQueueBuilder extends SimpleAssetBuilder implements Queue.Queu
         public QueueBuilder copy() {
             return super.copy().narrow();
         }
+
+        @Override
+        public int getNextTaskNumber() {
+            return this.getValue().intValue();
+        }
     }
 
 
     public SimpleQueueBuilder() {
         super( TrackerAssetType.QUEUE );
+        value( 1 );
     }
 
     

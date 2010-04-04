@@ -34,6 +34,7 @@ public interface TaskQuery {
         public BuilderNarrow active();
         public BuilderNarrow finished();
         public BuilderNarrow inState( TaskStatus value );
+        public FinalBuilder   withTaskName( String value );
     }
 
     public interface BuilderNarrow extends FinalBuilder {

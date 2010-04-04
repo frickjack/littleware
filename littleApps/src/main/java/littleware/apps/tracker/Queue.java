@@ -21,6 +21,12 @@ import littleware.asset.AssetBuilder;
  * around calls to TaskManager
  */
 public interface Queue extends Asset {
+    /**
+     * Integer used to name tasks in queue - increments
+     * whenever task added to queue.
+     * Task-engine enforces that every task in queue has a unique number.
+     */
+    public int  getNextTaskNumber();
 
     @Override
     public QueueBuilder copy();

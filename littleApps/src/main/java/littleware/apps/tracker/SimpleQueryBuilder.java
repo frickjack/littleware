@@ -26,9 +26,11 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
     
     public static class Query implements TaskQuery, TaskQuery.BuilderSetState,
             TaskQuery.BuilderNarrow, TaskQuery.FinalBuilder, Serializable {
-        private Maybe<Date> maybeMaxCreate;
-        private Maybe<Date> maybeMinModify;
-        private Maybe<Date> maybeMaxModify;
+        private Maybe<Date> maybeMaxCreate = Maybe.empty();
+        private Maybe<Date> maybeMinModify = Maybe.empty();
+        private Maybe<Date> maybeMaxModify = Maybe.empty();
+        private Maybe<String>  maybeTaskName = Maybe.empty();
+
         public enum StatusMode {
             Active,
             Finished,
@@ -42,6 +44,16 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
         private Maybe<UUID>             maybeAssignedTo = Maybe.empty();
         private Maybe<UUID>             maybeSubmittedBy = Maybe.empty();
         private Maybe<Date>             maybeMinCreate = Maybe.empty();
+
+        @Override
+        public FinalBuilder withTaskName( String value) {
+            maybeTaskName = Maybe.something( value );
+            return this;
+        }
+
+        public Maybe<String> getTaskNumber() {
+            return maybeTaskName;
+        }
 
         @Override
         public BuilderNarrow anyStatus() {

@@ -13,13 +13,12 @@ package littleware.apps.tracker.server;
 import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
-import littleware.apps.tracker.TaskManagerRemote;
+import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TrackerAssetType;
-import littleware.apps.tracker.client.SimpleRemoteService;
-import littleware.apps.tracker.client.TaskManagerRemoteService;
+import littleware.apps.tracker.client.SimpleQueryService;
+import littleware.apps.tracker.client.TaskQueryManagerService;
 import littleware.asset.AssetException;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
 import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.base.BaseException;
 import littleware.security.auth.SessionHelper;
@@ -39,17 +38,17 @@ public class TrackerServerActivator implements BundleActivator {
             ServiceProviderRegistry serviceRegistry,
             AssetSpecializerRegistry specializerRegistry,
             SimpleTaskSpecializer     taskSpecializer,
-            final SimpleTaskManager         taskManager,
+            final JpaTaskQueryManager         taskManager,
             AssetSearchManager        search
             )
     {
         specializerRegistry.registerService(TrackerAssetType.TASK, taskSpecializer);
-        serviceRegistry.registerService( TaskManagerRemote.SERVICE_HANDLE,
-                new AbstractServiceProviderFactory<TaskManagerRemoteService> ( TaskManagerRemote.SERVICE_HANDLE, search ) {
+        serviceRegistry.registerService( TaskQueryManager.SERVICE_HANDLE,
+                new AbstractServiceProviderFactory<TaskQueryManagerService> ( TaskQueryManager.SERVICE_HANDLE, search ) {
                     @Override
-                    public TaskManagerRemoteService createServiceProvider(SessionHelper helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-                        return new SimpleRemoteService( 
-                                    new RmiTaskManager( this.checkAccessMakeProxy(helper, false, taskManager, TaskManagerRemote.class ))
+                    public TaskQueryManagerService createServiceProvider(SessionHelper helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+                        return new SimpleQueryService(
+                                    new RmiTaskQueryManager( this.checkAccessMakeProxy(helper, false, taskManager, TaskQueryManager.class ))
                                     );
                     }
                 }

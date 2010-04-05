@@ -15,7 +15,7 @@ import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.UUID;
-import littleware.apps.tracker.client.TaskManagerRemoteService;
+import littleware.apps.tracker.client.TaskQueryManagerService;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.security.auth.ServiceType;
@@ -26,11 +26,11 @@ import littleware.security.auth.ServiceType;
  * this interface is an implementation detail that may
  * change in the future.
  */
-public interface TaskManagerRemote extends Remote {
-    public static final ServiceType<TaskManagerRemoteService> SERVICE_HANDLE =
-            new ServiceType<TaskManagerRemoteService>(
+public interface TaskQueryManager extends Remote {
+    public static final ServiceType<TaskQueryManagerService> SERVICE_HANDLE =
+            new ServiceType<TaskQueryManagerService>(
                 UUIDFactory.parseUUID("AAC399084F5448E48EAF75FB6B6D1434"),
-                "littleware.ACCOUNT_MANAGER_SERVICE", TaskManagerRemoteService.class
+                "littleware.ACCOUNT_MANAGER_SERVICE", TaskQueryManagerService.class
             );
     
     public Collection<UUID>  runQuery( TaskQuery query ) throws BaseException,

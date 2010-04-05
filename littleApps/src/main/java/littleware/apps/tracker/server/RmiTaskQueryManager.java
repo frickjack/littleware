@@ -14,7 +14,7 @@ import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.UUID;
-import littleware.apps.tracker.TaskManagerRemote;
+import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskQuery;
 import littleware.base.BaseException;
 import littleware.base.LittleRemoteObject;
@@ -23,8 +23,8 @@ import littleware.base.LittleRemoteObject;
  *
  * @author pasquini
  */
-public class RmiTaskManager extends LittleRemoteObject implements TaskManagerRemote {
-    public RmiTaskManager( TaskManagerRemote coreManager ) throws RemoteException {}
+public class RmiTaskQueryManager extends LittleRemoteObject implements TaskQueryManager {
+    public RmiTaskQueryManager( TaskQueryManager coreManager ) throws RemoteException {}
     
     @Override
     public Collection<UUID> runQuery(TaskQuery query) throws BaseException, GeneralSecurityException, RemoteException {

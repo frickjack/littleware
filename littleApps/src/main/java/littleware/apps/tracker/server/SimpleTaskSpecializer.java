@@ -7,10 +7,10 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.tracker.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -18,6 +18,9 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Queue;
 import littleware.apps.tracker.Task;
+import littleware.apps.tracker.TaskQuery;
+import littleware.apps.tracker.TaskQuery.BuilderStart;
+import littleware.apps.tracker.TaskQueryManager;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetManager;
@@ -25,7 +28,10 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.AssetInfo;
 import littleware.asset.server.NullAssetSpecializer;
+import littleware.base.AbstractValidator;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
+import littleware.base.ValidationException;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableDateTime;
 
@@ -36,16 +42,20 @@ import org.joda.time.ReadableDateTime;
  */
 @Singleton
 public class SimpleTaskSpecializer extends NullAssetSpecializer {
-    private static final Logger log = Logger.getLogger( SimpleTaskSpecializer.class.getName() );
 
+    private static final Logger log = Logger.getLogger(SimpleTaskSpecializer.class.getName());
     private final AssetSearchManager search;
+    private final TaskQueryManager queryManager;
+    private final Provider<BuilderStart> queryBuilder;
 
     @Inject
-    public SimpleTaskSpecializer( AssetSearchManager search )
-    {
+    public SimpleTaskSpecializer(AssetSearchManager search,
+            TaskQueryManager queryManager,
+            Provider<TaskQuery.BuilderStart> queryBuilder) {
         this.search = search;
+        this.queryManager = queryManager;
+        this.queryBuilder = queryBuilder;
     }
-
 
     /**
      * Assign a queue-based name to the asset, and place it in the
@@ -53,45 +63,74 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
      */
     @Override
     public void postCreateCallback(Asset asset, AssetManager am) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final Task  task = asset.narrow();
+        final Task task = asset.narrow();
         final Queue queue = search.getAsset(task.getQueueId()).get().narrow();
+        final Task.TaskBuilder builder = task.copy();
 
-        if ( task.getQueueId() != task.getFromId() ) {
+        if (!task.getQueueId().equals(task.getFromId())) {
             // TODO - add subtask logic
+            final Maybe<Asset> maybeFrom = search.getAsset(task.getFromId());
+            if (maybeFrom.isEmpty() || !(maybeFrom.get() instanceof Task)) {
+                throw new ValidationException("New task does not link from queue or task");
+            }
+            final Task from = maybeFrom.get().narrow();
+            if (!from.getQueueId().equals(task.getFromId())) {
+                throw new ValidationException("New subtask queue-id does not match parent task queue-id");
+            }
+            builder.fromId(from.getId());
+        } else {
+            final ReadableDateTime now = new DateTime();
+            final AssetTreeTemplate template = new AssetTreeTemplate("Archive",
+                    new AssetTreeTemplate(Integer.toString(now.getYear()),
+                    new AssetTreeTemplate(now.toString("MMdd"))));
+            UUID lastId = null;
+            for (AssetInfo info : template.visit(queue, search)) {
+                lastId = info.getAsset().getId();
+                if (!info.getAssetExists()) {
+                    am.saveAsset(info.getAsset(), "Setup queue tree");
+                }
+            }
+            builder.fromId(lastId);
         }
-        am.saveAsset(queue.copy().value( queue.getNextTaskNumber() + 1 ).build(),
-                "Advance queue task number"
-                );
-        final ReadableDateTime now = new DateTime();
-        final AssetTreeTemplate template = new AssetTreeTemplate( "Archive",
-                new AssetTreeTemplate( Integer.toString( now.getYear() ),
-                    new AssetTreeTemplate( now.toString( "MMdd" ) )
-                ));
-        UUID lastId = null;
-        for( AssetInfo info : template.visit(queue, search)) {
-            lastId = info.getAsset().getId();
-            if ( ! info.getAssetExists() ) {
-                am.saveAsset(info.getAsset(), "Setup queue tree" );
+        int taskNumber = -1;
+        for (int i = 0; i < 100; ++i) {
+            final TaskQuery query = queryBuilder.get().queue(queue).withTaskName(Integer.toString(queue.getNextTaskNumber() + i)).build();
+            if (queryManager.runQuery(query).isEmpty()) {
+                taskNumber = queue.getNextTaskNumber() + i;
+                break;
             }
         }
+        if (taskNumber < 0) {
+            throw new IllegalStateException("Failed to find unused task-number under queue " + queue.getName() + " (" + queue.getId() + ")");
+        }
+        builder.name(Integer.toString(taskNumber));
+        am.saveAsset(queue.copy().value(taskNumber + 1).build(),
+                "Advance queue task number");
 
-        // TODO - add nameUnique() check
-        /*
-        am.saveAsset( 
-                task.copy().fromId(lastId).name( Integer.toString( queue.getNextTaskNumber() ) ).build(),
-                "Reposition task in queue asset tree" 
-                );
-         *
-         */
+        am.saveAsset(
+                builder.build(),
+                "Reposition task in queue asset tree with unique name");
     }
 
     /**
      * If the name changes - make sure it's unique
      */
     @Override
-    public void postUpdateCallback(Asset asset, Asset asset1, AssetManager am) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void postUpdateCallback(Asset old, Asset current, AssetManager am) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final Task oldTask = old.narrow();
+        final Task currentTask = current.narrow();
+        AbstractValidator.assume(oldTask.getQueueId().equals(currentTask.getQueueId()),
+                "May not move a task between queues"
+                );
+
+        final Queue queue = search.getAsset(currentTask.getQueueId()).get().narrow();
+        if (!old.getName().equals(current.getName())) {
+            final TaskQuery query = queryBuilder.get().queue(queue).withTaskName(currentTask.getName()).build();
+            AbstractValidator.assume(
+                    queryManager.runQuery(query).size() <= 1,
+                    "May not have more than one task with the same name " + currentTask.getName()
+                    + " under queue " + queue.getName() + " (" + queue.getId() + ")");
+        }
     }
-
-
 }
+

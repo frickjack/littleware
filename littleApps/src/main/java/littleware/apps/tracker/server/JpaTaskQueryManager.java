@@ -15,7 +15,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.UUID;
 import littleware.apps.tracker.TaskManager;
-import littleware.apps.tracker.TaskManagerRemote;
+import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskQuery;
 import littleware.apps.tracker.TaskSet;
 import littleware.asset.server.NullAssetSpecializer;
@@ -25,7 +25,7 @@ import littleware.base.BaseException;
  *
  * @author pasquini
  */
-public class SimpleTaskManager implements TaskManagerRemote {
+public class JpaTaskQueryManager implements TaskQueryManager {
 
 
     @Override

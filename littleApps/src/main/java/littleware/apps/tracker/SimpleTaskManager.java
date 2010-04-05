@@ -18,11 +18,11 @@ import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 
 public class SimpleTaskManager implements TaskManager {
-    private final TaskManagerRemote remoteUtil;
+    private final TaskQueryManager taskQuery;
     private final AssetSearchManager search;
     
-    public SimpleTaskManager( TaskManagerRemote remoteUtil, AssetSearchManager search ) {
-       this.remoteUtil = remoteUtil;
+    public SimpleTaskManager( TaskQueryManager taskQuery, AssetSearchManager search ) {
+       this.taskQuery = taskQuery;
        this.search = search;
     }
 

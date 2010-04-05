@@ -12,17 +12,17 @@ package littleware.apps.tracker.client;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
-import littleware.apps.tracker.TaskManagerRemote;
+import littleware.apps.tracker.TaskQueryManager;
 
 /**
- * Force load of TaskManagerRemote so SERVICE_HANDLE gets registered,
- * bind TaskManagerRemote to TaskManagerRemoteService
+ * Force load of TaskQueryManager so SERVICE_HANDLE gets registered,
+ * bind TaskQueryManager to TaskQueryManagerService
  */
 public class TrackerClientGuice implements Module {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind( TaskManagerRemote.class ).to( TaskManagerRemoteService.class );
+        binder.bind( TaskQueryManager.class ).to( TaskQueryManagerService.class );
     }
 
 }

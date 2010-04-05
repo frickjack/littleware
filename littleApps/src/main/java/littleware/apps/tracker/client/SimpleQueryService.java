@@ -14,7 +14,7 @@ import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.UUID;
-import littleware.apps.tracker.TaskManagerRemote;
+import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskQuery;
 import littleware.asset.client.SimpleLittleService;
 import littleware.base.BaseException;
@@ -23,13 +23,13 @@ import littleware.base.BaseException;
  *
  * @author pasquini
  */
-public class SimpleRemoteService extends SimpleLittleService implements TaskManagerRemoteService {
-    private TaskManagerRemote remoteHandle;
+public class SimpleQueryService extends SimpleLittleService implements TaskQueryManagerService {
+    private TaskQueryManager remoteHandle;
 
     /** For serialization */
-    public SimpleRemoteService() {}
+    public SimpleQueryService() {}
     
-    public SimpleRemoteService( TaskManagerRemote remoteHandle ) {
+    public SimpleQueryService( TaskQueryManager remoteHandle ) {
         this.remoteHandle = remoteHandle;
     }
 

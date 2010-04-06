@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
@@ -26,6 +27,7 @@ import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskQuery;
 import littleware.apps.tracker.TaskSet;
 import littleware.apps.tracker.TrackerAssetType;
+import littleware.asset.AssetSearchManager;
 import littleware.asset.server.NullAssetSpecializer;
 import littleware.asset.server.db.jpa.JpaLittleTransaction;
 import littleware.base.BaseException;
@@ -34,10 +36,13 @@ import littleware.base.UUIDFactory;
 public class JpaTaskQueryManager implements TaskQueryManager {
     private static final Logger log = Logger.getLogger( JpaTaskQueryManager.class.getName() );
     private final Provider<JpaLittleTransaction> provideTrans;
+    private final AssetSearchManager search;
 
     @Inject
-    public JpaTaskQueryManager( Provider<JpaLittleTransaction> provideTrans ) {
+    public JpaTaskQueryManager( Provider<JpaLittleTransaction> provideTrans,
+            AssetSearchManager search ) {
         this.provideTrans = provideTrans;
+        this.search = search;
     }
 
     @Override
@@ -46,10 +51,16 @@ public class JpaTaskQueryManager implements TaskQueryManager {
         final JpaLittleTransaction trans = provideTrans.get();
         trans.startDbAccess();
         try {
+            final Queue         queue = search.getAsset( tq.getQueueId() ).get().narrow();
             final EntityManager entMgr = trans.getEntityManager();
-            final Query query = entMgr.createQuery( "SELECT x.objectId FROM Asset x WHERE x.toId=:toId AND x.typeId=:typeId").
+            final Query query;
+            if ( tq.getTaskNumber().isSet() ) {
+                query = entMgr.createQuery( "SELECT x.objectId FROM Asset x WHERE x.toId=:toId AND x.typeId=:typeId").
                     setParameter( "toId", UUIDFactory.makeCleanString( tq.getQueueId() ) ).
                     setParameter( "typeId", UUIDFactory.makeCleanString( TrackerAssetType.TASK.getObjectId() ) );
+            } else {
+                throw new UnsupportedOperationException( "Query type not yet implemented" );
+            }
             final List<String> ids = query.getResultList();
             return null;
         } finally {

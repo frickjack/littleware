@@ -272,6 +272,7 @@ CREATE TABLE asset_link (
 ) ENGINE INNODB CHARACTER SET UTF8;
 
 CREATE UNIQUE INDEX asset_link_idx ON asset_link (s_asset_id, s_key );
+CREATE INDEX link_value_idx ON asset_link( s_key, s_value );
 
 --
 -- Asset dates

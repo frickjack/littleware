@@ -30,7 +30,7 @@ public interface TaskQueryManager extends Remote {
     public static final ServiceType<TaskQueryManagerService> SERVICE_HANDLE =
             new ServiceType<TaskQueryManagerService>(
                 UUIDFactory.parseUUID("AAC399084F5448E48EAF75FB6B6D1434"),
-                "littleware.ACCOUNT_MANAGER_SERVICE", TaskQueryManagerService.class
+                "littleware.TASK_QUERY_SERVICE", TaskQueryManagerService.class
             );
     
     public Collection<UUID>  runQuery( TaskQuery query ) throws BaseException,

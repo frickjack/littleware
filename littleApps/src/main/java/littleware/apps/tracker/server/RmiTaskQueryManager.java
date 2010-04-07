@@ -24,11 +24,15 @@ import littleware.base.LittleRemoteObject;
  * @author pasquini
  */
 public class RmiTaskQueryManager extends LittleRemoteObject implements TaskQueryManager {
-    public RmiTaskQueryManager( TaskQueryManager coreManager ) throws RemoteException {}
+    private final TaskQueryManager coreManager;
+
+    public RmiTaskQueryManager( TaskQueryManager coreManager ) throws RemoteException {
+        this.coreManager = coreManager;
+    }
     
     @Override
     public Collection<UUID> runQuery(TaskQuery query) throws BaseException, GeneralSecurityException, RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return coreManager.runQuery(query);
     }
 
 }

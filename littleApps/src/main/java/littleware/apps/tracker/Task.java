@@ -14,6 +14,7 @@ import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.base.Maybe;
+import littleware.security.LittleUser;
 
 /**
  * Just provide an interface for all Tasks to implement
@@ -43,12 +44,15 @@ public interface Task extends Asset {
          * Similar to parent(), but sets from-id null
          */
         public TaskBuilder queue( Queue value );
+        /** Note - does not change task-status, just associates task with user */
+        public TaskBuilder assignTo( LittleUser user );
 
         @Override
         public TaskBuilder parent( Asset value );
         @Override
         public TaskBuilder copy( Asset value );
-
+        @Override
+        public Task build();
     }
 }
 

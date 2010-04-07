@@ -10,8 +10,10 @@
 
 package littleware.apps.tracker.server;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -21,25 +23,21 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import littleware.apps.tracker.Queue;
 import littleware.apps.tracker.SimpleQueryBuilder;
 import littleware.apps.tracker.SimpleTaskBuilder;
-import littleware.apps.tracker.TaskManager;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskQuery;
-import littleware.apps.tracker.TaskSet;
 import littleware.apps.tracker.TaskStatus;
 import littleware.apps.tracker.TrackerAssetType;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.server.NullAssetSpecializer;
-import littleware.asset.server.db.jpa.AssetEntity;
 import littleware.asset.server.db.jpa.JpaLittleTransaction;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
+import littleware.base.ValidationException;
 
+
+@Singleton
 public class JpaTaskQueryManager implements TaskQueryManager {
     private static final Logger log = Logger.getLogger( JpaTaskQueryManager.class.getName() );
     private final Provider<JpaLittleTransaction> provideTrans;
@@ -80,35 +78,89 @@ public class JpaTaskQueryManager implements TaskQueryManager {
             query.where( root.get( "homeId"))
              *
              */
-            String queryPrefix = "SELECT x.objectId FROM Asset x, AssetLink link " +
-                            "WHERE x.homeId=:homeId " +
-                            "AND x.typeId='" + UUIDFactory.makeCleanString( TrackerAssetType.TASK.getObjectId() ) + "' " +
-                            "AND link.asset.objectId=x.objectId AND link.key='" + SimpleTaskBuilder.QueueIdKey + "' " +
-                            "AND link.value=:queueId ";
-            paramList.add( new QueryParameter( "homeId", queue.getHomeId() ) );
-            paramList.add( new QueryParameter( "queueId", queue.getId() ) );
+            final StringBuilder queryPrefix = new StringBuilder(
+                    "SELECT x.objectId FROM Asset x JOIN x.linkSet link "
+                    ).append( "WHERE x.homeId=:homeId "
+                    ).append( "AND x.typeId='"
+                    ).append( UUIDFactory.makeCleanString( TrackerAssetType.TASK.getObjectId() )
+                    ).append( "' "
+                    ).append( "AND link.key='"
+                    ).append( SimpleTaskBuilder.QueueIdKey
+                    ).append( "' "
+                    ).append( "AND link.value=:queueId " );
+            paramList.add( new QueryParameter( "homeId", 
+                    UUIDFactory.makeCleanString( queue.getHomeId() )
+                    ) );
+            paramList.add( new QueryParameter( "queueId", 
+                    UUIDFactory.makeCleanString( queue.getId() )
+                    ) );
 
             if ( tq.getTaskName().isSet() ) {
-                queryPrefix += "AND x.name=:name ";
-                paramList.add( new QueryParameter( "name", tq.getTaskName() ) );
+                queryPrefix.append( "AND x.name=:name " );
+                paramList.add( new QueryParameter( "name", tq.getTaskName().get() ) );
             } else {
+                // Try to specify narrow constraints first
                 if ( tq.getStatusMode().equals( SimpleQueryBuilder.Query.StatusMode.InState ) ) {
-                    queryPrefix += "AND x.state=:state ";
+                    queryPrefix.append( "AND x.state=:state " );
                     paramList.add( new QueryParameter( "state", tq.getStatus().get() ) );
                 } else if ( tq.getStatusMode().equals( SimpleQueryBuilder.Query.StatusMode.Active ) ) {
-                    queryPrefix += "AND x.state > " + TaskStatus.MERGED.ordinal();
-                } else if ( tq.getStatusMode().equals( SimpleQueryBuilder.Query.StatusMode.Finished ) ) { 
-                    queryPrefix += "AND x.state <= " + TaskStatus.MERGED.ordinal();
+                    queryPrefix.append( "AND x.state > "
+                            ).append( TaskStatus.MERGED.ordinal() ).append( " " );
+                } else if ( tq.getStatusMode().equals( SimpleQueryBuilder.Query.StatusMode.Finished ) ) {
+                    queryPrefix.append( "AND x.state <= "
+                            ).append( TaskStatus.MERGED.ordinal() ).append( " " );
                 }
                 
                 if ( tq.getMinCreateDate().isSet() ) {
-                    queryPrefix += "AND x.timeCreated >= :minCreateDate ";
+                    queryPrefix.append( "AND x.timeCreated >= :minCreateDate " );
                     paramList.add( new QueryParameter( "minCreateDate", tq.getMinCreateDate().get() ) );
+                    if ( tq.getMaxCreateDate().isSet()
+                            && tq.getMaxCreateDate().get().getTime() < tq.getMinCreateDate().get().getTime()
+                            ) {
+                        throw new ValidationException( "Query max-create date less than min-create date" );
+                    }
                 }
+                if ( tq.getMaxCreateDate().isSet() ) {
+                    queryPrefix.append( "AND x.timeCreated <= :maxCreateDate " );
+                    paramList.add( new QueryParameter( "maxCreateDate", tq.getMaxCreateDate().get() ) );
+                }
+                if ( tq.getMinModifyDate().isSet() ) {
+                    queryPrefix.append( "AND x.timeUpdated >= :minUpdateDate " );
+                    paramList.add( new QueryParameter( "minUpdateDate", tq.getMinModifyDate().get() ) );
+                    if ( tq.getMaxModifyDate().isSet()
+                            && tq.getMaxModifyDate().get().getTime() < tq.getMinModifyDate().get().getTime()
+                            ) {
+                        throw new ValidationException( "Query max-modify date less than min-modify date" );
+                    }
+                }
+                if ( tq.getMaxModifyDate().isSet() ) {
+                    queryPrefix.append( "AND x.timeUpdated <= :maxUpdateDate " );
+                    paramList.add( new QueryParameter( "maxUpdateDate", tq.getMaxModifyDate().get() ) );
+                }
+                if ( tq.getSubmittedBy().isSet() ) {
+                    queryPrefix.append( "AND x.creatorId=:creatorId " );
+                    paramList.add( new QueryParameter( "creatorId", 
+                            UUIDFactory.makeCleanString(tq.getSubmittedBy().get() )
+                            ) );
+                }
+                if ( tq.getAssignedTo().isSet() ) {
+                    queryPrefix.append( "AND x.toId=:toId " );
+                    paramList.add( new QueryParameter( "toId",
+                            UUIDFactory.makeCleanString( tq.getAssignedTo().get() )
+                            ) );
+                }
+                queryPrefix.append( "ORDER BY x.timeUpdated DESC" );
             }
-            final Query   query = entMgr.createQuery( queryPrefix );
+            final Query   query = entMgr.createQuery( queryPrefix.toString() );
+            for( QueryParameter param : paramList ) {
+                query.setParameter(param.getKey(), param.getValue() );
+            }
             final List<String> ids = query.getResultList();
-            return null;
+            final ImmutableList.Builder<UUID> builder = ImmutableList.builder();
+            for( String id : ids ) {
+                builder.add( UUIDFactory.parseUUID(id));
+            }
+            return builder.build();
         } finally {
             trans.endDbAccess();
         }

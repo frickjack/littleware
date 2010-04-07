@@ -14,6 +14,7 @@ import littleware.apps.tracker.Task.TaskBuilder;
 import littleware.asset.Asset;
 import littleware.asset.SimpleAssetBuilder;
 import littleware.base.Maybe;
+import littleware.security.LittleUser;
 
 /**
  * Simple implementation of Task
@@ -31,7 +32,28 @@ public class SimpleTaskBuilder extends SimpleAssetBuilder implements Task.TaskBu
 
     }
 
+    @Override
+    public Task build() {
+        return new SimpleTask( this );
+    }
+
+    @Override
+    public TaskBuilder assignTo(LittleUser user) {
+        if ( null != user ) {
+            toId( user.getId() );
+        } else {
+            toId( null );
+        }
+        return this;
+    }
+
     public static class SimpleTask extends SimpleAsset implements Task {
+
+        protected SimpleTask() {}
+        
+        protected SimpleTask(SimpleTaskBuilder builder) {
+            super( builder );
+        }
 
         @Override
         public TaskStatus getTaskStatus() {

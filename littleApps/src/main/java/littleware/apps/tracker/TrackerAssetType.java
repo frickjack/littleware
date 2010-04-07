@@ -28,6 +28,8 @@ public abstract class TrackerAssetType extends AssetType {
             return new SimpleCommentBuilder();
         }
     };
+
+    
     public static final AssetType DEPENDENCY = new AssetType(
             UUIDFactory.parseUUID("489F21E1D19B49F3B923E7B45609A811"), "littleware.apps.tracker.DEPENDENCY") {
 
@@ -36,24 +38,34 @@ public abstract class TrackerAssetType extends AssetType {
             throw new UnsupportedOperationException( "Not yet implemented" );
         }
     };
-    public static final AssetType TASK = new AssetType(
-            UUIDFactory.parseUUID("84F04E04DCE947B2A00294949DC38628"),
-            "littleware.apps.tracker.TASK") {
+
+
+    public static class TaskType extends AssetType {
+        protected TaskType() {
+            super(UUIDFactory.parseUUID("84F04E04DCE947B2A00294949DC38628"),
+            "littleware.apps.tracker.TASK");
+        }
 
         @Override
         public Task.TaskBuilder create() {
             return new SimpleTaskBuilder();
         }
-    };
-    public static final AssetType QUEUE = new AssetType(
-            UUIDFactory.parseUUID("0FE9FBED5F6846E1865526A2BFBC5182"),
-            "littleware.apps.tracker.QUEUE") {
+    }
+    public static final TaskType TASK = new TaskType();
+
+    public static class QueueType extends AssetType {
+        protected QueueType() {
+            super( UUIDFactory.parseUUID("0FE9FBED5F6846E1865526A2BFBC5182"),
+            "littleware.apps.tracker.QUEUE");
+        }
 
         @Override
-        public AssetBuilder create() {
-            return null;
+        public Queue.QueueBuilder create() {
+            return new SimpleQueueBuilder();
         }
-    };
+    }
+
+    public static final QueueType QUEUE = new QueueType();
 }
 
 

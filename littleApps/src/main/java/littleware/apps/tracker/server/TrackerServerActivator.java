@@ -38,7 +38,7 @@ public class TrackerServerActivator implements BundleActivator {
             ServiceProviderRegistry serviceRegistry,
             AssetSpecializerRegistry specializerRegistry,
             SimpleTaskSpecializer     taskSpecializer,
-            final JpaTaskQueryManager         taskManager,
+            final TaskQueryManager         taskQueryManager,
             AssetSearchManager        search
             )
     {
@@ -48,7 +48,7 @@ public class TrackerServerActivator implements BundleActivator {
                     @Override
                     public TaskQueryManagerService createServiceProvider(SessionHelper helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
                         return new SimpleQueryService(
-                                    new RmiTaskQueryManager( this.checkAccessMakeProxy(helper, false, taskManager, TaskQueryManager.class ))
+                                    new RmiTaskQueryManager( this.checkAccessMakeProxy(helper, false, taskQueryManager, TaskQueryManager.class ))
                                     );
                     }
                 }
@@ -58,12 +58,12 @@ public class TrackerServerActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bc) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // NOOP
     }
 
     @Override
     public void stop(BundleContext bc) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // NOOP
     }
 
 }

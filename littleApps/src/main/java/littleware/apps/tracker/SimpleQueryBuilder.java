@@ -51,7 +51,7 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
             return this;
         }
 
-        public Maybe<String> getTaskNumber() {
+        public Maybe<String> getTaskName() {
             return maybeTaskName;
         }
 

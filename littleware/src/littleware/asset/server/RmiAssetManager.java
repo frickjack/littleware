@@ -32,18 +32,21 @@ public class RmiAssetManager extends LittleRemoteObject implements AssetManager 
         om_proxy = m_proxy;
     }
 
+    @Override
     public void deleteAsset(UUID u_asset,
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         om_proxy.deleteAsset(u_asset, s_update_comment);
     }
 
+    @Override
     public <T extends Asset> T saveAsset(T a_asset,
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return om_proxy.saveAsset(a_asset, s_update_comment);
     }
 
+    @Override
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets,
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {

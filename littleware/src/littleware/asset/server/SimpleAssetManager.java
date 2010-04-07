@@ -314,8 +314,8 @@ public class SimpleAssetManager implements AssetManager {
                 boolean b_rollback = true;
                 trans_save.startDbUpdate();
                 builder.setTransaction(trans_save.getTransaction());
+                final Asset assetSave = builder.build();
                 try {
-                    final Asset assetSave = builder.build();
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver();
                     sql_writer.saveObject(assetSave);
 
@@ -338,16 +338,23 @@ public class SimpleAssetManager implements AssetManager {
 
                     b_rollback = false;
                     // retrieve clean asset-copy - asset might have been resaved by callback
-                    return (T) search.getAsset(assetSave.getId()).get();
-                } finally {
                     trans_save.endDbUpdate(b_rollback);
+                } catch ( Exception ex ) {
+                    try {
+                        trans_save.endDbUpdate(b_rollback);
+                    } catch ( Exception ex2 ) {
+                        log.log( Level.INFO, "Eating rollback exception", ex2 );
+                    }
+                    throw ex;
                 }
-            } catch (SQLException e) {
+                return (T) search.getAsset(assetSave.getId()).get();
+            } catch (Exception e) {
                 // Should check SQLException error-string for specific error translation here ...
-                // Do not throw SQLException to client - may not be serializable
+                // Do not propagate database exception to client - may not be serializable
                 if (e.toString().indexOf("littleware(sync)") >= 0) {
                     throw new AssetSyncException("Attempt to save asset not in sync with database backend");
                 }
+                log.log( Level.INFO, "Save failed", e );
                 throw new DataAccessException("Unexpected: " + e);
             }
 

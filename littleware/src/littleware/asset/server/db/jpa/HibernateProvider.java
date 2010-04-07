@@ -53,7 +53,7 @@ public class HibernateProvider implements Provider<EntityManagerFactory> {
     @Override
     public EntityManagerFactory get() {
         if (null == ofactory) {
-            final Ejb3Configuration config = new org.hibernate.ejb.Ejb3Configuration(). //addAnnotatedClass( classOf[SimpleProqUpload] ).
+            final Ejb3Configuration config = new org.hibernate.ejb.Ejb3Configuration(). 
                     addAnnotatedClass(AssetEntity.class).
                     addAnnotatedClass(AssetAttribute.class).
                     addAnnotatedClass(AssetDate.class).
@@ -61,7 +61,10 @@ public class HibernateProvider implements Provider<EntityManagerFactory> {
                     addAnnotatedClass(TransactionEntity.class).
                     addAnnotatedClass(AssetTypeEntity.class);
             //config.setProperty("hibernate.show_sql", "true"); //.jdbc:derby://localhost:1527/littleware
-            if (osUrl.toLowerCase().indexOf("javadb") > -1) {
+            if (
+                    (osUrl.toLowerCase().indexOf("javadb") > -1)
+                    || (osUrl.toLowerCase().indexOf("derby") > -1)
+             ){
                 config.setProperty("hibernate.dialect",
                         "org.hibernate.dialect.DerbyDialect");
             } else {

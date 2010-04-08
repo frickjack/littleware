@@ -35,7 +35,7 @@ public class SimpleQueryService extends SimpleLittleService implements TaskQuery
 
     @Override
     public Collection<UUID> runQuery(TaskQuery query) throws BaseException, GeneralSecurityException, RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return remoteHandle.runQuery(query);
     }
 
 }

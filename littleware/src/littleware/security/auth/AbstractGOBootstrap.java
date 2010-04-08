@@ -103,6 +103,7 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
 
                         @Override
                         public void configure(Binder binder) {
+                            binder.bind(LittleBootstrap.class).to( GuiceOSGiBootstrap.class );
                             binder.bind(GuiceOSGiBootstrap.class).toInstance(AbstractGOBootstrap.this);
                         }
                     });

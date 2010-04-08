@@ -55,14 +55,8 @@ public class ClientBootstrap extends NullBootstrap {
                 new littleware.apps.swingclient.StandardSwingGuice(),
                 new littleware.apps.client.StandardClientGuice(),
                 new littleware.apps.misc.StandardMiscGuice(),
-                clientGuice,
-                new Module() {
-
-                    @Override
-                    public void configure(Binder binder) {
-                        binder.bind(LittleBootstrap.class).toInstance(ClientBootstrap.this);
-                    }
-                })) {
+                clientGuice
+                )) {
             this.getGuiceModule().add(guice);
         }
 

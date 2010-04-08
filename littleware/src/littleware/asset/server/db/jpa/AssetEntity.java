@@ -10,7 +10,9 @@
 package littleware.asset.server.db.jpa;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +54,7 @@ public class AssetEntity implements Serializable {
     private Date otStart = null;
     private Date otEnd = null;
 
-    private Set<AssetAttribute> attributeSet;
+    private Set<AssetAttribute> attributeSet = new HashSet<AssetAttribute>();
 
     @OneToMany(targetEntity=AssetAttribute.class,
             fetch=FetchType.EAGER,
@@ -67,7 +69,7 @@ public class AssetEntity implements Serializable {
     }
     
 
-    private Set<AssetLink> linkSet;
+    private Set<AssetLink> linkSet = new HashSet<AssetLink>();
 
     @OneToMany(targetEntity=AssetLink.class,
             fetch=FetchType.EAGER,
@@ -80,7 +82,7 @@ public class AssetEntity implements Serializable {
         this.linkSet = value;
     }
 
-    private Set<AssetDate> dateSet;
+    private Set<AssetDate> dateSet = new HashSet<AssetDate>();
 
     @OneToMany(targetEntity=AssetDate.class,
             fetch=FetchType.EAGER,
@@ -336,6 +338,88 @@ public class AssetEntity implements Serializable {
     }
 
     /**
+     * Pull property values from the given asset
+     * 
+     * @param asset to filter
+     * @exception IllegalArgumentException if asset.getId != this.getId
+     */
+    public void filter( Asset asset ) {
+        this.setTypeId(UUIDFactory.makeCleanString(asset.getAssetType().getObjectId()));
+        this.setName(asset.getName());
+        this.setValue(asset.getValue());
+        this.setState(asset.getState());
+        this.setData(asset.getData());
+        this.setFromId(stringOrNull(asset.getFromId()));
+        this.setToId(stringOrNull(asset.getToId()));
+        this.setAclId(stringOrNull(asset.getAclId()));
+        this.setComment(asset.getComment());
+        this.setCreatorId(stringOrNull(asset.getCreatorId()));
+        this.setLastUpdaterId(stringOrNull(asset.getLastUpdaterId()));
+        this.setOwnerId(UUIDFactory.makeCleanString(asset.getOwnerId()));
+        this.setLastChange(asset.getLastUpdate());
+        this.setHomeId(UUIDFactory.makeCleanString(asset.getHomeId()));
+        this.setTimeCreated(asset.getCreateDate());
+        this.setEnd(asset.getEndDate());
+        this.setStart(asset.getStartDate());
+        this.setTimeUpdated(asset.getLastUpdateDate());
+        this.setLastTransaction(asset.getTransaction());
+        {
+            final Map<String,AssetAttribute> oldMap = new HashMap<String,AssetAttribute>();
+            for ( AssetAttribute scan : this.getAttributeSet() ) {
+                oldMap.put( scan.getKey(), scan);
+            }
+            final Set<AssetAttribute> clean = new HashSet<AssetAttribute>();
+            for ( final Map.Entry<String,String> scan : asset.getAttributeMap().entrySet() ) {
+                final AssetAttribute old = oldMap.get(scan.getKey() );
+                if ( null == old ) {
+                    clean.add( AssetAttribute.build( this, scan.getKey(), scan.getValue() ));
+                } else {
+                    old.setValue( scan.getValue() );
+                    clean.add( old );
+                }
+            }
+            this.setAttributeSet( clean );
+        }
+        {
+            final Map<String,AssetLink> oldMap = new HashMap<String,AssetLink>();
+            for ( AssetLink scan : this.getLinkSet() ) {
+                oldMap.put( scan.getKey(), scan);
+            }
+
+            final Set<AssetLink> clean = new HashSet<AssetLink>();
+            for ( final Map.Entry<String,UUID> scan : asset.getLinkMap().entrySet() ) {
+                final AssetLink old = oldMap.get( scan.getKey() );
+                if ( null == old ) {
+                    clean.add( AssetLink.build( this, scan.getKey(), UUIDFactory.makeCleanString(scan.getValue() )));
+                } else {
+                    old.setValue( UUIDFactory.makeCleanString( scan.getValue() ) );
+                    clean.add( old );
+                }
+            }
+            this.setLinkSet(clean);
+        }
+        {
+            final Map<String,AssetDate> oldMap = new HashMap<String,AssetDate>();
+            for ( AssetDate scan : this.getDateSet() ) {
+                oldMap.put( scan.getKey(), scan);
+            }
+
+            final Set<AssetDate> clean = new HashSet<AssetDate>();
+            for ( final Map.Entry<String,Date> scan : asset.getDateMap().entrySet() ) {
+                final AssetDate old = oldMap.get( scan.getKey () );
+                if ( null == old ) {
+                    clean.add( AssetDate.build( this, scan.getKey(), scan.getValue() ) );
+                } else {
+                    old.setValue( scan.getValue() );
+                    clean.add( old );
+                }
+            }
+            this.setDateSet( clean );
+        }
+
+    }
+
+    /**
      * Build an entity from the given asset.
      * Usually workflow call when preparing to save an asset.
      *
@@ -345,46 +429,7 @@ public class AssetEntity implements Serializable {
     public static AssetEntity buildEntity(Asset asset) {
         final AssetEntity entity = new AssetEntity();
         entity.setObjectId(UUIDFactory.makeCleanString(asset.getId()));
-        entity.setTypeId(UUIDFactory.makeCleanString(asset.getAssetType().getObjectId()));
-        entity.setName(asset.getName());
-        entity.setValue(asset.getValue());
-        entity.setState(asset.getState());
-        entity.setData(asset.getData());
-        entity.setFromId(stringOrNull(asset.getFromId()));
-        entity.setToId(stringOrNull(asset.getToId()));
-        entity.setAclId(stringOrNull(asset.getAclId()));
-        entity.setComment(asset.getComment());
-        entity.setCreatorId(stringOrNull(asset.getCreatorId()));
-        entity.setLastUpdaterId(stringOrNull(asset.getLastUpdaterId()));
-        entity.setOwnerId(UUIDFactory.makeCleanString(asset.getOwnerId()));
-        entity.setLastChange(asset.getLastUpdate());
-        entity.setHomeId(UUIDFactory.makeCleanString(asset.getHomeId()));
-        entity.setTimeCreated(asset.getCreateDate());
-        entity.setEnd(asset.getEndDate());
-        entity.setStart(asset.getStartDate());
-        entity.setTimeUpdated(asset.getLastUpdateDate());
-        entity.setLastTransaction(asset.getTransaction());
-        {
-            final Set<AssetAttribute> attributeSet = new HashSet<AssetAttribute>();
-            for ( final Map.Entry<String,String> scan : asset.getAttributeMap().entrySet() ) {
-                attributeSet.add( AssetAttribute.build( scan.getKey(), scan.getValue() ));
-            }
-            entity.setAttributeSet( attributeSet );
-        }
-        {
-            final Set<AssetLink> linkSet = new HashSet<AssetLink>();
-            for ( final Map.Entry<String,UUID> scan : asset.getLinkMap().entrySet() ) {
-                linkSet.add( AssetLink.build( scan.getKey(), UUIDFactory.makeCleanString(scan.getValue() )));
-            }
-            entity.setLinkSet(linkSet);
-        }
-        {
-            final Set<AssetDate> dateSet = new HashSet<AssetDate>();
-            for ( final Map.Entry<String,Date> scan : asset.getDateMap().entrySet() ) {
-                dateSet.add( AssetDate.build( scan.getKey(), scan.getValue() ) );
-            }
-            entity.setDateSet( dateSet );
-        }
+        entity.filter( asset );
         return entity;
     }
 }

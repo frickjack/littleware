@@ -15,6 +15,7 @@ import com.google.inject.Provider;
 import java.sql.SQLException;
 import javax.persistence.EntityManager;
 import littleware.asset.Asset;
+import littleware.base.UUIDFactory;
 import littleware.db.DbWriter;
 
 /**
@@ -36,8 +37,15 @@ public class DbAssetSaver implements DbWriter<Asset> {
             throw new IllegalStateException( "Transaction not established" );
         }
         final EntityManager entMgr = trans.getEntityManager();
-        final AssetEntity entity = AssetEntity.buildEntity(asset);
-        entMgr.merge( entity );
+        AssetEntity entity = entMgr.find( AssetEntity.class,
+                UUIDFactory.makeCleanString( asset.getId() )
+                );
+        if ( null == entity ) {
+            entity = AssetEntity.buildEntity(asset);
+            entMgr.merge( entity );
+        } else {
+            entity.filter( asset );
+        }
     }
 
 }

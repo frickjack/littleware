@@ -33,19 +33,21 @@ public class AssetDate {
     private Date value;
 
     public AssetDate() {}
-    private AssetDate( String key, Date value ) {
+    private AssetDate( AssetEntity asset, String key, Date value ) {
+        this.asset = asset;
         this.key = key;
         this.value = value;
     }
 
-    public static AssetDate build( String key, Date value ) {
-        return new AssetDate( key, value );
+    public static AssetDate build( AssetEntity asset, String key, Date value ) {
+        return new AssetDate( asset, key, value );
     }
 
 
     public long getId() { return id; }
     public String getKey() { return key; }
     public Date getValue() { return value; }
+    public void setValue( Date value ) { this.value = value; }
 
 
     @Override

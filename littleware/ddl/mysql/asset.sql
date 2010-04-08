@@ -254,7 +254,7 @@ CREATE INDEX asset_transaction_idx ON asset( l_last_transaction );
 --
 CREATE TABLE asset_attr (
    i_id   SERIAL PRIMARY KEY,
-   s_asset_id    VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+   s_asset_id    VARCHAR(32) NOT NULL REFERENCES asset(s_id) ON DELETE CASCADE,
    s_key         VARCHAR(20) NOT NULL,
    s_value       VARCHAR(128)
 ) ENGINE INNODB CHARACTER SET UTF8;
@@ -266,7 +266,7 @@ CREATE UNIQUE INDEX asset_attr_idx ON asset_attr (s_asset_id, s_key );
 --
 CREATE TABLE asset_link (
     i_id SERIAL PRIMARY KEY,
-    s_asset_id VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+    s_asset_id VARCHAR(32) NOT NULL REFERENCES asset(s_id) ON DELETE CASCADE,
     s_key      VARCHAR(20) NOT NULL,
     s_value     VARCHAR(32)
 ) ENGINE INNODB CHARACTER SET UTF8;
@@ -279,7 +279,7 @@ CREATE INDEX link_value_idx ON asset_link( s_key, s_value );
 --
 CREATE TABLE asset_date (
     i_id SERIAL PRIMARY KEY,
-    s_asset_id VARCHAR(32) REFERENCES asset(s_id) ON DELETE CASCADE,
+    s_asset_id VARCHAR(32) NOT NULL REFERENCES asset(s_id) ON DELETE CASCADE,
     s_key      VARCHAR(20) NOT NULL,
     t_value    TIMESTAMP NULL DEFAULT NULL
 ) ENGINE INNODB CHARACTER SET UTF8;

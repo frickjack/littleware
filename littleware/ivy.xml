@@ -22,10 +22,11 @@
     
     <dependencies>    
     
-      <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-CR-1" conf="compile,standalone->*" />
-  <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-CR-1" conf="compile,standalone->*"/>
-  <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-CR-1" conf="compile,standalone->*" />
-  <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="3.2.0.Beta1" conf="standalone->*" />
+      <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-Final" conf="compile,standalone->*" />
+  <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-Final" conf="compile,standalone->*"/>
+  <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-Final" conf="compile,standalone->*" />
+  <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="3.2.0.Final" conf="standalone->*" />
+  <dependency org="org.hibernate" name="hibernate-validator" rev="4.0.2.GA" conf="standalone->*" />
         <!--
         <dependency org="little.hibernate" name="hibernate3" rev="3.5.0-CR-1"/>
            -->

@@ -25,7 +25,7 @@ public class SimpleTaskBuilder extends SimpleAssetBuilder implements Task.TaskBu
     private static final TaskStatus[] statusValues = TaskStatus.values();
 
     private static TaskStatus intToStatus(int state) {
-        if ((state > 0) && (state < statusValues.length)) {
+        if ((state >= 0) && (state < statusValues.length)) {
             return statusValues[state];
         }
         return TaskStatus.OTHER;

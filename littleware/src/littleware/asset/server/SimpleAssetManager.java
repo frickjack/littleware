@@ -339,7 +339,7 @@ public class SimpleAssetManager implements AssetManager {
                     b_rollback = false;
                     // retrieve clean asset-copy - asset might have been resaved by callback
                     trans_save.endDbUpdate(b_rollback);
-                } catch ( Exception ex ) {
+                } catch ( Throwable ex ) {
                     try {
                         trans_save.endDbUpdate(b_rollback);
                     } catch ( Exception ex2 ) {
@@ -348,7 +348,7 @@ public class SimpleAssetManager implements AssetManager {
                     throw ex;
                 }
                 return (T) search.getAsset(assetSave.getId()).get();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 // Should check SQLException error-string for specific error translation here ...
                 // Do not propagate database exception to client - may not be serializable
                 if (e.toString().indexOf("littleware(sync)") >= 0) {

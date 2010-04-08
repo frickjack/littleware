@@ -31,19 +31,21 @@ public class AssetLink {
     private String value;
 
     public AssetLink() {}
-    private AssetLink( String key, String value ) {
+    private AssetLink( AssetEntity asset, String key, String value ) {
+        this.asset = asset;
         this.key = key;
         this.value = value;
     }
 
-    public static AssetLink build( String key, String value ) {
-        return new AssetLink( key, value );
+    public static AssetLink build( AssetEntity asset, String key, String value ) {
+        return new AssetLink( asset, key, value );
     }
 
 
     public long getId() { return id; }
     public String getKey() { return key; }
     public String getValue() { return value; }
+    public void setValue( String value ) { this.value = value; }
 
 
     @Override

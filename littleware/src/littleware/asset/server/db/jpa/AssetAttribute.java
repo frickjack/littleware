@@ -31,19 +31,21 @@ public class AssetAttribute {
     private String value;
 
     public AssetAttribute() {}
-    private AssetAttribute( String key, String value ) {
+    private AssetAttribute( AssetEntity asset, String key, String value ) {
+        this.asset = asset;
         this.key = key;
         this.value = value;
     }
 
-    public static AssetAttribute build( String key, String value ) {
-        return new AssetAttribute( key, value );
+    public static AssetAttribute build( AssetEntity asset, String key, String value ) {
+        return new AssetAttribute( asset, key, value );
     }
 
     
     public long getId() { return id; }
     public String getKey() { return key; }
     public String getValue() { return value; }
+    public void   setValue( String value ) { this.value = value; }
 
 
     @Override

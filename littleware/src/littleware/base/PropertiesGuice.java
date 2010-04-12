@@ -19,6 +19,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Session;
+import javax.naming.InitialContext;
 
 /**
  * Configure the GUICE binding String constants according
@@ -47,13 +48,13 @@ public class PropertiesGuice implements Module {
     /**
      * Shortcut injects this( PropertiesLoader.loadProps( propPath )
      */
-    public PropertiesGuice( String propPath ) throws IOException {
-        this( PropertiesLoader.get().loadProperties(propPath));
+    public PropertiesGuice(String propPath) throws IOException {
+        this(PropertiesLoader.get().loadProperties(propPath));
     }
 
     /** Shortcut to PropertiesLoader.loadProperties() */
-    public PropertiesGuice() throws IOException  {
-        this( PropertiesLoader.get().loadProperties() );
+    public PropertiesGuice() throws IOException {
+        this(PropertiesLoader.get().loadProperties());
     }
 
     /**
@@ -67,12 +68,12 @@ public class PropertiesGuice implements Module {
     public void bindKeyValue(Binder binder, String sKey, String sValue) {
         binder.bindConstant().annotatedWith(Names.named(sKey)).to(sValue);
         final String clean = sValue.trim();
-        if ( clean.startsWith( "http://" ) ) {
+        if (clean.startsWith("http://")) {
             try {
-                final URL url = new URL( clean );
-                binder.bind( URL.class ).annotatedWith( Names.named( sKey ) ).toInstance(url);
-            } catch ( MalformedURLException ex ) {
-                log.log( Level.WARNING, "Failed to parse URL-like value: " + clean );
+                final URL url = new URL(clean);
+                binder.bind(URL.class).annotatedWith(Names.named(sKey)).toInstance(url);
+            } catch (MalformedURLException ex) {
+                log.log(Level.WARNING, "Failed to parse URL-like value: " + clean);
             }
         }
     }
@@ -83,11 +84,21 @@ public class PropertiesGuice implements Module {
             final String sValue = properties.getProperty(sKey);
             bindKeyValue(binder, sKey, sValue);
         }
-        if ( properties.containsKey( "mail.smtp.host" ) ) {
+        if (properties.containsKey("mail.smtp.host")) {
+            final String host = properties.getProperty("mail.smtp.host");
+            final Session session;
+            if (host.startsWith("jndi:")) {
+                try {
+                    session = (Session) (new InitialContext()).lookup(host.substring("jndi:".length()));
+                } catch (Exception ex) {
+                    throw new AssertionFailedException("Failed jndi lookup for smtp host: " + host);
+                }
+            } else {
+                session = Session.getInstance(properties, null);
+            }
+
             // then bind mail session
-            binder.bind( Session.class ).toInstance(
-                    Session.getInstance(properties)
-                    );
+            binder.bind(Session.class).toInstance(session);
         }
     }
 }

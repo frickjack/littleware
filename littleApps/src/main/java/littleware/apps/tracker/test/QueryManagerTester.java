@@ -126,6 +126,16 @@ public class QueryManagerTester extends LittleTest {
                         result.iterator().next().equals( task1.getId() )
                         );
             }
+            log.log( Level.INFO, "Sleeping few seconds before testing duration query ..." );
+            Thread.sleep( 3000 );
+            final Date now = new Date();
+            {
+                final TaskQuery query = provideQuery.get().queue(queue).anyStatus().minCreateDate(startTime).maxCreateDate(now).build();
+                final Collection<UUID> result = queryManager.runQuery(query);
+                assertTrue( "Create-range query returns 3 test tasks",
+                        3 == result.size()
+                        );
+            }
         } catch ( Exception ex ) {
             log.log( Level.WARNING, "Failed", ex );
             fail( "Caught " + ex );

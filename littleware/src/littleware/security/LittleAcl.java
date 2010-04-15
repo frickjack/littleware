@@ -31,6 +31,7 @@ import littleware.base.Maybe;
 public interface LittleAcl extends Asset {
 
     public final static String ACL_EVERYBODY_READ = "acl.littleware.everybody.read";
+    public final static String ACL_EVERYBODY_WRITE = "acl.littleware.everybody.write";
 
     /**
      * Get enumeration view of the ACL entries.

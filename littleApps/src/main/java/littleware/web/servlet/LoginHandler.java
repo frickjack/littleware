@@ -10,12 +10,18 @@
 package littleware.web.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,47 +57,17 @@ import littleware.web.beans.GuiceBean;
  * Finally, at session shutdown time do any littleware cleanup
  * necessary.
  */
-public class LoginHandler extends HttpServlet implements HttpSessionListener {
+public class LoginHandler extends HttpServlet implements HttpSessionListener, Filter {
 
     private static final Logger log = Logger.getLogger(LoginHandler.class.getName());
     Maybe<GuiceBean> maybeGuest = Maybe.empty();
 
     private void sessionCreated(HttpSession session) {
-        if (!maybeGuest.isSet()) {
-            /**
-             * Cache a littleware session for the guest user.
-             */
-            try {
-                final Properties properties = PropertiesLoader.get().loadProperties();
-                final String guest = properties.getProperty("web.guest");
-                final String guestPassword = properties.getProperty("web.guest.password");
-                if ((guest != null) && (guestPassword != null)) {
-                    final SessionManager manager = SessionUtil.get().getSessionManager();
-                    /// TODO - lookup guest password from littleware.properties or whatever
-                    final SessionHelper helper = manager.login("guest", "guest", "web login");
-                    new ClientBootstrap(new ClientServiceGuice(helper)) {
-
-                        @Override
-                        public void bootstrap() {
-                            maybeGuest = Maybe.something((GuiceBean) new GuiceBean(super.bootstrapInternal()) {
-
-                                @Override
-                                public boolean isLoggedIn() {
-                                    return false;
-                                }
-                            });
-                        }
-                    }.bootstrap();
-                }
-            } catch (Exception ex) {
-                log.log(Level.WARNING, "Failed to setup guest-user web-session - just using empty GuiceBean instead", ex);
-            } finally {
-                if (maybeGuest.isEmpty()) {
-                    maybeGuest = Maybe.something(new GuiceBean());
-                }
-            }
+        final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
+        if (null == bean) {
+            setupGuest();
+            session.setAttribute(WebBootstrap.littleGuice, maybeGuest.get());
         }
-        session.setAttribute(WebBootstrap.littleGuice, maybeGuest.get());
     }
 
     /**
@@ -146,6 +122,44 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
 
     public void setLoginOkURL(String loginOkURL) {
         this.loginOkURL = loginOkURL;
+    }
+
+    /**
+     * Cache a littleware session for the guest user.
+     */
+    private void setupGuest() {
+        if (maybeGuest.isEmpty()) {
+            try {
+                final Properties properties = PropertiesLoader.get().loadProperties();
+                final String guest = properties.getProperty("web.guest");
+                final String guestPassword = properties.getProperty("web.guest.password");
+                if ((guest != null) && (guestPassword != null)) {
+                    final SessionManager manager = SessionUtil.get().getSessionManager();
+                    /// TODO - lookup guest password from littleware.properties or whatever
+                    final SessionHelper helper = manager.login(guest, guestPassword, "web login");
+                    new ClientBootstrap(new ClientServiceGuice(helper)) {
+
+                        @Override
+                        public void bootstrap() {
+                            maybeGuest = Maybe.something((GuiceBean) new GuiceBean(super.bootstrapInternal()) {
+
+                                @Override
+                                public boolean isLoggedIn() {
+                                    return false;
+                                }
+                            });
+                        }
+                    }.bootstrap();
+                }
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Failed to setup guest-user web-session - just using empty GuiceBean instead", ex);
+            } finally {
+                if (maybeGuest.isEmpty()) {
+                    maybeGuest = Maybe.something(new GuiceBean());
+                }
+            }
+            //config.getServletContext().setAttribute( WebBootstrap.littleGuice, maybeGuest.get() );
+        }
     }
 
     /**
@@ -211,11 +225,11 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
                 boot.bootstrap();
                 try {
                     //response.getWriter().println( "<html><head></head><body>OK</body></html>" );
-                    response.getWriter().println( "<html><head><meta http-equiv=\"refresh\" content=\"2;url=" +
-                            request.getContextPath() + forwardURL +
-                            "\"/></head><body>OK ... <a href=\"" +
-                            request.getContextPath() + forwardURL + "\">redirecting ...</a>" +
-                            "</body></html>" );
+                    response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
+                            + request.getContextPath() + forwardURL
+                            + "\"/></head><body>OK ... <a href=\""
+                            + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
+                            + "</body></html>");
                     //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
                     //response.setHeader("Location", forwardURL );
                     //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).include(request, response);
@@ -237,11 +251,11 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
                 }
                 request.setAttribute("exception", ex);
                 try {
-                    response.getWriter().println( "<html><head><meta http-equiv=\"refresh\" content=\"2;url=" +
-                            request.getContextPath() + forwardURL +
-                            "\"/></head><body>OK ... <a href=\"" +
-                            request.getContextPath() + forwardURL + "\">redirecting ...</a>" +
-                            "</body></html>" );
+                    response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
+                            + request.getContextPath() + forwardURL
+                            + "\"/></head><body>OK ... <a href=\""
+                            + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
+                            + "</body></html>");
                     //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
                     //response.setHeader("Location", "http://yahoo.com");
                     //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).include(request, response);
@@ -260,11 +274,11 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
                     forwardURL = this.getLogoutURL();
                 }
                 try {
-                    response.getWriter().println( "<html><head><meta http-equiv=\"refresh\" content=\"2;url=" +
-                            request.getContextPath() + forwardURL +
-                            "\"/></head><body>OK ... <a href=\"" +
-                            request.getContextPath() + forwardURL + "\">redirecting ...</a>" +
-                            "</body></html>" );
+                    response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
+                            + request.getContextPath() + forwardURL
+                            + "\"/></head><body>OK ... <a href=\""
+                            + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
+                            + "</body></html>");
 
                     //response.getWriter().println( "<html><head></head><body>OK</body></html>" );
                     //response.setStatus( HttpServletResponse.SC_MOVED_TEMPORARILY );
@@ -293,13 +307,27 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener {
     public void logout(HttpServletRequest request) {
         final HttpSession session = request.getSession();
         sessionDestroyed(session);
-        
+
         // Just unbind all the data in the session!
         for (Enumeration<String> scan = session.getAttributeNames();
                 scan.hasMoreElements();) {
             session.removeAttribute(scan.nextElement());
         }
         //session.invalidate();
-        sessionCreated( session );
+        sessionCreated(session);
+    }
+
+    @Override
+    public void init(FilterConfig fc) throws ServletException {
+        // noop
+    }
+
+    /**
+     * Just make sure the freakin' littleware session is initialized ...
+     */
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        sessionCreated(((HttpServletRequest) request).getSession());
+        chain.doFilter(request, response);
     }
 }

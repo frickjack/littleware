@@ -10,20 +10,27 @@
 
 package littleware.apps.tracker;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.UUID;
+import littleware.apps.tracker.TaskSet.IdSetBuilder;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 
 public class SimpleTaskManager implements TaskManager {
     private final TaskQueryManager taskQuery;
     private final AssetSearchManager search;
-    
-    public SimpleTaskManager( TaskQueryManager taskQuery, AssetSearchManager search ) {
+    private final Provider<IdSetBuilder> taskSetBuilder;
+
+    @Inject
+    public SimpleTaskManager( TaskQueryManager taskQuery, AssetSearchManager search,
+            Provider<TaskSet.IdSetBuilder> taskSetBuilder ) {
        this.taskQuery = taskQuery;
        this.search = search;
+       this.taskSetBuilder = taskSetBuilder;
     }
 
     @Override
@@ -48,12 +55,12 @@ public class SimpleTaskManager implements TaskManager {
 
     @Override
     public TaskSet loadTaskSet(TaskQuery query) throws BaseException, GeneralSecurityException, RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return taskSetBuilder.get().build( runQuery( query ) );
     }
 
     @Override
     public Collection<UUID> runQuery(TaskQuery query) throws BaseException, GeneralSecurityException, RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return taskQuery.runQuery(query);
     }
 
 }

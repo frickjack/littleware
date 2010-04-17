@@ -10,6 +10,7 @@
 package littleware.apps.tracker;
 
 
+import com.google.inject.ImplementedBy;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
@@ -32,6 +33,7 @@ public interface Task extends Asset {
     @Override
     public Task.TaskBuilder copy();
 
+    @ImplementedBy(SimpleTaskBuilder.class)
     public interface TaskBuilder extends AssetBuilder {
 
         public TaskStatus getTaskStatus();

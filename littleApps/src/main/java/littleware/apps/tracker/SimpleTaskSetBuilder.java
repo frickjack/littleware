@@ -34,7 +34,7 @@ public class SimpleTaskSetBuilder implements TaskSet.IdSetBuilder {
 
     @Override
     public TaskSet build(Collection<UUID> idSet) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new SimpleTaskSet( idSet, search, fbItBuilder );
     }
 
     private static class SimpleTaskSet implements TaskSet {

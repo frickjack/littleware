@@ -13,6 +13,8 @@ package littleware.security.auth;
 
 import javax.security.auth.callback.*;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Simple callback handler handles NameCallback and PasswordCallback
@@ -20,6 +22,7 @@ import java.io.IOException;
  * handler's constructor.
  */
 public class SimpleNamePasswordCallbackHandler implements CallbackHandler {
+    private static final Logger log = Logger.getLogger( SimpleNamePasswordCallbackHandler.class.getName() );
 
     private String os_name;
     private String os_password;
@@ -50,8 +53,10 @@ public class SimpleNamePasswordCallbackHandler implements CallbackHandler {
                 ((NameCallback) v_callbacks[i]).setName(os_name);
             } else if (v_callbacks[i] instanceof PasswordCallback) {
                 ((PasswordCallback) v_callbacks[i]).setPassword(os_password.toCharArray());
+            } else if ( v_callbacks[i] instanceof TextOutputCallback ) {
+                log.log( Level.INFO, ((TextOutputCallback) v_callbacks[i]).getMessage() );
             } else {
-                throw new UnsupportedCallbackException(v_callbacks[i], "Unsupported callback");
+                throw new UnsupportedCallbackException(v_callbacks[i], "Unsupported callback: " + v_callbacks[i].toString() );
             }
         }
     }

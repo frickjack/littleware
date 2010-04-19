@@ -246,6 +246,51 @@ INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
        NULL, NULL
       );
 
+INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
+	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
+	t_created, t_updated, t_last_accessed,
+	t_start, t_end
+) VALUES (
+       'C871EA418BE44F0EB9E68B5950740CE7',
+       'acl.littleware.everybody.write',
+       'BD46E5588F9D4F41A6310100FE68DCB4', 1,
+       (SELECT s_id FROM littleware.x_asset_type WHERE s_name='littleware.acl' ),
+       '00000000000000000000000000000000',
+       '00000000000000000000000000000000',
+       '00000000000000000000000000000000',
+       0.0, 'C871EA418BE44F0EB9E68B5950740CE7',
+       'everybody write acl', 'everybody write acl',
+       '',
+       'BD46E5588F9D4F41A6310100FE68DCB4', NULL,
+       now(),now(),now(),
+       NULL, NULL
+      );
+
+
+
+INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
+	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
+	t_created, t_updated, t_last_accessed,
+	t_start, t_end
+) VALUES (
+       'B12E686E011246E085E5E6279361B40C',
+       'group.littleware.everybody.positive',
+       'BD46E5588F9D4F41A6310100FE68DCB4', 1,
+       (SELECT s_id FROM littleware.x_asset_type WHERE s_name='littleware.acl_entry' ),
+       '00000000000000000000000000000000',
+       '00000000000000000000000000000000',
+       '00000000000000000000000000000000',
+       1.0, 'C871EA418BE44F0EB9E68B5950740CE7',
+       'everybody read acl', 'everybody read acl',
+		'<acl:permlist xmlns:acl="http://www.littleware.com/xml/namespace/2006/acl"><acl:perm>EEB72C11DE934015BE42FA6FA9423EAC</acl:perm><acl:perm>55D1BF9F49234D839B56354BC2F2BA90</acl:perm></acl:permlist>'
+				,
+       'C871EA418BE44F0EB9E68B5950740CE7', 'D701C9B3C9B7453299E89A0161DDC242',
+       now(),now(),now(),
+       NULL, NULL
+      );
+
 	   
 
 -- service-type entries

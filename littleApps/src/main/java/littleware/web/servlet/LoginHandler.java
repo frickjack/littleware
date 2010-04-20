@@ -134,6 +134,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                 final String guest = properties.getProperty("web.guest");
                 final String guestPassword = properties.getProperty("web.guest.password");
                 if ((guest != null) && (guestPassword != null)) {
+                    log.log( Level.INFO, "Logging in guest user: " + guest );
                     final SessionManager manager = SessionUtil.get().getSessionManager();
                     /// TODO - lookup guest password from littleware.properties or whatever
                     final SessionHelper helper = manager.login(guest, guestPassword, "web login");

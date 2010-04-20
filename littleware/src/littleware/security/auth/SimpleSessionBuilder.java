@@ -62,7 +62,7 @@ public class SimpleSessionBuilder extends SimpleAssetBuilder implements LittleSe
         public Subject getSubject(AssetRetriever m_retriever) throws BaseException, AssetException,
                 GeneralSecurityException, RemoteException {
             if (null == subject) {
-                final LittleUser a_user = m_retriever.getAsset(getCreatorId()).get().narrow();
+                final LittleUser a_user = m_retriever.getAsset(getOwnerId()).get().narrow();
                 Set<Principal> v_principals = new HashSet<Principal>();
                 v_principals.add(a_user);
                 subject = new Subject(true, v_principals, new HashSet<Object>(), new HashSet<Object>());

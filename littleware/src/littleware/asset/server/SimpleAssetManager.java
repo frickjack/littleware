@@ -216,7 +216,9 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     // Check name-unique asset types
                     // creating a new asset
-                    builder.setCreatorId(userCaller.getId());
+                    if ( (null == builder.getCreatorId()) || (! bCallerIsAdmin) ) {
+                        builder.setCreatorId(userCaller.getId());
+                    }
                     // Check the caller's quota
                     if (v_save_cycle.isEmpty()) {
                         log.log(Level.FINE, "Incrementing quota before saving: " + asset);

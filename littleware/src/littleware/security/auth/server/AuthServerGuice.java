@@ -16,6 +16,7 @@ import com.google.inject.Scopes;
 import java.security.AccessController;
 import java.util.Set;
 import javax.security.auth.Subject;
+import littleware.base.AssertionFailedException;
 import littleware.base.UUIDFactory;
 import littleware.security.LittleUser;
 import littleware.security.SecurityAssetType;
@@ -47,6 +48,9 @@ public class AuthServerGuice implements Module {
                 final Set<LittleUser> userSet = subject.getPrincipals(LittleUser.class);
                 if (userSet.isEmpty()) {
                     return testUser;
+                }
+                if ( userSet.size() > 1 ) {
+                    throw new AssertionFailedException( "What the frick ?" );
                 }
                 return userSet.iterator().next();
             }

@@ -22,8 +22,11 @@ import javax.security.auth.Subject;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetException;
 import littleware.asset.client.LittleService;
+import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.ReadOnlyException;
+import littleware.security.AccountManager;
+import littleware.security.LittleUser;
 import littleware.security.auth.*;
 
 /**

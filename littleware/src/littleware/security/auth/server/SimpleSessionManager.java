@@ -58,7 +58,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     public SimpleSessionManager(AssetManager m_asset,
             AssetSearchManager m_search,
             ServiceProviderRegistry reg_service,
-            Provider<UserTreeBuilder> provideUserTree ) throws RemoteException {
+            Provider<UserTreeBuilder> provideUserTree) throws RemoteException {
         //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         assetMgr = m_asset;
         search = m_search;
@@ -69,8 +69,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         serviceRegistry = reg_service;
         this.userTreeBuilder = provideUserTree;
     }
-
-
 
     /**
      * Privileged action creates a session-asset
@@ -120,8 +118,9 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      */
     private SessionHelper setupNewHelper(LittleSession session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Subject caller = session.getSubject(search);
+
         final SessionHelper helper = new SimpleSessionHelper(session.getId(), search, assetMgr, this, serviceRegistry);
-        final InvocationHandler handler = new SubjectInvocationHandler(caller, helper, statSampler );
+        final InvocationHandler handler = new SubjectInvocationHandler(caller, helper, statSampler);
         final SessionHelper proxy = (SessionHelper) Proxy.newProxyInstance(SessionHelper.class.getClassLoader(),
                 new Class[]{SessionHelper.class},
                 handler);
@@ -178,29 +177,32 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
 
         // Do a little LoginContext sim - need to clean this up
         // Who am I running as now ?  What the frick ?
-        Maybe<? extends Asset> maybeUser = search.getByName(s_name, SecurityAssetType.USER);
-        if (!maybeUser.isSet()) {
-            try {
-                maybeUser = Subject.doAs(adminSubject, new PrivilegedExceptionAction<Maybe<Asset>>() {
+        final LittleUser user;
+        {
+            Maybe<? extends Asset> maybeUser = search.getByName(s_name, SecurityAssetType.USER);
+            if (!maybeUser.isSet()) {
+                try {
+                    maybeUser = Subject.doAs(adminSubject, new PrivilegedExceptionAction<Maybe<Asset>>() {
 
-                    @Override
-                    public Maybe<Asset> run() throws BaseException, GeneralSecurityException, RemoteException {
-                        for (AssetTreeTemplate.AssetInfo treeInfo : userTreeBuilder.get().user(s_name).build().visit(search.getByName("littleware.home", AssetType.HOME).get(), search)) {
-                            if (!treeInfo.getAssetExists()) {
-                                assetMgr.saveAsset(treeInfo.getAsset(), "Setup new user: " + s_name);
+                        @Override
+                        public Maybe<Asset> run() throws BaseException, GeneralSecurityException, RemoteException {
+                            for (AssetTreeTemplate.AssetInfo treeInfo : userTreeBuilder.get().user(s_name).build().visit(search.getByName("littleware.home", AssetType.HOME).get(), search)) {
+                                if (!treeInfo.getAssetExists()) {
+                                    assetMgr.saveAsset(treeInfo.getAsset(), "Setup new user: " + s_name);
+                                }
                             }
+                            return search.getByName(s_name, SecurityAssetType.USER);
                         }
-                        return search.getByName(s_name, SecurityAssetType.USER);
-                    }
-                });
-            } catch (PrivilegedActionException ex) {
-                log.log(Level.INFO, "Failed to setup new user", ex);
-                handlePrivilegedException(ex);
-                throw new AssertionFailedException("Should not make it here");
+                    });
+                } catch (PrivilegedActionException ex) {
+                    log.log(Level.INFO, "Failed to setup new user", ex);
+                    handlePrivilegedException(ex);
+                    throw new AssertionFailedException("Should not make it here");
+                }
             }
+            user = maybeUser.get().narrow();
         }
-
-        j_caller.getPrincipals().add(maybeUser.get().narrow(LittleUser.class));
+        j_caller.getPrincipals().add(user);
         /*... disable for now ...
         javax.security.auth.spi.LoginModule module = new PasswordDbLoginModule();
         module.initialize ( j_caller, 
@@ -213,14 +215,20 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
          */
         j_caller.setReadOnly();
         // ok - user authenticated ok by here - setup user session
-        final LittleSession.Builder sessionBuilder = SecurityAssetType.SESSION.create();
-        sessionBuilder.setId(UUID.randomUUID());
-        sessionBuilder.setName(s_name + "_" + UUIDFactory.makeCleanString(sessionBuilder.getId()));
-        sessionBuilder.setOwnerId(maybeUser.get().getId());
-        sessionBuilder.setComment("User login");
-
+        final LittleSession session;
+        {
+            final LittleSession.Builder sessionBuilder = SecurityAssetType.SESSION.create();
+            sessionBuilder.setId(UUID.randomUUID());
+            sessionBuilder.setName(s_name + "_" + UUIDFactory.makeCleanString(sessionBuilder.getId()));
+            sessionBuilder.setOwnerId(user.getId());
+            sessionBuilder.setComment("User login");
+            session = sessionBuilder.build();
+            if (session.getOwnerId() != user.getId()) {
+                throw new AssertionFailedException("Owner mismatch");
+            }
+        }
         // Create the session asset as the admin user - session has null from-id
-        final PrivilegedExceptionAction act_setup_session = new SetupSessionAction(sessionBuilder.build(), s_session_comment);
+        final PrivilegedExceptionAction act_setup_session = new SetupSessionAction(session, s_session_comment);
         try {
             return setupNewHelper((LittleSession) Subject.doAs(adminSubject, act_setup_session));
         } catch (PrivilegedActionException e) {

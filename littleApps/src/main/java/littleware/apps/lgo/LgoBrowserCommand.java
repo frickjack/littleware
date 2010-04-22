@@ -179,7 +179,13 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
      * Allow hook to construct a new browser panel for swingbase app-launcher ...
      */
     private JPanel buildBrowserPanel() {
-        return (new UIStuff()).jpanel;
+        final ExtendedAssetViewController control = provideControl.get();
+        final UIStuff stuff = new UIStuff();
+
+        control.setControlView(stuff.browser);
+        stuff.toolbar.addLittleListener(control);
+
+        return stuff.jpanel;
     }
 
     /**

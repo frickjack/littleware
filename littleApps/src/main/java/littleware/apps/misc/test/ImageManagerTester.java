@@ -59,13 +59,13 @@ public class ImageManagerTester extends LittleTest {
 
     public void testBasicImage () {
         try {
-            BufferedImage img = ImageIO.read(ImageManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.jpg"));
+            BufferedImage img = ImageIO.read(ImageManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.png"));
             Asset         a_test = osession.copy().transaction(-1).build();
 
-            final Maybe<BufferedImage> maybe_load1 = omgrImage.loadImage( a_test.getId () );
+            final Maybe<BufferedImage> maybe_load1 = omgrImage.loadImage( a_test.getId (), ImageManager.SizeOption.r128x128 );
             a_test = omgrImage.saveImage(a_test, img, "saving new reference image" );
             assertTrue( "Able to load image after save",
-                    omgrImage.loadImage( a_test.getId() ).isSet()
+                    omgrImage.loadImage( a_test.getId(), ImageManager.SizeOption.r128x128 ).isSet()
                     );
             omgrImage.deleteImage(a_test, "cleaning up test image" );
         } catch (Exception ex) {

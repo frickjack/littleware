@@ -15,14 +15,11 @@ import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import littleware.apps.misc.ImageManager;
 import littleware.apps.misc.ThumbManager;
 import littleware.base.AssertionFailedException;
 import static littleware.apps.misc.ThumbManager.Thumb;
 import littleware.security.auth.LittleSession;
-import littleware.test.JLittleDialog;
 import littleware.test.LittleTest;
 
 /**
@@ -31,18 +28,18 @@ import littleware.test.LittleTest;
 public class ThumbManagerTester extends LittleTest {
     private static final Logger olog = Logger.getLogger( ThumbManagerTester.class.getName () );
 
-    private LittleSession osession;
-    private final ThumbManager  omgrThumb;
-    private final ImageManager  omgrImage;
+    private LittleSession session;
+    private final ThumbManager  thumbMgr;
+    private final ImageManager  imageMgr;
 
     /** Erase any image under the injected session asset */
     @Override
     public void setUp() {
         try {
-            osession = omgrImage.deleteImage(osession.copy().transaction(-1).build(),
+            session = imageMgr.deleteImage(session.copy().transaction(-1).build(),
                     "Setting up thumb test"
                     ).narrow();
-            omgrThumb.clearCache(osession.getId() );
+            thumbMgr.clearCache(session.getId() );
         } catch ( Exception ex ) {
             throw new AssertionFailedException( "Failed test setup", ex );
         }
@@ -58,18 +55,18 @@ public class ThumbManagerTester extends LittleTest {
     @Inject
     public ThumbManagerTester( LittleSession session,
             ThumbManager mgrThumb, ImageManager mgrImage ) {
-        osession = session;
-        omgrThumb = mgrThumb;
-        omgrImage = mgrImage;
+        this.session = session;
+        this.thumbMgr = mgrThumb;
+        this.imageMgr = mgrImage;
         super.setName( "testBasicThumb" );
     }
 
     public void testBasicThumb () {
         try {
-            final Thumb thumb_default = omgrThumb.loadThumb( osession.getId () );
+            final Thumb thumb_default = thumbMgr.loadThumb( session.getId () );
             assertTrue ( "Loaded defualt thumb", thumb_default.isFallback () );
 
-            /*...
+            /*... do not popup viewer - busts HudsonTestSuite ...
             assertTrue( "Default thumb ok",
                     JLittleDialog.showTestDialog(
                         new JLabel( new ImageIcon( thumb_default.getThumb() ) ),
@@ -78,13 +75,13 @@ public class ThumbManagerTester extends LittleTest {
                     );
              */
             // ok - frick things up a bit
-            final BufferedImage imgTest = ImageIO.read(ThumbManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.jpg") );
-            omgrImage.saveImage(osession, 
+            final BufferedImage imgTest = ImageIO.read(ThumbManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.png") );
+            imageMgr.saveImage(session,
                     imgTest,
                     "Setting up thumb test image"
                     );
-            omgrThumb.clearCache( osession.getId() );
-            assertTrue( "Thumb no longer default", ! omgrThumb.loadThumb( osession.getId() ).isFallback() );
+            thumbMgr.clearCache( session.getId() );
+            assertTrue( "Thumb no longer default", ! thumbMgr.loadThumb( session.getId() ).isFallback() );
         } catch ( Exception ex ) {
             olog.log( Level.WARNING, "Test failed on exception", ex );
             assertTrue( "Cuaght unexpected: " + ex, false );

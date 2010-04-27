@@ -10,17 +10,11 @@
 package littleware.apps.misc.client;
 
 import com.google.inject.Inject;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.awt.image.RenderedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.UUID;
@@ -30,7 +24,6 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import littleware.apps.misc.ImageManager;
 import littleware.apps.misc.ThumbManager;
-import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
@@ -38,8 +31,6 @@ import littleware.base.Cache;
 import littleware.base.Maybe;
 import littleware.base.PropertiesLoader;
 import littleware.base.SimpleCache;
-import littleware.base.UUIDFactory;
-import littleware.base.Whatever;
 
 /**
  * SimpleImageManager based implementation of ThumbManager
@@ -49,9 +40,14 @@ public class SimpleThumbManager implements ThumbManager {
     private static final Logger log = Logger.getLogger(SimpleThumbManager.class.getName());
     private final AssetSearchManager search;
 
+    @Override
+    public void clearCache(UUID assetId) {
+        ocache.remove(assetId);
+    }
+
     protected static class SimpleThumb implements ThumbManager.Thumb {
 
-        private final boolean obFallback;
+        private final boolean isFallback;
         private final Image img;
         private Maybe<ImageIcon> maybeIcon = Maybe.empty();
 
@@ -65,17 +61,17 @@ public class SimpleThumbManager implements ThumbManager {
 
         public SimpleThumb(Image img) {
             this.img = img;
-            obFallback = false;
+            isFallback = false;
         }
 
         public SimpleThumb(Image img, boolean bFallback) {
             this.img = img;
-            obFallback = bFallback;
+            isFallback = bFallback;
         }
 
         @Override
         public boolean isFallback() {
-            return obFallback;
+            return isFallback;
         }
 
         @Override
@@ -110,27 +106,36 @@ public class SimpleThumbManager implements ThumbManager {
     }
     
     private final Cache<UUID, CacheInfo> ocache =
-            new SimpleCache<UUID, CacheInfo>(100000, 1000 );
-    private final ImageManager omgrImage;
+            new SimpleCache<UUID, CacheInfo>(900, 1000 );
+    private final ImageManager imageManager;
     private final File dirCache = new File(PropertiesLoader.get().getLittleHome().getOr( new File( System.getProperty( "java.io.tmpdir" ) )), "thumbCache");
-    private RenderedImage oimgDefault;
+    private BufferedImage defaultImage;
 
     {
         try {
-            oimgDefault =
-                    ImageIO.read(SimpleThumbManager.class.getClassLoader().getResource("littleware/apps/misc/client/defaultThumb.jpg"));
+            defaultImage =
+                    ImageIO.read(SimpleThumbManager.class.getClassLoader().getResource("littleware/apps/misc/client/defaultThumb.png"));
         } catch (IOException ex) {
             throw new AssertionFailedException("Failed to load default image", ex);
         }
     }
-    private int oiWidth = 80;
-    private int oiHeight = 60;
-    private ThumbManager.Thumb othumbDefault = new SimpleThumb( scaleImage(oimgDefault, oiWidth, oiHeight), true );
+    private final int oiWidth = ImageManager.SizeOption.r64x64.getWidth();
+    private final int oiHeight = ImageManager.SizeOption.r64x64.getHeight();
+    private ThumbManager.Thumb defaultThumb = new SimpleThumb( defaultImage, true );
 
     @Inject
     public SimpleThumbManager(ImageManager mgrImage, AssetSearchManager search) {
-        omgrImage = mgrImage;
+        imageManager = mgrImage;
         this.search = search;
+
+        try {
+            final Maybe<BufferedImage> maybeDefault = imageManager.loadImage(search.getHomeAssetIds().get( "littleware.home" ), ImageManager.SizeOption.r64x64);
+            if ( maybeDefault.isSet() ) {
+                setDefault( maybeDefault.get() );
+            }
+        } catch ( Exception ex ) {
+            log.log( Level.WARNING, "Failed to load default thumb off littleware.home asset", ex );
+        }
     }
 
 
@@ -141,30 +146,7 @@ public class SimpleThumbManager implements ThumbManager {
         if (maybeThumb.isSet()) {
             return maybeThumb;
         }
-        // check local disk cache first
-        Maybe<RenderedImage> maybe = Maybe.empty();
-        final File infoFile = new File(dirCache, UUIDFactory.makeCleanString(id) + ".info");
-        final File jpgFile = new File(dirCache, UUIDFactory.makeCleanString(id) + ".jpg");
-        boolean bLocal = false;
-        if (infoFile.canRead() && jpgFile.canRead()) {
-            final BufferedReader reader = new BufferedReader(new FileReader(infoFile));
-            long transaction = -1;
-            try {
-                transaction = Long.parseLong(reader.readLine().trim());
-            } catch (Exception ex) {
-                log.log(Level.WARNING, "Failed to parse " + infoFile);
-            } finally {
-                reader.close();
-            }
-            if (transaction >= 0) {
-                // check timeout
-                final Maybe<Asset> maybeAsset = search.getAsset(id);
-                if (maybeAsset.isSet() && (maybeAsset.get().getTransaction() <= transaction)) {
-                    maybe = Maybe.emptyIfNull( (RenderedImage) ImageIO.read(jpgFile));
-                }
-            }
-        }
-        return cachePut(id, maybe);
+        return Maybe.empty();
     }
 
     /**
@@ -195,112 +177,40 @@ public class SimpleThumbManager implements ThumbManager {
             throws BaseException,
             GeneralSecurityException, IOException {
         if (maybe.isEmpty()) {
-            ocache.put(id, new CacheInfo( othumbDefault, new Date() ));
+            ocache.put(id, new CacheInfo( defaultThumb, new Date() ));
             return Maybe.empty();
         }
         final RenderedImage img = maybe.get();
-        final Maybe<CacheInfo> result;
-        if ((img.getWidth() > getWidth()) || (img.getHeight() > getHeight())) {
-            final Image scale = scaleImage(img, getWidth(), getHeight() );
-            result = Maybe.something( new CacheInfo( (Thumb) new SimpleThumb(scale), birth ) );
-        } else {
-            result = Maybe.something( new CacheInfo( (Thumb) new SimpleThumb( (Image) img ), birth ) );
-        }
+        final Maybe<CacheInfo> result = Maybe.something( new CacheInfo( (Thumb) new SimpleThumb( (Image) img ), birth ) );
         ocache.put(id, result.get());
-        // Save to file
-        if (!dirCache.exists()) {
-            dirCache.mkdirs();
-        }
-        { // write out file
-            final Image imgWrite = result.get().getThumb().getThumb();
-            final File infoFile = new File(dirCache, UUIDFactory.makeCleanString(id) + ".info");
-            final File jpgFile = new File(dirCache, UUIDFactory.makeCleanString(id) + ".jpg");
-            final Maybe<Asset> maybeAsset = search.getAsset(id);
-            final Writer writer = new FileWriter(infoFile);
-            try {
-                if (maybeAsset.isSet()) {
-                    writer.write("" + maybeAsset.get().getTransaction() + Whatever.NEWLINE);
-                } else {
-                    writer.write("0" + Whatever.NEWLINE);
-                }
-            } finally {
-                writer.close();
-            }
-            ImageIO.write( (RenderedImage) result.get().getThumb().getThumb(), "jpg", jpgFile);
-        }
         return result;
     }
 
 
-    /**
-     * Return the given image scaled to fit within getWidth/getHeight
-     * @param img
-     * @param widthIn may be -1 to preserve aspect ratio relative to height
-     * @param heightIn may be -1 to preserve aspect ratio relative to width
-     * @return img itself if scaling not needed or scaled image
-     */
-    protected static Image scaleImage(RenderedImage img, int widthIn, int heightIn ) {
-        if ( widthIn <= 0 && heightIn <= 0 ) {
-            throw new IllegalArgumentException( "width and height both negative" );
-        }
-
-        final int width;
-        final int height;
-
-        if ( widthIn > 0 ) {
-            width = widthIn;
-        } else {
-            width = (int) (img.getWidth() * (heightIn / (double) img.getHeight()));
-        }
-        if ( heightIn > 0 ) {
-            height = heightIn;
-        } else {
-            height = (int) (img.getHeight() * (widthIn / (double) img.getWidth()));
-        }
-
-        if ( img.getWidth() == width && img.getHeight() == height ) {
-            return (Image) img;
-        }
-
-        //final ImageFilter filter = new ReplicateScaleFilter( width, height );
-        //final ImageProducer source = new FilteredImageSource( img.getSource(), filter );
-
-        final BufferedImage result = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB );
-        final Graphics2D graphics = (Graphics2D) result.getGraphics();
-        graphics.drawImage( (Image) img,0,0,width,height,java.awt.Color.black,
-                new ImageObserver() {
-            @Override
-            public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-                graphics.dispose();
-                return false;
-            }
-        });
-        return result;
-    }
 
     @Override
-    public Thumb loadThumb(UUID u_asset) throws BaseException, GeneralSecurityException, IOException {
-        Maybe<CacheInfo> maybeThumb = cacheGet(u_asset);
+    public Thumb loadThumb(UUID assetId) throws BaseException, GeneralSecurityException, IOException {
+        Maybe<CacheInfo> maybeThumb = cacheGet(assetId);
         if (maybeThumb.isEmpty()) {
-            final Maybe<CacheInfo> maybeCache = cachePut(u_asset, omgrImage.loadImage(u_asset));
+            final Maybe<CacheInfo> maybeCache = cachePut(assetId, imageManager.loadImage(assetId, ImageManager.SizeOption.r64x64));
             if ( maybeCache.isSet() ) {
                 return maybeCache.get().getThumb();
             }
-            return othumbDefault;
+            return defaultThumb;
         } else {
-            return othumbDefault;
+            return defaultThumb;
         }
     }
 
     @Override
     public Thumb getDefault() {
-        return othumbDefault;
+        return defaultThumb;
     }
 
     @Override
-    public void setDefault(RenderedImage imgDefault) {
-        oimgDefault = imgDefault;
-        othumbDefault = new SimpleThumb( scaleImage( oimgDefault,oiWidth, oiHeight),
+    public void setDefault(BufferedImage imgDefault) {
+        defaultImage = imgDefault;
+        defaultThumb = new SimpleThumb( defaultImage,
                 true);
     }
 
@@ -309,34 +219,11 @@ public class SimpleThumbManager implements ThumbManager {
         return oiWidth;
     }
 
-    @Override
-    public void setWidth(int iWidth) {
-        if (iWidth != oiWidth) {
-            oiWidth = iWidth;
-            ocache.clear();
-            othumbDefault = new SimpleThumb( scaleImage( oimgDefault,oiWidth, oiHeight),
-                    true);
-        }
-    }
+    
 
     @Override
     public int getHeight() {
         return oiHeight;
     }
 
-    @Override
-    public void setHeight(int iHeight) {
-        if (iHeight != oiHeight) {
-            oiHeight = iHeight;
-            ocache.clear();
-            othumbDefault = new SimpleThumb(scaleImage(oimgDefault,oiWidth, oiHeight),
-                    true);
-
-        }
-    }
-
-    @Override
-    public void clearCache(UUID u_asset) {
-        ocache.remove(u_asset);
-    }
 }

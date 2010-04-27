@@ -24,18 +24,45 @@ import littleware.base.Maybe;
  * Maintain a cache of images on the client.
  */
 public interface ImageManager {
-    public static final int    iMaxWidth = 500;
-    public static final int    iMaxHeight = 500;
+    public enum  SizeOption {
+        r512x512 {
+            @Override
+            public int getWidth() { return 512; }
+            @Override
+            public int getHeight() { return 512; }
+        },
+        r256x256 {
+            @Override
+            public int getWidth() { return 256; }
+            @Override
+            public int getHeight() { return 256; }
+        },
+        r128x128 {
+            @Override
+            public int getWidth() { return 128; }
+            @Override
+            public int getHeight() { return 128; }
+        },
+        r64x64 {
+            @Override
+            public int getWidth() { return 64; }
+            @Override
+            public int getHeight() { return 64; }
+        };
+
+
+        public abstract int getWidth();
+        public abstract int getHeight();
+    }
 
     /**
      * Load the image associated with the given asset
-     * @param u_asset
-     * @return
-     * @throws littleware.base.BaseException
-     * @throws java.security.GeneralSecurityException
-     * @throws java.rmi.RemoteException
+     * 
+     * @param id of asset image associated with
+     * @param size of image to retrieve
      */
-    public Maybe<BufferedImage>   loadImage( UUID u_asset
+    public Maybe<BufferedImage>   loadImage( UUID id,
+            SizeOption size
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException;
 
     /**

@@ -12,7 +12,6 @@ package littleware.security.auth.client;
 import com.google.inject.ImplementedBy;
 import java.util.UUID;
 import littleware.asset.Asset;
-import littleware.asset.client.LittleServiceListener;
 import littleware.base.Cache;
 
 

@@ -151,6 +151,7 @@ public class SimpleImageCache implements ImageCache {
         for (File file : Arrays.asList(key.infoFile, key.pngFile)) {
             try {
                 if (file.exists()) {
+                    //log.log( Level.FINE, "Deleting cache file: " + file );
                     file.delete();
                 }
             } catch (Exception ex) {

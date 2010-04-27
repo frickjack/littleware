@@ -37,7 +37,7 @@ public class PackageTestSuite extends TestSuite {
     public PackageTestSuite(
             HudsonTestSuite      hudsonSuite,
             Provider<SwingClientTester> provide_swing_test,
-            Provider<ThumbManagerTester> provide_thumb_test,
+            //Provider<ThumbManagerTester> provide_thumb_test,
             Provider<JAssetFamilyTester> provideFamilyTest,
             Provider<SwingFeedbackTester> provideFeedbackTest,
             Provider<JDeleteAssetTester> provideDeleteTest
@@ -62,9 +62,10 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(provide_swing_test.get().putName("testClientSession"));
         }
 
+        /*..
         if (b_run) {
             this.addTest(provide_thumb_test.get());
-        }
+        } ..*/
 
         if (b_run) {
             this.addTest(provide_swing_test.get().putName("testJAssetViews"));

@@ -37,7 +37,7 @@ public class HudsonTestSuite extends TestSuite {
     public HudsonTestSuite(
             Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
-            Provider<ImageManagerTester> provide_image_test,
+            littleware.apps.misc.test.PackageTestSuite miscSuite,
             littleware.apps.lgo.test.HudsonTestSuite lgoSuite,
             littleware.web.test.PackageTestSuite webSuite) {
         super(HudsonTestSuite.class.getName());
@@ -52,7 +52,7 @@ public class HudsonTestSuite extends TestSuite {
         }
 
         if (b_run) {
-            this.addTest(provide_image_test.get());
+            this.addTest( miscSuite );
         }
 
         if (b_run) {

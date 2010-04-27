@@ -7,17 +7,20 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.misc.client;
 
 import com.google.inject.Inject;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import littleware.apps.filebucket.Bucket;
@@ -25,9 +28,7 @@ import littleware.apps.filebucket.BucketManager;
 import littleware.apps.misc.ImageManager;
 import littleware.asset.Asset;
 import littleware.base.BaseException;
-import littleware.base.Cache;
 import littleware.base.Maybe;
-import littleware.base.SimpleCache;
 
 /**
  * Simple implementation of ImageManager - just calls
@@ -35,67 +36,118 @@ import littleware.base.SimpleCache;
  * under the hood.  Keeps a simple internal cache.
  */
 public class SimpleImageManager implements ImageManager {
-    private static final Logger olog = Logger.getLogger( SimpleImageManager.class.getName() );
-    private static final String osReservedPath = "Image123.jpg";
 
-    private final BucketManager      omgrBucket;
-    private final Cache<UUID,Maybe<BufferedImage>>  ocache =
-                    new SimpleCache<UUID,Maybe<BufferedImage>>();
+    private static final Logger log = Logger.getLogger(SimpleImageManager.class.getName());
+
+    private static String buildBucketPath(ImageManager.SizeOption size) {
+        return "Image123" + size + ".png";
+    }
+    private final BucketManager bucketMgr;
+    private final ImageCache cache;
 
     @Inject
-    public SimpleImageManager( BucketManager mgrBucket ) {
-        omgrBucket = mgrBucket;
+    public SimpleImageManager(BucketManager mgrBucket, ImageCache cache) {
+        bucketMgr = mgrBucket;
+        this.cache = cache;
     }
 
-    private static final Maybe<BufferedImage> oempty = Maybe.empty();
+    /**
+     * Return the given image scaled to fit within getWidth/getHeight
+     *
+     * @param img
+     * @param widthIn width of square image output
+     * @return img itself if scaling not needed or scaled image
+     */
+    protected static BufferedImage scaleImage(BufferedImage img, final int widthIn ) {
+        if ( (widthIn >= img.getWidth()) && (widthIn >= img.getHeight()) ) {
+            return img;
+        }
+
+        final int width;
+        final int height;
+
+        if ( img.getWidth() > img.getHeight() ) {
+            width = widthIn;
+            height = widthIn * img.getHeight() / img.getWidth();
+        } else {
+            height = widthIn;
+            width = widthIn * img.getWidth() / img.getHeight();
+        }
+        if (img.getWidth() == width && img.getHeight() == height) {
+            return img;
+        }
+
+        //final ImageFilter filter = new ReplicateScaleFilter( width, height );
+        //final ImageProducer source = new FilteredImageSource( img.getSource(), filter );
+
+        final BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        final Graphics2D graphics = (Graphics2D) result.getGraphics();
+        graphics.drawImage((Image) img, 0, 0, width, height, java.awt.Color.black,
+                new ImageObserver() {
+
+                    @Override
+                    public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+                        graphics.dispose();
+                        return false;
+                    }
+                });
+        return result;
+    }
+    private static final Maybe<BufferedImage> empty = Maybe.empty();
 
     @Override
-    public Maybe<BufferedImage> loadImage(UUID u_asset) throws BaseException, GeneralSecurityException, RemoteException, IOException {
-        final Maybe<BufferedImage> maybe_cache = ocache.get( u_asset );
-        if ( null != maybe_cache ) {
-            return maybe_cache;
+    public Maybe<BufferedImage> loadImage(UUID id, ImageManager.SizeOption size) throws BaseException, GeneralSecurityException, RemoteException, IOException {
+        final ImageCache.CacheEntry entry = cache.cacheGet(id, size);
+        if (entry.isInCache()) {
+            return entry.getImage();
         }
         // Check the server
-        Bucket bucket = omgrBucket.getBucket(u_asset);
-        if ( ! bucket.getPaths ().contains( osReservedPath ) ) {
-            ocache.put( u_asset, oempty );
-            return oempty;
+        final Bucket bucket = bucketMgr.getBucket(id);
+        final String path = buildBucketPath(size);
+        if (!bucket.getPaths().contains(path)) {
+            cache.cachePut(id, size, empty);
+            return empty;
         }
-        final byte[] data = omgrBucket.readBytesFromBucket(u_asset, osReservedPath);
-        final BufferedImage img = ImageIO.read( new ByteArrayInputStream( data ) );
-        final Maybe<BufferedImage> maybe_result = Maybe.something( img );
-        if ( (img.getWidth() < 100) && (img.getHeight() < 100) ) {
-            // don't cache fat images in memory!
-            //ocache.put( u_asset, maybe_result );
-        }
-        return maybe_result;
+        final byte[] data = bucketMgr.readBytesFromBucket(id, path);
+        final BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
+        final Maybe<BufferedImage> result = Maybe.something(img);
+        cache.cachePut(id, size, result);
+        return result;
     }
 
     @Override
-    public <T extends Asset> T saveImage(T a_save, BufferedImage img, String s_update_comment ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        ImageIO.write(img, "jpg", stream);
-        stream.close();
-        T a_result = omgrBucket.writeToBucket(a_save, osReservedPath, stream.toByteArray(), s_update_comment);
-        //ocache.put( a_save.getId(), Maybe.something( img ) );
-        ocache.remove( a_save.getId() );
-        return a_result;
+    public <T extends Asset> T saveImage(T asset, BufferedImage img, String updateComment) throws BaseException, GeneralSecurityException, RemoteException, IOException {
+        T result = null;
+        for (ImageManager.SizeOption size : ImageManager.SizeOption.values()) {
+            final BufferedImage scaledImage = scaleImage(img, size.getHeight() );
+            final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            ImageIO.write(scaledImage, "png", stream);
+            stream.close();
+            result = bucketMgr.writeToBucket(asset, buildBucketPath(size), stream.toByteArray(), updateComment);
+            cache.cachePut(asset.getId(), size, Maybe.something(scaledImage));
+        }
+        return result;
     }
 
     @Override
-    public <T extends Asset> T   deleteImage( T a_save, String s_update_comment
-            ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
-        ocache.remove( a_save.getId() );
+    public <T extends Asset> T deleteImage(T asset, String updateComment) throws BaseException, GeneralSecurityException, RemoteException, IOException {
+        cache.remove(asset.getId());
+        T result = asset;
         // Check the server
-        Bucket bucket = omgrBucket.getBucket( a_save.getId () );
-        if ( ! bucket.getPaths ().contains( osReservedPath ) ) {
-            return a_save;
+        final Bucket bucket = bucketMgr.getBucket(asset.getId());
+
+        for (ImageManager.SizeOption size : ImageManager.SizeOption.values()) {
+            final String path = buildBucketPath(size);
+
+            if (bucket.getPaths().contains(path)) {
+                result = bucketMgr.eraseFromBucket(result, path, updateComment);
+            }
         }
-        return omgrBucket.eraseFromBucket(a_save, osReservedPath, s_update_comment);
+        return result;
     }
 
     @Override
-    public void clearCache( UUID u_asset ) {
-        ocache.remove(u_asset);
+    public void clearCache(UUID id) {
+        cache.remove(id);
     }
 }

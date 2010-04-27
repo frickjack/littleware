@@ -11,6 +11,7 @@
 package littleware.apps.misc;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -44,35 +45,24 @@ public interface ThumbManager {
      * Load a thumb-res image for the given asset id.
      * If no image is associated with that asset, then
      * just return the default thumbnail.
-     * 
-     * @param u_asset
-     * @return the thumbnail or default thumb
-     * @throws BaseException
-     * @throws GeneralSecurityException
-     * @throws IOException
      */
-    public Thumb loadThumb( UUID u_asset
+    public Thumb loadThumb( UUID assetId
             ) throws BaseException, GeneralSecurityException, IOException;
 
 
     public Thumb  getDefault ();
-    public void setDefault( RenderedImage thumb );
+    public void setDefault( BufferedImage thumb );
 
     /** Thumbnail width property */
     public int getWidth();
-    public void setWidth( int i_width );
 
     /** Thumbnail height property */
     public int getHeight ();
-    public void setHeight( int i_height );
 
     /**
-     * Clear data for asset id u_asset out of the cache.
-     * Hopefully eventually automatically handled handled
-     * by an AssetModelCache synchronization mechanism.
-     *
-     * @param u_asset id to clear out of cache if necessary
+     * Clear the given entry out of the cache - used
+     * in testing and app-specific specialization
      */
-    public void clearCache( UUID u_asset );
+    public void clearCache( UUID assetId );
 
 }

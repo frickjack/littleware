@@ -10,7 +10,10 @@
 package littleware.base;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
@@ -32,7 +35,41 @@ public class Whatever {
     public static Whatever get() {
         return singleton;
     }
-    
+
+    /**
+     * Close function does null check and swallows exception
+     */
+    public void close( InputStream stream ) {
+        if ( null != stream ) {
+            try {
+                stream.close();
+            } catch ( Throwable ex ) {}
+        }
+    }
+
+    public void close( OutputStream stream ) {
+        if ( null != stream ) {
+            try {
+                stream.close();
+            } catch ( Throwable ex ) {}
+        }
+    }
+    public void close( Reader stream ) {
+        if ( null != stream ) {
+            try {
+                stream.close();
+            } catch ( Throwable ex ) {}
+        }
+    }
+    public void close( Writer stream ) {
+        if ( null != stream ) {
+            try {
+                stream.close();
+            } catch ( Throwable ex ) {}
+        }
+    }
+
+
     
     /** (null == sIn) || sIn.equals( "" ) */
     public boolean empty(String sIn) {

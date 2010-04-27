@@ -78,7 +78,7 @@ public class ImageCacheTester extends LittleTest {
             log.log(Level.WARNING, "Test failed", ex);
             fail("Caught exception: " + ex);
         } finally {
-            //cache.remove(id);
+            cache.remove(id);
         }
     }
 }

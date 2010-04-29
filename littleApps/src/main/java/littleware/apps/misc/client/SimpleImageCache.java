@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import littleware.apps.misc.ImageManager;
 import littleware.apps.misc.ImageManager.SizeOption;
+import littleware.apps.misc.ThumbManager;
+import littleware.apps.misc.ThumbManager.Thumb;
 import littleware.asset.AssetSearchManager;
 import littleware.base.Cache;
 import littleware.base.Maybe;
@@ -128,6 +130,9 @@ public class SimpleImageCache implements ImageCache {
     }
     private final Cache<CacheKey, Maybe<BufferedImage>> cache =
             new SimpleCache<CacheKey, Maybe<BufferedImage>>(900, 1000);
+    private final Cache<UUID, ThumbManager.Thumb> thumbCache =
+            new SimpleCache<UUID, ThumbManager.Thumb>(900, 1000);
+
     private final File dirCache = new File(PropertiesLoader.get().getLittleHome().getOr(new File(System.getProperty("java.io.tmpdir"))), "imageCache");
 
     {
@@ -143,11 +148,24 @@ public class SimpleImageCache implements ImageCache {
         this.search = search;
     }
 
+    @Override
+    public Maybe<ThumbManager.Thumb>  getThumb( UUID assetId ) {
+        return Maybe.emptyIfNull( thumbCache.get( assetId ) );
+    }
+    @Override
+    public void putThumb( UUID assetId, Thumb thumb ) {
+        if ( null == thumb ) {
+            throw new NullPointerException( "thumb is null" );
+        }
+        thumbCache.put( assetId, thumb );
+    }
+
     /**
      * Remove from both in-memory and on-disk cache
      */
     private void removeFromCache(CacheKey key) {
         cache.remove(key);
+        thumbCache.remove( key.id );
         for (File file : Arrays.asList(key.infoFile, key.pngFile)) {
             try {
                 if (file.exists()) {

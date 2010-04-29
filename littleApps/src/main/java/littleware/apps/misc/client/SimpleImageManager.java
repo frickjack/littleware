@@ -117,13 +117,13 @@ public class SimpleImageManager implements ImageManager {
 
     @Override
     public <T extends Asset> T saveImage(T asset, BufferedImage img, String updateComment) throws BaseException, GeneralSecurityException, RemoteException, IOException {
-        T result = null;
+        T result = asset;
         for (ImageManager.SizeOption size : ImageManager.SizeOption.values()) {
             final BufferedImage scaledImage = scaleImage(img, size.getHeight() );
             final ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ImageIO.write(scaledImage, "png", stream);
             stream.close();
-            result = bucketMgr.writeToBucket(asset, buildBucketPath(size), stream.toByteArray(), updateComment);
+            result = bucketMgr.writeToBucket(result, buildBucketPath(size), stream.toByteArray(), updateComment);
             cache.cachePut(asset.getId(), size, Maybe.something(scaledImage));
         }
         return result;

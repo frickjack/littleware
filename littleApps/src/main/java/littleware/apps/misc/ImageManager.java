@@ -25,17 +25,11 @@ import littleware.base.Maybe;
  */
 public interface ImageManager {
     public enum  SizeOption {
-        r512x512 {
+        r64x64 {
             @Override
-            public int getWidth() { return 512; }
+            public int getWidth() { return 64; }
             @Override
-            public int getHeight() { return 512; }
-        },
-        r256x256 {
-            @Override
-            public int getWidth() { return 256; }
-            @Override
-            public int getHeight() { return 256; }
+            public int getHeight() { return 64; }
         },
         r128x128 {
             @Override
@@ -43,11 +37,17 @@ public interface ImageManager {
             @Override
             public int getHeight() { return 128; }
         },
-        r64x64 {
+        r256x256 {
             @Override
-            public int getWidth() { return 64; }
+            public int getWidth() { return 256; }
             @Override
-            public int getHeight() { return 64; }
+            public int getHeight() { return 256; }
+        },
+        r512x512 {
+            @Override
+            public int getWidth() { return 512; }
+            @Override
+            public int getHeight() { return 512; }
         };
 
 

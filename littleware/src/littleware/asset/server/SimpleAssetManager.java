@@ -245,7 +245,9 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     // 0 transaction count allows client to ignore serialization
                     if ((asset.getTransaction() > 0) && (oldAsset.getTransaction() > asset.getTransaction())) {
-                        throw new AssetSyncException("Attempt to save asset not in sync with database backend: " + oldAsset);
+                        throw new AssetSyncException("Attempt to save asset not in sync with database backend: " + oldAsset +
+                                ", " + oldAsset.getTransaction() + " gt " + asset.getTransaction()
+                                );
                     }
 
                     log.log(Level.FINE, "Checking security");

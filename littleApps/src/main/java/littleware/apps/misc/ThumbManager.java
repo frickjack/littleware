@@ -35,7 +35,7 @@ public interface ThumbManager {
          */
         public boolean isFallback ();
 
-        public Image getThumb();
+        public BufferedImage getThumb();
 
         /** ImageIcon generated on demand first time called */
         public ImageIcon getIcon();

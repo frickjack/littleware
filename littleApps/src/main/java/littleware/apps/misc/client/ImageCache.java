@@ -14,6 +14,8 @@ import com.google.inject.ImplementedBy;
 import java.awt.image.BufferedImage;
 import java.util.UUID;
 import littleware.apps.misc.ImageManager;
+import littleware.apps.misc.ThumbManager;
+import littleware.apps.misc.ThumbManager.Thumb;
 import littleware.base.Maybe;
 
 /**
@@ -36,6 +38,17 @@ public interface ImageCache {
     }
 
     public CacheEntry cacheGet( UUID assetId, ImageManager.SizeOption size );
+
+    /**
+     * Return maybe.isEmpty if thumb is not in cache
+     */
+    public Maybe<ThumbManager.Thumb>  getThumb( UUID assetId );
+    /**
+     * Add a non-null thumb to the cache
+     *
+     * @param thumb must be a valid thumbnail
+     */
+    public void putThumb( UUID assetId, Thumb thumb );
     public void cachePut( UUID assetId, ImageManager.SizeOption size, Maybe<BufferedImage> maybeImage );
     public void remove( UUID assetId );
     public void remove( UUID assetId, ImageManager.SizeOption size );

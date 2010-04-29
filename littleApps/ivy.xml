@@ -39,6 +39,18 @@
       <dependency org="xerces" name="xercesImpl" rev="2.9.1" conf="standalone,client->*" />
       <dependency org="littleware" name="littleIcons" rev="0.0" conf="client,standalone->*" />
       <dependency org="littleware" name="littleware" rev="2.0" conf="compile->compile;client->client;standalone->standalone;server->server" />
+      <dependency org="org.primefaces" name="primefaces" rev="2.0.1" conf="compile,server->*" />
+      <dependency
+ org="commons-fileupload"
+ name="commons-fileupload"
+ rev="1.2.1"
+ />
+<dependency
+ org="commons-io"
+ name="commons-io"
+ rev="1.4"
+ conf="server->*" />
+
       <!--
     ${file.reference.jtidy-4aug2000r7-dev.jar}:\
     ${file.reference.xercesImpl-2.6.1.jar}:\

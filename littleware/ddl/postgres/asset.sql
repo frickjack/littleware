@@ -20,8 +20,6 @@
 CREATE LANGUAGE plpgsql;
 
 
-GRANT USAGE ON SCHEMA littleware TO GROUP littleware_user_group;
-
 -- ......................
 
 CREATE SEQUENCE seq_transaction_counter MINVALUE 1
@@ -102,105 +100,105 @@ GRANT SELECT ON x_asset_type_tree TO littleware_user_group;
 
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( 'A7E11221546949FAAF1E8FCC52190F1D', 'principal', 'lw_principal.principal base class', true );
+    VALUES ( 'A7E11221546949FAAF1E8FCC52190F1D', 'littleware.principal', 'lw_principal.principal base class', true );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique,x_parent_type)
-    VALUES ( '2FAFD5D1074F4BF8A4F01753DBFF4CD5', 'user', 'lw_principal.principal user', 
+    VALUES ( '2FAFD5D1074F4BF8A4F01753DBFF4CD5', 'littleware.user', 'lw_principal.principal user',
               true, 'A7E11221546949FAAF1E8FCC52190F1D' );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique, x_parent_type)
-    VALUES ( 'FAA894CEC15B49CF8F8EC5C280062776', 'group', 'lw_principal.principal group', 
+    VALUES ( 'FAA894CEC15B49CF8F8EC5C280062776', 'littleware.group', 'lw_principal.principal group',
               true, 'A7E11221546949FAAF1E8FCC52190F1D'  );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( '04E11B112526462F91152DFFB51D21C9', 'acl', 'acl asset', true );
+    VALUES ( '04E11B112526462F91152DFFB51D21C9', 'littleware.acl', 'littleware.acl asset', true );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( '926D122F82FE4F28A8F5C790E6733665', 'link', 'Just link to some other asset id', false  );
-	
+    VALUES ( '926D122F82FE4F28A8F5C790E6733665', 'littleware.link', 'Just link to some other asset id', false  );
+
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( 'BA50260718204D50BAC6AC711CEE1536', 'group_member', 
+    VALUES ( 'BA50260718204D50BAC6AC711CEE1536', 'littleware.group_member',
 	'Link from a group to another group or user', false  );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( 'E18D1B19D9714F6F8F49CF9B431EBF23', 'generic', 
+    VALUES ( 'E18D1B19D9714F6F8F49CF9B431EBF23', 'littleware.generic',
 	'Place-holder in asset hierarchy with free-form data', false  );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( 'DB437A7D9BE14087B342AD63AF86BD7D', 'storage', 'reference to external storage', false  );
+    VALUES ( 'DB437A7D9BE14087B342AD63AF86BD7D', 'littleware.storage', 'reference to external storage', false  );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( '208F22A176C24D3987F7738C68ECA01E', 'option', 'Option to buy/sell/pay/whatever', false  );
+    VALUES ( '208F22A176C24D3987F7738C68ECA01E', 'littleware.option', 'Option to buy/sell/pay/whatever', false  );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( 'E374F91AF6ED410284507B1FA8A807D2', 'pipeline', 
+    VALUES ( 'E374F91AF6ED410284507B1FA8A807D2', 'littleware.pipeline',
 	'data pipeline - XML state machine in s_data', false  );
-	
+
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( '50626FA60B75491A8A16EDADE8E77488', 'pipeline_stage', 
+    VALUES ( '50626FA60B75491A8A16EDADE8E77488', 'littleware.pipeline_stage',
 	'pipeline stage - refers to pipeline it belongs to', false  );
-	
+
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( 'D23EA8B5A55F4283AEF29DFA50C12C54', 'acl_entry', 
-	'acl entry - links acl to principal with permission', false  );
-	
+    VALUES ( 'D23EA8B5A55F4283AEF29DFA50C12C54', 'littleware.acl_entry',
+	'littleware.acl entry - links acl to principal with permission', false  );
+
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( '9D0C34BA0CE14407A09138AE4BA2581D', 'negative_acl_entry', 
-	'acl negative-permission entry - links acl to principal', false  );
-	
+    VALUES ( '9D0C34BA0CE14407A09138AE4BA2581D', 'littleware.negative_acl_entry',
+	'littleware.acl negative-permission entry - links acl to principal', false  );
+
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '3F2C7DF02A9C49A3BBAB179B9E643956', 'archiver', 'labels to nodes that are ready for archive', false  );
-	
+    VALUES ( '3F2C7DF02A9C49A3BBAB179B9E643956', 'littleware.archiver', 'labels to nodes that are ready for archive', false  );
+
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( 'F0063935757F4319B7D9516F56E3B7F3', 'note', 'attaches a note to some other asset', false  );
-	
+    VALUES ( 'F0063935757F4319B7D9516F56E3B7F3', 'littleware.note', 'attaches a note to some other asset', false  );
+
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( 'C06CC38C6BD24D48AB5E2D228612C179', 'home', 
+    VALUES ( 'C06CC38C6BD24D48AB5E2D228612C179', 'littleware.home',
 	'home server tracker that other assets associate with', true  );
 
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '7AC8C92F30C14AD89FA82DB0060E70C2', 'session', 
+    VALUES ( '7AC8C92F30C14AD89FA82DB0060E70C2', 'littleware.session',
 	          'login session tracking asset', false );
 
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '6AD504ACBB3A4A2CAB5AECE02D8E6706', 'service', 
+    VALUES ( '6AD504ACBB3A4A2CAB5AECE02D8E6706', 'littleware.service',
 	          'assets for managing client access to littleware services', true );
 
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '0897E6CF8A4C4B128ECABD92FEF793AF', 'quota', 
+    VALUES ( '0897E6CF8A4C4B128ECABD92FEF793AF', 'littleware.quota',
 	          'assets for managing user quotas', false );
-			  
+
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( 'D430F172C2F94F76ACDA39658027D95A', 'address', 
+    VALUES ( 'D430F172C2F94F76ACDA39658027D95A', 'littleware.address',
 	          'assets for managing user address', false );
 
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '2EE7CCDE130D40A09184C2A3F88A6F25', 'contact', 
+    VALUES ( '2EE7CCDE130D40A09184C2A3F88A6F25', 'littleware.contact',
 	          'assets for managing user contact info', false );
 
 -- ....
 
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '84F04E04DCE947B2A00294949DC38628', 'task', 
+    VALUES ( '84F04E04DCE947B2A00294949DC38628', 'littleware.task',
 	          'task tracking assets', false );
 
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( 'FB8CC7B7C9324EC8953DE50A700344F3', 'comment', 
+    VALUES ( 'FB8CC7B7C9324EC8953DE50A700344F3', 'littleware.comment',
 	          'asset comment', false );
-              
+
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '0FE9FBED5F6846E1865526A2BFBC5182', 'queue', 
+    VALUES ( '0FE9FBED5F6846E1865526A2BFBC5182', 'littleware.queue',
 	          'queue asset', false );
-              
+
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '489F21E1D19B49F3B923E7B45609A811', 'dependency', 
+    VALUES ( '489F21E1D19B49F3B923E7B45609A811', 'littleware.dependency',
 	          'tracker dependency asset', false );
 
 INSERT INTO x_asset_type ( s_id, s_name, s_comment, b_name_unique )
-    VALUES ( '5C52B28DA10A435B957AD5EF454F01C7', 'lock',
+    VALUES ( '5C52B28DA10A435B957AD5EF454F01C7', 'littleware.lock',
 	          'name-unique distributed exclusion lock', true );
 
-                                                                                  
+                                                             
 
 --
 -- Internal utility - run after adding new asset subtypes.
@@ -275,6 +273,45 @@ CREATE INDEX asset_transaction_idx ON asset( l_last_transaction );
 GRANT SELECT, UPDATE, INSERT, DELETE ON asset TO GROUP littleware_user_group;
 
 --
+-- Asset key/value attributes
+--
+CREATE TABLE asset_attr (
+   i_id   BIGSERIAL PRIMARY KEY,
+   s_asset_id    VARCHAR(32) NOT NULL REFERENCES asset(s_id) ON DELETE CASCADE,
+   s_key         VARCHAR(20) NOT NULL,
+   s_value       VARCHAR(128)
+);
+
+CREATE UNIQUE INDEX asset_attr_idx ON asset_attr (s_asset_id, s_key );
+
+--
+-- Asset links
+--
+CREATE TABLE asset_link (
+    i_id BIGSERIAL PRIMARY KEY,
+    s_asset_id VARCHAR(32) NOT NULL REFERENCES asset(s_id) ON DELETE CASCADE,
+    s_key      VARCHAR(20) NOT NULL,
+    s_value     VARCHAR(32)
+);
+
+CREATE UNIQUE INDEX asset_link_idx ON asset_link (s_asset_id, s_key );
+CREATE INDEX link_value_idx ON asset_link( s_key, s_value );
+
+--
+-- Asset dates
+--
+CREATE TABLE asset_date (
+    i_id BIGSERIAL PRIMARY KEY,
+    s_asset_id VARCHAR(32) NOT NULL REFERENCES asset(s_id) ON DELETE CASCADE,
+    s_key      VARCHAR(20) NOT NULL,
+    t_value    TIMESTAMP NULL DEFAULT NULL
+);
+
+CREATE UNIQUE INDEX asset_date_idx ON asset_date (s_asset_id, s_key );
+
+
+
+--
 -- Composite type for name to id maps
 --
 CREATE TYPE name2id AS (
@@ -324,35 +361,26 @@ CREATE INDEX asset_history_idx ON asset_history ( s_id, t_copied );
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON asset_history TO GROUP littleware_user_group;
 
--- ....................................
-
 --
--- Valid status values
+-- Get the UUID associated with the type of the given name
 --
-CREATE TABLE x_cache_status (
-	i_id          INTEGER PRIMARY KEY,
-	s_comment     VARCHAR(128) NOT NULL,
-	t_created     TIMESTAMP NOT NULL DEFAULT now(),
-	t_updated     TIMESTAMP NOT NULL DEFAULT now()
-);
-
-GRANT SELECT ON x_cache_status TO GROUP littleware_user_group;
-
-INSERT INTO x_cache_status ( i_id, s_comment ) VALUES ( 0, 'asset in cache ok' );
-INSERT INTO x_cache_status ( i_id, s_comment ) VALUES ( 1, 'asset in cache out of date' );
-INSERT INTO x_cache_status ( i_id, s_comment ) VALUES ( 2, 'asset in cache deleted from repository' );
-
+-- @param s_name of the type we want data for
+-- @return UUID if type exists, else NULL
 --
--- Track what each client has loaded into memory
---
-CREATE TABLE client_cache (
-    i_src               INTEGER NOT NULL,
-	s_asset_id          VARCHAR(32) NOT NULL,
-    i_status            INTEGER REFERENCES x_cache_status( i_id ) NOT NULL,
-    PRIMARY KEY ( i_src, s_asset_id )
-);
+CREATE OR REPLACE FUNCTION getTypeId ( VARCHAR )
+    RETURNS VARCHAR AS $FUNC$
+	DECLARE
+		s_param_name     ALIAS FOR $1;
+		s_var_pk_type    VARCHAR;
+	BEGIN
+	    SELECT INTO s_var_pk_type s_id
+					FROM x_asset_type WHERE s_name=s_param_name;
+		IF NOT FOUND THEN
+		   RAISE EXCEPTION 'littleware(notype): no such type %',
+						   s_param_name;
+	    END IF;
+		RETURN s_var_pk_type;
+	END; $FUNC$
+LANGUAGE plpgsql;
 
-CREATE INDEX client_cache_asset_idx ON client_cache( s_asset_id );
-GRANT SELECT, INSERT, UPDATE, DELETE ON client_cache TO GROUP littleware_user_group;
-
-
+GRANT EXECUTE ON FUNCTION getTypeId( VARCHAR ) TO littleware_user_group;

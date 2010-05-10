@@ -1,4 +1,5 @@
 
+
 -- ..................................................
 -- littleware.home
 INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
@@ -246,7 +247,7 @@ INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
        NULL, NULL
       );
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -255,7 +256,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        'C871EA418BE44F0EB9E68B5950740CE7',
        'acl.littleware.everybody.write',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       (SELECT s_id FROM littleware.x_asset_type WHERE s_name='littleware.acl' ),
+       (SELECT s_id FROM x_asset_type WHERE s_name='littleware.acl' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
@@ -269,7 +270,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
 
 
 
-INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
+INSERT INTO asset (	s_id, s_name, s_id_home, l_last_transaction,
 	s_pk_type, s_id_creator, s_id_updater, s_id_owner, f_value,
 	s_id_acl, s_comment, s_last_change, s_data, s_id_from, s_id_to,
 	t_created, t_updated, t_last_accessed,
@@ -278,7 +279,7 @@ INSERT INTO littleware.asset (	s_id, s_name, s_id_home, l_last_transaction,
        'B12E686E011246E085E5E6279361B40C',
        'group.littleware.everybody.positive',
        'BD46E5588F9D4F41A6310100FE68DCB4', 1,
-       (SELECT s_id FROM littleware.x_asset_type WHERE s_name='littleware.acl_entry' ),
+       (SELECT s_id FROM x_asset_type WHERE s_name='littleware.acl_entry' ),
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',
        '00000000000000000000000000000000',

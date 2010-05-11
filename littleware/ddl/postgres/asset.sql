@@ -283,6 +283,7 @@ CREATE TABLE asset_attr (
 );
 
 CREATE UNIQUE INDEX asset_attr_idx ON asset_attr (s_asset_id, s_key );
+GRANT SELECT, UPDATE, INSERT, DELETE ON asset_attr TO GROUP littleware_user_group;
 
 --
 -- Asset links
@@ -296,6 +297,7 @@ CREATE TABLE asset_link (
 
 CREATE UNIQUE INDEX asset_link_idx ON asset_link (s_asset_id, s_key );
 CREATE INDEX link_value_idx ON asset_link( s_key, s_value );
+GRANT SELECT, UPDATE, INSERT, DELETE ON asset_link TO GROUP littleware_user_group;
 
 --
 -- Asset dates
@@ -308,7 +310,7 @@ CREATE TABLE asset_date (
 );
 
 CREATE UNIQUE INDEX asset_date_idx ON asset_date (s_asset_id, s_key );
-
+GRANT SELECT, UPDATE, INSERT, DELETE ON asset_date TO GROUP littleware_user_group;
 
 
 --

@@ -23,6 +23,7 @@ public class SimpleUserBuilder extends SimpleAssetBuilder implements LittleUser.
     /** Do-nothing constructor for java.io.Serializable */
     public SimpleUserBuilder() {
         super( SecurityAssetType.USER );
+        setOwnerId( getId() );
     }
 
     @Override

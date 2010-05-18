@@ -328,7 +328,11 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        sessionCreated(((HttpServletRequest) request).getSession());
+        try {
+            sessionCreated(((HttpServletRequest) request).getSession());
+        } catch ( IllegalStateException ex ) {
+            log.log( Level.INFO, "Ignoring webapp state exception setting up session - some weird glassfish race condition", ex );
+        }
         chain.doFilter(request, response);
     }
 }

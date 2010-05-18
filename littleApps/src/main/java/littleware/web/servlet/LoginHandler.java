@@ -225,6 +225,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                 final WebBootstrap boot = new WebBootstrap(session, helper);
                 boot.bootstrap();
                 try {
+                    /*..
                     //response.getWriter().println( "<html><head></head><body>OK</body></html>" );
                     response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
                             + request.getContextPath() + forwardURL
@@ -234,7 +235,9 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                     //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
                     //response.setHeader("Location", forwardURL );
                     //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).include(request, response);
-                    //response.sendRedirect( request.getContextPath() + forwardURL);
+                     * 
+                     */
+                    response.sendRedirect( request.getContextPath() + forwardURL);
                     return;
                 } catch (Exception ex2) {
                     log.log(Level.WARNING, "Failed to forward to " + forwardURL, ex2);
@@ -252,6 +255,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                 }
                 request.setAttribute("exception", ex);
                 try {
+                    /*
                     response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
                             + request.getContextPath() + forwardURL
                             + "\"/></head><body>OK ... <a href=\""
@@ -260,7 +264,9 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                     //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
                     //response.setHeader("Location", "http://yahoo.com");
                     //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).include(request, response);
-                    //response.sendRedirect( request.getContextPath() + forwardURL);
+                     *
+                     */
+                    response.sendRedirect( request.getContextPath() + forwardURL);
                     return;
                 } catch (Exception ex2) {
                     log.log(Level.WARNING, "Failed to forward to " + forwardURL, ex2);
@@ -275,6 +281,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                     forwardURL = this.getLogoutURL();
                 }
                 try {
+                    /*...
                     response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
                             + request.getContextPath() + forwardURL
                             + "\"/></head><body>OK ... <a href=\""
@@ -285,7 +292,8 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                     //response.setStatus( HttpServletResponse.SC_MOVED_TEMPORARILY );
                     //response.setHeader( "Location", "http://yahoo.com" );
                     //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).forward(request, response);
-                    //response.sendRedirect( request.getContextPath() + forwardURL);
+                    */
+                    response.sendRedirect( request.getContextPath() + forwardURL);
                     return;
                 } catch (Exception ex2) {
                     log.log(Level.WARNING, "Failed to forward to " + request.getContextPath() + "/" + forwardURL, ex2);

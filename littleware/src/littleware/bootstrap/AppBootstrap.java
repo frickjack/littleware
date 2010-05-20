@@ -23,5 +23,13 @@ public interface AppBootstrap {
         SwingApp, CliApp;
     }
 
-    public Collection<AppModule>  getModuleList();
+    /**
+     * List of littleware modules registered with this bootstrap.
+     */
+    public Collection<AppModule.Factory>  getModuleList();
+
+    public void  addModuleFactory( AppModule.Factory factory );
+    public void  removeModuleFactory( AppModule.Factory factory );
+
+    public <T> T bootstrap( Class<T> injectTarget );
 }

@@ -26,10 +26,16 @@ public class WhateverTester extends LittleTest {
     public enum TestEnum { Uga, BooGa, GooGoo, Ga };
 
     public void testWhatever() {
-        Maybe<TestEnum> maybe = Whatever.get().findEnumIgnoreCase("booga", TestEnum.values() );
+        final Maybe<TestEnum> maybe = Whatever.get().findEnumIgnoreCase("booga", TestEnum.values() );
         assertTrue( "findEnumIgnoreCase ok", maybe.isSet() && maybe.get().equals( TestEnum.BooGa ) );
         assertTrue( "findEnumIgnoreCase found empty", Whatever.get().findEnumIgnoreCase("frick", TestEnum.values() ).isEmpty() );
         assertTrue( "equalsSafe ok", Whatever.get().equalsSafe(null, null) && (! Whatever.get().equalsSafe( "bla", null ) ) );
         assertTrue( "empty test ok", Whatever.get().empty(null) && Whatever.get().empty( "" ) && (! Whatever.get().empty("foo")));
+
+        for( Whatever.Folder folder : Whatever.Folder.values() ) {
+            assertTrue( "Folder exists " + folder + ": " + folder.getFolder(),
+                    folder.getFolder().exists()
+                    );
+        }
     }
 }

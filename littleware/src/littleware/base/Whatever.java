@@ -9,6 +9,7 @@
  */
 package littleware.base;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -215,4 +216,57 @@ public class Whatever {
         }
     }
 
+    /**
+     * Commonly accessed folders:
+     * Home.getFile - shortcut for user.home,
+     * Docs.getFile - shortcut for user.home/Documents|My Documents if either exists, else Home,
+     * LittleHome - shortcut for PropertiesLoader.get.getLittleHome.getOr( home ),
+     * Temp - shortcut for java.io.tmpdir
+     */
+    public enum Folder {
+        Home {
+            private final File folder = new File( System.getProperty( "user.home" ) );
+            @Override
+            public File getFolder() {
+                return folder;
+            }
+        },
+        Docs {
+            private final File folder;
+            {
+                final File home = new File( System.getProperty( "user.home" ) );
+                final File docs = new File( home, "Documents" );
+                if ( docs.exists() && docs.isDirectory() ) {
+                    folder = docs;
+                } else {
+                    final File myDocs = new File( home, "My Documents" );
+                    if ( myDocs.exists() && myDocs.isDirectory() ) {
+                        folder = myDocs;
+                    } else {
+                        folder = home;
+                    }
+                }
+            }
+            @Override
+            public File getFolder() {
+                return folder;
+            }
+        },
+        LittleHome {
+            private final File folder = new File( System.getProperty( "user.home" ) );
+            @Override
+            public File getFolder() {
+                return PropertiesLoader.get().getLittleHome().getOr(folder);
+            }
+        },
+        Temp {
+            private final File folder = new File( System.getProperty( "java.io.tmpdir" ) );
+            @Override
+            public File getFolder() {
+                return folder;
+            }
+        };
+
+        public abstract File getFolder();
+    }
 }

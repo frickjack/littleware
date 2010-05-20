@@ -11,10 +11,19 @@
 
 package littleware.bootstrap;
 
-/**
- *
- * @author rdp0004
- */
-public interface AppModule {
+import com.google.inject.Module;
+import littleware.base.Maybe;
+import littleware.bootstrap.AppBootstrap.AppConfig;
+import org.osgi.framework.BundleActivator;
 
+/**
+ * Bootstrap module for application-mode bootstrap.
+ */
+public interface AppModule extends Module {
+    public AppConfig                               getConfig();
+    public Maybe<Class<? extends BundleActivator>> getActivator();
+    
+    public interface Factory {
+        public AppModule build( AppConfig config );
+    }
 }

@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.client;
 
 import org.osgi.framework.BundleActivator;
@@ -24,18 +23,19 @@ import org.osgi.framework.BundleActivator;
  * post deserialization.
  */
 public interface LittleService extends java.io.Serializable, BundleActivator {
-	/**
-	 * Register a listener for service events.
-	 * Noop if listener is already registered as a listener.
-	 *
-	 * @param listener to add
-	 */
-	public void	addServiceListener( LittleServiceListener listener ) ;
 
-	/**
-	 * Remove the given listener.
-	 *
-	 * @param listen_action to remove
-	 */
-	public void     removeServiceListener( LittleServiceListener listener );
+    /**
+     * Register a listener for service events.
+     * Noop if listener is already registered as a listener.
+     *
+     * @param listener to add
+     */
+    public void addServiceListener(LittleServiceListener listener);
+
+    /**
+     * Remove the given listener.
+     *
+     * @param listen_action to remove
+     */
+    public void removeServiceListener(LittleServiceListener listener);
 }

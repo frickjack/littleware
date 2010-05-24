@@ -33,11 +33,10 @@ public interface AssetSpecializer {
 	 * is necessary to implement the AssetType supported by this
 	 * specializer.  Throws the same set of exceptions as getAsset().
 	 *
-	 * @param a_in asset instance of class returned by a_in.getAssetType ().create ()
-	 * @param m_retriever manager making the callback
-	 * @return a_in decorated with new data, or a new Asset consistent with the data in a_in
+	 * @param asset instance of class returned by a_in.getAssetType ().create ()
+	 * @return asset decorated with new data, or a new Asset consistent with the data in a_in
 	 */
-	public <T extends Asset> T narrow ( T a_in, AssetRetriever m_retriever
+	public <T extends Asset> T narrow ( T asset
 						  ) throws BaseException, AssetException, 
 	GeneralSecurityException, RemoteException;
 
@@ -46,11 +45,11 @@ public interface AssetSpecializer {
 	 * responsible for the AssetType of the just created asset.
 	 * Throws the same set of exceptions as AssetManager.createAsset...
 	 *
-	 * @param a_new reference to just created asset
+	 * @param asset just created
 	 * @param m_asset manager making the callback
 	 */
-	public void postCreateCallback ( Asset a_new, AssetManager m_asset  							   
-									 ) throws BaseException, AssetException, 
+	public void postCreateCallback ( Asset asset
+			 ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException;
 	
 	/**
@@ -58,12 +57,11 @@ public interface AssetSpecializer {
 	 * responsible for the AssetType of the just updated asset.
 	 * Throws the same set of exceptions as AssetManager.postUpdateCallback...
 	 *
-	 * @param a_pre_update copy of the asset loaded by the AssetManager
+	 * @param oldAsset copy of the asset loaded by the AssetManager
 	 *                    before applying the update
-	 * @param a_now current state of the asset after update
-	 * @param m_asset manager making the callback
+	 * @param currentAsset current state of the asset after update
 	 */
-	public void postUpdateCallback ( Asset a_pre_update, Asset a_now, AssetManager m_asset 
+	public void postUpdateCallback ( Asset oldAsset, Asset currentAsset
 									 ) throws BaseException, AssetException, 
 		GeneralSecurityException, RemoteException;
 
@@ -73,11 +71,9 @@ public interface AssetSpecializer {
 	 * responsible for the AssetType of the just deleted asset.
 	 * Throws the same set of exceptions as AssetManager.postUpdateCallback...
 	 *
-	 * @param a_deleted asset that just got cleared out
-	 * @param m_asset manager making the callback
+	 * @param asset that just got cleared out
 	 */
-	public void postDeleteCallback ( Asset a_deleted, AssetManager m_asset 
-									 ) throws BaseException, AssetException, 
+	public void postDeleteCallback ( Asset asset ) throws BaseException, AssetException,
 		GeneralSecurityException, RemoteException;
 
 }

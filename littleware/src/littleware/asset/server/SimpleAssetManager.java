@@ -141,7 +141,7 @@ public class SimpleAssetManager implements AssetManager {
                 DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter();
                 sql_writer.saveObject(asset);
 
-                specialRegistry.getService(asset.getAssetType()).postDeleteCallback(asset, this);
+                specialRegistry.getService(asset.getAssetType()).postDeleteCallback(asset);
                 b_rollback = false;
                 //trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
                 final AssetType type = builder.getAssetType();
@@ -327,9 +327,9 @@ public class SimpleAssetManager implements AssetManager {
                     v_cache.put(assetSave.getId(), assetSave);
 
                     if (null == oldAsset) {
-                        specialRegistry.getService(assetSave.getAssetType()).postCreateCallback(assetSave, this);
+                        specialRegistry.getService(assetSave.getAssetType()).postCreateCallback(assetSave);
                     } else if (!cycleSave) { // do not make multiple callbacks on same asset
-                        specialRegistry.getService(assetSave.getAssetType()).postUpdateCallback(oldAsset, assetSave, this);
+                        specialRegistry.getService(assetSave.getAssetType()).postUpdateCallback(oldAsset, assetSave);
                     } else {
                         log.log(Level.FINE, "Bypassing save-callback on cycle-save asset " + assetSave.getId()
                                 + "/" + assetSave.getAssetType() + "/" + assetSave.getName());

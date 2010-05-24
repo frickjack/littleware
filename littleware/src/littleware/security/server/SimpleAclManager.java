@@ -48,20 +48,20 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
      * Specialize ACL type assets
      */
     @Override
-    public <T extends Asset> T narrow(T a_in, AssetRetriever retriever) throws BaseException, AssetException,
+    public <T extends Asset> T narrow(T a_in) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if ( a_in instanceof LittleAclEntry ) {
             return (T) ((LittleAclEntry) a_in).copy().principal(
-                    (LittlePrincipal) retriever.getAsset( a_in.getToId() ).get()
+                    (LittlePrincipal) search.getAsset( a_in.getToId() ).get()
                     ).build();
         }
         // LittleAcl
         final LittleAcl.Builder aclBuilder = a_in.narrow(LittleAcl.class).copy();
 
-        final Map<String, UUID> linkMap = retriever.getAssetIdsFrom(aclBuilder.getId(),
+        final Map<String, UUID> linkMap = search.getAssetIdsFrom(aclBuilder.getId(),
                 SecurityAssetType.ACL_ENTRY);
 
-        final List<Asset> linkAssets = retriever.getAssets(linkMap.values());
+        final List<Asset> linkAssets = search.getAssets(linkMap.values());
 
         for (Asset link : linkAssets) {
             //final UUID principalId = link.getToId();
@@ -82,7 +82,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
      * Save a new ACL entries into the repository
      */
     @Override
-    public void postCreateCallback(Asset asset, AssetManager saver) throws BaseException, AssetException,
+    public void postCreateCallback(Asset asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.ACL.equals(asset.getAssetType())) {
             final LittleAcl acl = asset.narrow();
@@ -102,7 +102,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     }
 
     @Override
-    public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager m_asset) throws BaseException, AssetException,
+    public void postUpdateCallback(Asset a_pre_update, Asset a_now) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.ACL.equals(a_now.getAssetType())) {
             Set<UUID> v_now_entries = new HashSet<UUID>();
@@ -119,22 +119,22 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
                     v_entries.hasMoreElements();) {
                 LittleAclEntry acl_entry = (LittleAclEntry) v_entries.nextElement();
                 if (!v_now_entries.contains(acl_entry.getId())) {
-                    m_asset.deleteAsset(acl_entry.getId(), "ACL update remove entry");
+                    assetMgr.deleteAsset(acl_entry.getId(), "ACL update remove entry");
                 }
             }
-            postCreateCallback(a_now, m_asset);
+            postCreateCallback(a_now);
         }
     }
 
     @Override
-    public void postDeleteCallback(Asset a_deleted, AssetManager m_asset) throws BaseException, AssetException,
+    public void postDeleteCallback(Asset a_deleted) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (SecurityAssetType.ACL.equals(a_deleted.getAssetType())) {
             // Delete all the ACL_ENTRY assets off this thing
             for (Enumeration<LittleAclEntry> v_entries = ((LittleAcl) a_deleted).entries();
                     v_entries.hasMoreElements();) {
                 final LittleAclEntry a_cleanup = v_entries.nextElement();
-                m_asset.deleteAsset(a_cleanup.getId(), "Cleanup after ACL delete");
+                assetMgr.deleteAsset(a_cleanup.getId(), "Cleanup after ACL delete");
             }
         }
     }

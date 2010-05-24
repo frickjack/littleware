@@ -20,7 +20,7 @@ import littleware.asset.server.db.jpa.J2EEGuice;
 import littleware.base.PropertiesLoader;
 import littleware.db.DbGuice;
 import littleware.security.auth.AbstractGOBootstrap;
-import littleware.security.auth.LittleBootstrap;
+import littleware.bootstrap.LittleBootstrap;
 import littleware.security.server.SecurityServerActivator;
 import littleware.security.server.SecurityServerGuice;
 

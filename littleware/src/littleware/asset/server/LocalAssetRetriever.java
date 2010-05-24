@@ -102,7 +102,7 @@ public class LocalAssetRetriever implements AssetRetriever {
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 
         try {
-            final T a_result = oregistry_special.getService(a_loaded.getAssetType()).narrow(a_loaded, this);
+            final T a_result = oregistry_special.getService(a_loaded.getAssetType()).narrow(a_loaded);
             // update cycle cache
             v_cycle_cache.put(a_result.getId(), a_result);
             if (a_result.getAssetType().equals(SecurityAssetType.USER) || a_result.getAssetType().equals(SecurityAssetType.GROUP) || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER) || ( // acl-entry may be protected by its own ACL

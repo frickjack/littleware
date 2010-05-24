@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Reuben Pasquini All rights reserved.
+ * Copyright 2010 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -8,22 +8,17 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
 package littleware.bootstrap;
 
 import com.google.inject.Module;
 import littleware.base.Maybe;
-import littleware.bootstrap.AppBootstrap.AppConfig;
 import org.osgi.framework.BundleActivator;
 
 /**
- * Bootstrap module for application-mode bootstrap.
+ * Base littleware module interface defines Guice injection
+ * module, and an optional OSGi activator to inject and
+ * activate into the littleware runtime.
  */
-public interface AppModule extends Module {
-    public AppConfig                               getConfig();
+public interface LittleModule extends Module {
     public Maybe<Class<? extends BundleActivator>> getActivator();
-    
-    public interface Factory {
-        public AppModule build( AppConfig config );
-    }
 }

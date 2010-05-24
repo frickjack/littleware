@@ -39,7 +39,7 @@
       <dependency org="xerces" name="xercesImpl" rev="2.9.1" conf="standalone,client->*" />
       <dependency org="littleware" name="littleIcons" rev="0.0" conf="client,standalone->*" />
       <dependency org="littleware" name="littleware" rev="2.0" conf="compile->compile;client->client;standalone->standalone;server->server" />
-      <dependency org="org.primefaces" name="primefaces" rev="2.0.1" conf="compile,server->*" />
+      <dependency org="org.primefaces" name="primefaces" rev="2.0.2" conf="compile,server->*" />
       <dependency
  org="commons-fileupload"
  name="commons-fileupload"

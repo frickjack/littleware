@@ -137,6 +137,9 @@
 -->
 <ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
 
+<target name="-post-clean">
+    <delete dir="lib" />
+</target>
 
 <target name="resolve" description="-- retrieve dependencies with ivy">
         <ivy:retrieve conf="compile" pattern="lib/compile/[artifact]-[revision]-[type].[ext]" />

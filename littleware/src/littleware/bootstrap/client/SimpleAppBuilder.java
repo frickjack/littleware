@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ServiceLoader;
 import littleware.bootstrap.client.AppBootstrap.AppBuilder;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.bootstrap.client.AppModule.AppFactory;
@@ -21,6 +22,12 @@ import littleware.bootstrap.client.AppModule.AppFactory;
 public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
     private final List<AppFactory>  factoryList = new ArrayList<AppFactory>();
     private AppProfile profile;
+
+    {
+        for( AppModule.AppFactory moduleFactory : ServiceLoader.load( AppModule.AppFactory.class ) ) {
+            factoryList.add( moduleFactory );
+        }
+    }
 
     @Override
     public Collection<AppFactory> getModuleList() {

@@ -14,23 +14,23 @@ import littleware.base.*;
 public class NullAssetSpecializer implements AssetSpecializer {
 
     @Override
-    public <T extends Asset> T narrow(T a_in, AssetRetriever m_retriever) throws BaseException, AssetException,
+    public <T extends Asset> T narrow(T asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return a_in;
+        return asset;
     }
 
     @Override
-    public void postCreateCallback(Asset a_new, AssetManager m_asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-    }
-
-    @Override
-    public void postUpdateCallback(Asset a_pre_update, Asset a_now, AssetManager m_asset) throws BaseException, AssetException,
+    public void postCreateCallback(Asset asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
     }
 
     @Override
-    public void postDeleteCallback(Asset a_deleted, AssetManager m_asset) throws BaseException, AssetException,
+    public void postUpdateCallback(Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+    }
+
+    @Override
+    public void postDeleteCallback(Asset asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
     }
 }

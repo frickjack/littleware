@@ -48,22 +48,10 @@ public class ClientLoginModule implements LoginModule {
     public final static String HOST_OPTION = "host";
     public final static String PORT_OPTION = "port";
     private CallbackHandler handler = null;
+    private SessionManager sessionManager = null;
     private Subject subject = null;
     private Set<String> aclNameList = new HashSet<String>();
-    private SessionManager sessionManager = null;
 
-    /**
-     * Constructor just pulls a SessionManager out of the default SessionUtil
-     */
-    public ClientLoginModule() {
-        try {
-            sessionManager = SessionUtil.get().getSessionManager();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AssertionFailedException("Failed to establish SessionManager", e);
-        }
-    }
 
     /**
      * Initialize the module with data from underlying

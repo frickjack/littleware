@@ -8,16 +8,12 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.security.auth;
-
-import com.google.inject.ImplementedBy;
+package littleware.bootstrap;
 
 /**
  * Just a little interface that a bootstrap class
- * should implement.  Start out using this on the
- * server side.
+ * should implement.  
  */
-@ImplementedBy(GuiceOSGiBootstrap.class)
 public interface LittleBootstrap {
     /**
      * Bootstrap a littleware component on the client or server.
@@ -29,7 +25,21 @@ public interface LittleBootstrap {
     public void bootstrap ();
 
     /**
+     * Boot the littleware runtime and return a guice-injected
+     * instance of the given class.
+     *
+     * @param bootClass to instantiate
+     * @return injected object upon system startup
+     */
+    public <T> T bootstrap( Class<T> bootClass );
+
+    /**
      * Shutdown the littleware component associated with this object.
      */
     public void shutdown();
+
+    public interface Builder {
+        public LittleBootstrap build();
+    }
+
 }

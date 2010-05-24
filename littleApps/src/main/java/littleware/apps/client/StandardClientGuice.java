@@ -10,8 +10,6 @@
 
 package littleware.apps.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Module;

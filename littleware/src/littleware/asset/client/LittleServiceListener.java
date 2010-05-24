@@ -11,8 +11,7 @@
 package littleware.asset.client;
 
 /**
- *
- * @author pasquini
+ * Observer for client-side event-load or whatever events.
  */
 public interface LittleServiceListener {
 	public void receiveServiceEvent ( LittleServiceEvent event_little );

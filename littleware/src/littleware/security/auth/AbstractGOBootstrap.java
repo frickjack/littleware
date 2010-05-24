@@ -9,6 +9,7 @@
  */
 package littleware.security.auth;
 
+import littleware.bootstrap.LittleBootstrap;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;

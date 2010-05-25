@@ -37,7 +37,7 @@ public interface AppBootstrap extends LittleBootstrap {
 
         public AppBuilder removeModuleFactory(AppModule.AppFactory factory);
 
-        public AppBuilder config(AppProfile value);
+        public AppBuilder profile(AppProfile value);
 
         @Override
         public AppBootstrap build();
@@ -49,6 +49,7 @@ public interface AppBootstrap extends LittleBootstrap {
             return new SimpleAppBuilder();
         }
     };
+    
 }
 
 

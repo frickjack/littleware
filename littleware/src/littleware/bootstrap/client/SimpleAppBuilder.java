@@ -15,11 +15,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.logging.Logger;
+import littleware.bootstrap.AbstractLittleBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppBuilder;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.bootstrap.client.AppModule.AppFactory;
 
 public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
+    private static final Logger     log = Logger.getLogger( SimpleAppBuilder.class.getName() );
+
     private final List<AppFactory>  factoryList = new ArrayList<AppFactory>();
     private AppProfile profile;
 
@@ -47,14 +51,24 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
     }
 
     @Override
-    public AppBuilder config(AppProfile value) {
+    public AppBuilder profile(AppProfile value) {
         this.profile = value;
         return this;
     }
 
+    private static class Bootstrap extends AbstractLittleBootstrap implements AppBootstrap {
+        public Bootstrap( Collection<? extends AppModule> moduleSet ) {
+            super( moduleSet );
+        }
+    }
+
     @Override
     public AppBootstrap build() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
+        for ( AppModule.AppFactory factory : factoryList ) {
+            builder.add( factory.build( profile ) );
+        }
+        return new Bootstrap( builder.build() );
     }
 
 }

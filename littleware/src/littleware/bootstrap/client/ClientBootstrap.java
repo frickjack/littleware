@@ -13,6 +13,7 @@ package littleware.bootstrap.client;
 import java.util.Collection;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.security.auth.SessionHelper;
 
@@ -21,9 +22,16 @@ import littleware.security.auth.SessionHelper;
  */
 public interface ClientBootstrap extends AppBootstrap {
     public <T> T bootstrap( Class<T> injectTarget, SessionHelper helper );
-    public <T> T bootstrap( Class<T> injectTarget, LoginContext loginContext );
+    public <T> T bootstrap( Class<T> injectTarget, LoginContext loginContext ) throws LoginException;
     public <T> T bootstrap( Class<T> injectTarget, Subject subject );
 
+    public interface LoginSetup {
+        public ClientBuilder helper( SessionHelper value );
+        public ClientBuilder login( LoginContext context ) throws LoginException;
+        public ClientBuilder subject( Subject subject );
+        public ClientBuilder automatic() throws LoginException;
+    }
+    
     public interface ClientBuilder extends LittleBootstrap.Builder {
         /**
          * List of littleware modules registered with this bootstrap.
@@ -34,7 +42,7 @@ public interface ClientBootstrap extends AppBootstrap {
 
         public ClientBuilder removeModuleFactory(ClientModule.ClientFactory factory);
 
-        public ClientBuilder config( AppProfile config );
+        public ClientBuilder profile( AppProfile config );
 
         @Override
         public ClientBootstrap build();

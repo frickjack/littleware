@@ -9,6 +9,7 @@
  */
 package littleware.security.auth.client;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -237,5 +238,55 @@ public class ClientLoginModule implements LoginModule {
     public boolean logout() throws LoginException {
         return true;
     }
-}
 
+
+    private static class SimpleBuilder implements ConfigurationBuilder {
+        private Map<String,String> optionMap = new HashMap<String,String>();
+
+        @Override
+        public ConfigurationBuilder host(String value) {
+            optionMap.put( HOST_OPTION, value);
+            return this;
+        }
+
+        @Override
+        public ConfigurationBuilder port(int value) {
+            optionMap.put( PORT_OPTION, Integer.toString( value ) );
+            return this;
+        }
+
+        @Override
+        public Configuration build() {
+            final AppConfigurationEntry[] entry = {
+                new AppConfigurationEntry( ClientLoginModule.class.getName(),
+                        AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+                        ImmutableMap.copyOf(optionMap)
+                        )
+            };
+            return new Configuration() {
+
+                @Override
+                public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+                    return entry;
+                }
+
+            };
+        }
+
+    }
+
+    /**
+     * Simplify process of setting up a LoginContext Configuration
+     * in simple apps.
+     */
+    public static interface ConfigurationBuilder {
+        public ConfigurationBuilder host( String value );
+        public ConfigurationBuilder port( int value );
+        public Configuration build();
+    }
+
+
+    public static ConfigurationBuilder newBuilder() {
+        return new SimpleBuilder();
+    }
+}

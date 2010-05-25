@@ -294,7 +294,6 @@ public abstract class AbstractGOBootstrap implements GuiceOSGiBootstrap {
         } catch (Exception ex) {
             log.log(Level.WARNING, "Felix shutdown caught exception", ex);
         }
-
     }
 
     @Override

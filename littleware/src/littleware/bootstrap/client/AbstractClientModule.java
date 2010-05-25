@@ -10,6 +10,7 @@
 
 package littleware.bootstrap.client;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,24 +23,34 @@ import org.osgi.framework.BundleActivator;
 
 public class AbstractClientModule implements ClientModule {
     private final AppProfile profile;
+    private final Collection<AssetType>   assetTypes;
+    private final Collection<ServiceType> serviceTypes;
+    private final Collection<Class<? extends LittleServiceListener>> serviceListeners;
 
-    public AbstractClientModule( AppBootstrap.AppProfile profile ) {
+    public AbstractClientModule( AppBootstrap.AppProfile profile,
+            Collection<AssetType> assetTypes,
+            Collection<ServiceType> serviceTypes,
+            Collection<Class<? extends LittleServiceListener>> serviceListeners
+            ) {
         this.profile = profile;
+        this.assetTypes = ImmutableList.copyOf( assetTypes );
+        this.serviceTypes = ImmutableList.copyOf( serviceTypes );
+        this.serviceListeners = ImmutableList.copyOf( serviceListeners );
     }
 
     @Override
     public Collection<AssetType> getAssetTypes() {
-        return Collections.emptyList();
+        return assetTypes;
     }
 
     @Override
     public Collection<ServiceType> getServiceTypes() {
-        return Collections.emptyList();
+        return serviceTypes;
     }
 
     @Override
     public Collection<Class<? extends LittleServiceListener>> getServiceListeners() {
-        return Collections.emptyList();
+        return serviceListeners;
     }
 
     @Override

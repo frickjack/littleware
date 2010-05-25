@@ -10,6 +10,7 @@
 package littleware.security.auth.client;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -48,11 +49,12 @@ public class ClientLoginModule implements LoginModule {
     public final static String ACL_OPTION = "acl_check";
     public final static String HOST_OPTION = "host";
     public final static String PORT_OPTION = "port";
+    public final static String CACHE_OPTION = "cache";
     private CallbackHandler handler = null;
     private SessionManager sessionManager = null;
     private Subject subject = null;
     private Set<String> aclNameList = new HashSet<String>();
-
+    private boolean useCache = false;
 
     /**
      * Initialize the module with data from underlying
@@ -72,6 +74,17 @@ public class ClientLoginModule implements LoginModule {
         this.handler = handler;
         final String host = (String) optionsMap.get(HOST_OPTION);
         final String port = (String) optionsMap.get(PORT_OPTION);
+        final String cacheString = (String) optionsMap.get(CACHE_OPTION);
+
+        if (null != cacheString) {
+            final String cacheClean = cacheString.trim().toLowerCase();
+            log.log(Level.FINE, "Considering cache option string: " + cacheClean);
+            if (cacheClean.startsWith("on")
+                    || cacheClean.startsWith("yes")
+                    || cacheClean.startsWith("true")) {
+                useCache = true;
+            }
+        }
 
         try {
             final SessionUtil util = SessionUtil.get();
@@ -101,6 +114,9 @@ public class ClientLoginModule implements LoginModule {
             throw new IllegalArgumentException("Failure retrieving LoginModule options", ex);
         }
     }
+    private static final String cacheFileName = "latest_session.properties";
+    private static final String cacheUserKey = "session.username";
+    private static final String cacheSessionKey = "session.id";
 
     /**
      * Attempt phase-1 login using cached CallbackHandler to get user info
@@ -120,10 +136,22 @@ public class ClientLoginModule implements LoginModule {
         String userName = null;
         String password = null;
 
+        if (useCache) {
+            String sessionId = null;
+            try {
+                sessionId = PropertiesLoader.get().loadProperties(cacheFileName).getProperty(cacheSessionKey);
+            } catch (IOException ex) {
+                log.log(Level.FINE, "Unable to load " + cacheFileName + ", proceeding ...");
+            }
+            if ( null != sessionId ) {
+                
+            }
+        }
+
         try {
             // Collect username and password via callbacks
             final Callback[] callbacks = {
-                new NameCallback("Enter username"),
+                new NameCallback("Enter username", System.getProperty("user.name", "username")),
                 new PasswordCallback("Enter password", false)
             };
             handler.handle(callbacks);
@@ -239,29 +267,34 @@ public class ClientLoginModule implements LoginModule {
         return true;
     }
 
-
     private static class SimpleBuilder implements ConfigurationBuilder {
-        private Map<String,String> optionMap = new HashMap<String,String>();
+
+        private Map<String, String> optionMap = new HashMap<String, String>();
 
         @Override
         public ConfigurationBuilder host(String value) {
-            optionMap.put( HOST_OPTION, value);
+            optionMap.put(HOST_OPTION, value);
             return this;
         }
 
         @Override
         public ConfigurationBuilder port(int value) {
-            optionMap.put( PORT_OPTION, Integer.toString( value ) );
+            optionMap.put(PORT_OPTION, Integer.toString(value));
+            return this;
+        }
+
+        @Override
+        public ConfigurationBuilder useCache( boolean value) {
+            optionMap.put(CACHE_OPTION, value ? "true" : "false" );
             return this;
         }
 
         @Override
         public Configuration build() {
             final AppConfigurationEntry[] entry = {
-                new AppConfigurationEntry( ClientLoginModule.class.getName(),
-                        AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                        ImmutableMap.copyOf(optionMap)
-                        )
+                new AppConfigurationEntry(ClientLoginModule.class.getName(),
+                AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+                ImmutableMap.copyOf(optionMap))
             };
             return new Configuration() {
 
@@ -269,10 +302,8 @@ public class ClientLoginModule implements LoginModule {
                 public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
                     return entry;
                 }
-
             };
         }
-
     }
 
     /**
@@ -280,11 +311,12 @@ public class ClientLoginModule implements LoginModule {
      * in simple apps.
      */
     public static interface ConfigurationBuilder {
-        public ConfigurationBuilder host( String value );
-        public ConfigurationBuilder port( int value );
+
+        public ConfigurationBuilder host(String value);
+        public ConfigurationBuilder port(int value);
+        public ConfigurationBuilder useCache( boolean value);
         public Configuration build();
     }
-
 
     public static ConfigurationBuilder newBuilder() {
         return new SimpleBuilder();

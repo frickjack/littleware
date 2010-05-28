@@ -7,9 +7,10 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.bootstrap.server;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,10 +25,22 @@ import littleware.security.auth.server.ServiceProviderFactory;
 import org.osgi.framework.BundleActivator;
 
 public class AbstractServerModule implements ServerModule {
+
     private final ServerProfile profile;
-    public AbstractServerModule( ServerBootstrap.ServerProfile profile ) {
+    private final Map<AssetType, Class<? extends AssetSpecializer>> typeMap;
+    private final Map<ServiceType, Class<? extends ServiceProviderFactory>> serviceMap;
+    private final Collection<Class<? extends LittleServerListener>> serverListeners;
+
+    protected AbstractServerModule(ServerBootstrap.ServerProfile profile,
+            Map<AssetType, Class<? extends AssetSpecializer>> typeMap,
+            Map<ServiceType, Class<? extends ServiceProviderFactory>> serviceMap,
+            Collection<Class<? extends LittleServerListener>> serverListeners) {
         this.profile = profile;
+        this.typeMap = ImmutableMap.copyOf( typeMap );
+        this.serviceMap = ImmutableMap.copyOf( serviceMap );
+        this.serverListeners = ImmutableList.copyOf( serverListeners );
     }
+
     @Override
     public ServerProfile getProfile() {
         return profile;
@@ -35,17 +48,17 @@ public class AbstractServerModule implements ServerModule {
 
     @Override
     public Map<AssetType, Class<? extends AssetSpecializer>> getAssetTypes() {
-        return Collections.emptyMap();
+        return typeMap;
     }
 
     @Override
     public Map<ServiceType, Class<? extends ServiceProviderFactory>> getServiceTypes() {
-        return Collections.emptyMap();
+        return serviceMap;
     }
 
     @Override
     public Collection<Class<? extends LittleServerListener>> getServerListeners() {
-        return Collections.emptyList();
+        return serverListeners;
     }
 
     @Override
@@ -56,5 +69,4 @@ public class AbstractServerModule implements ServerModule {
     @Override
     public void configure(Binder binder) {
     }
-
 }

@@ -16,10 +16,10 @@ import java.util.logging.Level;
 
 
 import junit.framework.*;
+import littleware.security.auth.server.ServerBootstrap;
+import littleware.security.auth.test.ClientLoginTester;
+import littleware.test.TestFactory;
 
-import littleware.asset.*;
-import littleware.security.*;
-import littleware.security.auth.*;
 
 /**
  * Just little utility class that packages up a test suite
@@ -27,27 +27,21 @@ import littleware.security.auth.*;
  */
 public class PackageTestSuite extends TestSuite {
 
-    private static final Logger olog = Logger.getLogger(PackageTestSuite.class.getName());
+    private static final Logger log = Logger.getLogger(PackageTestSuite.class.getName());
 
     /**
      * Inject the managers to test against
-     *
-     * @param m_session
-     * @param m_search
-     * @param m_account
-     * @param m_acl
      */
     @Inject
-    public PackageTestSuite(SessionManager m_session,
-            AssetSearchManager search,
-            AssetManager m_asset,
-            AccountManager m_account,
+    public PackageTestSuite(
             Provider<AclManagerTester> provideAclTester,
-            Provider<AccountManagerTester> provideAccountTester) {
+            Provider<AccountManagerTester> provideAccountTester,
+            ClientLoginTester testClientLogin
+            ) {
         super(PackageTestSuite.class.getName());
 
-        olog.log(Level.INFO, "Trying to setup littleware.security test suite");
-        olog.log(Level.INFO, "Registering littleware SimpleDbLoginConfiguration");
+        log.log(Level.INFO, "Trying to setup littleware.security test suite");
+        log.log(Level.INFO, "Registering littleware SimpleDbLoginConfiguration");
         boolean b_run = true;
 
         if (b_run) {
@@ -66,9 +60,34 @@ public class PackageTestSuite extends TestSuite {
             this.addTest(provideAclTester.get().putName("testAclLoad"));
             //this.addTest(provideAclTester.get().putName("testAclUpdate"));
         }
+        if ( b_run ) {
+            this.addTest( testClientLogin );
+        }
 
-        olog.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
+        log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
+
+    /**
+     * Just call through to ServerTestLauncher.suite() - should only
+     * invoke when this is the master SeverTestLauncher TestSuite.
+     */
+    public static Test suite() {
+        try {
+            log.log( Level.INFO, "Launching test suite ..."  );
+            return (new TestFactory()).build(new ServerBootstrap(true), PackageTestSuite.class);
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
+            throw ex;
+        }
+    }
+
+    public static void main( String[] args ) {
+        final String[] testArgs = {
+            "-noloading", PackageTestSuite.class.getName()
+        };
+        junit.swingui.TestRunner.main(testArgs);
+    }
+
 }
 
 

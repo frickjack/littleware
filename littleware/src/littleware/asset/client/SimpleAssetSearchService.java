@@ -30,7 +30,6 @@ import littleware.asset.IdWithClock;
 import littleware.base.BaseException;
 import littleware.base.Cache;
 import littleware.base.Maybe;
-import littleware.security.auth.client.ClientCache;
 
 /**
  * Smart proxy for AssetSearchManager

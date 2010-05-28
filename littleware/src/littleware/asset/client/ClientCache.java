@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.security.auth.client;
+package littleware.asset.client;
 
 import com.google.inject.ImplementedBy;
 import java.util.UUID;

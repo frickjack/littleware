@@ -152,7 +152,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         LoginContext x_login = null;
         try {
             x_login = new LoginContext("littleware.login",
-                    new SimpleNamePasswordCallbackHandler(s_name, s_password));
+                    new SimpleCallbackHandler(s_name, s_password));
         } catch (Exception ex) {
             log.log(Level.INFO, "Assuming pass-through login - no littleware.login context available", ex);
             j_caller = new Subject();
@@ -206,7 +206,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         /*... disable for now ...
         javax.security.auth.spi.LoginModule module = new PasswordDbLoginModule();
         module.initialize ( j_caller, 
-        new SimpleNamePasswordCallbackHandler(s_name, s_password),
+        new SimpleCallbackHandler(s_name, s_password),
         new HashMap<String,String>(),
         new HashMap<String,String>()
         );

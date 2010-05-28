@@ -21,8 +21,8 @@ to authenticate users via other LoginModules via the normal
 JAAS policy mechanism.
 </p>
 <p>
-The SubjectInvocationHandler and SessionInvocationHandler
-support the construction on the serverside of JAAS aware
+The SubjectInvocationHandler 
+constructs on the serverside JAAS aware
 dynamic proxies that transparently forward method calls
 as PrivilegedActions through Subject.doAs - setting up the
 JAAS security context for each client RMI method invocation.

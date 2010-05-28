@@ -311,13 +311,17 @@ public class ClientLoginModule implements LoginModule {
      * in simple apps.
      */
     public static interface ConfigurationBuilder {
-
         public ConfigurationBuilder host(String value);
         public ConfigurationBuilder port(int value);
         public ConfigurationBuilder useCache( boolean value);
         public Configuration build();
     }
 
+    /**
+     * Little fatory method to allocate a simple
+     * in-app ConfigurationBuilder to setup a LoginContext
+     * configuration that uses the ClientLoginModule.
+     */
     public static ConfigurationBuilder newBuilder() {
         return new SimpleBuilder();
     }

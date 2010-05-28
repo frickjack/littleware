@@ -15,8 +15,6 @@ import java.io.ObjectStreamException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.security.auth.client.ClientCache;
-import littleware.security.auth.client.NullClientCache;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;

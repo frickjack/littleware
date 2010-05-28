@@ -9,7 +9,7 @@
  */
 
 
-package littleware.security.auth.client;
+package littleware.asset.client;
 
 import java.util.UUID;
 import littleware.asset.Asset;

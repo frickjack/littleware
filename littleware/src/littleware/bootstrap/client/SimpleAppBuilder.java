@@ -34,7 +34,7 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
     }
 
     @Override
-    public Collection<AppFactory> getModuleList() {
+    public Collection<AppFactory> getModuleSet() {
         return ImmutableList.copyOf(factoryList);
     }
 
@@ -56,10 +56,15 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
         return this;
     }
 
-    private static class Bootstrap extends AbstractLittleBootstrap implements AppBootstrap {
-        public Bootstrap( Collection<? extends AppModule> moduleSet ) {
+    private static class Bootstrap extends AbstractLittleBootstrap<AppModule> implements AppBootstrap {
+        private final AppProfile profile;
+        public Bootstrap( Collection<? extends AppModule> moduleSet, AppBootstrap.AppProfile profile ) {
             super( moduleSet );
+            this.profile = profile;
         }
+
+        @Override
+        public AppBootstrap.AppProfile getProfile() { return profile; }
     }
 
     @Override
@@ -68,7 +73,7 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
         for ( AppModule.AppFactory factory : factoryList ) {
             builder.add( factory.build( profile ) );
         }
-        return new Bootstrap( builder.build() );
+        return new Bootstrap( builder.build(), profile );
     }
 
 }

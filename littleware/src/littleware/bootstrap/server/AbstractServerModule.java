@@ -41,6 +41,13 @@ public class AbstractServerModule implements ServerModule {
         this.serverListeners = ImmutableList.copyOf( serverListeners );
     }
 
+    protected AbstractServerModule( ServerBootstrap.ServerProfile profile ) {
+        this.profile = profile;
+        this.typeMap = Collections.emptyMap();
+        this.serviceMap = Collections.emptyMap();
+        this.serverListeners = Collections.emptyList();
+    }
+
     @Override
     public ServerProfile getProfile() {
         return profile;

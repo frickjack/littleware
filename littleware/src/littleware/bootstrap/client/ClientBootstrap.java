@@ -10,6 +10,7 @@
 
 package littleware.bootstrap.client;
 
+import com.google.inject.Provider;
 import java.util.Collection;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -18,12 +19,13 @@ import littleware.bootstrap.LittleBootstrap;
 import littleware.security.auth.SessionHelper;
 
 /**
- * Client mode bootstrap
+ * Client mode bootstrap.
+ * Loads ClientModule and AppModule service listeners.
  */
 public interface ClientBootstrap extends AppBootstrap {
-    public <T> T bootstrap( Class<T> injectTarget, SessionHelper helper );
-    public <T> T bootstrap( Class<T> injectTarget, LoginContext loginContext ) throws LoginException;
-    public <T> T bootstrap( Class<T> injectTarget, Subject subject );
+
+    @Override
+    public Collection<? extends ClientModule> getModuleSet();
 
     public interface LoginSetup {
         public ClientBuilder helper( SessionHelper value );
@@ -47,4 +49,12 @@ public interface ClientBootstrap extends AppBootstrap {
         @Override
         public ClientBootstrap build();
     }
+
+    public static final Provider<LoginSetup> provider = new Provider<LoginSetup>() {
+        @Override
+        public LoginSetup get() {
+            return new SimpleLoginSetup();
+        }
+    };
+
 }

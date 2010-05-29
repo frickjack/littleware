@@ -22,16 +22,19 @@ import littleware.bootstrap.LittleBootstrap;
 public interface AppBootstrap extends LittleBootstrap {
 
     public enum AppProfile {
-
         SwingApp, CliApp, WebApp;
     }
+
+    @Override
+    public Collection<? extends AppModule> getModuleSet();
+    public AppProfile getProfile();
 
     public interface AppBuilder extends LittleBootstrap.Builder {
 
         /**
          * List of littleware modules registered with this bootstrap.
          */
-        public Collection<AppModule.AppFactory> getModuleList();
+        public Collection<AppModule.AppFactory> getModuleSet();
 
         public AppBuilder addModuleFactory(AppModule.AppFactory factory);
 

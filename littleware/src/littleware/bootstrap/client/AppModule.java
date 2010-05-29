@@ -21,6 +21,6 @@ public interface AppModule extends LittleModule {
     public AppProfile          getProfile();
     
     public interface AppFactory {
-        public AppModule build( AppProfile config );
+        public AppModule build( AppProfile profile );
     }
 }

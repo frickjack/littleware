@@ -38,6 +38,6 @@ public interface ClientModule extends AppModule {
 
     public interface ClientFactory extends AppModule.AppFactory {
         @Override
-        public ClientModule build( AppProfile config );
+        public ClientModule build( AppProfile profile );
     }
 }

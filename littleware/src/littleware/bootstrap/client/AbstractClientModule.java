@@ -38,6 +38,16 @@ public class AbstractClientModule implements ClientModule {
         this.serviceListeners = ImmutableList.copyOf( serviceListeners );
     }
 
+    /**
+     * Constructor with empty type-set, server-set, and listener list
+     */
+     public AbstractClientModule( AppBootstrap.AppProfile profile ) {
+         this.profile = profile;
+         this.assetTypes = Collections.emptyList();
+         this.serviceTypes = Collections.emptyList();
+         this.serviceListeners = Collections.emptyList();
+     }
+
     @Override
     public Collection<AssetType> getAssetTypes() {
         return assetTypes;

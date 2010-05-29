@@ -8,7 +8,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.security.auth;
+package littleware.bootstrap;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -15,7 +15,7 @@ import junit.framework.*;
 //import littleware.apps.client.ClientBootstrap;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
-import littleware.security.auth.server.ServerBootstrap;
+import littleware.bootstrap.server.ServerBootstrap;
 
 /**
  * Test suite constructor that pulls together tests from
@@ -72,7 +72,10 @@ public class PackageTestSuite extends TestSuite {
     public static Test suite() {
         log.log(Level.WARNING, "Guice 2.0 has an AOP bug that may throw an exception booting in test-runner class-loader");
         try {
-            return (new TestFactory()).build(new ServerBootstrap(true), PackageTestSuite.class);
+            return (new TestFactory()).build(
+                    ServerBootstrap.provider.get().profile(ServerBootstrap.ServerProfile.Standalone).build(),
+                    PackageTestSuite.class
+                    );
         } catch (RuntimeException ex) {
             log.log(Level.SEVERE, "Test setup failed", ex);
             throw ex;

@@ -10,6 +10,8 @@
 
 package littleware.bootstrap;
 
+import java.util.Collection;
+
 /**
  * Just a little interface that a bootstrap class
  * should implement.  
@@ -37,6 +39,11 @@ public interface LittleBootstrap {
      * Shutdown the littleware component associated with this object.
      */
     public void shutdown();
+
+    /**
+     * Bootstrap plugins
+     */
+    public Collection<? extends LittleModule> getModuleSet();
 
     public interface Builder {
         public LittleBootstrap build();

@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.*;
 import javax.servlet.*;
+import littleware.bootstrap.server.ServerBootstrap;
 
 /**
  * Servlet bootstraps littleware server components
@@ -29,7 +30,7 @@ public class BootstrapServlet extends HttpServlet {
     private static final long serialVersionUID = 513807516080701142L;
 
     private Exception        lastError = null;
-    private littleware.security.auth.server.ServerBootstrap  bootstrap = null;
+    private littleware.bootstrap.server.ServerBootstrap  bootstrap = null;
     
     /**
      * Start up the littleware backend
@@ -42,7 +43,7 @@ public class BootstrapServlet extends HttpServlet {
     	super.init(config);
 
         try {
-            bootstrap = new ServerBootstrap();
+            bootstrap = ServerBootstrap.provider.get().profile(ServerBootstrap.ServerProfile.J2EE).build();
             //boot.getOSGiActivator().add( PackageTestSuite.class );
             bootstrap.bootstrap();
             log.log( Level.INFO, "Littleware Bootstrap ok" );

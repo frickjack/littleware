@@ -10,6 +10,7 @@
 
 package littleware.bootstrap.server;
 
+import com.google.inject.Provider;
 import java.util.Collection;
 import littleware.bootstrap.LittleBootstrap;
 
@@ -22,6 +23,8 @@ public interface ServerBootstrap extends LittleBootstrap {
         Standalone, J2EE;
     }
 
+    public ServerBootstrap.ServerProfile getProfile();
+    
     public interface ServerBuilder extends LittleBootstrap.Builder {
 
         /**
@@ -33,10 +36,19 @@ public interface ServerBootstrap extends LittleBootstrap {
 
         public ServerBuilder removeModuleFactory(ServerModule.ServerFactory factory);
 
-        public ServerBuilder config( ServerProfile config );
+        public ServerBuilder profile( ServerProfile profile );
 
         @Override
         public ServerBootstrap build();
     }
+
+    public static Provider<ServerBuilder> provider = new Provider<ServerBuilder>() {
+
+        @Override
+        public ServerBuilder get() {
+            return new SimpleServerBuilder();
+        }
+
+    };
 }
 

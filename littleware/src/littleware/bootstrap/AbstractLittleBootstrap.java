@@ -34,20 +34,25 @@ import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
 
 
-public abstract class AbstractLittleBootstrap implements LittleBootstrap {
+public abstract class AbstractLittleBootstrap<T extends LittleModule> implements LittleBootstrap {
     private static final Logger log = Logger.getLogger( AbstractLittleBootstrap.class.getName() );
 
-    private final Collection<? extends LittleModule> moduleSet;
+    private final Collection<? extends T> moduleSet;
 
-    protected AbstractLittleBootstrap( Collection<? extends LittleModule> moduleSet ) {
+    protected AbstractLittleBootstrap( Collection<? extends T> moduleSet ) {
         this.moduleSet = moduleSet;
     }
 
     @Override
-    public void bootstrap() {
+    public final void bootstrap() {
         bootstrap( Injector.class );
     }
 
+    @Override
+    public Collection<? extends T> getModuleSet() {
+        return moduleSet;
+    }
+    
     /**
      * Internal activator just triggers a barrier after
      * receiving the OSGi framework-started event.
@@ -83,9 +88,9 @@ public abstract class AbstractLittleBootstrap implements LittleBootstrap {
 
     private boolean bootstrapDone = false;
     private Felix   felix = null;
-    
-    @Override
-    public <T> T bootstrap(Class<T> bootClass) {
+
+
+    protected <R> R bootstrap( Class<R> bootClass, Collection<? extends T> moduleSet ) {
         if ( bootstrapDone ) {
             throw new IllegalStateException( "Bootstrap can only run once" );
         }
@@ -133,6 +138,11 @@ public abstract class AbstractLittleBootstrap implements LittleBootstrap {
         }
         bootstrapDone = true;
         return injector.getInstance(bootClass);
+    }
+
+    @Override
+    public final <R> R bootstrap(Class<R> bootClass) {
+        return bootstrap( bootClass, moduleSet );
     }
 
     @Override

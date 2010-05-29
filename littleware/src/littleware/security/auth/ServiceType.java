@@ -60,6 +60,9 @@ public class ServiceType<T extends LittleService> extends DynamicEnum<ServiceTyp
         oclass_service = class_service;
     }
 
+    /**
+     * Fascilitates setting up retry-proxies
+     */
     public Class<T>  getInterface() {
         return oclass_service;
     }

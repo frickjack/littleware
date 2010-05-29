@@ -9,18 +9,17 @@
  */
 package littleware.test;
 
-import com.google.inject.Binder;
 import com.google.inject.Inject;
-import com.google.inject.Module;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.base.EventBarrier;
-import littleware.security.auth.GuiceOSGiBootstrap;
-import littleware.security.auth.RunnerActivator;
+import littleware.bootstrap.LittleBootstrap;
+import littleware.bootstrap.RunnerActivator;
+import littleware.bootstrap.client.ClientBootstrap;
+import littleware.bootstrap.server.ServerBootstrap;
 
 /**
  * Utility to setup TestSuite that can bootstrap
@@ -65,9 +64,10 @@ public class TestFactory {
      * environment that shuts down
      * the environment in the last test.
      */
-    public TestSuite build(final GuiceOSGiBootstrap bootstrap,
+    public TestSuite build(final LittleBootstrap bootstrap,
             final Class<? extends TestSuite> testSuiteClass) {
         final SetupBarrier suiteBarrier = new SetupBarrier();
+        /*..
         bootstrap.getGuiceModule().add(
                 new Module() {
 
@@ -78,7 +78,7 @@ public class TestFactory {
                     }
                 });
         bootstrap.getOSGiActivator().add(SuiteActivator.class);
-
+        ..*/
         try {
             bootstrap.bootstrap();
             log.log(Level.INFO, "Waiting for OSGi startup ...");
@@ -104,8 +104,8 @@ public class TestFactory {
      * as a client in the client environment, then shuts
      * down both environments.
      */
-    public TestSuite build(final GuiceOSGiBootstrap serverBootstrap,
-            final GuiceOSGiBootstrap clientBootstrap,
+    public TestSuite build(final ServerBootstrap serverBootstrap,
+            final ClientBootstrap clientBootstrap,
             final Class<? extends TestSuite> testSuiteClass) {
 
         serverBootstrap.bootstrap();

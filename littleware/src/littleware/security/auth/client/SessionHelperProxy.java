@@ -47,7 +47,7 @@ import org.osgi.framework.BundleContext;
  */
 public class SessionHelperProxy implements SessionHelperService {
 
-    private static final Logger olog_generic = Logger.getLogger(SessionHelperProxy.class.getName());
+    private static final Logger log = Logger.getLogger(SessionHelperProxy.class.getName());
     private static final long serialVersionUID = -1391174273951630071L;
     private SessionHelper om_real = null;
     private SessionManager om_session = null;
@@ -64,7 +64,7 @@ public class SessionHelperProxy implements SessionHelperService {
                 try {
                     om_real = om_session.getSessionHelper(ou_session);
                 } catch (Exception e) {
-                    olog_generic.log(Level.WARNING, "Failure to re-establish session, caught: " + e);
+                    log.log(Level.WARNING, "Failure to re-establish session, caught: " + e);
                     throw e_remote;
                 }
             }
@@ -131,7 +131,7 @@ public class SessionHelperProxy implements SessionHelperService {
             try {
                 service.start(ctx);
             } catch (Exception ex) {
-                olog_generic.log(Level.WARNING, "Failed to start service", ex);
+                log.log(Level.WARNING, "Failed to start service", ex);
             }
         }
     }
@@ -142,7 +142,7 @@ public class SessionHelperProxy implements SessionHelperService {
             try {
                 service.stop(ctx);
             } catch (Exception ex) {
-                olog_generic.log(Level.WARNING, "Failed to stop service", ex);
+                log.log(Level.WARNING, "Failed to stop service", ex);
             }
         }
     }
@@ -153,7 +153,7 @@ public class SessionHelperProxy implements SessionHelperService {
      */
     private class RemoteRetryInvocationHandler<T extends LittleService> implements InvocationHandler {
 
-        ServiceType<T> on_type = null;
+        final ServiceType<T> on_type;
         T om_service = null;
         InvocationHandler ohandler_proxy = null;
 
@@ -187,7 +187,7 @@ public class SessionHelperProxy implements SessionHelperService {
                                 om_service = null;
                                 service.stop(maybeContext.get());
                             } catch (Exception ex) {
-                                olog_generic.log(Level.WARNING, "Service shutdown failed", ex);
+                                log.log(Level.WARNING, "Service shutdown failed", ex);
                             }
                         }
                         om_service = getNewCoreService(on_type);
@@ -259,9 +259,9 @@ public class SessionHelperProxy implements SessionHelperService {
         m_service = getNewCoreService(n_type);
         InvocationHandler handler_retry = new RemoteRetryInvocationHandler<T>(m_service, n_type);
 
-        olog_generic.log(Level.FINE, "Setting up service " + n_type + " using object of class: " +
+        log.log(Level.FINE, "Setting up service " + n_type + " using object of class: " +
                 m_service.getClass().toString());
-        Class<T> class_service = n_type.getInterface();
+        final Class<T> class_service = n_type.getInterface();
         m_service = (T) Proxy.newProxyInstance(class_service.getClassLoader(),
                 new Class[]{class_service},
                 handler_retry);

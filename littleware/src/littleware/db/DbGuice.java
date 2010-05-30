@@ -14,19 +14,13 @@ import com.google.inject.Binder;
 import com.google.inject.name.Names;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
-import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.naming.NamingException;
-import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import littleware.base.PropertiesGuice;
-import oracle.jdbc.pool.OracleDataSource;
 
 /**
  * Specialization extends PropertiesGuice with ability to

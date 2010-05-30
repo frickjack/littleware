@@ -21,19 +21,23 @@ import littleware.asset.server.LittleServerListener;
 import littleware.base.Maybe;
 import littleware.bootstrap.server.ServerBootstrap.ServerProfile;
 import littleware.security.auth.ServiceType;
-import littleware.security.auth.server.ServiceProviderFactory;
+import littleware.security.auth.server.ServiceFactory;
 import org.osgi.framework.BundleActivator;
 
 public class AbstractServerModule implements ServerModule {
 
     private final ServerProfile profile;
     private final Map<AssetType, Class<? extends AssetSpecializer>> typeMap;
-    private final Map<ServiceType, Class<? extends ServiceProviderFactory>> serviceMap;
+    private final Map<ServiceType, Class<? extends ServiceFactory>> serviceMap;
     private final Collection<Class<? extends LittleServerListener>> serverListeners;
+
+    protected static final Map<AssetType, Class<? extends AssetSpecializer>> emptyTypeMap = Collections.emptyMap();
+    protected static final Map<ServiceType, Class<? extends ServiceFactory>> emptyServiceMap = Collections.emptyMap();
+    protected static final Collection<Class<? extends LittleServerListener>> emptyServerListeners = Collections.emptyList();
 
     protected AbstractServerModule(ServerBootstrap.ServerProfile profile,
             Map<AssetType, Class<? extends AssetSpecializer>> typeMap,
-            Map<ServiceType, Class<? extends ServiceProviderFactory>> serviceMap,
+            Map<ServiceType, Class<? extends ServiceFactory>> serviceMap,
             Collection<Class<? extends LittleServerListener>> serverListeners) {
         this.profile = profile;
         this.typeMap = ImmutableMap.copyOf( typeMap );
@@ -59,7 +63,7 @@ public class AbstractServerModule implements ServerModule {
     }
 
     @Override
-    public Map<ServiceType, Class<? extends ServiceProviderFactory>> getServiceTypes() {
+    public Map<ServiceType, Class<? extends ServiceFactory>> getServiceTypes() {
         return serviceMap;
     }
 
@@ -69,7 +73,7 @@ public class AbstractServerModule implements ServerModule {
     }
 
     @Override
-    public Maybe<Class<? extends BundleActivator>> getActivator() {
+    public Maybe<? extends Class<? extends BundleActivator>> getActivator() {
         return Maybe.empty();
     }
 

@@ -45,7 +45,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private static final long serialVersionUID = 8144056326046717141L;
     private final AssetSearchManager search;
     private final AssetManager assetMgr;
-    private final ServiceProviderRegistry serviceRegistry;
+    private final ServiceRegistry serviceRegistry;
     private final Map<UUID, WeakReference<SessionHelper>> sessionCache = new HashMap<UUID, WeakReference<SessionHelper>>();
     private static SimpleSessionManager sessionMgr = null;
     private final Sampler statSampler = new SimpleSampler();
@@ -57,7 +57,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     @Inject
     public SimpleSessionManager(AssetManager m_asset,
             AssetSearchManager m_search,
-            ServiceProviderRegistry reg_service,
+            ServiceRegistry reg_service,
             Provider<UserTreeBuilder> provideUserTree) throws RemoteException {
         //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         assetMgr = m_asset;

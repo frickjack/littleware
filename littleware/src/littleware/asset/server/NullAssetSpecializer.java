@@ -1,5 +1,6 @@
 package littleware.asset.server;
 
+import com.google.inject.Singleton;
 import littleware.asset.*;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -11,6 +12,7 @@ import littleware.base.*;
  * extend this class, so we can safely extend the AssetSpecializer
  * interface without forcing a recompile of all 3rd party extentions.
  */
+@Singleton
 public class NullAssetSpecializer implements AssetSpecializer {
 
     @Override

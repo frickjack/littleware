@@ -24,13 +24,15 @@ public interface ServerBootstrap extends LittleBootstrap {
     }
 
     public ServerBootstrap.ServerProfile getProfile();
+    @Override
+    public Collection<? extends ServerModule> getModuleSet();
     
     public interface ServerBuilder extends LittleBootstrap.Builder {
 
         /**
          * List of littleware modules registered with this bootstrap.
          */
-        public Collection<ServerModule.ServerFactory> getModuleList();
+        public Collection<ServerModule.ServerFactory> getModuleSet();
 
         public ServerBuilder addModuleFactory(ServerModule.ServerFactory factory);
 

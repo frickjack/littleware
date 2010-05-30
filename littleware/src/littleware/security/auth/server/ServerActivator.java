@@ -56,7 +56,7 @@ public class ServerActivator implements BundleActivator {
     @Inject
     public ServerActivator(SessionManager mgr_session,
             @Named("int.lw.rmi_port") int i_registry_port,
-            ServiceProviderRegistry reg_service,
+            ServiceRegistry reg_service,
             final CacheManager mgr_cache,
             final AssetSearchManager mgr_search,
             final AssetManager mgr_asset,
@@ -68,7 +68,7 @@ public class ServerActivator implements BundleActivator {
         registryPort = i_registry_port;
         //SimpleDbLoginModule.start( mgr_account, dbauth, mgr_transaction );
         reg_service.registerService(ServiceType.ACCOUNT_MANAGER,
-                new AbstractServiceProviderFactory<AccountManagerService>(ServiceType.ACCOUNT_MANAGER, mgr_search) {
+                new AbstractServiceFactory<AccountManagerService>(ServiceType.ACCOUNT_MANAGER, mgr_search) {
 
                     @Override
                     public AccountManagerService createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
@@ -76,7 +76,7 @@ public class ServerActivator implements BundleActivator {
                     }
                 });
         reg_service.registerService(ServiceType.ASSET_MANAGER,
-                new AbstractServiceProviderFactory<AssetManagerService>(ServiceType.ASSET_MANAGER, mgr_search) {
+                new AbstractServiceFactory<AssetManagerService>(ServiceType.ASSET_MANAGER, mgr_search) {
 
                     @Override
                     public AssetManagerService createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
@@ -84,7 +84,7 @@ public class ServerActivator implements BundleActivator {
                     }
                 });
         reg_service.registerService(ServiceType.ASSET_SEARCH,
-                new AbstractServiceProviderFactory<AssetSearchService>(ServiceType.ASSET_SEARCH, mgr_search) {
+                new AbstractServiceFactory<AssetSearchService>(ServiceType.ASSET_SEARCH, mgr_search) {
 
                     @Override
                     public AssetSearchService createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {

@@ -23,7 +23,7 @@ import littleware.base.BaseException;
  * the littleware.security.auth.SessionHelper#getService
  * on the SERVER side - a client should never need to use this.
  */
-public interface ServiceProviderFactory<T extends LittleService> {
+public interface ServiceFactory<T extends LittleService> {
     /**
      * Factory returns a Remote-reference ready for the
      * server to send back to the client.

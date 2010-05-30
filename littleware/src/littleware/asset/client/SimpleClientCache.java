@@ -38,9 +38,9 @@ import org.osgi.framework.BundleContext;
  * OSGi BundleActivator registers itself as a cache service
  */
 @Singleton
-public class CacheActivator implements BundleActivator, LittleServiceListener, ClientCache {
+public class SimpleClientCache implements LittleServiceListener, ClientCache {
 
-    private static final Logger log = Logger.getLogger(CacheActivator.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleClientCache.class.getName());
     private final Cache<String, Object> cacheLong = new SimpleCache<String, Object>(900, 20000);
     private final Cache<String, Object> cacheShort = new SimpleCache<String, Object>(30, 20000);
     /** Extend cache to add some special asset handling */
@@ -142,16 +142,9 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
      * @param helper to register this as a listener with, and to retrieve session from
      */
     @Inject
-    public CacheActivator(SessionHelper helper) {
-        final LittleSession session;
-        try {
-            session = helper.getSession();
-        } catch (Exception ex) {
-            throw new AssertionFailedException("Failed to retrieve session");
-        }
+    public SimpleClientCache( LittleSession session ) {
         olTransaction = session.getTransaction();
         ocache.put(session.getId().toString(), session);
-        ((LittleService) helper).addServiceListener(this);
     }
 
     /**
@@ -208,56 +201,6 @@ public class CacheActivator implements BundleActivator, LittleServiceListener, C
             log.log( Level.FINE, "Clearing cache on non-load service event" );
             getCache().clear();
         }
-    }
-
-    /**
-     * Publish this cache into the ctx,
-     * and listen on the whiteboard for new services 
-     * as they come online.
-     */
-    @Override
-    public void start(final BundleContext ctx) throws Exception {
-        // register self to whiteboard
-        ctx.registerService(ClientCache.class.getName(), this, new Properties());
-        log.log(Level.FINE, "ClientCache registered with OSGi service whiteboard");
-        // listen on whiteboard for new services
-        /** ... not necessary at this point - SessionHelperProxy manages this stuff currently ...
-         * TODO: implement AbstractLittleServiceListener OSGi activator ...
-        final ServiceListener listener = new org.osgi.framework.ServiceListener() {
-        @Override
-        public void serviceChanged(org.osgi.framework.ServiceEvent event) {
-        final ServiceReference ref = event.getServiceReference();
-        final LittleService service;
-        {
-        final Object x = ctx.getService(ref);
-        if (x instanceof LittleService) {
-        service = (LittleService) x;
-        } else {
-        return;
-        }
-        }
-        switch (event.getType()) {
-        case org.osgi.framework.ServiceEvent.REGISTERED: {
-        service.addServiceListener(CacheActivator.this);
-        }
-        break;
-        case ServiceEvent.UNREGISTERING: {
-        service.removeServiceListener( CacheActivator.this );
-        } break;
-        }
-        }
-        };
-        ctx.addServiceListener( listener );
-        // invoke the listener on all already-registered services
-        for ( ServiceReference ref : ctx.getAllServiceReferences(null, null)) {
-        listener.serviceChanged( new ServiceEvent( ServiceEvent.REGISTERED, ref ) );
-        }
-         */
-    }
-
-    /** Remove this cache from the context */
-    @Override
-    public void stop(BundleContext ctx) throws Exception {
     }
 
     @Override

@@ -20,5 +20,5 @@ import org.osgi.framework.BundleActivator;
  * activate into the littleware runtime.
  */
 public interface LittleModule extends Module {
-    public Maybe<Class<? extends BundleActivator>> getActivator();
+    public Maybe<? extends Class<? extends BundleActivator>> getActivator();
 }

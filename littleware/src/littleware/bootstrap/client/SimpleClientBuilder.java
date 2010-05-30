@@ -59,7 +59,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
 
         @Override
-        public Maybe<Class<? extends BundleActivator>> getActivator() {
+        public Maybe<? extends Class<? extends BundleActivator>> getActivator() {
             return appModule.getActivator();
         }
 
@@ -94,7 +94,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
     }
 
     @Override
-    public Collection<ClientFactory> getModuleList() {
+    public Collection<ClientFactory> getModuleSet() {
         return ImmutableList.copyOf(factoryList);
     }
 

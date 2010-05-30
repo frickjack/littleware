@@ -15,6 +15,7 @@ import com.google.inject.Binder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.bootstrap.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
@@ -30,7 +31,7 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
     private ServerProfile profile = ServerProfile.J2EE;
 
     @Override
-    public Collection<ServerFactory> getModuleList() {
+    public Collection<ServerFactory> getModuleSet() {
         return ImmutableList.copyOf( moduleList );
     }
 
@@ -89,71 +90,10 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         return new Bootstrap( builder.build(), profile );
     }
 
-}
-
-/**
- * Singleton class bootstraps littleware server.
- * First loads lw.guice_modules and lw.osgi_bundles properties
- * from littleware.properties.  Next builds a Guice injector
- * with the specified modules.  Finally, launches the OSGi
- * bundle activators within an embedded OSGi environment.
- *
- * Note: server environment differs from client environment.
- * A global shared AssetManager, AssetSearchManager, etc. rely
- * on the underlying RMI runtime to setup a proper JAAS
- * environment from which the user associated with some
- * operation may be derived.  It is up to the server implementation
- * to enforce security constraints.  The injected search and asset
- * managers take care of this for many purposes.
- *
- * On the client each manager
- * is associated with the client session associated with
- * the SessionHelper from which the manager is derived.
- *
-public class ServerBootstrap extends AbstractGOBootstrap {
-
-    private static final Logger log = Logger.getLogger(ServerBootstrap.class.getName());
-
-    public ServerBootstrap() {
-        this(false);
-    }
-
-    @VisibleForTesting
-    public ServerBootstrap(boolean bHibernate) {
-        super(
-                Arrays.asList(
-                //new PostgresGuice(),
-                bHibernate ? new HibernateGuice() : new J2EEGuice(),
-                new AssetServerGuice(),
-                new AuthServerGuice(),
-                new SecurityServerGuice()),
-                Arrays.asList(
-                ServerActivator.class,
-                SecurityServerActivator.class),
-                true);
-        try {
-            getGuiceModule().add(
-                    new DbGuice(
-                    PropertiesLoader.get().loadProperties("littleware_jdbc.properties")));
-        } catch (IOException ex) {
-            log.log(Level.INFO, "Skipping littleware_jdbc.properties injection", ex);
-        }
-    }
-
     public static void main(String[] v_argv) {
         log.log(Level.INFO, "Testing OSGi bootstrap");
-        LittleBootstrap boot = new ServerBootstrap();
+        final LittleBootstrap boot = ServerBootstrap.provider.get().profile(ServerProfile.Standalone).build();
         boot.bootstrap();
-        log.log(Level.INFO, "Sleeping 10 seconds before shutdown");
-        try {
-            Thread.sleep(10000);
-            boot.shutdown();
-            log.log(Level.INFO, "Shutdown issued, sleep 5 seconds before exit");
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {
-            log.log(Level.SEVERE, null, ex);
-        }
-        System.exit(0);
     }
 }
- */
+ 

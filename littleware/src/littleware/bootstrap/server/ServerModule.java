@@ -18,7 +18,7 @@ import littleware.asset.server.LittleServerListener;
 import littleware.base.Maybe;
 import littleware.bootstrap.LittleModule;
 import littleware.security.auth.ServiceType;
-import littleware.security.auth.server.ServiceProviderFactory;
+import littleware.security.auth.server.ServiceFactory;
 
 /**
  * Server-side littleware runtime module
@@ -36,7 +36,7 @@ public interface ServerModule extends LittleModule {
      * and the service provider factory to register with the remote
      * dispatch engine.
      */
-    public Map<ServiceType,Class<? extends ServiceProviderFactory>> getServiceTypes();
+    public Map<ServiceType,Class<? extends ServiceFactory>> getServiceTypes();
 
     /**
      * Get collection of LittleServerEvent listeners to register with

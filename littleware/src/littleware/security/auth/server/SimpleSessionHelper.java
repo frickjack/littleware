@@ -37,13 +37,13 @@ public class SimpleSessionHelper implements SessionHelper {
     private final AssetSearchManager om_search;
     private final AssetManager om_asset;
     private final SessionManager om_session;
-    private final ServiceProviderRegistry oreg_service;
+    private final ServiceRegistry oreg_service;
 
     public SimpleSessionHelper(UUID u_session,
             AssetSearchManager m_search,
             AssetManager m_asset,
             SessionManager m_session,
-            ServiceProviderRegistry reg_service) {
+            ServiceRegistry reg_service) {
         ou_session = u_session;
         om_search = m_search;
         om_asset = m_asset;

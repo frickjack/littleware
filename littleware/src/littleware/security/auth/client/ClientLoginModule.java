@@ -10,7 +10,10 @@
 package littleware.security.auth.client;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -136,18 +139,6 @@ public class ClientLoginModule implements LoginModule {
         String userName = null;
         String password = null;
 
-        if (useCache) {
-            String sessionId = null;
-            try {
-                sessionId = PropertiesLoader.get().loadProperties(cacheFileName).getProperty(cacheSessionKey);
-            } catch (IOException ex) {
-                log.log(Level.FINE, "Unable to load " + cacheFileName + ", proceeding ...");
-            }
-            if ( null != sessionId ) {
-                
-            }
-        }
-
         try {
             // Collect username and password via callbacks
             final Callback[] callbacks = {
@@ -164,28 +155,82 @@ public class ClientLoginModule implements LoginModule {
         } catch (Exception e) {
             throw new LoginException("Failure handling callbacks, caught: " + e);
         }
+
+        boolean sessionIdFromUsername = false;
         UUID sessionId = null;
 
         try {
             sessionId = UUIDFactory.parseUUID(userName);
+            sessionIdFromUsername = true;
         } catch (Exception ex) {
         }
 
-        try {
-            final SessionHelper helper;
-            if (null != sessionId) {
+        // Try to re-use an existing login session if possible
+        // to re-use server-side resources
+        final String loggedInUser = System.getProperty("user.name");
+        final File cacheFile = new File(Whatever.Folder.LittleHome.getFolder(), cacheFileName);
+
+        if ((null == sessionId) && loggedInUser.equals(userName) && cacheFile.exists() ) {
+            String sessionInCache = null;
+            String userInCache = null;
+
+            final Properties props = new Properties();
+            Reader cacheReader = null;
+            try {
+                cacheReader = new FileReader(cacheFile);
+                props.load(cacheReader);
+                sessionInCache = props.getProperty(cacheSessionKey);
+                userInCache = props.getProperty(cacheUserKey);
+                cacheFile.delete();
+            } catch (IOException ex) {
+                log.log(Level.FINE, "Unable to load " + cacheFileName + ", proceeding ...");
+            } finally {
+                Whatever.get().close(cacheReader);
+            }
+            if ((null != sessionInCache) && (null != userInCache) && userInCache.equals(userName)) {
+                try {
+                    sessionId = UUIDFactory.parseUUID(sessionInCache);
+                } catch (Exception ex) {
+                }
+            }
+        }
+        SessionHelper helper = null;
+        if (null != sessionId) {
+            try {
                 // Then the password is a session-id
-                helper = sessionManager.getSessionHelper(UUIDFactory.parseUUID(password));
-            } else {
+                helper = sessionManager.getSessionHelper(sessionId);
+            } catch (Exception ex) {
+                if ( sessionIdFromUsername ) {
+                    throw new FailedLoginException( "Failed to authenticate to session" );
+                }
+                log.log(Level.FINE, "Failed to login to cached session " + sessionId, ex);
+            }
+        }
+        if (null == helper) {
+            try {
                 helper = sessionManager.login(userName, password,
                         "ClientLoginModule login");
+            } catch (Exception ex) {
+                throw new FailedLoginException("Failed " + userName + " login, caught: " + ex);
             }
-
+        }
+        if (userName.equals(loggedInUser)) {
+            try { // Update session cache
+                final Properties props = new Properties();
+                props.setProperty(cacheUserKey, userName);
+                props.setProperty(cacheSessionKey, UUIDFactory.makeCleanString(helper.getSession().getId()));
+                PropertiesLoader.get().safelySave(props, cacheFile);
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Failed to update session cache", ex);
+            }
+        }
+        // finaly - decorate the authenticated Subject
+        try {
             final AssetSearchManager search = helper.getService(ServiceType.ASSET_SEARCH);
-
             final LittleUser user = search.getAsset(helper.getSession().getCreatorId()).get().narrow();
 
-            subject.getPrincipals().add(user);
+            subject.getPrincipals().add(
+                    user);
             subject.getPrivateCredentials().add(helper);
 
             if (!aclNameList.isEmpty()) {
@@ -217,9 +262,8 @@ public class ClientLoginModule implements LoginModule {
                     }
                 }
             }
-
-            log.log(Level.INFO, "User authenticated: " + user.getName());
-
+            log.log(Level.INFO, "User authenticated: "
+                    + user.getName());
         } catch (RuntimeException e) {
             throw e;
         } catch (LoginException e) {
@@ -228,7 +272,6 @@ public class ClientLoginModule implements LoginModule {
             log.log(Level.WARNING, "Authentication of " + userName + "failed, caught: " + e);
             throw new FailedLoginException("Authentication of " + userName + " failed, caught: " + e);
         }
-
         return true;
     }
 
@@ -284,8 +327,8 @@ public class ClientLoginModule implements LoginModule {
         }
 
         @Override
-        public ConfigurationBuilder useCache( boolean value) {
-            optionMap.put(CACHE_OPTION, value ? "true" : "false" );
+        public ConfigurationBuilder useCache(boolean value) {
+            optionMap.put(CACHE_OPTION, value ? "true" : "false");
             return this;
         }
 
@@ -311,12 +354,15 @@ public class ClientLoginModule implements LoginModule {
      * in simple apps.
      */
     public static interface ConfigurationBuilder {
+
         public ConfigurationBuilder host(String value);
+
         public ConfigurationBuilder port(int value);
-        public ConfigurationBuilder useCache( boolean value);
+
+        public ConfigurationBuilder useCache(boolean value);
+
         public Configuration build();
     }
-
     /**
      * Little fatory method to allocate a simple
      * in-app ConfigurationBuilder to setup a LoginContext

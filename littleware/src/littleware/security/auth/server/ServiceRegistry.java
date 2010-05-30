@@ -10,7 +10,6 @@
 
 package littleware.security.auth.server;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import littleware.asset.client.LittleService;
@@ -20,14 +19,14 @@ import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 
 /**
- * Registry maps ServiceType to the ServiceProviderFactory
+ * Registry maps ServiceType to the ServiceFactory
  * that supports the ServiceType
  */
-public interface ServiceProviderRegistry extends LittleRegistry<ServiceType<?>,ServiceProviderFactory<?>> {
+public interface ServiceRegistry extends LittleRegistry<ServiceType<?>,ServiceFactory<?>> {
 
     /**
      * Specialization of getService call through to
-     *     ServiceProviderFactory<T>.createServiceProvider
+     *     ServiceFactory<T>.createServiceProvider
      * and casts the result to the ServiceType
      *
      * @exception NoSuchThingException if no ServiceProvider registered for the

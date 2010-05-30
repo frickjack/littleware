@@ -61,12 +61,16 @@ public class HibernateProvider implements Provider<EntityManagerFactory> {
                     addAnnotatedClass(TransactionEntity.class).
                     addAnnotatedClass(AssetTypeEntity.class);
             //config.setProperty("hibernate.show_sql", "true"); //.jdbc:derby://localhost:1527/littleware
+            final String lowerCaseUrl = osUrl.toLowerCase();
             if (
-                    (osUrl.toLowerCase().indexOf("javadb") > -1)
-                    || (osUrl.toLowerCase().indexOf("derby") > -1)
+                    (lowerCaseUrl.indexOf("javadb") > -1)
+                    || (lowerCaseUrl.indexOf("derby") > -1)
              ){
                 config.setProperty("hibernate.dialect",
                         "org.hibernate.dialect.DerbyDialect");
+            } else if ( lowerCaseUrl.indexOf( "postgres" ) > -1 ) {
+                config.setProperty( "hibernate.dialect",
+                        "org.hibernate.dialect.PostgreSQLDialect" );
             } else {
                 config.setProperty("hibernate.dialect",
                         "org.hibernate.dialect.MySQLDialect");

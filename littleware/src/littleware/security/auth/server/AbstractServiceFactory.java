@@ -22,22 +22,19 @@ import javax.security.auth.Subject;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetException;
 import littleware.asset.client.LittleService;
-import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.ReadOnlyException;
-import littleware.security.AccountManager;
-import littleware.security.LittleUser;
 import littleware.security.auth.*;
 
 /**
- * Base class for server-side ServiceProviderFactory implementations.
+ * Base class for server-side ServiceFactory implementations.
  * Provides the checkAccessMakeProxy method - which lets subtypes
  * setup a wrapper around an interface that for each method call
  * takes care of verifying
  * that the client has permissions to access the service method,
  * and does a Subject.doAs() to setup the security context.
  */
-public abstract class AbstractServiceProviderFactory<T extends LittleService> implements ServiceProviderFactory<T> {
+public abstract class AbstractServiceFactory<T extends LittleService> implements ServiceFactory<T> {
 
     private final AssetSearchManager om_search;
     private final ServiceType<T> on_service;
@@ -48,7 +45,7 @@ public abstract class AbstractServiceProviderFactory<T extends LittleService> im
      * @param n_service we are a factory for
      * @param m_search used to verify client access to resource
      */
-    public AbstractServiceProviderFactory(ServiceType<T> n_service,
+    public AbstractServiceFactory(ServiceType<T> n_service,
             AssetSearchManager m_search) {
         on_service = n_service;
         om_search = m_search;

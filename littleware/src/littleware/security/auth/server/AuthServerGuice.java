@@ -37,7 +37,7 @@ public class AuthServerGuice implements Module {
     public void configure(Binder binder) {
         binder.bind(SessionManager.class).to(SimpleSessionManager.class).in(Scopes.SINGLETON);
         //binder.bind( DbAuthManager.class ).to( PostgresDbAuthManager.class ).in( Scopes.SINGLETON );
-        binder.bind(ServiceProviderRegistry.class).to(SimpleServiceProviderRegistry.class).in(Scopes.SINGLETON);
+        binder.bind(ServiceRegistry.class).to(SimpleServiceRegistry.class).in(Scopes.SINGLETON);
         binder.bind(LittleUser.class).toProvider(new Provider<LittleUser>() {
             @Override
             public LittleUser get() {

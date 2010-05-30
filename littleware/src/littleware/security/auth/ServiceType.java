@@ -38,7 +38,7 @@ import littleware.security.client.AccountManagerService;
  */
 public class ServiceType<T extends LittleService> extends DynamicEnum<ServiceType> {
 
-    private static final Logger olog = Logger.getLogger( ServiceType.class.getName () );
+    private static final Logger log = Logger.getLogger( ServiceType.class.getName () );
     private static final long serialVersionUID = 6228723237823231943L;
     private Sampler ostat_call = new SimpleSampler();
     private Class<T>  oclass_service = null;

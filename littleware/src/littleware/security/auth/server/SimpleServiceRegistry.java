@@ -19,18 +19,15 @@ import littleware.base.SimpleLittleRegistry;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 
-/**
- *
- * @author pasquini
- */
-public class SimpleServiceProviderRegistry 
-        extends SimpleLittleRegistry<ServiceType<?>,ServiceProviderFactory<?>>
-        implements ServiceProviderRegistry {
+
+public class SimpleServiceRegistry
+        extends SimpleLittleRegistry<ServiceType<?>,ServiceFactory<?>>
+        implements ServiceRegistry {
 
     @Override
     public <T extends LittleService> T getService(ServiceType<T> servtype, SessionHelper helper) throws BaseException,
         GeneralSecurityException, RemoteException {
-        ServiceProviderFactory<?> factory = getService( servtype );
+        final ServiceFactory<?> factory = getService( servtype );
         if ( null == factory ) {
             throw new NoSuchThingException( "No registered handler for service type: " + servtype );
         }

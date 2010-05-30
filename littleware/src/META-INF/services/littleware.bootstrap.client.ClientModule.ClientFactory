@@ -1,0 +1,2 @@
+# littleware ClientModule service providers
+littleware.bootstrap.client.AssetClientModule.Factory

@@ -27,6 +27,10 @@ public class AbstractClientModule implements ClientModule {
     private final Collection<ServiceType> serviceTypes;
     private final Collection<Class<? extends LittleServiceListener>> serviceListeners;
 
+    protected static final Collection<AssetType>   emptyAssetTypes = Collections.emptyList();
+    protected static final Collection<ServiceType> emptyServiceTypes = Collections.emptyList();
+    protected static final Collection<Class<? extends LittleServiceListener>> emptyServiceListeners = Collections.emptyList();
+
     public AbstractClientModule( AppBootstrap.AppProfile profile,
             Collection<AssetType> assetTypes,
             Collection<ServiceType> serviceTypes,
@@ -69,7 +73,7 @@ public class AbstractClientModule implements ClientModule {
     }
 
     @Override
-    public Maybe<Class<? extends BundleActivator>> getActivator() {
+    public Maybe<? extends Class<? extends BundleActivator>> getActivator() {
         return Maybe.empty();
     }
 

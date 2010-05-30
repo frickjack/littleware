@@ -32,13 +32,14 @@ public interface ClientBootstrap extends AppBootstrap {
         public ClientBuilder login( LoginContext context ) throws LoginException;
         public ClientBuilder subject( Subject subject );
         public ClientBuilder automatic() throws LoginException;
+        public ClientBuilder automatic( String name, String password ) throws LoginException;
     }
     
     public interface ClientBuilder extends LittleBootstrap.Builder {
         /**
          * List of littleware modules registered with this bootstrap.
          */
-        public Collection<ClientModule.ClientFactory> getModuleList();
+        public Collection<ClientModule.ClientFactory> getModuleSet();
 
         public ClientBuilder addModuleFactory(ClientModule.ClientFactory factory);
 

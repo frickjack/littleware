@@ -32,7 +32,7 @@ import littleware.base.Cache;
  * Finally, the ClientCache obeys the ageout and replacement
  * conventions of the injected littleware.base.Cache.
  */
-@ImplementedBy(CacheActivator.class)
+@ImplementedBy(SimpleClientCache.class)
 public interface ClientCache {
     /**
      * Get the current transaction count that an asset load greater

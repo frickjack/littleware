@@ -19,33 +19,33 @@ import java.util.logging.Logger;
 import littleware.bootstrap.AbstractLittleBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppBuilder;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
-import littleware.bootstrap.client.AppModule.AppFactory;
+import littleware.bootstrap.client.AppModuleFactory;
 
 public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
     private static final Logger     log = Logger.getLogger( SimpleAppBuilder.class.getName() );
 
-    private final List<AppFactory>  factoryList = new ArrayList<AppFactory>();
+    private final List<AppModuleFactory>  factoryList = new ArrayList<AppModuleFactory>();
     private AppProfile profile;
 
     {
-        for( AppModule.AppFactory moduleFactory : ServiceLoader.load( AppModule.AppFactory.class ) ) {
+        for( AppModuleFactory moduleFactory : ServiceLoader.load( AppModuleFactory.class ) ) {
             factoryList.add( moduleFactory );
         }
     }
 
     @Override
-    public Collection<AppFactory> getModuleSet() {
+    public Collection<AppModuleFactory> getModuleSet() {
         return ImmutableList.copyOf(factoryList);
     }
 
     @Override
-    public AppBuilder addModuleFactory(AppFactory factory) {
+    public AppBuilder addModuleFactory(AppModuleFactory factory) {
         factoryList.add(factory);
         return this;
     }
 
     @Override
-    public AppBuilder removeModuleFactory(AppFactory factory) {
+    public AppBuilder removeModuleFactory(AppModuleFactory factory) {
         factoryList.remove(factory);
         return this;
     }
@@ -70,7 +70,7 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
     @Override
     public AppBootstrap build() {
         final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
-        for ( AppModule.AppFactory factory : factoryList ) {
+        for ( AppModuleFactory factory : factoryList ) {
             builder.add( factory.build( profile ) );
         }
         return new Bootstrap( builder.build(), profile );

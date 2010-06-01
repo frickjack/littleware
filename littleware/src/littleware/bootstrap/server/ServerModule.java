@@ -43,11 +43,4 @@ public interface ServerModule extends LittleModule {
      * the server event bus.
      */
     public Collection<Class<? extends LittleServerListener>> getServerListeners();
-
-    public interface ServerFactory {
-        /**
-         * Build the server module configured for the given profile
-         */
-        public ServerModule build( ServerBootstrap.ServerProfile profile );
-    }
 }

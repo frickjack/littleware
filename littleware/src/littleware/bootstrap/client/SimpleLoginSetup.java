@@ -21,20 +21,25 @@ import littleware.security.auth.SimpleCallbackHandler;
 import littleware.security.auth.client.ClientLoginModule;
 
 public class SimpleLoginSetup implements ClientBootstrap.LoginSetup {
+    private final SimpleClientBuilder builder;
 
-    @Override
-    public ClientBuilder helper(SessionHelper value) {
-        return new SimpleClientBuilder(value);
+    public SimpleLoginSetup( SimpleClientBuilder builder ) {
+        this.builder = builder;
     }
 
     @Override
-    public ClientBuilder login(LoginContext context) throws LoginException {
+    public ClientBootstrap helper(SessionHelper value) {
+        return builder.build( value );
+    }
+
+    @Override
+    public ClientBootstrap login(LoginContext context) throws LoginException {
         context.login();
         return subject(context.getSubject());
     }
 
     @Override
-    public ClientBuilder subject(Subject subject) {
+    public ClientBootstrap subject(Subject subject) {
         SessionHelper helper = null;
         for (Object scan : subject.getPrivateCredentials()) {
             if (scan instanceof SessionHelper) {
@@ -49,14 +54,14 @@ public class SimpleLoginSetup implements ClientBootstrap.LoginSetup {
     }
 
     @Override
-    public ClientBuilder automatic() throws LoginException {
+    public ClientBootstrap automatic() throws LoginException {
         final String user = System.getProperty( "user.name" );
         // throw in some retry logic, etc.
         throw new UnsupportedOperationException( "Not yet implemented" );
     }
 
     @Override
-    public ClientBuilder automatic(String name, String password) throws LoginException {
+    public ClientBootstrap automatic(String name, String password) throws LoginException {
         final CallbackHandler callbackHandler = new SimpleCallbackHandler(name, password);
 
         LoginContext context;

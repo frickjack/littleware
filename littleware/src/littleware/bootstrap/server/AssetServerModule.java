@@ -51,14 +51,18 @@ import littleware.base.PropertiesGuice;
 import littleware.bootstrap.server.ServerBootstrap.ServerProfile;
 import littleware.db.DbGuice;
 import littleware.security.AccountManager;
+import littleware.security.SecurityAssetType;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;
 import littleware.security.auth.server.AbstractServiceFactory;
+import littleware.security.auth.server.AuthServerGuice;
 import littleware.security.auth.server.ServiceFactory;
 import littleware.security.client.AccountManagerService;
 import littleware.security.client.SimpleAccountManagerService;
 import littleware.security.server.RmiAccountManager;
+import littleware.security.server.SimpleAccountManager;
+import littleware.security.server.SimpleAclManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -71,10 +75,10 @@ public class AssetServerModule extends AbstractServerModule {
 
     private AssetServerModule(ServerBootstrap.ServerProfile profile,
             Map<AssetType, Class<? extends AssetSpecializer>> typeMap,
-            Map<ServiceType, Class<? extends ServiceFactory>> serviceMap
-            ) {
+            Map<ServiceType, Class<? extends ServiceFactory>> serviceMap) {
         super(profile, typeMap, emptyServiceMap, emptyServerListeners);
     }
+
 
     @Override
     public void configure(Binder binder) {
@@ -84,13 +88,15 @@ public class AssetServerModule extends AbstractServerModule {
         binder.bind(QuotaUtil.class).to(SimpleQuotaUtil.class).in(Scopes.SINGLETON);
         binder.bind(AssetSpecializerRegistry.class).to(SimpleSpecializerRegistry.class).in(Scopes.SINGLETON);
         binder.bind(AssetPathFactory.class).to(SimpleAssetPathFactory.class);
+        binder.bind(AccountManager.class).to(SimpleAccountManager.class).in(Scopes.SINGLETON);
+
         if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
             (new J2EEGuice()).configure(binder);
         } else {
             try {
-                (new DbGuice( "littleware_jdbc.properties" )).configure(binder);
+                (new DbGuice("littleware_jdbc.properties")).configure(binder);
             } catch (IOException ex) {
-                throw new AssertionFailedException( "Failed to load littleware_jdbc.properties", ex );
+                throw new AssertionFailedException("Failed to load littleware_jdbc.properties", ex);
             }
             (new HibernateGuice()).configure(binder);
         }
@@ -99,9 +105,11 @@ public class AssetServerModule extends AbstractServerModule {
         } catch (IOException ex) {
             throw new AssertionFailedException("Failed to access littleware.properties file", ex);
         }
+        (new AuthServerGuice()).configure( binder );
     }
 
     public static class Activator implements BundleActivator {
+
         private final int registryPort;
         private boolean localRegistry = false;
         private Maybe<Registry> maybeRegistry;
@@ -230,7 +238,7 @@ public class AssetServerModule extends AbstractServerModule {
         }
     }
 
-    public static class Factory implements ServerModule.ServerFactory {
+    public static class Factory implements ServerModuleFactory {
 
         private final Map<AssetType, Class<? extends AssetSpecializer>> typeMap;
 
@@ -239,6 +247,18 @@ public class AssetServerModule extends AbstractServerModule {
             for (AssetType assetType : Arrays.asList(AssetType.GENERIC, AssetType.HOME, AssetType.LINK, AssetType.LOCK)) {
                 builder.put(assetType, NullAssetSpecializer.class);
             }
+            for (AssetType assetType : Arrays.asList(SecurityAssetType.PRINCIPAL,
+                    SecurityAssetType.GROUP,
+                    SecurityAssetType.QUOTA,
+                    SecurityAssetType.USER)) {
+                builder.put(assetType, SimpleAccountManager.class);
+            }
+            for (AssetType assetType : Arrays.asList(SecurityAssetType.ACL,
+                    SecurityAssetType.ACL_ENTRY)) {
+                builder.put(assetType, SimpleAclManager.class);
+            }
+
+
             typeMap = builder.build();
         }
         private final Map<ServiceType, Class<? extends ServiceFactory>> serviceMap;
@@ -246,15 +266,12 @@ public class AssetServerModule extends AbstractServerModule {
         {
             final ImmutableMap.Builder<ServiceType, Class<? extends ServiceFactory>> builder =
                     ImmutableMap.builder();
-            serviceMap = builder.put(ServiceType.ASSET_SEARCH, SearchServiceFactory.class
-                    ).put( ServiceType.ACCOUNT_MANAGER, AccountServiceFactory.class
-                    ).put( ServiceType.ASSET_MANAGER, AssetServiceFactory.class
-                    ).build();
+            serviceMap = builder.put(ServiceType.ASSET_SEARCH, SearchServiceFactory.class).put(ServiceType.ACCOUNT_MANAGER, AccountServiceFactory.class).put(ServiceType.ASSET_MANAGER, AssetServiceFactory.class).build();
         }
 
         @Override
         public ServerModule build(ServerProfile profile) {
-            return new AssetServerModule(profile, typeMap, serviceMap );
+            return new AssetServerModule(profile, typeMap, serviceMap);
         }
     }
 }

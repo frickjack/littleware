@@ -35,9 +35,4 @@ public interface ClientModule extends AppModule {
      * via the module's Activator.
      */
     public Collection<Class<? extends LittleServiceListener>> getServiceListeners();
-
-    public interface ClientFactory extends AppModule.AppFactory {
-        @Override
-        public ClientModule build( AppProfile profile );
-    }
 }

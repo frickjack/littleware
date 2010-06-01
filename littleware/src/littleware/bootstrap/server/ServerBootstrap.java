@@ -32,11 +32,11 @@ public interface ServerBootstrap extends LittleBootstrap {
         /**
          * List of littleware modules registered with this bootstrap.
          */
-        public Collection<ServerModule.ServerFactory> getModuleSet();
+        public Collection<ServerModuleFactory> getModuleSet();
 
-        public ServerBuilder addModuleFactory(ServerModule.ServerFactory factory);
+        public ServerBuilder addModuleFactory(ServerModuleFactory factory);
 
-        public ServerBuilder removeModuleFactory(ServerModule.ServerFactory factory);
+        public ServerBuilder removeModuleFactory(ServerModuleFactory factory);
 
         public ServerBuilder profile( ServerProfile profile );
 

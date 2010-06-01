@@ -19,8 +19,4 @@ import littleware.bootstrap.LittleModule;
  */
 public interface AppModule extends LittleModule {
     public AppProfile          getProfile();
-    
-    public interface AppFactory {
-        public AppModule build( AppProfile profile );
-    }
 }

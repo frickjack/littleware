@@ -9,15 +9,12 @@
  */
 package littleware.test;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.base.EventBarrier;
 import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.RunnerActivator;
 import littleware.bootstrap.client.ClientBootstrap;
 import littleware.bootstrap.server.ServerBootstrap;
 
@@ -32,30 +29,6 @@ public class TestFactory {
     public static class SetupBarrier extends EventBarrier<TestSuite> {
     }
 
-    /**
-     * Internal class - only visible to avoid Guice AOP
-     */
-    public static class SuiteActivator extends RunnerActivator {
-
-        private final TestSuite suite;
-        private final EventBarrier<TestSuite> barrier;
-
-        @Inject
-        public SuiteActivator(@Named("TestFactory.Suite") final TestSuite userTestSuite,
-                SetupBarrier barrier) {
-            this.suite = userTestSuite;
-            this.barrier = barrier;
-        }
-
-        @Override
-        public void run() {
-            log.log(Level.FINE, "SuiteActivator started");
-            // FrameworkEvent.STARTED never comes when running
-            // multiple OSGi environments ... ugh!
-            barrier.publishEventData(suite);
-        }
-
-    }
 
 
     /**
@@ -67,22 +40,8 @@ public class TestFactory {
     public TestSuite build(final LittleBootstrap bootstrap,
             final Class<? extends TestSuite> testSuiteClass) {
         final SetupBarrier suiteBarrier = new SetupBarrier();
-        /*..
-        bootstrap.getGuiceModule().add(
-                new Module() {
-
-                    @Override
-                    public void configure(Binder binder) {
-                        binder.bind(TestSuite.class).annotatedWith(Names.named("TestFactory.Suite")).to(testSuiteClass);
-                        binder.bind(SetupBarrier.class).toInstance(suiteBarrier);
-                    }
-                });
-        bootstrap.getOSGiActivator().add(SuiteActivator.class);
-        ..*/
         try {
-            bootstrap.bootstrap();
-            log.log(Level.INFO, "Waiting for OSGi startup ...");
-            final TestSuite suite = suiteBarrier.waitForEventData();
+            final TestSuite suite = bootstrap.bootstrap( testSuiteClass );
             suite.addTest(new TestCase( "shutdownTest" ) {
                 @Override
                 public void runTest() {

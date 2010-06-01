@@ -15,35 +15,46 @@ import com.google.inject.Binder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.base.AssertionFailedException;
 import littleware.bootstrap.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.server.ServerBootstrap.ServerBuilder;
 import littleware.bootstrap.server.ServerBootstrap.ServerProfile;
-import littleware.bootstrap.server.ServerModule.ServerFactory;
+import littleware.bootstrap.server.ServerModuleFactory;
 
 
 public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
     private static final Logger log = Logger.getLogger( SimpleServerBuilder.class.getName() );
     
-    private final List<ServerFactory>  moduleList = new ArrayList<ServerFactory>();
+    private final List<ServerModuleFactory>  factoryList = new ArrayList<ServerModuleFactory>();
     private ServerProfile profile = ServerProfile.J2EE;
 
-    @Override
-    public Collection<ServerFactory> getModuleSet() {
-        return ImmutableList.copyOf( moduleList );
+    {
+        for (ServerModuleFactory moduleFactory : ServiceLoader.load(ServerModuleFactory.class)) {
+            factoryList.add(moduleFactory);
+        }
+        if ( factoryList.isEmpty() ) {
+            throw new AssertionFailedException( "Failed to find base server modules: " + ServerModuleFactory.class  );
+        }
     }
 
     @Override
-    public ServerBuilder addModuleFactory(ServerFactory factory) {
-        moduleList.add( factory );
+    public Collection<ServerModuleFactory> getModuleSet() {
+        return ImmutableList.copyOf( factoryList );
+    }
+
+    @Override
+    public ServerBuilder addModuleFactory(ServerModuleFactory factory) {
+        factoryList.add( factory );
         return this;
     }
 
     @Override
-    public ServerBuilder removeModuleFactory(ServerFactory factory) {
-        moduleList.remove(factory);
+    public ServerBuilder removeModuleFactory(ServerModuleFactory factory) {
+        factoryList.remove(factory);
         return this;
     }
 
@@ -66,7 +77,8 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         
         @Override
         protected <T> T bootstrap( Class<T> bootClass, Collection<? extends ServerModule> moduleSet ) {
-            final ImmutableList.Builder<? extends ServerModule> builder = ImmutableList.builder();
+            final ImmutableList.Builder<ServerModule> builder = ImmutableList.builder();
+            builder.addAll( moduleSet );
             builder.add(
                 new AbstractServerModule( profile ) {
                     @Override
@@ -77,14 +89,14 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
                 }
                 );
 
-            return super.bootstrap( bootClass, moduleSet );
+            return super.bootstrap( bootClass, builder.build() );
         }
     }
 
     @Override
     public ServerBootstrap build() {
         final ImmutableList.Builder<ServerModule> builder = ImmutableList.builder();
-        for( ServerModule.ServerFactory factory : moduleList ) {
+        for( ServerModuleFactory factory : factoryList ) {
             builder.add( factory.build( profile ) );
         }
         return new Bootstrap( builder.build(), profile );

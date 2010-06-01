@@ -33,7 +33,7 @@ public class BootstrapTester extends TestCase {
                     !ServerBootstrap.provider.get().build().getModuleSet().isEmpty()
                     );
             assertTrue("Found a client module",
-                    !ClientBootstrap.provider.get().automatic().getModuleSet().isEmpty()
+                    !ClientBootstrap.clientProvider.get().getModuleSet().isEmpty()
                     );
 
         } catch (Exception ex) {

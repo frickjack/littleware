@@ -28,33 +28,32 @@ public interface ClientBootstrap extends AppBootstrap {
     public Collection<? extends ClientModule> getModuleSet();
 
     public interface LoginSetup {
-        public ClientBuilder helper( SessionHelper value );
-        public ClientBuilder login( LoginContext context ) throws LoginException;
-        public ClientBuilder subject( Subject subject );
-        public ClientBuilder automatic() throws LoginException;
-        public ClientBuilder automatic( String name, String password ) throws LoginException;
+        public ClientBootstrap helper( SessionHelper value );
+        public ClientBootstrap login( LoginContext context ) throws LoginException;
+        public ClientBootstrap subject( Subject subject );
+        public ClientBootstrap automatic() throws LoginException;
+        public ClientBootstrap automatic( String name, String password ) throws LoginException;
     }
     
-    public interface ClientBuilder extends LittleBootstrap.Builder {
+    public interface ClientBuilder {
         /**
          * List of littleware modules registered with this bootstrap.
          */
-        public Collection<ClientModule.ClientFactory> getModuleSet();
+        public Collection<ClientModuleFactory> getModuleSet();
 
-        public ClientBuilder addModuleFactory(ClientModule.ClientFactory factory);
+        public ClientBuilder addModuleFactory(ClientModuleFactory factory);
 
-        public ClientBuilder removeModuleFactory(ClientModule.ClientFactory factory);
+        public ClientBuilder removeModuleFactory(ClientModuleFactory factory);
 
         public ClientBuilder profile( AppProfile config );
 
-        @Override
-        public ClientBootstrap build();
+        public LoginSetup build();
     }
 
-    public static final Provider<LoginSetup> provider = new Provider<LoginSetup>() {
+    public static final Provider<ClientBuilder> clientProvider = new Provider<ClientBuilder>() {
         @Override
-        public LoginSetup get() {
-            return new SimpleLoginSetup();
+        public ClientBuilder get() {
+            return new SimpleClientBuilder();
         }
     };
 

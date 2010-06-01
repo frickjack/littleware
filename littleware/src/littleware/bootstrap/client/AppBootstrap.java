@@ -34,11 +34,11 @@ public interface AppBootstrap extends LittleBootstrap {
         /**
          * List of littleware modules registered with this bootstrap.
          */
-        public Collection<AppModule.AppFactory> getModuleSet();
+        public Collection<AppModuleFactory> getModuleSet();
 
-        public AppBuilder addModuleFactory(AppModule.AppFactory factory);
+        public AppBuilder addModuleFactory(AppModuleFactory factory);
 
-        public AppBuilder removeModuleFactory(AppModule.AppFactory factory);
+        public AppBuilder removeModuleFactory(AppModuleFactory factory);
 
         public AppBuilder profile(AppProfile value);
 
@@ -46,7 +46,7 @@ public interface AppBootstrap extends LittleBootstrap {
         public AppBootstrap build();
     }
 
-    public static final Provider<AppBuilder> provider = new Provider() {
+    public static final Provider<AppBuilder> appProvider = new Provider<AppBuilder>() {
         @Override
         public AppBuilder get() {
             return new SimpleAppBuilder();

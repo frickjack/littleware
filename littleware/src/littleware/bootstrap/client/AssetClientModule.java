@@ -26,7 +26,7 @@ import littleware.security.auth.ServiceType;
 
 public class AssetClientModule extends AbstractClientModule {
 
-    public static class Factory implements ClientModule.ClientFactory {
+    public static class Factory implements ClientModuleFactory {
 
         private final Collection<AssetType> typeSet;
 

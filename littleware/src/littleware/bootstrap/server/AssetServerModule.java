@@ -58,6 +58,7 @@ import littleware.security.auth.SessionManager;
 import littleware.security.auth.server.AbstractServiceFactory;
 import littleware.security.auth.server.AuthServerGuice;
 import littleware.security.auth.server.ServiceFactory;
+import littleware.security.auth.server.ServiceRegistry;
 import littleware.security.client.AccountManagerService;
 import littleware.security.client.SimpleAccountManagerService;
 import littleware.security.server.RmiAccountManager;
@@ -76,7 +77,7 @@ public class AssetServerModule extends AbstractServerModule {
     private AssetServerModule(ServerBootstrap.ServerProfile profile,
             Map<AssetType, Class<? extends AssetSpecializer>> typeMap,
             Map<ServiceType, Class<? extends ServiceFactory>> serviceMap) {
-        super(profile, typeMap, emptyServiceMap, emptyServerListeners);
+        super(profile, typeMap, serviceMap, emptyServerListeners);
     }
 
 
@@ -118,15 +119,23 @@ public class AssetServerModule extends AbstractServerModule {
         @Inject
         public Activator(ServerBootstrap bootstrap,
                 @Named("int.lw.rmi_port") int registryPort,
-                AssetSpecializerRegistry registry,
+                AssetSpecializerRegistry assetRegistry,
+                ServiceRegistry serviceRegistry,
                 SessionManager sessionMgr,
                 Injector injector) {
             this.registryPort = registryPort;
             this.sessionMgr = sessionMgr;
             for (ServerModule module : bootstrap.getModuleSet()) {
                 for (Map.Entry<AssetType, Class<? extends AssetSpecializer>> entry : module.getAssetTypes().entrySet()) {
-                    registry.registerService(entry.getKey(), injector.getInstance(entry.getValue()));
+                    assetRegistry.registerService(entry.getKey(), injector.getInstance(entry.getValue()));
                 }
+                for ( Map.Entry<ServiceType, Class<? extends ServiceFactory>> entry : module.getServiceTypes().entrySet() ) {
+                    serviceRegistry.registerService( entry.getKey(), injector.getInstance( entry.getValue() ) );
+                }
+            }
+            if ( null == serviceRegistry.getService(ServiceType.ASSET_SEARCH) ) {
+                // little sanity check
+                throw new AssertionFailedException( "What the frick ?" );
             }
         }
 
@@ -227,6 +236,7 @@ public class AssetServerModule extends AbstractServerModule {
 
         private final AssetSearchManager search;
 
+        @Inject
         public SearchServiceFactory(AssetSearchManager search) {
             super(ServiceType.ASSET_SEARCH, search);
             this.search = search;

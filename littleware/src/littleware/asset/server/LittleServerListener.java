@@ -9,9 +9,6 @@
  */
 package littleware.asset.server;
 
-/**
- * @see LittleServerEvent
- */
 public interface LittleServerListener {
     public void receiveServerEvent(LittleServerEvent event);
 }

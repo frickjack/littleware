@@ -269,7 +269,7 @@ public class ClientLoginModule implements LoginModule {
         } catch (LoginException e) {
             throw e;
         } catch (Exception e) {
-            log.log(Level.WARNING, "Authentication of " + userName + "failed, caught: " + e);
+            log.log(Level.WARNING, "Authentication of " + userName + "failed", e );
             throw new FailedLoginException("Authentication of " + userName + " failed, caught: " + e);
         }
         return true;

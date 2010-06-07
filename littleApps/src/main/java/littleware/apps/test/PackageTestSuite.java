@@ -15,9 +15,9 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import junit.framework.*;
-import littleware.apps.client.ClientBootstrap;
+import littleware.apps.client.ClientSyncModule;
 
-import littleware.apps.filebucket.server.BucketServerActivator;
+import littleware.apps.filebucket.server.BucketServerModule;
 import littleware.apps.filebucket.server.BucketServerGuice;
 import littleware.apps.misc.test.ThumbManagerTester;
 import littleware.security.auth.ClientServiceGuice;
@@ -95,9 +95,9 @@ public class PackageTestSuite extends TestSuite {
         try {
             final GuiceOSGiBootstrap serverBoot = new ServerBootstrap( true );
             serverBoot.getGuiceModule().add( new BucketServerGuice() );
-            serverBoot.getOSGiActivator().add( BucketServerActivator.class );
+            serverBoot.getOSGiActivator().add( BucketServerModule.class );
             return (new TestFactory()).build( serverBoot,
-                new ClientBootstrap( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" ))),
+                new ClientSyncModule( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" ))),
                 PackageTestSuite.class
                 );
         } catch ( RuntimeException ex ) {

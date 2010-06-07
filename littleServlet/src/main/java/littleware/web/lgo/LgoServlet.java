@@ -30,7 +30,6 @@ import littleware.asset.AssetSearchManager;
 import littleware.base.EventBarrier;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
-import littleware.security.auth.LittleBootstrap;
 import littleware.security.auth.SessionHelper;
 import littleware.web.servlet.LittleServlet;
 

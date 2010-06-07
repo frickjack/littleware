@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.Maybe;
-import littleware.security.auth.LittleBootstrap;
+import littleware.bootstrap.LittleBootstrap;
 import org.joda.time.DateTime;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -28,14 +28,15 @@ public class LgoServerActivator implements BundleActivator {
     private final LgoServer.ServerBuilder serverBuilder;
     private Maybe<LgoServer> maybeServer = Maybe.empty();
     private Maybe<? extends ScheduledFuture<?>> maybeFuture = Maybe.empty();
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService executor;
     private final LittleBootstrap bootstrap;
 
     @Inject
     public LgoServerActivator(LgoServer.ServerBuilder serverBuilder,
-            LittleBootstrap bootstrap) {
+            LittleBootstrap bootstrap, ScheduledExecutorService executor ) {
         this.serverBuilder = serverBuilder;
         this.bootstrap = bootstrap;
+        this.executor = executor;
     }
 
     @Override

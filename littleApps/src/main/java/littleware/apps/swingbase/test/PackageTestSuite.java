@@ -15,7 +15,7 @@ import java.net.URL;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.apps.client.NullBootstrap;
+import littleware.apps.client.ExecutorModule;
 import littleware.apps.swingbase.SwingBaseActivator;
 import littleware.apps.swingbase.SwingBaseGuice;
 import littleware.test.TestFactory;
@@ -31,7 +31,7 @@ public class PackageTestSuite extends TestSuite {
     }
 
     public static Test suite() {
-        final NullBootstrap boot = new NullBootstrap();
+        final ExecutorModule boot = new ExecutorModule();
         try {
             final Properties props = new Properties();
             props.put("testProp", "bla bla bla" );

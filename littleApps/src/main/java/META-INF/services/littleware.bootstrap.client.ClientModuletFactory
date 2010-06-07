@@ -1,0 +1,3 @@
+# littleware ClientModule service providers
+littleware.apps.client.ClientSyncModule$Factory
+littleware.apps.filebucket.client.BucketClientModule$Factory

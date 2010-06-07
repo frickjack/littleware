@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.apps.client.ClientBootstrap;
+import littleware.apps.client.ClientSyncModule;
 import littleware.test.TestFactory;
 
 /**
@@ -65,7 +65,7 @@ public class HudsonTestSuite extends TestSuite {
      * of the OSGi bootstrap process
      */
     public static Test suite() {
-        return (new TestFactory()).build( new ClientBootstrap(), HudsonTestSuite.class );
+        return (new TestFactory()).build( new ClientSyncModule(), HudsonTestSuite.class );
     }
 
 }

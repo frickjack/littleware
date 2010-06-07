@@ -31,10 +31,8 @@ import littleware.base.AssertionFailedException;
 import littleware.base.Maybe;
 import littleware.bootstrap.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.LittleModule;
 import littleware.bootstrap.client.ClientBootstrap.ClientBuilder;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
-import littleware.bootstrap.client.ClientModuleFactory;
 import littleware.security.AccountManager;
 import littleware.security.LittleUser;
 import littleware.security.SecurityAssetType;
@@ -85,6 +83,9 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
                 });
             }
+        }
+        if ( factoryList.isEmpty() ) {
+            throw new AssertionFailedException( "Failed to find base client modules: " + ClientModuleFactory.class  );
         }
     }
 

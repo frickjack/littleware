@@ -13,14 +13,32 @@ package littleware.apps.lgo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Binder;
-import com.google.inject.Module;
 import com.google.inject.Scopes;
+import littleware.bootstrap.client.AbstractClientModule;
+import littleware.bootstrap.client.AppBootstrap;
+import littleware.bootstrap.client.AppBootstrap.AppProfile;
+import littleware.bootstrap.client.ClientModule;
+import littleware.bootstrap.client.ClientModuleFactory;
 
 /**
  * Guice module for bootstrapping the LittleGo 
  * application.  Sets up easy Lgo implementation.
  */
-public class LgoGuice implements Module {
+public class LgoModule extends AbstractClientModule {
+
+    public static class Factory implements ClientModuleFactory {
+
+        @Override
+        public ClientModule build(AppProfile profile ) {
+            return new LgoModule( profile  );
+        }
+
+    }
+
+
+    private LgoModule( AppBootstrap.AppProfile profile ) {
+        super( profile );
+    }
     /**
      * If we decide to extend littlego into a shell
      * or BSF/scripting environment, then <br />

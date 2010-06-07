@@ -19,7 +19,7 @@ import littleware.apps.client.ClientSyncModule;
 
 import littleware.apps.filebucket.server.BucketServerModule;
 import littleware.apps.filebucket.server.BucketServerGuice;
-import littleware.apps.misc.test.ThumbManagerTester;
+import littleware.apps.image.test.ThumbManagerTester;
 import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.SimpleNamePasswordCallbackHandler;

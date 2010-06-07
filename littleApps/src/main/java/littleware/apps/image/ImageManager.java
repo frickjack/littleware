@@ -8,7 +8,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.misc;
+package littleware.apps.image;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

@@ -25,8 +25,8 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import littleware.apps.misc.ThumbManager;
-import littleware.apps.misc.ThumbManager.Thumb;
+import littleware.apps.image.ThumbManager;
+import littleware.apps.image.ThumbManager.Thumb;
 import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.base.Maybe;

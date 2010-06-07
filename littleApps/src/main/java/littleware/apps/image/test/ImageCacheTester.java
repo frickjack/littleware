@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.misc.test;
+package littleware.apps.image.test;
 
 import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
@@ -15,8 +15,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import littleware.apps.misc.ImageManager;
-import littleware.apps.misc.client.ImageCache;
+import littleware.apps.image.ImageManager;
+import littleware.apps.image.client.ImageCache;
 import littleware.base.Maybe;
 import littleware.test.LittleTest;
 

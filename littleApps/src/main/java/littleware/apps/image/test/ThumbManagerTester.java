@@ -8,17 +8,17 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.misc.test;
+package littleware.apps.image.test;
 
 import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import littleware.apps.misc.ImageManager;
-import littleware.apps.misc.ThumbManager;
+import littleware.apps.image.ImageManager;
+import littleware.apps.image.ThumbManager;
 import littleware.base.AssertionFailedException;
-import static littleware.apps.misc.ThumbManager.Thumb;
+import static littleware.apps.image.ThumbManager.Thumb;
 import littleware.security.auth.LittleSession;
 import littleware.test.LittleTest;
 

@@ -8,14 +8,14 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.misc.client;
+package littleware.apps.image.client;
 
 import com.google.inject.ImplementedBy;
 import java.awt.image.BufferedImage;
 import java.util.UUID;
-import littleware.apps.misc.ImageManager;
-import littleware.apps.misc.ThumbManager;
-import littleware.apps.misc.ThumbManager.Thumb;
+import littleware.apps.image.ImageManager;
+import littleware.apps.image.ThumbManager;
+import littleware.apps.image.ThumbManager.Thumb;
 import littleware.base.Maybe;
 
 /**

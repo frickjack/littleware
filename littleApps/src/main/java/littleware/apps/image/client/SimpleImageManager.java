@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.misc.client;
+package littleware.apps.image.client;
 
 import com.google.inject.Inject;
 import java.awt.Graphics2D;
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import littleware.apps.filebucket.Bucket;
 import littleware.apps.filebucket.BucketManager;
-import littleware.apps.misc.ImageManager;
+import littleware.apps.image.ImageManager;
 import littleware.asset.Asset;
 import littleware.base.BaseException;
 import littleware.base.Maybe;

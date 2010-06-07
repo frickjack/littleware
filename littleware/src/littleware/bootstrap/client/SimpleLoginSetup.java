@@ -9,27 +9,33 @@
  */
 package littleware.bootstrap.client;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import littleware.base.AssertionFailedException;
-import littleware.base.Whatever;
-import littleware.bootstrap.client.ClientBootstrap.ClientBuilder;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SimpleCallbackHandler;
+import littleware.security.auth.client.CliCallbackHandler;
 import littleware.security.auth.client.ClientLoginModule;
+import littleware.security.auth.client.JPasswordDialog;
 
 public class SimpleLoginSetup implements ClientBootstrap.LoginSetup {
+
+    private static final Logger log = Logger.getLogger(SimpleLoginSetup.class.getName());
+    public static final String ConfigName = "littleware.login";
     private final SimpleClientBuilder builder;
 
-    public SimpleLoginSetup( SimpleClientBuilder builder ) {
+    public SimpleLoginSetup(SimpleClientBuilder builder) {
         this.builder = builder;
     }
 
     @Override
     public ClientBootstrap helper(SessionHelper value) {
-        return builder.build( value );
+        return builder.build(value);
     }
 
     @Override
@@ -54,30 +60,69 @@ public class SimpleLoginSetup implements ClientBootstrap.LoginSetup {
     }
 
     @Override
-    public ClientBootstrap automatic() throws LoginException {
-        final String user = System.getProperty( "user.name" );
-        // throw in some retry logic, etc.
-        throw new UnsupportedOperationException( "Not yet implemented" );
+    public ClientBootstrap test() {
+        return test(ClientLoginModule.newBuilder().build());
     }
 
     @Override
-    public ClientBootstrap automatic(String name, String password) throws LoginException {
+    public ClientBootstrap test(Configuration loginConfig) {
+        try {
+            return login(loginConfig, TestUserName, "");
+        } catch (LoginException ex) {
+            throw new AssertionFailedException("Failed to login as test user", ex);
+        }
+    }
+
+    @Override
+    public ClientBootstrap login(String name, String password) throws LoginException {
+        return login(ClientLoginModule.newBuilder().build(), name, password);
+    }
+
+    @Override
+    public ClientBootstrap login(Configuration loginConfig, String name, String password) throws LoginException {
         final CallbackHandler callbackHandler = new SimpleCallbackHandler(name, password);
 
-        LoginContext context;
+        return login(new LoginContext(ConfigName, new Subject(), callbackHandler, loginConfig));
+    }
+
+    @Override
+    public ClientBootstrap automatic() throws LoginException {
+        return automatic(ClientLoginModule.newBuilder().build());
+    }
+
+    @Override
+    public ClientBootstrap automatic(Configuration loginConfig) throws LoginException {
+        final String user = System.getProperty("user.name");
+        return automatic(loginConfig, user, "");
+    }
+
+    @Override
+    public ClientBootstrap automatic(Configuration loginConfig, String name, String password) throws LoginException {
+        // first - try to login with the initial user-name/password guess
         try {
-            context = new LoginContext("littleware.login", new Subject(), callbackHandler);
+            return login(loginConfig, name, password);
         } catch (LoginException ex) {
-            try {
-                context = new LoginContext("littleware.login", new Subject(), callbackHandler, ClientLoginModule.newBuilder().build());
-            } catch (LoginException ex2) {
-                throw new AssertionFailedException("Failed to setup LoginContext", ex);
-            }
+            log.log(Level.FINE, "Failed to authenticate with initial name/passowrd guess");
         }
-        try {
-            return login(context);
-        } catch (LoginException ex) {
-            throw new IllegalStateException("Login failed", ex);
+        final AppBootstrap.AppProfile profile = builder.getProfile();
+
+        // give the interactive user 3 guesses
+        for (int i = 0; true; ++i) {
+            final String message = (i > 0) ? "Failed attempt " + i + ", try again" : "";
+            final CallbackHandler handler;
+            if (profile.equals(AppBootstrap.AppProfile.CliApp)) {
+                handler = new CliCallbackHandler(message);
+            } else {
+                handler = new JPasswordDialog(name, "",
+                        message);
+            }
+            try {
+                return login(new LoginContext(ConfigName, new Subject(), handler, loginConfig));
+            } catch (LoginException ex) {
+                if (i > 1) {
+                    throw ex;
+                }
+            }
         }
     }
 }

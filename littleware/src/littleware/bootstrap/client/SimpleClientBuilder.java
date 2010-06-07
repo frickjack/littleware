@@ -48,6 +48,11 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
     private final List<ClientModuleFactory> factoryList = new ArrayList<ClientModuleFactory>();
     private AppProfile profile;
 
+    @Override
+    public AppProfile getProfile() {
+        return profile;
+    }
+
     private static class AppModuleWrapper extends AbstractClientModule {
         private final AppModule appModule;
         public AppModuleWrapper( AppModule appModule ) {

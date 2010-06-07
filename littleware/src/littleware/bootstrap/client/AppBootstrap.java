@@ -21,8 +21,12 @@ import littleware.bootstrap.LittleBootstrap;
  */
 public interface AppBootstrap extends LittleBootstrap {
 
+    /**
+     * Some standard application profiles.
+     * JNDI is actually sort of a special SwingApp ...
+     */
     public enum AppProfile {
-        SwingApp, CliApp, WebApp;
+        SwingApp, CliApp, WebApp, JNDI;
     }
 
     @Override

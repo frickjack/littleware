@@ -8,11 +8,9 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.base.swing;
+package littleware.security.auth.client;
 
-import java.awt.*;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -20,9 +18,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -31,6 +27,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.swing.*;
+import littleware.base.swing.GridBagWrap;
 
 
 /**
@@ -38,25 +35,28 @@ import javax.swing.*;
  * for username/password.
  */
 public class JPasswordDialog extends JDialog implements CallbackHandler {  
-    private static final Logger  olog = Logger.getLogger ( "littleware.base.swing.JPasswordDialog" );
+    private static final Logger  log = Logger.getLogger ( "littleware.base.swing.JPasswordDialog" );
 
-    private final JTextField ow_user = new JTextField( 20 );
-    private final JTextField ow_password = new JPasswordField( 20 );
-    private final JLabel     owlabel_instruct = new JLabel ( "<html><body><p>Authenticate</p></body></html>" );    
+    private final JTextField jtextUser = new JTextField( 20 );
+    private final JTextField jtextPassword = new JPasswordField( 20 );
+    private final JLabel     jlabelInstruct = new JLabel ( "<html><body><p>Authenticate</p></body></html>" );
+
     /**
      * Inject initial name and password property values
      */
-    public JPasswordDialog ( String s_name, String s_password )
+    public JPasswordDialog ( String name, String password, String message )
     {
         getContentPane ().setLayout ( new BorderLayout () );
-        ow_user.setText( s_name );
-        ow_password.setText( s_password );
+        setMessage( message );
+        jtextUser.setText( name );
+        jtextPassword.setText( password );
         
-        JPanel      wpanel_buttons = new JPanel ();
-        final JButton     wbutton_ok = new JButton ( "Ok" );
-        final JButton     wbutton_cancel = new JButton ( "Cancel" );
-        
-        KeyListener klisten = new KeyListener() {
+        final JPanel      jpanelButtons = new JPanel ();
+        final JButton     jbuttonOk = new JButton ( "Ok" );
+        final JButton     jbuttonCancel = new JButton ( "Cancel" );
+
+        // Allow "return" key to trigger data-collection
+        final KeyListener klisten = new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {}
             @Override
@@ -65,21 +65,21 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
             public void keyReleased(KeyEvent ev) {
                 //olog.log( Level.FINE, "Got key: " + ev.getKeyCode () );
                 if ( (ev.getKeyCode() == 10) || (ev.getKeyCode() == 13) ) {
-                    if ( ev.getSource() != wbutton_cancel ) {
-                        ob_ok = true;
+                    if ( ev.getSource() != jbuttonCancel ) {
+                        showDialogResult = true;
                     }
                     JPasswordDialog.this.dispose ();                    
                 }
             }
         };
         
-        ow_password.addKeyListener( klisten );
-        wbutton_cancel.addKeyListener( klisten );
-        wbutton_ok.addKeyListener ( klisten );
-        wbutton_ok.addActionListener ( new ActionListener () {
+        jtextPassword.addKeyListener( klisten );
+        jbuttonCancel.addKeyListener( klisten );
+        jbuttonOk.addKeyListener ( klisten );
+        jbuttonOk.addActionListener ( new ActionListener () {
             @Override
             public void actionPerformed ( ActionEvent event_button ) {
-                ob_ok = true;
+                showDialogResult = true;
                 JPasswordDialog.this.dispose ();
             }
 
@@ -96,15 +96,15 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
             }
         }
                                            );
-        wbutton_cancel.addActionListener ( new ActionListener () {
+        jbuttonCancel.addActionListener ( new ActionListener () {
             @Override
             public void actionPerformed ( ActionEvent event_button ) {
                 JPasswordDialog.this.dispose ();
             }
         }
             );
-        wpanel_buttons.add ( wbutton_ok );
-        wpanel_buttons.add ( wbutton_cancel );
+        jpanelButtons.add ( jbuttonOk );
+        jpanelButtons.add ( jbuttonCancel );
 
         this.addWindowListener ( new WindowAdapter () {
             @Override
@@ -114,55 +114,40 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
         }
             );
 
-        JPanel      wpanel_form = new JPanel ();
-        wpanel_form.setLayout( new GridBagLayout() );
-        GridBagConstraints gcontrol = new GridBagConstraints();
-        gcontrol.insets = new Insets( 2,2,2,2 );
-        gcontrol.gridx = 0; gcontrol.gridy = 0;
-        gcontrol.gridwidth = 1; gcontrol.gridheight = 1;
-        gcontrol.anchor = GridBagConstraints.EAST;
-        wpanel_form.add( new JLabel( "User:" ), gcontrol );
-        gcontrol.anchor = GridBagConstraints.WEST;
-        gcontrol.gridx += 1;
-        wpanel_form.add( ow_user, gcontrol );
-        gcontrol.anchor = GridBagConstraints.EAST;
-        gcontrol.gridx = 0; gcontrol.gridy += 1;
-        wpanel_form.add( new JLabel( "Password:" ), gcontrol );
-        gcontrol.anchor = GridBagConstraints.WEST;
-        gcontrol.gridx += 1;
-        wpanel_form.add( ow_password, gcontrol );
+        final JPanel      jpanel = new JPanel ();
+        final GridBagWrap gb = GridBagWrap.wrap( jpanel );
+        gb.add( new JLabel( "User:" ) ).nextCol().add( jtextUser ).newRow();
+        gb.add( new JLabel( "Password:" ) ).nextCol().add( jtextPassword ).newRow();
         
-        getContentPane ().add ( owlabel_instruct, BorderLayout.NORTH );
-        getContentPane ().add ( wpanel_form, BorderLayout.CENTER );
-        getContentPane ().add ( wpanel_buttons, BorderLayout.SOUTH );
+        getContentPane ().add ( jlabelInstruct, BorderLayout.NORTH );
+        getContentPane ().add ( jpanel, BorderLayout.CENTER );
+        getContentPane ().add ( jpanelButtons, BorderLayout.SOUTH );
     }
 
     
     /**
      * userName property
      */
-    public String getUserName() { return ow_user.getText (); }
-    public void setUserName( String s_name ) { ow_user.setText( s_name ); }
+    public String getUserName() { return jtextUser.getText (); }
+    public void setUserName( String s_name ) { jtextUser.setText( s_name ); }
     /**
      * Password property 
      */
-    public String getPassword() { return ow_password.getText (); }
-    public void setPassword( String s_password ) { ow_password.setText( s_password ); }
+    public String getPassword() { return jtextPassword.getText (); }
+    public void setPassword( String s_password ) { jtextPassword.setText( s_password ); }
     
-    
-    private Callable<Boolean>  ocall = null;
     
     /**
      * Little message attached to the dialog.
      * Can set error/whatever.  Maps to a JLabel,
      * so can use HTML.
      */
-    public String getMessage () { return owlabel_instruct.getText(); }
+    public String getMessage () { return jlabelInstruct.getText(); }
     public void setMessage( String s_message ) { 
-        owlabel_instruct.setText( s_message );
+        jlabelInstruct.setText( s_message );
     }
     
-    private boolean ob_ok = false;
+    private boolean showDialogResult = false;
     
     /**
      * Pack the dialog, and pop it up, return the post-test
@@ -175,8 +160,8 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
      */
     public boolean showDialog() {
         if ( ! isVisible () ) {
-            ob_ok = false;
-            Runnable  run_dialog = new Runnable () {
+            showDialogResult = false;
+            final Runnable  run_dialog = new Runnable () {
                 @Override
                 public void run () {
                     setModal(true);
@@ -197,21 +182,21 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
                 }
             }
         }
-        return ob_ok;
+        return showDialogResult;
     }
 
     /**
      * Implement LoginModule CallbackHandler interface 
      * 
-     * @param v_callbacks from a LoginModule or whatever to handle
+     * @param callbackList from a LoginModule or whatever to handle
      * @throws java.io.IOException if user cancels out of dialog
      * @throws javax.security.auth.callback.UnsupportedCallbackException for unexpected callback
      */
     @Override
-    public void handle(Callback[] v_callbacks) throws IOException, UnsupportedCallbackException {
-       for ( Callback callback : v_callbacks ) {
+    public void handle(Callback[] callbackList) throws IOException, UnsupportedCallbackException {
+       for ( Callback callback : callbackList ) {
            if ( callback instanceof NameCallback) {
-               NameCallback ncb = (NameCallback) callback;
+               final NameCallback ncb = (NameCallback) callback;
                if ( ncb.getDefaultName () != null ) {
                    setUserName( ncb.getDefaultName() );
                    break;
@@ -219,13 +204,13 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
            }
        }
        if ( showDialog () ) {
-           for ( Callback callback : v_callbacks ) {
+           for ( Callback callback : callbackList ) {
                 if ( callback instanceof NameCallback) {
                     ((NameCallback) callback).setName(getUserName());
                 } else if ( callback instanceof PasswordCallback) {
                     ((PasswordCallback) callback).setPassword( getPassword().toCharArray() );
                 } else if ( callback instanceof TextOutputCallback ) {
-                    owlabel_instruct.setText( "<html>Authenticate: " + 
+                    jlabelInstruct.setText( "<html>Authenticate: " +
                             ((TextOutputCallback) callback).getMessage () +
                             "</html>"
                             );
@@ -237,7 +222,6 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
            throw new IOException( "User canceled out" );
        }
     }    
-    
     
 }
 

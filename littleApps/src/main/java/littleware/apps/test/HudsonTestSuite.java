@@ -18,7 +18,7 @@ import junit.framework.TestSuite;
 import littleware.apps.client.ClientSyncModule;
 import littleware.apps.filebucket.server.BucketServerModule;
 import littleware.apps.filebucket.server.BucketServerGuice;
-import littleware.apps.misc.test.ImageManagerTester;
+import littleware.apps.image.test.ImageManagerTester;
 import littleware.security.auth.ClientServiceGuice;
 import littleware.security.auth.GuiceOSGiBootstrap;
 import littleware.security.auth.SimpleNamePasswordCallbackHandler;
@@ -37,7 +37,7 @@ public class HudsonTestSuite extends TestSuite {
     public HudsonTestSuite(
             Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
-            littleware.apps.misc.test.PackageTestSuite miscSuite,
+            littleware.apps.image.test.PackageTestSuite miscSuite,
             littleware.apps.lgo.test.HudsonTestSuite lgoSuite,
             littleware.web.test.PackageTestSuite webSuite) {
         super(HudsonTestSuite.class.getName());

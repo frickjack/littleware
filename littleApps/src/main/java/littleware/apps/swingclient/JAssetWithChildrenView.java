@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.apps.client.*;
-import littleware.apps.misc.ThumbManager;
+import littleware.apps.image.ThumbManager;
 import littleware.asset.*;
 
 

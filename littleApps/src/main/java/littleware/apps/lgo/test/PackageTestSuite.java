@@ -13,7 +13,7 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import junit.framework.Test;
-import littleware.apps.client.ClientSyncModule;
+import littleware.bootstrap.client.ClientBootstrap;
 import littleware.test.TestFactory;
 
 /**
@@ -32,7 +32,6 @@ public class PackageTestSuite extends HudsonTestSuite {
             Provider<GetByNameTester> factoryByNameTester,
             Provider<BrowserCommandTest> factoryBrowserTest,
             Provider<RootPathCommandTest> factoryRootPathTest,
-            Provider<LgoServerTester> factoryServerTest,
             Provider<GsonTester> provideGsonTester
             )
     {
@@ -40,7 +39,7 @@ public class PackageTestSuite extends HudsonTestSuite {
                 factoryXmlHelpTester, factoryImageTester,
                 factoryChildrenTester, factoryGetTester,
                 factoryCreateTester, factoryByNameTester,
-                factoryRootPathTest, factoryServerTest, provideGsonTester
+                factoryRootPathTest, provideGsonTester
                 );
         setName( PackageTestSuite.class.getName() );
 
@@ -54,7 +53,10 @@ public class PackageTestSuite extends HudsonTestSuite {
      * of the OSGi bootstrap process
      */
     public static Test suite() {
-        return (new TestFactory()).build( new ClientSyncModule(), PackageTestSuite.class );
+        return (new TestFactory()).build(
+                ClientBootstrap.clientProvider.get().build().test(),
+                PackageTestSuite.class
+                );
     }
 
 }

@@ -8,15 +8,15 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.misc.test;
+package littleware.apps.image.test;
 
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.apps.client.ClientSyncModule;
-import littleware.apps.filebucket.server.BucketServerModule;
+import littleware.bootstrap.client.ClientBootstrap;
+import littleware.bootstrap.server.ServerBootstrap;
 import littleware.test.TestFactory;
 
 
@@ -40,11 +40,9 @@ public class PackageTestSuite extends TestSuite {
      */
     public static Test suite() {
         try {
-            final GuiceOSGiBootstrap serverBoot = new ServerBootstrap( true );
-            serverBoot.getGuiceModule().add( new BucketServerGuice() );
-            serverBoot.getOSGiActivator().add( BucketServerModule.class );
+            final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
             return (new TestFactory()).build( serverBoot,
-                new ClientSyncModule( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" ))),
+                ClientBootstrap.clientProvider.get().build().test(),
                 PackageTestSuite.class
                 );
         } catch ( RuntimeException ex ) {

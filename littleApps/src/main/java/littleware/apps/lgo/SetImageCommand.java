@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import littleware.apps.misc.ImageManager;
+import littleware.apps.image.ImageManager;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;

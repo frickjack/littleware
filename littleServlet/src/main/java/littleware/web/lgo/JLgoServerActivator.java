@@ -24,7 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import littleware.base.Maybe;
 import littleware.base.swing.GridBagWrap;
-import littleware.security.auth.LittleBootstrap;
+import littleware.bootstrap.LittleBootstrap;
 import org.osgi.framework.BundleContext;
 
 /**

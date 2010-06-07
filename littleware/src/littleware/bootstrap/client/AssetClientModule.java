@@ -17,6 +17,8 @@ import littleware.asset.AssetType;
 import littleware.asset.client.ClientSessionActivator;
 import littleware.asset.client.LittleServiceListener;
 import littleware.asset.client.SimpleClientCache;
+import littleware.asset.pickle.AssetHumanPickler;
+import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.AssertionFailedException;
 import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
@@ -76,6 +78,7 @@ public class AssetClientModule extends AbstractClientModule {
     public void configure( Binder binder ) {
         try {
             (new PropertiesGuice()).configure(binder);
+            binder.bind(AssetHumanPickler.class).toProvider(HumanPicklerProvider.class);
         } catch (IOException ex) {
             throw new AssertionFailedException( "Failed to load littleware.properties", ex );
         }

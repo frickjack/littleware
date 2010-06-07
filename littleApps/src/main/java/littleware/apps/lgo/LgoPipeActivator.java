@@ -22,8 +22,8 @@ import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
-import littleware.security.auth.LittleBootstrap;
-import littleware.security.auth.RunnerActivator;
+import littleware.bootstrap.LittleBootstrap;
+import littleware.bootstrap.RunnerActivator;
 
 /**
  * Activator for lgo pipe processor

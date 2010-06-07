@@ -20,9 +20,6 @@ import littleware.asset.client.LittleServiceEvent;
 import littleware.asset.client.LittleServiceListener;
 import littleware.base.AssertionFailedException;
 import littleware.security.auth.SessionHelper;
-import littleware.security.auth.client.SessionHelperService;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
 /**
  * Singleton service listener registers itself at OSGi bootstrap
@@ -32,7 +29,7 @@ import org.osgi.framework.BundleContext;
  * Launches background thread that attempts to keep local
  * data in sync with remote repository.
  */
-public class AssetModelServiceListener implements LittleServiceListener, BundleActivator {
+public class AssetModelServiceListener implements LittleServiceListener {
     private static final Logger     log = Logger.getLogger( AssetModelServiceListener.class.getName() );
 
     private final AssetModelLibrary libAsset;
@@ -59,16 +56,6 @@ public class AssetModelServiceListener implements LittleServiceListener, BundleA
             log.log( Level.WARNING, "Not handling unknown service event of type: " +
                     eventBase.getClass().getName() );
         }
-    }
-
-    @Override
-    public void start(BundleContext ctx) throws Exception {
-        // NOOP - constructor already registered us
-    }
-
-    @Override
-    public void stop(BundleContext ctx) throws Exception {
-        // NOOP for now
     }
 
 }

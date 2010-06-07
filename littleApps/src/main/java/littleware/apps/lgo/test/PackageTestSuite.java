@@ -13,7 +13,7 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import junit.framework.Test;
-import littleware.apps.client.ClientBootstrap;
+import littleware.apps.client.ClientSyncModule;
 import littleware.test.TestFactory;
 
 /**
@@ -54,7 +54,7 @@ public class PackageTestSuite extends HudsonTestSuite {
      * of the OSGi bootstrap process
      */
     public static Test suite() {
-        return (new TestFactory()).build( new ClientBootstrap(), PackageTestSuite.class );
+        return (new TestFactory()).build( new ClientSyncModule(), PackageTestSuite.class );
     }
 
 }

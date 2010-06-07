@@ -20,7 +20,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,9 +27,6 @@ import javax.swing.*;
 
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
-import littleware.apps.client.ClientBootstrap;
-import littleware.apps.swingbase.SwingBaseActivator;
-import littleware.apps.swingbase.SwingBaseGuice;
 import littleware.apps.swingbase.view.BaseView;
 import littleware.apps.swingbase.view.BaseView.ViewBuilder;
 import littleware.apps.swingclient.*;
@@ -40,11 +36,9 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.base.EventBarrier;
 import littleware.base.Maybe;
-import littleware.base.PropertiesGuice;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
-import littleware.base.feedback.LoggerFeedback;
 import littleware.security.LittleUser;
 
 /**
@@ -312,29 +306,24 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
      */
     public static void main(String[] args) {
         try {
-            final ClientBootstrap bootClient = new ClientBootstrap();
+            //final ClientSyncModule bootClient = new ClientSyncModule();
             // Currently only support -url argument
             if ((args.length > 1) && args[0].matches("^-+[uU][rR][lL]")) {
                 final String sUrl = args[1];
                 try {
                     final URL url = new URL(sUrl);
-                    bootClient.setHost(Maybe.something(url.getHost()));
+                    //bootClient.setHost(Maybe.something(url.getHost()));
                 } catch (MalformedURLException ex) {
                     throw new IllegalArgumentException("Malformed URL: " + sUrl);
                 }
             }
-            bootClient.getGuiceModule().add( new SwingBaseGuice( "littleBrowser", "v2.0",
-                    new URL( "http://code.google.com/p/littleware/" ),
-                    new Properties() )
-                    );
-            bootClient.getOSGiActivator().add( SwingBaseActivator.class );
 
             SwingUtilities.invokeLater( new Runnable() {
 
                 @Override
                 public void run() {
                     try {
-                        bootClient.bootstrap(SwingBaseLauncher.class).run();
+                        //bootClient.bootstrap(SwingBaseLauncher.class).run();
                     } catch ( Exception ex ) {
                         log.log( Level.WARNING, "Launch failure", ex );
                         JOptionPane.showMessageDialog(null, "Error: " + ex, "Launch failed", JOptionPane.ERROR_MESSAGE);

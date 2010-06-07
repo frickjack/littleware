@@ -19,13 +19,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import littleware.apps.client.ClientBootstrap;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.EventBarrier;
 import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
+import littleware.bootstrap.client.ClientBootstrap;
+import littleware.security.auth.client.ClientLoginModule;
 
 
 /**
@@ -147,9 +148,9 @@ public class LgoCommandLine {
      * Should run on event-dispatch thread.
      * 
      * @param argsIn command-line args
-     * @param bootClient to add LittleCommandLine.class to and bootstrap()
+     * @param bootBuilder to add LittleCommandLine.class to and bootstrap()
      */
-    public static void launch( final String[] argsIn, ClientBootstrap bootClient) {
+    public static void launch( final String[] argsIn, ClientBootstrap.ClientBuilder bootBuilder) {
         /*... just for testing in serverless environment ... 
         {
         // Try to start an internal server for now just for testing
@@ -157,6 +158,8 @@ public class LgoCommandLine {
         bootServer.bootstrap();
         }
         ...*/
+        // bla
+        final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
         String[] cleanArgs = argsIn;
 
         // Currently only support -url argument
@@ -164,7 +167,7 @@ public class LgoCommandLine {
             final String sUrl = argsIn[1];
             try {
                 final URL url = new URL(sUrl);
-                bootClient.setHost(Maybe.something(url.getHost()));
+                loginBuilder.host(url.getHost());
             } catch (MalformedURLException ex) {
                 throw new IllegalArgumentException("Malformed URL: " + sUrl);
             }
@@ -174,47 +177,50 @@ public class LgoCommandLine {
                 cleanArgs = new String[0];
             }
         }
+        /*... need to rework this stuff ...
         if ( cleanArgs.length > 0 ) {
             final String command = cleanArgs[0];
             
             if (command.equalsIgnoreCase("pipe")) {
-                bootClient.getOSGiActivator().add( LgoPipeActivator.class );
-                bootClient.bootstrap();
+                bootBuilder.getOSGiActivator().add( LgoPipeActivator.class );
+                bootBuilder.bootstrap();
                 //processPipe(feedback);
                 return;
             }
 
             if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
                 log.log( Level.INFO, "Launching lgo server ..." );
-                bootClient.getOSGiActivator().add( LgoServerActivator.class );
-                bootClient.bootstrap();
+                bootBuilder.getOSGiActivator().add( LgoServerActivator.class );
+                bootBuilder.bootstrap();
                 return;
             }
             if ( command.equals( "jserver" ) ) { // launch lgo server - jnlp environment
                 log.log( Level.INFO, "Launching lgo jnlp server ..." );
-                bootClient.getOSGiActivator().add( JLgoServerActivator.class );
-                bootClient.bootstrap();
+                bootBuilder.getOSGiActivator().add( JLgoServerActivator.class );
+                bootBuilder.bootstrap();
                 return;
             }
         } 
-        final LgoCommandLine cl = bootClient.bootstrap( LgoCommandLine.class );
+        final LgoCommandLine cl = bootBuilder.bootstrap( LgoCommandLine.class );
         final int exitCode = cl.run( cleanArgs );
-        bootClient.shutdown();
+        bootBuilder.shutdown();
         System.exit( exitCode );
+         *
+         */
     }
 
 
-    /** Just launch( vArgs, new ClientBootstrap() ); on the event-dispatch thread */
+    /** Just launch( vArgs, new ClientSyncModule() ); on the event-dispatch thread */
     public static void main(final String[] vArgs) {
         /*..
         SwingUtilities.invokeLater(new Runnable() {
 
         @Override
         public void run() {
-        launch(vArgs, new ClientBootstrap());
+        launch(vArgs, new ClientSyncModule());
         }
         });
          */
-        launch(vArgs, new ClientBootstrap());
+        launch(vArgs, ClientBootstrap.clientProvider.get() );
     }
 }

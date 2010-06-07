@@ -16,8 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.apps.client.ClientBootstrap;
-import littleware.apps.filebucket.server.BucketServerActivator;
+import littleware.apps.client.ClientSyncModule;
+import littleware.apps.filebucket.server.BucketServerModule;
 import littleware.apps.filebucket.server.BucketServerGuice;
 import littleware.apps.tracker.client.TrackerClientGuice;
 import littleware.apps.tracker.server.TrackerServerActivator;
@@ -46,9 +46,9 @@ public class PackageTestSuite extends TestSuite {
             serverBoot.getGuiceModule().add( new TrackerServerGuice() );
             serverBoot.getOSGiActivator().add( TrackerServerActivator.class );
             serverBoot.getGuiceModule().add( new BucketServerGuice() );
-            serverBoot.getOSGiActivator().add( BucketServerActivator.class );
+            serverBoot.getOSGiActivator().add( BucketServerModule.class );
 
-            final GuiceOSGiBootstrap clientBoot = new ClientBootstrap( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" )));
+            final GuiceOSGiBootstrap clientBoot = new ClientSyncModule( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" )));
             clientBoot.getGuiceModule().add( new TrackerClientGuice() );
             return (new TestFactory()).build( serverBoot,
                 clientBoot,

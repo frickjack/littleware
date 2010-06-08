@@ -23,14 +23,13 @@ import littleware.bootstrap.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.server.ServerBootstrap.ServerBuilder;
 import littleware.bootstrap.server.ServerBootstrap.ServerProfile;
-import littleware.bootstrap.server.ServerModuleFactory;
 
 
 public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
     private static final Logger log = Logger.getLogger( SimpleServerBuilder.class.getName() );
     
     private final List<ServerModuleFactory>  factoryList = new ArrayList<ServerModuleFactory>();
-    private ServerProfile profile = ServerProfile.J2EE;
+    private ServerProfile profile = ServerProfile.Standalone;
 
     {
         for (ServerModuleFactory moduleFactory : ServiceLoader.load(ServerModuleFactory.class)) {

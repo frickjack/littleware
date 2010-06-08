@@ -94,6 +94,9 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
         if ( bootstrapDone ) {
             throw new IllegalStateException( "Bootstrap can only run once" );
         }
+        for( T scan : moduleSet ) {
+            log.log( Level.FINE, "Check bootstrap module: " + scan.getClass().getName() );
+        }
         final Injector injector = Guice.createInjector(
                 moduleSet
                 );

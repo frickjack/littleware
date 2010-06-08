@@ -46,7 +46,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
     private static final Logger log = Logger.getLogger(SimpleClientBuilder.class.getName());
     private final List<ClientModuleFactory> factoryList = new ArrayList<ClientModuleFactory>();
-    private AppProfile profile;
+    private AppProfile profile = AppProfile.SwingApp;
 
     @Override
     public AppProfile getProfile() {
@@ -170,7 +170,6 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
             binder.bind(AssetSearchManager.class).to(AssetSearchService.class);
             binder.bind(AccountManager.class).to(AccountManagerService.class);
             binder.bind(AssetManager.class).to(AssetManagerService.class);
-            binder.bind(SessionHelper.class).toInstance(helper);
             binder.bind(LittleSession.class).toProvider(new Provider<LittleSession>() {
 
                 @Override
@@ -238,6 +237,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
     private SimpleClientBuilder copy() {
         final SimpleClientBuilder result = new SimpleClientBuilder();
+        result.factoryList.clear();
         result.factoryList.addAll( this.factoryList );
         result.profile = this.profile;
         return result;

@@ -15,9 +15,8 @@ import java.net.URL;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.apps.client.ExecutorModule;
-import littleware.apps.swingbase.SwingBaseActivator;
-import littleware.apps.swingbase.SwingBaseGuice;
+import littleware.apps.swingbase.SwingBaseModule;
+import littleware.bootstrap.client.AppBootstrap;
 import littleware.test.TestFactory;
 
 public class PackageTestSuite extends TestSuite {
@@ -31,19 +30,22 @@ public class PackageTestSuite extends TestSuite {
     }
 
     public static Test suite() {
-        final ExecutorModule boot = new ExecutorModule();
+        final AppBootstrap.AppBuilder bootBuilder = AppBootstrap.appProvider.get();
         try {
             final Properties props = new Properties();
             props.put("testProp", "bla bla bla" );
-            boot.getGuiceModule().add(
-                    new SwingBaseGuice("regressionTest", "v0.0",
-                    new URL("http://code.google.com/p/littleware/"), props
-                    )
+            bootBuilder.addModuleFactory(
+                    (new SwingBaseModule.Factory()).appName( "regressionTest"
+                    ).version( "v0.0"
+                    ).helpUrl(new URL("http://code.google.com/p/littleware/")
+                    ).properties( props )
                     );
-            boot.getOSGiActivator().add( SwingBaseActivator.class );
         } catch (MalformedURLException ex) {
             throw new IllegalStateException("URL exception", ex);
         }
-        return (new TestFactory()).build(boot, PackageTestSuite.class);
+        return (new TestFactory()).build(
+                    bootBuilder.profile(AppBootstrap.AppProfile.SwingApp).build(),
+                    PackageTestSuite.class
+                    );
     }
 }

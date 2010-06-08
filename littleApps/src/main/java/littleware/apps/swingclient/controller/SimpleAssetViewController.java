@@ -25,10 +25,11 @@ import littleware.apps.client.*;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.apps.swingclient.event.RefreshRequestEvent;
 import littleware.asset.AssetRetriever;
+import littleware.asset.client.ClientCache;
 import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
-import littleware.security.auth.client.ClientCache;
+
 
 /** 
  * Simple controller watches for events (NavRequestEvent, RefreshRequestEvent),

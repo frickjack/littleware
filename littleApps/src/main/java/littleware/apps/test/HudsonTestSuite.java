@@ -15,14 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.apps.client.ClientSyncModule;
-import littleware.apps.filebucket.server.BucketServerModule;
-import littleware.apps.filebucket.server.BucketServerGuice;
-import littleware.apps.image.test.ImageManagerTester;
-import littleware.security.auth.ClientServiceGuice;
-import littleware.security.auth.GuiceOSGiBootstrap;
-import littleware.security.auth.SimpleNamePasswordCallbackHandler;
-import littleware.security.auth.server.ServerBootstrap;
+import littleware.bootstrap.client.ClientBootstrap;
+import littleware.bootstrap.server.ServerBootstrap;
 import littleware.test.TestFactory;
 
 /**
@@ -38,8 +32,8 @@ public class HudsonTestSuite extends TestSuite {
             Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
             littleware.apps.image.test.PackageTestSuite miscSuite,
-            littleware.apps.lgo.test.HudsonTestSuite lgoSuite,
-            littleware.web.test.PackageTestSuite webSuite) {
+            littleware.apps.lgo.test.HudsonTestSuite lgoSuite
+            ) {
         super(HudsonTestSuite.class.getName());
 
         boolean b_run = true;
@@ -47,10 +41,6 @@ public class HudsonTestSuite extends TestSuite {
         if (b_run) {
             this.addTest(lgoSuite);
         }
-        if (b_run) {
-            this.addTest(webSuite);
-        }
-
         if (b_run) {
             this.addTest( miscSuite );
         }
@@ -75,12 +65,11 @@ public class HudsonTestSuite extends TestSuite {
      */
     public static Test suite() {
         try {
-            final GuiceOSGiBootstrap serverBoot = new ServerBootstrap(true);
-            serverBoot.getGuiceModule().add(new BucketServerGuice());
-            serverBoot.getOSGiActivator().add(BucketServerModule.class);
+            final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
             return (new TestFactory()).build(serverBoot,
-                    new ClientSyncModule(new ClientServiceGuice(new SimpleNamePasswordCallbackHandler("littleware.test_user", "bla"))),
-                    HudsonTestSuite.class);
+                    ClientBootstrap.clientProvider.get().build().test(),
+                    HudsonTestSuite.class
+                    );
         } catch (RuntimeException ex) {
             log.log(Level.SEVERE, "Test setup failed", ex);
             throw ex;

@@ -40,7 +40,7 @@ public interface BucketManager extends Remote {
      * @exception GeneralSecurityException if user does not have asset READ permission
      */
     public Bucket getBucket ( UUID u_asset ) throws BaseException, GeneralSecurityException,
-                       AssetException, RemoteException, BucketException, IOException;
+                       AssetException, RemoteException, IOException;
     
     
     /**
@@ -58,7 +58,7 @@ public interface BucketManager extends Remote {
     public <T extends Asset> T writeToBucket ( T a_in, String s_path,
                                 String s_data, String s_update_comment
                                 ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException;
+        AssetException, RemoteException, IOException;
     
     
     /**
@@ -76,7 +76,7 @@ public interface BucketManager extends Remote {
     public <T extends Asset> T writeToBucket ( T a_in, String s_path,
                                 byte[] v_data, String s_update_comment
                                 ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException;
+        AssetException, RemoteException, IOException;
 
     /**
      * Read the file at the given path under the bucket as UTF-8 encoded text,
@@ -88,7 +88,7 @@ public interface BucketManager extends Remote {
      */
     public String readTextFromBucket ( UUID u_asset, String s_path
                                        ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException;    
+        AssetException, RemoteException, IOException;    
     
     /**
      * Read the file at the given path under the bucket,
@@ -100,7 +100,7 @@ public interface BucketManager extends Remote {
      */
     public byte[] readBytesFromBucket ( UUID u_asset, String s_path 
                                        ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException;    
+        AssetException, RemoteException, IOException;    
     
     /**
      * Erase the specified file from the bucket.
@@ -113,7 +113,7 @@ public interface BucketManager extends Remote {
      */
     public <T extends Asset> T eraseFromBucket ( T a_in, String s_path, String s_update_comment
                                   ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException;
+        AssetException, RemoteException, IOException;
     
     /**
      * Rename the specified file within its bucket.
@@ -128,7 +128,7 @@ public interface BucketManager extends Remote {
     public <T extends Asset> T renameFile ( T a_in, String s_start_path, String s_rename_path,
                               String s_update_comment
                                   ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException;
+        AssetException, RemoteException, IOException;
     
     /**
      * Copy a file - possibly between different asset buckets.
@@ -146,7 +146,7 @@ public interface BucketManager extends Remote {
                             T a_out, String s_copy_path,
                             String s_update_comment
                              ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException;
+        AssetException, RemoteException, IOException;
 
 }
 

@@ -15,15 +15,9 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import junit.framework.*;
-import littleware.apps.client.ClientSyncModule;
 
-import littleware.apps.filebucket.server.BucketServerModule;
-import littleware.apps.filebucket.server.BucketServerGuice;
-import littleware.apps.image.test.ThumbManagerTester;
-import littleware.security.auth.ClientServiceGuice;
-import littleware.security.auth.GuiceOSGiBootstrap;
-import littleware.security.auth.SimpleNamePasswordCallbackHandler;
-import littleware.security.auth.server.ServerBootstrap;
+import littleware.bootstrap.client.ClientBootstrap;
+import littleware.bootstrap.server.ServerBootstrap;
 import littleware.test.TestFactory;
 
 /**
@@ -93,15 +87,13 @@ public class PackageTestSuite extends TestSuite {
      */
     public static Test suite() {
         try {
-            final GuiceOSGiBootstrap serverBoot = new ServerBootstrap( true );
-            serverBoot.getGuiceModule().add( new BucketServerGuice() );
-            serverBoot.getOSGiActivator().add( BucketServerModule.class );
-            return (new TestFactory()).build( serverBoot,
-                new ClientSyncModule( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" ))),
-                PackageTestSuite.class
-                );
-        } catch ( RuntimeException ex ) {
-            log.log( Level.SEVERE, "Test setup failed", ex );
+            final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
+            return (new TestFactory()).build(serverBoot,
+                    ClientBootstrap.clientProvider.get().build().test(),
+                    PackageTestSuite.class
+                    );
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
             throw ex;
         }
     }

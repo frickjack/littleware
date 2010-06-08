@@ -62,13 +62,16 @@ public class TestFactory {
      * return a test suite that runs the given tests
      * as a client in the client environment, then shuts
      * down both environments.
+     *
+     * @param clientBuilder to invoke test() login on once
+     *          embedded server environment is up and running
      */
     public TestSuite build(final ServerBootstrap serverBootstrap,
-            final ClientBootstrap clientBootstrap,
+            final ClientBootstrap.LoginSetup clientBuilder,
             final Class<? extends TestSuite> testSuiteClass) {
 
         serverBootstrap.bootstrap();
-        final TestSuite suite = build(clientBootstrap, testSuiteClass);
+        final TestSuite suite = build(clientBuilder.test(), testSuiteClass);
         suite.addTest(
                 new TestCase("shutdownLittlewareServer") {
                     @Override

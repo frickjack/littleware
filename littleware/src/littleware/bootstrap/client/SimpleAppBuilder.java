@@ -19,13 +19,12 @@ import java.util.logging.Logger;
 import littleware.bootstrap.AbstractLittleBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppBuilder;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
-import littleware.bootstrap.client.AppModuleFactory;
 
 public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
     private static final Logger     log = Logger.getLogger( SimpleAppBuilder.class.getName() );
 
     private final List<AppModuleFactory>  factoryList = new ArrayList<AppModuleFactory>();
-    private AppProfile profile;
+    private AppProfile profile = AppProfile.SwingApp;
 
     {
         for( AppModuleFactory moduleFactory : ServiceLoader.load( AppModuleFactory.class ) ) {

@@ -14,12 +14,9 @@ import com.google.inject.Singleton;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import littleware.base.feedback.Feedback;
-import littleware.security.auth.LittleBootstrap;
+import littleware.bootstrap.LittleBootstrap;
 
-/**
- *
- * @author pasquini
- */
+
 @Singleton
 public class ConfirmShutdownHandler implements ShutdownHandler {
 

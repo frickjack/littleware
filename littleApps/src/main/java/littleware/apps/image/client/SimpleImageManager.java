@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import littleware.apps.filebucket.Bucket;

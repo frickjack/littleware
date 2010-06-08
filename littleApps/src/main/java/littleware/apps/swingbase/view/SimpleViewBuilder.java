@@ -38,7 +38,8 @@ import littleware.apps.swingbase.view.BaseView.ViewBuilder;
 import littleware.apps.swingclient.FeedbackBundle;
 import littleware.base.feedback.Feedback;
 import littleware.base.swing.GridBagWrap;
-import littleware.security.auth.LittleBootstrap;
+import littleware.bootstrap.LittleBootstrap;
+
 
 /**
  * Simple BaseView.ViewBuilder implementation

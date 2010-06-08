@@ -37,8 +37,9 @@ import littleware.asset.AssetBuilder;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
+import littleware.asset.client.ClientCache;
 import littleware.security.auth.LittleSession;
-import littleware.security.auth.client.ClientCache;
+
 
 
 /** 

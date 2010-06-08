@@ -75,7 +75,7 @@ public class ThumbManagerTester extends LittleTest {
                     );
              */
             // ok - frick things up a bit
-            final BufferedImage imgTest = ImageIO.read(ThumbManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.png") );
+            final BufferedImage imgTest = ImageIO.read(ThumbManagerTester.class.getClassLoader().getResource("littleware/apps/image/test/testImage.png") );
             imageMgr.saveImage(session,
                     imgTest,
                     "Setting up thumb test image"

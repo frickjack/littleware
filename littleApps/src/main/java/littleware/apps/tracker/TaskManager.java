@@ -11,7 +11,6 @@
 
 package littleware.apps.tracker;
 
-import com.google.inject.ImplementedBy;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
@@ -21,7 +20,6 @@ import littleware.base.BaseException;
 /**
  * Tool for placing tasks in queue
  */
-@ImplementedBy(SimpleTaskManager.class)
 public interface TaskManager {
     /**
      * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.TASK ).values() )

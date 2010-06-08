@@ -12,12 +12,16 @@
 package littleware.apps.swingclient;
 
 import com.google.inject.Binder;
-import com.google.inject.Module;
 
 import com.google.inject.Scopes;
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
 import littleware.apps.client.*;
+import littleware.bootstrap.client.AbstractClientModule;
+import littleware.bootstrap.client.AppBootstrap;
+import littleware.bootstrap.client.AppBootstrap.AppProfile;
+import littleware.bootstrap.client.ClientModule;
+import littleware.bootstrap.client.ClientModuleFactory;
 
 /**
  * Specialize ClientServiceGuice to include bindings
@@ -25,14 +29,23 @@ import littleware.apps.client.*;
  * 
  * @author pasquini
  */
-public class StandardSwingGuice implements Module {
-    
+public class StandardSwingModule extends AbstractClientModule {
+    public static class Factory implements ClientModuleFactory {
+
+        @Override
+        public ClientModule build(AppProfile profile) {
+            return new StandardSwingModule( profile );
+        }
+
+    }
     
     /** 
      * Client must inject SessionHelper dependency 
      * by hand via setSessionHelper
      */
-    public StandardSwingGuice () {}
+    private StandardSwingModule ( AppBootstrap.AppProfile profile ) {
+        super( profile );
+    }
     
     
     @Override

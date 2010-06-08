@@ -10,7 +10,6 @@
 package littleware.apps.image.client;
 
 import com.google.inject.Inject;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -106,7 +105,7 @@ public class SimpleThumbManager implements ThumbManager {
     {
         try {
             defaultImage =
-                    ImageIO.read(SimpleThumbManager.class.getClassLoader().getResource("littleware/apps/misc/client/defaultThumb.png"));
+                    ImageIO.read(SimpleThumbManager.class.getClassLoader().getResource("littleware/apps/image/client/defaultThumb.png"));
         } catch (IOException ex) {
             throw new AssertionFailedException("Failed to load default image", ex);
         }

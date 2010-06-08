@@ -16,16 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.apps.client.ClientSyncModule;
-import littleware.apps.filebucket.server.BucketServerModule;
-import littleware.apps.filebucket.server.BucketServerGuice;
-import littleware.apps.tracker.client.TrackerClientGuice;
-import littleware.apps.tracker.server.TrackerServerActivator;
-import littleware.apps.tracker.server.TrackerServerGuice;
-import littleware.security.auth.ClientServiceGuice;
-import littleware.security.auth.GuiceOSGiBootstrap;
-import littleware.security.auth.SimpleNamePasswordCallbackHandler;
-import littleware.security.auth.server.ServerBootstrap;
+import littleware.bootstrap.client.ClientBootstrap;
+import littleware.bootstrap.server.ServerBootstrap;
 import littleware.test.TestFactory;
 
 /**
@@ -42,16 +34,8 @@ public class PackageTestSuite extends TestSuite {
 
     public static Test suite() {
         try {
-            final GuiceOSGiBootstrap serverBoot = new ServerBootstrap( true );
-            serverBoot.getGuiceModule().add( new TrackerServerGuice() );
-            serverBoot.getOSGiActivator().add( TrackerServerActivator.class );
-            serverBoot.getGuiceModule().add( new BucketServerGuice() );
-            serverBoot.getOSGiActivator().add( BucketServerModule.class );
-
-            final GuiceOSGiBootstrap clientBoot = new ClientSyncModule( new ClientServiceGuice( new SimpleNamePasswordCallbackHandler( "littleware.test_user", "bla" )));
-            clientBoot.getGuiceModule().add( new TrackerClientGuice() );
-            return (new TestFactory()).build( serverBoot,
-                clientBoot,
+            return (new TestFactory()).build( ServerBootstrap.provider.get().build(),
+                ClientBootstrap.clientProvider.get().build(),
                 PackageTestSuite.class
                 );
         } catch ( RuntimeException ex ) {

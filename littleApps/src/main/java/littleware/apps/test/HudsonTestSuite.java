@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.bootstrap.client.ClientBootstrap;
 import littleware.bootstrap.server.ServerBootstrap;
 import littleware.test.TestFactory;
@@ -67,7 +68,7 @@ public class HudsonTestSuite extends TestSuite {
         try {
             final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
             return (new TestFactory()).build(serverBoot,
-                    ClientBootstrap.clientProvider.get().build().test(),
+                    ClientBootstrap.clientProvider.get().profile(AppProfile.CliApp).build(),
                     HudsonTestSuite.class
                     );
         } catch (RuntimeException ex) {

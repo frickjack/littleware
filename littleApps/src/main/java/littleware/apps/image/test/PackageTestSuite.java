@@ -42,7 +42,7 @@ public class PackageTestSuite extends TestSuite {
         try {
             final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
             return (new TestFactory()).build( serverBoot,
-                ClientBootstrap.clientProvider.get().build().test(),
+                ClientBootstrap.clientProvider.get().build(),
                 PackageTestSuite.class
                 );
         } catch ( RuntimeException ex ) {

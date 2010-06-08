@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import junit.framework.*;
 
 import littleware.bootstrap.client.ClientBootstrap;
+import littleware.bootstrap.client.ClientModuleFactory;
 import littleware.bootstrap.server.ServerBootstrap;
 import littleware.test.TestFactory;
 
@@ -88,8 +89,12 @@ public class PackageTestSuite extends TestSuite {
     public static Test suite() {
         try {
             final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
+            final ClientBootstrap.ClientBuilder clientBuilder = ClientBootstrap.clientProvider.get();
+            for( ClientModuleFactory scan : clientBuilder.getModuleSet() ) {
+                log.log( Level.INFO, "Scanning client module set: " + scan.getClass().getName() );
+            }
             return (new TestFactory()).build(serverBoot,
-                    ClientBootstrap.clientProvider.get().build().test(),
+                    clientBuilder.build(),
                     PackageTestSuite.class
                     );
         } catch (RuntimeException ex) {

@@ -50,7 +50,7 @@ public class ImageCacheTester extends LittleTest {
                         !cache.cacheGet(id, ImageManager.SizeOption.r128x128).isInCache());
             }
 
-            final BufferedImage testImage = ImageIO.read(ThumbManagerTester.class.getClassLoader().getResource("littleware/apps/misc/test/testImage.png"));
+            final BufferedImage testImage = ImageIO.read(ThumbManagerTester.class.getClassLoader().getResource("littleware/apps/image/test/testImage.png"));
             cache.cachePut(id, ImageManager.SizeOption.r64x64, Maybe.something(testImage));
             {
                 final ImageCache.CacheEntry entry = cache.cacheGet(id, ImageManager.SizeOption.r64x64);

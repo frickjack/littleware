@@ -47,12 +47,15 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
     private final AssetSearchManager search;
     private final TaskQueryManager queryManager;
     private final Provider<BuilderStart> queryBuilder;
+    private final AssetManager assetMgr;
 
     @Inject
     public SimpleTaskSpecializer(AssetSearchManager search,
+            AssetManager assetMgr,
             TaskQueryManager queryManager,
             Provider<TaskQuery.BuilderStart> queryBuilder) {
         this.search = search;
+        this.assetMgr = assetMgr;
         this.queryManager = queryManager;
         this.queryBuilder = queryBuilder;
     }
@@ -62,7 +65,7 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
      * queue node hierarchy
      */
     @Override
-    public void postCreateCallback(Asset asset, AssetManager am) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public void postCreateCallback(Asset asset) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Task task = asset.narrow();
         final Queue queue = search.getAsset(task.getQueueId()).get().narrow();
         final Task.TaskBuilder builder = task.copy();
@@ -87,7 +90,7 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
             for (AssetInfo info : template.visit(queue, search)) {
                 lastId = info.getAsset().getId();
                 if (!info.getAssetExists()) {
-                    am.saveAsset(info.getAsset(), "Setup queue tree");
+                    assetMgr.saveAsset(info.getAsset(), "Setup queue tree");
                 }
             }
             builder.fromId(lastId);
@@ -104,10 +107,10 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
             throw new IllegalStateException("Failed to find unused task-number under queue " + queue.getName() + " (" + queue.getId() + ")");
         }
         builder.name(Integer.toString(taskNumber));
-        am.saveAsset(queue.copy().value(taskNumber + 1).build(),
+        assetMgr.saveAsset(queue.copy().value(taskNumber + 1).build(),
                 "Advance queue task number");
 
-        am.saveAsset(
+        assetMgr.saveAsset(
                 builder.build(),
                 "Reposition task in queue asset tree with unique name");
     }
@@ -116,7 +119,7 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
      * If the name changes - make sure it's unique
      */
     @Override
-    public void postUpdateCallback(Asset old, Asset current, AssetManager am) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public void postUpdateCallback(Asset old, Asset current) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Task oldTask = old.narrow();
         final Task currentTask = current.narrow();
         AbstractValidator.assume(oldTask.getQueueId().equals(currentTask.getQueueId()),

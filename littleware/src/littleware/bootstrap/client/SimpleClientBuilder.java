@@ -204,10 +204,6 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
                 }
             });
             binder.bind(AssetRetriever.class).to(AssetSearchManager.class);
-
-            log.log(Level.FINE, "Forcing load of SecurityAssetType and AssetType: "
-                    + AssetType.HOME + ", " + SecurityAssetType.USER);
-
         }
     }
 

@@ -29,6 +29,8 @@ import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.bootstrap.client.AppModule;
 import littleware.bootstrap.client.AppModuleFactory;
+import littleware.bootstrap.client.ClientModule;
+import littleware.bootstrap.client.ClientModuleFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -38,7 +40,7 @@ import org.osgi.framework.BundleContext;
 public class SwingBaseModule extends AbstractClientModule {
     private static final Logger log = Logger.getLogger( SwingBaseModule.class.getName() );
 
-    public static class Factory implements AppModuleFactory {
+    public static class Factory implements AppModuleFactory, ClientModuleFactory {
 
         private String appName = null;
         private URL helpUrl = null;
@@ -78,7 +80,7 @@ public class SwingBaseModule extends AbstractClientModule {
         }
 
         @Override
-        public AppModule build(AppProfile profile) {
+        public ClientModule build(AppProfile profile) {
             if (null == helpUrl) {
                 throw new ValidationException("null helpUrl");
             }

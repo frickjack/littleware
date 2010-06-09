@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import javax.security.auth.login.LoginException;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.EventBarrier;
@@ -27,7 +28,6 @@ import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.bootstrap.client.ClientBootstrap;
 import littleware.security.auth.client.ClientLoginModule;
-
 
 /**
  * Command-line based lgo launcher.
@@ -40,17 +40,14 @@ import littleware.security.auth.client.ClientLoginModule;
 public class LgoCommandLine {
 
     private static final Logger log = Logger.getLogger(LgoCommandLine.class.getName());
-
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
-    
 
     /** Inject dependencies */
     @Inject
     public LgoCommandLine(
             LgoCommandDictionary commandMgr,
-            LgoHelpLoader helpMgr
-            ) {
+            LgoHelpLoader helpMgr) {
         this.commandMgr = commandMgr;
         this.helpMgr = helpMgr;
     }
@@ -74,18 +71,18 @@ public class LgoCommandLine {
 
             command.processArgs(processArgs);
 
-            if ( command instanceof LgoBrowserCommand ) {
+            if (command instanceof LgoBrowserCommand) {
                 // HACK!
                 // Hard-code browser command exception for now ...
                 final EventBarrier<Maybe<UUID>> barrier = ((LgoBrowserCommand) command).runCommand(feedback, sArg);
-                System.out.println( barrier.waitForEventData().toString() );
+                System.out.println(barrier.waitForEventData().toString());
             } else {
                 final String sResult = command.runCommandLine(feedback, sArg);
                 System.out.println((null == sResult) ? "null" : sResult);
             }
         } catch (Exception ex) {
-            System.out.println("Command failed, caught exception: " +
-                    BaseException.getStackTrace(ex));
+            System.out.println("Command failed, caught exception: "
+                    + BaseException.getStackTrace(ex));
             try {
                 System.out.print(commandMgr.buildCommand("help").runCommand(feedback, command.getName()).toString());
             } catch (LgoException ex2) {
@@ -96,14 +93,13 @@ public class LgoCommandLine {
         return 0;
     }
 
-
     /**
      * Run the LgoCommand specifiedby the given args array
      *
      * @param argsArray lgo command line arguments
      * @return command exit code
      */
-    public int run( String[] argsArray ) {
+    public int run(String[] argsArray) {
         log.log(Level.FINE, "Running on Swing dispatch thread");
         int iExitStatus = 0;
 
@@ -134,30 +130,29 @@ public class LgoCommandLine {
         } catch (Exception e) {
             iExitStatus = 1;
             log.log(Level.SEVERE, "Failed command, caught: " + e, e);
-        } 
+        }
         return iExitStatus;
     }
 
-
-
+    // ---------------------------------------
     /**
      * Look at the first argument to determine 
      * which command to launch, process arguments up until "--",
      * then pass pass the remaining args as a single space-separated string
      * to the command.runCommand method.
-     * Should run on event-dispatch thread.
+     * TODO - accept UI mode flag (swing, cli, swint-cli hybrid, server, ...)
      * 
      * @param argsIn command-line args
      * @param bootBuilder to add LittleCommandLine.class to and bootstrap()
      */
-    public static void launch( final String[] argsIn, ClientBootstrap.ClientBuilder bootBuilder) {
-        /*... just for testing in serverless environment ... 
+    public static void launch(final String[] argsIn, ClientBootstrap.ClientBuilder bootBuilder) {
+        /*... just for testing in serverless environment ...
         {
-        // Try to start an internal server for now just for testing
-        GuiceOSGiBootstrap bootServer = new littleware.security.auth.server.ServerBootstrap();
-        bootServer.bootstrap();
+            // Try to start an internal server for now just for testing
+            final ServerBootstrap bootServer = littleware.bootstrap.server.ServerBootstrap.provider.get().build();
+            bootServer.bootstrap();
         }
-        ...*/
+         */
         // bla
         final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
         String[] cleanArgs = argsIn;
@@ -172,43 +167,47 @@ public class LgoCommandLine {
                 throw new IllegalArgumentException("Malformed URL: " + sUrl);
             }
             if (argsIn.length > 2) {
-                cleanArgs = Arrays.copyOfRange(argsIn, 2, argsIn.length );
+                cleanArgs = Arrays.copyOfRange(argsIn, 2, argsIn.length);
             } else {
                 cleanArgs = new String[0];
             }
         }
         /*... need to rework this stuff ...
         if ( cleanArgs.length > 0 ) {
-            final String command = cleanArgs[0];
-            
-            if (command.equalsIgnoreCase("pipe")) {
-                bootBuilder.getOSGiActivator().add( LgoPipeActivator.class );
-                bootBuilder.bootstrap();
-                //processPipe(feedback);
-                return;
-            }
+        final String command = cleanArgs[0];
 
-            if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
-                log.log( Level.INFO, "Launching lgo server ..." );
-                bootBuilder.getOSGiActivator().add( LgoServerActivator.class );
-                bootBuilder.bootstrap();
-                return;
-            }
-            if ( command.equals( "jserver" ) ) { // launch lgo server - jnlp environment
-                log.log( Level.INFO, "Launching lgo jnlp server ..." );
-                bootBuilder.getOSGiActivator().add( JLgoServerActivator.class );
-                bootBuilder.bootstrap();
-                return;
-            }
-        } 
-        final LgoCommandLine cl = bootBuilder.bootstrap( LgoCommandLine.class );
-        final int exitCode = cl.run( cleanArgs );
-        bootBuilder.shutdown();
-        System.exit( exitCode );
-         *
+        if (command.equalsIgnoreCase("pipe")) {
+        bootBuilder.getOSGiActivator().add( LgoPipeActivator.class );
+        bootBuilder.bootstrap();
+        //processPipe(feedback);
+        return;
+        }
+
+        if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
+        log.log( Level.INFO, "Launching lgo server ..." );
+        bootBuilder.getOSGiActivator().add( LgoServerActivator.class );
+        bootBuilder.bootstrap();
+        return;
+        }
+        if ( command.equals( "jserver" ) ) { // launch lgo server - jnlp environment
+        log.log( Level.INFO, "Launching lgo jnlp server ..." );
+        bootBuilder.getOSGiActivator().add( JLgoServerActivator.class );
+        bootBuilder.bootstrap();
+        return;
+        }
+        }
          */
+        int exitCode = 1;
+        try {
+            final ClientBootstrap boot = bootBuilder.build().automatic(loginBuilder.build());
+            final LgoCommandLine cl = boot.bootstrap(LgoCommandLine.class);
+            exitCode = cl.run(cleanArgs);
+            boot.shutdown();
+        } catch (LoginException ex) {
+            log.log(Level.SEVERE, "Failed login", ex);
+        }
+        System.exit(exitCode);
     }
-
 
     /** Just launch( vArgs, new ClientSyncModule() ); on the event-dispatch thread */
     public static void main(final String[] vArgs) {
@@ -221,6 +220,6 @@ public class LgoCommandLine {
         }
         });
          */
-        launch(vArgs, ClientBootstrap.clientProvider.get() );
+        launch(vArgs, ClientBootstrap.clientProvider.get());
     }
 }

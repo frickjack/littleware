@@ -20,6 +20,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +28,7 @@ import javax.swing.*;
 
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
+import littleware.apps.swingbase.SwingBaseModule;
 import littleware.apps.swingbase.view.BaseView;
 import littleware.apps.swingbase.view.BaseView.ViewBuilder;
 import littleware.apps.swingclient.*;
@@ -39,7 +41,9 @@ import littleware.base.Maybe;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
+import littleware.bootstrap.client.ClientBootstrap;
 import littleware.security.LittleUser;
+import littleware.security.auth.client.ClientLoginModule;
 
 /**
  * Launch a Swing browser, and return the whatever
@@ -305,14 +309,28 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
      * @TODO setup standard feedback mechanism in StandardSwingGuice
      */
     public static void main(String[] args) {
+                /*... just for testing in serverless environment ... 
+        {
+            // Try to start an internal server for now just for testing
+            littleware.bootstrap.server.ServerBootstrap.provider.get().build().bootstrap();
+        } */
+         
+
         try {
-            //final ClientSyncModule bootClient = new ClientSyncModule();
+            final ClientBootstrap.LoginSetup bootBuilder = ClientBootstrap.clientProvider.get().
+                    addModuleFactory(
+                        new SwingBaseModule.Factory().appName( "littleBrowser" ).version( "2.1"
+                        ).helpUrl( new URL( "http://code.google.com/p/littleware/" )
+                        ).properties( new Properties()
+                        )
+                        ).build();
+            final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
             // Currently only support -url argument
             if ((args.length > 1) && args[0].matches("^-+[uU][rR][lL]")) {
                 final String sUrl = args[1];
                 try {
                     final URL url = new URL(sUrl);
-                    //bootClient.setHost(Maybe.something(url.getHost()));
+                    loginBuilder.host( url.getHost() );
                 } catch (MalformedURLException ex) {
                     throw new IllegalArgumentException("Malformed URL: " + sUrl);
                 }
@@ -323,10 +341,11 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
                 @Override
                 public void run() {
                     try {
-                        //bootClient.bootstrap(SwingBaseLauncher.class).run();
+                        bootBuilder.automatic( loginBuilder.build() ).bootstrap(SwingBaseLauncher.class).run();
                     } catch ( Exception ex ) {
                         log.log( Level.WARNING, "Launch failure", ex );
                         JOptionPane.showMessageDialog(null, "Error: " + ex, "Launch failed", JOptionPane.ERROR_MESSAGE);
+                        System.exit(1);
                     }
                 }
             } );
@@ -337,6 +356,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
                     @Override
                     public void run() {
                         JOptionPane.showMessageDialog(null, "Error: " + ex, "Launch failed", JOptionPane.ERROR_MESSAGE);
+                        System.exit( 1 );
                     }
                 }
             );

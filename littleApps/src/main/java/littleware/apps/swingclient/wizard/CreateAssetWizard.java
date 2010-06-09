@@ -129,7 +129,12 @@ public class CreateAssetWizard extends WizardAssetEditor {
                         AssetTypeSelector select_atype = opanel_atype.getAssetTypeSelector();
                         if (!getLocalAsset().getAssetType().equals(select_atype.getSelectedAssetType())) {
                             final Asset oldTypeAsset = getLocalAsset();
-                            final Asset newTypeAsset = select_atype.getSelectedAssetType().create().copy(oldTypeAsset).build();
+                            final Asset newTypeAsset = select_atype.getSelectedAssetType().create(
+                                    ).name( oldTypeAsset.getName()
+                                    ).fromId(oldTypeAsset.getFromId()
+                                    ).comment( oldTypeAsset.getComment()
+                                    ).aclId(oldTypeAsset.getAclId()
+                                    ).build();
                             olib_asset.remove(newTypeAsset.getId());
                             // register bald model with library, so
                             // update events get fired on save

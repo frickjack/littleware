@@ -25,6 +25,7 @@ import littleware.base.*;
  * Asset data-bucket base-class.
  */
 public class SimpleAssetBuilder implements AssetBuilder {
+
     private static final Factory<UUID> uuidFactory = UUIDFactory.getFactory();
     private static final Logger log = Logger.getLogger(SimpleAssetBuilder.class.getName());
     /** Limit on the size of the data block */
@@ -51,13 +52,12 @@ public class SimpleAssetBuilder implements AssetBuilder {
     private PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
     private long transaction = -1L;
     private final AssetBuilderValidator validator;
-    private final Map<String,UUID>   linkMap = new HashMap<String,UUID>();
-    private final Map<String,UUID>   roLinkMap = Collections.unmodifiableMap( linkMap );
-    private final Map<String,String> attributeMap = new HashMap<String,String>();
-    private final Map<String,String> roAttributeMap = Collections.unmodifiableMap( attributeMap );
-    private final Map<String,Date>   dateMap = new HashMap<String,Date>();
-    private final Map<String,Date>   roDateMap = Collections.unmodifiableMap( dateMap );
-
+    private final Map<String, UUID> linkMap = new HashMap<String, UUID>();
+    private final Map<String, UUID> roLinkMap = Collections.unmodifiableMap(linkMap);
+    private final Map<String, String> attributeMap = new HashMap<String, String>();
+    private final Map<String, String> roAttributeMap = Collections.unmodifiableMap(attributeMap);
+    private final Map<String, Date> dateMap = new HashMap<String, Date>();
+    private final Map<String, Date> roDateMap = Collections.unmodifiableMap(dateMap);
 
     /** 
      * Wrapper fires property change if property changes, and
@@ -99,17 +99,16 @@ public class SimpleAssetBuilder implements AssetBuilder {
      * default AssetBuilderValidator
      */
     public SimpleAssetBuilder(AssetType assetType) {
-        this( assetType, new SimpleABValidator() );
+        this(assetType, new SimpleABValidator());
     }
 
     /**
      * Constructor with validator override
      */
-    public SimpleAssetBuilder(AssetType assetType, AssetBuilderValidator validator ) {
+    public SimpleAssetBuilder(AssetType assetType, AssetBuilderValidator validator) {
         this.assetType = assetType;
         this.validator = validator;
     }
-
 
     @Override
     public String getName() {
@@ -203,11 +202,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
      */
     @Override
     public final void setName(String value) {
-        name( value );
+        name(value);
     }
 
     @Override
-    public AssetBuilder name( String value ) {
+    public AssetBuilder name(String value) {
         if ((-1 < value.indexOf('/')) || value.startsWith("..")) {
             throw new IllegalArgumentException("Illegal asset name: " + value);
         }
@@ -219,10 +218,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setCreatorId(UUID value) {
-        creatorId( value );
+        creatorId(value);
     }
+
     @Override
-    public AssetBuilder creatorId( UUID value ) {
+    public AssetBuilder creatorId(UUID value) {
         final UUID old = creatorId;
         creatorId = value;
         firePropertyChange("creatorId", old, value);
@@ -231,10 +231,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setLastUpdaterId(UUID value) {
-        lastUpdaterId( value );
+        lastUpdaterId(value);
     }
+
     @Override
-    public AssetBuilder lastUpdaterId( UUID value ) {
+    public AssetBuilder lastUpdaterId(UUID value) {
         final UUID old = lastUpdater;
         lastUpdater = value;
         firePropertyChange("lastUpdaterId", old, lastUpdater);
@@ -243,10 +244,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setAclId(UUID value) {
-        aclId( value );
+        aclId(value);
     }
+
     @Override
-    public AssetBuilder aclId( UUID value ) {
+    public AssetBuilder aclId(UUID value) {
         final UUID old = aclId;
         aclId = value;
         firePropertyChange("aclId", old, aclId);
@@ -256,10 +258,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
     /** Create a new owner object with x_owner as the only non-admin member */
     @Override
     public final void setOwnerId(UUID value) {
-        ownerId( value );
+        ownerId(value);
     }
+
     @Override
-    public AssetBuilder ownerId( UUID value ) {
+    public AssetBuilder ownerId(UUID value) {
         final UUID old = ownerId;
         ownerId = value;
         firePropertyChange("owner", old, ownerId);
@@ -268,10 +271,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setComment(String value) {
-        comment( value );
+        comment(value);
     }
+
     @Override
-    public AssetBuilder comment( String value ) {
+    public AssetBuilder comment(String value) {
         final String old = comment;
         comment = value;
         firePropertyChange("comment", old, comment);
@@ -280,10 +284,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setLastUpdate(String value) {
-        lastUpdate( value );
+        lastUpdate(value);
     }
+
     @Override
-    public AssetBuilder lastUpdate( String value ) {
+    public AssetBuilder lastUpdate(String value) {
         final String old = lastUpdate;
         lastUpdate = value;
         firePropertyChange("lastUpdate", old, value);
@@ -292,10 +297,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setData(String value) {
-        data( value );
+        data(value);
     }
+
     @Override
-    public AssetBuilder data( String value ) {
+    public AssetBuilder data(String value) {
         if (value.length() > DATA_LIMIT) {
             throw new ValidationException("Data exceeds 1024 characters");
         }
@@ -307,10 +313,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setHomeId(UUID value) {
-        homeId( value );
+        homeId(value);
     }
+
     @Override
-    public AssetBuilder homeId( UUID value ) {
+    public AssetBuilder homeId(UUID value) {
         final UUID old = homeId;
         homeId = value;
         firePropertyChange("homeId", old, homeId);
@@ -319,10 +326,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setFromId(UUID value) {
-        fromId( value );
+        fromId(value);
     }
+
     @Override
-    public AssetBuilder fromId( UUID value ) {
+    public AssetBuilder fromId(UUID value) {
         final UUID old = fromId;
         fromId = value;
         firePropertyChange("fromId", old, fromId);
@@ -331,8 +339,9 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setToId(UUID value) {
-        toId( value );
+        toId(value);
     }
+
     @Override
     public AssetBuilder toId(UUID value) {
         final UUID old = toId;
@@ -343,10 +352,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setStartDate(Date value) {
-        startDate( value );
+        startDate(value);
     }
+
     @Override
-    public AssetBuilder startDate( Date value ) {
+    public AssetBuilder startDate(Date value) {
         final Date old = startDate;
         startDate = value;
         firePropertyChange("startDate", old, startDate);
@@ -355,10 +365,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setEndDate(Date value) {
-        endDate( value );
+        endDate(value);
     }
+
     @Override
-    public AssetBuilder endDate( Date value ) {
+    public AssetBuilder endDate(Date value) {
         final Date old = endDate;
         endDate = value;
         firePropertyChange("endDate", old, endDate);
@@ -367,10 +378,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setCreateDate(Date value) {
-        createDate( value );
+        createDate(value);
     }
+
     @Override
-    public AssetBuilder createDate( Date value ) {
+    public AssetBuilder createDate(Date value) {
         final Date old = createDate;
         createDate = value;
         firePropertyChange("createDate", old, createDate);
@@ -379,10 +391,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setLastUpdateDate(Date value) {
-        lastUpdateDate( value );
+        lastUpdateDate(value);
     }
+
     @Override
-    public AssetBuilder lastUpdateDate( Date value ) {
+    public AssetBuilder lastUpdateDate(Date value) {
         final Date old = updateDate;
         updateDate = value;
         firePropertyChange("lastUpdateDate", old, updateDate);
@@ -391,10 +404,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setValue(float value) {
-        value( value );
+        value(value);
     }
+
     @Override
-    public AssetBuilder value( float value ) {
+    public AssetBuilder value(float value) {
         final float old = value;
         this.value = value;
         firePropertyChange("value", old, value);
@@ -403,10 +417,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setTransaction(long value) {
-        transaction( value );
+        transaction(value);
     }
+
     @Override
-    public AssetBuilder transaction( long value ) {
+    public AssetBuilder transaction(long value) {
         final long old = transaction;
         transaction = value;
         firePropertyChange("transactionCount", old, value);
@@ -420,23 +435,22 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public String toString() {
-        return "Asset " + this.getAssetType() + " " +
-                this.getName() + " (" + this.getId() + ")";
+        return "AssetBuilder " + this.getAssetType() + " "
+                + this.getName() + " (" + this.getId() + ")";
     }
 
-    private static <T> void copyMap( Map<String,T> source, Map<String,T> dest ) {
+    private static <T> void copyMap(Map<String, T> source, Map<String, T> dest) {
         dest.clear();
-        for( Map.Entry<String,T> entry : source.entrySet() ) {
-            dest.put( entry.getKey(), entry.getValue() );
+        for (Map.Entry<String, T> entry : source.entrySet()) {
+            dest.put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
     public AssetBuilder copy(Asset source) {
-        if ( (! source.getAssetType().isA( getAssetType() ))
-                && (! getAssetType().isA(source.getAssetType() )
-                )) {
-            throw new IllegalArgumentException( "Asset type mismatch" );
+        if ((!source.getAssetType().isA(getAssetType()))
+                && (!getAssetType().isA(source.getAssetType()))) {
+            throw new IllegalArgumentException("Asset type mismatch - " + getAssetType() + " builder cannot copy " + source.getAssetType());
         }
         setId(source.getId());
         setTransaction(source.getTransaction());
@@ -459,9 +473,9 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
         setCreateDate(source.getCreateDate());
         setLastUpdateDate(source.getLastUpdateDate());
-        copyMap( source.getLinkMap(), linkMap );
-        copyMap( source.getDateMap(), dateMap );
-        copyMap( source.getAttributeMap(), attributeMap );
+        copyMap(source.getLinkMap(), linkMap);
+        copyMap(source.getDateMap(), dateMap);
+        copyMap(source.getAttributeMap(), attributeMap);
         return this;
     }
 
@@ -472,10 +486,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setState(int value) {
-        state( value );
+        state(value);
     }
+
     @Override
-    public AssetBuilder state( int value ) {
+    public AssetBuilder state(int value) {
         final int old = state;
         state = value;
         firePropertyChange("state", old, value);
@@ -484,10 +499,11 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public final void setId(UUID value) {
-        id( value );
+        id(value);
     }
+
     @Override
-    public AssetBuilder id( UUID value ) {
+    public AssetBuilder id(UUID value) {
         final UUID old = value;
         id = value;
         firePropertyChange("id", old, value);
@@ -496,7 +512,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public AssetBuilder putLink(String name, UUID value) {
-        linkMap.put( name, value );
+        linkMap.put(name, value);
         return this;
     }
 
@@ -507,7 +523,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public AssetBuilder putDate(String name, Date value) {
-        dateMap.put( name, value );
+        dateMap.put(name, value);
         return this;
     }
 
@@ -518,7 +534,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public AssetBuilder putAttribute(String name, String value) {
-        attributeMap.put( name, value );
+        attributeMap.put(name, value);
         return this;
     }
 
@@ -529,19 +545,19 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
     @Override
     public AssetBuilder removeLink(String name) {
-        linkMap.remove( name );
+        linkMap.remove(name);
         return this;
     }
 
     @Override
     public AssetBuilder removeDate(String name) {
-        dateMap.remove( name );
+        dateMap.remove(name);
         return this;
     }
 
     @Override
     public AssetBuilder removeAttribute(String name) {
-        attributeMap.remove( name );
+        attributeMap.remove(name);
         return this;
     }
 
@@ -555,8 +571,8 @@ public class SimpleAssetBuilder implements AssetBuilder {
         return (T) this;
     }
 
-
     public static class SimpleAsset extends SimpleCacheableObject implements Asset, Serializable {
+
         private UUID homeId;
         private UUID ownerId;
         private UUID fromId;
@@ -575,23 +591,23 @@ public class SimpleAssetBuilder implements AssetBuilder {
         private AssetType type;
         private Float value;
         private String data;
-        private Map<String,String>  attributeMap;
-        private Map<String,Date>    dateMap;
-        private Map<String,UUID>    linkMap;
+        private Map<String, String> attributeMap;
+        private Map<String, Date> dateMap;
+        private Map<String, UUID> linkMap;
 
         /** Do nothing constructor for serilization */
-        protected SimpleAsset() {}
+        protected SimpleAsset() {
+        }
 
         public SimpleAsset(AssetType type, UUID id, UUID homeId, UUID ownerId, UUID fromId, UUID toId,
                 UUID aclId, long transaction, String name, Integer state,
                 Date createDate, UUID creatorId, String comment,
                 Date lastUpdateDate, UUID lastUpdaterId, String lastUpdate,
                 Date startDate, Date endDate, Float value, String data,
-                ImmutableMap<String,String> attributeMap,
-                ImmutableMap<String,Date> dateMap,
-                ImmutableMap<String,UUID> linkMap
-                ) {
-            super( id, transaction );
+                ImmutableMap<String, String> attributeMap,
+                ImmutableMap<String, Date> dateMap,
+                ImmutableMap<String, UUID> linkMap) {
+            super(id, transaction);
             this.type = type;
             this.homeId = homeId;
             this.ownerId = ownerId;
@@ -616,24 +632,22 @@ public class SimpleAssetBuilder implements AssetBuilder {
         }
 
         /** Extract properties from builder */
-        public SimpleAsset( AssetBuilder builder ) {
+        public SimpleAsset(AssetBuilder builder) {
             this(builder.getAssetType(), builder.getId(), builder.getHomeId(),
                     builder.getOwnerId(), builder.getFromId(),
-                    builder.getToId (),
-                builder.getAclId(), builder.getTransaction(), builder.getName (),
-                builder.getState(),
-                builder.getCreateDate(), builder.getCreatorId(),
-                builder.getComment(),
-                builder.getLastUpdateDate(), builder.getLastUpdaterId(),
-                builder.getLastUpdate(),
-                builder.getStartDate(), builder.getEndDate(),
-                builder.getValue(), builder.getData(),
-                ImmutableMap.copyOf( builder.getAttributeMap() ),
-                ImmutableMap.copyOf( builder.getDateMap() ),
-                ImmutableMap.copyOf( builder.getLinkMap() )
-                );
+                    builder.getToId(),
+                    builder.getAclId(), builder.getTransaction(), builder.getName(),
+                    builder.getState(),
+                    builder.getCreateDate(), builder.getCreatorId(),
+                    builder.getComment(),
+                    builder.getLastUpdateDate(), builder.getLastUpdaterId(),
+                    builder.getLastUpdate(),
+                    builder.getStartDate(), builder.getEndDate(),
+                    builder.getValue(), builder.getData(),
+                    ImmutableMap.copyOf(builder.getAttributeMap()),
+                    ImmutableMap.copyOf(builder.getDateMap()),
+                    ImmutableMap.copyOf(builder.getLinkMap()));
         }
-
 
         /**
          * @return the homeId
@@ -674,7 +688,6 @@ public class SimpleAssetBuilder implements AssetBuilder {
         public UUID getAclId() {
             return aclId;
         }
-
 
         /**
          * @return the name
@@ -798,7 +811,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
         @Override
         public Maybe<UUID> getLink(String key) {
-            return Maybe.emptyIfNull( linkMap.get( key ) );
+            return Maybe.emptyIfNull(linkMap.get(key));
         }
 
         @Override
@@ -808,7 +821,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
         @Override
         public Maybe<Date> getDate(String key) {
-            return Maybe.emptyIfNull( dateMap.get( key ) );
+            return Maybe.emptyIfNull(dateMap.get(key));
         }
 
         @Override
@@ -818,17 +831,21 @@ public class SimpleAssetBuilder implements AssetBuilder {
 
         @Override
         public Maybe<String> getAttribute(String key) {
-            return Maybe.emptyIfNull ( attributeMap.get( key ) );
+            return Maybe.emptyIfNull(attributeMap.get(key));
         }
-        
+
+        @Override
+        public String toString() {
+            return "Asset " + this.getAssetType() + " "
+                    + this.getName() + " (" + this.getId() + ")";
+        }
     }
 
     @Override
     public Asset build() {
         validate();
-        return new SimpleAsset( this );
+        return new SimpleAsset(this);
     }
-
 
     @Override
     public void validate() {
@@ -843,8 +860,8 @@ public class SimpleAssetBuilder implements AssetBuilder {
     @Override
     public AssetBuilder parent(Asset parent) {
         fromId(parent.getId()).homeId(parent.getHomeId()).aclId(parent.getAclId());
-        if ( parent.getAssetType().equals( AssetType.HOME ) ) {
-            homeId( parent.getId() );
+        if (parent.getAssetType().equals(AssetType.HOME)) {
+            homeId(parent.getId());
         }
         return this;
     }

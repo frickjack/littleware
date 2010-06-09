@@ -126,7 +126,8 @@ public class AssetModelLibTester extends LittleTest {
                     null != olibAsset.get(osession.getId()));
             // Make sure that our client cache is getting wired up
             assertTrue("Client cache registration looks ok",
-                    SimpleLittleService.getCacheCount() > 0);
+                    SimpleLittleService.getCacheCount() > 0
+                    );
         } catch (Exception ex) {
             olog.log(Level.WARNING, "Test failed", ex);
             fail("Caught exception: " + ex);

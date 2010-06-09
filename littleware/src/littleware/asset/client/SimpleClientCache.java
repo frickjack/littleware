@@ -13,16 +13,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.Date;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
-import littleware.asset.client.AssetLoadEvent;
-import littleware.asset.client.LittleService;
-import littleware.asset.client.LittleServiceEvent;
-import littleware.asset.client.LittleServiceListener;
-import littleware.base.AssertionFailedException;
 import littleware.base.Cache;
 import littleware.base.Cache.Policy;
 import littleware.base.SimpleCache;
@@ -30,9 +24,6 @@ import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
 import littleware.security.SecurityAssetType;
 import littleware.security.auth.LittleSession;
-import littleware.security.auth.SessionHelper;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
 /**
  * OSGi BundleActivator registers itself as a cache service

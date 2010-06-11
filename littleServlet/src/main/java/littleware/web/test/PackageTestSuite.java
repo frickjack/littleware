@@ -16,6 +16,13 @@ import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import junit.framework.*;
+import littleware.base.AssertionFailedException;
+import littleware.bootstrap.client.ClientBootstrap;
+import littleware.bootstrap.client.ClientModuleFactory;
+import littleware.bootstrap.server.ServerBootstrap;
+import littleware.bootstrap.server.ServerModuleFactory;
+import littleware.test.TestFactory;
+import littleware.web.lgo.LgoServerModule;
 
 
 /**
@@ -33,7 +40,8 @@ public class PackageTestSuite extends TestSuite {
     public PackageTestSuite ( Provider<BeanTester> provideBeanTester,
             Provider<BrowserTypeTester> provideBrowserTypeTester,
             Provider<ThumbServletTester> provideThumbServTester,
-            Provider<LgoServletTester> provideLgoServTester
+            Provider<LgoServletTester> provideLgoServTester,
+            Provider<LgoServerTester>  provideLgoTester
             ) {
         super( PackageTestSuite.class.getName() );
 
@@ -54,7 +62,34 @@ public class PackageTestSuite extends TestSuite {
         if ( b_run ) {
             this.addTest( provideLgoServTester.get() );
         }
-
+        if ( b_run ) {
+            this.addTest( provideLgoTester.get() );
+        }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
+
+
+    public static Test suite() {
+        try {
+            final ServerModuleFactory test = ServerModuleFactory.class.cast( Class.forName( "littleware.apps.filebucket.server.BucketServerModule$Factory" ).newInstance() );
+            log.log( Level.INFO, "Instantiated test factory!" );
+            final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
+            final ClientBootstrap.ClientBuilder clientBuilder = ClientBootstrap.clientProvider.get(
+                    ); //.addModuleFactory( new LgoServerModule.Factory() );
+            for( ClientModuleFactory scan : clientBuilder.getModuleSet() ) {
+                log.log( Level.INFO, "Scanning client module set: " + scan.getClass().getName() );
+            }
+            return (new TestFactory()).build(serverBoot,
+                    clientBuilder.build(),
+                    PackageTestSuite.class
+                    );
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
+            throw ex;
+        } catch ( Throwable ex ) {
+            log.log(Level.SEVERE, "Test setup failed, what the frick ?", ex);
+            throw new AssertionFailedException( "Bootstrap failed", ex );
+        }
+    }
+
 }

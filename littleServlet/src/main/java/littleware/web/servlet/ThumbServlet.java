@@ -11,7 +11,6 @@ package littleware.web.servlet;
 
 import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -21,8 +20,8 @@ import javax.imageio.ImageWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import littleware.apps.misc.ImageManager;
-import littleware.apps.misc.ThumbManager;
+import littleware.apps.image.ImageManager;
+import littleware.apps.image.ThumbManager;
 import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;

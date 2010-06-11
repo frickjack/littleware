@@ -23,19 +23,16 @@ import java.util.logging.Logger;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
 import littleware.asset.client.AssetManagerService;
 import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.LittleService;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
 import littleware.bootstrap.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.client.ClientBootstrap.ClientBuilder;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.security.AccountManager;
 import littleware.security.LittleUser;
-import littleware.security.SecurityAssetType;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
@@ -62,7 +59,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
 
         @Override
-        public Maybe<? extends Class<? extends BundleActivator>> getActivator() {
+        public Class<? extends BundleActivator> getActivator() {
             return appModule.getActivator();
         }
 
@@ -170,6 +167,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
             binder.bind(AssetSearchManager.class).to(AssetSearchService.class);
             binder.bind(AccountManager.class).to(AccountManagerService.class);
             binder.bind(AssetManager.class).to(AssetManagerService.class);
+            binder.bind( AppBootstrap.AppProfile.class ).toInstance( bootstrap.getProfile() );
             binder.bind(LittleSession.class).toProvider(new Provider<LittleSession>() {
 
                 @Override

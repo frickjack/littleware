@@ -21,13 +21,11 @@ import java.util.logging.Logger;
 import littleware.apps.swingbase.controller.SwingBaseTool;
 import littleware.apps.swingbase.model.BaseData;
 import littleware.apps.swingclient.FeedbackBundle;
-import littleware.base.Maybe;
 import littleware.base.ValidationException;
 import littleware.base.feedback.Feedback;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
-import littleware.bootstrap.client.AppModule;
 import littleware.bootstrap.client.AppModuleFactory;
 import littleware.bootstrap.client.ClientModule;
 import littleware.bootstrap.client.ClientModuleFactory;
@@ -168,7 +166,7 @@ public class SwingBaseModule extends AbstractClientModule {
     }
 
     @Override
-    public Maybe<Class<Activator>> getActivator() {
-        return Maybe.something( Activator.class );
+    public Class<Activator> getActivator() {
+        return Activator.class;
     }
 }

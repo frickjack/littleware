@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.client.LittleServiceListener;
-import littleware.base.Maybe;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
@@ -65,8 +64,8 @@ public class ClientSyncModule extends AbstractClientModule {
     }
 
     @Override
-    public Maybe<Class<Activator>> getActivator() {
-        return Maybe.something( Activator.class );
+    public Class<Activator> getActivator() {
+        return Activator.class;
     }
 
     @Override

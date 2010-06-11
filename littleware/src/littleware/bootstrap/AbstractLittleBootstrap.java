@@ -106,12 +106,9 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
         final Map<String, Object> felixPropertyMap = new HashMap<String, Object>();
         final List<BundleActivator> activatorList = new ArrayList<BundleActivator>();
         for( LittleModule module : moduleSet ) {
-            final Maybe<? extends Class<? extends BundleActivator>> maybe = module.getActivator();
-            if ( maybe.isSet() ) {
                 activatorList.add(
-                        injector.getInstance( maybe.get() )
+                        injector.getInstance( module.getActivator() )
                         );
-            }
         }
 
         final EventBarrier<Object> barrier = new EventBarrier<Object>();

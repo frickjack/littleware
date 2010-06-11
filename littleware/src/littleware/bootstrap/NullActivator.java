@@ -10,14 +10,22 @@
 
 package littleware.bootstrap;
 
-import com.google.inject.Module;
+import com.google.inject.Singleton;
 import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 /**
- * Base littleware module interface defines Guice injection
- * module, and an optional OSGi activator to inject and
- * activate into the littleware runtime.
+ * Do-nothing BundleActivator
  */
-public interface LittleModule extends Module {
-    public Class<? extends BundleActivator> getActivator();
+@Singleton
+public final class NullActivator implements BundleActivator {
+
+    @Override
+    public void start(BundleContext bc) throws Exception {
+    }
+
+    @Override
+    public void stop(BundleContext bc) throws Exception {
+    }
+
 }

@@ -16,7 +16,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import java.util.Arrays;
-import littleware.base.Maybe;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
@@ -63,8 +62,8 @@ public class LgoModule extends AbstractClientModule {
     }
     
     @Override
-    public Maybe<Class<Activator>> getActivator() {
-        return Maybe.something( Activator.class );
+    public Class<Activator> getActivator() {
+        return Activator.class;
     }
 
     /**

@@ -12,21 +12,16 @@ package littleware.web.test;
 
 import com.google.inject.Inject;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import littleware.apps.lgo.LgoServlet;
 import littleware.base.Whatever;
 import littleware.test.LittleTest;
+import littleware.web.lgo.LgoServlet;
 import org.easymock.EasyMock;
 
 public class LgoServletTester extends LittleTest {

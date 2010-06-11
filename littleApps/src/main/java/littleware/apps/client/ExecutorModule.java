@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import littleware.base.Maybe;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
@@ -95,7 +94,7 @@ public class ExecutorModule extends AbstractClientModule {
     }
 
     @Override
-    public Maybe<Class<ExecActivator>> getActivator() {
-        return Maybe.something(ExecActivator.class);
+    public Class<ExecActivator> getActivator() {
+        return ExecActivator.class;
     }
 }

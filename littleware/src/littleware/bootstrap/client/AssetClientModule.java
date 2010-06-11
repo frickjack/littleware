@@ -143,7 +143,7 @@ public class AssetClientModule extends AbstractClientModule {
     }
 
     @Override
-    public Maybe<Class<Activator>> getActivator() {
-        return Maybe.something(Activator.class);
+    public Class<Activator> getActivator() {
+        return Activator.class;
     }
 }

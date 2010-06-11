@@ -13,8 +13,8 @@ package littleware.web.servlet;
 
 import com.google.inject.Injector;
 import javax.servlet.http.HttpSession;
-import littleware.apps.client.ClientBootstrap;
-import littleware.security.auth.ClientServiceGuice;
+import littleware.bootstrap.client.AppBootstrap;
+import littleware.bootstrap.client.ClientBootstrap;
 import littleware.security.auth.SessionHelper;
 import littleware.web.beans.GuiceBean;
 
@@ -25,42 +25,22 @@ import littleware.web.beans.GuiceBean;
  * is a good place to bootstrap and shutdown littleware
  * in a web environment.
  */
-public class WebBootstrap extends ClientBootstrap {
+public class WebBootstrap {
     /** Bean names in session */
     public static String littleGuice = "littleGuice";
     public static String littleBoot = "littleBoot";
 
-    private final HttpSession session;
-
-    public HttpSession getSession() {
-        return session;
-    }
-
-    /** 
-     * Inject the session to bootstrap into.
-     * 
-     * @param session web session
-     * @param helper littleware session
-     */
-    public WebBootstrap( HttpSession session, SessionHelper helper ) {
-        super( new ClientServiceGuice( helper ) );
-        this.session = session;
-    }
-
-
-
     /**
-     * Specialization runs super.bootstrap(), then
-     * registers a GuiceBean
-     * with the session with name "littleGuice",
-     * and registers this bootstrap object
-     * with the session as "littleBoot"
-     * so it can be accessed at session shutdown time.
+     * Little helper function to setup a standard client-session environment
+     * with a GuiceBean, whatever.
      */
-    @Override
-    public void bootstrap() {
-        final Injector injector = super.bootstrapInternal();
-        getSession().setAttribute(littleGuice, new GuiceBean( injector ) );
-        getSession().setAttribute(littleBoot, this );
+    public static ClientBootstrap bootstrap( SessionHelper helper, HttpSession session ) {
+        final ClientBootstrap boot = ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build(
+                ).helper(helper);
+        final Injector injector = boot.bootstrap( Injector.class );
+        session.setAttribute(littleGuice, new GuiceBean( injector ) );
+        session.setAttribute(littleBoot, boot );
+        return boot;
     }
+
 }

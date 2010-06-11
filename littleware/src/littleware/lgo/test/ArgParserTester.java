@@ -8,7 +8,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.lgo.test;
+package littleware.lgo.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
-import littleware.apps.lgo.AbstractLgoCommand;
-import littleware.apps.lgo.LgoException;
+import littleware.lgo.AbstractLgoCommand;
+import littleware.lgo.LgoException;
 import littleware.test.LittleTest;
 
 /**
@@ -96,20 +96,4 @@ public class ArgParserTester extends LittleTest {
         }
     }
 
-    public static void main( String[] vArgs ) {
-        SwingUtilities.invokeLater( new Runnable () {
-
-            @Override
-            public void run() {
-                junit.swingui.TestRunner.main(
-                        new String[] { "-noloading",
-                        ArgParserTester.class.getName()
-                }
-                );
-                //junit.textui.TestRunner.main( v_launch_args );
-            }
-        }
-        );
-
-    }
 }

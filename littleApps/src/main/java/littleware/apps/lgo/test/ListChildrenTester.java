@@ -15,7 +15,7 @@ import com.google.inject.Provider;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.lgo.LgoException;
+import littleware.lgo.LgoException;
 import littleware.apps.lgo.ListChildrenCommand;
 import littleware.asset.AssetType;
 import littleware.base.feedback.LoggerFeedback;

@@ -8,8 +8,10 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.lgo;
+package littleware.lgo;
 
+import littleware.lgo.LgoHelp;
+import littleware.lgo.LgoExample;
 import java.util.Collection;
 import littleware.base.Whatever;
 

@@ -9,6 +9,10 @@
  */
 package littleware.apps.lgo;
 
+import littleware.lgo.LgoHelpLoader;
+import littleware.lgo.LgoCommandDictionary;
+import littleware.lgo.LgoException;
+import littleware.lgo.LgoCommand;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

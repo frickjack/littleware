@@ -23,9 +23,8 @@ import littleware.test.TestFactory;
 public class HudsonTestSuite extends TestSuite {
 
     @Inject
-    public HudsonTestSuite(Provider<ArgParserTester> factoryArgTester,
+    public HudsonTestSuite(
             Provider<DeleteAssetTester> factoryDeleteTester,
-            Provider<XmlLgoHelpTester> factoryXmlHelpTester,
             Provider<SetImageTester> factoryImageTester,
             Provider<ListChildrenTester> factoryChildrenTester,
             Provider<GetAssetTester> factoryGetTester,
@@ -39,9 +38,7 @@ public class HudsonTestSuite extends TestSuite {
             this.addTest(factoryRootPathTest.get());
         }
         if (go) {
-            this.addTest(factoryArgTester.get());
             this.addTest(factoryDeleteTester.get());
-            this.addTest(factoryXmlHelpTester.get());
             this.addTest(factoryImageTester.get());
             this.addTest(factoryChildrenTester.get());
             this.addTest(factoryGetTester.get());

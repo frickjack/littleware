@@ -31,6 +31,7 @@ public class PackageTestSuite extends TestSuite {
             littleware.db.test.PackageTestSuite  suite_db,
             littleware.asset.test.PackageTestSuite suite_asset,
             littleware.security.test.PackageTestSuite suite_security,
+            littleware.bootstrap.test.BootstrapTester bootstrapTester,
             AssetSearchManager search) {
         super(PackageTestSuite.class.getName());
         // disable server tests
@@ -38,9 +39,17 @@ public class PackageTestSuite extends TestSuite {
 
         log.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
+            if ( bRun ) {
+                this.addTest( bootstrapTester );
+            }
             if (bRun) {
                 log.log(Level.INFO, "Trying to setup littleware.base test suite");
                 this.addTest(suite_base);
+            }
+            if ( bRun ) {
+                log.log( Level.INFO, "Trying to setup lgo test suite" );
+                // lgo is an app-module, not a server module - setup nested OSGi environment
+                this.addTest( littleware.lgo.test.PackageTestSuite.suite() );
             }
 
             if (bRun) {

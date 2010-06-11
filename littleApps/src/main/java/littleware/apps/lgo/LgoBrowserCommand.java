@@ -9,6 +9,7 @@
  */
 package littleware.apps.lgo;
 
+import littleware.lgo.AbstractLgoCommand;
 import com.google.inject.*;
 
 import java.awt.BorderLayout;

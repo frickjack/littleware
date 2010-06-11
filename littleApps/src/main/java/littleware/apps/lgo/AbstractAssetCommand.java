@@ -10,6 +10,8 @@
 
 package littleware.apps.lgo;
 
+import littleware.lgo.AbstractLgoCommand;
+import littleware.lgo.LgoException;
 import java.io.StringWriter;
 import littleware.asset.Asset;
 import littleware.asset.pickle.HumanPicklerProvider;

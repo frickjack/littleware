@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package littleware.apps.lgo;
+package littleware.lgo;
 
 /**
  * Just an example of how to use a command -

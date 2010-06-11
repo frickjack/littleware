@@ -22,9 +22,8 @@ import littleware.test.TestFactory;
 public class PackageTestSuite extends HudsonTestSuite {
 
     @Inject
-    public PackageTestSuite( Provider<ArgParserTester> factoryArgTester,
+    public PackageTestSuite( 
             Provider<DeleteAssetTester> factoryDeleteTester,
-            Provider<XmlLgoHelpTester> factoryXmlHelpTester,
             Provider<SetImageTester> factoryImageTester,
             Provider<ListChildrenTester> factoryChildrenTester,
             Provider<GetAssetTester> factoryGetTester,
@@ -35,8 +34,8 @@ public class PackageTestSuite extends HudsonTestSuite {
             Provider<GsonTester> provideGsonTester
             )
     {
-        super( factoryArgTester, factoryDeleteTester,
-                factoryXmlHelpTester, factoryImageTester,
+        super( factoryDeleteTester,
+                factoryImageTester,
                 factoryChildrenTester, factoryGetTester,
                 factoryCreateTester, factoryByNameTester,
                 factoryRootPathTest, provideGsonTester

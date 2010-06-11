@@ -7,8 +7,12 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.lgo;
+package littleware.lgo;
 
+import littleware.lgo.LgoHelp;
+import littleware.lgo.LgoHelpLoader;
+import littleware.lgo.LgoCommandDictionary;
+import littleware.lgo.LgoCommand;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.ArrayList;

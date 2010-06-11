@@ -10,6 +10,7 @@
 
 package littleware.apps.lgo;
 
+import littleware.lgo.LgoException;
 import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,7 @@ import littleware.asset.AssetType;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
+import littleware.lgo.LgoArgException;
 
 /**
  * Create a generic asset that inherits most properties from its parent

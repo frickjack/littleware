@@ -10,6 +10,9 @@
 
 package littleware.apps.lgo;
 
+import littleware.lgo.AbstractLgoCommand;
+import littleware.lgo.LgoArgException;
+import littleware.lgo.LgoException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import java.util.ArrayList;

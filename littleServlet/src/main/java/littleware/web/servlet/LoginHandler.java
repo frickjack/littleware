@@ -10,6 +10,7 @@
 package littleware.web.servlet;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Injector;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -28,11 +29,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import littleware.apps.client.ClientBootstrap;
 import littleware.base.Maybe;
 import littleware.base.PropertiesLoader;
-import littleware.security.auth.ClientServiceGuice;
-import littleware.security.auth.LittleBootstrap;
+import littleware.bootstrap.LittleBootstrap;
+import littleware.bootstrap.client.AppBootstrap;
+import littleware.bootstrap.client.ClientBootstrap;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;
 import littleware.security.auth.SessionUtil;
@@ -134,23 +135,18 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                 final String guest = properties.getProperty("web.guest");
                 final String guestPassword = properties.getProperty("web.guest.password");
                 if ((guest != null) && (guestPassword != null)) {
-                    log.log( Level.INFO, "Logging in guest user: " + guest );
+                    log.log(Level.INFO, "Logging in guest user: " + guest);
                     final SessionManager manager = SessionUtil.get().getSessionManager();
                     /// TODO - lookup guest password from littleware.properties or whatever
                     final SessionHelper helper = manager.login(guest, guestPassword, "web login");
-                    new ClientBootstrap(new ClientServiceGuice(helper)) {
+                    final ClientBootstrap boot = ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().helper(helper);
+                    maybeGuest = Maybe.something((GuiceBean) new GuiceBean(boot.bootstrap(Injector.class)) {
 
                         @Override
-                        public void bootstrap() {
-                            maybeGuest = Maybe.something((GuiceBean) new GuiceBean(super.bootstrapInternal()) {
-
-                                @Override
-                                public boolean isLoggedIn() {
-                                    return false;
-                                }
-                            });
+                        public boolean isLoggedIn() {
+                            return false;
                         }
-                    }.bootstrap();
+                    });
                 }
             } catch (Exception ex) {
                 log.log(Level.WARNING, "Failed to setup guest-user web-session - just using empty GuiceBean instead", ex);
@@ -222,22 +218,22 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                         //throw new IllegalStateException("Session already logged in");
                     }
                 }
-                final WebBootstrap boot = new WebBootstrap(session, helper);
-                boot.bootstrap();
+                final ClientBootstrap boot = WebBootstrap.bootstrap(helper, session);
+
                 try {
                     /*..
                     //response.getWriter().println( "<html><head></head><body>OK</body></html>" );
                     response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
-                            + request.getContextPath() + forwardURL
-                            + "\"/></head><body>OK ... <a href=\""
-                            + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
-                            + "</body></html>");
+                    + request.getContextPath() + forwardURL
+                    + "\"/></head><body>OK ... <a href=\""
+                    + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
+                    + "</body></html>");
                     //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
                     //response.setHeader("Location", forwardURL );
                     //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).include(request, response);
                      * 
                      */
-                    response.sendRedirect( request.getContextPath() + forwardURL);
+                    response.sendRedirect(request.getContextPath() + forwardURL);
                     return;
                 } catch (Exception ex2) {
                     log.log(Level.WARNING, "Failed to forward to " + forwardURL, ex2);
@@ -257,16 +253,16 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                 try {
                     /*
                     response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
-                            + request.getContextPath() + forwardURL
-                            + "\"/></head><body>OK ... <a href=\""
-                            + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
-                            + "</body></html>");
+                    + request.getContextPath() + forwardURL
+                    + "\"/></head><body>OK ... <a href=\""
+                    + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
+                    + "</body></html>");
                     //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
                     //response.setHeader("Location", "http://yahoo.com");
                     //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).include(request, response);
                      *
                      */
-                    response.sendRedirect( request.getContextPath() + forwardURL);
+                    response.sendRedirect(request.getContextPath() + forwardURL);
                     return;
                 } catch (Exception ex2) {
                     log.log(Level.WARNING, "Failed to forward to " + forwardURL, ex2);
@@ -283,17 +279,17 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                 try {
                     /*...
                     response.getWriter().println("<html><head><meta http-equiv=\"refresh\" content=\"2;url="
-                            + request.getContextPath() + forwardURL
-                            + "\"/></head><body>OK ... <a href=\""
-                            + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
-                            + "</body></html>");
+                    + request.getContextPath() + forwardURL
+                    + "\"/></head><body>OK ... <a href=\""
+                    + request.getContextPath() + forwardURL + "\">redirecting ...</a>"
+                    + "</body></html>");
 
                     //response.getWriter().println( "<html><head></head><body>OK</body></html>" );
                     //response.setStatus( HttpServletResponse.SC_MOVED_TEMPORARILY );
                     //response.setHeader( "Location", "http://yahoo.com" );
                     //getServletConfig().getServletContext().getRequestDispatcher(forwardURL).forward(request, response);
-                    */
-                    response.sendRedirect( request.getContextPath() + forwardURL);
+                     */
+                    response.sendRedirect(request.getContextPath() + forwardURL);
                     return;
                 } catch (Exception ex2) {
                     log.log(Level.WARNING, "Failed to forward to " + request.getContextPath() + "/" + forwardURL, ex2);
@@ -338,8 +334,8 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
             sessionCreated(((HttpServletRequest) request).getSession());
-        } catch ( IllegalStateException ex ) {
-            log.log( Level.INFO, "Ignoring webapp state exception setting up session - some weird glassfish race condition", ex );
+        } catch (IllegalStateException ex) {
+            log.log(Level.INFO, "Ignoring webapp state exception setting up session - some weird glassfish race condition", ex);
         }
         chain.doFilter(request, response);
     }

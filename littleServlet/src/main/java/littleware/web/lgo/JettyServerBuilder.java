@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.lgo;
+package littleware.web.lgo;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServlet;
 import littleware.web.servlet.EmbeddedServletBuilder;
 import littleware.web.servlet.ThumbServlet;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.BlockingChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -67,6 +66,7 @@ public class JettyServerBuilder implements LgoServer.ServerBuilder {
 
     @Override
     public LgoServer launch() {
+        log.log( Level.FINE, "Launching embedded JETTY server" );
         final Server server = new Server();
         final Connector connector = new BlockingChannelConnector();
         connector.setPort( serverPort );

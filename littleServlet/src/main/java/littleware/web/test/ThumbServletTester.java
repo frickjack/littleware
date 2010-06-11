@@ -37,7 +37,8 @@ public class ThumbServletTester extends LittleTest {
             final HttpServletResponse mockResponse = EasyMock.createMock(HttpServletResponse.class);
 
             EasyMock.expect(mockRequest.getParameter("path")).andReturn(getTestHome());
-            mockResponse.setContentType("image/jpeg");
+            EasyMock.expect( mockRequest.getParameter( "res" ) ).andReturn( null );
+            mockResponse.setContentType("image/png");
             EasyMock.expect(mockResponse.getOutputStream()).andReturn(
                     new ServletOutputStream() {
                         @Override

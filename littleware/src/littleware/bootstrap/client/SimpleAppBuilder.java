@@ -97,6 +97,7 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
         public void configure(Binder binder) {
             binder.bind(LittleBootstrap.class).to(AppBootstrap.class);
             binder.bind(AppBootstrap.class).toInstance(boot);
+            binder.bind( AppBootstrap.AppProfile.class ).toInstance( boot.getProfile() );
         }
     }
 

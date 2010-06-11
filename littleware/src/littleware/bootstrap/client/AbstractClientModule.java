@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import littleware.asset.AssetType;
 import littleware.asset.client.LittleServiceListener;
-import littleware.base.Maybe;
+import littleware.bootstrap.NullActivator;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.security.auth.ServiceType;
 import org.osgi.framework.BundleActivator;
@@ -73,8 +73,8 @@ public class AbstractClientModule implements ClientModule {
     }
 
     @Override
-    public Maybe<? extends Class<? extends BundleActivator>> getActivator() {
-        return Maybe.empty();
+    public Class<? extends BundleActivator> getActivator() {
+        return NullActivator.class;
     }
 
     @Override

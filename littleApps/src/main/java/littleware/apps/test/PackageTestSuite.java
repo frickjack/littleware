@@ -82,10 +82,6 @@ public class PackageTestSuite extends TestSuite {
         log.log(Level.INFO, "PackageTestSuite() ok ...");
     }
 
-    /**
-     * Return the singleton set by the constructor as part
-     * of the OSGi bootstrap process
-     */
     public static Test suite() {
         try {
             final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();

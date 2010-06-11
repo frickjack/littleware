@@ -18,7 +18,7 @@ import java.util.Map;
 import littleware.asset.AssetType;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.LittleServerListener;
-import littleware.base.Maybe;
+import littleware.bootstrap.NullActivator;
 import littleware.bootstrap.server.ServerBootstrap.ServerProfile;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.server.ServiceFactory;
@@ -73,8 +73,8 @@ public class AbstractServerModule implements ServerModule {
     }
 
     @Override
-    public Maybe<? extends Class<? extends BundleActivator>> getActivator() {
-        return Maybe.empty();
+    public Class<? extends BundleActivator> getActivator() {
+        return NullActivator.class;
     }
 
     @Override

@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.lgo;
+package littleware.web.lgo;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -24,12 +24,19 @@ import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import littleware.apps.lgo.LgoArgException;
+import littleware.apps.lgo.LgoCommand;
+import littleware.apps.lgo.LgoCommandDictionary;
+import littleware.apps.lgo.LgoException;
+import littleware.apps.lgo.LgoHelp;
+import littleware.apps.lgo.LgoHelpLoader;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetSearchManager;
 import littleware.base.EventBarrier;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
+import littleware.bootstrap.LittleBootstrap;
 import littleware.security.auth.SessionHelper;
 import littleware.web.servlet.LittleServlet;
 

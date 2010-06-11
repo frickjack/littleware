@@ -196,8 +196,8 @@ public class AssetServerModule extends AbstractServerModule {
     }
 
     @Override
-    public Maybe<Class<Activator>> getActivator() {
-        return Maybe.something(Activator.class);
+    public Class<Activator> getActivator() {
+        return Activator.class;
     }
 
     public static class AccountServiceFactory extends AbstractServiceFactory<AccountManagerService> {

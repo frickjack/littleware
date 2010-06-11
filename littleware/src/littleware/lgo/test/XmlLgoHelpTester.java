@@ -8,13 +8,13 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.lgo.test;
+package littleware.lgo.test;
 
 import java.util.logging.Logger;
 import junit.framework.*;
-import littleware.apps.lgo.LgoHelp;
-import littleware.apps.lgo.LgoHelpLoader;
-import littleware.apps.lgo.XmlLgoHelpLoader;
+import littleware.lgo.LgoHelp;
+import littleware.lgo.LgoHelpLoader;
+import littleware.lgo.XmlLgoHelpLoader;
 
 /**
  * Verify that the Xml help loader works
@@ -34,7 +34,7 @@ public class XmlLgoHelpTester extends TestCase {
      */
     public void testHelpLoad () {
         LgoHelpLoader mgrHelp = new XmlLgoHelpLoader();
-        LgoHelp       help = mgrHelp.loadHelp( "littleware.apps.lgo.EzHelpCommand" );
+        LgoHelp       help = mgrHelp.loadHelp( "littleware.lgo.EzHelpCommand" );
         assertTrue( "Able to load EzHelpCommand help info", null != help );
     }
 }

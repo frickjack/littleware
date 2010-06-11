@@ -10,6 +10,8 @@
 
 package littleware.apps.lgo;
 
+import littleware.lgo.LgoArgException;
+import littleware.lgo.LgoException;
 import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;

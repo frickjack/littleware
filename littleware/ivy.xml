@@ -60,7 +60,7 @@
         -->
         <dependency org="joda-time" name="joda-time" rev="1.6" />
         <dependency org="com.google.code.gson" name="gson" rev="1.4" />
-        <dependency org="com.google.collections" name="google-collections" rev="1.0-rc5" />
+        <dependency org="com.google.collections" name="google-collections" rev="1.0" />
         <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="2.0.4" />
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" conf="compile,client,standalone->*" />
         <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" conf="compile,client,standalone->*" />

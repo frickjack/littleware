@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.GetByNameCommand;
-import littleware.apps.lgo.LgoException;
+import littleware.lgo.LgoException;
 import littleware.asset.Asset;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.security.SecurityAssetType;

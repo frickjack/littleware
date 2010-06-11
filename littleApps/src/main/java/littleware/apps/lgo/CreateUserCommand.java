@@ -10,6 +10,8 @@
 
 package littleware.apps.lgo;
 
+import littleware.lgo.LgoArgException;
+import littleware.lgo.LgoException;
 import com.google.inject.Inject;
 import java.util.Map;
 import java.util.logging.Level;

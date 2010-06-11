@@ -9,12 +9,14 @@
  */
 package littleware.apps.lgo;
 
+import littleware.lgo.LgoHelpLoader;
+import littleware.lgo.LgoCommandDictionary;
+import littleware.lgo.LgoCommand;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.Scopes;
 import java.util.Arrays;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
@@ -55,8 +57,6 @@ public class LgoModule extends AbstractClientModule {
     @Override
     public void configure(Binder binder) {
         // Use provider - problem with class loader in Tomcat environment
-        binder.bind(LgoCommandDictionary.class).to(EzLgoCommandDictionary.class).in(Scopes.SINGLETON);
-        binder.bind(LgoHelpLoader.class).to(XmlLgoHelpLoader.class).in(Scopes.SINGLETON);
         binder.bind(GsonBuilder.class).toInstance(new GsonBuilder());
         binder.bind(Gson.class).toProvider(GsonProvider.class);
     }
@@ -77,8 +77,6 @@ public class LgoModule extends AbstractClientModule {
         public Activator(
                 LgoCommandDictionary commandMgr,
                 LgoHelpLoader helpMgr,
-                Provider<EzHelpCommand> comHelp,
-                Provider<XmlEncodeCommand> comXml,
                 Provider<LgoBrowserCommand> comBrowse,
                 Provider<DeleteAssetCommand> comDelete,
                 Provider<ListChildrenCommand> comLs,
@@ -92,7 +90,7 @@ public class LgoModule extends AbstractClientModule {
                 GsonProvider gsonProvider) {
             for (Provider<? extends LgoCommand<?, ?>> command : // need to move this into a properties file
                     Arrays.asList(
-                    comHelp, comXml, comBrowse, comDelete, comLs, comGet,
+                    comBrowse, comDelete, comLs, comGet,
                     comFolder, comUser, comLock, comNameGet, comSetImage,
                     comRootPath)) {
                 commandMgr.setCommand(helpMgr, command);

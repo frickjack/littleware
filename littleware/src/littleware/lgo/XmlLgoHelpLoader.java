@@ -11,8 +11,11 @@
  */
 
 
-package littleware.apps.lgo;
+package littleware.lgo;
 
+import littleware.lgo.LgoHelp;
+import littleware.lgo.LgoHelpLoader;
+import littleware.lgo.LgoExample;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;

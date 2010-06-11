@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package littleware.apps.lgo;
+package littleware.lgo;
 
 import littleware.base.BaseException;
 

@@ -322,8 +322,8 @@ CREATE INDEX asset_history_idx ON asset_history ( s_id, t_copied );
 
 GRANT SELECT, UPDATE ON littleTran TO 'littleware_user'@'localhost';
 GRANT SELECT ON x_permission TO 'littleware_user'@'localhost';
-GRANT SELECT ON x_asset_type TO 'littleware_user'@'localhost';
-GRANT SELECT ON x_asset_type_tree TO 'littleware_user'@'localhost';
+GRANT SELECT,INSERT,UPDATE ON x_asset_type TO 'littleware_user'@'localhost';
+GRANT SELECT,INSERT,UPDATE,DELETE ON x_asset_type_tree TO 'littleware_user'@'localhost';
 GRANT SELECT, UPDATE, INSERT, DELETE ON asset TO 'littleware_user'@'localhost';
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON asset_attr TO 'littleware_user'@'localhost';

@@ -11,7 +11,6 @@ package littleware.asset.server.db.jpa;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,9 +20,7 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
-import littleware.asset.server.CacheManager;
 import littleware.asset.server.db.DbAssetManager;
-import littleware.asset.server.db.jpa.DbLogLoader.Builder;
 import littleware.base.Maybe;
 import littleware.db.DbReader;
 import littleware.db.DbWriter;
@@ -40,6 +37,7 @@ public class JpaDbAssetManager implements DbAssetManager {
     private final Provider<JpaLittleTransaction> oprovideTrans;
     private final Provider<DbHomeLoader> oprovideHomeLoader;
     private final DbLogLoader.Builder dbLogBuilder;
+    private final Provider<DbTypeChecker> oprovideTypeChecker;
 
     @Inject
     public JpaDbAssetManager(
@@ -48,6 +46,7 @@ public class JpaDbAssetManager implements DbAssetManager {
             Provider<DbAssetSaver> provideSaver,
             Provider<DbAssetDeleter> provideDeleter,
             Provider<DbHomeLoader> provideHomeLoader,
+            Provider<DbTypeChecker> provideTypeChecker,
             DbLogLoader.Builder dbLogBuilder
             )
     {
@@ -56,6 +55,7 @@ public class JpaDbAssetManager implements DbAssetManager {
         oprovideDeleter = provideDeleter;
         oprovideTrans = provideTrans;
         oprovideHomeLoader = provideHomeLoader;
+        oprovideTypeChecker = provideTypeChecker;
         this.dbLogBuilder = dbLogBuilder;
     }
 
@@ -114,13 +114,14 @@ public class JpaDbAssetManager implements DbAssetManager {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public void launchCacheSyncThread(CacheManager m_cache) throws SQLException {
-        // NOOP
-    }
 
     @Override
     public DbReader<List<IdWithClock>, Long> makeLogLoader( UUID homeId ) {
         return dbLogBuilder.build(homeId);
+    }
+
+    @Override
+    public DbWriter<AssetType> makeTypeChecker() {
+        return oprovideTypeChecker.get();
     }
 }

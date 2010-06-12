@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.GeneralSecurityException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Level;
@@ -34,6 +36,7 @@ import littleware.asset.client.SimpleAssetManagerService;
 import littleware.asset.client.SimpleAssetSearchService;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.AssetSpecializerRegistry;
+import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.NullAssetSpecializer;
 import littleware.asset.server.QuotaUtil;
 import littleware.asset.server.RmiAssetManager;
@@ -42,6 +45,7 @@ import littleware.asset.server.SimpleAssetManager;
 import littleware.asset.server.SimpleAssetSearchManager;
 import littleware.asset.server.SimpleQuotaUtil;
 import littleware.asset.server.SimpleSpecializerRegistry;
+import littleware.asset.server.db.DbAssetManager;
 import littleware.asset.server.db.jpa.HibernateGuice;
 import littleware.asset.server.db.jpa.J2EEGuice;
 import littleware.base.AssertionFailedException;
@@ -80,7 +84,6 @@ public class AssetServerModule extends AbstractServerModule {
         super(profile, typeMap, serviceMap, emptyServerListeners);
     }
 
-
     @Override
     public void configure(Binder binder) {
         binder.bind(AssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
@@ -106,7 +109,7 @@ public class AssetServerModule extends AbstractServerModule {
         } catch (IOException ex) {
             throw new AssertionFailedException("Failed to access littleware.properties file", ex);
         }
-        (new AuthServerGuice()).configure( binder );
+        (new AuthServerGuice()).configure(binder);
     }
 
     public static class Activator implements BundleActivator {
@@ -122,20 +125,35 @@ public class AssetServerModule extends AbstractServerModule {
                 AssetSpecializerRegistry assetRegistry,
                 ServiceRegistry serviceRegistry,
                 SessionManager sessionMgr,
+                Provider<LittleTransaction> transactionProvider,
+                DbAssetManager dbManager,
                 Injector injector) {
             this.registryPort = registryPort;
             this.sessionMgr = sessionMgr;
-            for (ServerModule module : bootstrap.getModuleSet()) {
-                for (Map.Entry<AssetType, Class<? extends AssetSpecializer>> entry : module.getAssetTypes().entrySet()) {
-                    assetRegistry.registerService(entry.getKey(), injector.getInstance(entry.getValue()));
+            boolean rollback = true;
+            // setup an overall transaction for the asset type auto-register code
+            final LittleTransaction transaction = transactionProvider.get();
+            transaction.startDbUpdate();
+            try {
+
+                for (ServerModule module : bootstrap.getModuleSet()) {
+                    for (Map.Entry<AssetType, Class<? extends AssetSpecializer>> entry : module.getAssetTypes().entrySet()) {
+                        assetRegistry.registerService(entry.getKey(), injector.getInstance(entry.getValue()));
+                        dbManager.makeTypeChecker().saveObject(entry.getKey());
+                    }
+                    for (Map.Entry<ServiceType, Class<? extends ServiceFactory>> entry : module.getServiceTypes().entrySet()) {
+                        serviceRegistry.registerService(entry.getKey(), injector.getInstance(entry.getValue()));
+                    }
                 }
-                for ( Map.Entry<ServiceType, Class<? extends ServiceFactory>> entry : module.getServiceTypes().entrySet() ) {
-                    serviceRegistry.registerService( entry.getKey(), injector.getInstance( entry.getValue() ) );
-                }
+                rollback = false;
+            } catch (SQLException ex) {
+                throw new IllegalStateException("Failed to auto-register asset types", ex);
+            } finally {
+                transaction.endDbUpdate(rollback);
             }
-            if ( null == serviceRegistry.getService(ServiceType.ASSET_SEARCH) ) {
+            if (null == serviceRegistry.getService(ServiceType.ASSET_SEARCH)) {
                 // little sanity check
-                throw new AssertionFailedException( "What the frick ?" );
+                throw new AssertionFailedException("What the frick ?");
             }
         }
 

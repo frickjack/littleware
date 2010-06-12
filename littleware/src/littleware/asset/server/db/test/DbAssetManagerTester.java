@@ -28,11 +28,25 @@ import littleware.test.LittleTest;
  */
 public class DbAssetManagerTester extends LittleTest {
 
-    private static final Logger olog = Logger.getLogger(DbAssetManagerTester.class.getName());
-    private static final UUID ouTestHome = UUIDFactory.parseUUID("D589EABED8EA43C1890DBF3CF1F9689A");
-    private static final UUID ouTestCreate = UUIDFactory.parseUUID("0443fe54-53c6-4d80-ba88-d09c7d96d809");
-    private final DbAssetManager omgrDb;
-    private final Provider<LittleTransaction> oprovideTrans;
+    private static final Logger log = Logger.getLogger(DbAssetManagerTester.class.getName());
+    private static final UUID testHomeId = UUIDFactory.parseUUID("D589EABED8EA43C1890DBF3CF1F9689A");
+    private static final UUID testCreateId = UUIDFactory.parseUUID("0443fe54-53c6-4d80-ba88-d09c7d96d809");
+    private static final AssetType  testSuperType;
+    private static final AssetType  testSubType;
+    static {
+        final UUID superId = UUID.randomUUID();
+        final UUID subId = UUID.randomUUID();
+        final Date now = new Date();
+        testSuperType = new AssetType( superId, "testSuper" + now.getTime() ) {};
+        testSubType = new AssetType( subId, "testSub" + now.getTime() ) {
+            @Override
+            public Maybe<AssetType> getSuperType() {
+                return Maybe.something( testSuperType );
+        };
+        };
+    }
+    private final DbAssetManager dbMgr;
+    private final Provider<LittleTransaction> provideTrans;
 
     /**
      * Constructor stashes data to run tests against
@@ -43,28 +57,28 @@ public class DbAssetManagerTester extends LittleTest {
     public DbAssetManagerTester(DbAssetManager mgrDb,
             Provider<LittleTransaction> provideTrans) {
         setName("testLoad");
-        omgrDb = mgrDb;
-        oprovideTrans = provideTrans;
+        dbMgr = mgrDb;
+        this.provideTrans = provideTrans;
     }
 
     /**
      * Test the load of a well-known test asset
      */
     public void testLoad() {
-        final LittleTransaction trans = oprovideTrans.get();
+        final LittleTransaction trans = provideTrans.get();
         trans.startDbAccess();
         try {
-            DbReader<Asset, UUID> db_reader = omgrDb.makeDbAssetLoader();
-            Asset a_result = db_reader.loadObject(ouTestHome);
+            DbReader<Asset, UUID> db_reader = dbMgr.makeDbAssetLoader();
+            Asset a_result = db_reader.loadObject(testHomeId);
             assertTrue("Asset is of proper type",
                     a_result.getAssetType().equals(AssetType.HOME));
-            assertTrue("Asset has right id", a_result.getId().equals(ouTestHome));
+            assertTrue("Asset has right id", a_result.getId().equals(testHomeId));
             // Verify that looking up a non-existent thing does not throw an exceptioon
             final UUID uTest = UUIDFactory.getFactory().create();
             a_result = db_reader.loadObject(uTest);
             assertTrue("Got null result for nonexistent UUID", null == a_result);
         } catch (Exception e) {
-            olog.log(Level.INFO, "Caught unexpected", e);
+            log.log(Level.INFO, "Caught unexpected", e);
             fail("Caught unexpected: " + e);
         } finally {
             trans.endDbAccess();
@@ -75,26 +89,26 @@ public class DbAssetManagerTester extends LittleTest {
      * Test the load of a well-known test asset
      */
     public void testCreateUpdateDelete() {
-        final LittleTransaction trans = oprovideTrans.get();
+        final LittleTransaction trans = provideTrans.get();
         try {
             trans.startDbUpdate();
         } catch (Exception ex) {
-            olog.log(Level.WARNING, "Failed transaction setup", ex);
+            log.log(Level.WARNING, "Failed transaction setup", ex);
             fail("Failed to setup transaction: " + ex);
         }
         boolean bRollback = false;
         try {
-            final DbReader<Asset, UUID> dbReader = omgrDb.makeDbAssetLoader();
-            final Asset aHome = dbReader.loadObject(ouTestHome);
+            final DbReader<Asset, UUID> dbReader = dbMgr.makeDbAssetLoader();
+            final Asset aHome = dbReader.loadObject(testHomeId);
             {
-                Asset aTest = dbReader.loadObject(ouTestCreate);
+                Asset aTest = dbReader.loadObject(testCreateId);
                 if (null != aTest) {
-                    final DbWriter<Asset> dbDelete = omgrDb.makeDbAssetDeleter();
+                    final DbWriter<Asset> dbDelete = dbMgr.makeDbAssetDeleter();
                     dbDelete.saveObject(aTest);
                 }
             }
             final Asset testSave = AssetType.GENERIC.create().name("DbAssetTester").parent(aHome).
-                    id(ouTestCreate).
+                    id(testCreateId).
                     parent(aHome).
                     comment("Just a test").
                     lastUpdate("Testing asset setup").
@@ -102,25 +116,25 @@ public class DbAssetManagerTester extends LittleTest {
                     lastUpdaterId(aHome.getCreatorId()).
                     ownerId(aHome.getOwnerId()).
                     transaction( trans.getTransaction() ).build();
-            final DbWriter<Asset> dbSaver = omgrDb.makeDbAssetSaver();
+            final DbWriter<Asset> dbSaver = dbMgr.makeDbAssetSaver();
             
             dbSaver.saveObject(testSave);
-            final Asset aTest = omgrDb.makeDbAssetLoader().loadObject(testSave.getId());
+            final Asset aTest = dbMgr.makeDbAssetLoader().loadObject(testSave.getId());
             assertTrue("From preserved on load", testSave.getFromId().equals(aHome.getId()));
             // Test from-loader
-            final Map<String, UUID> mapChildren = omgrDb.makeDbAssetIdsFromLoader(ouTestHome, Maybe.something((AssetType) AssetType.GENERIC), Maybe.empty(Integer.class)).loadObject("");
+            final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader(testHomeId, Maybe.something((AssetType) AssetType.GENERIC), Maybe.empty(Integer.class)).loadObject("");
             assertTrue("Able to load children: " + mapChildren.size(),
                     !mapChildren.isEmpty());
-            omgrDb.makeDbAssetDeleter().saveObject(aTest);
+            dbMgr.makeDbAssetDeleter().saveObject(aTest);
         } catch (Exception e) {
-            olog.log(Level.INFO, "Caught unexpected", e);
+            log.log(Level.INFO, "Caught unexpected", e);
             fail("Caught unexpected: " + e);
             bRollback = true;
         } finally {
             try {
                 trans.endDbUpdate(bRollback);
             } catch (Exception ex) {
-                olog.log(Level.WARNING, "Transaction commit failed", ex);
+                log.log(Level.WARNING, "Transaction commit failed", ex);
                 fail("Failed to close transaction: " + ex);
             }
         }
@@ -131,36 +145,44 @@ public class DbAssetManagerTester extends LittleTest {
      * spoof other client modifying that asset, check for update/sync.
      */
     public void testCacheSync() {
-        int i_client_id = omgrDb.getClientId();
+        int i_client_id = dbMgr.getClientId();
         try {
             int i_client1 = i_client_id + 1;
             int i_client2 = i_client1 + 1;
 
-            omgrDb.setClientId(i_client1);
-            DbWriter<String> db_clear = omgrDb.makeDbCacheSyncClearer();
+            dbMgr.setClientId(i_client1);
+            DbWriter<String> db_clear = dbMgr.makeDbCacheSyncClearer();
             db_clear.saveObject(null);
 
-            DbReader<Map<UUID, Asset>, String> db_sync = omgrDb.makeDbCacheSyncLoader();
+            DbReader<Map<UUID, Asset>, String> db_sync = dbMgr.makeDbCacheSyncLoader();
             Map<UUID, Asset> v_sync = db_sync.loadObject(null);
             assertTrue("Cache clear seems ok", v_sync.isEmpty());
 
-            DbReader<Asset, UUID> db_reader = omgrDb.makeDbAssetLoader();
-            Asset a_result = db_reader.loadObject(ouTestHome);
+            DbReader<Asset, UUID> db_reader = dbMgr.makeDbAssetLoader();
+            Asset a_result = db_reader.loadObject(testHomeId);
             assertTrue("Asset is of proper type", a_result instanceof littleware.security.LittlePrincipal);
 
-            omgrDb.setClientId(i_client2);
-            DbWriter<Asset> db_writer = omgrDb.makeDbAssetSaver();
+            dbMgr.setClientId(i_client2);
+            DbWriter<Asset> db_writer = dbMgr.makeDbAssetSaver();
             db_writer.saveObject(a_result);
 
             v_sync = db_sync.loadObject(null);
-            Asset a_sync = v_sync.get(ouTestHome);
+            Asset a_sync = v_sync.get(testHomeId);
             assertTrue("Sync detected cross-client update", a_sync != null);
         } catch (Exception e) {
-            olog.log(Level.INFO, "Caught unexepcted: " + e + ", " +
-                    littleware.base.BaseException.getStackTrace(e));
+            log.log(Level.INFO, "Caught unexepcted", e );
             assertTrue("Caught unexpected: " + e, false);
         } finally {
-            omgrDb.setClientId(i_client_id);
+            dbMgr.setClientId(i_client_id);
+        }
+    }
+
+    public void testAssetTypeCheck() {
+        try {
+            dbMgr.makeTypeChecker().saveObject(testSubType);
+        } catch ( Exception ex ) {
+            log.log( Level.WARNING, "Caught exception", ex );
+            fail( "Caught exception: "  + ex );
         }
     }
 }

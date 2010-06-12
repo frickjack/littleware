@@ -10,8 +10,6 @@
 package littleware.security;
 
 import java.util.*;
-import java.security.*;
-import javax.security.auth.Subject;
 
 import littleware.asset.*;
 

@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.web.test;
+package littleware.web.lgo.test;
 
 import com.google.inject.Inject;
 import com.meterware.httpunit.WebConversation;

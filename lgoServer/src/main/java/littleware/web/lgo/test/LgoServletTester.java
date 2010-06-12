@@ -8,7 +8,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.web.test;
+package littleware.web.lgo.test;
 
 import com.google.inject.Inject;
 import java.io.ByteArrayOutputStream;

@@ -9,7 +9,7 @@
  */
 
 
-package littleware.web.test;
+package littleware.web.lgo.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -37,9 +37,8 @@ public class PackageTestSuite extends TestSuite {
      * junit.swingui.TestRunner looks for this.
      */
     @Inject
-    public PackageTestSuite ( Provider<BeanTester> provideBeanTester,
-            Provider<BrowserTypeTester> provideBrowserTypeTester,
-            Provider<ThumbServletTester> provideThumbServTester
+    public PackageTestSuite ( Provider<LgoServerTester> provideLgoServerTester,
+            Provider<LgoServletTester> provideLgoServletTester
             ) {
         super( PackageTestSuite.class.getName() );
 
@@ -49,13 +48,10 @@ public class PackageTestSuite extends TestSuite {
         boolean b_run = true;
 
         if (b_run) {
-            this.addTest(provideBeanTester.get());
+            this.addTest(provideLgoServerTester.get());
         }
         if (b_run) {
-            this.addTest( provideBrowserTypeTester.get() );
-        }
-        if ( b_run ) {
-            this.addTest( provideThumbServTester.get() );
+            this.addTest( provideLgoServletTester.get() );
         }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }

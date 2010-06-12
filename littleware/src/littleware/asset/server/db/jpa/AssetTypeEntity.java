@@ -10,6 +10,8 @@
 package littleware.asset.server.db.jpa;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.persistence.*;
 import littleware.asset.AssetType;
@@ -26,6 +28,9 @@ public class AssetTypeEntity implements Serializable {
     private String osId;
     private String osName;
     private List<AssetTypeEntity> ovSubtype;
+    private String osComment;
+    private boolean obNameUnique;
+    private String osParent;
 
     public AssetTypeEntity () {}
 
@@ -58,6 +63,34 @@ public class AssetTypeEntity implements Serializable {
         osName = sName;
     }
 
+    @Column(name = "b_name_unique")
+    public boolean getNameUnique() {
+        return obNameUnique;
+    }
+
+    public void setNameUnique(boolean value) {
+        obNameUnique = value;
+    }
+
+
+    @Column(name = "s_comment", length = 128)
+    public String getComment() {
+        return osComment;
+    }
+
+    public void setComment(String value) {
+        osComment = value;
+    }
+
+    @Column(name = "x_parent_type", length = 32)
+    public String getParentType() {
+        return osParent;
+    }
+
+    public void setParentType(String value) {
+        osParent = value;
+    }
+
     @OneToMany()
     @JoinTable(name = "x_asset_type_tree", 
     joinColumns = {@JoinColumn(name = "s_ancestor_id")},
@@ -68,5 +101,36 @@ public class AssetTypeEntity implements Serializable {
 
     public void setSubtypeList(List<AssetTypeEntity> vSubtype) {
         ovSubtype = vSubtype;
+    }
+
+    @Override
+    public boolean equals( Object other ) {
+        return (null != other) 
+                && (other instanceof AssetTypeEntity)
+                && ((AssetTypeEntity) other).getObjectId().equals( getObjectId() );
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + (this.osId != null ? this.osId.hashCode() : 0);
+        return hash;
+    }
+
+    public static AssetTypeEntity buildEntity( AssetType assetType, Collection<AssetTypeEntity> subType ) {
+        final AssetTypeEntity entity = new AssetTypeEntity();
+        entity.setName( assetType.getName() );
+        entity.setObjectId( UUIDFactory.makeCleanString(assetType.getObjectId() ) );
+        final List subtypeList = new ArrayList<AssetTypeEntity>();
+        subtypeList.addAll( subType );
+        entity.setSubtypeList( subtypeList );
+        entity.setComment( "Auto created by app engine" );
+        entity.setNameUnique( assetType.isNameUnique() );
+        if( assetType.getSuperType().isSet() ) {
+            entity.setParentType( UUIDFactory.makeCleanString( assetType.getSuperType().get().getObjectId() ));
+        } else {
+            entity.setParentType( null );
+        }
+        return entity;
     }
 }

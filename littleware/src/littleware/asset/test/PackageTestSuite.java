@@ -76,6 +76,10 @@ public class PackageTestSuite extends TestSuite {
             this.addTest( provideDbTester.get() );
             this.addTest( provideDbTester.get().putName( "testCreateUpdateDelete" ) );
         }
+        if ( false ) {
+            // this test polutes the asset-type table, so only run it when necessar
+            this.addTest( provideDbTester.get().putName( "testAssetTypeCheck" ) );
+        }
 
         if (false) { // Disable these test - running with NullCacheManager now ...
             this.addTest( provideCacheTester.get() );

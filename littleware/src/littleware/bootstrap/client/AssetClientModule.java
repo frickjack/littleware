@@ -28,7 +28,6 @@ import littleware.asset.client.SimpleClientCache;
 import littleware.asset.pickle.AssetHumanPickler;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.security.SecurityAssetType;
@@ -88,7 +87,8 @@ public class AssetClientModule extends AbstractClientModule {
         @Inject
         public Activator(Injector injector, SessionHelper helper, 
                 ClientBootstrap bootstrap,
-                ClientCache clientCache ) {
+                ClientCache clientCache
+                ) {
             this.helper = helper;
             this.injector = injector;
             ((LittleService) helper).addServiceListener(this);

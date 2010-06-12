@@ -43,6 +43,11 @@ public interface DbAssetManager {
     public DbWriter<Asset> makeDbAssetSaver();
 
     /**
+     * Create asset-type saver for the AssetTypeActivator
+     */
+    public DbWriter<AssetType> makeTypeChecker();
+
+    /**
      * Create asset-loader handler
      */
     public DbReader<Asset, UUID> makeDbAssetLoader();
@@ -100,19 +105,6 @@ public interface DbAssetManager {
     public DbReader<Map<UUID, Asset>, String> makeDbCacheSyncLoader();
 
     public DbReader<List<IdWithClock>, Long> makeLogLoader( UUID homeId );
-
-    /**
-     * Call only once.  Launch a background thread to 
-     * periodically sync the given Cache manager with
-     * changes by other clients in the database.
-     *
-     * @param sql_pool source of db connections to access the cache-tracking
-     *              tables in the backend DB
-     * @param m_cache to update with the cache data pulled from the database
-     * @exception SQLException on failure to perform initial sync with cache-data database
-     */
-    public void launchCacheSyncThread(CacheManager m_cache) throws SQLException;
-
 
 }
 

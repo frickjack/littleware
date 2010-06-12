@@ -22,17 +22,17 @@ import littleware.db.DbWriter;
  * Simple asset saver.  Does not attempt to maintain history table.
  */
 public class DbAssetSaver implements DbWriter<Asset> {
-    private final Provider<JpaLittleTransaction> oprovideTrans;
+    private final Provider<JpaLittleTransaction> provideTrans;
 
     @Inject
     public DbAssetSaver( Provider<JpaLittleTransaction> provideTrans ) {
-        oprovideTrans = provideTrans;
+        this.provideTrans = provideTrans;
     }
 
 
     @Override
     public void saveObject(Asset asset) throws SQLException {
-        final JpaLittleTransaction trans = oprovideTrans.get();
+        final JpaLittleTransaction trans = provideTrans.get();
         if ( asset.getTransaction() != trans.getTransaction() ) {
             throw new IllegalStateException( "Transaction not established" );
         }

@@ -85,7 +85,7 @@ CREATE TABLE x_asset_type (
 	t_updated     TIMESTAMP NOT NULL DEFAULT now()
 );
 
-GRANT SELECT ON x_asset_type TO GROUP littleware_user_group;
+GRANT SELECT,UPDATE,INSERT ON x_asset_type TO GROUP littleware_user_group;
 
 --
 -- Cache out the inheritance tree
@@ -96,7 +96,7 @@ CREATE TABLE x_asset_type_tree (
          PRIMARY KEY (s_ancestor_id, s_descendent_id)
          );
          
-GRANT SELECT ON x_asset_type_tree TO littleware_user_group;
+GRANT SELECT,UPDATE,INSERT,DELETE ON x_asset_type_tree TO littleware_user_group;
 
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)

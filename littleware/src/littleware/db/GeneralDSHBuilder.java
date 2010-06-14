@@ -109,6 +109,7 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
                 data.setPassword("ignore");
                 data.setMinimumConnectionCount(10);
                 data.setMaximumConnectionCount(30);
+                data.setSimultaneousBuildThrottle(10);
                 data.setMaximumActiveTime(60000);
                 return new Handler(data);
             } else {

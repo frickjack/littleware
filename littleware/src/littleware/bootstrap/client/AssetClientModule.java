@@ -132,15 +132,6 @@ public class AssetClientModule extends AbstractClientModule {
         super(profile, assetTypes, serviceTypes, serviceListeners);
     }
 
-    @Override
-    public void configure(Binder binder) {
-        try {
-            (new PropertiesGuice()).configure(binder);
-            binder.bind(AssetHumanPickler.class).toProvider(HumanPicklerProvider.class);
-        } catch (IOException ex) {
-            throw new AssertionFailedException("Failed to load littleware.properties", ex);
-        }
-    }
 
     @Override
     public Class<Activator> getActivator() {

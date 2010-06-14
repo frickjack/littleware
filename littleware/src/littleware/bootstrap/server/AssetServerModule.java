@@ -59,6 +59,7 @@ import littleware.security.SecurityAssetType;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;
+import littleware.security.auth.SessionUtil;
 import littleware.security.auth.server.AbstractServiceFactory;
 import littleware.security.auth.server.AuthServerGuice;
 import littleware.security.auth.server.ServiceFactory;
@@ -160,6 +161,8 @@ public class AssetServerModule extends AbstractServerModule {
         @Override
         public void start(BundleContext bc) throws Exception {
             try {
+                // inject local SessionManager for colocated server-client situation
+                SessionUtil.get().injectLocalManager(sessionMgr);
                 Registry rmi_registry = null;
                 final int i_port = registryPort;
                 if (i_port > 0) {

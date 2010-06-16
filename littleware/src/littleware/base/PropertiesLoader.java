@@ -101,15 +101,15 @@ public class PropertiesLoader {
                 throw new IOException( "Properties file is a directory: " + fh_output );
             }
         }
-        File fh_parent = fh_output.getParentFile();
-        File fh_temp = File.createTempFile( fh_output.getName(), null, fh_parent );
-        FileOutputStream ostream = new FileOutputStream( fh_temp );
+        final File fh_parent = fh_output.getParentFile();
+        final File fh_temp = File.createTempFile( fh_output.getName(), null, fh_parent );
+        final FileOutputStream ostream = new FileOutputStream( fh_temp );
         try {
             props.store(ostream, "update form littleware" );
         } finally {
             ostream.close ();
         }
-        File fh_safety = new File( fh_parent, 
+        final File fh_safety = new File( fh_parent,
                           fh_output.getName() + "." + new Date().getTime() 
                           );
 

@@ -46,10 +46,7 @@ public class AbstractClientModule implements ClientModule {
      * Constructor with empty type-set, server-set, and listener list
      */
      public AbstractClientModule( AppBootstrap.AppProfile profile ) {
-         this.profile = profile;
-         this.assetTypes = Collections.emptyList();
-         this.serviceTypes = Collections.emptyList();
-         this.serviceListeners = Collections.emptyList();
+         this( profile, emptyAssetTypes, emptyServiceTypes, emptyServiceListeners );
      }
 
     @Override

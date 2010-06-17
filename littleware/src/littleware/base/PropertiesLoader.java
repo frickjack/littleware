@@ -92,32 +92,47 @@ public class PropertiesLoader {
      * by first writing to a temp file, then doing a couple renames.
      * 
      * @param props to save
-     * @param fh_output destination
+     * @param outputFile destination
      * @throws java.io.IOException
      */
-    public void safelySave( Properties props, File fh_output ) throws IOException {
-        if ( fh_output.exists () ) {
-            if ( fh_output.isDirectory() ) {
-                throw new IOException( "Properties file is a directory: " + fh_output );
+    public void safelySave( Properties props, File outputFile ) throws IOException {
+        if ( outputFile.exists () ) {
+            if ( outputFile.isDirectory() ) {
+                throw new IOException( "Properties file is a directory: " + outputFile );
             }
         }
-        final File fh_parent = fh_output.getParentFile();
-        final File fh_temp = File.createTempFile( fh_output.getName(), null, fh_parent );
-        final FileOutputStream ostream = new FileOutputStream( fh_temp );
+        final File parentDirectory = outputFile.getParentFile();
+        final File tempFile = File.createTempFile( outputFile.getName(), null, parentDirectory );
+        final FileOutputStream ostream = new FileOutputStream( tempFile );
         try {
             props.store(ostream, "update form littleware" );
         } finally {
             ostream.close ();
         }
-        final File fh_safety = new File( fh_parent,
-                          fh_output.getName() + "." + new Date().getTime() 
+        final File backupFile = new File( parentDirectory,
+                          outputFile.getName() + "." + new Date().getTime()
                           );
 
-        if ( fh_output.exists () ) {
-            fh_output.renameTo( fh_safety );
+        if ( outputFile.exists () ) {
+            outputFile.renameTo( backupFile );
         }
-        fh_temp.renameTo( fh_output );
-        fh_safety.delete();
+        tempFile.renameTo( outputFile );
+        backupFile.delete();
+    }
+
+    /**
+     * Shortcut for safelySave( props, new File( getLittleHome().get(), ...),
+     * and updates cache entry for that resource
+     */
+    public void safelySave( Properties props, Class<?> resource ) throws IOException {
+        if ( maybeHome.isEmpty() ) {
+            throw new IOException( "littleware.home not set in current environment" );
+        }
+        final String name = classToPropPath( resource );
+        safelySave( props, new File( maybeHome.get(), name ) );
+        synchronized (this ) {
+            cache.put( name, props );
+        }
     }
     
     /**
@@ -193,16 +208,11 @@ public class PropertiesLoader {
      *
      * <ol>
      *   <li> Properties file in the classpath </li>
-     *   <li> If that system property does not exist,
-     *           then next check if the file exists under
-     *           the directory referenced by the littleware.home system property
-     *          or user.home/littleware.home if littleware.home is not set
+     *   <li> Properties file under littleware.home
      *        </li>
      *   <li> Check if a System property exists with that
      *             name, and use that system property as the path
      *             to the properties file if it exists.
-     *           If the System property is not set, then check
-     *           the current directory.
      *          </li>
      * </ol>
      * If the file does not exist, then just return a new Properties
@@ -214,21 +224,20 @@ public class PropertiesLoader {
      * Prevent unauthorized code from loading config files by setting
      * file-access security policies on the directories where the properties live.
      *
-     * @param s_name should be file basename and System property override
-     * @param prop_defaults with needed defaults - ignored if pulled from cache
+     * @param name should be file basename and System property override
      * @return loaded (if possible) + defaults properties or cache under s_name
      * @exception IOException if file exists, but load fails
      */
-    public synchronized Properties loadProperties(String s_name ) throws IOException {
-        Properties prop_filedata = cache.get(s_name);
+    public synchronized Properties loadProperties(String name ) throws IOException {
+        Properties prop_filedata = cache.get(name);
 
         if (null != prop_filedata) {
             return (Properties) prop_filedata.clone ();
         }
         prop_filedata = new Properties();
-        cache.put( s_name, prop_filedata );
+        cache.put( name, prop_filedata );
         {
-            final InputStream istream = PropertiesLoader.class.getClassLoader().getResourceAsStream(s_name);
+            final InputStream istream = PropertiesLoader.class.getClassLoader().getResourceAsStream(name);
             if ( null != istream ) {
                 try {
                     prop_filedata.load(istream);
@@ -239,18 +248,33 @@ public class PropertiesLoader {
         }
 
         if ( maybeHome.isSet() ) {
-            loadPropsFromFile( prop_filedata,  new File( maybeHome.get(), s_name ) );
+            loadPropsFromFile( prop_filedata,  new File( maybeHome.get(), name ) );
         }
         try {
-            String s_path = System.getProperty(s_name);
+            String s_path = System.getProperty(name);
             if ( null != s_path ) {
                 loadPropsFromFile( prop_filedata, new File( s_path ) );
             } 
         } catch (SecurityException e) {
-            log.log(Level.WARNING, "Insufficient privileges to access System property: " + s_name, e );
+            log.log(Level.WARNING, "Insufficient privileges to access System property: " + name, e );
         }
 
         return (Properties) prop_filedata.clone ();        
+    }
+
+    private String classToPropPath( Class<?> resource ) {
+        return resource.toString().replaceAll( "\\.", "/" ) + ".properties";
+    }
+    
+    /**
+     * Shortcut for loadProperties( name.toString().replaceAll( "\\.", "/" ) + ".properties" )
+     *
+     * @param resource class to derive resource-name from
+     * @return
+     * @throws IOException
+     */
+    public synchronized Properties loadProperties(Class<?> resource ) throws IOException {
+        return loadProperties( classToPropPath( resource ) );
     }
     
     

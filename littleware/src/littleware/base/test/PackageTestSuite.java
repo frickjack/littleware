@@ -32,12 +32,16 @@ public class PackageTestSuite extends TestSuite {
      */
     @Inject
     public PackageTestSuite( Provider<WhateverTester> provideWhatever,
-            Provider<FbIteratorTester> provideFbTester
+            Provider<FbIteratorTester> provideFbTester,
+            Provider<PropLoaderTester> providePropTester
             ) {
         super( PackageTestSuite.class.getName() );
 
         boolean b_run = true;
 
+        if ( b_run ) {
+            this.addTest( providePropTester.get() );
+        }
         if ( b_run ) {
             this.addTest( provideWhatever.get() );
         }

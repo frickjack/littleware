@@ -10,6 +10,7 @@
 
 package littleware.base;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.ProvidedBy;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -102,6 +103,9 @@ public class PropertiesLoader {
             }
         }
         final File parentDirectory = outputFile.getParentFile();
+        if ( ! parentDirectory.exists() ) {
+            parentDirectory.mkdirs();
+        }
         final File tempFile = File.createTempFile( outputFile.getName(), null, parentDirectory );
         final FileOutputStream ostream = new FileOutputStream( tempFile );
         try {
@@ -128,7 +132,7 @@ public class PropertiesLoader {
         if ( maybeHome.isEmpty() ) {
             throw new IOException( "littleware.home not set in current environment" );
         }
-        final String name = classToPropPath( resource );
+        final String name = classToResourcePath( resource );
         safelySave( props, new File( maybeHome.get(), name ) );
         synchronized (this ) {
             cache.put( name, props );
@@ -231,6 +235,9 @@ public class PropertiesLoader {
     public synchronized Properties loadProperties(String name ) throws IOException {
         Properties prop_filedata = cache.get(name);
 
+        log.log( Level.FINE, "Attempting to load properties for: " + name +
+                ", " + (null == prop_filedata)
+                );
         if (null != prop_filedata) {
             return (Properties) prop_filedata.clone ();
         }
@@ -244,6 +251,9 @@ public class PropertiesLoader {
                 } finally {
                     istream.close ();
                 }
+                log.log( Level.FINE, "Loaded props: " + prop_filedata.size() );
+            } else {
+                log.log( Level.FINE, "Props not on classpath for: " + name );
             }
         }
 
@@ -262,8 +272,9 @@ public class PropertiesLoader {
         return (Properties) prop_filedata.clone ();        
     }
 
-    private String classToPropPath( Class<?> resource ) {
-        return resource.toString().replaceAll( "\\.", "/" ) + ".properties";
+    @VisibleForTesting
+    public String classToResourcePath( Class<?> resource ) {
+        return resource.getName().replaceAll( "\\.", "/" ) + ".properties";
     }
     
     /**
@@ -274,7 +285,7 @@ public class PropertiesLoader {
      * @throws IOException
      */
     public synchronized Properties loadProperties(Class<?> resource ) throws IOException {
-        return loadProperties( classToPropPath( resource ) );
+        return loadProperties( classToResourcePath( resource ) );
     }
     
     

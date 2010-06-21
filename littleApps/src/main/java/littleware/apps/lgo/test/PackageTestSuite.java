@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import junit.framework.Test;
 import littleware.bootstrap.client.ClientBootstrap;
+import littleware.bootstrap.server.ServerBootstrap;
 import littleware.test.TestFactory;
 
 /**
@@ -53,9 +54,14 @@ public class PackageTestSuite extends HudsonTestSuite {
      */
     public static Test suite() {
         return (new TestFactory()).build(
-                ClientBootstrap.clientProvider.get().build().test(),
+                ServerBootstrap.provider.get().profile(ServerBootstrap.ServerProfile.Standalone).build(),
+                ClientBootstrap.clientProvider.get().build(),
                 PackageTestSuite.class
                 );
+    }
+
+    public static void main( String[] argv ) {
+        junit.swingui.TestRunner.main( new String[] { "-noloading", PackageTestSuite.class.getName() } );
     }
 
 }

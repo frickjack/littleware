@@ -10,11 +10,14 @@
 
 package littleware.lgo;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import java.util.Arrays;
+import java.util.Collection;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
@@ -27,7 +30,7 @@ import org.osgi.framework.BundleContext;
  * Guice module for bootstrapping the LittleGo
  * application.  Sets up easy Lgo implementation.
  */
-public class LgoModule extends AbstractClientModule {
+public class LgoModule extends AbstractClientModule implements LgoServiceModule {
 
     public static class Factory implements AppModuleFactory {
 
@@ -36,6 +39,18 @@ public class LgoModule extends AbstractClientModule {
             return new LgoModule(profile);
         }
     }
+
+    private final Collection<Class<? extends LgoCommand>> lgoCommands;
+    {
+        final ImmutableList.Builder<Class<? extends LgoCommand>> builder = ImmutableList.builder();
+        lgoCommands = builder.add( EzHelpCommand.class ).add( XmlEncodeCommand.class ).build();
+    }
+
+    @Override
+    public Collection<Class<? extends LgoCommand>> getLgoCommands() {
+        return lgoCommands;
+    }
+
 
     private LgoModule(AppBootstrap.AppProfile profile) {
         super(profile);
@@ -74,13 +89,15 @@ public class LgoModule extends AbstractClientModule {
         public Activator(
                 LgoCommandDictionary commandMgr,
                 LgoHelpLoader helpMgr,
-                Provider<EzHelpCommand> comHelp,
-                Provider<XmlEncodeCommand> comXml
+                Injector injector,
+                AppBootstrap bootstrap
             ) {
-            for (Provider<? extends LgoCommand<?, ?>> command : // need to move this into a properties file
-                    Arrays.asList(
-                    comHelp, comXml )) {
-                commandMgr.setCommand(helpMgr, command);
+            for( AppModule module : bootstrap.getModuleSet() ) {
+                if ( module instanceof LgoServiceModule ) {
+                    for( Class<? extends LgoCommand> commandClass : ((LgoServiceModule) module).getLgoCommands() ) {
+                        commandMgr.setCommand(helpMgr, (Provider<? extends LgoCommand<?, ?>>) injector.getProvider(commandClass));
+                    }
+                }
             }
         }
 

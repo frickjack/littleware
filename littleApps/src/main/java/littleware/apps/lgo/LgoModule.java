@@ -9,6 +9,8 @@
  */
 package littleware.apps.lgo;
 
+import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import littleware.lgo.LgoHelpLoader;
 import littleware.lgo.LgoCommandDictionary;
 import littleware.lgo.LgoCommand;
@@ -23,6 +25,7 @@ import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.bootstrap.client.ClientModule;
 import littleware.bootstrap.client.ClientModuleFactory;
+import littleware.lgo.LgoServiceModule;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -30,7 +33,7 @@ import org.osgi.framework.BundleContext;
  * Guice module for bootstrapping the LittleGo 
  * application.  Sets up easy Lgo implementation.
  */
-public class LgoModule extends AbstractClientModule {
+public class LgoModule extends AbstractClientModule implements LgoServiceModule {
 
     public static class Factory implements ClientModuleFactory {
 
@@ -60,10 +63,32 @@ public class LgoModule extends AbstractClientModule {
         binder.bind(GsonBuilder.class).toInstance(new GsonBuilder());
         binder.bind(Gson.class).toProvider(GsonProvider.class);
     }
-    
+
+    @Override
+    public Collection<Class<? extends LgoCommand>> getLgoCommands() {
+        return lgoCommands;
+    }
+
     @Override
     public Class<Activator> getActivator() {
         return Activator.class;
+    }
+    private final Collection<Class<? extends LgoCommand>> lgoCommands;
+
+    {
+        final ImmutableList.Builder<Class<? extends LgoCommand>> builder =
+                ImmutableList.builder();
+        builder.add(LgoBrowserCommand.class);
+        builder.add(DeleteAssetCommand.class);
+        builder.add(ListChildrenCommand.class);
+        builder.add(GetAssetCommand.class);
+        builder.add(CreateFolderCommand.class);
+        builder.add(CreateUserCommand.class);
+        builder.add(CreateLockCommand.class);
+        builder.add(GetByNameCommand.class);
+        builder.add(SetImageCommand.class);
+        builder.add(GetRootPathCommand.class);
+        lgoCommands = builder.build();
     }
 
     /**
@@ -75,26 +100,7 @@ public class LgoModule extends AbstractClientModule {
         /** Inject dependencies */
         @Inject
         public Activator(
-                LgoCommandDictionary commandMgr,
-                LgoHelpLoader helpMgr,
-                Provider<LgoBrowserCommand> comBrowse,
-                Provider<DeleteAssetCommand> comDelete,
-                Provider<ListChildrenCommand> comLs,
-                Provider<GetAssetCommand> comGet,
-                Provider<CreateFolderCommand> comFolder,
-                Provider<CreateUserCommand> comUser,
-                Provider<CreateLockCommand> comLock,
-                Provider<GetByNameCommand> comNameGet,
-                Provider<SetImageCommand> comSetImage,
-                Provider<GetRootPathCommand> comRootPath,
                 GsonProvider gsonProvider) {
-            for (Provider<? extends LgoCommand<?, ?>> command : // need to move this into a properties file
-                    Arrays.asList(
-                    comBrowse, comDelete, comLs, comGet,
-                    comFolder, comUser, comLock, comNameGet, comSetImage,
-                    comRootPath)) {
-                commandMgr.setCommand(helpMgr, command);
-            }
             gsonProvider.registerSerializer(SimpleAssetListBuilder.AssetList.class,
                     new SimpleAssetListBuilder.GsonSerializer());
         }

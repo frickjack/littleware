@@ -85,20 +85,25 @@ public class PropertiesGuice implements Module {
             bindKeyValue(binder, sKey, sValue);
         }
         if (properties.containsKey("mail.smtp.host")) {
-            final String host = properties.getProperty("mail.smtp.host");
-            final Session session;
-            if (host.startsWith("jndi:")) {
-                try {
-                    session = (Session) (new InitialContext()).lookup(host.substring("jndi:".length()));
-                } catch (Exception ex) {
-                    throw new AssertionFailedException("Failed jndi lookup for smtp host: " + host);
+            try {
+                final String host = properties.getProperty("mail.smtp.host");
+                final Session session;
+                if (host.startsWith("jndi:")) {
+                    try {
+                        session = (Session) (new InitialContext()).lookup(host.substring("jndi:".length()));
+                    } catch (Exception ex) {
+                        throw new AssertionFailedException("Failed jndi lookup for smtp host: " + host);
+                    }
+                } else {
+                    session = Session.getInstance(properties, null);
                 }
-            } else {
-                session = Session.getInstance(properties, null);
-            }
 
-            // then bind mail session
-            binder.bind(Session.class).toInstance(session);
+                // then bind mail session
+                binder.bind(Session.class).toInstance(session);
+            } catch (NoClassDefFoundError ex) {
+                // Do not require the app to link with mail.jar if it doesn't actually need a Session
+                log.log(Level.WARNING, "Not binding javax.mail.Session - mail.jar not in classpath", ex);
+            }
         }
     }
 }

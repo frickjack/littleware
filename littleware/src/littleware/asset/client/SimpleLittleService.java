@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.client;
 
 import java.io.IOException;
@@ -20,21 +19,17 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-
 /**
  * Simple implementation of LittleTool
  * intended as utility for LittleTool implementation classes.
  */
 public class SimpleLittleService implements LittleService {
 
-    private static final Logger olog_generic = Logger.getLogger(SimpleLittleService.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleLittleService.class.getName());
     private static final long serialVersionUID = -1343921475014296291L;
-
-
     private transient List<LittleServiceListener> ovListener = new ArrayList<LittleServiceListener>();
     // Don't use final when object needs to be serializable
     private LittleService oxSource = this;
-
 
     /**
      * Serialization support
@@ -66,13 +61,14 @@ public class SimpleLittleService implements LittleService {
     public SimpleLittleService(LittleService xSource) {
         oxSource = xSource;
     }
+
     /** Constructor uses this as the source */
-    public SimpleLittleService () {
+    public SimpleLittleService() {
         oxSource = this;
     }
 
     @Override
-    public void addServiceListener(LittleServiceListener listener ) {
+    public void addServiceListener(LittleServiceListener listener) {
         if (!ovListener.contains(listener)) {
             ovListener.add(listener);
         }
@@ -82,8 +78,6 @@ public class SimpleLittleService implements LittleService {
     public void removeServiceListener(LittleServiceListener listener) {
         ovListener.remove(listener);
     }
-
-
 
     /**
      * Invoke notify() on each LittleServiceListener registered with this object.
@@ -103,8 +97,7 @@ public class SimpleLittleService implements LittleService {
     protected LittleService getSource() {
         return oxSource;
     }
-
-    private ClientCache  cache = new NullClientCache();
+    private ClientCache cache = new NullClientCache();
 
     /**
      * Access the client-side cache if available
@@ -112,7 +105,6 @@ public class SimpleLittleService implements LittleService {
     protected ClientCache getCache() {
         return cache;
     }
-
     private static int cacheCount = 0;
 
     /**
@@ -124,30 +116,35 @@ public class SimpleLittleService implements LittleService {
 
     /** Loads the ClientCache from the execution context */
     @Override
-    public void start( final BundleContext ctx) throws Exception {
-        ctx.registerService( LittleService.class.getName(), this, new Properties() );
+    public void start(final BundleContext ctx) throws Exception {
+        ctx.registerService(LittleService.class.getName(), this, new Properties());
         final ServiceListener listener = new ServiceListener() {
+
             @Override
             public void serviceChanged(ServiceEvent event) {
-                switch ( event.getType() ) {
+                switch (event.getType()) {
                     case ServiceEvent.REGISTERED: {
-                        olog_generic.log( Level.FINE, "Listener processing service registration" );
+                        log.log(Level.FINE, "Listener processing service registration");
                         final ServiceReference ref = event.getServiceReference();
-                        final ClientCache service  = (ClientCache) ctx.getService(ref );
-                        if ( null != service ) {
+                        final ClientCache service = (ClientCache) ctx.getService(ref);
+                        if (null != service) {
                             cache = service;
-                            if ( ! (service instanceof NullClientCache) ) {
+                            if (!(service instanceof NullClientCache)) {
                                 ++cacheCount;
                             }
                         }
-                    } break;
+                    }
+                    break;
                 }
             }
         };
         final String filter = "(objectclass=" + ClientCache.class.getName() + ")";
         ctx.addServiceListener(listener, filter);
-        for ( ServiceReference ref : ctx.getServiceReferences( null, filter ) ) {
-            listener.serviceChanged( new ServiceEvent( ServiceEvent.REGISTERED, ref ) );
+        final ServiceReference[] osgiRefs = ctx.getServiceReferences(null, filter);
+        if (null != osgiRefs) {
+            for (ServiceReference ref : osgiRefs) {
+                listener.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, ref));
+            }
         }
     }
 

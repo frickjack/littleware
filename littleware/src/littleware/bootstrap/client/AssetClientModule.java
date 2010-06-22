@@ -10,10 +10,8 @@
 package littleware.bootstrap.client;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -25,10 +23,6 @@ import littleware.asset.client.LittleService;
 import littleware.asset.client.LittleServiceEvent;
 import littleware.asset.client.LittleServiceListener;
 import littleware.asset.client.SimpleClientCache;
-import littleware.asset.pickle.AssetHumanPickler;
-import littleware.asset.pickle.HumanPicklerProvider;
-import littleware.base.AssertionFailedException;
-import littleware.base.PropertiesGuice;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 import littleware.security.SecurityAssetType;
 import littleware.security.auth.ServiceType;

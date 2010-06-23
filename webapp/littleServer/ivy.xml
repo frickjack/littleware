@@ -1,0 +1,16 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="littleServer"/>
+    <configurations>
+        <conf name="server"  description="deploy to j2ee container server"/>
+        <conf name="client"  description="jnlp webstart app dependencies"/>
+        <conf name="compile"  description="compile against api's only"/>
+    </configurations>
+    <publications>
+    </publications>
+    
+    <dependencies>        
+      <dependency org="littleware" name="littleware" rev="2.1" conf="compile->compile;server->server;client->client" />
+      <dependency org="javax.jnlp" name="jnlp-servlet" rev="6" conf="server->*" />
+    </dependencies>
+
+</ivy-module>

@@ -7,8 +7,10 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project xmlns:ivy="antlib:org.apache.ivy.ant" 
-      name="littleWeb" default="default" basedir=".">
+<project 
+    xmlns:ivy="antlib:org.apache.ivy.ant"
+    name="littleWeb" default="default" basedir="."
+    >
     <description>Builds, tests, and runs the project littleWeb.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -17,23 +19,23 @@
     used for execution of your tasks. These targets are usually executed 
     before and after some main targets. They are: 
 
-      -pre-init:                 called before initialization of project properties 
-      -post-init:                called after initialization of project properties 
-      -pre-compile:              called before javac compilation 
-      -post-compile:             called after javac compilation 
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
       -pre-compile-single:       called before javac compilation of single file
       -post-compile-single:      called after javac compilation of single file
       -pre-compile-test:         called before javac compilation of JUnit tests
       -post-compile-test:        called after javac compilation of JUnit tests
       -pre-compile-test-single:  called before javac compilation of single JUnit test
       -post-compile-test-single: called after javac compilation of single JUunit test
-      -pre-dist:                 called before archive building 
-      -post-dist:                called after archive building 
-      -post-clean:               called after cleaning build products 
-      -pre-run-deploy:           called before deploying
-      -post-run-deploy:          called after deploying
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
 
-    Example of pluging an obfuscator after the compilation could look like 
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
 
         <target name="-post-compile">
             <obfuscate>
@@ -45,143 +47,82 @@
     nbproject/build-impl.xml file. 
 
 
-    Other way how to customize the build is by overriding existing main targets.
-    The target of interest are: 
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
 
-      init-macrodef-javac:    defines macro for javac compilation
-      init-macrodef-junit:   defines macro for junit execution
-      init-macrodef-debug:    defines macro for class debugging
-      do-dist:                archive building
-      run:                    execution of project 
-      javadoc-build:          javadoc generation 
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
 
-    Example of overriding the target for project execution could look like 
+    An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="<PROJNAME>-impl.jar">
+        <target name="run" depends="littleServlet-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>
         </target>
 
-    Notice that overridden target depends on jar target and not only on 
-    compile target as regular run target does. Again, for list of available 
-    properties which you can use check the target you are overriding in 
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
     nbproject/build-impl.xml file. 
 
     -->
     
-    <property name="jardir.webstart" location="build/web/lib/jar" />
-    
-<target name="-littlelib-exists">
-    <fail message="${param.jarFile} does not exist">
-        <condition>
-            <not>
-              <available filepath="${param.jarDir}" file="${param.jarFile}" />
-             </not>
-        </condition>
-    </fail>
-</target>
-
-
-<target name="-webstart-check" depends="-littlelib-exists">
-    <uptodate property="webstart.exists.pk200" targetfile="${jardir.webstart}/${param.jarFile}.pack.gz">
-        <srcfiles dir="${jardir.webstart}" includes="${param.jarFile}" />
-    </uptodate>
-
-    <uptodate property="webstart.exists.jar" targetfile="${jardir.webstart}/${param.jarFile}">
-        <srcfiles dir="${param.jarDir}" includes="${param.jarFile}" />
-    </uptodate>
-     <condition property="webstart.exists">
-          <and>
-              <isset property="webstart.exists.jar" />
-              <isset property="webstart.exists.pk200" />
-          </and>
-     </condition>
-</target>
-
-
- <target name="-webstart-lib" depends="-webstart-check" unless="webstart.exists">
-   <delete>
-      <fileset dir="${jardir.webstart}">
-          <include name="${param.jarFile}" />
-          <include name="${param.jarFile}.pack.gz" />
-      </fileset>
-   </delete>
-   <copy todir="${jardir.webstart}">
-	 <fileset dir="${param.jarDir}">
-           <include name="${param.jarFile}"/>
-         </fileset>
-   </copy>
-    <signjar jar="${jardir.webstart}/${param.jarFile}"
-	    alias="littleware" storepass="${keystore.password}"
-	     />
-  <echo message="pack200 ${param.jarFile}" />
-  <exec executable="pack200">
-    <arg value="${jardir.webstart}/${param.jarFile}.pack.gz"/>
-    <arg value="${jardir.webstart}/${param.jarFile}"/>
-  </exec>
- </target>
-
-<import file="webstart.xml"/> 
-
-
- <target name="webstart" depends="-init-project"
-       description="setup webstart jars">
-      <!-- set keystore.password in private.properties 
-      <property file="nbproject/private/private.properties" />
-      <property file="nbproject/project.properties" />
-      -->
-      <antcall target="-littlelib-process">
-          <param name="param.target" value="-webstart-lib" />
-      </antcall>
-</target>
-
-<target name="-post-compile">
-  <copy todir="build/web/WEB-INF/lib">
-    <fileset dir="lib/server"/>
-  </copy>
-</target>
-
-<target name="-post-clean">
-    <delete dir="lib" />
-</target>
-
-<target name="post-compile" depends="-post-compile" />
-
-<target name="-pre-dist"
-	 depends="webstart,-post-compile"
-      >
-</target>
-
 <!--
 <ivy:settings file="${user.home}/Documents/Code/repository/littlesettings.xml" />
 -->
 <ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
 
+<target name="-post-clean">
+    <delete dir="lib" />
+</target>
 
 <target name="resolve" description="-- retrieve dependencies with ivy">
-        <ivy:retrieve conf="client" pattern="lib/client/[artifact]-[revision]-[type].[ext]" />
-        <pathconvert property="ivy.client.classpath.computed" dirsep="/" pathsep=":">
+        <ivy:retrieve conf="compile" pattern="lib/compile/[artifact]-[revision]-[type].[ext]" />
+        <pathconvert property="ivy.compile.classpath.computed" dirsep="/" pathsep=":">
             <path>
-                <fileset dir="lib/client" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-
-        <ivy:retrieve conf="server" pattern="lib/server/[artifact]-[revision]-[type].[ext]" />
-        <pathconvert property="ivy.server.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="lib/server" includes="*.jar"/>
+                <fileset dir="lib/compile" includes="*.jar"/>
             </path>
             <map from="${basedir}${file.separator}" to=""/>
         </pathconvert>
         <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.server.classpath" value="${ivy.server.classpath.computed}"/>
+            <entry operation="=" key="ivy.compile.classpath" value="${ivy.compile.classpath.computed}"/>
+        </propertyfile>
+        
+        
+        <ivy:retrieve conf="standalone" pattern="lib/test/[artifact]-[revision]-[type].[ext]" />
+        <pathconvert property="ivy.standalone.classpath.computed" dirsep="/" pathsep=":">
+            <path>
+                <fileset dir="lib/test" includes="*.jar"/>
+            </path>
+            <map from="${basedir}${file.separator}" to=""/>
+        </pathconvert>
+        <propertyfile file="nbproject/project.properties">
+            <entry operation="=" key="ivy.test.classpath" value="${ivy.standalone.classpath.computed}"/>
         </propertyfile>
         
         <ivy:resolve />        
     </target>
 
+
 <target name="-pre-init" depends="resolve" />
+
+
+<target name="publish" depends="resolve,-init-project,jar" description="publish to local ivy repository">
+	<ivy:publish  overwrite="true"
+			           resolver="local"
+			           pubrevision="2.1" 
+			           >
+             <artifacts pattern="${dist.dir}/[artifact].[ext]" />
+         </ivy:publish>
+         <delete dir="${ivy.cache.dir}/littleware" />
+    </target>
     
 </project>

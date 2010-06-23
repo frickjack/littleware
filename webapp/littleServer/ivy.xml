@@ -9,7 +9,8 @@
     </publications>
     
     <dependencies>        
-      <dependency org="littleware" name="littleware" rev="2.1" conf="compile->compile;server->server;client->client" />
+      <dependency org="littleware" name="littleWeb" rev="2.1" conf="compile->compile;server->server" />
+      <dependency org="littleware" name="littleApps" rev="2.1" conf="client->client" />
       <dependency org="javax.jnlp" name="jnlp-servlet" rev="6" conf="server->*" />
     </dependencies>
 

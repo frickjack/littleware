@@ -13,10 +13,19 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <ui:composition template="/WEB-INF/layout/standard.xhtml">
   <ui:define name="title">little home</ui:define>
   <ui:define name="content">
-<h:outputLink value="#{facesContext.externalContext.requestContextPath}/login/servlet/logout?action=logout&amp;logoutURL=/home.jsf"
-              rendered="#{littleGuice.loggedIn}">Logout</h:outputLink>
- <h:outputLink value="#{facesContext.externalContext.requestContextPath}/login/login.jsf"
-               rendered="#{not littleGuice.loggedIn}">Login as another user</h:outputLink>
+      <h2>Server Stats</h2>
+
+      <div id="apps" class="infoBox">
+            <h2>Desktop Apps</h2>
+            
+            <ul class="vmenu">
+                <li><a href="#{facesContext.externalContext.requestContextPath}/lib/jar/littleBrowser.jnlp"><b>littleBrowser</b></a>
+                </li>
+
+                <li><a href="#{facesContext.externalContext.requestContextPath}/lib/jar/littleDispatcher.jnlp"><b>littleDispatcher</b></a>
+                </li>
+            </ul>
+      </div>
 
   </ui:define>
 </ui:composition>

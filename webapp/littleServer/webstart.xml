@@ -1,4 +1,4 @@
-<project default="-nicklib-process" basedir=".">
+<project default="-littlelib-process" basedir=".">
 <target name="-littlelib-process" depends="-init-project">
     
        <!--
@@ -36,11 +36,7 @@
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
-        <param name="param.jarFile" value="easymock-2.5.2-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="google-collections-1.0-rc5-jar.jar" />
+        <param name="param.jarFile" value="google-collections-1.0-jar.jar" />
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
@@ -52,47 +48,7 @@
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
-        <param name="param.jarFile" value="httpunit-1.7-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="jetty-continuation-7.0.1.v20091125-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="jetty-http-7.0.1.v20091125-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="jetty-io-7.0.1.v20091125-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="jetty-security-7.0.1.v20091125-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="jetty-server-7.0.1.v20091125-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="jetty-servlet-7.0.1.v20091125-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="jetty-util-7.0.1.v20091125-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="jnlp-6-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
         <param name="param.jarFile" value="joda-time-1.6-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="js-1.7R2-jar.jar" />
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
@@ -100,11 +56,11 @@
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
-        <param name="param.jarFile" value="littleApps-2.0-jar.jar" />
+        <param name="param.jarFile" value="littleApps-2.1-jar.jar" />
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
-        <param name="param.jarFile" value="littleClient-2.0-jar.jar" />
+        <param name="param.jarFile" value="littleClient-2.1-jar.jar" />
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
@@ -113,10 +69,6 @@
         </antcall>
                   <antcall target="${param.target}">
         <param name="param.jarFile" value="mysql-connector-java-5.1.11-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="nekohtml-1.9.6.2-jar.jar" />
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
@@ -129,14 +81,6 @@
         </antcall>
                   <antcall target="${param.target}">
         <param name="param.jarFile" value="postgresql-8.4-701.jdbc4-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="servlet-api-3.0.PFD20090525-jar.jar" />
-        <param name="param.jarDir"  value="lib/client" />
-        </antcall>
-                  <antcall target="${param.target}">
-        <param name="param.jarFile" value="xercesImpl-2.9.1-jar.jar" />
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
               

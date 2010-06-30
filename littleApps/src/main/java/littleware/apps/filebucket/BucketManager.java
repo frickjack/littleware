@@ -39,7 +39,7 @@ public interface BucketManager extends Remote {
      * @exception BucketException on failure to access bucket file system
      * @exception GeneralSecurityException if user does not have asset READ permission
      */
-    public Bucket getBucket ( UUID u_asset ) throws BaseException, GeneralSecurityException,
+    public Bucket getBucket ( UUID assetId ) throws BaseException, GeneralSecurityException,
                        AssetException, RemoteException, IOException;
     
     
@@ -66,15 +66,15 @@ public interface BucketManager extends Remote {
      * Must have WRITE permissions to the owning asset.
      * May be restricted by the littleware.security.Quota system.
      *
-     * @param a_in to save, and under which bucket to store the s_path data 
-     * @param s_path within the bucket - some implementations may restrict name
+     * @param asset to save, and under which bucket to store the s_path data
+     * @param path within the bucket - some implementations may restrict name
      *                     (ex: no /)
-     * @param v_data to save
-     * @param s_update_comment to save a_in with
+     * @param data to save
+     * @param updateComment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public <T extends Asset> T writeToBucket ( T a_in, String s_path,
-                                byte[] v_data, String s_update_comment
+    public <T extends Asset> T writeToBucket ( T asset, String path,
+                                byte[] data, String updateComment
                                 ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, IOException;
 
@@ -82,11 +82,11 @@ public interface BucketManager extends Remote {
      * Read the file at the given path under the bucket as UTF-8 encoded text,
      * and return the String.  Must have asset READ access.
      *
-     * @param u_asset id of the asset that owns the bucket - must have READ permission to asset
-     * @param s_path to file under bucket
+     * @param assetId id of the asset that owns the bucket - must have READ permission to asset
+     * @param path to file under bucket
      * @return text from file
      */
-    public String readTextFromBucket ( UUID u_asset, String s_path
+    public String readTextFromBucket ( UUID assetId, String path
                                        ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, IOException;    
     
@@ -94,11 +94,11 @@ public interface BucketManager extends Remote {
      * Read the file at the given path under the bucket,
      * and return the bytes.  Must have asset READ access.
      *
-     * @param u_asset id of the asset that owns the bucket - must have READ permission to asset
-     * @param s_path to file under bucket
+     * @param assetId id of the asset that owns the bucket - must have READ permission to asset
+     * @param path to file under bucket
      * @return bytes from file
      */
-    public byte[] readBytesFromBucket ( UUID u_asset, String s_path 
+    public byte[] readBytesFromBucket ( UUID assetId, String path
                                        ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, IOException;    
     
@@ -106,12 +106,12 @@ public interface BucketManager extends Remote {
      * Erase the specified file from the bucket.
      * Caller must have WRITE permissions on the bucket&apos;s asset.
      *
-     * @param a_in asset is saved with update comment - must have WRITE permission
-     * @param s_path may end in * to indicate a prefix match
-     * @param s_update_comment to save a_in with
+     * @param asset asset is saved with update comment - must have WRITE permission
+     * @param path may end in * to indicate a prefix match
+     * @param updateComment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public <T extends Asset> T eraseFromBucket ( T a_in, String s_path, String s_update_comment
+    public <T extends Asset> T eraseFromBucket ( T asset, String path, String updateComment
                                   ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, IOException;
     
@@ -119,14 +119,14 @@ public interface BucketManager extends Remote {
      * Rename the specified file within its bucket.
      * Must have asset READ and WRITE permission.
      *
-     * @param a_in to save, and under which bucket to store the s_path data 
-     * @param s_start_path
-     * @param s_rename_path to rename s_start_path file to
-     * @param s_update_comment to save a_in with
+     * @param asset to save, and under which bucket to store the s_path data
+     * @param startPath
+     * @param renamePath to rename s_start_path file to
+     * @param updateComment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public <T extends Asset> T renameFile ( T a_in, String s_start_path, String s_rename_path,
-                              String s_update_comment
+    public <T extends Asset> T renameFile ( T asset, String startPath, String renamePath,
+                              String updateComment
                                   ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, IOException;
     
@@ -135,16 +135,16 @@ public interface BucketManager extends Remote {
      * Must have READ and WRITE permission to both assets.
      * May not copy over an existing file.
      *
-     * @param u_in to save, and under which bucket to store the s_path data 
+     * @param sourceId to save, and under which bucket to store the s_path data
      * @param s_start_path
-     * @param a_out to copy to (may be the same as u_in asset)
-     * @param s_copy_path to rename s_start_path file to
-     * @param s_update_comment for saving a_out
+     * @param destId to copy to (may be the same as u_in asset)
+     * @param destPath to rename s_start_path file to
+     * @param updateComment for saving a_out
      * @return post-save a_in with new transaction-count and update-comment 
      */
-    public <T extends Asset> T copyFile ( UUID u_in, String s_in_path,
-                            T a_out, String s_copy_path,
-                            String s_update_comment
+    public <T extends Asset> T copyFile ( UUID sourceId, String sourcePath,
+                            T destId, String destPath,
+                            String updateComment
                              ) throws BaseException, GeneralSecurityException,
         AssetException, RemoteException, IOException;
 

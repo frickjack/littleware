@@ -10,7 +10,30 @@
 
 package littleware.apps.tracker;
 
+import java.io.File;
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
+import java.util.UUID;
+import littleware.base.BaseException;
+import littleware.base.Maybe;
+
 
 public interface ProductManager {
-    
+    public void checkout(
+            UUID memberId, File destinationFolder
+            ) throws BaseException, GeneralSecurityException, RemoteException;
+
+    public File checkout(
+            UUID memberId
+            ) throws BaseException, GeneralSecurityException, RemoteException;
+
+    public Maybe<File> locate( UUID memberId );
+
+    public void checkin(
+            UUID versionId, String memberName, File source, String comment
+            ) throws BaseException, GeneralSecurityException, RemoteException;
+
+    public void checkin(
+            UUID memberId, File source, String comment
+            ) throws BaseException, GeneralSecurityException, RemoteException;
 }

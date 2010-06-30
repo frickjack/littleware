@@ -10,26 +10,19 @@
 
 package littleware.apps.tracker;
 
-import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 
-
-
-public interface VersionAlias extends Asset {
-    /**
-     * Alias for getFromId
-     */
-    public UUID getProductId();
-    /**
-     * Alias for getToId - returns id of version or version-alias node
-     */
-    public UUID getVersionId();
-
+/**
+ *
+ * @author pasquini
+ */
+public interface ProductAlias extends Asset {
     @Override
-    public VABuilder copy();
+    public PABuilder copy();
     
-    public interface VABuilder extends AssetBuilder {
-
+    public interface PABuilder extends AssetBuilder {
+        @Override
+        public ProductAlias build();
     }
 }

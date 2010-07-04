@@ -87,7 +87,7 @@ public class PackageTestSuite extends TestSuite {
             final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
             final ClientBootstrap.ClientBuilder clientBuilder = ClientBootstrap.clientProvider.get();
             for( ClientModuleFactory scan : clientBuilder.getModuleSet() ) {
-                log.log( Level.INFO, "Scanning client module set: " + scan.getClass().getName() );
+                log.log( Level.INFO, "Scanning client module set: {0}", scan.getClass().getName());
             }
             return (new TestFactory()).build(serverBoot,
                     clientBuilder.build(),

@@ -27,9 +27,13 @@ public class PackageTestSuite extends TestSuite {
     private static final Logger log = Logger.getLogger( PackageTestSuite.class.getName() );
 
     @Inject
-    public PackageTestSuite( Provider<QueryManagerTester> provideQueryTester ) {
+    public PackageTestSuite(
+            Provider<QueryManagerTester> provideQueryTester,
+            Provider<ProductSetupTester> provideProductTester
+            ) {
         super( PackageTestSuite.class.getName() );
         this.addTest( provideQueryTester.get() );
+        this.addTest( provideProductTester.get() );
     }
 
     public static Test suite() {
@@ -42,6 +46,10 @@ public class PackageTestSuite extends TestSuite {
             log.log( Level.SEVERE, "Test setup failed", ex );
             throw ex;
         }
+    }
 
+    public static void main( String[] ignore ) {
+        final String[] args = new String[] { "-noloading", PackageTestSuite.class.getName() };
+        junit.swingui.TestRunner.main( args );
     }
 }

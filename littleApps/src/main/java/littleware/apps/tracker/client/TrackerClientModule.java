@@ -16,10 +16,16 @@ import com.google.inject.Scopes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Logger;
+import littleware.apps.tracker.Member;
+import littleware.apps.tracker.MemberAlias;
+import littleware.apps.tracker.Product;
+import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.SimpleTaskManager;
 import littleware.apps.tracker.TaskManager;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TrackerAssetType;
+import littleware.apps.tracker.Version;
+import littleware.apps.tracker.VersionAlias;
 import littleware.asset.AssetType;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
@@ -41,6 +47,12 @@ public class TrackerClientModule extends AbstractClientModule {
                 ).add( TrackerAssetType.DEPENDENCY
                 ).add( TrackerAssetType.QUEUE
                 ).add( TrackerAssetType.TASK
+                ).add( Product.ProductType
+                ).add( ProductAlias.PAType
+                ).add( Version.VersionType
+                ).add( VersionAlias.VAType
+                ).add( Member.MemberType
+                ).add( MemberAlias.MAType
                 ).build();
     }
     private static final Collection<ServiceType> serviceSet =

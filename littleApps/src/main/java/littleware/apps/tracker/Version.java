@@ -13,6 +13,8 @@ package littleware.apps.tracker;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
+import littleware.asset.AssetType;
+import littleware.base.UUIDFactory;
 
 /**
  * Product version
@@ -25,12 +27,16 @@ public interface Version extends Asset {
 
     public interface VersionBuilder extends AssetBuilder {
         @Override
+        public VersionBuilder name( String value );
+
+        @Override
         public VersionBuilder copy( Asset value );
         /**
          * Throws IllegalArgumentException if parent is not a product
          */
         @Override
         public VersionBuilder parent( Asset value );
+        
         /**
          * Alias for parent
          */
@@ -38,4 +44,19 @@ public interface Version extends Asset {
         @Override
         public Version build();
     }
+    
+    public static class Type extends AssetType {
+        private Type() {
+            super( UUIDFactory.parseUUID( "4869CDB1FA514055B0363449431A6278" ),
+                    "littleware.Version"
+                    );
+        }
+        
+        @Override
+        public VersionBuilder create() {
+            return new SimpleVersionBuilder();
+        }
+    }
+    
+    public static final Type VersionType = new Type();
 }

@@ -7,8 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
-
 package littleware.apps.tracker;
 
 import com.google.inject.Inject;
@@ -25,39 +23,48 @@ import littleware.base.BaseException;
 public class SimpleProductBuilder extends SimpleAssetBuilder implements Product.ProductBuilder {
 
     public SimpleProductBuilder() {
-        super( null );
+        super(Product.ProductType);
     }
-    
+
+    @Override
+    public ProductBuilder name(String value) {
+        return (ProductBuilder) super.name(value);
+    }
+
     @Override
     public ProductBuilder copy(Asset value) {
-        return (ProductBuilder) super.copy( value );
+        return (ProductBuilder) super.copy(value);
     }
 
     @Override
     public ProductBuilder parent(Asset value) {
-        return (ProductBuilder) super.parent(value );
+        return (ProductBuilder) super.parent(value);
     }
 
     @Override
     public Product build() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new SimpleProduct(this);
     }
 
     public static class SimpleProduct extends SimpleAsset implements Product {
+
         private AssetSearchManager search;
 
         public SimpleProduct() {
-            super( null );
+        }
+
+        public SimpleProduct(SimpleProductBuilder builder) {
+            super(builder);
         }
 
         @Inject
-        public void injectMe( AssetSearchManager search ) {
+        public void injectMe(AssetSearchManager search) {
             this.search = search;
         }
 
         @Override
         public UUID getTaskQueue() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), TrackerAssetType.QUEUE ).get( "TaskQueue" );
+            return search.getAssetIdsFrom(getId(), TrackerAssetType.QUEUE).get("TaskQueue");
         }
 
         @Override
@@ -67,23 +74,22 @@ public class SimpleProductBuilder extends SimpleAssetBuilder implements Product.
 
         @Override
         public Map<String, UUID> getSubProducts() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), getAssetType() );
+            return search.getAssetIdsFrom(getId(), getAssetType());
         }
 
         @Override
         public Map<String, UUID> getVersions() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), getAssetType() );
+            return search.getAssetIdsFrom(getId(), getAssetType());
         }
 
         @Override
         public Map<String, UUID> getVersionAliases() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), getAssetType() );
+            return search.getAssetIdsFrom(getId(), getAssetType());
         }
 
         @Override
         public ProductBuilder copy() {
-            return new SimpleProductBuilder().copy( this );
+            return new SimpleProductBuilder().copy(this);
         }
-
     }
 }

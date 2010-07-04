@@ -15,14 +15,21 @@ import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Map;
+import littleware.apps.tracker.Member;
+import littleware.apps.tracker.MemberAlias;
+import littleware.apps.tracker.Product;
+import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TrackerAssetType;
+import littleware.apps.tracker.Version;
+import littleware.apps.tracker.VersionAlias;
 import littleware.apps.tracker.client.SimpleQueryService;
 import littleware.apps.tracker.client.TaskQueryManagerService;
 import littleware.asset.AssetException;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.server.AssetSpecializer;
+import littleware.asset.server.NullAssetSpecializer;
 import littleware.base.BaseException;
 import littleware.bootstrap.server.AbstractServerModule;
 import littleware.bootstrap.server.ServerBootstrap;
@@ -72,7 +79,25 @@ public class TrackerServerModule extends AbstractServerModule {
     static {
         final ImmutableMap.Builder<AssetType, Class<? extends AssetSpecializer>> builder =
                 ImmutableMap.builder();
+        builder.put( TrackerAssetType.QUEUE, NullAssetSpecializer.class
+                ).put( TrackerAssetType.COMMENT, NullAssetSpecializer.class
+                ).put( TrackerAssetType.DEPENDENCY, NullAssetSpecializer.class
+                ).put( Product.ProductType, SimpleProductSpecializer.class
+                ).put( ProductAlias.PAType, SimpleProductSpecializer.class
+                ).put( Version.VersionType, SimpleProductSpecializer.class
+                ).put( VersionAlias.VAType, SimpleProductSpecializer.class
+                ).put( Member.MemberType, SimpleProductSpecializer.class
+                ).put( MemberAlias.MAType, SimpleProductSpecializer.class );
         typeMap = builder.put( TrackerAssetType.TASK, SimpleTaskSpecializer.class ).build();
+
+        /*
+                ).add( Product.ProductType
+                ).add( ProductAlias.PAType
+                ).add( Version.VersionType
+                ).add( VersionAlias.VAType
+                ).add( Member.MemberType
+                ).add( MemberAlias.MAType
+         */
     }
 
     //------------------------

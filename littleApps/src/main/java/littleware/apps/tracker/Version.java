@@ -10,10 +10,14 @@
 
 package littleware.apps.tracker;
 
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
+import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
+import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 
 /**
@@ -21,6 +25,11 @@ import littleware.base.UUIDFactory;
  */
 public interface Version extends Asset {
     public UUID  getProductId();
+
+    /**
+     * Shortcut for search.getFromIds( MemberType )
+     */
+    public Map<String,UUID> getMembers() throws BaseException, GeneralSecurityException, RemoteException;
 
     @Override
     public VersionBuilder copy();

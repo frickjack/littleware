@@ -9,10 +9,16 @@
  */
 package littleware.apps.tracker;
 
+import com.google.inject.Inject;
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
+import java.util.Map;
 import java.util.UUID;
 import littleware.apps.tracker.Version.VersionBuilder;
 import littleware.asset.Asset;
+import littleware.asset.AssetSearchManager;
 import littleware.asset.SimpleAssetBuilder;
+import littleware.base.BaseException;
 
 public class SimpleVersionBuilder extends SimpleAssetBuilder implements Version.VersionBuilder {
 
@@ -50,11 +56,18 @@ public class SimpleVersionBuilder extends SimpleAssetBuilder implements Version.
 
     public static class SimpleVersion extends SimpleAsset implements Version {
 
+        private AssetSearchManager search;
+
         private SimpleVersion() {
         }
 
         private SimpleVersion(VersionBuilder builder) {
             super(builder);
+        }
+
+        @Inject
+        public void injectMe(AssetSearchManager search) {
+            this.search = search;
         }
 
         @Override
@@ -65,6 +78,11 @@ public class SimpleVersionBuilder extends SimpleAssetBuilder implements Version.
         @Override
         public VersionBuilder copy() {
             return (new SimpleVersionBuilder()).copy(this);
+        }
+
+        @Override
+        public Map<String, UUID> getMembers() throws BaseException, GeneralSecurityException, RemoteException {
+            return search.getAssetIdsFrom(getId(), Member.MemberType);
         }
     }
 }

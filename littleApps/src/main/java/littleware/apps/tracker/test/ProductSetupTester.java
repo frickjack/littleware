@@ -11,6 +11,8 @@ package littleware.apps.tracker.test;
 
 import com.google.inject.Inject;
 import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Member;
@@ -99,6 +101,30 @@ public class ProductSetupTester extends LittleTest {
                 assetMan.saveAsset(
                         builder.name( "memberAlias" ).version(version).member(member).build(),
                         "test alias"
+                        );
+            }
+            {
+                final Map<String,UUID> infoMap = product.getDepends();
+                assertTrue( "Product getDepends ok: " + infoMap.isEmpty(),
+                        (! infoMap.isEmpty()) && (null != infoMap.get("testAlias" ))
+                        );
+            }
+            {
+                final Map<String,UUID> versionMap = product.getVersions();
+                assertTrue( "Product getVersions ok: " + versionMap.isEmpty(),
+                        (! versionMap.isEmpty()) && (null != versionMap.get( "1.0" ))
+                        );
+            }
+            {
+                final Map<String,UUID> vaMap = product.getVersionAliases();
+                assertTrue( "Version aliases ok: " + vaMap.isEmpty(),
+                        vaMap.containsKey("versionAlias" )
+                        );
+            }
+            {
+                final Map<String,UUID> memberMap = version.getMembers();
+                assertTrue( "Member list ok: " + memberMap.isEmpty(),
+                        memberMap.containsKey("member" )
                         );
             }
         } catch ( Exception ex ) {

@@ -9,10 +9,14 @@
  */
 package littleware.apps.tracker;
 
+import com.google.inject.Inject;
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
 import java.util.UUID;
 import littleware.apps.tracker.Member.MemberBuilder;
 import littleware.asset.Asset;
 import littleware.asset.SimpleAssetBuilder;
+import littleware.base.BaseException;
 
 public class SimpleMemberBuilder extends SimpleAssetBuilder implements MemberBuilder {
 
@@ -48,13 +52,19 @@ public class SimpleMemberBuilder extends SimpleAssetBuilder implements MemberBui
         return new SimpleMember(this);
     }
 
-    private static class SimpleMember extends SimpleAsset implements Member {
+    public static class SimpleMember extends SimpleAsset implements Member {
+        private ProductManager prodMan;
 
         private SimpleMember() {
         }
 
         private SimpleMember(SimpleMemberBuilder builder) {
             super(builder);
+        }
+
+        @Inject
+        public void inijectMe( ProductManager prodMan ) {
+            this.prodMan = prodMan;
         }
 
         @Override
@@ -65,6 +75,16 @@ public class SimpleMemberBuilder extends SimpleAssetBuilder implements MemberBui
         @Override
         public MemberBuilder copy() {
             return (new SimpleMemberBuilder()).copy(this);
+        }
+
+        @Override
+        public float getSizeMB() {
+            return getValue();
+        }
+
+        @Override
+        public MemberIndex getIndex() throws BaseException, GeneralSecurityException, RemoteException {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
 }

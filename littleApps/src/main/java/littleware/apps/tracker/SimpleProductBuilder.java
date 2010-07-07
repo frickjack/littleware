@@ -68,8 +68,8 @@ public class SimpleProductBuilder extends SimpleAssetBuilder implements Product.
         }
 
         @Override
-        public Map<String, UUID> getDepends() {
-            throw new UnsupportedOperationException("Not supported yet.");
+        public Map<String, UUID> getDepends() throws BaseException, GeneralSecurityException, RemoteException {
+            return search.getAssetIdsFrom( getId(), ProductAlias.PAType );
         }
 
         @Override
@@ -79,12 +79,12 @@ public class SimpleProductBuilder extends SimpleAssetBuilder implements Product.
 
         @Override
         public Map<String, UUID> getVersions() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), getAssetType());
+            return search.getAssetIdsFrom(getId(), Version.VersionType );
         }
 
         @Override
         public Map<String, UUID> getVersionAliases() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), getAssetType());
+            return search.getAssetIdsFrom(getId(), VersionAlias.VAType );
         }
 
         @Override

@@ -10,6 +10,7 @@
 
 package littleware.apps.tracker;
 
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -24,5 +25,11 @@ public interface MemberIndex {
         public long   getSizeKB();
     }
 
+    public interface IndexBuilder {
+        public IndexBuilder put( File localFile );
+        public IndexBuilder put( String path, long sizeKB );
+        public MemberIndex build();
+    }
+    
     public Collection<FileInfo>  getIndex();
 }

@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
+import littleware.apps.tracker.MemberIndex.FileInfo;
 import littleware.apps.tracker.MemberIndex.IndexBuilder;
 
 public class SimpleIndexBuilder implements MemberIndex.IndexBuilder {
@@ -55,20 +56,26 @@ public class SimpleIndexBuilder implements MemberIndex.IndexBuilder {
 
     }
 
-    
+    final ImmutableList.Builder<FileInfo> builder = new ImmutableList.Builder<FileInfo>();
+
     @Override
     public IndexBuilder put(File localFile) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if ( (! localFile.exists()) && localFile.isFile() ) {
+            throw new IllegalArgumentException( "Does not exist as file: " + localFile );
+        }
+        builder.add( new Info( localFile.getPath(), localFile.length() / 1024L ) );
+        return this;
     }
 
     @Override
     public IndexBuilder put(String path, long sizeKB) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        builder.add( new Info( path, sizeKB ) );
+        return this;
     }
 
     @Override
     public MemberIndex build() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new Index( builder.build() );
     }
 
 }

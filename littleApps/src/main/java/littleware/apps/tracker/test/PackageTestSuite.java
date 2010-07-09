@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.tracker.test;
 
 import com.google.inject.Inject;
@@ -24,32 +23,41 @@ import littleware.test.TestFactory;
  * Test the apps.tracker packages
  */
 public class PackageTestSuite extends TestSuite {
-    private static final Logger log = Logger.getLogger( PackageTestSuite.class.getName() );
+
+    private static final Logger log = Logger.getLogger(PackageTestSuite.class.getName());
 
     @Inject
     public PackageTestSuite(
             Provider<QueryManagerTester> provideQueryTester,
-            Provider<ProductSetupTester> provideProductTester
+            Provider<ProductSetupTester> provideProductTester,
+            Provider<ZipUtilTester> provideZipTester
             ) {
-        super( PackageTestSuite.class.getName() );
-        this.addTest( provideQueryTester.get() );
-        this.addTest( provideProductTester.get() );
+        super(PackageTestSuite.class.getName());
+        boolean bRun = false;
+        if (bRun) {
+            this.addTest(provideQueryTester.get());
+        }
+        if (bRun) {
+            this.addTest(provideProductTester.get());
+        }
+        if (bRun) {
+            this.addTest( provideZipTester.get() );
+        }
     }
 
     public static Test suite() {
         try {
-            return (new TestFactory()).build( ServerBootstrap.provider.get().build(),
-                ClientBootstrap.clientProvider.get().build(),
-                PackageTestSuite.class
-                );
-        } catch ( RuntimeException ex ) {
-            log.log( Level.SEVERE, "Test setup failed", ex );
+            return (new TestFactory()).build(ServerBootstrap.provider.get().build(),
+                    ClientBootstrap.clientProvider.get().build(),
+                    PackageTestSuite.class);
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
             throw ex;
         }
     }
 
-    public static void main( String[] ignore ) {
-        final String[] args = new String[] { "-noloading", PackageTestSuite.class.getName() };
-        junit.swingui.TestRunner.main( args );
+    public static void main(String[] ignore) {
+        final String[] args = new String[]{"-noloading", PackageTestSuite.class.getName()};
+        junit.swingui.TestRunner.main(args);
     }
 }

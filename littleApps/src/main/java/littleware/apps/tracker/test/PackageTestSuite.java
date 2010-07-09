@@ -33,7 +33,7 @@ public class PackageTestSuite extends TestSuite {
             Provider<ZipUtilTester> provideZipTester
             ) {
         super(PackageTestSuite.class.getName());
-        boolean bRun = false;
+        boolean bRun = true;
         if (bRun) {
             this.addTest(provideQueryTester.get());
         }

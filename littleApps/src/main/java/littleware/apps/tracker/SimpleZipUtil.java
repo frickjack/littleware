@@ -165,11 +165,15 @@ public class SimpleZipUtil implements ZipUtil {
         while (zipEnum.hasMoreElements()) {
             final ZipEntry entry = (ZipEntry) zipEnum.nextElement();
             final File     outFile = new File( destination, entry.getName() );
+            if ( outFile.exists() ) {
+                throw new IllegalStateException( "Unzip dest file already exists: " + outFile );
+            }
             log.log( Level.FINE, "Extracting: {0}", entry);
             if ( entry.isDirectory() ) {
                 outFile.mkdirs();
                 continue;
             } // else
+            outFile.getParentFile().mkdirs();
             final BufferedInputStream in = new BufferedInputStream(zip.getInputStream(entry));
             try {
                 final BufferedOutputStream out = new BufferedOutputStream(

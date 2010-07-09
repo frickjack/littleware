@@ -18,15 +18,19 @@ import java.util.Collections;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Member;
 import littleware.apps.tracker.MemberAlias;
+import littleware.apps.tracker.MemberIndex;
 import littleware.apps.tracker.Product;
 import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.ProductManager;
+import littleware.apps.tracker.SimpleIndexBuilder;
 import littleware.apps.tracker.SimpleTaskManager;
+import littleware.apps.tracker.SimpleZipUtil;
 import littleware.apps.tracker.TaskManager;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TrackerAssetType;
 import littleware.apps.tracker.Version;
 import littleware.apps.tracker.VersionAlias;
+import littleware.apps.tracker.ZipUtil;
 import littleware.asset.AssetType;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
@@ -78,5 +82,7 @@ public class TrackerClientModule extends AbstractClientModule {
         binder.bind( TaskQueryManager.class ).to( TaskQueryManagerService.class );
         binder.bind( TaskManager.class ).to( SimpleTaskManager.class ).in( Scopes.SINGLETON );
         binder.bind( ProductManager.class ).to( SimpleProductManager.class ).in( Scopes.SINGLETON );
+        binder.bind( ZipUtil.class ).to( SimpleZipUtil.class ).in( Scopes.SINGLETON );
+        binder.bind( MemberIndex.IndexBuilder.class ).to( SimpleIndexBuilder.class );
     }
 }

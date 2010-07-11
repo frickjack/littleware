@@ -11,11 +11,12 @@
 package littleware.apps.tracker;
 
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.feedback.Feedback;
 
 
 /**
@@ -23,8 +24,9 @@ import littleware.base.Maybe;
  */
 public interface ProductManager {
     public void checkout(
-            UUID memberId, File destinationFolder
-            ) throws BaseException, GeneralSecurityException, RemoteException;
+            UUID memberId, File destinationFolder,
+            Feedback feedback
+            ) throws BaseException, GeneralSecurityException, RemoteException, IOException;
 
 
 
@@ -33,13 +35,14 @@ public interface ProductManager {
      * of the given source file or folder compressed into a .zip file.
      */
     public Member checkin(
-            UUID versionId, String memberName, File source, String comment
-            ) throws BaseException, GeneralSecurityException, RemoteException;
+            UUID versionId, String memberName, File source, String comment,
+            Feedback feedback
+            ) throws BaseException, GeneralSecurityException, RemoteException, IOException;
 
     /**
      * Get the content-index of the given member
      */
-    public MemberIndex getIndex( UUID memberId ) throws BaseException, GeneralSecurityException, RemoteException;
+    public MemberIndex loadIndex( UUID memberId ) throws BaseException, GeneralSecurityException, RemoteException;
 
     /*.. Versioning utilities ... ugh.
      * public String nextVersion( String lastVersion, int dotNumber )

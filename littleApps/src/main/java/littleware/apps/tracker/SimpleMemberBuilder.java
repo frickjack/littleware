@@ -84,7 +84,7 @@ public class SimpleMemberBuilder extends SimpleAssetBuilder implements MemberBui
 
         @Override
         public MemberIndex getIndex() throws BaseException, GeneralSecurityException, RemoteException {
-            return prodMan.getIndex(this.getId() );
+            return prodMan.loadIndex(this.getId() );
         }
     }
 }

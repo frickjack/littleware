@@ -11,11 +11,13 @@ public enum XmlSpecial {
     lt {
 
         /** @return "&lt;" */
+        @Override
         public String getEncoding() {
             return "&lt;";
         }
 
         /** @return '<' */
+        @Override
         public char getChar() {
             return '<';
         }
@@ -23,11 +25,13 @@ public enum XmlSpecial {
     gt {
 
         /** @return "&gt;" */
+        @Override
         public String getEncoding() {
             return "&gt;";
         }
 
         /** @return '>' */
+        @Override
         public char getChar() {
             return '>';
         }
@@ -35,11 +39,13 @@ public enum XmlSpecial {
     apos {
 
         /** @return "&apos;" */
+        @Override
         public String getEncoding() {
             return "&apos;";
         }
 
         /** @return '\'' */
+        @Override
         public char getChar() {
             return '\'';
         }
@@ -47,11 +53,13 @@ public enum XmlSpecial {
     quot {
 
         /** @return "&quot;" */
+        @Override
         public String getEncoding() {
             return "&quot;";
         }
 
         /** @return '"' */
+        @Override
         public char getChar() {
             return '"';
         }
@@ -59,11 +67,13 @@ public enum XmlSpecial {
     amp {
 
         /** @return "&amp;" */
+        @Override
         public String getEncoding() {
             return "&amp;";
         }
 
         /** @return '&' */
+        @Override
         public char getChar() {
             return '&';
         }

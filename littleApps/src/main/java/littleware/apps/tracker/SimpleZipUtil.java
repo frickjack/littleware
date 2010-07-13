@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -27,8 +28,15 @@ import java.util.zip.CheckedOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import javax.validation.ValidationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import littleware.apps.tracker.MemberIndex.IndexBuilder;
+import littleware.base.Whatever;
+import littleware.base.XmlSpecial;
 import littleware.base.feedback.Feedback;
+import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Check out http://java.sun.com/developer/technicalArticles/Programming/compression/
@@ -37,7 +45,6 @@ public class SimpleZipUtil implements ZipUtil {
 
     private static final Logger log = Logger.getLogger(SimpleZipUtil.class.getName());
     private final Provider<IndexBuilder> provideIndex;
-
 
     private static class SimpleInfo implements ZipInfo {
 
@@ -70,7 +77,7 @@ public class SimpleZipUtil implements ZipUtil {
     public ZipInfo zip(File source, Feedback fb) throws IOException {
         final File zipFile = File.createTempFile(source.getName(), ".zip");
         zipFile.delete();
-        return zip( source, zipFile, fb );
+        return zip(source, zipFile, fb);
     }
 
     private void zipFile(File file, String zipParent, ZipOutputStream zipOut,
@@ -117,23 +124,21 @@ public class SimpleZipUtil implements ZipUtil {
                 zipFile(child, myPath, zipOut, indexBuilder, buffer);
             }
         }
-        for( File child : subDirs ) {
-            zipDirectory( child, myPath, zipOut, indexBuilder, buffer );
+        for (File child : subDirs) {
+            zipDirectory(child, myPath, zipOut, indexBuilder, buffer);
         }
     }
-
-
 
     @Override
     public ZipInfo zip(File source, File zipFile, Feedback fb) throws IOException {
         if (!(source.exists() && source.canRead())) {
             throw new IOException("Cannot read source: " + source.getAbsolutePath());
         }
-        if ( zipFile.exists() ) {
-            throw new IllegalArgumentException( "Destination zip file already exists: " + zipFile.getAbsolutePath() );
+        if (zipFile.exists()) {
+            throw new IllegalArgumentException("Destination zip file already exists: " + zipFile.getAbsolutePath());
         }
-        if ( ! zipFile.getName().toLowerCase().endsWith(".zip" )) {
-            throw new IllegalArgumentException( "Zip file must end in .zip: " + zipFile );
+        if (!zipFile.getName().toLowerCase().endsWith(".zip")) {
+            throw new IllegalArgumentException("Zip file must end in .zip: " + zipFile);
         }
 
         final MemberIndex.IndexBuilder indexBuilder = provideIndex.get();
@@ -164,12 +169,12 @@ public class SimpleZipUtil implements ZipUtil {
         final byte[] buffer = new byte[102400];
         while (zipEnum.hasMoreElements()) {
             final ZipEntry entry = (ZipEntry) zipEnum.nextElement();
-            final File     outFile = new File( destination, entry.getName() );
-            if ( outFile.exists() ) {
-                throw new IllegalStateException( "Unzip dest file already exists: " + outFile );
+            final File outFile = new File(destination, entry.getName());
+            if (outFile.exists()) {
+                throw new IllegalStateException("Unzip dest file already exists: " + outFile);
             }
-            log.log( Level.FINE, "Extracting: {0}", entry);
-            if ( entry.isDirectory() ) {
+            log.log(Level.FINE, "Extracting: {0}", entry);
+            if (entry.isDirectory()) {
                 outFile.mkdirs();
                 continue;
             } // else
@@ -178,8 +183,7 @@ public class SimpleZipUtil implements ZipUtil {
             try {
                 final BufferedOutputStream out = new BufferedOutputStream(
                         new FileOutputStream(new File(destination, entry.getName())),
-                        buffer.length
-                        );
+                        buffer.length);
                 try {
                     for (int count = in.read(buffer);
                             count != -1;
@@ -197,11 +201,33 @@ public class SimpleZipUtil implements ZipUtil {
 
     @Override
     public String pickle(MemberIndex index) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        final StringBuilder sb = new StringBuilder();
+        sb.append("<index>").append(Whatever.NEWLINE);
+        for (MemberIndex.FileInfo info : index.getIndex()) {
+            sb.append("<file sizeKB=\"").append(info.getSizeKB()).append("\" >").append(XmlSpecial.encode(info.getPath())).append("</file>").append(Whatever.NEWLINE);
+        }
+        sb.append("</index>").append(Whatever.NEWLINE);
+        return sb.toString();
     }
 
     @Override
     public MemberIndex unpickle(String pickle) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        class bla {
+        }
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            SAXParser sax_parser = factory.newSAXParser();
+            DefaultHandler sax_handler = null;
+
+            sax_parser.parse(new InputSource(new StringReader(pickle)),
+                    sax_handler);
+            return null;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ValidationException("Failed to parse: " + e, e);
+        }
+
     }
 }

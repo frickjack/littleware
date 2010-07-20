@@ -11,10 +11,13 @@
 package littleware.apps.tracker.client;
 
 import com.google.inject.Inject;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
@@ -53,15 +56,31 @@ public class SimpleProductManager implements ProductManager {
     @Override
     public void checkout(UUID memberId, File destinationFolder,
             Feedback feedback
-            ) throws BaseException, GeneralSecurityException, RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
+            ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
+        if ( ! destinationFolder.exists() ) {
+            throw new IllegalArgumentException( "Destination folder does not exist: " + destinationFolder.getAbsolutePath() );
+        }
+        if ( ! destinationFolder.isDirectory() ) {
+            throw new IllegalArgumentException( "Destionation folder is not a directory: " + destinationFolder.getAbsolutePath() );
+        }
+        feedback.info( "Retrieving zipfile from member for checkout ..." );
+        final byte[] buffer = bucketMan.readBytesFromBucket(memberId, zipPath);
+        final File   tempZip = File.createTempFile("checkout", ".zip" );
+        final OutputStream out = new FileOutputStream( tempZip );
+        try {
+            out.write(buffer);
+        } finally {
+            out.close();
+        }
+        feedback.info( "Unzipping ..." );
+        zipUtil.unzip(tempZip, destinationFolder, feedback);
     }
 
     @Override
     public Member checkin(UUID versionId, String memberName, File source, String comment,
             Feedback feedback
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
-        feedback.info( "Setting up meber asset: " + memberName );
+        feedback.info( "Setting up member asset: " + memberName );
         Member member = assetMan.saveAsset(
                 Member.MemberType.create().parent(
                     search.getAsset( versionId ).get()
@@ -73,20 +92,22 @@ public class SimpleProductManager implements ProductManager {
         final ZipUtil.ZipInfo info = zipUtil.zip(source, feedback);
         feedback.setProgress(7,10);
         // TODO - feedback nesting, bucket cache, bucket streaming
-        final byte[] zipData = new byte[ (int) info.getZipFile().length() ];
+        final byte[] zipData = new byte[ 102400 ];
         final InputStream zipIn = new FileInputStream( info.getZipFile() );
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream( (int) info.getZipFile().length());
+        
         try {
-            int position = 0;
             for ( int count = zipIn.read( zipData );
                   count >= 0;
-                  count = zipIn.read( zipData, position, zipData.length - position )
+                  count = zipIn.read( zipData )
                   ) {
-                position += count;
+                byteStream.write(zipData,0,count);
             }
         } finally {
             zipIn.close();
         }
-        member = bucketMan.writeToBucket(member, zipPath, zipData, 
+        feedback.info( "Saving zip file to asset bucket" );
+        member = bucketMan.writeToBucket(member, zipPath, byteStream.toByteArray(),
                         "Saving bucket data to " + zipPath
                         );
         feedback.setProgress(9,10);

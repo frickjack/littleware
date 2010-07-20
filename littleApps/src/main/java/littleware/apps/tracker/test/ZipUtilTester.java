@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,16 +32,20 @@ import littleware.base.feedback.Feedback;
 public class ZipUtilTester extends TestCase {
 
     private static final Logger log = Logger.getLogger(ZipUtilTester.class.getName());
-    private final ZipUtil util;
+    private final ZipUtil zipUtil;
     private final Feedback feedback;
+    private final FileUtil fileUtil;
 
     @Inject
-    public ZipUtilTester(ZipUtil util, Feedback fb) {
+    public ZipUtilTester(ZipUtil zipUtil, FileUtil fileUtil, Feedback fb) {
         super("testZip");
-        this.util = util;
+        this.zipUtil = zipUtil;
+        this.fileUtil = fileUtil;
         this.feedback = fb;
     }
-    private File testDir;
+
+    private File testDir = new File( Whatever.Folder.Temp.getFolder(), "ZipUtilTester");
+
 
     /**
      * Setup a test folder
@@ -48,66 +53,13 @@ public class ZipUtilTester extends TestCase {
     @Override
     public void setUp() {
         try {
-            File parent = Whatever.Folder.Temp.getFolder();
-            int count = 0;
-            for (int dirCount = 0; dirCount < 3; ++dirCount) {
-                final File dir = new File(parent, "ZipUtilTester" + count);
-                if (0 == dirCount) {
-                    testDir = dir;
-                }
-                count = count + 1;
-                parent = dir;
-                if (!dir.exists()) {
-                    dir.mkdir();
-                }
-                for (int fileCount = 0; fileCount <= dirCount; ++fileCount) {
-                    final File file = new File(parent, "ZipUtilTester" + count + ".txt");
-                    count = count + 1;
-                    if (!file.exists()) {
-                        final Writer writer = new FileWriter(file);
-                        try {
-                            writer.write("bla bla bla\n");
-                        } finally {
-                            writer.close();
-                        }
-                    }
-                }
-            }
+            fileUtil.buildTestTree( testDir );
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed setup", ex);
             fail("Caught exception: " + ex);
         }
     }
 
-    private List<File> lsR(final File target) {
-        final ImmutableList.Builder<File> builder = ImmutableList.builder();
-        try {
-            return (new Callable<List<File>>() {
-
-                private void call(final File start) {
-                    if (!start.exists()) {
-                        return;
-                    }
-                    if (start.isDirectory()) {
-                        builder.add(start);
-                        for (File scan : start.listFiles()) {
-                            call(scan);
-                        }
-                    } else if (start.isFile()) {
-                        builder.add(start);
-                    }
-                }
-
-                @Override
-                public List<File> call() throws Exception {
-                    call(target);
-                    return builder.build();
-                }
-            }).call();
-        } catch (Exception ex) {
-            throw new IllegalStateException("Unexpected", ex);
-        }
-    }
 
     public void testZip() {
         try {
@@ -115,50 +67,39 @@ public class ZipUtilTester extends TestCase {
             if (testZip.exists()) {
                 testZip.delete();
             }
-            final ZipUtil.ZipInfo info = util.zip(testDir, testZip, feedback);
+            final ZipUtil.ZipInfo info = zipUtil.zip(testDir, testZip, feedback);
             assertTrue("Got expected zip file",
                     info.getZipFile().equals(testZip));
             assertTrue("Zip file is not empty",
                     info.getZipFile().exists() && (info.getZipFile().length() > 0));
             // time to unzip
             final File unzipFolder = new File(Whatever.Folder.Temp.getFolder(), "UnzipTest");
-            {
-                // cleanup test
-                final List<File> deleteList = new ArrayList( lsR( unzipFolder ) );
-                Collections.reverse( deleteList );
-                assertTrue ( "Should be fewer than 12 files to cleanup under " + unzipFolder,
-                        deleteList.size() < 12
-                        );
-                for ( File scan : deleteList ) {
-                    scan.delete();
-                }
-            }
-            util.unzip( info.getZipFile(), unzipFolder, feedback );
-            final List<File> startList = lsR( testDir );
-            final List<File> endList = lsR( unzipFolder );
-            int   startFileCount = 0;
-            int   endFileCount = 0;
-            int   startDirCount = 0;
-            int   endDirCount = 0;
-            for ( File scan : startList ) {
-                if ( scan.isFile() ) {
+            fileUtil.deleteR( unzipFolder, 20 );
+            zipUtil.unzip(info.getZipFile(), unzipFolder, feedback);
+            final List<File> startList = fileUtil.lsR(testDir);
+            final List<File> endList = fileUtil.lsR(unzipFolder);
+            int startFileCount = 0;
+            int endFileCount = 0;
+            int startDirCount = 0;
+            int endDirCount = 0;
+            for (File scan : startList) {
+                if (scan.isFile()) {
                     startFileCount++;
-                } else if ( scan.isDirectory() ) {
+                } else if (scan.isDirectory()) {
                     startDirCount++;
                 }
             }
-            for ( File scan : endList ) {
-                if ( scan.isFile() ) {
+            for (File scan : endList) {
+                if (scan.isFile()) {
                     endFileCount++;
-                } else if ( scan.isDirectory() ) {
+                } else if (scan.isDirectory()) {
                     endDirCount++;
                 }
             }
-            assertTrue( "Unzip got correct file count: " + endFileCount + "==" + startFileCount,
-                    endFileCount == startFileCount
-                    );
-            assertTrue( "Unzip got correct dir count: " + endDirCount + " vs " + startDirCount,
-                    endDirCount == startDirCount + 1  // +1 for parent directory
+            assertTrue("Unzip got correct file count: " + endFileCount + "==" + startFileCount,
+                    endFileCount == startFileCount);
+            assertTrue("Unzip got correct dir count: " + endDirCount + " vs " + startDirCount,
+                    endDirCount == startDirCount + 1 // +1 for parent directory
                     );
         } catch (Exception ex) {
             log.log(Level.WARNING, "Test failed", ex);

@@ -24,10 +24,13 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import littleware.apps.filebucket.Bucket;
 import littleware.apps.filebucket.BucketManager;
+import littleware.apps.filebucket.BucketUtil;
 import littleware.apps.image.ImageManager;
 import littleware.asset.Asset;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
+import littleware.base.feedback.Feedback;
+import littleware.base.feedback.NullFeedback;
 
 /**
  * Simple implementation of ImageManager - just calls
@@ -41,12 +44,16 @@ public class SimpleImageManager implements ImageManager {
     private static String buildBucketPath(ImageManager.SizeOption size) {
         return "Image123" + size + ".png";
     }
-    private final BucketManager bucketMgr;
+    private final BucketUtil bucketUtil;
     private final ImageCache cache;
+    private final BucketManager bucketMgr;
+    private final Feedback      feedback = new NullFeedback();
 
     @Inject
-    public SimpleImageManager(BucketManager mgrBucket, ImageCache cache) {
-        bucketMgr = mgrBucket;
+    public SimpleImageManager(BucketUtil bucketUtil, BucketManager bucketMgr, 
+            ImageCache cache ) {
+        this.bucketUtil = bucketUtil;
+        this.bucketMgr = bucketMgr;
         this.cache = cache;
     }
 
@@ -107,7 +114,7 @@ public class SimpleImageManager implements ImageManager {
             cache.cachePut(id, size, empty);
             return empty;
         }
-        final byte[] data = bucketMgr.readBytesFromBucket(id, path);
+        final byte[] data = bucketUtil.readAll(id, path, feedback );
         final BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
         final Maybe<BufferedImage> result = Maybe.something(img);
         cache.cachePut(id, size, result);
@@ -122,7 +129,9 @@ public class SimpleImageManager implements ImageManager {
             final ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ImageIO.write(scaledImage, "png", stream);
             stream.close();
-            result = bucketMgr.writeToBucket(result, buildBucketPath(size), stream.toByteArray(), updateComment);
+            result = bucketUtil.writeAll(result, buildBucketPath(size), stream.toByteArray(),
+                                            updateComment, feedback
+                                            );
             cache.cachePut(asset.getId(), size, Maybe.something(scaledImage));
         }
         return result;

@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import littleware.asset.*;
 import littleware.apps.filebucket.*;
 import littleware.base.*;
+import littleware.base.feedback.Feedback;
 import littleware.test.LittleTest;
 
 
@@ -26,22 +27,30 @@ import littleware.test.LittleTest;
  */
 public class BucketTester extends LittleTest {
 
-    private static final String os_test_data = "Frickjack bla bla " + (new Date()).getTime();
-    private static final String os_test_folder = "BucketTester";
-    private static final Logger log = Logger.getLogger("littleware.apps.test.BucketTester");
+    private static final String testData = "Frickjack bla bla " + (new Date()).getTime();
+    private static final String testFolderName = "BucketTester";
+    private static final Logger log = Logger.getLogger(BucketTester.class.getName() );
     private final BucketManager bucketMgr;
     private final AssetManager assetMgr;
     private final AssetSearchManager search;
-    private Asset oa_test = null;
+    private Asset testAsset = null;
+    private final BucketUtil bucketUtil;
+    private final Feedback feedback;
 
     /**
      * Stash managers to use during test
      */
     @Inject
-    public BucketTester(AssetManager m_asset, AssetSearchManager m_search, BucketManager m_bucket) {
-        assetMgr = m_asset;
-        search = m_search;
-        bucketMgr = m_bucket;
+    public BucketTester(AssetManager assetMgr, AssetSearchManager seach,
+            BucketManager bucketMgr,
+            BucketUtil bucketUtil,
+            Feedback   feedback
+            ) {
+        this.assetMgr = assetMgr;
+        this.search = seach;
+        this.bucketMgr = bucketMgr;
+        this.bucketUtil = bucketUtil;
+        this.feedback=feedback;
         setName("testBucket");
     }
 
@@ -53,26 +62,25 @@ public class BucketTester extends LittleTest {
     public void setUp() {
         try {
             final Asset home = getTestHome( search );
-            UUID u_test_folder = search.getAssetIdsFrom(home.getId(), AssetType.GENERIC).get(os_test_folder);
-            if (null == u_test_folder) {
-                u_test_folder = assetMgr.saveAsset(
+            UUID testFolderId = search.getAssetIdsFrom(home.getId(), AssetType.GENERIC).get(testFolderName);
+            if (null == testFolderId) {
+                testFolderId = assetMgr.saveAsset(
                         AssetType.GENERIC.create().parent(home).
-                            name(os_test_folder).build(),
+                            name(testFolderName).build(),
                              "setup folder for test"
                              ).getId();
             }
 
-            final Date t_now = new Date();
+            final Date now = new Date();
             
-
-            oa_test = assetMgr.saveAsset(
-                    AssetType.GENERIC.create().parent( search.getAsset(u_test_folder).get()).
-                                name("test" + t_now.getTime()).build()
+            testAsset = assetMgr.saveAsset(
+                    AssetType.GENERIC.create().parent( search.getAsset(testFolderId).get()).
+                                name("test" + now.getTime()).build()
                                 , "setup new test"
                                 );
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Failed setup, caught: " + e + ", " + BaseException.getStackTrace(e));
-            throw new AssertionFailedException("Failed setup, caught: " + e, e);
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Failed setup", ex );
+            fail( "Caught exception: " + ex );
         }
     }
 
@@ -82,11 +90,10 @@ public class BucketTester extends LittleTest {
     @Override
     public void tearDown() {
         try {
-            assetMgr.deleteAsset(oa_test.getId(), "Cleanup after test");
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AssertionFailedException("Failed setup, caught: " + e, e);
+            assetMgr.deleteAsset(testAsset.getId(), "Cleanup after test");
+        } catch (Exception ex) {
+            log.log( Level.WARNING, "Failed teardown", ex );
+            fail( "Caught exception: " + ex );
         }
     }
 
@@ -95,33 +102,33 @@ public class BucketTester extends LittleTest {
      */
     public void testBucket() {
         try {
-            Bucket bucket_test = bucketMgr.getBucket(oa_test.getId());
-            assertTrue("Bucket tracks right asset", bucket_test.getAssetId().equals(oa_test.getId()));
-            assertTrue("Bucket starts empty", bucket_test.getPaths().isEmpty());
-            oa_test = bucketMgr.writeToBucket(oa_test, "test1", os_test_data, "writing test data");
-            bucket_test = bucketMgr.getBucket(oa_test.getId());
+            Bucket bucket = bucketMgr.getBucket(testAsset.getId());
+            assertTrue("Bucket tracks right asset", bucket.getAssetId().equals(testAsset.getId()));
+            assertTrue("Bucket starts empty", bucket.getPaths().isEmpty());
+            testAsset = bucketMgr.writeToBucket(testAsset, "test1", testData, "writing test data");
+            bucket = bucketMgr.getBucket(testAsset.getId());
 
-            assertTrue("Bucket has a path now", bucket_test.getPaths().contains("test1"));
-            oa_test = bucketMgr.renameFile(oa_test, "test1", "test_rename", "bucket rename test");
-            bucket_test = bucketMgr.getBucket(oa_test.getId());
+            assertTrue("Bucket has a path now", bucket.getPaths().contains("test1"));
+            testAsset = bucketMgr.renameFile(testAsset, "test1", "test_rename", "bucket rename test");
+            bucket = bucketMgr.getBucket(testAsset.getId());
 
-            assertTrue("Rename went ok", bucket_test.getPaths().contains("test_rename") && (bucket_test.getPaths().size() == 1));
-            oa_test = bucketMgr.writeToBucket(oa_test, "test1", os_test_data + os_test_data, "write another test file to the bucket");
-            bucket_test = bucketMgr.getBucket(oa_test.getId());
+            assertTrue("Rename went ok", bucket.getPaths().contains("test_rename") && (bucket.getPaths().size() == 1));
+            testAsset = bucketMgr.writeToBucket(testAsset, "test1", testData + testData, "write another test file to the bucket");
+            bucket = bucketMgr.getBucket(testAsset.getId());
 
-            assertTrue("Bucket with multiple files went ok", bucket_test.getPaths().contains("test_rename") && bucket_test.getPaths().contains("test1") && (bucket_test.getPaths().size() == 2));
+            assertTrue("Bucket with multiple files went ok", bucket.getPaths().contains("test_rename") && bucket.getPaths().contains("test1") && (bucket.getPaths().size() == 2));
 
-            String s_data = bucketMgr.readTextFromBucket(oa_test.getId(), "test_rename");
-            assertTrue("Got expected data from bucket: " + s_data, s_data.equals(os_test_data));
-            oa_test = bucketMgr.eraseFromBucket(oa_test, "test_rename", "erase some test data");
-            bucket_test = bucketMgr.getBucket(oa_test.getId());
+            String s_data = bucketMgr.readTextFromBucket(testAsset.getId(), "test_rename");
+            assertTrue("Got expected data from bucket: " + s_data, s_data.equals(testData));
+            testAsset = bucketMgr.eraseFromBucket(testAsset, "test_rename", "erase some test data");
+            bucket = bucketMgr.getBucket(testAsset.getId());
 
-            assertTrue("Erase 1 went ok", bucket_test.getPaths().contains("test1") && (bucket_test.getPaths().size() == 1));
+            assertTrue("Erase 1 went ok", bucket.getPaths().contains("test1") && (bucket.getPaths().size() == 1));
 
-            oa_test = bucketMgr.eraseFromBucket(oa_test, "test1", "erase test1 from bucket");
-            bucket_test = bucketMgr.getBucket(oa_test.getId());
+            testAsset = bucketMgr.eraseFromBucket(testAsset, "test1", "erase test1 from bucket");
+            bucket = bucketMgr.getBucket(testAsset.getId());
 
-            assertTrue("Erase to empty ok", bucket_test.getPaths().isEmpty());
+            assertTrue("Erase to empty ok", bucket.getPaths().isEmpty());
         } catch (Exception e) {
             log.log(Level.WARNING, "Caught: " + e + ", " + BaseException.getStackTrace(e));
             assertTrue("Caught: " + e, false);

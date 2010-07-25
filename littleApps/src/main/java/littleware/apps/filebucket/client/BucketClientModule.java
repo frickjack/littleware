@@ -11,11 +11,14 @@
 package littleware.apps.filebucket.client;
 
 import com.google.inject.Binder;
+import com.google.inject.Scopes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Logger;
 import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.BucketServiceType;
+import littleware.apps.filebucket.BucketUtil;
+import littleware.apps.filebucket.SimpleBucketUtil;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
@@ -49,7 +52,8 @@ public class BucketClientModule extends AbstractClientModule {
 
     @Override
     public void configure( Binder binder ) {
-        binder.bind(BucketManager.class).to(BucketManagerService.class);
+        binder.bind(BucketManager.class).to(BucketManagerService.class).in( Scopes.SINGLETON );
+        binder.bind( BucketUtil.class ).to( SimpleBucketUtil.class ).in( Scopes.SINGLETON );
     }
 
 }

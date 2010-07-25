@@ -12,13 +12,15 @@ package littleware.apps.tracker;
 import com.google.inject.Inject;
 
 import java.util.logging.Logger;
-import littleware.apps.filebucket.BucketManager;
+import littleware.apps.filebucket.BucketUtil;
 import littleware.apps.tracker.Comment.CommentBuilder;
 
 import littleware.asset.*;
 import littleware.base.AssertionFailedException;
 import littleware.base.LazyLoadException;
 import littleware.base.Maybe;
+import littleware.base.feedback.Feedback;
+import littleware.base.feedback.NullFeedback;
 
 /**
  * Simple implementation of Comment interface.
@@ -28,7 +30,8 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
     public static final String  fullTextBucketPath = "commentFullText.txt";
 
     private static class SimpleComment extends SimpleAsset implements Comment {
-        private transient BucketManager bucketManager;
+        private transient BucketUtil bucketUtil;
+        private transient Feedback   feedback = new NullFeedback();
         private Maybe<String>   maybeFullText = Maybe.empty();
 
         public SimpleComment() {}
@@ -44,8 +47,8 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
          * @param bucketManager
          */
         @Inject
-        public void injectClientServices( BucketManager bucketManager ) {
-            this.bucketManager = bucketManager;
+        public void injectClientServices( BucketUtil bucketManager ) {
+            this.bucketUtil = bucketManager;
         }
 
         @Override
@@ -59,11 +62,14 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
             if ( maybeFullText.isEmpty() ) {
                 synchronized( this ) {
                     if ( maybeFullText.isEmpty() ) {
-                        if ( null == bucketManager ) {
+                        if ( null == bucketUtil ) {
                             throw new AssertionFailedException( "BucketManager not injected on cilent" );
                         }
+                        if ( null == feedback ) {
+                            throw new AssertionFailedException( "Feedback not initialized" );
+                        }
                         try {
-                            maybeFullText = Maybe.something( bucketManager.readTextFromBucket(this.getId(), fullTextBucketPath) );
+                            maybeFullText = Maybe.something( bucketUtil.readText(this.getId(), fullTextBucketPath, feedback ) );
                         } catch (Exception ex) {
                             throw new LazyLoadException( "Failed to retrieve comment full text", ex );
                         }

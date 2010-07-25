@@ -18,7 +18,7 @@ import java.util.logging.Level;
  * Simple UI-feedback mechanism for long-running tasks.
  */
 @ImplementedBy(LoggerFeedback.class)
-public interface Feedback extends LittleTool {
+public interface Feedback {
     /** 
      * Property tracks the progress of some
      * task on a scale from 0 to 100
@@ -33,6 +33,13 @@ public interface Feedback extends LittleTool {
       * scale (0,i_max)
       */
      public void setProgress( int i_progress, int i_max );
+
+     /**
+      * Build a nested Feedback instance configured to
+      * advance over the next progress/max units of the
+      * parent progress bar.
+      */
+     public Feedback nested( int progress, int max );
      
      /**
       * Title property for the task whose progress

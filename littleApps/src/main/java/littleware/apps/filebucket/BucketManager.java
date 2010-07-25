@@ -42,24 +42,13 @@ public interface BucketManager extends Remote {
     public Bucket getBucket ( UUID assetId ) throws BaseException, GeneralSecurityException,
                        AssetException, RemoteException, IOException;
     
-    
+
     /**
-     * Save the given asset, and add a file to the bucket or overwrite an existing file.
-     * Must have WRITE permissions to the owning asset.
-     * May be restricted by the littleware.security.Quota system.
-     *
-     * @param a_in to save, and under which bucket to store the s_path data 
-     * @param s_path within the bucket - some implementations may restrict name
-     *                     (ex: no /)
-     * @param s_data string based data to store under the path
-     * @param s_update_comment to save a_in with
-     * @return post-save a_in with new transaction-count and update-comment 
+     * Return the maximum buffer that can be read or written in a single call.
+     * The BucketUtil includes methods to aggregate larger buffers
+     * into multiple calls.
      */
-    public <T extends Asset> T writeToBucket ( T a_in, String s_path,
-                                String s_data, String s_update_comment
-                                ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, IOException;
-    
+    public int getMaxBufferSize();
     
     /**
      * Save the given asset, and add a file to the bucket or overwrite an existing file.
@@ -70,25 +59,31 @@ public interface BucketManager extends Remote {
      * @param path within the bucket - some implementations may restrict name
      *                     (ex: no /)
      * @param data to save
+     * @param offset into the file to save the data to
      * @param updateComment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
     public <T extends Asset> T writeToBucket ( T asset, String path,
-                                byte[] data, String updateComment
+                                byte[] data, long offset, String updateComment
                                 ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, IOException;
+        RemoteException, IOException;
 
-    /**
-     * Read the file at the given path under the bucket as UTF-8 encoded text,
-     * and return the String.  Must have asset READ access.
-     *
-     * @param assetId id of the asset that owns the bucket - must have READ permission to asset
-     * @param path to file under bucket
-     * @return text from file
-     */
-    public String readTextFromBucket ( UUID assetId, String path
-                                       ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, IOException;    
+
+
+
+    public interface ReadInfo {
+        public byte[] getBuffer();
+        /**
+         * Offset from the beginning of the file -
+         * ex: 0 indicates buffer from beginning of file
+         * @return
+         */
+        public long   getOffset();
+        /**
+         * Total size of the file in bytes
+         */
+        public long   getSize();
+    }
     
     /**
      * Read the file at the given path under the bucket,
@@ -96,11 +91,15 @@ public interface BucketManager extends Remote {
      *
      * @param assetId id of the asset that owns the bucket - must have READ permission to asset
      * @param path to file under bucket
+     * @param offset into the file to pull bytes from
+     * @param maxBuffer maximum size of buffer to return
      * @return bytes from file
      */
-    public byte[] readBytesFromBucket ( UUID assetId, String path
+    public ReadInfo readBytesFromBucket ( UUID assetId, String path, long offset, int maxBuffer
                                        ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, IOException;    
+        RemoteException, IOException;
+
+
     
     /**
      * Erase the specified file from the bucket.
@@ -108,7 +107,7 @@ public interface BucketManager extends Remote {
      *
      * @param asset asset is saved with update comment - must have WRITE permission
      * @param path may end in * to indicate a prefix match
-     * @param updateComment to save a_in with
+     * @param up    dateComment to save a_in with
      * @return post-save a_in with new transaction-count and update-comment 
      */
     public <T extends Asset> T eraseFromBucket ( T asset, String path, String updateComment

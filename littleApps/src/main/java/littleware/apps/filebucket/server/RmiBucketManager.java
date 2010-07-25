@@ -18,57 +18,60 @@ import littleware.apps.filebucket.*;
  */
 public class RmiBucketManager extends LittleRemoteObject implements BucketManager {
 
-    private BucketManager om_proxy = null;
+    private BucketManager proxyMgr = null;
 
-    public RmiBucketManager(BucketManager m_proxy) throws RemoteException {
+    public RmiBucketManager(BucketManager proxyMgr) throws RemoteException {
         //super( littleware.security.auth.SessionUtil.getRegistryPort() );
-        om_proxy = m_proxy;
+        this.proxyMgr = proxyMgr;
     }
 
-    public Bucket getBucket(UUID u_asset) throws BaseException, GeneralSecurityException,
+    @Override
+    public Bucket getBucket(UUID assetId) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
-        return om_proxy.getBucket(u_asset);
+        return proxyMgr.getBucket(assetId);
     }
 
-    public <T extends Asset> T writeToBucket(T a_in, String s_path,
-            String s_data, String s_update_comment) throws BaseException, GeneralSecurityException,
-            AssetException, RemoteException, BucketException, IOException {
-        return om_proxy.writeToBucket(a_in, s_path, s_data, s_update_comment);
+
+    @Override
+    public <T extends Asset> T writeToBucket(T asset, String bucketPath, 
+            byte[] data, long offset, String updateComment
+            ) throws BaseException, GeneralSecurityException,
+            RemoteException, BucketException, IOException {
+        return proxyMgr.writeToBucket(asset, bucketPath, data, offset, updateComment);
     }
 
-    public <T extends Asset> T writeToBucket(T a_in, String s_path,
-            byte[] v_data, String s_update_comment) throws BaseException, GeneralSecurityException,
+
+    @Override
+    public ReadInfo readBytesFromBucket(UUID assetId, String bucketPath, long offset, int maxBuff ) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
-        return om_proxy.writeToBucket(a_in, s_path, v_data, s_update_comment);
+        return proxyMgr.readBytesFromBucket(assetId, bucketPath, offset, maxBuff );
     }
 
-    public String readTextFromBucket(UUID u_asset, String s_path) throws BaseException, GeneralSecurityException,
+    @Override
+    public <T extends Asset> T eraseFromBucket(T asset, String bucketPath, String updateComment) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
-        return om_proxy.readTextFromBucket(u_asset, s_path);
+        return proxyMgr.eraseFromBucket(asset, bucketPath, updateComment);
     }
 
-    public byte[] readBytesFromBucket(UUID u_asset, String s_path) throws BaseException, GeneralSecurityException,
+    @Override
+    public <T extends Asset> T renameFile(T asset, String s_start_path, String s_rename_path,
+            String updateComment) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
-        return om_proxy.readBytesFromBucket(u_asset, s_path);
+        return proxyMgr.renameFile(asset, s_start_path, s_rename_path, updateComment);
     }
 
-    public <T extends Asset> T eraseFromBucket(T a_in, String s_path, String s_update_comment) throws BaseException, GeneralSecurityException,
+    @Override
+    public <T extends Asset> T copyFile(UUID sourceId, String sourcePath,
+            T destAsset, String destPath,
+            String updateComment) throws BaseException, GeneralSecurityException,
             AssetException, RemoteException, BucketException, IOException {
-        return om_proxy.eraseFromBucket(a_in, s_path, s_update_comment);
+        return proxyMgr.copyFile(sourceId, sourcePath, destAsset, destPath,
+                updateComment);
     }
 
-    public <T extends Asset> T renameFile(T a_in, String s_start_path, String s_rename_path,
-            String s_update_comment) throws BaseException, GeneralSecurityException,
-            AssetException, RemoteException, BucketException, IOException {
-        return om_proxy.renameFile(a_in, s_start_path, s_rename_path, s_update_comment);
-    }
-
-    public <T extends Asset> T copyFile(UUID u_in, String s_in_path,
-            T a_out, String s_copy_path,
-            String s_update_comment) throws BaseException, GeneralSecurityException,
-            AssetException, RemoteException, BucketException, IOException {
-        return om_proxy.copyFile(u_in, s_in_path, a_out, s_copy_path,
-                s_update_comment);
+    @Override
+    public int getMaxBufferSize() {
+        return proxyMgr.getMaxBufferSize();
     }
 }
 

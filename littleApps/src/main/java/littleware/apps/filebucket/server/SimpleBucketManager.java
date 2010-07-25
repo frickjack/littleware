@@ -7,13 +7,13 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.filebucket.server;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.*;
@@ -25,7 +25,7 @@ import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.asset.*;
 import littleware.asset.server.LittleTransaction;
-
+import littleware.base.AssertionFailedException;
 
 /**
  * Simple implementation of BucketManager interface.
@@ -34,248 +34,281 @@ import littleware.asset.server.LittleTransaction;
  * but check all roots if bucket not found there.
  */
 public class SimpleBucketManager implements BucketManager {
-    private static final Logger   olog_generic = Logger.getLogger ( SimpleBucketManager.class.getName () );
-    
-    private final  String                 os_root_root;
-    private final  String[]               ov_root;
-    private final AssetSearchManager      om_search;
-    private final AssetManager            om_asset;
-    private final Provider<LittleTransaction>      oprovideTrans;
-    
+
+    private static final Logger log = Logger.getLogger(SimpleBucketManager.class.getName());
+    private final String[] bucketRoots;
+    private final AssetSearchManager search;
+    private final AssetManager assetMgr;
+    private final Provider<LittleTransaction> provideTrans;
+
     /** 
      * Contructor takes user-suppled AssetSearchManager
      *
-     * @param m_search to lookup asset info with
-     * @param m_asset to update asset when data added to bucket
+     * @param search to lookup asset info with
+     * @param assetMgr to update asset when data added to bucket
      */
     @Inject
-    public SimpleBucketManager ( AssetSearchManager m_search, AssetManager m_asset,
+    public SimpleBucketManager(AssetSearchManager search, AssetManager assetMgr,
             Provider<LittleTransaction> provideTrans,
-            @Named( "littleware.bucket.root" ) String s_root
-            ) {
-        om_search = m_search;
-        om_asset = m_asset;
-        oprovideTrans = provideTrans;
-        os_root_root = s_root;
-        ov_root = new String[] {
-            os_root_root + "/Library/LittlewareAssets/Volume1",
-            os_root_root + "/Library/LittlewareAssets/Volume2",
-            os_root_root + "/Library/LittlewareAssets/Volume3",
-            os_root_root + "/Library/LittlewareAssets/Volume4",
-            os_root_root + "/Library/LittlewareAssets/Volume5",
-            os_root_root + "/Library/LittlewareAssets/Volume6",
-            os_root_root + "/Library/LittlewareAssets/Volume7",
-            os_root_root + "/Library/LittlewareAssets/Volume8",
-            os_root_root + "/Library/LittlewareAssets/Volume9"
-            };
+            @Named("littleware.bucket.root") String bucketRoot) {
+        this.search = search;
+        this.assetMgr = assetMgr;
+        this.provideTrans = provideTrans;
+        this.bucketRoots = new String[]{
+                    bucketRoot + "/Library/LittlewareAssets/Volume1",
+                    bucketRoot + "/Library/LittlewareAssets/Volume2",
+                    bucketRoot + "/Library/LittlewareAssets/Volume3",
+                    bucketRoot + "/Library/LittlewareAssets/Volume4",
+                    bucketRoot + "/Library/LittlewareAssets/Volume5",
+                    bucketRoot + "/Library/LittlewareAssets/Volume6",
+                    bucketRoot + "/Library/LittlewareAssets/Volume7",
+                    bucketRoot + "/Library/LittlewareAssets/Volume8",
+                    bucketRoot + "/Library/LittlewareAssets/Volume9"
+                };
     }
-    
-    
+
     /** 
      * Simple first-pass system for assigning a bucket-path to an asset.
      * 
-     * @param a_in Asset that needs a new bucket
+     * @param asset Asset that needs a new bucket
      * @return File specifying a directory which may be used as the asset&apos;s bucket -
      *            the directory may not yet exist
      */
-    public  File  getBucketPath ( Asset a_in ) {
-        String s_default_root = ov_root[ Math.abs( a_in.getId ().hashCode () % ov_root.length ) ];
-        File   file_root = new File ( s_default_root );
-        
-        if ( ! file_root.exists () ) { // check the other roots just 2b safe
-            File  file_check = null;
-            for ( String s_root : ov_root ) {
-                file_check = new File( s_root );
-                if ( file_check.exists () ) {
+    public File getBucketPath(Asset asset) {
+        final String s_default_root = bucketRoots[Math.abs(asset.getId().hashCode() % bucketRoots.length)];
+        File file_root = new File(s_default_root);
+
+        if (!file_root.exists()) { // check the other roots just 2b safe
+            File file_check = null;
+            for (String s_root : bucketRoots) {
+                file_check = new File(s_root);
+                if (file_check.exists()) {
                     file_root = file_check;
                     break;
                 }
             }
         }
-        return new File ( file_root, UUIDFactory.makeCleanString ( a_in.getId () ) + "/userdata" );
+        return new File(file_root, UUIDFactory.makeCleanString(asset.getId()) + "/userdata");
     }
-                
-              
 
-    
     @Override
-    public Bucket getBucket ( UUID u_asset ) throws BaseException, GeneralSecurityException,
-                                AssetException, RemoteException, BucketException, IOException
-    {
-        Asset        a_bucket = om_search.getAsset ( u_asset ).get();
-        File         file_bucket = getBucketPath ( a_bucket );
-        SortedSet<String> v_members = new TreeSet<String> ();
-        
-        if ( file_bucket.exists () ) {
-            Collections.addAll ( v_members, file_bucket.list () );
+    public Bucket getBucket(UUID assetId) throws BaseException, GeneralSecurityException,
+            AssetException, RemoteException, BucketException, IOException {
+        final Asset asset = search.getAsset(assetId).get();
+        final File bucketFile = getBucketPath(asset);
+        final SortedSet<String> memberSet = new TreeSet<String>();
+
+        if (bucketFile.exists()) {
+            Collections.addAll(memberSet, bucketFile.list());
         }
-        return new SimpleBucket ( a_bucket.getId (), v_members );
+        return new SimpleBucket(asset.getId(), memberSet);
     }
-    
-    
 
-    @Override
-    public <T extends Asset> T writeToBucket ( T a_in, String s_path,
-                                  String s_data, String s_update_comment 
-                                  ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException
-    {
-        return writeToBucket ( a_in, s_path, s_data.getBytes ( "UTF-8" ), s_update_comment );
-    }
-    
     /**
      * Little internal utility - make sure a path does not contain 
      * illegal characters.
      *
-     * @param s_path into bucket to check
+     * @param path into bucket to check
      * @exception IllegalBucketPathException if path is illegal
      */
-    public void checkBucketPath ( String s_path ) throws IllegalBucketPathException {
-        if ( (null == s_path)
-             || (0 <= s_path.indexOf ( '/' ))
-             || (0 <= s_path.indexOf ( '\\' ))
-             || s_path.startsWith ( "." )
-             ) {
-            throw new IllegalBucketPathException ( "Illegal path: " + s_path );
+    public void checkBucketPath(String path) throws IllegalBucketPathException {
+        if ((null == path)
+                || (0 <= path.indexOf('/'))
+                || (0 <= path.indexOf('\\'))
+                || path.startsWith(".")) {
+            throw new IllegalBucketPathException("Illegal path: " + path);
         }
-    }        
+    }
 
     @Override
-    public <T extends Asset> T writeToBucket ( T a_bucket, String s_path,
-                                byte[] v_data, String s_update_comment
-                                ) throws BaseException, GeneralSecurityException,
-        AssetException, IOException, RemoteException, BucketException
-    {
-        checkBucketPath ( s_path );
-        final LittleTransaction trans = oprovideTrans.get();
-        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
+    public <T extends Asset> T writeToBucket(T asset, String path,
+            byte[] data, long offset, String updateComment) throws BaseException, GeneralSecurityException,
+            AssetException, IOException, RemoteException, BucketException {
+        checkBucketPath(path);
+        final LittleTransaction trans = provideTrans.get();
+        final Map<UUID, Asset> v_cache = trans.startDbAccess();
         try {
             // increment transaction count before writing anything - verify write permission
-            olog_generic.log ( Level.FINE, "Writing to bucket " + a_bucket + ", path: " + s_path );
-            final Asset result = om_asset.saveAsset( a_bucket, s_update_comment );
+            log.log(Level.FINE, "Writing to bucket {0}, path: {1}", new Object[]{asset, path});
+            final Asset result = assetMgr.saveAsset(asset, updateComment);
 
-            File              file_parent = getBucketPath ( a_bucket );
-            
-            if ( ! file_parent.exists () ) {
-                file_parent.mkdirs ();
+            final File parentFile = getBucketPath(asset);
+            if (!parentFile.exists()) {
+                parentFile.mkdirs();
             }
-            
-            final File              file_data = new File ( file_parent, s_path );
-            final FileOutputStream  streamout_data = new FileOutputStream ( file_data );
-            
+
+            final File dataFile = new File(parentFile, path);
+            final FileOutputStream dataStream = new FileOutputStream(dataFile, true);
+
             try {
-                streamout_data.write ( v_data );
+                dataStream.getChannel().position(offset);
+                dataStream.write(data);
             } finally {
-                streamout_data.close ();
+                dataStream.close();
             }
             return (T) result;
         } finally {
-            trans.endDbAccess ( v_cache );
+            trans.endDbAccess(v_cache);
         }
     }
-    
 
-    @Override
-    public String readTextFromBucket ( UUID u_asset, String s_path 
-                                       ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException
-    {
-        return new String ( readBytesFromBucket ( u_asset, s_path ), "UTF-8" );
+    public static class SimpleReadInfo implements ReadInfo, Serializable {
+        private  byte[] data;
+        private  long offset;
+        private  long size;
+
+        /** For serializable */
+        public SimpleReadInfo() {}
+
+        public SimpleReadInfo( byte[] data, long offset, long size ) {
+            this.data = data;
+            this.offset = offset;
+            this.size = size;
+        }
+        @Override
+        public byte[] getBuffer() {
+            return data;
+        }
+
+        @Override
+        public long getOffset() {
+            return offset;
+        }
+
+        @Override
+        public long getSize() {
+            return size;
+        }
+
     }
-    
 
     @Override
-    public byte[] readBytesFromBucket ( UUID u_asset, String s_path 
-                                        ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException
-    {
-        checkBucketPath ( s_path );
-        final LittleTransaction trans = oprovideTrans.get();
-        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
+    public ReadInfo readBytesFromBucket(UUID assetId, String path, long offset, int maxBuf) throws BaseException, GeneralSecurityException,
+            AssetException, RemoteException, BucketException, IOException {
+        if (maxBuf < 10) {
+            throw new IllegalArgumentException("Invalid max buffer: " + maxBuf);
+        }
+        checkBucketPath(path);
+        final LittleTransaction trans = provideTrans.get();
+        final Map<UUID, Asset> cache = trans.startDbAccess();
         try {
-            Asset             a_bucket = om_search.getAsset ( u_asset ).get();
-            File              file_data = new File ( getBucketPath ( a_bucket ), s_path );
-            FileInputStream  streamin_data = new FileInputStream ( file_data );
+            final Asset asset = search.getAsset(assetId).get();
+            final File dataFile = new File(getBucketPath(asset), path);
+            final RandomAccessFile dataStream = new RandomAccessFile(dataFile, "r");
             try {
-                byte[]         v_data = new byte[ streamin_data.available () ];
-                streamin_data.read ( v_data );
-                return v_data;
+                final long  fileSize = dataStream.length();
+                final byte[] data;
+                {
+                    int bufSize;
+                    if (maxBuf < getMaxBufferSize()) {
+                        bufSize = maxBuf;
+                    } else {
+                        bufSize = getMaxBufferSize();
+                    }
+                    if ( bufSize > fileSize - offset ) {
+                        bufSize = (int) (fileSize - offset);
+                    }
+                    data = new byte[bufSize];
+                }
+                
+                dataStream.seek(offset);
+                if ( dataStream.read(data) < data.length ) {
+                    throw new AssertionFailedException( "Failed to fill buffer" );
+                }
+                return new SimpleReadInfo( data, offset, fileSize );
             } finally {
-                streamin_data.close ();
+                dataStream.close();
             }
         } finally {
-            trans.endDbAccess ( v_cache );
-        }        
+            trans.endDbAccess(cache);
+        }
     }
-    
 
     @Override
-    public <T extends Asset> T eraseFromBucket ( T a_bucket, String s_path,
-                                   String s_update_comment
-                                    ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException
-    {
-        checkBucketPath ( s_path );
-        final LittleTransaction trans = oprovideTrans.get();
-        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
+    public <T extends Asset> T eraseFromBucket(T a_bucket, String s_path,
+            String s_update_comment) throws BaseException, GeneralSecurityException,
+            AssetException, RemoteException, BucketException, IOException {
+        checkBucketPath(s_path);
+        final LittleTransaction trans = provideTrans.get();
+        final Map<UUID, Asset> cache = trans.startDbAccess();
         try {
-            File              file_data = new File ( getBucketPath ( a_bucket ), s_path );
-            
-            if ( ! file_data.exists () ) {
+            final File dataFile = new File(getBucketPath(a_bucket), s_path);
+
+            if (!dataFile.exists()) {
                 return a_bucket;
             }
-            final Asset result = om_asset.saveAsset( a_bucket, s_update_comment );
-            file_data.delete ();
+            final Asset result = assetMgr.saveAsset(a_bucket, s_update_comment);
+            dataFile.delete();
             return (T) result;
         } finally {
-            trans.endDbAccess ( v_cache );
-        }        
+            trans.endDbAccess(cache);
+        }
     }
-    
 
     @Override
-    public <T extends Asset> T renameFile ( T a_bucket, String s_start_path, String s_rename_path,
-                               String s_update_comment
-                               ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException
-    {
-        checkBucketPath ( s_start_path );
-        checkBucketPath ( s_rename_path );
-        final LittleTransaction trans = oprovideTrans.get();
-        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
+    public <T extends Asset> T renameFile(T asset, String startPath, String renamePath,
+            String updateComment) throws BaseException, GeneralSecurityException,
+            AssetException, RemoteException, BucketException, IOException {
+        checkBucketPath(startPath);
+        checkBucketPath(renamePath);
+        final LittleTransaction trans = provideTrans.get();
+        final Map<UUID, Asset> v_cache = trans.startDbAccess();
         try {
-            final File              file_data = new File ( getBucketPath ( a_bucket ), s_start_path );
-            final File              file_rename = new File ( getBucketPath ( a_bucket ), s_rename_path );
-            if ( ! file_data.exists () ) {
-                return a_bucket;
+            final File file_data = new File(getBucketPath(asset), startPath);
+            final File file_rename = new File(getBucketPath(asset), renamePath);
+            if (!file_data.exists()) {
+                return asset;
             }
             // verify write permission before doing the rename
-            final Asset result = om_asset.saveAsset( a_bucket, s_update_comment );
-            file_data.renameTo ( file_rename );
+            final Asset result = assetMgr.saveAsset(asset, updateComment);
+            file_data.renameTo(file_rename);
             return (T) result;
         } finally {
-            trans.endDbAccess ( v_cache );
-        }                
+            trans.endDbAccess(v_cache);
+        }
     }
-    
 
     @Override
-    public <T extends Asset> T copyFile ( UUID u_in, String s_in_path,
-                            T a_out, String s_copy_path,
-                            String s_update_comment
-                             ) throws BaseException, GeneralSecurityException,
-        AssetException, RemoteException, BucketException, IOException
-    {
-        final LittleTransaction trans = oprovideTrans.get();
-        final Map<UUID,Asset> v_cache = trans.startDbAccess ();
+    public <T extends Asset> T copyFile(UUID sourceId, String sourcePath,
+            T destAsset, String destPath,
+            String updateComment) throws BaseException, GeneralSecurityException,
+            RemoteException, BucketException, IOException {
+        final LittleTransaction trans = provideTrans.get();
+        final Map<UUID, Asset> cache = trans.startDbAccess();
+        final T result = assetMgr.saveAsset(destAsset, updateComment);
         try {
             // Do a read, then a write
-            byte[] v_data = readBytesFromBucket ( u_in, s_in_path );
-            return writeToBucket ( a_out, s_copy_path, v_data, s_update_comment );
+            checkBucketPath( sourcePath );
+            checkBucketPath( destPath );
+            final File inFile = new File(
+                    getBucketPath( search.getAsset( sourceId ).get() ),
+                    sourcePath
+                    );
+            final File outFile = new File(
+                    getBucketPath( result ),
+                    destPath
+                    );
+            final FileInputStream inStream = new FileInputStream( inFile );
+            try {
+                final FileOutputStream outStream = new FileOutputStream( outFile );
+                try {
+                    final FileChannel inChannel = inStream.getChannel();
+                    final FileChannel outChannel = outStream.getChannel();
+                    inChannel.transferTo(0, inChannel.size(), outChannel);
+                } finally {
+                    outStream.close();
+                }
+            } finally {
+                inStream.close();
+            }
         } finally {
-            trans.endDbAccess ( v_cache );
-        }                            
+            trans.endDbAccess(cache);
+        }
+        return result;
+    }
+
+    @Override
+    public int getMaxBufferSize() {
+        return 1024 * 1024;
     }
 }
-
-

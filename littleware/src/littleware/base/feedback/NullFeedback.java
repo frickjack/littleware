@@ -18,10 +18,10 @@ import java.util.logging.Level;
  * Feedback just fires PropertyChangeEvents and LittleEvents
  * on method calls - doesn't do anything else.
  */
-public class NullFeedback implements Feedback, java.io.Serializable {
+public class NullFeedback implements Feedback, LittleTool, java.io.Serializable {
     private static final long serialVersionUID = -8172928920832788511L;
 
-    private SimpleLittleTool  osupport = new SimpleLittleTool( this );
+    private final SimpleLittleTool  osupport = new SimpleLittleTool( this );
 
     private int oi_progress = 0;
 
@@ -97,6 +97,63 @@ public class NullFeedback implements Feedback, java.io.Serializable {
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listen_props) {
         osupport.removePropertyChangeListener( listen_props );
+    }
+
+    private static class NestedFeedback extends NullFeedback {
+        private final NullFeedback parent;
+        private final double scale;
+        private final int offset;
+
+        public NestedFeedback( NullFeedback parent, int offset, double scale ) {
+            this.parent = parent;
+            this.scale = scale;
+            this.offset = offset;
+        }
+
+        @Override
+        public void setProgress(int progress) {
+            super.setProgress( progress );
+            parent.setProgress( (int) (offset + progress * scale));
+        }
+
+        @Override
+        public void setProgress(int progress, int max) {
+            super.setProgress( progress, max );
+            parent.setProgress( (int) (offset + getProgress() * scale));
+        }
+
+        @Override
+        public Feedback nested(int progress, int max) {
+            return super.nested( progress, max );
+        }
+
+        @Override
+        public void setTitle(String s_title) {
+            super.setTitle( s_title );
+            parent.info( "Nested title: " + s_title );
+        }
+
+        @Override
+        public void publish(Object result) {
+            super.publish( result );
+            parent.publish( result );
+        }
+
+        @Override
+        public void log(Level level, String info) {
+            parent.log(level, info);
+        }
+
+        @Override
+        public void info(String info) {
+            parent.info( info );
+        }
+
+    }
+
+    @Override
+    public Feedback nested( int progress, int max) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

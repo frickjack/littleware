@@ -33,12 +33,16 @@ public class PackageTestSuite extends TestSuite {
     @Inject
     public PackageTestSuite( Provider<WhateverTester> provideWhatever,
             Provider<FbIteratorTester> provideFbTester,
-            Provider<PropLoaderTester> providePropTester
+            Provider<PropLoaderTester> providePropTester,
+            NullFeedbackTester nullFbTester
             ) {
         super( PackageTestSuite.class.getName() );
 
         boolean b_run = true;
 
+        if ( b_run ) {
+            this.addTest( nullFbTester );
+        }
         if ( b_run ) {
             this.addTest( providePropTester.get() );
         }
@@ -80,12 +84,10 @@ public class PackageTestSuite extends TestSuite {
     /**
      * Run through the various lilttleware.sql test cases
      */
-    public static void main(String[] v_args) {
-        String[] v_launch_args = {"-noloading", "littleware.base.test.PackageTestSuite"};
-
-        log.setLevel(Level.ALL);  // log everything during testing
-        junit.swingui.TestRunner.main(v_launch_args);
-        //junit.textui.TestRunner.main( v_launch_args );
+    public static void main(String[] argsIn) {
+        final String[] testArgs = {"-noloading", "littleware.base.test.PackageTestSuite"};
+        
+        junit.swingui.TestRunner.main(testArgs);
     }
 }
 

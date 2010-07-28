@@ -104,10 +104,10 @@ public class NullFeedback implements Feedback, LittleTool, java.io.Serializable 
         private final double scale;
         private final int offset;
 
-        public NestedFeedback( NullFeedback parent, int offset, double scale ) {
+        public NestedFeedback( NullFeedback parent, double scale ) {
             this.parent = parent;
             this.scale = scale;
-            this.offset = offset;
+            this.offset = parent.getProgress();
         }
 
         @Override
@@ -148,12 +148,12 @@ public class NullFeedback implements Feedback, LittleTool, java.io.Serializable 
         public void info(String info) {
             parent.info( info );
         }
-
     }
 
     @Override
     public Feedback nested( int progress, int max) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // bla
+        return new NestedFeedback( this, progress/ (double) max );
     }
 
 }

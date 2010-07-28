@@ -54,7 +54,7 @@ public class SwingFeedbackBuilder implements Provider<FeedbackBundle>{
             final Appendable appender,
             final Logger log) {
         jprogress.setMaximum(100 + 1);
-        final Feedback feedback = new NullFeedback();
+        final NullFeedback feedback = new NullFeedback();
         SwingAdapter.get().dispatchWrap(
                 new PropertyChangeListener() {
 
@@ -70,7 +70,8 @@ public class SwingFeedbackBuilder implements Provider<FeedbackBundle>{
                             jprogress.setValue((Integer) evt.getNewValue());
                         }
                     }
-                }, feedback);
+                }, feedback
+                        );
 
         feedback.addLittleListener(
                 new LittleListener() {

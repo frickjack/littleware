@@ -40,9 +40,10 @@ public class SimpleBucketService extends SimpleLittleService implements BucketMa
         this.server = server;
     }
 
+    private final Integer maxBuff = 1024*1024;
     @Override
-    public int getMaxBufferSize() {
-        return 1024*1024;
+    public Integer getMaxBufferSize() {
+        return maxBuff;
     }
 
     @Override

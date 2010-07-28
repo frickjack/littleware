@@ -307,8 +307,10 @@ public class SimpleBucketManager implements BucketManager {
         return result;
     }
 
+    private final Integer maxBuff = 1024*1024;
+
     @Override
-    public int getMaxBufferSize() {
-        return 1024 * 1024;
+    public Integer getMaxBufferSize() {
+        return maxBuff;
     }
 }

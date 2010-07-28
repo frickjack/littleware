@@ -14,9 +14,14 @@ import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import littleware.asset.*;
-import littleware.apps.filebucket.*;
-import littleware.base.*;
+import littleware.apps.filebucket.Bucket;
+import littleware.apps.filebucket.BucketManager;
+import littleware.apps.filebucket.BucketUtil;
+import littleware.asset.Asset;
+import littleware.asset.AssetManager;
+import littleware.asset.AssetSearchManager;
+import littleware.asset.AssetType;
+import littleware.base.BaseException;
 import littleware.base.feedback.Feedback;
 import littleware.test.LittleTest;
 
@@ -105,7 +110,7 @@ public class BucketTester extends LittleTest {
             Bucket bucket = bucketMgr.getBucket(testAsset.getId());
             assertTrue("Bucket tracks right asset", bucket.getAssetId().equals(testAsset.getId()));
             assertTrue("Bucket starts empty", bucket.getPaths().isEmpty());
-            testAsset = bucketMgr.writeToBucket(testAsset, "test1", testData, "writing test data");
+            testAsset = bucketUtil.writeText(testAsset, "test1", testData, "writing test data", feedback );
             bucket = bucketMgr.getBucket(testAsset.getId());
 
             assertTrue("Bucket has a path now", bucket.getPaths().contains("test1"));
@@ -113,13 +118,15 @@ public class BucketTester extends LittleTest {
             bucket = bucketMgr.getBucket(testAsset.getId());
 
             assertTrue("Rename went ok", bucket.getPaths().contains("test_rename") && (bucket.getPaths().size() == 1));
-            testAsset = bucketMgr.writeToBucket(testAsset, "test1", testData + testData, "write another test file to the bucket");
+            testAsset = bucketUtil.writeText(testAsset, "test1", testData + testData,
+                                    "write another test file to the bucket", feedback
+                                    );
             bucket = bucketMgr.getBucket(testAsset.getId());
 
             assertTrue("Bucket with multiple files went ok", bucket.getPaths().contains("test_rename") && bucket.getPaths().contains("test1") && (bucket.getPaths().size() == 2));
 
-            String s_data = bucketMgr.readTextFromBucket(testAsset.getId(), "test_rename");
-            assertTrue("Got expected data from bucket: " + s_data, s_data.equals(testData));
+            final String readData = bucketUtil.readText(testAsset.getId(), "test_rename", feedback );
+            assertTrue("Got expected data from bucket: " + readData, readData.equals(testData));
             testAsset = bucketMgr.eraseFromBucket(testAsset, "test_rename", "erase some test data");
             bucket = bucketMgr.getBucket(testAsset.getId());
 
@@ -129,9 +136,9 @@ public class BucketTester extends LittleTest {
             bucket = bucketMgr.getBucket(testAsset.getId());
 
             assertTrue("Erase to empty ok", bucket.getPaths().isEmpty());
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Caught: " + e + ", " + BaseException.getStackTrace(e));
-            assertTrue("Caught: " + e, false);
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Caught exception", ex );
+            fail("Caught: " + ex );
         }
     }
 }

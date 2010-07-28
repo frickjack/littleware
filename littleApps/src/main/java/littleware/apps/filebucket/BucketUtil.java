@@ -45,7 +45,10 @@ public interface BucketUtil {
                                        ) throws BaseException, GeneralSecurityException,
         RemoteException, IOException;
 
-    public void readToFile( UUID assetId, String bucketPath, File destination
+    /**
+     * Destination must not exist, destination parent must exist
+     */
+    public void readToFile( UUID assetId, String bucketPath, File destination, Feedback feedback
                                        ) throws BaseException, GeneralSecurityException,
         RemoteException, IOException;
 
@@ -58,7 +61,7 @@ public interface BucketUtil {
             ) throws BaseException, GeneralSecurityException,
             RemoteException, IOException;
 
-    public <T extends Asset> T writeFile( T asset, String bucketPath,
+    public <T extends Asset> T writeFromFile( T asset, String bucketPath,
             File source, String updateComment, Feedback feedback
             ) throws BaseException, GeneralSecurityException,
             RemoteException, IOException;

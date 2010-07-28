@@ -23,6 +23,7 @@ import java.security.GeneralSecurityException;
 import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.apps.filebucket.BucketManager;
+import littleware.apps.filebucket.BucketUtil;
 import littleware.apps.tracker.Member;
 import littleware.apps.tracker.MemberIndex;
 import littleware.apps.tracker.ProductManager;
@@ -40,14 +41,17 @@ public class SimpleProductManager implements ProductManager {
     private final AssetManager assetMan;
     private final AssetSearchManager search;
     private final ZipUtil zipUtil;
+    private final BucketUtil bucketUtil;
 
     @Inject
     public SimpleProductManager( BucketManager bucketMan,
+            BucketUtil bucketUtil,
             AssetManager assetMan,
             AssetSearchManager search,
             ZipUtil zipUtil
             ) {
         this.bucketMan = bucketMan;
+        this.bucketUtil = bucketUtil;
         this.assetMan = assetMan;
         this.search = search;
         this.zipUtil = zipUtil;
@@ -64,16 +68,10 @@ public class SimpleProductManager implements ProductManager {
             throw new IllegalArgumentException( "Destionation folder is not a directory: " + destinationFolder.getAbsolutePath() );
         }
         feedback.info( "Retrieving zipfile from member for checkout ..." );
-        final byte[] buffer = bucketMan.readBytesFromBucket(memberId, zipPath);
         final File   tempZip = File.createTempFile("checkout", ".zip" );
-        final OutputStream out = new FileOutputStream( tempZip );
-        try {
-            out.write(buffer);
-        } finally {
-            out.close();
-        }
+        bucketUtil.readToFile(memberId, zipPath, tempZip, feedback.nested( 8, 10 ) );
         feedback.info( "Unzipping ..." );
-        zipUtil.unzip(tempZip, destinationFolder, feedback);
+        zipUtil.unzip(tempZip, destinationFolder, feedback.nested(10, 10));
     }
 
     @Override
@@ -107,14 +105,16 @@ public class SimpleProductManager implements ProductManager {
             zipIn.close();
         }
         feedback.info( "Saving zip file to asset bucket" );
-        member = bucketMan.writeToBucket(member, zipPath, byteStream.toByteArray(),
-                        "Saving bucket data to " + zipPath
-                        );
+        member = bucketUtil.writeFromFile(member, zipPath, info.getZipFile(),
+                "Saving bucket data to " + zipPath,
+                feedback.nested( 8, 10 )
+                );
         feedback.setProgress(9,10);
         feedback.info( "Saving zip index" );
-        member = bucketMan.writeToBucket(member, indexPath, 
+        member = bucketUtil.writeText(member, indexPath,
                 zipUtil.pickle(info.getIndex()), 
-                comment);
+                comment, feedback.nested( 9, 10 )
+                );
         feedback.setProgress(10,10);
         return member;
     }

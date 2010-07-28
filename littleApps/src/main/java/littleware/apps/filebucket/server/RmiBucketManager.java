@@ -70,7 +70,7 @@ public class RmiBucketManager extends LittleRemoteObject implements BucketManage
     }
 
     @Override
-    public int getMaxBufferSize() {
+    public Integer getMaxBufferSize() throws RemoteException {
         return proxyMgr.getMaxBufferSize();
     }
 }

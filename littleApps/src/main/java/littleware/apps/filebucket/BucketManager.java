@@ -48,7 +48,7 @@ public interface BucketManager extends Remote {
      * The BucketUtil includes methods to aggregate larger buffers
      * into multiple calls.
      */
-    public int getMaxBufferSize();
+    public Integer getMaxBufferSize() throws RemoteException;
     
     /**
      * Save the given asset, and add a file to the bucket or overwrite an existing file.

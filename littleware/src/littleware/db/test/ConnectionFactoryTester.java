@@ -68,13 +68,10 @@ public class ConnectionFactoryTester extends LittleTest {
             assertTrue("Resultset.getString(1) == Hello",
                     "Hello".equalsIgnoreCase(rset.getString(1))
                     );
-            log.log(Level.INFO, "Test query worked, got: " + rset.getString(1));
-        } catch (LittleSqlException e) {
-            log.log(Level.SEVERE, "Caught unexpected: " + e);
-            assertTrue("Caught unexpected: " + e, false);
-        } catch (SQLException e) {
-            log.log(Level.SEVERE, "Caught unexpected: " + e);
-            assertTrue("Caught unexpected: " + e, false);
+            log.log(Level.INFO, "Test query worked, got: {0}", rset.getString(1));
+        } catch (Exception ex) {
+            log.log(Level.SEVERE, "Failed test", ex );
+            assertTrue("Caught unexpected: " + ex, false);
         } finally {
             Janitor.cleanupSession(rset, stmt, conn);
         }
@@ -90,8 +87,9 @@ public class ConnectionFactoryTester extends LittleTest {
                 proxyHandler.getDataSource() != dsource
                 );
         final DataSource remember = proxyHandler.getDataSource();
+        final String     rememberUrl = proxyHandler.getJdbcUrl();
         try {
-            proxyHandler.setDataSource(null);
+            proxyHandler.setDataSource(null,null);
             // should get null-pointer exception via proxy DataSource now
             try {
                 dsource.getConnection();
@@ -99,7 +97,7 @@ public class ConnectionFactoryTester extends LittleTest {
             } catch( Exception ex ) {
             }
         } finally {
-            proxyHandler.setDataSource( remember );
+            proxyHandler.setDataSource( remember, rememberUrl );
         }
     }
 }

@@ -63,9 +63,11 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
     private static class Handler implements DataSourceHandler {
 
         private DataSource dsource;
+        private String jdbcUrl;
 
-        public Handler(DataSource dsource) {
+        public Handler(DataSource dsource, String jdbcUrl ) {
             this.dsource = dsource;
+            this.jdbcUrl = jdbcUrl;
         }
 
         @Override
@@ -74,13 +76,19 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
         }
 
         @Override
-        public void setDataSource(DataSource value) {
+        public void setDataSource(DataSource value, String jdbcUrl ) {
             this.dsource = value;
+            this.jdbcUrl = jdbcUrl;
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             return method.invoke(dsource, args);
+        }
+
+        @Override
+        public String getJdbcUrl() {
+            return jdbcUrl;
         }
     }
 
@@ -111,17 +119,17 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
                 data.setMaximumConnectionCount(30);
                 data.setSimultaneousBuildThrottle(10);
                 data.setMaximumActiveTime(60000);
-                return new Handler(data);
+                return new Handler(data,url);
             } else {
                 org.apache.derby.jdbc.EmbeddedDataSource40 data = new org.apache.derby.jdbc.EmbeddedDataSource40();
                 data.setDatabaseName(url.substring("jdbc:derby:".length()));
-                return new Handler(data);
+                return new Handler(data, url);
             }
         } else if (url.startsWith("jdbc:oracle:")) {
             try {
                 final OracleDataSource data = new OracleDataSource();
                 data.setURL(url);
-                return new Handler(data);
+                return new Handler(data, url);
             } catch (Exception ex) {
                 throw new IllegalArgumentException("Failed ORACLE setup " + url, ex);
             }
@@ -145,15 +153,15 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
             data.setPassword(s_password);
             data.setMaximumConnectionCount(10);
             data.setMaximumActiveTime(60000);
-            return new Handler(data);
+            return new Handler(data,url);
         } else if (url.startsWith("jdbc:mysql:")) {
             com.mysql.jdbc.jdbc2.optional.MysqlDataSource data = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
             data.setURL(url);
-            return new Handler(data);
+            return new Handler(data,url);
         } else if (url.startsWith("jndi:")) {
             try {
                 final DataSource data = (DataSource) new InitialContext().lookup(url.substring("jndi:".length()));
-                return new Handler(data);
+                return new Handler(data,url);
             } catch (NamingException ex) {
                 throw new IllegalArgumentException("Failed JNDI lookup for " + url, ex);
             }

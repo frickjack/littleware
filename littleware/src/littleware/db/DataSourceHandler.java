@@ -22,8 +22,9 @@ import javax.sql.DataSource;
 public interface DataSourceHandler extends InvocationHandler {
 
     public DataSource getDataSource();
+    public String     getJdbcUrl();
 
-    public void setDataSource(DataSource value);
+    public void setDataSource(DataSource value, String jdbcUrl );
 
     @ImplementedBy(GeneralDSHBuilder.class)
     public interface DSHBuilder {

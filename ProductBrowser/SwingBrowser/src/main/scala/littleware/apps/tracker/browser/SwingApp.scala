@@ -10,6 +10,7 @@
 
 package littleware.apps.tracker.browser
 
+import com.google.inject.Inject
 import edu.auburn.library.util.JclWrapper._
 import java.net.URL
 import java.util.Properties
@@ -18,6 +19,7 @@ import javax.swing.JPanel
 import littleware.apps.swingbase.SwingBaseModule
 import littleware.apps.swingbase.view.BaseView
 import littleware.bootstrap.client.ClientBootstrap
+import littleware.security.auth.client.ClientLoginModule
 
 object SwingApp {
 
@@ -42,6 +44,8 @@ object SwingApp {
       val boot = ClientBootstrap.clientProvider.get.addModuleFactory(
         swingBase
       ).build
+      //val loginConfig = ClientLoginModule.newBuilder.build
+      invokeLater( () => boot.automatic.bootstrap( classOf[Main] ).run )
     }
   )
 }

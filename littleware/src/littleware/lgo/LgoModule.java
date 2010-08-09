@@ -16,8 +16,9 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
@@ -31,7 +32,8 @@ import org.osgi.framework.BundleContext;
  * application.  Sets up easy Lgo implementation.
  */
 public class LgoModule extends AbstractClientModule implements LgoServiceModule {
-
+    private static final Logger log = Logger.getLogger( LgoModule.class.getName() );
+    
     public static class Factory implements AppModuleFactory {
 
         @Override
@@ -95,6 +97,7 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
             for( AppModule module : bootstrap.getModuleSet() ) {
                 if ( module instanceof LgoServiceModule ) {
                     for( Class<? extends LgoCommand> commandClass : ((LgoServiceModule) module).getLgoCommands() ) {
+                        log.log( Level.FINE, "Register lgo command: " + commandClass.getName() );
                         commandMgr.setCommand(helpMgr, (Provider<? extends LgoCommand<?, ?>>) injector.getProvider(commandClass));
                     }
                 }

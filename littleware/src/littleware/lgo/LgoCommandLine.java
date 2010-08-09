@@ -7,12 +7,8 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.lgo;
+package littleware.lgo;
 
-import littleware.lgo.LgoHelpLoader;
-import littleware.lgo.LgoCommandDictionary;
-import littleware.lgo.LgoException;
-import littleware.lgo.LgoCommand;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,12 +18,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import javax.security.auth.login.LoginException;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
-import littleware.base.EventBarrier;
-import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.bootstrap.client.ClientBootstrap;
@@ -69,24 +62,34 @@ public class LgoCommandLine {
         final LgoCommand<?, ?> command = commandMgr.buildCommand(sCommand);
         try {
             if (null == command) {
-                System.out.print(commandMgr.buildCommand("help").runCommandLine(feedback, ""));
+                final LgoCommand<?,?> help = commandMgr.buildCommand("help");
+                if ( null == help ) {
+                    throw new AssertionFailedException( "Failed to load Help command" );
+                }
+                System.out.print(help.runCommandLine(feedback, ""));
                 return 1;
             }
 
             command.processArgs(processArgs);
 
+            /*..
             if (command instanceof LgoBrowserCommand) {
                 // HACK!
                 // Hard-code browser command exception for now ...
                 final EventBarrier<Maybe<UUID>> barrier = ((LgoBrowserCommand) command).runCommand(feedback, sArg);
                 System.out.println(barrier.waitForEventData().toString());
-            } else {
+            } else 
+             * 
+             */
+            {
                 final String sResult = command.runCommandLine(feedback, sArg);
                 System.out.println((null == sResult) ? "null" : sResult);
             }
         } catch (Exception ex) {
-            System.out.println("Command failed, caught exception: "
-                    + BaseException.getStackTrace(ex));
+            System.out.println("Command failed, Frickjack!: "
+                    + BaseException.getStackTrace(ex)
+                    );
+
             try {
                 System.out.print(commandMgr.buildCommand("help").runCommand(feedback, command.getName()).toString());
             } catch (LgoException ex2) {
@@ -104,7 +107,6 @@ public class LgoCommandLine {
      * @return command exit code
      */
     public int run(String[] argsArray) {
-        log.log(Level.FINE, "Running on Swing dispatch thread");
         int iExitStatus = 0;
 
         try {
@@ -133,7 +135,7 @@ public class LgoCommandLine {
             iExitStatus = processCommand(command, cleanArgs, sb.toString().trim(), feedback);
         } catch (Exception e) {
             iExitStatus = 1;
-            log.log(Level.SEVERE, "Failed command, caught: " + e, e);
+            log.log(Level.SEVERE, "Failed command", e);
         }
         return iExitStatus;
     }

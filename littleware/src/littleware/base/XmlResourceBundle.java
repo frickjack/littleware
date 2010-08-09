@@ -8,7 +8,6 @@ package littleware.base;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -31,7 +29,7 @@ import java.util.logging.Level;
  * load from XML formated properties file.
  */
 public class XmlResourceBundle extends ResourceBundle {
-     private final static Logger  olog = Logger.getLogger( XmlResourceBundle.class.getName()  );
+     private final static Logger  log = Logger.getLogger( XmlResourceBundle.class.getName()  );
      private final Properties oprops;
      
      /**
@@ -49,6 +47,7 @@ public class XmlResourceBundle extends ResourceBundle {
          oprops = props;
      }
 
+    @Override
      protected Object handleGetObject(String key) {
          return oprops.getProperty(key);
      }
@@ -135,7 +134,7 @@ public class XmlResourceBundle extends ResourceBundle {
                     bundle_result = new PropertyResourceBundle(istream);
                     break;
                 } catch (Exception e) {
-                    olog.log(Level.WARNING, "Failed to load: " + s_search + ".xml, caught: " + e);
+                    log.log(Level.WARNING, "Failed to load: " + s_search + ".xml, caught: " + e);
                 } finally {
                     try {
                         istream.close();
@@ -160,13 +159,13 @@ public class XmlResourceBundle extends ResourceBundle {
      * @return search paths
      */
     public static List<String> getResourcePaths( String s_basename, Locale locale ) {
-        List<String> v_result = new ArrayList<String> ();
+        final List<String> v_result = new ArrayList<String> ();
         
         if ( null == locale ) {
             locale = Locale.getDefault();
         }
-        String s_variant = locale.getVariant ();
-        List<String> v_tokens = new ArrayList();
+        final String s_variant = locale.getVariant ();
+        final List<String> v_tokens = new ArrayList();
         v_tokens.addAll (
             Arrays.asList( new String[]{
                 s_basename, 

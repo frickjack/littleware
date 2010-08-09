@@ -9,6 +9,7 @@
  */
 package littleware.apps.lgo;
 
+import littleware.lgo.LgoCommandLine;
 import com.google.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;

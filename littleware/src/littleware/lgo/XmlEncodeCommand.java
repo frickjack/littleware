@@ -10,7 +10,6 @@
 
 package littleware.lgo;
 
-import littleware.lgo.LgoException;
 import java.util.logging.Logger;
 
 //import gnu.getopt.Getopt;
@@ -26,7 +25,7 @@ import littleware.base.feedback.Feedback;
  * XML encode/decode LgoCommand
  */
 public class XmlEncodeCommand extends AbstractLgoCommand<String,String> {
-    private static final Logger olog = Logger.getLogger( XmlEncodeCommand.class.getName () );
+    private static final Logger log = Logger.getLogger( XmlEncodeCommand.class.getName () );
     
     /**
      * Constructor just sets the command-name to this.class.getName,

@@ -13,9 +13,6 @@
 
 package littleware.lgo;
 
-import littleware.lgo.LgoHelp;
-import littleware.lgo.LgoHelpLoader;
-import littleware.lgo.LgoExample;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -63,7 +60,7 @@ import littleware.base.XmlResourceBundle;
  * @TODO implement test case
  */
 public class XmlLgoHelpLoader implements LgoHelpLoader {
-    private static final Logger olog = Logger.getLogger( XmlLgoHelpLoader.class.getName () );
+    private static final Logger log = Logger.getLogger( XmlLgoHelpLoader.class.getName () );
     public final static String  OS_XML_NAMESPACE = 
 		"http://www.littleware.com/xml/namespace/2008/helpdoc";
     /**
@@ -73,6 +70,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
         help, shortname, synopsis, description, example;
     }
     
+    @Override
     public LgoHelp loadHelp( String s_request, Locale locale) {
         String        s_basename = s_request.replaceAll( "\\.", "/" ) + "Help";
         List<String>  v_paths = XmlResourceBundle.getResourcePaths( s_basename, locale );
@@ -80,11 +78,11 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
         ClassLoader   cloader = XmlLgoHelpLoader.class.getClassLoader();
         String        s_path = "none found";
         for( String s_option : v_paths ) {
-            String s_check = s_option + ".xml";
-            olog.log( Level.FINE, "Searching for help file: " + s_check );
+            final String s_check = s_option + ".xml";
+            log.log( Level.FINE, "Searching for help file: " + s_check );
             istream_help = cloader.getResourceAsStream( s_check );
             if ( null != istream_help ) {
-                olog.log( Level.FINE, "Loading help file: " + s_check );
+                log.log( Level.FINE, "Loading help file: " + s_check );
                 s_path = s_check;
                 break;
             }
@@ -111,13 +109,14 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            olog.log( Level.WARNING, "Failure parsing resource: " + s_path + 
+            log.log( Level.WARNING, "Failure parsing resource: " + s_path +
                     ", caught: " + e 
                     );
         }
         return null;
     }
 
+    @Override
     public LgoHelp loadHelp( String s_basename ) {
         return loadHelp( s_basename, Locale.getDefault () );
     }
@@ -169,7 +168,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                         os_full_name = s_full_name;                        
                     } else {
                         os_full_name = os_not_loaded;
-                        olog.log( Level.WARNING, "XML help file does not have fullname attribute set on root help:help element");
+                        log.log( Level.WARNING, "XML help file does not have fullname attribute set on root help:help element");
                     }               
                 } else if ( s_simple.equals( XmlTag.example.toString() ) ) {
                     String s_title = v_attrs.getValue( "", "title" );
@@ -177,7 +176,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                         os_example_title = s_title;
                     } else {
                         os_example_title = os_not_loaded;
-                        olog.log( Level.WARNING, "XML help file does not have title attribute set on help:example element");
+                        log.log( Level.WARNING, "XML help file does not have title attribute set on help:example element");
                     }
                 }
             }            

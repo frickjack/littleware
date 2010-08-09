@@ -10,11 +10,6 @@
 
 package littleware.lgo;
 
-import littleware.lgo.LgoHelp;
-import littleware.lgo.LgoHelpLoader;
-import littleware.lgo.LgoCommandDictionary;
-import littleware.lgo.LgoCommand;
-import littleware.lgo.LgoExample;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.Collections;
@@ -73,9 +68,9 @@ public class EzHelpCommand extends AbstractLgoCommand<String,LgoHelp> {
             LgoCommandDictionary m_command
             ) 
     {
-        super( "littleware.apps.lgo.EzHelpCommand" );
-        om_command = m_command;
-        om_help = m_help;
+        super( "littleware.lgo.EzHelpCommand" );
+        this.om_command = m_command;
+        this.om_help = m_help;
     }
     
     

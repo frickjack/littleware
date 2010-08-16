@@ -28,11 +28,13 @@ import littleware.lgo.LgoArgException;
 /**
  * Create a generic asset that inherits most properties from its parent
  */
-public class CreateFolderCommand extends AbstractAssetCommand<String,Asset> {
+public class CreateFolderCommand { //extends AbstractAssetCommand<CreateFolderCommand.Input,Asset> {
     private final AssetSearchManager            osearch;
     private final AssetManager                  omgrAsset;
     private final AssetPathFactory              ofactoryPath;
     private final AssetType    otypeCreate;
+
+
     /**
      * Allow subtypes to specialize based on asset-type
      */
@@ -43,7 +45,7 @@ public class CreateFolderCommand extends AbstractAssetCommand<String,Asset> {
             HumanPicklerProvider providePickler
             )
     {
-        super( sName, providePickler );
+        //super( sName, providePickler );
         osearch = search;
         omgrAsset = mgrAsset;
         ofactoryPath = factoryPath;
@@ -72,13 +74,12 @@ public class CreateFolderCommand extends AbstractAssetCommand<String,Asset> {
      * @return id of new asset
      * @throws littleware.apps.lgo.LgoException
      */
-    @Override
     public Asset runSafe(Feedback feedback, String sDefaultPath ) throws LgoException {
         final Map<String,String> mapDefault = new HashMap<String,String>();
         mapDefault.put( Option.path.toString(), sDefaultPath );
         mapDefault.put( Option.comment.toString(), "no comment" );
 
-        final Map<String,String> mapArgs = processArgs( mapDefault, getArgs() );
+        final Map<String,String> mapArgs = null; //processArgs( mapDefault, getArgs() );
         for ( Option opt : Option.values() ) {
             if ( Whatever.get().empty( mapArgs.get( Option.path.toString() ) ) ) {
                 throw new LgoArgException( "Missing required argument: " + opt );

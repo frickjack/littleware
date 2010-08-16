@@ -11,7 +11,8 @@
 package littleware.apps.tracker.browser.controller
 
 import littleware.apps.tracker.Product
+import littleware.apps.tracker.browser.model.ProductData
 
 trait Controller {
-  def createProduct():Product
+  def createProduct( productData:ProductData ):Product
 }

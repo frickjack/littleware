@@ -12,6 +12,7 @@ package littleware.lgo;
 
 import com.google.inject.Provider;
 import java.util.Collection;
+import littleware.base.Maybe;
 
 /**
  * Interface for command parsers.
@@ -22,25 +23,22 @@ public interface LgoCommandDictionary {
      * Guess 1+ commands that the given partial
      * name might match or be intended to match.
      * 
-     * @param s_partial
+     * @param partial
      * @return zero or more possible commands
      */
-    public Collection<LgoCommand<?,?>> guessCommand( String s_partial );
+    public Collection<LgoCommand.LgoBuilder> guessCommand( String partial );
     
     /**
      * Build a command by name (full or short)
-     * 
-     * @return null if no match or single match     
      */
-    public LgoCommand<?,?> buildCommand( String s_name );
+    public Maybe<LgoCommand.LgoBuilder> buildCommand( String name );
     
     /**
      * Get the provider of a command if any
      * 
-     * @param s_name
-     * @return provider if registered or null if none
+     * @param name
      */
-    public Provider<? extends LgoCommand<?,?>> getProvider( String s_name );
+    public Maybe<Provider<LgoCommand.LgoBuilder>> getProvider( String name );
      
     /**
      * Associate the given provider with the given command-name
@@ -48,16 +46,16 @@ public interface LgoCommandDictionary {
      * @param s_name alias to map command to
      * @param command to map to s_name alias
      */
-    public void setCommand( String s_name, Provider<? extends LgoCommand<?,?>> provideCommand );
+    public void setCommand( String name, Provider<? extends LgoCommand.LgoBuilder> provideCommand );
 
     /**
      * Associate the given provider with the given command-name and
      * all the command aliases provided by the help info
      *
      * @param help info with full name and short names to associate with the command
-     * @param command to map to info aliases
+     * @param provideCommand to map to info aliases
      */
-    public void setCommand( LgoHelp help, Provider<? extends LgoCommand<?,?>> provideCommand );
+    public void setCommand( LgoHelp help, Provider<? extends LgoCommand.LgoBuilder> provideCommand );
 
     /**
      * Another utility - loads the help associated with command,
@@ -68,7 +66,7 @@ public interface LgoCommandDictionary {
      * @param command to register
      * @return loaded help - may be null
      */
-    public LgoHelp setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand<?,?>> provideCommand );
+    public LgoHelp setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand );
 
     /**
      * Get the collection of all the commands registered with
@@ -76,5 +74,5 @@ public interface LgoCommandDictionary {
      * 
      * @return collection of commands
      */
-    public Collection<Provider<? extends LgoCommand<?,?>>> getCommands();
+    public Collection<Provider<LgoCommand.LgoBuilder>> getCommands();
 }

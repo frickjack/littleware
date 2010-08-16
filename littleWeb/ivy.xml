@@ -21,7 +21,7 @@
     </publications>
     
     <dependencies>    
-      <dependency org="littleware" name="littleApps" rev="2.1" conf="compile->compile;client->client;standalone->standalone;server->server" />
+      <dependency org="littleware" name="littleApps" rev="2.2" conf="compile->compile;client->client;standalone->standalone;server->server" />
       <dependency org="org.easymock" name="easymock" rev="2.5.2" conf="compile,client,standalone->*"/>
       <dependency org="org.primefaces" name="primefaces" rev="2.0.2" conf="compile,server->*" />
       <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" />

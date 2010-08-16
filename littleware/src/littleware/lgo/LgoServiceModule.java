@@ -18,5 +18,5 @@ import java.util.Collection;
  * that allows auto-registration of lgo commands with the lgo command dictionary.
  */
 public interface LgoServiceModule {
-    public Collection<Class<? extends LgoCommand>> getLgoCommands();
+    public Collection<Class<? extends LgoCommand.LgoBuilder>> getLgoCommands();
 }

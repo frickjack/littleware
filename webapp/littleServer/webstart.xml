@@ -56,11 +56,11 @@
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
-        <param name="param.jarFile" value="littleApps-2.1-jar.jar" />
+        <param name="param.jarFile" value="littleApps-2.2-jar.jar" />
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">
-        <param name="param.jarFile" value="littleClient-2.1-jar.jar" />
+        <param name="param.jarFile" value="littleClient-2.2-jar.jar" />
         <param name="param.jarDir"  value="lib/client" />
         </antcall>
                   <antcall target="${param.target}">

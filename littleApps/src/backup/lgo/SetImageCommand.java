@@ -46,7 +46,7 @@ public class SetImageCommand extends AbstractLgoCommand<String,Boolean> {
             ImageManager mgrImage,
             AssetPathFactory factoryPath
             ) {
-        super( SetImageCommand.class.getName() );
+        super( SetImageCommand.class.getName(), null );
         osearch = search;
         omgrImage = mgrImage;
         ofactoryPath = factoryPath;
@@ -73,10 +73,10 @@ public class SetImageCommand extends AbstractLgoCommand<String,Boolean> {
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public Boolean runSafe(Feedback feedback, String sDefaultPath ) throws LgoException {
+    public Boolean runCommand(Feedback feedback ) throws LgoException {
         final Map<String,String> mapOption = Option.getMap();
-        mapOption.put( Option.path.toString(), sDefaultPath );
-        final Map<String,String> mapArgs = processArgs( mapOption, getArgs() );
+        mapOption.put( Option.path.toString(), getInput() );
+        final Map<String,String> mapArgs = null; //processArgs( mapOption, getArgs() );
         for ( Option option : Option.values() ) {
             if ( Whatever.get().empty( mapArgs.get( option.toString() ) )) {
                 throw new LgoArgException( "missing required arg: " + option );

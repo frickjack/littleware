@@ -40,7 +40,6 @@ import littleware.asset.AssetSearchManager;
 import littleware.base.EventBarrier;
 import littleware.base.Maybe;
 import littleware.base.UUIDFactory;
-import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
 import littleware.bootstrap.client.ClientBootstrap;
 import littleware.security.LittleUser;
@@ -109,7 +108,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
             AssetModelLibrary lib,
             AssetPathFactory pathFactory,
             LittleUser user) {
-        super(LgoBrowserCommand.class.getName());
+        super(LgoBrowserCommand.class.getName(), null );
         this.provideBrowser = provideBrowser;
         this.provideControl = provideControl;
         this.provideToolbar = provideToolbar;
@@ -138,11 +137,8 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
      * @return where the user stops browsing
      */
     @Override
-    public EventBarrier<Maybe<UUID>> runSafe(Feedback feedback, String sPathIn) {
-        String sStartPath = sPathIn;
-        if (Whatever.get().empty(sStartPath) && (!getArgs().isEmpty())) {
-            sStartPath = getArgs().get(0);
-        }
+    public EventBarrier<Maybe<UUID>> runCommand(Feedback feedback) {
+        String sStartPath = getInput();
         if (null != sStartPath) {
             try {
                 final Asset a_start = search.getAssetAtPath(pathFactory.createPath(sStartPath)).get();
@@ -237,7 +233,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<String, EventBarrier<M
                 if (maybeModel.isSet()) {
                     stuff.browser.setAssetModel(maybeModel.get());
                 } else {
-                    log.log(Level.INFO, "Requested initial asset model does not exist: " + getStart());
+                    log.log(Level.INFO, "Requested initial asset model does not exist: {0}", getStart());
                 }
             } catch (Exception e) {
                 log.log(Level.INFO, "Failed to load initial asset model " + getStart(), e);

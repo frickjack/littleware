@@ -25,7 +25,7 @@ import littleware.base.feedback.Feedback;
 
 
 public class GetByNameCommand extends AbstractAssetCommand<String,Asset> {
-    private static final Logger olog = Logger.getLogger( GetByNameCommand.class.getName() );
+    private static final Logger log = Logger.getLogger( GetByNameCommand.class.getName() );
     private final AssetSearchManager osearch;
 
 
@@ -34,24 +34,24 @@ public class GetByNameCommand extends AbstractAssetCommand<String,Asset> {
             HumanPicklerProvider        providePickler,
             AssetSearchManager          search
             ) {
-        super( GetByNameCommand.class.getName(), providePickler );
+        super( GetByNameCommand.class.getName(), providePickler, null );
         osearch = search;
     }
 
     private enum Option { name, type };
 
     @Override
-    public Asset runSafe(Feedback feedback, String sNameDefault ) throws LgoException {
+    public Asset runCommand(Feedback feedback ) throws LgoException {
         final Map<String,String> mapDefault = new HashMap<String,String>();
-        mapDefault.put( Option.name.toString(), sNameDefault);
+        mapDefault.put( Option.name.toString(), "");
         mapDefault.put( Option.type.toString(), AssetType.LOCK.toString() );
-        final Map<String,String> mapArg = processArgs( mapDefault, getArgs() );
+        final Map<String,String> mapArg = null; //processArgs( mapDefault, getArgs() );
         final String sName = mapArg.get( Option.name.toString() );
         final String sType = mapArg.get( Option.type.toString() ).toLowerCase();
         AssetType  type = AssetType.UNKNOWN;
         for( AssetType possible : AssetType.getMembers() ) {
             String sPossible = possible.toString().toLowerCase();
-            olog.log( Level.FINE, "Scanning type argument " + sType + " ?= " + sPossible );
+            log.log( Level.FINE, "Scanning type argument {0} ?= {1}", new Object[]{sType, sPossible});
             if ( sType.equals( sPossible )
                     || (
                     sPossible.endsWith(sType)

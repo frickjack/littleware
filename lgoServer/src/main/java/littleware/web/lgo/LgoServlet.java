@@ -28,6 +28,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetSearchManager;
 import littleware.base.EventBarrier;
+import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
 import littleware.bootstrap.LittleBootstrap;
@@ -85,14 +86,21 @@ public class LgoServlet extends LittleServlet {
      * @return command output
      */
     private String processCommand(String commandName, List<String> processArgs, String sArg) throws LgoException {
-        final LgoCommand<?, ?> command = commandMgr.buildCommand(commandName);
-        if (null == command) {
+        final Maybe<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(commandName);
+        if (maybe.isEmpty()) {
             throw new LgoArgException("No command found: " + commandName);
         }
-        command.processArgs(processArgs);
+        final LgoCommand command = maybe.get().buildFromArgs(processArgs);
 
         final Gson gson = jsonProvider.get();
-        final Object output = command.runDynamic(feedback, sArg);
+        final Object output;
+        try {
+            output = command.runCommand( feedback );
+        } catch ( LgoException ex ) {
+            throw ex;
+        } catch ( Exception ex ) {
+            throw new LgoException( "Command failed", ex );
+        }
         final String result;
         if ( output instanceof  Asset ) {
             result = gson.toJson( output, Asset.class );
@@ -163,7 +171,7 @@ public class LgoServlet extends LittleServlet {
                 lastVersionCheck = now;
                 final String currentVersion = helper.getServerVersion();
                 if ( ! serverVersion.equals( currentVersion ) ) {
-                    log.log( Level.WARNING, "Shutting down after server version check: " + serverVersion + " != " + currentVersion );
+                    log.log( Level.WARNING, "Shutting down after server version check: {0} != {1}", new Object[]{serverVersion, currentVersion});
                     shutdown = true;
                 }
             }

@@ -131,6 +131,7 @@
       <property file="nbproject/private/private.properties" />
       <property file="nbproject/project.properties" />
       -->
+      <mkdir dir="${jardir.webstart}" />
       <antcall target="-littlelib-process">
           <param name="param.target" value="-webstart-lib" />
       </antcall>

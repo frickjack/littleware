@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import java.util.Collection;
 import java.util.logging.Level;
@@ -42,14 +41,14 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
         }
     }
 
-    private final Collection<Class<? extends LgoCommand>> lgoCommands;
+    private final Collection<Class<? extends LgoCommand.LgoBuilder>> lgoCommands;
     {
-        final ImmutableList.Builder<Class<? extends LgoCommand>> builder = ImmutableList.builder();
+        final ImmutableList.Builder<Class<? extends LgoCommand.LgoBuilder>> builder = ImmutableList.builder();
         lgoCommands = builder.add( EzHelpCommand.class ).add( XmlEncodeCommand.class ).build();
     }
 
     @Override
-    public Collection<Class<? extends LgoCommand>> getLgoCommands() {
+    public Collection<Class<? extends LgoCommand.LgoBuilder>> getLgoCommands() {
         return lgoCommands;
     }
 
@@ -96,9 +95,9 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
             ) {
             for( AppModule module : bootstrap.getModuleSet() ) {
                 if ( module instanceof LgoServiceModule ) {
-                    for( Class<? extends LgoCommand> commandClass : ((LgoServiceModule) module).getLgoCommands() ) {
-                        log.log( Level.FINE, "Register lgo command: " + commandClass.getName() );
-                        commandMgr.setCommand(helpMgr, (Provider<? extends LgoCommand<?, ?>>) injector.getProvider(commandClass));
+                    for( Class<? extends LgoCommand.LgoBuilder> commandClass : ((LgoServiceModule) module).getLgoCommands() ) {
+                        log.log( Level.FINE, "Register lgo command: {0}", commandClass.getName());
+                        commandMgr.setCommand(helpMgr, injector.getProvider(commandClass));
                     }
                 }
             }

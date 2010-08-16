@@ -26,8 +26,8 @@ public abstract class AbstractAssetCommand<Tin,Tout extends Asset>
 {
     private final HumanPicklerProvider providePickler;
 
-    protected AbstractAssetCommand( String sName, HumanPicklerProvider providePickler ) {
-        super(sName);
+    protected AbstractAssetCommand( String sName, HumanPicklerProvider providePickler, Tin input ) {
+        super(sName, input);
         this.providePickler = providePickler;
     }
 
@@ -35,10 +35,10 @@ public abstract class AbstractAssetCommand<Tin,Tout extends Asset>
      * Just run the result of runDynamic(feedback,sIn) through pickler
      */
     @Override
-    public String runCommandLine( Feedback feedback, String sIn ) throws LgoException {
+    public String runCommandLine( Feedback feedback ) throws Exception {
         try {
             final StringWriter writer = new StringWriter();
-            providePickler.get().pickle( runDynamic(feedback,sIn ), writer);
+            providePickler.get().pickle( runCommand(feedback ), writer);
             return writer.toString();
         } catch ( LgoException ex ) {
             throw ex;

@@ -42,7 +42,7 @@ public class DeleteAssetCommand extends AbstractLgoCommand<String,UUID> {
             AssetPathFactory pathFactory,
             AssetManager     mgrAsset
             ) {
-        super( DeleteAssetCommand.class.getName() );
+        super( DeleteAssetCommand.class.getName(), null );
         osearch = search;
         opathFactory = pathFactory;
         omgrAsset = mgrAsset;
@@ -51,13 +51,12 @@ public class DeleteAssetCommand extends AbstractLgoCommand<String,UUID> {
     private enum Option { path, comment; }
 
     @Override
-    public UUID runSafe(Feedback feedback, String sPathIn ) throws LgoException {
-
+    public UUID runCommand(Feedback feedback ) throws LgoException {
         final Map<String,String> mapOptions = new HashMap<String,String>();
-        mapOptions.put( Option.path.toString(), sPathIn );
+        mapOptions.put( Option.path.toString(), "" );
         mapOptions.put( Option.comment.toString(), "No comment" );
 
-        final  Map<String,String>  mapArgs = processArgs( mapOptions, getArgs() );
+        final  Map<String,String>  mapArgs = null; //processArgs( mapOptions, getArgs() );
         final  String  sPath = mapArgs.get( Option.path.toString() );
         final  String  sComment = mapArgs.get( Option.comment.toString() );
 

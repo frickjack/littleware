@@ -15,12 +15,14 @@ import java.util.Arrays
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.security.auth.login.LoginException
-import littleware.apps.lgo.LgoCommandLine
+import littleware.lgo.LgoCommandLine
 import littleware.bootstrap.client.ClientBootstrap
 import littleware.security.auth.client.ClientLoginModule
 
 object CliApp {
   val log = Logger.getLogger( getClass.getName )
+
+
   def main( args:Array[String] ):Unit = {
     val loginBuilder = ClientLoginModule.newBuilder
     val cleanArgs = if ((args.length > 1) && args(0).matches("^-+[uU][rR][lL]")) {
@@ -42,7 +44,7 @@ object CliApp {
       )
       val cl = boot.bootstrap(classOf[LgoCommandLine])
       //val cl = boot.;
-      val exitCode = cl.run(cleanArgs);
+      val exitCode = cl.run(cleanArgs)
       boot.shutdown();
       System.exit( exitCode )
     } catch {
@@ -51,6 +53,5 @@ object CliApp {
           System.exit(1)
         }
     }
-      
   }
 }

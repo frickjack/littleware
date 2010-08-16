@@ -32,15 +32,15 @@ public class HudsonTestSuite extends TestSuite {
     public HudsonTestSuite(
             Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
-            littleware.apps.image.test.PackageTestSuite miscSuite,
-            littleware.apps.lgo.test.HudsonTestSuite lgoSuite
+            littleware.apps.image.test.PackageTestSuite miscSuite
+            //littleware.apps.lgo.test.HudsonTestSuite lgoSuite
             ) {
         super(HudsonTestSuite.class.getName());
 
         boolean b_run = true;
 
         if (b_run) {
-            this.addTest(lgoSuite);
+            //this.addTest(lgoSuite);
         }
         if (b_run) {
             this.addTest( miscSuite );

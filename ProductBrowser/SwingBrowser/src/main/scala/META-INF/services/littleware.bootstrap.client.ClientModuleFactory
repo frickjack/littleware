@@ -1,0 +1,2 @@
+# littleware ClientModule service providers
+littleware.apps.tracker.browser.lgo.ModuleFactory

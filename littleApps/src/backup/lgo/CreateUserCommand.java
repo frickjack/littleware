@@ -43,7 +43,7 @@ public class CreateUserCommand extends AbstractAssetCommand<String,LittleUser> {
             AssetPathFactory   factoryPath,
             HumanPicklerProvider providePickler
             ) {
-        super( CreateUserCommand.class.getName(), providePickler );
+        super( CreateUserCommand.class.getName(), providePickler, null );
         osearch = search;
         omgrAsset = mgrAsset;
         ofactoryPath = factoryPath;
@@ -52,14 +52,11 @@ public class CreateUserCommand extends AbstractAssetCommand<String,LittleUser> {
     private enum Option { name, admin };
     
     @Override
-    public LittleUser runSafe(Feedback feedback, String sDefaultName ) throws LgoException {
-        final Map<String,String> mapArg = processArgs( getArgs(),
+    public LittleUser runCommand(Feedback feedback ) throws LgoException {
+        final Map<String,String> mapArg = null; /* processArgs( getArgs(),
                 Option.name.toString(), Option.admin.toString()
-                );
+                );*/
         String sName = mapArg.get( Option.name.toString() );
-        if ( Whatever.get().empty( sName ) ) {
-            sName = sDefaultName;
-        }
         if ( Whatever.get().empty( sName ) ) {
             throw new LgoArgException ( "Required argument --name not set" );
         }

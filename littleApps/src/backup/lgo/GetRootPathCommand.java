@@ -32,39 +32,20 @@ public class GetRootPathCommand extends AbstractLgoCommand<AssetPath,AssetPath> 
     public GetRootPathCommand(
             AssetPathFactory pathFactory
             ) {
-        super( GetRootPathCommand.class.getName() );
+        super( GetRootPathCommand.class.getName(), null );
         this.pathFactory = pathFactory;
     }
 
     private enum Option { path }
 
-    @Override
-    public AssetPath runDynamic( Feedback feedback, Object x ) throws LgoException {
-       if ( (x == null) || (x instanceof AssetPath) ) {
-           return runSafe( feedback, (AssetPath) x );
-       } else if ( (x instanceof String) && (! ((String) x).isEmpty()) ) {
-           final String s = (String) x;
-           try {
-               return runSafe( feedback, pathFactory.createPath( s ) );
-           } catch ( LgoException ex ) {
-               throw ex;
-           } catch ( RuntimeException ex ) {
-               throw ex;
-           } catch ( Exception ex ) {
-               throw new LgoArgException( "Failed to parse path " + s, ex );
-           }
-       } else {
-           return runSafe( feedback, null );
-       }
-    }
 
     @Override
-    public AssetPath runSafe(Feedback feedback, AssetPath pathIn ) throws LgoException {
-
+    public AssetPath runCommand(Feedback feedback ) throws LgoException {
+        final AssetPath pathIn = getInput();
         final Map<String,String> mapOptions = new HashMap<String,String>();
         mapOptions.put( Option.path.toString(), (null != pathIn) ? pathIn.toString() : null );
 
-        final  Map<String,String>  mapArgs = processArgs( mapOptions, getArgs() );
+        final  Map<String,String>  mapArgs = null; //processArgs( mapOptions, getArgs() );
         final  String  sPath = mapArgs.get( Option.path.toString() );
 
         if ( Whatever.get().empty(sPath)) {

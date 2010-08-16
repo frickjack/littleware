@@ -9,17 +9,13 @@
  */
 package littleware.apps.lgo;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
-import littleware.lgo.LgoHelpLoader;
-import littleware.lgo.LgoCommandDictionary;
 import littleware.lgo.LgoCommand;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import java.util.Arrays;
+import java.util.Collections;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
@@ -65,7 +61,7 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
     }
 
     @Override
-    public Collection<Class<? extends LgoCommand>> getLgoCommands() {
+    public Collection<Class<? extends LgoCommand.LgoBuilder>> getLgoCommands() {
         return lgoCommands;
     }
 
@@ -73,10 +69,10 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
     public Class<Activator> getActivator() {
         return Activator.class;
     }
-    private final Collection<Class<? extends LgoCommand>> lgoCommands;
-
+    private final Collection<Class<? extends LgoCommand.LgoBuilder>> lgoCommands = Collections.emptyList();
+    /*..
     {
-        final ImmutableList.Builder<Class<? extends LgoCommand>> builder =
+        final ImmutableList.Builder<Class<? extends LgoCommand.LgoBuilder>> builder =
                 ImmutableList.builder();
         builder.add(LgoBrowserCommand.class);
         builder.add(DeleteAssetCommand.class);
@@ -90,6 +86,7 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
         builder.add(GetRootPathCommand.class);
         lgoCommands = builder.build();
     }
+       ..*/
 
     /**
      * Lgo BundleActivator registers lgo commands with

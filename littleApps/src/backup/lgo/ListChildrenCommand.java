@@ -40,7 +40,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
     public ListChildrenCommand( AssetSearchManager search,
             AssetPathFactory factoryPath
             ) {
-        super( ListChildrenCommand.class.getName() );
+        super( ListChildrenCommand.class.getName(), null );
         osearch = search;
         ofactoryPath = factoryPath;
     }
@@ -101,7 +101,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
         final Map<String,String> mapOpt = new HashMap<String,String>();
         mapOpt.put( sPathOption, sDefaultPath );
         mapOpt.put( sTypeOption, null );
-        final Map<String,String> mapArgs = processArgs( mapOpt, getArgs() );
+        final Map<String,String> mapArgs = null; // processArgs( mapOpt, getArgs() );
         final String sPath = mapArgs.get( sPathOption );
         final Maybe<String> maybeTypeName = Maybe.emptyIfNull( mapArgs.get( sTypeOption ) );
         if ( Whatever.get().empty( sPath ) ) {
@@ -135,13 +135,13 @@ public class ListChildrenCommand extends AbstractLgoCommand<String,Map<String,UU
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public Map<String,UUID> runSafe(Feedback feedback, String sDefaultPath ) throws LgoException {
-        return runInternal( feedback, getDataFromArgs( sDefaultPath ) );
+    public Map<String,UUID> runCommand(Feedback feedback ) throws LgoException {
+        return runInternal( feedback, getDataFromArgs( getInput() ) );
     }
 
     @Override
-    public String runCommandLine( Feedback feedback, String sDefaultPath ) throws LgoException {
-        final Data argData = getDataFromArgs( sDefaultPath );
+    public String runCommandLine( Feedback feedback ) throws LgoException {
+        final Data argData = getDataFromArgs( getInput() );
         final Map<String,UUID> mapChildren = runInternal( feedback, argData );
         final List<String> vChildren = new ArrayList<String>( mapChildren.keySet() );
         Collections.sort( vChildren );

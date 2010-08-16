@@ -21,6 +21,7 @@ import java.util.List;
 import javax.security.auth.login.LoginException;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.bootstrap.client.ClientBootstrap;
@@ -59,40 +60,23 @@ public class LgoCommandLine {
      * @return command exit-status
      */
     public int processCommand(String sCommand, List<String> processArgs, String sArg, Feedback feedback) {
-        final LgoCommand<?, ?> command = commandMgr.buildCommand(sCommand);
+        final Maybe<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(sCommand);
         try {
-            if (null == command) {
-                final LgoCommand<?,?> help = commandMgr.buildCommand("help");
-                if ( null == help ) {
-                    throw new AssertionFailedException( "Failed to load Help command" );
-                }
-                System.out.print(help.runCommandLine(feedback, ""));
+            if (maybe.isEmpty()) {
+                final LgoCommand help = commandMgr.buildCommand("help").get().buildWithInput(sCommand);
+                System.out.print(help.runCommandLine(feedback));
                 return 1;
             }
 
-            command.processArgs(processArgs);
-
-            /*..
-            if (command instanceof LgoBrowserCommand) {
-                // HACK!
-                // Hard-code browser command exception for now ...
-                final EventBarrier<Maybe<UUID>> barrier = ((LgoBrowserCommand) command).runCommand(feedback, sArg);
-                System.out.println(barrier.waitForEventData().toString());
-            } else 
-             * 
-             */
-            {
-                final String sResult = command.runCommandLine(feedback, sArg);
-                System.out.println((null == sResult) ? "null" : sResult);
-            }
+            final String result = maybe.get().buildFromArgs(processArgs).runCommandLine(feedback);
+            System.out.println((null == result) ? "null" : result);
         } catch (Exception ex) {
             System.out.println("Command failed, Frickjack!: "
-                    + BaseException.getStackTrace(ex)
-                    );
+                    + BaseException.getStackTrace(ex));
 
             try {
-                System.out.print(commandMgr.buildCommand("help").runCommand(feedback, command.getName()).toString());
-            } catch (LgoException ex2) {
+                System.out.print(commandMgr.buildCommand("help").get().buildWithInput(sCommand).runCommandLine(feedback));
+            } catch (Exception ex2) {
                 throw new AssertionFailedException("Help command should not fail", ex2);
             }
             return 1;
@@ -101,7 +85,7 @@ public class LgoCommandLine {
     }
 
     /**
-     * Run the LgoCommand specifiedby the given args array
+     * Run the LgoCommand specified by the given args array
      *
      * @param argsArray lgo command line arguments
      * @return command exit code
@@ -113,7 +97,7 @@ public class LgoCommandLine {
             final Feedback feedback = new LoggerFeedback();
 
             if (argsArray.length == 0) { // launch help command by default
-                System.out.print(commandMgr.buildCommand("help").runCommandLine(feedback, ""));
+                System.out.print(commandMgr.buildCommand("help").get().buildWithInput("").runCommandLine(feedback));
                 return 1;
             }
             final String command = argsArray[0];
@@ -154,9 +138,9 @@ public class LgoCommandLine {
     public static void launch(final String[] argsIn, ClientBootstrap.ClientBuilder bootBuilder) {
         /*... just for testing in serverless environment ...
         {
-            // Try to start an internal server for now just for testing
-            final ServerBootstrap bootServer = littleware.bootstrap.server.ServerBootstrap.provider.get().build();
-            bootServer.bootstrap();
+        // Try to start an internal server for now just for testing
+        final ServerBootstrap bootServer = littleware.bootstrap.server.ServerBootstrap.provider.get().build();
+        bootServer.bootstrap();
         }
          */
         // bla

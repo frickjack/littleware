@@ -33,13 +33,13 @@ public class GetAssetCommand extends AbstractAssetCommand<AssetPath,Asset> {
             AssetPathFactory            factoryPath,
             AssetSearchManager          search
             ) {
-        super( GetAssetCommand.class.getName(), providePickler );
+        super( GetAssetCommand.class.getName(), providePickler, null );
         osearch = search;
         ofactoryPath = factoryPath;
     }
 
     public AssetPath getPathFromArgs( Object xDefault ) throws LgoArgException {
-        String sPath = processArgs( getArgs(), "path" ).get( "path" );
+        String sPath = null; //processArgs( getArgs(), "path" ).get( "path" );
         if ( null == sPath ) {
             sPath = (null == xDefault) ? null : xDefault.toString();
         }
@@ -59,14 +59,10 @@ public class GetAssetCommand extends AbstractAssetCommand<AssetPath,Asset> {
      * @throws littleware.apps.lgo.LgoException
      */
     @Override
-    public Asset runSafe(Feedback feedback, AssetPath in) throws LgoException {
-        return runInternal( feedback, getPathFromArgs( in ) );
+    public Asset runCommand(Feedback feedback) throws LgoException {
+        return runInternal( feedback, getInput() );
     }
 
-    @Override
-    public Asset runDynamic( Feedback feedback, Object in ) throws LgoException {
-        return runInternal( feedback, getPathFromArgs( in ) );
-    }
 
     private Asset runInternal( Feedback feedback, AssetPath in ) throws LgoException {
         try {

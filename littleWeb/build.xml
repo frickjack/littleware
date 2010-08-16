@@ -118,7 +118,7 @@
 <target name="publish" depends="resolve,-init-project,jar" description="publish to local ivy repository">
 	<ivy:publish  overwrite="true"
 			           resolver="local"
-			           pubrevision="2.1" 
+			           pubrevision="2.2" 
 			           >
              <artifacts pattern="${dist.dir}/[artifact].[ext]" />
          </ivy:publish>

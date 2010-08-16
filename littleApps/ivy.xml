@@ -22,7 +22,7 @@
     
     <dependencies>    
       <dependency org="littleware" name="littleIcons" rev="0.0" conf="client,standalone->*" />
-      <dependency org="littleware" name="littleware" rev="2.1" conf="compile->compile;client->client;standalone->standalone;server->server" />
+      <dependency org="littleware" name="littleware" rev="2.2" conf="compile->compile;client->client;standalone->standalone;server->server" />
     </dependencies>
 
 </ivy-module>

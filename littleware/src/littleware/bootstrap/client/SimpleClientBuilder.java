@@ -37,36 +37,16 @@ import littleware.security.auth.LittleSession;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.client.AccountManagerService;
-import org.osgi.framework.BundleActivator;
 
 public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
     private static final Logger log = Logger.getLogger(SimpleClientBuilder.class.getName());
-    private final List<ClientModuleFactory> factoryList = new ArrayList<ClientModuleFactory>();
+    private final List<AppModuleFactory> factoryList = new ArrayList<AppModuleFactory>();
     private AppProfile profile = AppProfile.SwingApp;
 
     @Override
     public AppProfile getProfile() {
         return profile;
-    }
-
-    private static class AppModuleWrapper extends AbstractClientModule {
-        private final AppModule appModule;
-        public AppModuleWrapper( AppModule appModule ) {
-            super( appModule.getProfile() );
-            this.appModule = appModule;
-        }
-
-
-        @Override
-        public Class<? extends BundleActivator> getActivator() {
-            return appModule.getActivator();
-        }
-
-        @Override
-        public void configure(Binder binder) {
-            appModule.configure( binder );
-        }
     }
     
     {
@@ -74,36 +54,27 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
             factoryList.add(moduleFactory);
         }
         for ( final AppModuleFactory moduleFactory : ServiceLoader.load(AppModuleFactory.class)) {
-            if ( moduleFactory instanceof ClientModuleFactory ) {
-                factoryList.add( (ClientModuleFactory) moduleFactory );
-            } else {
-                factoryList.add( new ClientModuleFactory() {
-                    @Override
-                    public ClientModule build(AppProfile profile) {
-                        return new AppModuleWrapper( moduleFactory.build(profile));
-                    }
-
-                });
-            }
+            factoryList.add(moduleFactory);
         }
+
         if ( factoryList.isEmpty() ) {
             throw new AssertionFailedException( "Failed to find base client modules: " + ClientModuleFactory.class  );
         }
     }
 
     @Override
-    public Collection<ClientModuleFactory> getModuleSet() {
+    public Collection<AppModuleFactory> getModuleSet() {
         return ImmutableList.copyOf(factoryList);
     }
 
     @Override
-    public ClientBuilder addModuleFactory(ClientModuleFactory factory) {
+    public ClientBuilder addModuleFactory(AppModuleFactory factory) {
         factoryList.add(factory);
         return this;
     }
 
     @Override
-    public ClientBuilder removeModuleFactory(ClientModuleFactory factory) {
+    public ClientBuilder removeModuleFactory(AppModuleFactory factory) {
         factoryList.remove(factory);
         return this;
     }
@@ -140,7 +111,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
                 }
             };
             binder.bind(service.getInterface()).toProvider(provider);
-            log.log(Level.FINE, "Just bound service " + service + " interface " + service.getInterface().getName());
+            log.log(Level.FINE, "Just bound service {0} interface {1}", new Object[]{service, service.getInterface().getName()});
             return provider;
         }
 
@@ -159,7 +130,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
             binder.bind(AppBootstrap.class).to(ClientBootstrap.class);
             binder.bind(ClientBootstrap.class).toInstance(bootstrap);
             for (ServiceType<? extends LittleService> service : ServiceType.getMembers()) {
-                log.log(Level.FINE, "Binding service provider: " + service);
+                log.log(Level.FINE, "Binding service provider: {0}", service);
                 bindService(binder, service);
             }
 
@@ -205,12 +176,12 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
         }
     }
 
-    private static class Bootstrap extends AbstractLittleBootstrap<ClientModule> implements ClientBootstrap {
+    private static class Bootstrap extends AbstractLittleBootstrap<AppModule> implements ClientBootstrap {
 
         private final SessionHelper helper;
         private final AppProfile profile;
 
-        public Bootstrap(Collection<? extends ClientModule> moduleSet,
+        public Bootstrap(Collection<? extends AppModule> moduleSet,
                 AppProfile profile, SessionHelper helper) {
             super(moduleSet);
             this.helper = helper;
@@ -221,8 +192,8 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
         public AppProfile getProfile() { return profile; }
 
         @Override
-        protected <T> T bootstrap(Class<T> injectTarget, Collection<? extends ClientModule> originalModuleSet) {
-            final ImmutableList.Builder<ClientModule> builder = ImmutableList.builder();
+        protected <T> T bootstrap(Class<T> injectTarget, Collection<? extends AppModule> originalModuleSet) {
+            final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
             builder.addAll(originalModuleSet);
             builder.add(new SessionModule(helper, profile, this));
             return super.bootstrap(injectTarget, builder.build());
@@ -243,8 +214,8 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
     }
 
     ClientBootstrap build( SessionHelper helper ) {
-        final ImmutableList.Builder<ClientModule> builder = ImmutableList.builder();
-        for (ClientModuleFactory factory : factoryList) {
+        final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
+        for (AppModuleFactory factory : factoryList) {
             builder.add(factory.build(profile));
         }
         return new Bootstrap(builder.build(), profile, helper);

@@ -30,10 +30,10 @@ import littleware.security.auth.SessionHelper;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-
 public class AssetClientModule extends AbstractClientModule {
-    private static final Logger log = Logger.getLogger( AssetClientModule.class.getName() );
-    
+
+    private static final Logger log = Logger.getLogger(AssetClientModule.class.getName());
+
     //-------------------------
     public static class Factory implements ClientModuleFactory {
 
@@ -64,7 +64,6 @@ public class AssetClientModule extends AbstractClientModule {
     }
 
     //-------------------------------------
-    
     /**
      * Utility activator takes care of shutting down the
      * bootstraps the session helper, and takes care of client-side
@@ -79,26 +78,28 @@ public class AssetClientModule extends AbstractClientModule {
         private final ClientCache clientCache;
 
         @Inject
-        public Activator(Injector injector, SessionHelper helper, 
+        public Activator(Injector injector, SessionHelper helper,
                 ClientBootstrap bootstrap,
-                ClientCache clientCache
-                ) {
+                ClientCache clientCache) {
             this.helper = helper;
             this.injector = injector;
-            ((LittleService) helper).addServiceListener(this);
             this.bootstrap = bootstrap;
             this.clientCache = clientCache;
+            ((LittleService) helper).addServiceListener(this);
         }
 
         @Override
         public void start(BundleContext ctx) throws Exception {
             final LittleService helperService = (LittleService) helper;
             helperService.start(ctx);
-            ctx.registerService( ClientCache.class.getName(), clientCache, new Properties() );
-            for( ClientModule module : bootstrap.getModuleSet() ) {
-                for( Class<? extends LittleServiceListener> listenerClass : module.getServiceListeners() ) {
-                    log.log( Level.FINE, "Registering client service listener: " + listenerClass.getName() );
-                    helperService.addServiceListener( injector.getInstance(listenerClass) );
+            ctx.registerService(ClientCache.class.getName(), clientCache, new Properties());
+            for (AppModule appModule : bootstrap.getModuleSet()) {
+                if (appModule instanceof ClientModule) {
+                    final ClientModule module = (ClientModule) appModule;
+                    for (Class<? extends LittleServiceListener> listenerClass : module.getServiceListeners()) {
+                        log.log(Level.FINE, "Registering client service listener: {0}", listenerClass.getName());
+                        helperService.addServiceListener(injector.getInstance(listenerClass));
+                    }
                 }
             }
         }
@@ -118,14 +119,12 @@ public class AssetClientModule extends AbstractClientModule {
     }
 
     // --------------------------------------
-
     private AssetClientModule(AppBootstrap.AppProfile profile,
             Collection<AssetType> assetTypes,
             Collection<ServiceType> serviceTypes,
             Collection<Class<? extends LittleServiceListener>> serviceListeners) {
         super(profile, assetTypes, serviceTypes, serviceListeners);
     }
-
 
     @Override
     public Class<Activator> getActivator() {

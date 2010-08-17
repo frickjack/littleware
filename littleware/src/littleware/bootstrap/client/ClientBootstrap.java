@@ -24,9 +24,6 @@ import littleware.security.auth.SessionHelper;
  */
 public interface ClientBootstrap extends AppBootstrap {
 
-    @Override
-    public Collection<? extends ClientModule> getModuleSet();
-
     public interface LoginSetup {
         public static String  TestUserName = "littleware.test_user";
         
@@ -78,11 +75,11 @@ public interface ClientBootstrap extends AppBootstrap {
         /**
          * List of littleware modules registered with this bootstrap.
          */
-        public Collection<ClientModuleFactory> getModuleSet();
+        public Collection<AppModuleFactory> getModuleSet();
 
-        public ClientBuilder addModuleFactory(ClientModuleFactory factory);
+        public ClientBuilder addModuleFactory(AppModuleFactory factory);
 
-        public ClientBuilder removeModuleFactory(ClientModuleFactory factory);
+        public ClientBuilder removeModuleFactory(AppModuleFactory factory);
 
         public AppProfile getProfile();
         public ClientBuilder profile( AppProfile config );

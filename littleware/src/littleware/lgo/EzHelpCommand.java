@@ -55,7 +55,11 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
 
     @Override
     public LgoCommand buildFromArgs(List<String> args) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if( args.isEmpty() ) {
+            return buildSafe( "" );
+        } else {
+            return buildSafe( args.get(0) );
+        }
     }
 
     /**

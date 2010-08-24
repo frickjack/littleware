@@ -11,6 +11,7 @@
 package littleware.apps.lgo.test;
 
 import com.google.inject.Inject;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,17 +27,17 @@ import littleware.test.LittleTest;
  */
 public class BrowserCommandTest extends LittleTest {
     private static final Logger log = Logger.getLogger( BrowserCommandTest.class.getName() );
-    private final LgoBrowserCommand command;
+    private final LgoBrowserCommand.Builder commandBuilder;
 
     @Inject
-    public BrowserCommandTest( LgoBrowserCommand command ) {
-        this.command = command;
+    public BrowserCommandTest( LgoBrowserCommand.Builder commandBuilder ) {
+        this.commandBuilder = commandBuilder;
         setName( "testBrowserCommand" );
     }
 
     public void testBrowserCommand() {
         try {
-            final EventBarrier<Maybe<UUID>> barrier = null; //command.runCommand( new LoggerFeedback(), "/littleware.home" );
+            final EventBarrier<Maybe<UUID>> barrier = commandBuilder.buildFromArgs( Arrays.asList( "-path", "/littleware.home") ).runCommand( new LoggerFeedback() );
             // Browser actually launches into background as of 2010/01/28
             assertTrue( "User selected something to pass test", barrier.waitForEventData().isSet() );
         } catch ( Exception ex ) {

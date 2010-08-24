@@ -11,10 +11,10 @@
 package littleware.apps.lgo.test;
 
 import com.google.inject.Inject;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.CreateFolderCommand;
-import littleware.lgo.LgoException;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
@@ -26,11 +26,11 @@ import littleware.test.LittleTest;
  * Test the CreateFolderCommand
  */
 public class CreateFolderTester extends LittleTest {
-    private static final Logger olog = Logger.getLogger( CreateFolderTester.class.getName() );
+    private static final Logger log = Logger.getLogger( CreateFolderTester.class.getName() );
 
-    private final AssetSearchManager   osearch;
-    private final AssetManager         omgrAsset;
-    private final CreateFolderCommand  ocomTest;
+    private final AssetSearchManager   search;
+    private final AssetManager         assetMgr;
+    private final CreateFolderCommand.Builder  commandBuilder;
 
     /**
      * Delete the test folder if it already exists
@@ -38,16 +38,16 @@ public class CreateFolderTester extends LittleTest {
     @Override
     public void setUp() {
         try {
-            final Asset aHome = getTestHome( osearch );
-            final Maybe<Asset> maybeDelete = osearch.getAssetFrom( aHome.getId(),
+            final Asset aHome = getTestHome( search );
+            final Maybe<Asset> maybeDelete = search.getAssetFrom( aHome.getId(),
                     "testCreateFolder"
                     );
             if ( maybeDelete.isSet() ) {
-                olog.log( Level.INFO, "Cleaning up previous test" );
-                omgrAsset.deleteAsset( maybeDelete.get().getId(), "test cleanup" );
+                log.log( Level.INFO, "Cleaning up previous test" );
+                assetMgr.deleteAsset( maybeDelete.get().getId(), "test cleanup" );
             }
         } catch ( Exception ex ) {
-            olog.log( Level.WARNING, "Failed test setup", ex );
+            log.log( Level.WARNING, "Failed test setup", ex );
             assertTrue( "Failed setup: " + ex, false );
         }
     }
@@ -61,23 +61,24 @@ public class CreateFolderTester extends LittleTest {
     public CreateFolderTester(
             AssetSearchManager search,
             AssetManager  mgrAsset,
-            CreateFolderCommand comTest
+            CreateFolderCommand.Builder commandBuilder
             ) {
         setName( "testCreate" );
-        osearch = search;
-        omgrAsset = mgrAsset;
-        ocomTest = comTest;
+        this.search = search;
+        this.assetMgr = mgrAsset;
+        this.commandBuilder = commandBuilder;
     }
 
     public void testCreate() {
         try {
-            olog.log( Level.INFO, "Creating test folder ..." );
-            final Asset aNew = ocomTest.runCommand( new LoggerFeedback()
-                    //"/" + getTestHome() + "/testCreateFolder"
+            log.log( Level.INFO, "Creating test folder ..." );
+            final Asset aNew = commandBuilder.buildFromArgs(
+                    Arrays.asList( "-path", "/" + getTestHome() + "/testCreateFolder" )
+                    ).runCommand( new LoggerFeedback()
                     );
             assertTrue( "Created asset", null != aNew );
         } catch ( Exception ex ) {
-            olog.log( Level.WARNING, "Failed test", ex );
+            log.log( Level.WARNING, "Failed test", ex );
             assertTrue( "Caught exception: " + ex, false );
         }
     }

@@ -23,29 +23,29 @@ import littleware.test.LittleTest;
  * Test SetImageCommand by associating an image with littleware.test_home
  */
 public class SetImageTester extends LittleTest {
-    private static final Logger olog = Logger.getLogger( SetImageTester.class.getName() );
-    private final SetImageCommand ocomTest;
-    private final ImageManager omgrImage;
+    private static final Logger log = Logger.getLogger( SetImageTester.class.getName() );
+    private final SetImageCommand.Builder builder;
+    private final ImageManager imageMgr;
 
     @Inject
     public SetImageTester(
             ImageManager mgrImage,
-            SetImageCommand comTest
+            SetImageCommand.Builder commandBuilder
             ) {
         setName( "testSetImage" );
-        omgrImage = mgrImage;
-        ocomTest = comTest;
+        imageMgr = mgrImage;
+        builder = commandBuilder;
     }
 
     public void testSetImage() {
         try {
-            ocomTest.processArgs( Arrays.asList(
+            builder.buildFromArgs( Arrays.asList(
                     "-path", getTestHome(),
                     "-image", "../littleware/marilyn.jpg"
-                    ));
-            ocomTest.runSafe( new LoggerFeedback(), "" );
+                    )
+            ).runCommand( new LoggerFeedback() );
         } catch ( Exception ex ) {
-            olog.log( Level.WARNING, "Failed test", ex );
+            log.log( Level.WARNING, "Failed test", ex );
             assertTrue( "Caught unexpected: " + ex, false );
         }
     }

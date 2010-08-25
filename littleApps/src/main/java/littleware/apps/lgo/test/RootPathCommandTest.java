@@ -25,16 +25,16 @@ import littleware.test.LittleTest;
  */
 public class RootPathCommandTest extends LittleTest {
     private static final Logger  log = Logger.getLogger( RootPathCommandTest.class.getName() );
-    private final GetRootPathCommand command;
+    private final GetRootPathCommand.Builder builder;
     private final AssetSearchManager search;
     private final AssetPathFactory pathFactory;
 
     @Inject
-    public RootPathCommandTest( GetRootPathCommand command,
+    public RootPathCommandTest( GetRootPathCommand.Builder commandBuilder,
             AssetPathFactory pathFactory,
             AssetSearchManager search
             ) {
-        this.command = command;
+        this.builder = commandBuilder;
         setName( "testRootPath" );
         this.search = search;
         this.pathFactory = pathFactory;
@@ -43,7 +43,7 @@ public class RootPathCommandTest extends LittleTest {
     public void testRootPath() {
         try {
             final AssetPath path = pathFactory.createPath( getTestHome( search ).getId() );
-            final AssetPath pathResult = command.runSafe( new LoggerFeedback( log ), path );
+            final AssetPath pathResult = builder.buildSafe( path ).runCommand( new LoggerFeedback( log ) );
             log.log( Level.INFO, "Rooted path: " + path + " -- " + pathResult );
             assertTrue( "Path references littleware.test_home: " + pathResult,
                     pathResult.toString().indexOf( getTestHome() ) >= 0

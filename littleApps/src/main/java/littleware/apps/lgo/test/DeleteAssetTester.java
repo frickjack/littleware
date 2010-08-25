@@ -11,10 +11,10 @@
 package littleware.apps.lgo.test;
 
 import com.google.inject.Inject;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.DeleteAssetCommand;
-import littleware.lgo.LgoException;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
@@ -28,17 +28,16 @@ import littleware.test.LittleTest;
  * Test the DeleteAssetCommand
  */
 public class DeleteAssetTester extends LittleTest {
-    private static final Logger  olog = Logger.getLogger( DeleteAssetTester.class.getName() );
-    private final static String               osHome = "littleware.test_home";
-    private final static String               osName = "deleteCommandTest";
-    private final static String               osTestPath = "/" + osHome + "/" + osName;
+    private static final Logger  log = Logger.getLogger( DeleteAssetTester.class.getName() );
+    private final String               osName = "deleteCommandTest";
+    private final String               sTestPath = "/" + getTestHome() + "/" + osName;
 
-    private final AssetSearchManager   osearch;
-    private final AssetManager         omgrAsset;
-    private final DeleteAssetCommand   ocommand;
-    private final AssetPathFactory     ofactory;
+    private final AssetSearchManager   search;
+    private final AssetManager         assetMgr;
+    private final DeleteAssetCommand.Builder   commandBuilder;
+    private final AssetPathFactory     pathFactory;
 
-    private Asset   oaDelete = null;
+    private Asset   deleteMeAsset = null;
     
     /**
      * Create the "deleteCommandTest" asset
@@ -46,16 +45,16 @@ public class DeleteAssetTester extends LittleTest {
     @Override
     public void setUp() {
         try {
-            final Asset aHome = osearch.getByName( osHome, AssetType.HOME ).get();
-            oaDelete = osearch.getAssetFrom( aHome.getId(), osName ).getOr( null );
-            if ( null == oaDelete ) {
+            final Asset aHome = search.getByName( getTestHome(), AssetType.HOME ).get();
+            deleteMeAsset = search.getAssetFrom( aHome.getId(), osName ).getOr( null );
+            if ( null == deleteMeAsset ) {
                 final Asset aNew = AssetType.GENERIC.create().parent( aHome ).name( osName ).build();
-                oaDelete = omgrAsset.saveAsset( aNew, "Setup test asset" );
+                deleteMeAsset = assetMgr.saveAsset( aNew, "Setup test asset" );
             }
         } catch ( RuntimeException ex ) {
             throw ex;
         } catch ( Exception ex ) {
-            olog.log( Level.WARNING, "Failed test setup", ex );
+            log.log( Level.WARNING, "Failed test setup", ex );
             throw new AssertionFailedException( "Failed to setup test asset", ex );
         }
     }
@@ -64,23 +63,25 @@ public class DeleteAssetTester extends LittleTest {
     public DeleteAssetTester(
             AssetSearchManager search,
             AssetManager       mgrAsset,
-            DeleteAssetCommand command,
+            DeleteAssetCommand.Builder commandBuilder,
             AssetPathFactory   factory
             ) {
         setName( "testCommand" );
-        osearch = search;
-        omgrAsset = mgrAsset;
-        ocommand = command;
-        ofactory = factory;
+        this.search = search;
+        this.assetMgr = mgrAsset;
+        this.commandBuilder = commandBuilder;
+        this.pathFactory = factory;
     }
 
     public void testCommand() {
         try {
             assertTrue( "Delete asset ran ok",
-                    null != ocommand.runSafe( new LoggerFeedback(), osTestPath )
+                    null != commandBuilder.buildFromArgs(
+                    Arrays.asList( "-path", sTestPath )
+                    ).runCommand( new LoggerFeedback() )
                 );
-        } catch ( LgoException ex ) {
-            olog.log ( Level.WARNING, "Command failed", ex );
+        } catch ( Exception ex ) {
+            log.log ( Level.WARNING, "Command failed", ex );
             assertTrue( "Command threw exception: " + ex, false );
         }
     }

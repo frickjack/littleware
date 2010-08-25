@@ -11,10 +11,10 @@
 package littleware.apps.lgo.test;
 
 import com.google.inject.Inject;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.GetAssetCommand;
-import littleware.lgo.LgoException;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.test.LittleTest;
 
@@ -22,26 +22,27 @@ import littleware.test.LittleTest;
  * Test the GetAssetCommand
  */
 public class GetAssetTester extends LittleTest {
-    private static final Logger  olog = Logger.getLogger( GetAssetTester.class.getName() );
+    private static final Logger  log = Logger.getLogger( GetAssetTester.class.getName() );
 
-    private final GetAssetCommand ocomTest;
+    private final GetAssetCommand.Builder commandBuilder;
 
 
     @Inject
-    public GetAssetTester( GetAssetCommand comTest ) {
+    public GetAssetTester( GetAssetCommand.Builder commandBuilder ) {
         setName( "testGetAsset" );
-        ocomTest = comTest;
+        this.commandBuilder = commandBuilder;
     }
 
     public void testGetAsset() {
         try {
-            String sResult = ocomTest.runCommandLine( new LoggerFeedback(),
-                    "/" + getTestHome()
+            final String sResult = commandBuilder.buildFromArgs(
+                    Arrays.asList( "-path", "/" + getTestHome() )
+                    ).runCommandLine( new LoggerFeedback()
                     );
-            olog.log( Level.INFO, "Test home: " + sResult );
+            log.log( Level.INFO, "Test home: {0}", sResult);
             assertTrue( "Asset info includes asset name", sResult.contains( getTestHome() ) );
-        } catch ( LgoException ex ) {
-            olog.log( Level.WARNING, "Failed test", ex );
+        } catch ( Exception ex ) {
+            log.log( Level.WARNING, "Failed test", ex );
             assertTrue( "Caught exception: " + ex, false );
         }
     }

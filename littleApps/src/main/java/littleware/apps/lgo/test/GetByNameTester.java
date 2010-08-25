@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.GetByNameCommand;
-import littleware.lgo.LgoException;
 import littleware.asset.Asset;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.security.SecurityAssetType;
@@ -25,28 +24,29 @@ import littleware.test.LittleTest;
  * Test GetByNameCommand
  */
 public class GetByNameTester extends LittleTest {
-    private static final Logger   olog = Logger.getLogger( GetByNameTester.class.getName() );
-    private final GetByNameCommand    ocomTest;
+    private static final Logger   log = Logger.getLogger( GetByNameTester.class.getName() );
+    private final GetByNameCommand.Builder    commandBuilder;
 
 
     @Inject
-    public GetByNameTester( GetByNameCommand comTest ) {
+    public GetByNameTester( GetByNameCommand.Builder commandBuilder ) {
         setName( "testByName" );
-        ocomTest = comTest;
+        this.commandBuilder = commandBuilder;
     }
 
     public void testByName() {
         try {
-            ocomTest.processArgs( Arrays.asList( "-name", "littleware.test_user",
+            final Asset aUser = commandBuilder.buildFromArgs(
+                    Arrays.asList( "-name", "littleware.test_user",
                     "-type", "user"
-                    ) );
-            final Asset aUser = ocomTest.runSafe( new LoggerFeedback(), "bla" );
+                    )
+                    ).runCommand( new LoggerFeedback() );
             assertTrue( "Got expected asset: " + aUser.getName(),
                     aUser.getAssetType().equals( SecurityAssetType.USER )
                     && aUser.getName().equals( "littleware.test_user" )
                     );
-        } catch ( LgoException ex ) {
-            olog.log( Level.WARNING, "Test failed", ex );
+        } catch ( Exception ex ) {
+            log.log( Level.WARNING, "Test failed", ex );
             assertTrue( "Caught exception: " + ex, false );
         }
     }

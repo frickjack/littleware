@@ -12,7 +12,6 @@ package littleware.apps.lgo;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import littleware.lgo.AbstractLgoCommand;
-import littleware.lgo.LgoCommand;
 import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -73,6 +72,7 @@ public class SetImageCommand extends AbstractLgoCommand<SetImageCommand.Input, B
             }
         }
 
+        @Inject
         public Builder(AssetSearchManager search,
                 ImageManager imageMgr,
                 AssetPathFactory pathFactory) {

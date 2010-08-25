@@ -9,13 +9,13 @@
  */
 package littleware.apps.lgo;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import littleware.lgo.LgoCommand;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
-import java.util.Collections;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
@@ -69,24 +69,22 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
     public Class<Activator> getActivator() {
         return Activator.class;
     }
-    private final Collection<Class<? extends LgoCommand.LgoBuilder>> lgoCommands = Collections.emptyList();
-    /*..
+    private final Collection<Class<? extends LgoCommand.LgoBuilder>> lgoCommands;
     {
         final ImmutableList.Builder<Class<? extends LgoCommand.LgoBuilder>> builder =
                 ImmutableList.builder();
-        builder.add(LgoBrowserCommand.class);
-        builder.add(DeleteAssetCommand.class);
-        builder.add(ListChildrenCommand.class);
-        builder.add(GetAssetCommand.class);
-        builder.add(CreateFolderCommand.class);
-        builder.add(CreateUserCommand.class);
+        builder.add(LgoBrowserCommand.Builder.class);
+        builder.add(DeleteAssetCommand.Builder.class);
+        builder.add(ListChildrenCommand.Builder.class);
+        builder.add(GetAssetCommand.Builder.class);
+        builder.add(CreateFolderCommand.Builder.class);
+        builder.add(CreateUserCommand.Builder.class);
         builder.add(CreateLockCommand.class);
-        builder.add(GetByNameCommand.class);
-        builder.add(SetImageCommand.class);
-        builder.add(GetRootPathCommand.class);
+        builder.add(GetByNameCommand.Builder.class);
+        builder.add(SetImageCommand.Builder.class);
+        builder.add(GetRootPathCommand.Builder.class);
         lgoCommands = builder.build();
     }
-       ..*/
 
     /**
      * Lgo BundleActivator registers lgo commands with

@@ -9,11 +9,10 @@
  */
 package littleware.apps.lgo;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import littleware.lgo.AbstractLgoCommand;
-import littleware.lgo.LgoCommand;
 import com.google.inject.Inject;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
@@ -80,11 +79,12 @@ public class DeleteAssetCommand extends AbstractLgoCommand<DeleteAssetCommand.In
 
         @Override
         public DeleteAssetCommand buildFromArgs(List<String> args) {
-            final Map<String, String> mapOptions = new HashMap<String, String>();
-            mapOptions.put(Option.path.toString(), "");
-            mapOptions.put(Option.comment.toString(), "No comment");
+            final Map<String, String> mapOptions = ImmutableMap.of(
+                    Option.path.toString(), "",
+                    Option.comment.toString(), "No comment"
+                    );
 
-            final Map<String, String> mapArgs = null; //processArgs( mapOptions, getArgs() );
+            final Map<String, String> mapArgs = processArgs(args, mapOptions);
             final String sPath = mapArgs.get(Option.path.toString());
             final String sComment = mapArgs.get(Option.comment.toString());
 

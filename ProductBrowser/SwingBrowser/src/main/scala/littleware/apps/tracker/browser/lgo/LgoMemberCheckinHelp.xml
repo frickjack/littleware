@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<help fullname="littleware.apps.tracker.browser.lgo.LgoMemberCheckin"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>checkin -name [name] -comment [comment] -version [path to version] -datadir [file or directory to checkin]</synopsis>
+  <description>
+      Checkin a directory as a member under the specified version:
+        checkin -name [name] -comment [comment] -version [path to version] -datadir [file or directory to checkin]
+  </description>
+  <shortname>checkin</shortname>
+  <shortname>ci</shortname>
+</help>

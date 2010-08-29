@@ -24,12 +24,23 @@ import scala.collection.JavaConversions._
 class ModuleFactory extends ClientModuleFactory {
   class LgoModule( profile:AppBootstrap.AppProfile
   ) extends AbstractClientModule( profile ) with LgoServiceModule {
-    val lgoCommand = List( classOf[lgo.LgoCreateProduct] )
+    val lgoCommand = List( classOf[lgo.LgoCreateProduct.Builder],
+                          classOf[lgo.LgoCreateVersion.Builder],
+                          classOf[lgo.LgoCreateMember.Builder],
+                          classOf[lgo.LgoMemberCheckin.Builder],
+                          classOf[lgo.LgoMemberCheckout.Builder]
+          )
+
     override def getLgoCommands:java.util.Collection[Class[_ <: LgoCommand.LgoBuilder] ] = lgoCommand
+
     override def configure( binder:Binder ):Unit = {
       binder.bind( classOf[controller.Controller]).to( classOf[controller.SimpleController]
                                                       ).in( Scopes.SINGLETON )
-      binder.bind( classOf[model.ProductData.Builder] ).toProvider( model.SimplePDBProvider )
+      binder.bind( classOf[model.ProductData.Builder] ).toProvider( model.ProductDataProvider )
+      binder.bind( classOf[model.VersionData.Builder] ).toProvider( model.VersionDataProvider )
+      binder.bind( classOf[model.MemberData.Builder] ).toProvider( model.MemberDataProvider )
+      binder.bind( classOf[model.MemberCheckinData.Builder] ).toProvider( model.MemberCheckinProvider )
+      binder.bind( classOf[model.MemberCheckoutData.Builder] ).toProvider( model.MemberCheckoutProvider )
     }
   }
 

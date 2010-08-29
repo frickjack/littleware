@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<help fullname="littleware.apps.tracker.browser.lgo.LgoMemberCheckout"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>checkout -member [path to member to checkout] -destination [directory to checkout into]</synopsis>
+  <description>
+      Checkout a version member's data to a destination directory:
+        checkout -member [path to member to checkout] -destination [directory to checkout into]
+  </description>
+  <shortname>checkout</shortname>
+  <shortname>co</shortname>
+</help>

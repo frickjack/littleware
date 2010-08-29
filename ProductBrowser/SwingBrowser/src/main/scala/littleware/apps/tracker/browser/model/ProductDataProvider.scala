@@ -12,31 +12,16 @@ package littleware.apps.tracker.browser.model
 
 import com.google.inject.Provider
 import edu.auburn.library.util.JclWrapper._
+import littleware.asset.AssetPath
 import littleware.base.ValidationException
 
-object SimplePDBProvider extends Provider[ProductData.Builder] {
+object ProductDataProvider extends Provider[ProductData.Builder] {
 
   class Builder extends ProductData.Builder {
-    var parentPath = ""
-    override def parentPath( value:String ):this.type = {
-      parentPath = value
-      this
-    }
-    var name = ""
-    override def name( value:String ):this.type = {
-      name = value
-      this
-    }
-    var comment = ""
-    override def comment( value:String ):this.type = {
-      comment = value
-      this
-    }
-
     @throws(classOf[ValidationException])
     override def build = {
       new Data(
-        emptyCheck( parentPath ) match {
+        Option( parentPath ) match {
           case Some(x) => x
           case _ => throw new ValidationException( "Empty product parent")
         },
@@ -49,7 +34,7 @@ object SimplePDBProvider extends Provider[ProductData.Builder] {
     }
   }
 
-  class Data( val parentPath:String, val name:String, val comment:String ) extends ProductData {}
+  class Data( val parentPath:AssetPath, val name:String, val comment:String ) extends ProductData {}
 
   override def get = new Builder
 }

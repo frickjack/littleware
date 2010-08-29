@@ -10,9 +10,14 @@
 
 package littleware.apps.tracker.browser.controller
 
-import littleware.apps.tracker.Product
-import littleware.apps.tracker.browser.model.ProductData
+import littleware.apps.tracker.{Product,Version, Member}
+import littleware.apps.tracker.browser.model
+import littleware.base.feedback.Feedback
 
 trait Controller {
-  def createProduct( productData:ProductData ):Product
+  def createProduct( productData:model.ProductData ):Product
+  def createVersion( versionData:model.VersionData ):Version
+  def createMember( memberData:model.MemberData ):Member
+  def checkin( checkinData:model.MemberCheckinData, feedback:Feedback ):Member
+  def checkout( checkoutData:model.MemberCheckoutData, feedback:Feedback ):Unit
 }

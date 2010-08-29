@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<help fullname="littleware.apps.tracker.browser.lgo.LgoCreateVersion"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>mcr -name [name] -comment [comment] -version [path to version parent] -data [member data string]</synopsis>
+  <description>
+      Create member-type asset:
+        mcr -name [name] -comment [comment] -version [path to version parent] -data [member data string]
+  </description>
+  <shortname>memcreate</shortname>
+  <shortname>mcreate</shortname>
+  <shortname>mcr</shortname>
+</help>

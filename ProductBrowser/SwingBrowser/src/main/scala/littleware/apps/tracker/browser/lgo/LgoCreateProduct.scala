@@ -12,9 +12,12 @@ package littleware.apps.tracker.browser.lgo
 
 import com.google.inject.Inject
 import com.google.inject.Provider
+import littleware.apps.lgo.AbstractAssetCommand
 import littleware.apps.tracker
 import littleware.apps.tracker.browser.controller.Controller
 import littleware.apps.tracker.browser.model.ProductData
+import littleware.asset.AssetPathFactory
+import littleware.asset.pickle.HumanPicklerProvider
 import littleware.base.feedback.Feedback
 import littleware.lgo.AbstractLgoBuilder
 import littleware.lgo.AbstractLgoCommand
@@ -26,29 +29,35 @@ object LgoCreateProduct {
     val name = "name"
     val comment = "comment"
   }
+
+
+
+  class Builder @Inject() (
+    controller:Controller,
+    dataProvider:Provider[ProductData.Builder],
+    pathFactory:AssetPathFactory,
+    pickleProvider:HumanPicklerProvider
+  ) extends AbstractLgoBuilder[ProductData]( classOf[LgoCreateProduct].getName ) {
+
+    /**
+     * Build up command from command-line arguments
+     */
+    override def buildFromArgs( args:java.util.List[String] ):LgoCreateProduct = {
+      val argMap = AbstractLgoBuilder.processArgs( args, Option.parent, Option.name, Option.comment )
+      buildSafe(
+        dataProvider.get.name( argMap.get( Option.name )
+        ).parentPath( pathFactory.createPath( argMap.get( Option.parent ) )
+        ).comment( argMap.get( Option.comment )
+        ).build
+      )
+    }
+    override def buildSafe( data:ProductData ):LgoCreateProduct = new LgoCreateProduct( controller, pickleProvider, data )
+  }
 }
 
-import LgoCreateProduct._
-
-class LgoCreateProduct @Inject() (
-  controller:Controller,
-  dataProvider:Provider[ProductData.Builder]
-  ) extends AbstractLgoBuilder[ProductData]( classOf[LgoCreateProduct].getName ) {
-    class Command( data:ProductData ) extends AbstractLgoCommand[ProductData,tracker.Product]( classOf[LgoCreateProduct].getName, data ) {
-        override def runCommand( feedback:Feedback ):tracker.Product = controller.createProduct( data )
-    }
-
-  /**
-   * Build up command from command-line arguments
-   */
-  override def buildFromArgs( args:java.util.List[String] ):Command = {
-    val argMap = AbstractLgoBuilder.processArgs( args, Option.parent, Option.name, Option.comment )
-    buildSafe(
-      dataProvider.get.name( argMap.get( Option.name )
-      ).parentPath( argMap.get( Option.parent )
-      ).comment( argMap.get( Option.comment )
-      ).build
-        )
-  }
-  override def buildSafe( data:ProductData ):Command = new Command( data )
+class LgoCreateProduct( controller:Controller, 
+                       pickleProvider:HumanPicklerProvider,
+                       data:ProductData
+) extends AbstractAssetCommand[ProductData,tracker.Product]( classOf[LgoCreateProduct].getName, pickleProvider, data ) {
+  override def runCommand( feedback:Feedback ):tracker.Product = controller.createProduct( data )
 }

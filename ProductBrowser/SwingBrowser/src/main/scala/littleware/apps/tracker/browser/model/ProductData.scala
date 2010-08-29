@@ -10,22 +10,32 @@
 
 package littleware.apps.tracker.browser.model
 
+import littleware.asset.AssetPath
 import littleware.base.ValidationException
 
 trait ProductData {
-  def  parentPath:String
-  def  name:String
-  def  comment:String
+  val  parentPath:AssetPath
+  val  name:String
+  val  comment:String
 }
 
 object ProductData {
   trait Builder {
-    def  parentPath:String
-    def  parentPath( value:String ):this.type
-    def  name:String
-    def  name( value:String ):this.type
-    def  comment:String
-    def  comment( value:String ):this.type
+    var  parentPath:AssetPath = null
+    def  parentPath( value:AssetPath ):this.type = {
+      parentPath = value
+      this
+    }
+    var  name:String = null
+    def  name( value:String ):this.type = {
+      name = value
+      this
+    }
+    var  comment:String = ""
+    def  comment( value:String ):this.type = {
+      comment = value
+      this
+    }
     @throws(classOf[ValidationException])
     def  build:ProductData
   }

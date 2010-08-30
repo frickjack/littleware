@@ -108,6 +108,17 @@
 
 <target name="-pre-init" depends="resolve" />
 
+<target name="-post-jar"
+        depends="-init-project"
+         >
+    <fail unless="dist.dir">dist.dir not defined ? </fail>
+    <copy todir="${dist.dir}">
+        <fileset dir="cli">
+            <include name="*.sh" />
+            <include name="*.bat" />
+        </fileset>
+    </copy>
+  </target>
 
 <target name="publish" depends="resolve,-init-project,jar" description="publish to local ivy repository">
 	<ivy:publish  overwrite="true"

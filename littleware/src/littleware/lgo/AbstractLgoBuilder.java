@@ -27,7 +27,7 @@ public abstract class AbstractLgoBuilder<InType> implements LgoCommand.LgoBuilde
     public String getName() { return  name; }
 
     @Override
-    public LgoCommand buildWithInput( Object input ) {
+    public final LgoCommand buildWithInput( Object input ) {
         return buildSafe( (InType) input );
     }
 

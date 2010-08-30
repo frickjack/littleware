@@ -197,6 +197,11 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
         this.services = services;
     }
 
+    @Override
+    public String runCommandLine( Feedback feedback ) throws Exception {
+        return runCommand( feedback ).waitForEventData().toString();
+    }
+
     /**
      * Start browsing 
      * 

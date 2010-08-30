@@ -10,10 +10,15 @@
 
 package littleware.base;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 /**
  * Simple event barrier.
  */
-public class EventBarrier<T> {
+public class EventBarrier<T> implements Future<T> {
     private boolean  isEventReady = false;
     private T        data = null;
 
@@ -53,6 +58,38 @@ public class EventBarrier<T> {
     @Override
     public String toString() {
         return "EventBarrier(isEventReady: " + isEventReady + ")";
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        throw new UnsupportedOperationException("Not supported.");
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return false;
+    }
+
+    @Override
+    public boolean isDone() {
+        return this.isDataReady();
+    }
+
+    @Override
+    public T get() throws InterruptedException, ExecutionException {
+        return this.waitForEventData();
+    }
+
+    @Override
+    public synchronized T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        if ( ! isEventReady ) {
+            this.wait( TimeUnit.MILLISECONDS.convert(timeout, unit) );
+        }
+        if ( ! isEventReady ) {
+            throw new TimeoutException();
+        }
+        return data;
+
     }
 
 }

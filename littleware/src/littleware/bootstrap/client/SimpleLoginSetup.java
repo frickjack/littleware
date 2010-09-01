@@ -82,6 +82,7 @@ public class SimpleLoginSetup implements ClientBootstrap.LoginSetup {
     public ClientBootstrap login(Configuration loginConfig, String name, String password) throws LoginException {
         final CallbackHandler callbackHandler = new SimpleCallbackHandler(name, password);
 
+        log.log( Level.FINE, "Attempting to login as user: {0}", name );
         return login(new LoginContext(ConfigName, new Subject(), callbackHandler, loginConfig));
     }
 

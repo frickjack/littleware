@@ -227,7 +227,7 @@ public class ClientLoginModule implements LoginModule {
         // finaly - decorate the authenticated Subject
         try {
             final AssetSearchManager search = helper.getService(ServiceType.ASSET_SEARCH);
-            final LittleUser user = search.getAsset(helper.getSession().getCreatorId()).get().narrow();
+            final LittleUser user = search.getAsset(helper.getSession().getOwnerId()).get().narrow();
 
             subject.getPrincipals().add(
                     user);

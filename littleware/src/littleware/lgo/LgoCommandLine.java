@@ -147,21 +147,33 @@ public class LgoCommandLine {
         final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
         String[] cleanArgs = argsIn;
 
-        // Currently only support -url argument
-        if ((argsIn.length > 1) && argsIn[0].matches("^-+[uU][rR][lL]")) {
-            final String sUrl = argsIn[1];
+        // Support -url and -user arguments
+        if ((cleanArgs.length > 1) && cleanArgs[0].toLowerCase().matches("^-+url")) {
+            final String sUrl = cleanArgs[1];
             try {
                 final URL url = new URL(sUrl);
                 loginBuilder.host(url.getHost());
             } catch (MalformedURLException ex) {
                 throw new IllegalArgumentException("Malformed URL: " + sUrl);
             }
-            if (argsIn.length > 2) {
-                cleanArgs = Arrays.copyOfRange(argsIn, 2, argsIn.length);
+            if (cleanArgs.length > 2) {
+                cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
             } else {
                 cleanArgs = new String[0];
             }
         }
+        final Maybe<String> maybeUser;
+        if ((cleanArgs.length > 1) && cleanArgs[0].toLowerCase().matches("^-+user")) {
+            maybeUser = Maybe.something( cleanArgs[1] );
+            if (cleanArgs.length > 2) {
+                cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
+            } else {
+                cleanArgs = new String[0];
+            }            
+        } else {
+            maybeUser = Maybe.empty();
+        }
+        
         /*... need to rework this stuff ...
         if ( cleanArgs.length > 0 ) {
         final String command = cleanArgs[0];
@@ -189,7 +201,16 @@ public class LgoCommandLine {
          */
         int exitCode = 1;
         try {
-            final ClientBootstrap boot = bootBuilder.build().automatic(loginBuilder.build());
+            final ClientBootstrap boot;
+            if ( maybeUser.isSet() ) {
+                boot = bootBuilder.build().login(
+                    loginBuilder.build(), maybeUser.get(), ""
+                    );
+            } else {
+                boot = bootBuilder.build().automatic(
+                    loginBuilder.build()
+                    );
+            }
             final LgoCommandLine cl = boot.bootstrap(LgoCommandLine.class);
             exitCode = cl.run(cleanArgs);
             boot.shutdown();

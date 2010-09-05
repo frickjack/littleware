@@ -71,7 +71,7 @@ public class LgoCommandLine {
             final String result = maybe.get().buildFromArgs(processArgs).runCommandLine(feedback);
             System.out.println((null == result) ? "null" : result);
         } catch (Exception ex) {
-            System.out.println("Command failed, Frickjack!: "
+            System.out.println("Command failed: "
                     + BaseException.getStackTrace(ex));
 
             try {

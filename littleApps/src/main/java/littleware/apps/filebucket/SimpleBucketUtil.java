@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,6 +54,12 @@ public class SimpleBucketUtil implements BucketUtil {
             if ( (! parent.exists()) || (! parent.isDirectory()) ) {
                 throw new IllegalArgumentException( "Parent directory does not exist: " + parent );
             }
+        }
+        final OutputStream out = new FileOutputStream( destination );
+        try {
+            readToStream( out, assetId, bucketPath, feedback );
+        } finally {
+            out.close();
         }
     }
 
@@ -111,7 +118,7 @@ public class SimpleBucketUtil implements BucketUtil {
         long count = 0;
         int offset = 0;
         int chunk = 0;
-        T result = null;
+        T result = asset;
         for ( chunk = in.read( buffer );
             chunk >= 0;
             chunk = in.read( buffer, offset, buffer.length - offset )
@@ -120,19 +127,19 @@ public class SimpleBucketUtil implements BucketUtil {
                 offset += chunk;
             } else {
                 offset = 0;
-                result = bucketMgr.writeToBucket(asset, bucketPath, buffer, count, updateComment);
+                result = bucketMgr.writeToBucket(result, bucketPath, buffer, count, updateComment);
                 count += buffer.length;
                 feedback.setProgress( (int) (100L * count / totalSize), 100 );
             }
         }
         if ( offset > 0 ) {
-            result = bucketMgr.writeToBucket(asset, bucketPath,
+            result = bucketMgr.writeToBucket(result, bucketPath,
                     Arrays.copyOf(buffer, offset),
                     count, updateComment
                     );
             count += offset;
         }
-        if ( null == result ) {
+        if ( asset == result ) {
             throw new AssertionFailedException( "No result prepared" );
         }
         return result;

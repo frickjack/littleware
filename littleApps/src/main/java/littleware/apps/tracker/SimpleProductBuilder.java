@@ -48,7 +48,7 @@ public class SimpleProductBuilder extends SimpleAssetBuilder implements Product.
 
     public static class SimpleProduct extends SimpleAsset implements Product {
 
-        private AssetSearchManager search;
+        private transient AssetSearchManager search;
 
         public SimpleProduct() {
         }

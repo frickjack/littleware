@@ -56,7 +56,7 @@ public class SimpleVersionBuilder extends SimpleAssetBuilder implements Version.
 
     public static class SimpleVersion extends SimpleAsset implements Version {
 
-        private AssetSearchManager search;
+        private transient AssetSearchManager search;
 
         private SimpleVersion() {
         }

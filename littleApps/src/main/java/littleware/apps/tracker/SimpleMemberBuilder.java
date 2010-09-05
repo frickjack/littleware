@@ -53,7 +53,7 @@ public class SimpleMemberBuilder extends SimpleAssetBuilder implements MemberBui
     }
 
     public static class SimpleMember extends SimpleAsset implements Member {
-        private ProductManager prodMan;
+        private transient ProductManager prodMan;
 
         private SimpleMember() {
         }

@@ -69,6 +69,7 @@ public class SimpleProductManager implements ProductManager {
         }
         feedback.info( "Retrieving zipfile from member for checkout ..." );
         final File   tempZip = File.createTempFile("checkout", ".zip" );
+        tempZip.delete();  // let the next line recreate the temp file
         bucketUtil.readToFile(memberId, zipPath, tempZip, feedback.nested( 8, 10 ) );
         feedback.info( "Unzipping ..." );
         zipUtil.unzip(tempZip, destinationFolder, feedback.nested(10, 10));

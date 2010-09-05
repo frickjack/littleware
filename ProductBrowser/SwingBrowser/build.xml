@@ -116,6 +116,7 @@
         <fileset dir="cli">
             <include name="*.sh" />
             <include name="*.bat" />
+            <include name="*.properties" />
         </fileset>
     </copy>
   </target>

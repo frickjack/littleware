@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="auburn.library" module="productBrowser"/>
+    <info organisation="littleware" module="productBrowser"/>
     <configurations>
         <conf name="client"  description="client side RMI binding support only"/>
         <conf name="server"  description="deploy to j2ee container server"/>
@@ -11,7 +11,7 @@
     	-->
     </configurations>
     <publications>
-    	<artifact name="ProductBrowser" ext="jar" type="jar"  conf="*" />
+    	<artifact name="SwingBrowser" ext="jar" type="jar"  conf="*" />
         <!--
         <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
     	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>

@@ -1,0 +1,117 @@
+/* 
+    Document   : browser
+    Created on : Sep 10, 2010, 4:09:59 PM
+    Author     : pasquini
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+root { 
+    display: block;
+}
+
+body, html {
+    background-color: #aaaaff;
+    color: #ffffff;
+}
+
+div#head {
+    background-color: #aaaaff;
+    color: #ffffff;
+    height: 50px;
+    text-align: left;
+    padding-left: 20px;
+}
+
+div#head h2 {
+    font-size: 200%;
+}
+
+div#main {
+    width:960px;
+    clear:both;
+}
+
+div#browser {
+    height: 350px;
+}
+
+div#browserpath {
+    text-align: left;
+    padding-left: 20px;
+    clear: both;
+}
+
+ul.inline li {
+    display: inline;
+    list-style-type: none;
+}
+
+/*.... Browser area ...*/
+
+div.browser {
+    width: 320px;
+    float: left;
+    height: 300px;
+    overflow: auto;
+}
+
+ul.browser li {
+    list-style: none;
+    background-color: #dddddd;
+    margin-top: 5px;
+    padding: 5px;
+    color: #000000;
+}
+
+ul.browser li.selected {
+    background-color: #ddffdd;
+}
+
+ul.browser {
+    border: 1px;
+    border-style: solid;
+}
+
+table.browsercell tr td {
+    border-style: none;
+}
+
+/* ... Product area ... */
+div#productBase, div#productDetail {
+    background-color: #ffffff;
+    color: #000000;
+    float: left;
+    clear:left;
+    /* border: 3px red solid; */
+    margin-top: 10px;
+    width: 400px;
+}
+
+div#productDetail {
+    clear:right;
+    margin-left: 10px;
+    text-align: left;
+    padding: 10px;
+}
+
+table.deftable tr th {
+    border-style: none;
+    text-align: right;
+}
+table.deftable tr td {
+    border-style: none;
+    text-align: left;
+}
+
+ul.tree li {
+    margin-top: 5px;
+    padding: 5px;
+    color: #000000;
+    text-align: left;
+}

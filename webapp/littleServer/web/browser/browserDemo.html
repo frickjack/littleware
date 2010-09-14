@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <head>
+        <title>Browser Demo</title>
+
+        <link rel="stylesheet" type="text/css"
+              href="http://yui.yahooapis.com/2.8.1/build/reset-fonts-grids/reset-fonts-grids.css"
+              />
+        <link rel="stylesheet" type="text/css"
+              href="http://yui.yahooapis.com/2.8.1/build/base/base-min.css"
+              />
+        <link rel="stylesheet" type="text/css"
+              href="lib/css/browser.css"
+              />
+
+<script type="text/javascript"
+ src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script src="lib/js/jquery.scrollTo-1.4.2-min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  function bla() {
+      $('#cousins').scrollTo( $("#cousins > ul > li.selected") );
+      $('#parent').scrollTo( $("#parent > ul > li.selected") );
+      //$("#cousins > ul > li.selected").css( "border", "3px solid red" );
+      //alert( "Element: " + element );
+  }
+    // <![CDATA[
+  $(document).ready(function() {
+      
+  });
+  $(window).load(function() {
+      bla();
+  });
+  //]]>
+</script>
+    </head>
+    <body>
+        <div id="head">
+            <h2>Project Bla Banner</h2>
+        </div>
+        <div id="main">
+            <div id="browser">
+                <div id="browserpath">
+                <b>/ProjectHome/ParentProduct/ActiveProduct</b>
+                </div>
+                <div id="parent" class="browser">
+                    <ul class="browser">
+                        <li class="selected">
+                            <table class="browsercell"><tr>
+                                    <td><img class="thumbnail" alt="product image"  src="lib/img/ipad.jpg" /></td>
+                                    <td>ParentProduct</td>
+                                </tr></table>
+                        </li>
+                        <li>
+                            <table class="browsercell"><tr>
+                                    <td><img class="thumbnail" alt="product image" src="lib/img/ipad.jpg" /></td>
+                                    <td>UncleProduct</td>
+                                </tr></table>
+                        </li>
+                        <li>
+                            <table class="browsercell"><tr>
+                                    <td><img class="thumbnail" alt="product image" src="lib/img/ipad.jpg" /></td>
+                                    <td>AuntProduct</td>
+                                </tr></table>
+                        </li>
+                    </ul>
+                </div>
+                <div id="cousins" class="browser">
+                    <ul class="browser">
+                        <li>
+                            <table class="browsercell"><tr>
+                                    <td><img alt="product image"  src="lib/img/ipodclassic.jpg" /></td>
+                                    <td>Cousin1Product</td>
+                                </tr></table>
+                        </li>
+                        <li>
+                            <table class="browsercell"><tr>
+                                    <td><img alt="product image" src="lib/img/ipodclassic.jpg" /></td>
+                                    <td>Cousin2Product</td>
+                                </tr></table>
+                        </li>
+                        <li class="selected" id="selected">
+                            <table class="browsercell"><tr>
+                                    <td><img alt="product image" src="lib/img/ipodclassic.jpg" /></td>
+                                    <td>ActiveProduct</td>
+                                </tr></table>
+                        </li>
+                    </ul>
+                </div>
+                <div id="kids" class="browser">
+                    <ul class="browser">
+                        <li>
+                            <table class="browsercell"><tr>
+                                    <td><img alt="product image"  src="lib/img/ipad.jpg" /></td>
+                                    <td>Child1Product</td>
+                                </tr></table>
+                        </li>
+                        <li>
+                            <table class="browsercell"><tr>
+                                    <td><img alt="product image" src="lib/img/ipad.jpg" /></td>
+                                    <td>Child2Product</td>
+                                </tr></table>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="productBase">
+                <table class="browsercell"><tr>
+                        <td><img alt="icon" src="lib/img/adobe_reader.jpg" /></td>
+                        <td><h3>ActiveProduct</h3></td>
+                    </tr></table>
+                <p>
+                    Comment about this product - bla bla bla
+                </p>
+                <table class="deftable">
+                    <tr><th>Type:</th><td>Product</td></tr>
+                    <tr><th>Owner:</th><td>Reuben</td></tr>
+                    <tr><th>ACL:</th><td>everybody.read</td></tr>
+                </table>
+            </div>
+            <div id="productDetail">
+                <h3>Versions</h3>
+                <ul class="tree">
+                    <li>2.0
+                        <h3>Members</h3>
+                        <ul class="tree">
+                            <li>default
+                                <h3>Index</h3>
+                                <ul class="tree">
+                                    <li>bla/bla.pdf</li>
+                                    <li>bla/bla.png</li>
+                                </ul>
+                            </li>
+                            <li>other</li>
+                        </ul>
+                    </li>
+                    <li>1.1</li>
+                    <li>1.0</li>
+                </ul>
+            </div>
+
+            <div id="history">
+
+            </div>
+        </div>
+
+    </body>
+</html>
+

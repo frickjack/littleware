@@ -18,18 +18,27 @@ root {
 body, html {
     background-color: #aaaaff;
     color: #ffffff;
+    /* border: 2px red solid; */
+    padding: 0px;
+    margin: 0px;
 }
 
 div#head {
-    background-color: #aaaaff;
+    background-color: #aaaaaa;
     color: #ffffff;
-    height: 50px;
+    height: 40px;
     text-align: left;
     padding-left: 20px;
+    margin: 0px;
+    margin-top: -20px;
+    margin-bottom: 10px;
+    width: 100%;
+    clear: both;
 }
 
 div#head h2 {
-    font-size: 200%;
+    font-size: 150%;
+    padding: 0px;
 }
 
 div#main {
@@ -38,12 +47,12 @@ div#main {
 }
 
 div#browser {
-    height: 350px;
+    height: 220px;
 }
 
 div#browserpath {
     text-align: left;
-    padding-left: 20px;
+    padding: 5px 0px 5px 20px;
     clear: both;
 }
 
@@ -55,17 +64,17 @@ ul.inline li {
 /*.... Browser area ...*/
 
 div.browser {
-    width: 320px;
+    width: 300px;
     float: left;
-    height: 300px;
+    height: 200px;
     overflow: auto;
 }
 
 ul.browser li {
     list-style: none;
     background-color: #dddddd;
-    margin-top: 5px;
-    padding: 5px;
+    margin-top: 2px;
+    padding: 2px;
     color: #000000;
 }
 
@@ -83,21 +92,23 @@ table.browsercell tr td {
 }
 
 /* ... Product area ... */
-div#productBase, div#productDetail {
+div#productBase, div#productDetail, div#history {
     background-color: #ffffff;
     color: #000000;
     float: left;
     clear:left;
     /* border: 3px red solid; */
-    margin-top: 10px;
+    margin: 10px 0px 0px 10px;
     width: 400px;
+    height: 300px;
+    overflow: auto;
+    padding: 10px;
+    text-align: left;
 }
 
 div#productDetail {
     clear:right;
     margin-left: 10px;
-    text-align: left;
-    padding: 10px;
 }
 
 table.deftable tr th {
@@ -114,4 +125,9 @@ ul.tree li {
     padding: 5px;
     color: #000000;
     text-align: left;
+}
+
+span.button {
+    background-color: #ccccff;
+    width: 100px;
 }

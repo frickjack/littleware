@@ -6,122 +6,207 @@
       xmlns:h="http://java.sun.com/jsf/html">
     <head>
         <title>Browser Demo</title>
-
         <link rel="stylesheet" type="text/css"
-              href="http://yui.yahooapis.com/2.8.1/build/reset-fonts-grids/reset-fonts-grids.css"
-              />
-        <link rel="stylesheet" type="text/css"
-              href="http://yui.yahooapis.com/2.8.1/build/base/base-min.css"
+              href="http://yui.yahooapis.com/combo?3.2.0/build/cssreset/reset-min.css&3.2.0/build/cssfonts/fonts-min.css&3.2.0/build/cssgrids/grids-min.css"
               />
         <link rel="stylesheet" type="text/css"
               href="util/css/browser.css"
               />
 
-<script type="text/javascript"
- src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-<script src="util/js/jquery.scrollTo-1.4.2-min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  function bla() {
-      $('#cousins').scrollTo( $("#cousins > ul > li.selected") );
-      $('#parent').scrollTo( $("#parent > ul > li.selected") );
-      //$("#cousins > ul > li.selected").css( "border", "3px solid red" );
-      //alert( "Element: " + element );
-  }
-    // <![CDATA[
-  $(document).ready(function() {
-      
-  });
-  $(window).load(function() {
-      bla();
-  });
-  //]]>
-</script>
+        <script type="text/javascript" charset="utf-8"
+                src="http://yui.yahooapis.com/3.2.0/build/yui/yui-min.js">
+        </script>
+
+        <script type="text/javascript">
+            // <![CDATA[
+            YUI().use('tabview', function(Y) {
+                var tabview = new Y.TabView({
+                    srcNode: '#navTabs'
+                });
+
+                tabview.render();
+            });
+            //]]>
+        </script>
+
     </head>
-    <body>
+    <body class="yui3-skin-sam">
         <div id="head">
-            <h2>Project Bla Banner</h2>
+            <h2>Project Bla Banner</h2> <b>/<a href="/ProjectHome">ProjectHome</a>/<a href="/ProjectHome/ParentProduct">ParentProduct</a>/ActiveProduct</b>
         </div>
         <div id="main">
-            <div id="browser">
-                <div id="browserpath">
-                <b>/ProjectHome/ParentProduct/ActiveProduct</b>
+            <div id="productBase">
+                <div id="productInfo">
+                    <img alt="nodeGraph" src="./util/img/nodeGraph.png" width="100px" style="margin:20px;"/>
+                    <table class="browsercell"><tr>
+                            <td><img alt="icon" src="util/img/adobe_reader.jpg" /></td>
+                            <td><h3>ActiveProduct</h3></td>
+                        </tr></table>
+                    <p>
+                        Comment about this product - bla bla bla
+                    </p>
+                    <table class="deftable">
+                        <tr><th>Type:</th><td>Product</td></tr>
+                        <tr><th>Owner:</th><td>Reuben</td></tr>
+                        <tr><th>ACL:</th><td>everybody.read</td></tr>
+                    </table>
                 </div>
-                <div id="parent" class="browser">
-                    <ul class="browser">
-                        <li class="selected">
-                            <table class="browsercell"><tr>
-                                    <td><img class="thumbnail" alt="product image"  src="util/img/ipad.jpg" /></td>
-                                    <td>ParentProduct</td>
-                                </tr></table>
-                        </li>
-                        <li>
-                            <table class="browsercell"><tr>
-                                    <td><img class="thumbnail" alt="product image" src="util/img/ipad.jpg" /></td>
-                                    <td>UncleProduct</td>
-                                </tr></table>
-                        </li>
-                        <li>
-                            <table class="browsercell"><tr>
-                                    <td><img class="thumbnail" alt="product image" src="util/img/ipad.jpg" /></td>
-                                    <td>AuntProduct</td>
-                                </tr></table>
-                        </li>
+                <div id="navTabs">
+                    <ul>
+                        <li><a href="#kids">Kids</a></li>
+                        <li><a href="#neighbors">Neighbors</a></li>
+                        <li><a href="#uncles">Uncles</a></li>
+                        <li><a href="#siblings">Siblings</a></li>
+                        <li><a href="#filebucket">File Bucket</a></li>
                     </ul>
-                </div>
-                <div id="cousins" class="browser">
-                    <ul class="browser">
-                        <li>
-                            <table class="browsercell"><tr>
-                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
-                                    <td>Cousin1Product</td>
-                                </tr></table>
-                        </li>
-                        <li>
-                            <table class="browsercell"><tr>
-                                    <td><img alt="product image" src="util/img/ipodclassic.jpg" /></td>
-                                    <td>Cousin2Product</td>
-                                </tr></table>
-                        </li>
-                        <li class="selected" id="selected">
-                            <table class="browsercell"><tr>
-                                    <td><img alt="product image" src="util/img/ipodclassic.jpg" /></td>
-                                    <td>ActiveProduct</td>
-                                </tr></table>
-                        </li>
-                    </ul>
-                </div>
-                <div id="kids" class="browser">
-                    <ul class="browser">
-                        <li>
-                            <table class="browsercell"><tr>
-                                    <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
-                                    <td>Child1Product</td>
-                                </tr></table>
-                        </li>
-                        <li>
-                            <table class="browsercell"><tr>
-                                    <td><img alt="product image" src="util/img/ipad.jpg" /></td>
-                                    <td>Child2Product</td>
-                                </tr></table>
-                        </li>
-                    </ul>
+                    <div>
+                        <div id="kids" class="browser">
+                            <table class="browser">
+                                    <tr><th>Relative XPath</th>
+                                        <th>Name/Comment</th>
+                                        <th>Last Update</th>
+                                        <th>Icon</th>
+                                    </tr>
+                                    <tr>
+                                        <td><a href=".">./Timmy</a></td>
+                                        <td><b>Timmy</b> <em>(littleware.Version)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href=".">./Tommy</a></td>
+                                        <td><b>Tommy</b> <em>(littleware.Version)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href=".">./Toby</a></td>
+                                        <td><b>Toby</b> <em>(littleware.Version)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href=".">./Triscia</a></td>
+                                        <td><b>Triscia</b> <em>(littleware.Version)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                            </table>
+                        </div>
+
+                        <div id="neighbors" class="browser">
+                            <table class="browser">
+                                    <tr><th>Relative XPath</th>
+                                        <th>Name/Comment</th>
+                                        <th>Last Update</th>
+                                        <th>Icon</th>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="./@creator">./@creator</a></td>
+                                        <td><b>SomeDude</b> <em>(littleware.User)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="./@from">./@from</a></td>
+                                        <td><b>ParentName</b> <em>(littleware.Generic)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="./@owner">./@owner</a></td>
+                                        <td><b>Ms.Owner</b> <em>(littleware.User)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="./@acl">./@acl</a></td>
+                                        <td><b>acl.littleware.everybody.read</b> <em>(littleware.ACL)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/adobe_reader.jpg" /></td>
+                                    </tr>
+                            </table>
+                        </div>
+
+                        <div id="uncles" class="browser">
+                            <table class="browser">
+                                    <tr><th>Relative XPath</th>
+                                        <th>Name/Comment</th>
+                                        <th>Last Update</th>
+                                        <th>Icon</th>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="../">../</a></td>
+                                        <td><b>ParentProduct</b> <em>(littleware.Generic)</em> parent of bla can what do up and where down for bla cluck cluck puppy doo</td>
+                                        <td>2010/01/02 bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="../../UncleJoe">../../UncleJoe</a></td>
+                                        <td><b>UncleJoe</b> <em>(littleware.Generic)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="../../AuntJane">../../AuntJane</a></td>
+                                        <td><b>AuntJane</b> <em>(littleware.Generic)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="../../UncleBob">../../UncleBob</a></td>
+                                        <td><b>UncleBob</b> <em>(littleware.Generic)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                            </table>
+                        </div>
+
+                        <div id="siblings" class="browser">
+                            <table class="browser">
+                                    <tr><th>Relative XPath</th>
+                                        <th>Name/Comment</th>
+                                        <th>Last Update</th>
+                                        <th>Icon</th>
+                                    </tr>
+                                    <tr>
+                                        <td><a href=".">../LittleBro</a></td>
+                                        <td><b>LittleBro</b> <em>(littleware.Generic)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href=".">../BigBro</a></td>
+                                        <td><b>BigBro</b> <em>(littleware.Generic)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href=".">../LittleSis</a></td>
+                                        <td><b>LittleSis</b> <em>(littleware.Generic)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href=".">../BigSis</a></td>
+                                        <td><b>BigSis</b> <em>(littleware.Generic)</em></td>
+                                        <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                        <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                    </tr>
+                            </table>
+                        </div>
+                        <div id="filebucket" class="browser">
+                            <table class="browser">
+                                    <tr><th>Filename</th>
+                                    </tr>
+                                    <tr><td><a href="download">Image.png</a></td></tr>
+                                    <tr><td><a href="download">member.zip</a></td></tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div id="productBase">
-                <table class="browsercell"><tr>
-                        <td><img alt="icon" src="util/img/adobe_reader.jpg" /></td>
-                        <td><h3>ActiveProduct</h3></td>
-                    </tr></table>
-                <p>
-                    Comment about this product - bla bla bla
-                </p>
-                <table class="deftable">
-                    <tr><th>Type:</th><td>Product</td></tr>
-                    <tr><th>Owner:</th><td>Reuben</td></tr>
-                    <tr><th>ACL:</th><td>everybody.read</td></tr>
-                </table>
-            </div>
             <div id="productDetail">
                 <h3>Versions</h3>
                 <ul class="tree">
@@ -160,7 +245,6 @@
                 </table>
             </div>
         </div>
-
     </body>
 </html>
 

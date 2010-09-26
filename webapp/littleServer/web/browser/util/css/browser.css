@@ -108,6 +108,10 @@ table.browser tr td, table.browser tr th {
     text-align: center;
 }
 
+div#basic {
+    color: #000000;
+}
+
 /* ... Product area ... */
 div#productBase, div#productDetail, div#history {
     background-color: #ffffff;

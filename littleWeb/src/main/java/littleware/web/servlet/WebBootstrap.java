@@ -12,6 +12,7 @@
 package littleware.web.servlet;
 
 import com.google.inject.Injector;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.ClientBootstrap;
@@ -43,4 +44,16 @@ public class WebBootstrap {
         return boot;
     }
 
+    /**
+     * Setup a littleware environment (guicebean, bootstrap) in application scope.
+     * Bootstraps littleware, and registers GuiceBean and LittleBoot
+     * with the ServletContext.
+     */
+    public static AppBootstrap bootstrap( ServletContext context ) {
+        final AppBootstrap boot = AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.WebApp).build();
+        final Injector injector = boot.bootstrap( Injector.class );
+        context.setAttribute(littleGuice, new GuiceBean( injector ) );
+        context.setAttribute(littleBoot, boot );
+        return boot;
+    }
 }

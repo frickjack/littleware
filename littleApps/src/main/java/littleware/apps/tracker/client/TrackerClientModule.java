@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.tracker.client;
 
 import com.google.common.collect.ImmutableList;
@@ -44,45 +43,34 @@ import littleware.security.auth.ServiceType;
  * bind TaskQueryManager to TaskQueryManagerService
  */
 public class TrackerClientModule extends AbstractClientModule {
-    private static final Logger log = Logger.getLogger( TrackerClientModule.class.getName() );
+
+    private static final Logger log = Logger.getLogger(TrackerClientModule.class.getName());
     private static final Collection<AssetType> typeSet;
+
     static {
         final ImmutableList.Builder<AssetType> builder = ImmutableList.builder();
-        typeSet = builder.add(TrackerAssetType.COMMENT
-                ).add( TrackerAssetType.DEPENDENCY
-                ).add( TrackerAssetType.QUEUE
-                ).add( TrackerAssetType.TASK
-                ).add( Product.ProductType
-                ).add( ProductAlias.PAType
-                ).add( Version.VersionType
-                ).add( VersionAlias.VAType
-                ).add( Member.MemberType
-                ).add( MemberAlias.MAType
-                ).build();
+        typeSet = builder.add(TrackerAssetType.COMMENT).add(TrackerAssetType.DEPENDENCY).add(TrackerAssetType.QUEUE).add(TrackerAssetType.TASK).add(Product.ProductType).add(ProductAlias.PAType).add(Version.VersionType).add(VersionAlias.VAType).add(Member.MemberType).add(MemberAlias.MAType).build();
     }
     private static final Collection<ServiceType> serviceSet =
-            Collections.singleton( (ServiceType) TaskQueryManager.SERVICE_HANDLE );
+            Collections.singleton((ServiceType) TaskQueryManager.SERVICE_HANDLE);
 
     public static class Factory implements ClientModuleFactory {
 
         @Override
         public ClientModule build(AppProfile profile) {
-            return new TrackerClientModule( profile );
+            return new TrackerClientModule(profile);
         }
-
     }
 
 
-    private TrackerClientModule( AppBootstrap.AppProfile profile ) {
-        super( profile, typeSet, serviceSet, emptyServiceListeners );
+    private TrackerClientModule(AppBootstrap.AppProfile profile) {
+        super(profile, typeSet, serviceSet, emptyServiceListeners);
     }
-    
+
     @Override
     public void configure(Binder binder) {
-        binder.bind( TaskQueryManager.class ).to( TaskQueryManagerService.class );
-        binder.bind( TaskManager.class ).to( SimpleTaskManager.class ).in( Scopes.SINGLETON );
-        binder.bind( ProductManager.class ).to( SimpleProductManager.class ).in( Scopes.SINGLETON );
-        binder.bind( ZipUtil.class ).to( SimpleZipUtil.class ).in( Scopes.SINGLETON );
-        binder.bind( MemberIndex.IndexBuilder.class ).to( SimpleIndexBuilder.class );
+        binder.bind(TaskQueryManager.class).to(TaskQueryManagerService.class);
+        binder.bind(TaskManager.class).to(SimpleTaskManager.class).in(Scopes.SINGLETON);
+        binder.bind(ProductManager.class).to(SimpleProductManager.class).in(Scopes.SINGLETON);
     }
 }

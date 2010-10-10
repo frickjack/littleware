@@ -9,6 +9,7 @@
  */
 package littleware.lgo;
 
+import com.google.common.collect.ImmutableMap;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,12 +19,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import javax.security.auth.login.LoginException;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
+import littleware.bootstrap.LittleBootstrap;
+import littleware.bootstrap.client.AppBootstrap;
 import littleware.bootstrap.client.ClientBootstrap;
 import littleware.security.auth.client.ClientLoginModule;
 
@@ -33,11 +37,19 @@ import littleware.security.auth.client.ClientLoginModule;
  * other commands as an alternative to
  * setting up .jar files or shell scripts
  * for launching each command.  Typical syntax is:
- *     lgo command-name command-args
+ *     lgo [special options] command-name command-args
  */
 public class LgoCommandLine {
 
     private static final Logger log = Logger.getLogger(LgoCommandLine.class.getName());
+
+    /**
+     * Special options that LgoCommandLine.launch looks for as first
+     * arguments before the command's name.
+     */
+    private enum SpecialOption {
+        user, local, url
+    };
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
 
@@ -126,16 +138,16 @@ public class LgoCommandLine {
 
     // ---------------------------------------
     /**
-     * Look at the first argument to determine 
-     * which command to launch, process arguments up until "--",
-     * then pass pass the remaining args as a single space-separated string
-     * to the command.runCommand method.
-     * TODO - accept UI mode flag (swing, cli, swint-cli hybrid, server, ...)
-     * 
+     * Launch configures its own bootstrap launcher
+     * based on a set of special options that.
+     * The first non-special argument determines
+     * which command to launch, and the arguments after that
+     * are passed to the command-builder's process-argument option.
+     * Shuts down the littleware bootstrap runtime after the command returns.
+     *
      * @param argsIn command-line args
-     * @param bootBuilder to add LittleCommandLine.class to and bootstrap()
      */
-    public static void launch(final String[] argsIn, ClientBootstrap.ClientBuilder bootBuilder) {
+    public static void launch(final String[] argsIn) {
         /*... just for testing in serverless environment ...
         {
         // Try to start an internal server for now just for testing
@@ -143,94 +155,121 @@ public class LgoCommandLine {
         bootServer.bootstrap();
         }
          */
-        // bla
-        final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
+
+        // Support -url, -local, -user, and other special arguments
         String[] cleanArgs = argsIn;
+        final Map<SpecialOption, String> specialOptionMap;
+        {
+            final ImmutableMap.Builder<SpecialOption, String> builder = ImmutableMap.builder();
+            while (cleanArgs.length > 1) {
+                boolean isSpecial = false;
+                for (SpecialOption option : SpecialOption.values()) {
+                    if (cleanArgs[0].toLowerCase().matches("^[-\\+]+" + option.toString())) {
+                        builder.put(option, cleanArgs[1]);
 
-        // Support -url and -user arguments
-        if ((cleanArgs.length > 1) && cleanArgs[0].toLowerCase().matches("^-+url")) {
-            final String sUrl = cleanArgs[1];
+                        if (cleanArgs.length > 2) {
+                            cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
+                        } else {
+                            cleanArgs = new String[0];
+                        }
+                        isSpecial = true;
+                        break;
+                    }
+                }
+                if (!isSpecial) {
+                    break;
+                }
+            }
+            specialOptionMap = builder.build();
+        }
+
+        Maybe<LittleBootstrap> maybeBoot = Maybe.empty();
+        if (!specialOptionMap.containsKey(SpecialOption.local)) {
+            final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
+            if (specialOptionMap.containsKey(SpecialOption.url)) {
+                final String sUrl = specialOptionMap.get(SpecialOption.url);
+                try {
+                    final URL url = new URL(sUrl);
+                    loginBuilder.host(url.getHost());
+                } catch (MalformedURLException ex) {
+                    throw new IllegalArgumentException("Malformed URL: " + sUrl);
+                }
+            }
+            {
+                if (cleanArgs.length > 2) {
+                    cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
+                } else {
+                    cleanArgs = new String[0];
+                }
+            }
+            final Maybe<String> maybeUser;
+            if ((cleanArgs.length > 1) && cleanArgs[0].toLowerCase().matches("^[-\\+]+user")) {
+                maybeUser = Maybe.something(cleanArgs[1]);
+                if (cleanArgs.length > 2) {
+                    cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
+                } else {
+                    cleanArgs = new String[0];
+                }
+            } else {
+                maybeUser = Maybe.empty();
+            }
+
+            /*... need to rework this stuff ...
+            if ( cleanArgs.length > 0 ) {
+            final String command = cleanArgs[0];
+
+            if (command.equalsIgnoreCase("pipe")) {
+            bootBuilder.getOSGiActivator().add( LgoPipeActivator.class );
+            bootBuilder.bootstrap();
+            //processPipe(feedback);
+            return;
+            }
+
+            if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
+            log.log( Level.INFO, "Launching lgo server ..." );
+            bootBuilder.getOSGiActivator().add( LgoServerActivator.class );
+            bootBuilder.bootstrap();
+            return;
+            }
+            if ( command.equals( "jserver" ) ) { // launch lgo server - jnlp environment
+            log.log( Level.INFO, "Launching lgo jnlp server ..." );
+            bootBuilder.getOSGiActivator().add( JLgoServerActivator.class );
+            bootBuilder.bootstrap();
+            return;
+            }
+            }
+             */
+
             try {
-                final URL url = new URL(sUrl);
-                loginBuilder.host(url.getHost());
-            } catch (MalformedURLException ex) {
-                throw new IllegalArgumentException("Malformed URL: " + sUrl);
+                final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get();
+                if (maybeUser.isSet()) {
+                    maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().login(
+                            loginBuilder.build(), maybeUser.get(), ""));
+                } else {
+                    maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().automatic(loginBuilder.build()));
+                }
+
+            } catch (LoginException ex) {
+                log.log(Level.SEVERE, "Failed login", ex);
             }
-            if (cleanArgs.length > 2) {
-                cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
-            } else {
-                cleanArgs = new String[0];
-            }
-        }
-        final Maybe<String> maybeUser;
-        if ((cleanArgs.length > 1) && cleanArgs[0].toLowerCase().matches("^-+user")) {
-            maybeUser = Maybe.something( cleanArgs[1] );
-            if (cleanArgs.length > 2) {
-                cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
-            } else {
-                cleanArgs = new String[0];
-            }            
         } else {
-            maybeUser = Maybe.empty();
+            maybeBoot = Maybe.something((LittleBootstrap) AppBootstrap.appProvider.get().build());
         }
-        
-        /*... need to rework this stuff ...
-        if ( cleanArgs.length > 0 ) {
-        final String command = cleanArgs[0];
-
-        if (command.equalsIgnoreCase("pipe")) {
-        bootBuilder.getOSGiActivator().add( LgoPipeActivator.class );
-        bootBuilder.bootstrap();
-        //processPipe(feedback);
-        return;
-        }
-
-        if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
-        log.log( Level.INFO, "Launching lgo server ..." );
-        bootBuilder.getOSGiActivator().add( LgoServerActivator.class );
-        bootBuilder.bootstrap();
-        return;
-        }
-        if ( command.equals( "jserver" ) ) { // launch lgo server - jnlp environment
-        log.log( Level.INFO, "Launching lgo jnlp server ..." );
-        bootBuilder.getOSGiActivator().add( JLgoServerActivator.class );
-        bootBuilder.bootstrap();
-        return;
-        }
-        }
-         */
         int exitCode = 1;
-        try {
-            final ClientBootstrap boot;
-            if ( maybeUser.isSet() ) {
-                boot = bootBuilder.build().login(
-                    loginBuilder.build(), maybeUser.get(), ""
-                    );
-            } else {
-                boot = bootBuilder.build().automatic(
-                    loginBuilder.build()
-                    );
-            }
+        if (maybeBoot.isSet()) {
+            final LittleBootstrap boot = maybeBoot.get();
             final LgoCommandLine cl = boot.bootstrap(LgoCommandLine.class);
-            exitCode = cl.run(cleanArgs);
-            boot.shutdown();
-        } catch (LoginException ex) {
-            log.log(Level.SEVERE, "Failed login", ex);
+            try {
+                exitCode = cl.run(cleanArgs);
+            } finally {
+                boot.shutdown();
+            }
         }
         System.exit(exitCode);
     }
 
     /** Just launch( vArgs, new ClientSyncModule() ); on the event-dispatch thread */
     public static void main(final String[] vArgs) {
-        /*..
-        SwingUtilities.invokeLater(new Runnable() {
-
-        @Override
-        public void run() {
-        launch(vArgs, new ClientSyncModule());
-        }
-        });
-         */
-        launch(vArgs, ClientBootstrap.clientProvider.get());
+        launch(vArgs);
     }
 }

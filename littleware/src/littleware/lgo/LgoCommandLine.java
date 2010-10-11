@@ -45,10 +45,14 @@ public class LgoCommandLine {
 
     /**
      * Special options that LgoCommandLine.launch looks for as first
-     * arguments before the command's name.
+     * arguments before the command's name:
+     *  +mode [local|client] -- client establishes session with littleware server, default is client
+     *  +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time
+     *  +user [username] -- user to authenticate as in client mode, defaults to current OS user
+     *  +url  [server-info] -- url specifies host/port information for the littleware server in client mode
      */
     private enum SpecialOption {
-        user, local, url
+        user, url, mode, profile;
     };
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
@@ -156,7 +160,7 @@ public class LgoCommandLine {
         }
          */
 
-        // Support -url, -local, -user, and other special arguments
+        // Support +url, +user, ...
         String[] cleanArgs = argsIn;
         final Map<SpecialOption, String> specialOptionMap;
         {
@@ -182,9 +186,23 @@ public class LgoCommandLine {
             }
             specialOptionMap = builder.build();
         }
+        
+        final AppBootstrap.AppProfile profile;
+        if ( specialOptionMap.containsKey( SpecialOption.profile ) ) {
+            final String profileName = specialOptionMap.get( SpecialOption.profile ).toLowerCase().trim();
+            if ( profileName.equals( "cli" ) ) {
+                profile = AppBootstrap.AppProfile.CliApp;
+            } else {
+                profile = AppBootstrap.AppProfile.SwingApp;
+            }
+        } else {
+            profile = AppBootstrap.AppProfile.SwingApp;
+        }
 
         Maybe<LittleBootstrap> maybeBoot = Maybe.empty();
-        if (!specialOptionMap.containsKey(SpecialOption.local)) {
+        if ( (!specialOptionMap.containsKey(SpecialOption.mode))
+        	|| specialOptionMap.get( SpecialOption.mode ).toLowerCase().trim().equals( "client" )
+        	) {
             final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
             if (specialOptionMap.containsKey(SpecialOption.url)) {
                 final String sUrl = specialOptionMap.get(SpecialOption.url);
@@ -241,7 +259,7 @@ public class LgoCommandLine {
              */
 
             try {
-                final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get();
+                final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get().profile( profile );
                 if (maybeUser.isSet()) {
                     maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().login(
                             loginBuilder.build(), maybeUser.get(), ""));
@@ -253,7 +271,7 @@ public class LgoCommandLine {
                 log.log(Level.SEVERE, "Failed login", ex);
             }
         } else {
-            maybeBoot = Maybe.something((LittleBootstrap) AppBootstrap.appProvider.get().build());
+            maybeBoot = Maybe.something((LittleBootstrap) AppBootstrap.appProvider.get().profile( profile ).build());
         }
         int exitCode = 1;
         if (maybeBoot.isSet()) {

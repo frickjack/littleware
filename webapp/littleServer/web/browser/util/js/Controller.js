@@ -39,9 +39,9 @@ littleware.browser.Controller = function() {
     
     /**
      * Singleton controller provider - in file scope.
-     * @class ControllerProvider
+     * @class ControllerBuilder
      */
-    var ControllerProvider = function() {
+    var ControllerBuilder = function() {
         this.browser = null;
         return this;
     };
@@ -49,7 +49,7 @@ littleware.browser.Controller = function() {
     /**
      * Setter for browser property
      */
-    ControllerProvider.prototype.setBrowser = function(value) {
+    ControllerBuilder.prototype.setBrowser = function(value) {
         this.browser = value;
         return this;
     }
@@ -60,7 +60,7 @@ littleware.browser.Controller = function() {
      * @method getController
      * @return {Controller}
      */
-    ControllerProvider.prototype.get = function () {
+    ControllerBuilder.prototype.get = function () {
         if ( null == this.browser ) {
             throw "ValidationException: Browser property not set";
         }
@@ -73,12 +73,12 @@ littleware.browser.Controller = function() {
      * @class Browser
      * @param yui {YUI}
      * @param divId {string}
-     * @param controlProvider {ControllerProvider}
+     * @param controlBuilder {ControllerBuilder}
      */
-    var Browser = function(yui,divId,controlProvider) {
+    var Browser = function(yui,divId,controlBuilder) {
         this.yui = yui;
         this.divId = divId;
-        this.controller = controlProvider.setBrowser( this ).get();
+        this.controller = controlBuilder.setBrowser( this ).get();
         this._init()
         return this;
     };
@@ -94,11 +94,11 @@ littleware.browser.Controller = function() {
 
     /**
      * Singleton browser app
-     * @class BrowserProvider
+     * @class BrowserBuilder
      * @param yui {YUI} yui 3 handle
      * @param divId {string} id of div in which to manage a browser
      */
-    var BrowserProvider = function(yui,divId) {
+    var BrowserBuilder = function(yui,divId) {
         this.yui = yui;
         this.divId = divId;
         this.assetPath = "/";
@@ -110,22 +110,22 @@ littleware.browser.Controller = function() {
      * Setter for assetPath property - determines the initial
      * assetPath to begin browsing at
      */
-    BrowserProvider.prototype.setAssetPath = function (value) {
+    BrowserBuilder.prototype.setAssetPath = function (value) {
         this.assetPath = value;
         return this;
     }
 
     /**
-     * Provider method - Browser is a singleton 
+     * Builder method - Browser is a singleton
      * @method get
      * @return {Browser}
      */
-    BrowserProvider.prototype.get = function() {
-        var browser = new Browser(yui,divId, new ControllerProvider() );
+    BrowserBuilder.prototype.build = function() {
+        var browser = new Browser(yui,divId, new ControllerBuilder() );
     };
 
     //  Export public methods to module 
     return {
-        BrowserProvider: BrowserProvider
+        BrowserBuilder: BrowserBuilder
     };
 } ();

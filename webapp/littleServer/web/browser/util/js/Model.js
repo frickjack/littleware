@@ -78,6 +78,8 @@ littleware.browser.Model = function() {
         return this;
     };
 
+    Asset.prototype = new AssetLink( "", "", "/unknown");
+
     /**
      * Factory for Asset objects
      * @class AssetBuilder

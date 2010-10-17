@@ -18,36 +18,56 @@ littleware.browser.Controller = function() {
     /**
      * Controller class provides methods to handle UI events
      * @class Controller
-     * @param browser {Browser}
-     */    
-    var Controller = function(browser) {
-        this.browser = browser;
-        return this;
-    };
+     */
+    var Controller = function() {}
 
+    
     /**
      * Retrieve the data for the given asset id
      * @method loadAsset
      * @param path {string} assetPath
      * @return {littleware.browser.Model.BrowserModel}
      */
-    Controller.prototype.loadAsset = function(path) {
+    Controller.prototype.loadAsset = function(path) {};
+
+
+    //........................................
+
+    /**
+     * Basic implementation of Controller
+     * @class AjaxController
+     * @extends ControllerBuilder
+     * @param builder {ControllerBuilder}
+     */
+    var AjaxController = function(builder) {
+        this.browser = builder.browser;
+        return this;
+    };
+
+    AjaxController.prototype.loadAsset = function(path) {
 
     };
 
 
+    // ............................................
     
     /**
-     * Singleton controller provider - in file scope.
+     * Controller provider.
      * @class ControllerBuilder
      */
     var ControllerBuilder = function() {
+        /**
+         * @property browser {Browser}
+         */
         this.browser = null;
         return this;
     };
 
     /**
-     * Setter for browser property
+     * Set the id of the div in which to build the browser
+     * @method setBrowser
+     * @param value {Browser}
+     * @return {ControllerBuilder} this
      */
     ControllerBuilder.prototype.setBrowser = function(value) {
         this.browser = value;
@@ -57,19 +77,20 @@ littleware.browser.Controller = function() {
     /**
      * Controller provider function.
      * Controller is a singleton.
-     * @method getController
+     * @method get
      * @return {Controller}
      */
     ControllerBuilder.prototype.get = function () {
         if ( null == this.browser ) {
             throw "ValidationException: Browser property not set";
         }
-        return new Controller( this.browser );
+        return new AjaxController( this.browser );
     };
     
 
     /**
-     * Aplication wire-up class - bootstraps the app and sets up event handlers
+     * Aplication wire-up class - bootstraps the app and sets up event handlers,
+     * and exposes a component API to external consumers.
      * @class Browser
      * @param yui {YUI}
      * @param divId {string}
@@ -91,6 +112,21 @@ littleware.browser.Controller = function() {
     Browser.prototype._init = function() {
 
     };
+
+    /**
+     * Load the specified path into the browser
+     * @method loadPath
+     * @param path {string}
+     */
+    Browser.prototype.loadPath = function(path) {}
+
+    /**
+     * Get the path active in the browser
+     * @return {string} active path
+     */
+    Browser.prototype.getPath = function() { return ""; }
+
+    // ................................................
 
     /**
      * Singleton browser app
@@ -122,6 +158,7 @@ littleware.browser.Controller = function() {
      */
     BrowserBuilder.prototype.build = function() {
         var browser = new Browser(yui,divId, new ControllerBuilder() );
+        return browser;
     };
 
     //  Export public methods to module 

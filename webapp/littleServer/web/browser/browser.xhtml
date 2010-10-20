@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      >
+    <h:body>
+<ui:composition template="/WEB-INF/layout/standard.xhtml">
+  <ui:define name="title">simple browser</ui:define>
+  <ui:define name="extraLinks">
+        <link rel="stylesheet" type="text/css"
+              href="http://yui.yahooapis.com/combo?3.2.0/build/cssreset/reset-min.css&3.2.0/build/cssfonts/fonts-min.css&3.2.0/build/cssgrids/grids-min.css"
+              />
+        <link rel="stylesheet" type="text/css"
+              href="util/css/browser.css"
+              />
+
+        <script type="text/javascript" charset="utf-8"
+                src="http://yui.yahooapis.com/3.2.0/build/yui/yui-min.js">
+        </script>
+
+        <script type="text/javascript" charset="utf-8"
+                src="util/js/Model.js">
+        </script>
+        <script type="text/javascript" charset="utf-8"
+                src="util/js/View.js">
+        </script>
+        <script type="text/javascript" charset="utf-8"
+                src="util/js/Controller.js">
+        </script>
+
+  </ui:define>
+
+  <!-- .................................................  -->
+  
+  <ui:define name="content">
+
+        <script type="text/javascript" charset="utf-8">
+            // <![CDATA[
+            YUI().use('tabview', 'event', 'yui2-dragdrop', 'yui2-datatable', function (Y) {
+                var browser = new littleware.browser.Controller.BrowserBuilder( Y ).build();
+                var tabview = new Y.TabView({
+                    srcNode: '#navTabs'
+                });
+
+                tabview.render();
+
+                var YAHOO = Y.YUI2;
+
+                Y.on("available", function() {
+
+                    //This is the data from which the DataTable will be built:
+                    var bookorders = [
+                        {id:"po-0167", date:new Date(1980, 2, 24), quantity:1, amount:4, title:"A Book About Nothing",
+                            description: "Lorem ipsum dolor sit amet consectetuer Quisque ipsum suscipit Aenean ligula. Accumsan molestie nibh dui orci vitae auctor nec pulvinar ligula elit."},
+                        {id:"po-0783", date:new Date("January 3, 1983"), quantity:null, amount:12.12345, title:"The Meaning of Life",
+                            description: "Vestibulum scelerisque wisi adipiscing turpis odio Phasellus euismod id orci tristique. Hendrerit sem dictum volutpat cursus pretium dui vitae tincidunt Vivamus Aenean."},
+                        {id:"po-0297", date:new Date(1978, 11, 12), quantity:12, amount:1.25, title:"This Book Was Meant to Be Read Aloud",
+                            description: "Malesuada pellentesque nibh magna nisl tincidunt wisi dui Nam nunc convallis. Adipiscing leo augue Nulla tellus nec eros metus cursus pretium Sed."},
+                        {id:"po-1482", date:new Date("March 11, 1985"), quantity:6, amount:3.5, title:"Read Me Twice",
+                            description: "Libero justo pede nibh tincidunt ut tempus metus et Vestibulum vel. Sem justo morbi lacinia dui turpis In Lorem dictumst volutpat cursus."}
+                    ];
+
+                    var myColumnDefs = [
+                        {key:"id", sortable:true, resizeable:true},
+                        {key:"date", formatter:YAHOO.widget.DataTable.formatDate, sortable:true, sortOptions:{defaultDir:YAHOO.widget.DataTable.CLASS_DESC},resizeable:true},
+                        {key:"quantity", formatter:YAHOO.widget.DataTable.formatNumber, sortable:true, resizeable:true},
+                        {key:"amount", formatter:YAHOO.widget.DataTable.formatCurrency, sortable:true, resizeable:true},
+                        {key:"title", sortable:true, resizeable:true}
+                    ];
+
+                    var myDataSource = new YAHOO.util.DataSource(bookorders);
+                    myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
+                    myDataSource.responseSchema = {
+                        fields: ["id","date","quantity","amount","title"]
+                    };
+
+                    var myDataTable = new YAHOO.widget.DataTable("basic",
+                    myColumnDefs, myDataSource);
+
+                    myDataTable.subscribe("initEvent", function(){
+                        Y.log('******** hello from initEvent');
+                    });
+
+                    myDataTable.subscribe("rowClickEvent", function(){
+                        Y.log('******** hello from rowClickEvent');
+                    });
+
+                    return {
+                        oDS: myDataSource,
+                        oDT: myDataTable
+                    };
+
+                }, "#basic");
+
+            });
+            //]]>
+        </script>
+
+  </ui:define>
+</ui:composition>
+    </h:body>
+</html>
+

@@ -16,10 +16,11 @@
         <script type="text/javascript" charset="utf-8"
                 src="View.js">
         </script>
+        -->
         <script type="text/javascript" charset="utf-8"
                 src="Controller.js">
         </script>
-        -->
+        
     </head>
     <body>
         <h3>Browser Test Suite</h3>
@@ -32,9 +33,9 @@
                 debug: true,
                 useBrowserConsole: true */
             }
-        ).use( 'console', 'test', 'littleware.browser.Model',
+        ).use( 'console', 'test', 'littleware.browser.Model', 'littleware.browser.Controller',
             function (Y) {
-                Y.Test.Runner.add( Y.littleware.browser.Model.testSuiteBuilder( Y ) );
+                Y.Test.Runner.add( Y.littleware.browser.Model.testSuiteBuilder() );
 
                 //initialize the console
                 var yconsole = new Y.Console({

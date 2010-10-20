@@ -1,0 +1,44 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="lgoServer"/>
+    <configurations>
+    	<conf name="standalone"  description="with support for embedded server side RMI services jar"/>
+        <conf name="client"  description="client side RMI services binding jar"/>
+        <conf name="server"  description="deploy to j2ee container server"/>
+        <conf name="compile"  description="compile against api's only"/>
+        <!--
+    	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
+    	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
+    	<conf name="test" extends="cc-impl" visibility="private" description="for testing our framework"/>
+    	-->
+    </configurations>
+    <publications>
+    	<artifact name="lgoServer" ext="jar" type="jar"  conf="*" />
+        <!--
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
+    	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
+        -->
+    </publications>
+    
+    <dependencies>    
+    
+      <dependency org="org.eclipse.jetty" name="jetty-continuation" rev="7.0.1.v20091125" conf="compile,client,standalone->*" />
+      <dependency org="org.eclipse.jetty" name="jetty-http" rev="7.0.1.v20091125" conf="compile,client,standalone->*" />
+      <dependency org="org.eclipse.jetty" name="jetty-io" rev="7.0.1.v20091125" conf="compile,client,standalone->*" />
+      <dependency org="org.eclipse.jetty" name="jetty-server" rev="7.0.1.v20091125" conf="compile,client,standalone->*" />
+      <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="7.0.1.v20091125" conf="compile,client,standalone->*" />
+      <dependency org="org.eclipse.jetty" name="jetty-util" rev="7.0.1.v20091125" conf="compile,client,standalone->*" />
+      <dependency org="org.eclipse.jetty" name="jetty-security" rev="7.0.1.v20091125" conf="compile,client,standalone->*" />
+       <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525" conf="standalone,client->*"/>
+      
+      <dependency org="javanettasks" name="httpunit" rev="1.7" conf="compile,client,standalone->*" />
+      <dependency org="javax.jnlp" name="jnlp" rev="6" conf="compile,client,standalone->*" />
+      <dependency org="org.easymock" name="easymock" rev="2.5.2" conf="compile,client,standalone->*"/>
+      <dependency org="rhino" name="js" rev="1.7R2" conf="standalone,client->*" />
+      <dependency org="nekohtml" name="nekohtml" rev="1.9.6.2" conf="standalone,client->*" />
+      <dependency org="xerces" name="xercesImpl" rev="2.9.1" conf="standalone,client->*" />
+      
+      <dependency org="littleware" name="littleWeb" rev="2.2" conf="compile->compile;client->client;standalone->standalone;server->server" />
+    </dependencies>
+
+</ivy-module>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+  <persistence-unit name="littlewarePU" transaction-type="RESOURCE_LOCAL">
+        <description>This JPA persistence unit tracks littleware assets
+        </description>
+        <non-jta-data-source>jdbc/littleDB</non-jta-data-source>
+        <class>littleware.asset.server.db.jpa.AssetEntity</class>
+        <class>littleware.asset.server.db.jpa.AssetTypeEntity</class>
+        <class>littleware.asset.server.db.jpa.TransactionEntity</class>
+        <class>littleware.asset.server.db.jpa.AssetAttribute</class>
+        <class>littleware.asset.server.db.jpa.AssetDate</class>
+        <class>littleware.asset.server.db.jpa.AssetLink</class>
+  </persistence-unit>
+</persistence>

@@ -1,0 +1,3 @@
+# littleware ServerModule service providers
+littleware.apps.filebucket.server.BucketServerModule$Factory
+littleware.apps.tracker.server.TrackerServerModule$Factory

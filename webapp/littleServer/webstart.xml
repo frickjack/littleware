@@ -1,0 +1,88 @@
+<project default="-littlelib-process" basedir=".">
+<target name="-littlelib-process" depends="-init-project">
+    
+       <!--
+    <antcall target="${param.target}">
+        <param name="param.jarFile" value="scratch.jar" />
+        <param name="param.jarDir"  value="../../../scratch/dist" />
+    </antcall>
+    -->
+    <antcall target="${param.target}">
+        <param name="param.jarFile" value="com.springsource.net.sf.cglib-2.1.3-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="com.springsource.org.apache.commons.logging-1.0.4-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="com.springsource.org.logicalcobwebs.cglib.core-0.9.1-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="com.springsource.org.logicalcobwebs.proxool-0.9.1-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="commons-collections-3.2.1-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="derby-10.5.3.0_1-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="derbyclient-10.5.3.0_1-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="google-collections-1.0-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="gson-1.4-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="guice_no_aop-2.0-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="joda-time-1.6-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="junit-3.8.2-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="littleApps-2.2-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="littleClient-2.2-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="littleIcons-0.0-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="mysql-connector-java-5.1.11-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="ojdbc6-11g-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="org.apache.felix.framework-2.0.4-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+                  <antcall target="${param.target}">
+        <param name="param.jarFile" value="postgresql-8.4-701.jdbc4-jar.jar" />
+        <param name="param.jarDir"  value="lib/client" />
+        </antcall>
+              
+</target>
+</project>

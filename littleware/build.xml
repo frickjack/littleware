@@ -143,7 +143,8 @@
     <delete dir="lib" />
 </target>
 
-<target name="resolve" description="-- retrieve dependencies with ivy">
+<target name="resolve" depends="-init-project" description="-- retrieve dependencies with ivy">
+        <delete file="${dist.dir}/ivy.xml" />  <!-- force clean ivy file into dist -->
         <ivy:retrieve conf="compile" pattern="lib/compile/[artifact]-[revision]-[type].[ext]" />
         <pathconvert property="ivy.compile.classpath.computed" dirsep="/" pathsep=":">
             <path>
@@ -171,7 +172,7 @@
     </target>
 
 
-<target name="-pre-init" depends="resolve" />
+<target name="-post-init" depends="resolve" />
 
 
 <target name="publish" depends="resolve,-init-project,jar" description="publish to local ivy repository">

@@ -85,10 +85,21 @@ YUI.add( "littleware.browser.Model",  function(Y) {
          * @class Model
          */
         var Model = function(builder) {
+            /**
+             * The main asset this Model rotates around
+             * @property asset {Asset}
+             */
             this.asset = builder.asset;
-            this.children = builder.children.slice();
-            this.uncles = builder.uncles.slice();
-            this.siblings = builder.siblings.slice();
+            /**
+             * Assets that are children (link from) asset
+             * @property child {array of Asset}
+             */
+            this.child = builder.child.slice();
+            /**
+             * The asset's parent and the parent's siblings
+             */
+            this.uncle = builder.uncle.slice();
+            this.sibling = builder.sibling.slice();
             return this;
         };
 
@@ -98,9 +109,9 @@ YUI.add( "littleware.browser.Model",  function(Y) {
          */
         var ModelBuilder = function() {
             this.asset = null;
-            this.children = new Array();
-            this.uncles = new Array();
-            this.siblings = new Array();
+            this.child = new Array();
+            this.uncle = new Array();
+            this.sibling = new Array();
             return this;
         }
 
@@ -111,9 +122,31 @@ YUI.add( "littleware.browser.Model",  function(Y) {
          * @return {ModelBuilder} this
          */
         ModelBuilder.prototype.addChild = function( asset ) {
-            this.children.push( asset );
+            this.child.push( asset );
             return this;
         };
+
+        /**
+         * Add an uncle asset to the view model
+         * @method addUncle
+         * @param asset {Asset}
+         * @return {ModelBuilder} this
+         */
+        ModelBuilder.prototype.addUncle = function( asset ) {
+            this.uncle.push( asset );
+            return this;
+        };
+
+        /**
+         * Add an sibling asset to the view model
+         * @method addSibling
+         * @param asset {Asset}
+         * @return {ModelBuilder} this
+         */
+        ModelBuilder.prototype.addSibling = function( asset ) {
+           this.sibling.push(asset);
+           return this;
+        }
 
         //...................................................
 
@@ -516,7 +549,7 @@ YUI.add( "littleware.browser.Model",  function(Y) {
          * @param Y {YUI} YUI instance
          * @return YUI.Test.Suite
          */
-        var testSuiteBuilder = function(Y) {
+        var testSuiteBuilder = function() {
             var suite = new Y.Test.Suite( "littleware.browser.Model.TestSuite" );
             var pathUtilTestCase = {
                 name: "PathUtil TestCase",

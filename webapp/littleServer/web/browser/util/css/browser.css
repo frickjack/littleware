@@ -11,54 +11,6 @@
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
 
-root { 
-    display: block;
-}
-
-body, html {
-    background-color: #aaaaff;
-    color: #ffffff;
-    /* border: 2px red solid; */
-    padding: 0px;
-    margin: 0px;
-}
-
-em {
-    font-style:italic;
-}
-
-div#head {
-    background-color: #aaaaaa;
-    color: #ffffff;
-    height: 30px;
-    text-align: left;
-    padding: 10px 0px 0px 20px;
-    margin: 0px;
-    margin-top: 0px;
-    margin-bottom: 5px;
-    width: 100%;
-    clear: both;
-}
-
-div#head h2 {
-    font-size: 150%;
-    padding: 0px;
-    clear: none;
-    display: inline;
-    padding-right: 20px;
-}
-
-div#main {
-    width:1200px;
-    clear:both;
-}
-
-
-div#browserpath {
-    text-align: left;
-    padding: 5px 0px 5px 20px;
-    clear: both;
-}
 
 ul.inline li {
     display: inline;
@@ -68,7 +20,7 @@ ul.inline li {
 /*.... Browser area ...*/
 
 div.browser {
-    width: 850px;
+    width: 650px;
     float: left;
     height: 450px;
     overflow: auto;
@@ -108,29 +60,30 @@ table.browser tr td, table.browser tr th {
     text-align: center;
 }
 
-div#basic {
-    color: #000000;
-}
 
 /* ... Product area ... */
-div#productBase, div#productDetail, div#history {
+div#productBase, div#history {
     background-color: #ffffff;
     color: #000000;
     float: left;
     /* border: 3px red solid; */
     margin: 10px 0px 0px 10px;
-    width: 440px;
     height: 300px;
-    overflow: auto;
     padding: 10px;
     text-align: left;
 }
 
+div#history {
+    width: 440px;
+    overflow: auto;
+}
+
 div#productBase {
-    width: 1200px;
+    /* width: 1200px; */
     margin-top: 2px;
     float:left;
     height: 550px;
+    width: 100%;
 }
 
 div#productBase p {
@@ -147,41 +100,17 @@ div#productInfo {
     height: 500px;
 }
 
-div#productDetail {
-    clear:both;
-    display:none;
-}
+
 div#history {
     display:none;
 }
 
 div#navTabs {
-    width: 900px;
+    /* width: 900px; */
     border: 1px black solid;
     float: left;
     margin: 5px;
     padding: 10px;
-    background-color: #bbbbcc;
+    background-color: #aaaaaa;
 }
 
-table.deftable tr th {
-    border-style: none;
-    text-align: right;
-    font-weight: bold;
-    padding: 2px 5px 0px 0px;
-}
-table.deftable tr td {
-    border-style: none;
-    text-align: left;
-}
-
-ul.tree li {
-    margin-top: 5px;
-    padding: 5px;
-    color: #000000;
-    text-align: left;
-}
-
-span.button {
-    background-color: #ccccff;
-}

@@ -16,7 +16,7 @@
         <script type="text/javascript" charset="utf-8"
                 src="http://yui.yahooapis.com/3.2.0/build/yui/yui-min.js">
         </script>
-        
+        <!-- ...............
         <script type="text/javascript" charset="utf-8"
                 src="util/js/Model.js">
         </script>
@@ -26,11 +26,11 @@
         <script type="text/javascript" charset="utf-8"
                 src="util/js/Controller.js">
         </script>
-
+                 ... -->
         <script type="text/javascript" charset="utf-8">
             // <![CDATA[
             YUI().use('tabview', 'event', 'yui2-dragdrop', 'yui2-datatable', function (Y) {
-                var browser = new littleware.browser.Controller.BrowserBuilder( Y ).build();
+                //var browser = new littleware.browser.Controller.BrowserBuilder( Y ).build();
                 var tabview = new Y.TabView({
                     srcNode: '#navTabs'
                 });
@@ -309,6 +309,15 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- ..................................................... -->
+      <div id="browserTemplate">
+
+      </div>
+
+        <div id="browserBox" clas="yui3-skin-sam yui-skin-sam">
+
         </div>
     </body>
 </html>

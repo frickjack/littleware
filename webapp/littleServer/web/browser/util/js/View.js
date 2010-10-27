@@ -3,7 +3,7 @@
  * General use subject to GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-YUI.add( "littleware.browser.Controller", function(Y) {
+YUI.add( "littleware.browser.View", function(Y) {
 Y.namespace( "littleware.browser" )
 var littleware = Y.littleware
 
@@ -32,21 +32,6 @@ littleware.browser.View = function() {
         return container;
     })();
     
-    var myvar = <div id="productInfo">
-                    <img alt="nodeGraph" src="./util/img/nodeGraph.png" width="100px" style="margin:20px;"/>
-                    <table class="browsercell"><tr>
-                            <td><img alt="icon" src="util/img/adobe_reader.jpg" /></td>
-                            <td><h3>ActiveProduct</h3></td>
-                        </tr></table>
-                    <p>
-                        Comment about this product - bla bla bla
-                    </p>
-                    <table class="deftable">
-                        <tr><th>Type:</th><td>Product</td></tr>
-                        <tr><th>Owner:</th><td>Reuben</td></tr>
-                        <tr><th>ACL:</th><td>everybody.read</td></tr>
-                    </table>
-                </div>;
 
     var AssetOverView = function( asset ) {
         this.asset = asset;

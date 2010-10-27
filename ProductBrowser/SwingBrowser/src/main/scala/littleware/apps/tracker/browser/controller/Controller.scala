@@ -11,7 +11,11 @@
 package littleware.apps.tracker.browser.controller
 
 import littleware.apps.tracker.{Product,Version, Member}
+import java.security.GeneralSecurityException
+import java.util.UUID
 import littleware.apps.tracker.browser.model
+import littleware.asset.AssetException
+import littleware.base.BaseException
 import littleware.base.feedback.Feedback
 
 trait Controller {
@@ -20,4 +24,7 @@ trait Controller {
   def createMember( memberData:model.MemberData ):Member
   def checkin( checkinData:model.MemberCheckinData, feedback:Feedback ):Member
   def checkout( checkoutData:model.MemberCheckoutData, feedback:Feedback ):Unit
+  @throws(classOf[BaseException])
+  @throws(classOf[GeneralSecurityException])
+  def loadNeighborhood( id:UUID ):model.AssetNeighborhood
 }

@@ -157,7 +157,7 @@ YUI.add( "littleware.browser.Controller",  function(Y) {
      * @return {Browser}
      */
         BrowserBuilder.prototype.build = function() {
-            var browser = new Browser(yui,divId, new ControllerBuilder() );
+            var browser = new Browser(this.divId, new ControllerBuilder() );
             return browser;
         };
 

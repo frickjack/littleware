@@ -11,7 +11,7 @@
 package littleware.apps.tracker.browser
 
 import com.google.inject.Inject
-import edu.auburn.library.util.JclWrapper._
+import edu.auburn.library.util.AuburnHelper
 import java.net.URL
 import java.util.Properties
 import javax.swing.JFrame
@@ -35,7 +35,7 @@ object SwingApp {
     }
   }
 
-  def main( args:Array[String] ):Unit = invokeLater( () => {
+  def main( args:Array[String] ):Unit = AuburnHelper.invokeLater( () => {
       val swingBase = (new SwingBaseModule.Factory).appName( "ProductBrowser"
       ).version( "2.1"
       ).helpUrl( new URL( "http://code.google.com/p/littleware/" )
@@ -45,7 +45,7 @@ object SwingApp {
         swingBase
       ).build
       //val loginConfig = ClientLoginModule.newBuilder.build
-      invokeLater( () => boot.automatic.bootstrap( classOf[Main] ).run )
+      AuburnHelper.invokeLater( () => boot.automatic.bootstrap( classOf[Main] ).run )
     }
   )
 }

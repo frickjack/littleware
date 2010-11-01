@@ -11,7 +11,7 @@
 package littleware.apps.tracker.browser.model
 
 import com.google.inject.Provider
-import edu.auburn.library.util.JclWrapper._
+import edu.auburn.library.util.AuburnHelper
 import littleware.asset.AssetPath
 import littleware.base.ValidationException
 
@@ -21,14 +21,12 @@ object ProductDataProvider extends Provider[ProductData.Builder] {
     @throws(classOf[ValidationException])
     override def build = {
       new Data(
-        Option( parentPath ) match {
-          case Some(x) => x
-          case _ => throw new ValidationException( "Empty product parent")
-        },
-        emptyCheck( name  ) match {
-          case Some(x) => x
-          case _ => throw new ValidationException( "Empty name" )
-        },
+        Option( parentPath ).getOrElse(
+          { throw new ValidationException( "Empty product parent") }
+        ),
+        AuburnHelper.emptyCheck( name  ).getOrElse(
+          { throw new ValidationException( "Empty name" ) }
+        ),
         comment
       )
     }

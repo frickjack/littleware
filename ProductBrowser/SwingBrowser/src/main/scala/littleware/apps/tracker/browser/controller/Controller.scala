@@ -26,5 +26,5 @@ trait Controller {
   def checkout( checkoutData:model.MemberCheckoutData, feedback:Feedback ):Unit
   @throws(classOf[BaseException])
   @throws(classOf[GeneralSecurityException])
-  def loadNeighborhood( id:UUID ):model.AssetNeighborhood
+  def loadNeighborhood( id:UUID ):model.Neighborhood
 }

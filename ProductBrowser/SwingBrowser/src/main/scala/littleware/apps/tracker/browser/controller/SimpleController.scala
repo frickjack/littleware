@@ -13,8 +13,10 @@ package littleware.apps.tracker.browser.controller
 import com.google.inject.Inject
 import littleware.apps.tracker.{Member,Product,Version, ProductManager}
 import com.google.inject.Provider
+import edu.auburn.library.util.LazyLogger
 import java.security.GeneralSecurityException
 import java.util.UUID
+import java.util.logging.Level
 import littleware.apps.client.AssetModelLibrary
 import littleware.apps.tracker.browser.model
 import littleware.asset.Asset
@@ -32,8 +34,11 @@ class SimpleController @Inject() ( assetMgr:AssetManager,
                                   productMgr:ProductManager,
                                   assetLib:AssetModelLibrary,
                                   pathFactory:AssetPathFactory,
-                                  hoodProvider:Provider[model.AssetNeighborhood.Builder]
+                                  hoodProvider:Provider[model.Neighborhood.Builder],
+                                  neighborProvider:Provider[model.NeighborInfo.Builder]
 ) extends Controller {
+  private val log = LazyLogger( getClass )
+
   override def createProduct( productData:model.ProductData ):Product = {
     val parent = search.getAssetAtPath(productData.parentPath).get
     val product:Product = Product.ProductType.create.parent( parent
@@ -73,20 +78,27 @@ class SimpleController @Inject() ( assetMgr:AssetManager,
 
   @throws(classOf[BaseException])
   @throws(classOf[GeneralSecurityException])
-  override def loadNeighborhood( id:UUID ):model.AssetNeighborhood = {
-    import model.AssetNeighborhood.AssetInfo
-
+  override def loadNeighborhood( id:UUID ):model.Neighborhood = {
     /*
-     * Build the AssetInfo for the asset with the given id
+     * Build the NeighborInfo for the asset with the given id
      */
      @throws(classOf[BaseException])
      @throws(classOf[GeneralSecurityException])
-     def loadInfo( id:UUID ):Option[AssetInfo] =
+     def loadInfo( id:UUID, relativePath:String ):Option[model.NeighborInfo] =
+       try {
        Option(search.getAsset(id).getOr(null)).map( (asset) =>
-          AssetInfo( assetLib.syncAsset( asset ),
-                    pathFactory.toRootedPath(id)
-          )
+         neighborProvider.get.model( assetLib.syncAsset( asset )
+                                    ).absPath( pathFactory.toRootedPath( id )
+                                    ).relativePath( relativePath
+                                    ).build
         )
+       } catch {
+         case ex => {
+             log.log( Level.WARNING, "Failed to load neighbor info for " + id, ex )
+             None
+         }
+       }
+
      /*
       * Extract a (name -> id) link map for the given asset
       */
@@ -106,22 +118,22 @@ class SimpleController @Inject() ( assetMgr:AssetManager,
      val asset:Asset = search.getAsset(id).get
      val parent:Option[Asset] = Option(asset.getFromId).map( (id) => search.getAsset(id).get )
 
-     builder.asset( loadInfo(id).get
+     builder.asset( loadInfo(id, ".").get
       ).children(
-        search.getAssetIdsFrom(id).values.flatMap( (childId) => loadInfo( childId )).toSeq
+        search.getAssetIdsFrom(id).entrySet.flatMap( (entry) => loadInfo( entry.getValue, "./" + entry.getValue )).toSeq
       ).uncles(
         parent.toSeq.flatMap( (parentAsset) => { Option( parentAsset.getFromId ) }
-        ).flatMap( (grannyId) => search.getAssetIdsFrom( grannyId ).values
-        ).flatMap( (uncleId) => loadInfo(uncleId)
+        ).flatMap( (grannyId) => search.getAssetIdsFrom( grannyId ).entrySet
+        ).flatMap( (uncleEntry) => loadInfo(uncleEntry.getValue, "../../" + uncleEntry.getKey )
         )
       ).siblings(
-        parent.toSeq.flatMap( (parentAsset) => search.getAssetIdsFrom( parentAsset.getId ).values
-        ).filter( (siblingId) => { siblingId != id }
-        ).flatMap( (siblingId) => loadInfo(siblingId)
+        parent.toSeq.flatMap( (parentAsset) => search.getAssetIdsFrom( parentAsset.getId ).entrySet
+        ).filter( (siblingEntry) => { siblingEntry.getValue != id }
+        ).flatMap( (siblingEntry) => loadInfo(siblingEntry.getValue, "../" + siblingEntry.getKey )
         )
       ).neighbors(
         Map(
-          buildLinkMap(asset).values.flatMap( (id) => loadInfo(id).map( (id -> _) )
+          buildLinkMap(asset).flatMap(  _ match { case (property,id) => loadInfo(id, "./@" + property).map( (id -> _) ) }
           ).toSeq: _*
         )
       ).build

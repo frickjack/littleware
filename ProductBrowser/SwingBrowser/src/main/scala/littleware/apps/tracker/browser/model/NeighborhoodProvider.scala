@@ -14,23 +14,20 @@ import com.google.inject.Provider
 import java.util.UUID
 
 
-object NeighborhoodProvider extends Provider[AssetNeighborhood.Builder]{
-  override def get = new Builder
+object NeighborhoodProvider extends Provider[Neighborhood.Builder]{
+  override def get:Neighborhood.Builder = new SimpleBuilder
   
-  class Builder extends AssetNeighborhood.Builder {
-    override def build:AssetNeighborhood = new SimpleNeighborhood( asset, children, uncles,
-                                                                  siblings, neighbors
-    )
-  }
-
-  import AssetNeighborhood.AssetInfo
   
   class SimpleNeighborhood(
-    override val asset:AssetInfo,
-    override val children:Seq[AssetInfo],
-    override val uncles:Seq[AssetInfo],
-    override val siblings:Seq[AssetInfo],
-    override val neighbors:Map[UUID,AssetInfo]
-  ) extends AssetNeighborhood {
+    override val asset:NeighborInfo,
+    override val children:Seq[NeighborInfo],
+    override val uncles:Seq[NeighborInfo],
+    override val siblings:Seq[NeighborInfo],
+    override val neighbors:Map[UUID,NeighborInfo]
+  ) extends Neighborhood {
+  }
+
+  class SimpleBuilder extends Neighborhood.Builder {
+    override def build:Neighborhood = new SimpleNeighborhood( asset, children, uncles, siblings, neighbors )
   }
 }

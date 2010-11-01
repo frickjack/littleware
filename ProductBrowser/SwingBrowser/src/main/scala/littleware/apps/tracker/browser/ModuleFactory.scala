@@ -14,7 +14,6 @@ import com.google.inject.Binder
 import com.google.inject.Scopes
 import littleware.bootstrap.client.AbstractClientModule
 import littleware.bootstrap.client.AppBootstrap
-import littleware.bootstrap.client.AppModule
 import littleware.bootstrap.client.ClientModule
 import littleware.bootstrap.client.ClientModuleFactory
 import littleware.lgo.LgoCommand
@@ -41,6 +40,8 @@ class ModuleFactory extends ClientModuleFactory {
       binder.bind( classOf[model.MemberData.Builder] ).toProvider( model.MemberDataProvider )
       binder.bind( classOf[model.MemberCheckinData.Builder] ).toProvider( model.MemberCheckinProvider )
       binder.bind( classOf[model.MemberCheckoutData.Builder] ).toProvider( model.MemberCheckoutProvider )
+      binder.bind( classOf[model.NeighborInfo.Builder] ).toProvider( classOf[model.NeighborInfoProvider] )
+      binder.bind( classOf[model.Neighborhood.Builder] ).toProvider( model.NeighborhoodProvider )
     }
   }
 

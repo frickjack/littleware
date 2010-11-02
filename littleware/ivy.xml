@@ -1,10 +1,13 @@
 <ivy-module version="2.0">
-    <info organisation="littleware" module="littleware"/>
+    <info organisation="littleware" module="littleware" status="integration" />
     <configurations>
+        <!-- compile may build against jars that only include interfaces -->
         <conf name="compile" description="compile everything"/>
-    	<conf name="server"  description="server side RMI services jar for j2ee deploy"/>
-        <conf name="client"  description="client side RMI services binding jar"/>
-        <conf name="standalone"  description="standalone server with client"/>
+        <!-- java ee environment provides some runtime jars - so don't have to include them in runtime deployment -->
+        <conf name="ee_client"  description="non-server running in a java ee 6+ container"/>
+        <conf name="ee_server"  extends="ee_client" description="combined server+client running in a java ee 6+ container"/>
+        <conf name="client"  extends="ee_client" description="non-server app outside ee container"/>
+        <conf name="server"  extends="ee_server,client" description="combined server+client outside ee container"/>
         <!--
     	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
     	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
@@ -12,8 +15,8 @@
         -->
     </configurations>
     <publications>
-    	<artifact name="littleware" ext="jar" type="jar"  conf="compile,server,standalone" />
-        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="littleware" ext="jar" type="jar"  conf="compile,server,ee_server" />
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client,ee_client" />
         <!--
     	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
     	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
@@ -22,33 +25,33 @@
     
     <dependencies>    
     
-      <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-Final" conf="compile,standalone->*" />
-  <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-Final" conf="compile,standalone->*"/>
-  <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-Final" conf="compile,standalone->*" />
-  <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="3.2.0.Final" conf="standalone->*" />
-  <dependency org="org.hibernate" name="hibernate-validator" rev="4.0.2.GA" conf="standalone->*" />
+      <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-Final" conf="compile,server->*" />
+  <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-Final" conf="compile,server->*"/>
+  <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-Final" conf="compile,server->*" />
+  <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="3.2.0.Final" conf="server->*" />
+  <dependency org="org.hibernate" name="hibernate-validator" rev="4.0.2.GA" conf="server->*" />
         <!--
         <dependency org="little.hibernate" name="hibernate3" rev="3.5.0-CR-1"/>
            -->
-        <dependency org="org.hibernate.java-persistence" name="jpa-api" rev="2.0-cr-1" conf="standalone->*" />
+        <dependency org="org.hibernate.java-persistence" name="jpa-api" rev="2.0-cr-1" conf="server->*" />
         
-        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.8" conf="standalone->*" />
-        <dependency org="org.slf4j" name="slf4j-simple" rev="1.5.8" conf="standalone->*" />
-        <dependency org="log4j" name="log4j" rev="1.2.14" conf="standalone->*" />
-        <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="standalone->*">
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.8" conf="server->*" />
+        <dependency org="org.slf4j" name="slf4j-simple" rev="1.5.8" conf="server->*" />
+        <dependency org="log4j" name="log4j" rev="1.2.14" conf="server->*" />
+        <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="server->*">
             <exclude module=".+" ext="jar" type="src" matcher="regexp" />
         </dependency>
-        <dependency org="javassist" name="javassist" rev="3.11.0.GA" conf="standalone->*" />
-        <dependency org="javax.transaction" name="jta" rev="1.1" conf="standalone->*">
+        <dependency org="javassist" name="javassist" rev="3.11.0.GA" conf="server->*" />
+        <dependency org="javax.transaction" name="jta" rev="1.1" conf="server->*">
            <exclude module=".+" ext="jar" type="src" matcher="regexp" />
         </dependency>
-        <dependency org="antlr" name="antlr" rev="2.7.7" conf="standalone->*" />
+        <dependency org="antlr" name="antlr" rev="2.7.7" conf="server->*" />
 
         <!--
         <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525"/>
                 -->
         <dependency org="javax" name="javaee-api" rev="6.0" conf="compile->*" />
-        <dependency org="javax.mail" name="mail" rev="1.4.3" conf="standalone->*" />
+        <dependency org="javax.mail" name="mail" rev="1.4.3" conf="server->*" />
         <!--
         <dependency org="proxool" name="proxool" rev="0.8.3"/>
         -->
@@ -62,17 +65,17 @@
         <dependency org="com.google.code.gson" name="gson" rev="1.4" />
         <dependency org="com.google.collections" name="google-collections" rev="1.0" />
         <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="2.0.4" />
-        <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" conf="compile,client,standalone->*" />
-        <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" conf="compile,client,standalone->*" />
-        <dependency org="org.apache.derby" name="derbyclient" rev="10.5.3.0_1" conf="compile,client,standalone->*" />
-        <dependency org="junit" name="junit" rev="3.8.2" conf="compile,client,standalone->*" />
-        <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1" conf="compile,client,standalone->*" > 
+        <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" conf="compile,client,server->*" />
+        <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" conf="compile,client,server->*" />
+        <dependency org="org.apache.derby" name="derbyclient" rev="10.5.3.0_1" conf="compile,client,server->*" />
+        <dependency org="junit" name="junit" rev="3.8.2" conf="compile,client,server->*" />
+        <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1" conf="compile,client,server->*" > 
                 <!-- conf="*-*,!sources" -->
            <exclude module=".+" ext="jar" type="src" matcher="regexp" />
            <exclude module=".+servlet" matcher="regexp" />
         </dependency>
-        <dependency org="com.oracle" name="ojdbc6" rev="11g" conf="compile,client,standalone->*" />
-        <dependency org="postgresql" name="postgresql" rev="8.4-701.jdbc4" conf="compile,client,standalone->*" />
+        <dependency org="com.oracle" name="ojdbc6" rev="11g" conf="compile,client,server->*" />
+        <dependency org="postgresql" name="postgresql" rev="8.4-701.jdbc4" conf="compile,client,server->*" />
         <dependency org="commons-collections" name="commons-collections" rev="3.2.1"/>
     </dependencies>
 

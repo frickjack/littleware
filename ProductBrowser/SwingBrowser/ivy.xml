@@ -23,6 +23,7 @@
       <dependency org="auburn.library" name="auLibrary" rev="1.1" 
                   conf="compile->compile;client->client;server->server" 
                   />
+      <dependency org="littleware" name="littleWeb" rev="2.2" conf="compile->compile;server->server;client->client" />
     </dependencies>
 
 </ivy-module>

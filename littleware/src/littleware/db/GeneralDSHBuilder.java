@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import littleware.base.Maybe;
 import littleware.base.ValidationException;
 import littleware.db.DataSourceHandler.DSHBuilder;
 import oracle.jdbc.pool.OracleDataSource;
@@ -78,7 +79,7 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
         @Override
         public void setDataSource(DataSource value, String jdbcUrl ) {
             this.dsource = value;
-            this.jdbcUrl = jdbcUrl;
+            this.jdbcUrl = jdbcUrl.trim();
         }
 
         @Override
@@ -89,6 +90,17 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
         @Override
         public String getJdbcUrl() {
             return jdbcUrl;
+        }
+
+        @Override
+        public Maybe<DataSource> resetIfNecessary(String newJdbcUrl, DSHBuilder builder) {
+            final String cleanUrl = newJdbcUrl.trim();
+            if( cleanUrl.equalsIgnoreCase( getJdbcUrl() ) ) {
+                return Maybe.empty();
+            }
+            final Maybe<DataSource> result = Maybe.something( dsource );
+            setDataSource( builder.url( cleanUrl ).build().getDataSource(), cleanUrl );
+            return result;
         }
     }
 

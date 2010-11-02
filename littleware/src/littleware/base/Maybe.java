@@ -10,6 +10,7 @@
 
 package littleware.base;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import littleware.asset.Asset;
@@ -17,29 +18,29 @@ import littleware.asset.Asset;
 
 /**
  * A little set/not-set object.
- * Fascilitates deferred loading and other patterns.
+ * Facilitates deferred loading and other patterns.
  */
-public class Maybe<T> implements java.io.Serializable {
+public class Maybe<T> implements java.io.Serializable, Iterable<T> {
     private static final long serialVersionUID = 10000001L;
 
-    private boolean  ob_set = false;
-    private String osError = null;
+    private boolean  isSet = false;
+    private String errorMessage = null;
 
-    public boolean isSet() { return ob_set; }
-    public boolean isEmpty() { return ! ob_set; }
+    public boolean isSet() { return isSet; }
+    public boolean isEmpty() { return ! isSet; }
 
     /** Construct an unset Maybe */
     private Maybe () {}
     /** Construct an isSet Maybe */
     private Maybe ( T val ) {
         oval = val;
-        ob_set = true;
+        isSet = true;
     }
 
     private T  oval;
 
     public T getOr( T alt ) {
-        if ( ob_set ) {
+        if ( isSet ) {
             return oval;
         } else {
             return alt;
@@ -47,7 +48,7 @@ public class Maybe<T> implements java.io.Serializable {
     }
 
     public T getOrCall( Callable<T> call ) throws Exception {
-        if ( ob_set ) {
+        if ( isSet ) {
             return oval;
         } else {
             return call.call ();
@@ -58,9 +59,9 @@ public class Maybe<T> implements java.io.Serializable {
      * Get the value if set, otherwise throw NoSuchElementException
      */
     public T get () {
-        if ( ! ob_set ) {
-            if ( null != osError ) {
-                throw new NoSuchElementException( osError );
+        if ( ! isSet ) {
+            if ( null != errorMessage ) {
+                throw new NoSuchElementException( errorMessage );
             }
             throw new NoSuchElementException();
         }
@@ -89,7 +90,7 @@ public class Maybe<T> implements java.io.Serializable {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 37 * hash + (this.ob_set ? 1 : 0);
+        hash = 37 * hash + (this.isSet ? 1 : 0);
         hash = 37 * hash + (this.oval != null ? this.oval.hashCode() : 0);
         return hash;
     }
@@ -103,7 +104,7 @@ public class Maybe<T> implements java.io.Serializable {
      * @return this
      */
     private Maybe<T> putError( String sError ) {
-        osError = sError;
+        errorMessage = sError;
         return this;
     }
 
@@ -140,6 +141,33 @@ public class Maybe<T> implements java.io.Serializable {
     /** Factory builds Maybe set with val */
     public static <T> Maybe<T> something( T val ) {
         return new Maybe<T>( val );
+    }
+
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator() {
+          int nextCount = 0;
+
+            @Override
+            public boolean hasNext() {
+                return (0 == nextCount) && Maybe.this.isSet();
+            }
+
+            @Override
+            public T next() {
+                if( hasNext() ) {
+                    nextCount++;
+                    return Maybe.this.get();
+                }
+                throw new NoSuchElementException();
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Not supported.");
+            }
+        };
     }
 
 

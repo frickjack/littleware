@@ -12,6 +12,7 @@ package littleware.db;
 import com.google.inject.ImplementedBy;
 import java.lang.reflect.InvocationHandler;
 import javax.sql.DataSource;
+import littleware.base.Maybe;
 
 /**
  * Dynamic-proxy handler for SQL DataSource allows
@@ -25,6 +26,16 @@ public interface DataSourceHandler extends InvocationHandler {
     public String     getJdbcUrl();
 
     public void setDataSource(DataSource value, String jdbcUrl );
+
+    /**
+     * Little utility builds and assigns a new data source
+     * if newJdbcUrl does not match getJdbcUrl ignore-casee
+     *
+     * @param newJdbcUrl
+     * @param builder
+     * @return old DataSource if reset, otherwise empty
+     */
+    public Maybe<DataSource> resetIfNecessary( String newJdbcUrl, DSHBuilder builder );
 
     @ImplementedBy(GeneralDSHBuilder.class)
     public interface DSHBuilder {
@@ -45,4 +56,5 @@ public interface DataSourceHandler extends InvocationHandler {
 
         public DataSourceHandler build();
     }
+
 }

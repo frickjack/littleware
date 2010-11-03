@@ -13,7 +13,10 @@ nbproject/private
 /bucketRoot/
 /cachedir/
 ^scratch
-/lib/
+/ivy/
+/ydoc/
+/yparser/
 \.pyc$
 ~$
 .zip$
+latest_session.properties$

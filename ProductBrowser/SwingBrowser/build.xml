@@ -73,63 +73,8 @@
 <ivy:settings file="${user.home}/Documents/Code/repository/littlesettings.xml" />
 
 -->
-<ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
+<property name="ivy.publish.version" value="1.2-SNAPSHOT" />
+        <import file="../../ivy/ivy_build_rules.xml"/>
 
 
-<target name="-post-clean">
-    <delete dir="lib" />
-</target>
-
-<target name="resolve" description="-- retrieve dependencies with ivy">
-        <ivy:retrieve conf="compile" pattern="lib/compile/[artifact]-[revision]-[type].[ext]" />
-        <pathconvert property="ivy.compile.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="lib/compile" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-        <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.compile.classpath" value="${ivy.compile.classpath.computed}"/>
-        </propertyfile>
-        
-        <ivy:retrieve conf="client" pattern="lib/client/[artifact]-[revision]-[type].[ext]" />
-        <pathconvert property="ivy.client.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="lib/client" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-        <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.client.classpath" value="${ivy.client.classpath.computed}"/>
-        </propertyfile>        
-        
-        <ivy:resolve />        
-    </target>
-
-<target name="-pre-init" depends="resolve" />
-
-<target name="-post-jar"
-        depends="-init-project"
-         >
-    <fail unless="dist.dir">dist.dir not defined ? </fail>
-    <copy todir="${dist.dir}">
-        <fileset dir="cli">
-            <include name="*.sh" />
-            <include name="*.bat" />
-            <include name="*.properties" />
-        </fileset>
-    </copy>
-  </target>
-
-<target name="publish" depends="resolve,-init-project,jar" description="publish to local ivy repository">
-	<ivy:publish  overwrite="true"
-			           resolver="local"
-			           pubrevision="1.1" 
-			           >
-             <artifacts pattern="${dist.dir}/[artifact].[ext]" />
-         </ivy:publish>
-         <delete dir="${ivy.cache.dir}/littleware" />
-    </target>
-
-    
 </project>

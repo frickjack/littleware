@@ -23,7 +23,7 @@ class HoodBean extends InjectMeBean {
 
   private var tool:controller.Controller = null
   @Inject()
-  override def injectMe( tool:controller.Controller ):Unit = {
+  def injectMe( tool:controller.Controller ):Unit = {
     this.tool = tool
   }
 

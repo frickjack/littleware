@@ -17,6 +17,8 @@ nbproject/private
 /ydoc/
 /yparser/
 \.pyc$
+javadoc/api
+ivy/ivy.jar
 ~$
 .zip$
 latest_session.properties$

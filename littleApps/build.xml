@@ -10,6 +10,8 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant"
 	name="littleApps" default="default" basedir=".">
     <description>Builds, tests, and runs the project littleApps.</description>
+    <property name="ivy.publish.version" value="2.3-SNAPSHOT" />
+    <import file="../ivy/ivy_build_rules.xml"/>    
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -127,8 +129,6 @@
 <ivy:settings url="http://n9n.mtvn.ad.viacom.com/repository/littlesettings.xml" />
 <ivy:settings file="${user.home}/Documents/Code/repository/littlesettings.xml" />
 
--->
-<property name="ivy.publish.version" value="2.3-SNAPSHOT" />
-        <import file="../ivy/ivy_build_rules.xml"/>
-    
+-->    
+
 </project>

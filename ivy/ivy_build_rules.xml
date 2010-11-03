@@ -9,12 +9,12 @@
     <description>Some build rules with IVY.</description>
 
 <property name="ivy.install.version" value="2.2.0" /> 
-<property name="ivy.jar.dir" value="${basedir}/ivy" /> 
+<dirname property="ivy.jar.dir" file="${ant.file.ivy-template}" /> 
 <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" /> 
 
 
 <target name="-post-clean">
-    <delete dir="${ivy.jar.dir}" />
+    <delete dir="${basedir}/ivy" verbose="true" />
 </target>
 
     <target name="download-ivy" unless="skip.download"> 
@@ -65,6 +65,7 @@
             <entry operation="=" key="ivy.compile.classpath" value="${ivy.compile.classpath.computed}"/>
         </propertyfile>
         
+        <mkdir dir="ivy/test" />
         <ivy:retrieve conf="test" pattern="ivy/test/[artifact]-[revision]-[type].[ext]"
                overwriteMode="newer"
                 />

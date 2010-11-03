@@ -74,56 +74,7 @@
 
     -->
     
-    
-<!--
-<ivy:settings file="${user.home}/Documents/Code/repository/littlesettings.xml" />
--->
-<ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
-
-<target name="-post-clean">
-    <delete dir="lib" />
-</target>
-
-<target name="resolve" description="-- retrieve dependencies with ivy">
-  <delete file="${dist.dir}/ivy.xml" />  <!-- force clean ivy file into dist -->
-        <ivy:retrieve conf="compile" pattern="lib/compile/[artifact]-[revision]-[type].[ext]" />
-        <pathconvert property="ivy.compile.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="lib/compile" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-        <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.compile.classpath" value="${ivy.compile.classpath.computed}"/>
-        </propertyfile>
-        
-        
-        <ivy:retrieve conf="test" pattern="lib/test/[artifact]-[revision]-[type].[ext]" />
-        <pathconvert property="ivy.test.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="lib/test" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-        <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.test.classpath" value="${ivy.test.classpath.computed}"/>
-        </propertyfile>
-        
-        <ivy:resolve />        
-    </target>
-
-
-<target name="-pre-init" depends="resolve" />
-
-
-<target name="publish" depends="resolve,-init-project,jar" description="publish to local ivy repository">
-	<ivy:publish  overwrite="true"
-			           resolver="local"
-			           pubrevision="2.3-SNAPSHOT" 
-			           >
-             <artifacts pattern="${dist.dir}/[artifact].[ext]" />
-         </ivy:publish>
-         <delete dir="${ivy.cache.dir}/littleware" />
-    </target>
+    <property name="ivy.publish.version" value="2.3-SNAPSHOT" />
+        <import file="../ivy/ivy_build_rules.xml"/>
         
 </project>

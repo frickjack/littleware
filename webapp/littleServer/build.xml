@@ -122,8 +122,10 @@
   </exec>
  </target>
 
+ <target name="-littlelib-process" depends="-init-project" />
+ <!-- overrides littlelib-process
 <import file="webstart.xml"/> 
-
+-->
 
  <target name="webstart" depends="-init-project"
        description="setup webstart jars">
@@ -139,14 +141,12 @@
 
 <target name="-post-compile">
   <copy todir="build/web/WEB-INF/lib">
-    <fileset dir="lib/server"/>
+    <fileset dir="${ivy.jar.dir}/test"/>
   </copy>
 </target>
 
-<target name="-post-clean">
-    <delete dir="lib" />
-</target>
 
+<target name="jar" depends="dist" />
 <target name="post-compile" depends="-post-compile" />
 
 <target name="-pre-dist"
@@ -154,35 +154,9 @@
       >
 </target>
 
-<!--
-<ivy:settings file="${user.home}/Documents/Code/repository/littlesettings.xml" />
--->
-<ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
-
-
-<target name="resolve" description="-- retrieve dependencies with ivy">
-        <ivy:retrieve conf="client" pattern="lib/client/[artifact]-[revision]-[type].[ext]" />
-        <pathconvert property="ivy.client.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="lib/client" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-
-        <ivy:retrieve conf="server" pattern="lib/server/[artifact]-[revision]-[type].[ext]" />
-        <pathconvert property="ivy.server.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="lib/server" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-        <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.server.classpath" value="${ivy.server.classpath.computed}"/>
-        </propertyfile>
+    <property name="ivy.publish.version" value="2.3-SNAPSHOT" />
+        <import file="../../ivy/ivy_build_rules.xml"/>
         
-        <ivy:resolve />        
-    </target>
-
-<target name="-pre-init" depends="resolve" />
+ <target name="-pre-compile" depends="resolve" />
     
 </project>

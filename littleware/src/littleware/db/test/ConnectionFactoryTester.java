@@ -89,7 +89,7 @@ public class ConnectionFactoryTester extends LittleTest {
         final DataSource remember = proxyHandler.getDataSource();
         final String     rememberUrl = proxyHandler.getJdbcUrl();
         try {
-            proxyHandler.setDataSource(null,null);
+            proxyHandler.setDataSource(null,"bla");
             // should get null-pointer exception via proxy DataSource now
             try {
                 dsource.getConnection();

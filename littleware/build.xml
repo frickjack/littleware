@@ -11,6 +11,8 @@
     name="littleware" default="default" basedir="."
     >
     <description>Builds, tests, and runs the project littleware.</description>
+    <property name="ivy.publish.version" value="2.3-SNAPSHOT" />
+    <import file="../ivy/ivy_build_rules.xml"/>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -132,7 +134,5 @@
   -->
 </target>
 
-<property name="ivy.publish.version" value="2.3-SNAPSHOT" />
-        <import file="../ivy/ivy_build_rules.xml"/>
 
 </project>

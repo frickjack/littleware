@@ -10,6 +10,8 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" 
       name="littleServer" default="default" basedir=".">
     <description>Builds, tests, and runs the project littleWeb.</description>
+    <property name="ivy.publish.version" value="2.3-SNAPSHOT" />
+    <import file="../../ivy/ivy_build_rules.xml"/>     
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -141,7 +143,7 @@
 
 <target name="-post-compile">
   <copy todir="build/web/WEB-INF/lib">
-    <fileset dir="${ivy.jar.dir}/test"/>
+    <fileset dir="ivy/test"/>
   </copy>
 </target>
 
@@ -154,9 +156,5 @@
       >
 </target>
 
-    <property name="ivy.publish.version" value="2.3-SNAPSHOT" />
-        <import file="../../ivy/ivy_build_rules.xml"/>
-        
- <target name="-pre-compile" depends="resolve" />
     
 </project>

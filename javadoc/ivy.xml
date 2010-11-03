@@ -1,0 +1,20 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="javadoc"/>
+    <configurations>
+        <!-- compile may build against jars that only include interfaces -->
+        <conf name="compile" description="compile everything"/>
+        <conf name="test" description="just here to satisfy littleware ivy template rules"/>
+    </configurations>
+    <publications>
+        <!--
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
+    	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
+        -->
+    </publications>
+    
+    <dependencies>    
+      <dependency org="littleware" name="littleWeb" rev="latest.revision" conf="compile->compile" />
+    </dependencies>
+
+</ivy-module>

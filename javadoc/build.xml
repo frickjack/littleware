@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project
+     xmlns:ivy="antlib:org.apache.ivy.ant"
+     name="little-javadoc"
+     default="javadoc"
+     >
+    <description>littleware global javadoc builder</description>
+    <description>Builds, tests, and runs the project littleWeb.</description>
+    <property name="ivy.publish.version" value="2.3-SNAPSHOT" />
+    <import file="../ivy/ivy_build_rules.xml"/>
+
+<target name="javadoc" depends="resolve" description="generate javadoc for public littleware APIs" >
+    <mkdir dir="api" />
+    <property file="nbproject/project.properties"/>
+ <javadoc
+           destdir="api"
+           author="true"
+           version="true"
+           use="true"
+           windowtitle="littleware"
+           classpath="${ivy.compile.classpath}"
+           >
+
+    <packageset dir="../littleware/src" defaultexcludes="yes">
+       <include name="littleware/**" />
+    </packageset>
+    <packageset dir="../littleApps/src/main/java" defaultexcludes="yes">
+       <include name="littleware/**" />
+    </packageset>    
+    <packageset dir="../littleWeb/src/main/java" defaultexcludes="yes">
+       <include name="littleware/**" />
+    </packageset>    
+
+    <doctitle><![CDATA[<h1>littleware</h1>]]></doctitle>
+    <bottom><![CDATA[<i>Copyright &#169; 2010 littleware.  Licensed to public under GPL v2.0.</i>]]></bottom>
+          <!--
+    <tag name="todo" scope="all" description="To do:"/>
+    <group title="Group 1 Packages" packages="com.dummy.test.a*"/>
+    <group title="Group 2 Packages" packages="com.dummy.test.b*:com.dummy.test.c*"/>
+          -->
+    <link offline="true" href="http://download.oracle.com/javase/6/docs/api/" packagelistLoc="C:\tmp"/>
+    <link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/>
+  </javadoc>
+</target>
+
+<!-- for the ivy build rules ... -->
+<target name="-init-project" />
+<target name="jar" />
+<target name="publish" />
+    
+</project>

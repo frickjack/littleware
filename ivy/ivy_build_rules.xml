@@ -84,8 +84,13 @@
 
 <target name="-pre-init" depends="resolve" />
 
+<target name="cli-check">
+    <available file="cli" property="cli.exists"/>
+</target>
+
 <target name="-post-jar"
-        depends="-init-project"
+        depends="-init-project,cli-check"
+        if="cli.exists"
          >
          <!--
          Copy scripts in cli/ directory to dist dir

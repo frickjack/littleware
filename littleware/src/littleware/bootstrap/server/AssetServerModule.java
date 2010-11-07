@@ -96,8 +96,10 @@ public class AssetServerModule extends AbstractServerModule {
         binder.bind(AccountManager.class).to(SimpleAccountManager.class).in(Scopes.SINGLETON);
 
         if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
+            log.log( Level.INFO, "Configuring JPA in J2EE mode ..." );
             (new J2EEGuice()).configure(binder);
         } else {
+            log.log( Level.INFO, "Configuring JPA in standalone (hibernate) mode ..." );
             try {
                 (new DbGuice("littleware_jdbc.properties")).configure(binder);
             } catch (IOException ex) {

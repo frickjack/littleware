@@ -6,6 +6,7 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.prime.com.tr/ui"
       >
     <h:body>
         <ui:composition template="/WEB-INF/layout/standard.xhtml">
@@ -41,17 +42,16 @@
                         <img alt="nodeGraph" src="./util/img/nodeGraph.png" width="100px" style="margin:20px;"/>
                         <table class="browsercell"><tr>
                                 <td><img alt="icon" src="util/img/adobe_reader.jpg" /></td>
-                                <td><h3>ActiveProduct</h3></td>
+                                <td><h3> <h:outputText value="#{hoodBean.asset.model.asset.name}" /> </h3></td>
                             </tr></table>
                         <p>
-                            Comment about this product - bla bla bla
+                            <h:outputText value="#{hoodBean.asset.model.asset.comment}" />
                         </p>
                         <table class="deftable">
-                            <tr><th>Type:</th><td>Product</td></tr>
+                            <tr><th>Type:</th><td><h:outputText value="#{hoodBean.asset.model.asset.assetType}" /></td></tr>
                             <tr><th>Owner:</th><td>Reuben</td></tr>
                             <tr><th>ACL:</th><td>everybody.read</td></tr>
                         </table>
-                        <div id="bucketInfo"></div>
                     </div>
 
                     <div id="navTabs">
@@ -63,7 +63,40 @@
                         </ul>
                         <div>
                             <div id="kids" class="browser">
-                                KIDS!
+
+                        <p:dataTable styleClass="datatable"
+                                     var="sample" value="#{hoodBean.children}"
+                                     >
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Relative Path" />
+                                </f:facet>
+                                <h:outputText value="#{sample.relativePath}" />
+                                <br />
+                                <h:outputText value="#{sample.absPath}" />
+                                <br />
+                                <h:outputText value="#{sample.model.asset.assetType}" />
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="header">
+                                    <h:outputText value="comment" />
+                                </f:facet>
+                                <h:outputText value="#{sample.model.asset.comment}" />
+                            </p:column>
+
+                            <!-- .................................... -->
+
+                            <p:column>
+                                <f:facet name="header">
+                                    Last update
+                                </f:facet>
+                                <h:outputText value="#{sample.model.asset.lastUpdateDate}" >
+                                    <f:convertDateTime pattern="yyyy/MM/dd" />
+                                </h:outputText>
+                            </p:column>
+                        </p:dataTable>
+
                             </div>
                             <div id="neighbors" class="browser">
                                 Neighbors!

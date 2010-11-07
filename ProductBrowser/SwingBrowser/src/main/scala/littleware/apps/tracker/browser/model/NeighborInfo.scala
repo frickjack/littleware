@@ -10,14 +10,16 @@
 
 package littleware.apps.tracker.browser.model
 
-import java.util.UUID
 import littleware.apps.client.AssetModel
 import littleware.asset.AssetPath
 
 trait NeighborInfo {
   val model:AssetModel
+  def getModel = model
   val absPath:AssetPath
+  def getAbsPath = absPath
   val relativePath:String
+  def getRelativePath = relativePath
 }
 
 object NeighborInfo {

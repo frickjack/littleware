@@ -120,7 +120,7 @@ class SimpleController @Inject() ( assetMgr:AssetManager,
 
      builder.asset( loadInfo(id, ".").get
       ).children(
-        search.getAssetIdsFrom(id).entrySet.flatMap( (entry) => loadInfo( entry.getValue, "./" + entry.getValue )).toSeq
+        search.getAssetIdsFrom(id).entrySet.flatMap( (entry) => loadInfo( entry.getValue, "./" + entry.getKey )).toSeq
       ).uncles(
         parent.toSeq.flatMap( (parentAsset) => { Option( parentAsset.getFromId ) }
         ).flatMap( (grannyId) => search.getAssetIdsFrom( grannyId ).entrySet

@@ -144,6 +144,9 @@
 <target name="-post-compile">
   <copy todir="build/web/WEB-INF/lib">
     <fileset dir="ivy/test"/>
+    <fileset dir="ivy/compile">
+        <include name="ojdbc*" />
+    </fileset>
   </copy>
 </target>
 

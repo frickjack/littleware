@@ -75,7 +75,8 @@
     nbproject/build-impl.xml file. 
 
     -->
- <target name="-post-jar" 
+ <target name="-post-jar" depends="littleClient" />
+ <target name="littleClient"
 	 description="build littleClient.jar"
       >
       <jar id="jarclient" jarfile="dist/littleClient.jar"
@@ -86,7 +87,8 @@
    <exclude name="derby/**" />
    <exclude name="mysql/**" />
    <exclude name="postgres/**" />
-   <exclude name="littleware/META-INF/**" />
+   <exclude name="META-INF/persistence.xml" />
+   <exclude name="META-INF/services/littleware.bootstrap.server.ServerModuleFactory" />
    <exclude name="littleware/apps/calendar/**" />
    <exclude name="littleware/alarmClock/**" />
    <exclude name="littleware/apps/backup/**" />

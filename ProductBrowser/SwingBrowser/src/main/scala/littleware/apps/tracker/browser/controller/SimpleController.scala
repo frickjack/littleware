@@ -23,6 +23,7 @@ import littleware.asset.Asset
 import littleware.asset.AssetManager
 import littleware.asset.AssetPathFactory
 import littleware.asset.AssetSearchManager
+import littleware.asset.AssetType
 import littleware.base.BaseException
 import littleware.base.feedback.Feedback
 import scala.collection.JavaConversions._
@@ -78,64 +79,70 @@ class SimpleController @Inject() ( assetMgr:AssetManager,
 
   @throws(classOf[BaseException])
   @throws(classOf[GeneralSecurityException])
-  override def loadNeighborhood( id:UUID ):model.Neighborhood = {
+  override def loadNeighborhood( assetId:UUID ):model.Neighborhood = {
     /*
      * Build the NeighborInfo for the asset with the given id
      */
-     @throws(classOf[BaseException])
-     @throws(classOf[GeneralSecurityException])
-     def loadInfo( id:UUID, relativePath:String ):Option[model.NeighborInfo] =
-       try {
-       Option(search.getAsset(id).getOr(null)).map( (asset) =>
-         neighborProvider.get.model( assetLib.syncAsset( asset )
-                                    ).absPath( pathFactory.toRootedPath( id )
-                                    ).relativePath( relativePath
-                                    ).build
+    @throws(classOf[BaseException])
+    @throws(classOf[GeneralSecurityException])
+    def loadInfo( infoId:UUID, relativePath:String ):Option[model.NeighborInfo] =
+      try {
+        Option(search.getAsset(infoId).getOr(null)).map( (asset) =>
+          neighborProvider.get.model( assetLib.syncAsset( asset )
+          ).absPath( pathFactory.toRootedPath( infoId )
+          ).relativePath( relativePath
+          ).build
         )
-       } catch {
-         case ex => {
-             log.log( Level.WARNING, "Failed to load neighbor info for " + id, ex )
-             None
-         }
-       }
-
-     /*
-      * Extract a (name -> id) link map for the given asset
-      */
-     def buildLinkMap( asset:Asset ):Map[String,UUID] = {
-        Map.empty[String,UUID] ++ asset.getLinkMap ++
-        Map(
-          ("owner" -> asset.getOwnerId),
-          ("acl" -> asset.getAclId),
-          ("creator" -> asset.getCreatorId),
-          ("updater" -> asset.getLastUpdaterId),
-          ("from" -> asset.getFromId),
-          ("to" -> asset.getToId)
-        ).filter( { _._2 != null } )
+      } catch {
+        case ex => {
+            log.log( Level.WARNING, "Failed to load neighbor info for " + infoId, ex )
+            None
+          }
       }
 
-     val builder = hoodProvider.get
-     val asset:Asset = search.getAsset(id).get
-     val parent:Option[Asset] = Option(asset.getFromId).map( (id) => search.getAsset(id).get )
+    /*
+     * Extract a (name -> id) link map for the given asset
+     */
+    def buildLinkMap( asset:Asset ):Map[String,UUID] = {
+      Map.empty[String,UUID] ++ asset.getLinkMap ++
+      Map(
+        ("owner" -> asset.getOwnerId),
+        ("acl" -> asset.getAclId),
+        ("creator" -> asset.getCreatorId),
+        ("updater" -> asset.getLastUpdaterId),
+        ("from" -> asset.getFromId),
+        ("home" -> asset.getHomeId),
+        ("to" -> asset.getToId)
+      ).filter( { _._2 != null } )
+    }
 
-     builder.asset( loadInfo(id, ".").get
-      ).children(
-        search.getAssetIdsFrom(id).entrySet.flatMap( (entry) => loadInfo( entry.getValue, "./" + entry.getKey )).toSeq
-      ).uncles(
-        parent.toSeq.flatMap( (parentAsset) => { Option( parentAsset.getFromId ) }
-        ).flatMap( (grannyId) => search.getAssetIdsFrom( grannyId ).entrySet
-        ).flatMap( (uncleEntry) => loadInfo(uncleEntry.getValue, "../../" + uncleEntry.getKey )
-        )
-      ).siblings(
-        parent.toSeq.flatMap( (parentAsset) => search.getAssetIdsFrom( parentAsset.getId ).entrySet
-        ).filter( (siblingEntry) => { siblingEntry.getValue != id }
-        ).flatMap( (siblingEntry) => loadInfo(siblingEntry.getValue, "../" + siblingEntry.getKey )
-        )
-      ).neighbors(
-        Map(
-          buildLinkMap(asset).flatMap(  _ match { case (property,id) => loadInfo(id, "./@" + property).map( (id -> _) ) }
-          ).toSeq: _*
-        )
-      ).build
-     }
-     }
+    val builder = hoodProvider.get
+    val asset:Asset = search.getAsset(assetId).get
+    val parent:Option[Asset] = Option(asset.getFromId).map( search.getAsset(_).get )
+
+    builder.asset( loadInfo(assetId, ".").get
+    ).children(
+      search.getAssetIdsFrom(assetId).entrySet.flatMap( (entry) => loadInfo( entry.getValue, "./" + entry.getKey )).toSeq
+    ).uncles(
+      parent.toSeq.flatMap( (parentAsset) => { Option( parentAsset.getFromId ) }
+      ).flatMap( (grannyId) => search.getAssetIdsFrom( grannyId ).entrySet
+      ).flatMap( (uncleEntry) => loadInfo(uncleEntry.getValue, "../../" + uncleEntry.getKey )
+      )
+    ).siblings(
+      (
+        if ( asset.getAssetType == AssetType.HOME) {
+          // HOME type assets are siblings of each other in the browser
+          search.getHomeAssetIds.entrySet.toSeq
+        } else {
+          parent.toSeq.flatMap( (parentAsset) => search.getAssetIdsFrom( parentAsset.getId ).entrySet )
+        }
+      ).filter( (siblingEntry) => { siblingEntry.getValue != assetId }
+      ).flatMap( (siblingEntry) => loadInfo(siblingEntry.getValue, "../" + siblingEntry.getKey )
+      )
+    ).neighbors(      
+        buildLinkMap(asset).flatMap(
+          _ match { case (property,propertyId) => loadInfo(propertyId, "./@" + property) }
+      ).toSeq
+    ).build
+  }
+}

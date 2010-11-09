@@ -19,11 +19,13 @@
                 <f:facet name="header">
                     <h:outputText value="Relative Path" />
                 </f:facet>
-                <h:outputText value="#{sample.relativePath}" />
+                <h:commandLink value="#{sample.relativePath}" immediate="true"
+                               actionListener="#{hoodBean.loadHood( sample.model.asset.id ) }" />
                 <br />
                 <h:outputText value="#{sample.absPath}" />
                 <br />
-                <h:outputText value="#{sample.model.asset.assetType}" />
+                <h:outputText value="#{sample.model.asset.assetType}" />,
+                <h:outputText value="#{sample.model.asset.id}" />,
             </p:column>
 
             <p:column>

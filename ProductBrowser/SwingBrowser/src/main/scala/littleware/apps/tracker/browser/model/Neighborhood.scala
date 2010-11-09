@@ -55,13 +55,13 @@ object Neighborhood {
       this
     }
     
-    var neighbors:Map[UUID,NeighborInfo] = Map.empty
-    def neighbors( value:Map[UUID,NeighborInfo] ):this.type = {
+    var neighbors:Seq[NeighborInfo] = Nil
+    def neighbors( value:Seq[NeighborInfo] ):this.type = {
       this.neighbors = value
       this
     }
     def addNeighbor( info:NeighborInfo ):this.type = {
-      neighbors = neighbors + (info.model.getAsset.getId -> info)
+      neighbors = neighbors :+ info
       this
     }
 
@@ -76,5 +76,5 @@ trait Neighborhood {
   val children:Seq[NeighborInfo]
   val uncles:Seq[NeighborInfo]
   val siblings:Seq[NeighborInfo]
-  val neighbors:Map[UUID,NeighborInfo]
+  val neighbors:Seq[NeighborInfo]
 }

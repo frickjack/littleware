@@ -12,11 +12,14 @@ package littleware.apps.tracker.browser.web
 
 import com.google.inject.Inject
 import edu.auburn.library.util.AuburnHelper
+import edu.auburn.library.util.LazyLogger
 import java.util.UUID
+import java.util.logging.Level
 import javax.faces.bean.ManagedBean
-import javax.faces.bean.RequestScoped
+import javax.faces.bean.SessionScoped
 import littleware.apps.tracker.browser.controller
 import littleware.apps.tracker.browser.model.NeighborInfo
+import littleware.base.UUIDFactory
 import littleware.security.LittleUser
 import littleware.web.beans.InjectMeBean
 import scala.collection.JavaConversions._
@@ -26,14 +29,14 @@ import scala.collection.JavaConversions._
  * for simple read-only product browser
  */
 @ManagedBean
-@RequestScoped
+@SessionScoped
 class HoodBean extends InjectMeBean {
-
+  private val log = LazyLogger( getClass )
   private var tool:controller.Controller = null
   @Inject()
   def injectMe( tool:controller.Controller, user:LittleUser ):Unit = {
     this.tool = tool
-    loadHood( user.getHomeId )
+    loadHood( user.getId.toString )
   }
   
   
@@ -52,12 +55,17 @@ class HoodBean extends InjectMeBean {
   private var neighbors:java.util.List[NeighborInfo] = java.util.Collections.emptyList[NeighborInfo]
   def getNeighbors = neighbors
   
-  def loadHood( assetId:UUID ):Unit = {
-    val hood = tool.loadNeighborhood(assetId)
+  def loadHood( assetId:String ):Unit = try {
+    val hood = tool.loadNeighborhood( UUIDFactory.parseUUID( assetId) )
     this.asset = hood.asset
     this.children = hood.children  // implicit conversion thanks to JavaConversions ...
     this.uncles = hood.uncles
     this.siblings = hood.siblings
-    this.neighbors = AuburnHelper.toJavaList( hood.neighbors.values )
+    this.neighbors = hood.neighbors
+    log.info( "Loading " + assetId + " -- " + asset.model.getAsset.getName )
+  } catch {
+    case ex => {
+        log.log( Level.INFO, "Failed to load " + assetId, ex )
+    }
   }
 }

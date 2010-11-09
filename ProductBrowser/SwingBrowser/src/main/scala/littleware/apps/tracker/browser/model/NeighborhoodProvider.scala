@@ -23,7 +23,7 @@ object NeighborhoodProvider extends Provider[Neighborhood.Builder]{
     override val children:Seq[NeighborInfo],
     override val uncles:Seq[NeighborInfo],
     override val siblings:Seq[NeighborInfo],
-    override val neighbors:Map[UUID,NeighborInfo]
+    override val neighbors:Seq[NeighborInfo]
   ) extends Neighborhood {
   }
 

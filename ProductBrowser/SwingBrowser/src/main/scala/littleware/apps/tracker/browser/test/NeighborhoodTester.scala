@@ -32,11 +32,13 @@ class NeighborhoodTester @Inject() ( controller:Controller,
    */
   def testNeighborhood():Unit = {
     try {
-      val testHome = LittleTest.getTestHome( search )
-      val neighbor = controller.loadNeighborhood( testHome.getId )
+      val neighbor = controller.loadNeighborhood( user.getId )
       Assert.assertTrue( "neighbor references correct asset",
-                        neighbor.asset.model.getAsset.getId == testHome.getId
+                        neighbor.asset.model.getAsset.getId == user.getId
         )
+      Assert.assertTrue( "neighbor references correct home",
+                        neighbor.neighbors.find( (info) => info.model.getAsset.getId == user.getHomeId ).isDefined
+                )
     } catch {
       case ex => {
         log.log( Level.WARNING, "Test failed", ex )

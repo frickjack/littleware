@@ -50,8 +50,10 @@
 
 <target name="resolve" depends="install-ivy" description="-- retrieve dependencies with ivy">
     <!--
-    We assume here that there are 'compile' and 'test' ivy configs
+    We assume here that there are 'compile' and 'test' ivy configs.
+    Delete dist/ivy.xml to force rebuild
     -->
+    <delete file="dist/ivy.xml" />
         <ivy:retrieve conf="compile" pattern="ivy/compile/[artifact]-[revision]-[type].[ext]"
             overwriteMode="newer"
             />

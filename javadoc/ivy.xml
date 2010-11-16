@@ -3,7 +3,7 @@
     <configurations>
         <!-- compile may build against jars that only include interfaces -->
         <conf name="compile" description="compile everything"/>
-        <conf name="test" description="just here to satisfy littleware ivy template rules"/>
+        <conf name="test" extends="compile" visibility="private" description="just here to satisfy littleware ivy template rules"/>
     </configurations>
     <publications>
         <!--

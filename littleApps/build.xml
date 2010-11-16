@@ -10,7 +10,7 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant"
 	name="littleApps" default="default" basedir=".">
     <description>Builds, tests, and runs the project littleApps.</description>
-    <property name="ivy.publish.version" value="2.3-SNAPSHOT" />
+    <property name="ivy.deliver.revision" value="2.3" />
     <import file="../ivy/ivy_build_rules.xml"/>    
     <import file="nbproject/build-impl.xml"/>
     <!--

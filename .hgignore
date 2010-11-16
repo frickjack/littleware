@@ -19,6 +19,7 @@ nbproject/private
 \.pyc$
 javadoc/api
 ivy/ivy.jar
+ivy/littlesettings.xml
 ~$
 .zip$
 latest_session.properties$

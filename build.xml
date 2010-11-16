@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:ivy="antlib:org.apache.ivy.ant"
+    name="littleware" default="default" basedir="."
+    >
+    <description>Builds "milestone" rule for the various littleware assets.</description>
+
+ <target name="buildAll"
+	 description="build milestones for littleware/, littleApps/, littleWeb/, lgoServer/, and javadoc/"
+      >
+      
+      <ant antfile="littleware/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
+      <ant antfile="littleware/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
+      
+      <ant antfile="littleApps/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
+      <ant antfile="littleApps/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
+      
+      <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
+      <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
+      
+      <ant antfile="lgoServer/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
+      <ant antfile="lgoServer/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
+      
+      <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
+      <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="javadoc" />
+</target>
+
+
+
+</project>

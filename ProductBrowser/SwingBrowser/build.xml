@@ -7,7 +7,7 @@
      name="SwingBrowser" default="default" basedir="."
      >
     <description>Builds, tests, and runs the project SwingBrowser.</description>
-    <property name="ivy.publish.version" value="1.2-SNAPSHOT" />
+    <property name="ivy.deliver.revision" value="2.3" />
     <import file="../../ivy/ivy_build_rules.xml"/>
     <import file="nbproject/build-impl.xml"/>
     <!--

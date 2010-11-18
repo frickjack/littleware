@@ -1,5 +1,6 @@
 CVS
 derby.log
+^Auburn/
 ^littleware/lib
 ^littleware/applet_test
 /build/

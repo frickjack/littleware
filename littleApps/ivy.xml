@@ -26,7 +26,7 @@
     
     <dependencies>    
       <dependency org="littleware" name="littleIcons" rev="0.0"  />
-      <dependency org="littleware" name="littleware" rev="latest.integration" conf="compile->compile;client->client;server->server;ee_client->ee_client;ee_server->ee_server" />
+      <dependency org="littleware" name="littleware" rev="2.3.+" conf="compile->compile;client->client;server->server;ee_client->ee_client;ee_server->ee_server" />
     </dependencies>
 
 </ivy-module>

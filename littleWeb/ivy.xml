@@ -23,7 +23,7 @@
     </publications>
     
     <dependencies>    
-      <dependency org="littleware" name="littleApps" rev="latest.revision" conf="compile->compile;client->client;test->server;ee_client->ee_client" />
+      <dependency org="littleware" name="littleApps" rev="2.3.+" conf="compile->compile;client->client;test->server;ee_client->ee_client" />
       <dependency org="org.easymock" name="easymock" rev="2.5.2" conf="compile,client->*"/>
       <dependency org="org.primefaces" name="primefaces" rev="2.2.RC1" conf="compile,ee_client->*" />
       <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" />

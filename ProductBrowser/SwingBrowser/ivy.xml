@@ -23,10 +23,10 @@
     </publications>
     
     <dependencies>    
-      <dependency org="auburn.library" name="auLibrary" rev="latest.integration" 
+      <dependency org="auburn.library" name="auLibrary" rev="1.2.+" 
                   conf="compile->compile;client->client;ee_client->ee_client" 
                   />
-      <dependency org="littleware" name="littleWeb" rev="latest.integration" conf="compile->compile;ee_client->ee_client;client->client" />
+      <dependency org="littleware" name="littleWeb" rev="2.3.+" conf="compile->compile;ee_client->ee_client;client->client" />
     </dependencies>
 
 </ivy-module>

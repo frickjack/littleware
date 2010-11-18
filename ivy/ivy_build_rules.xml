@@ -114,28 +114,30 @@
 <target name="publish" depends="resolve,-init-project,jar" description="publish SNAPSHOT build to local ivy repository">
 	<ivy:publish  overwrite="true"
 			           resolver="local"
-			           pubrevision="${ivy.deliver.revision}-zSNAPSHOT"
+			           pubrevision="${ivy.deliver.revision}.zSNAPSHOT"
+			           replacedynamicrev="false"
 			           status="integration"
 			           update="true"
 			           >
              <artifacts pattern="${dist.dir}/[artifact].[ext]" />
          </ivy:publish>
-         <delete dir="${ivy.cache.dir}/littleware" />
+         <delete dir="${ivy.cache.dir}/${ivy.organisation}" />
     </target>
     
 <target name="milestone" depends="publish" description="deliver MILESTONE build to local repository">
     <tstamp>
-        <format property="buildId" pattern="yyyyMMdd_HHmm" />
+        <format property="buildId" pattern="yyyyMMdd.HHmm" />
     </tstamp>
 	<ivy:publish  overwrite="true"
 			           resolver="local"
-			           pubrevision="${ivy.deliver.revision}-m${buildId}"
+			           pubrevision="${ivy.deliver.revision}.b${buildId}"
+			           replacedynamicrev="false"
 			           status="milestone"
 			           update="true"
 			           >
              <artifacts pattern="${dist.dir}/[artifact].[ext]" />
          </ivy:publish>
-         <delete dir="${ivy.cache.dir}/littleware" />
+         <delete dir="${ivy.cache.dir}/${ivy.organisation}" />
 </target>
 
     

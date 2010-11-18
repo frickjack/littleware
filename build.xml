@@ -5,26 +5,49 @@
     >
     <description>Builds "milestone" rule for the various littleware assets.</description>
 
- <target name="buildAll"
+<target name="auburn-check">
+    <available file="Auburn" property="auburn.exists"/>
+</target>
+
+<target name="buildSubproject">
+      <ant antfile="${param.subproject}/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
+      <ant antfile="${param.subproject}/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
+</target>
+
+<target name="buildAuburn" depends="buildLittleware,auburn-check" if="auburn.exists"
+    description="Build the Auburn/ projects, and the littleware/ projects that depend on them"
+   >
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/AuLibrary" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="ProductBrowser/SwingBrowser" />
+      </antcall>   
+</target>
+    
+ <target name="buildLittleware"
 	 description="build milestones for littleware/, littleApps/, littleWeb/, lgoServer/, and javadoc/"
       >
-      
-      <ant antfile="littleware/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
-      <ant antfile="littleware/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
-      
-      <ant antfile="littleApps/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
-      <ant antfile="littleApps/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
-      
-      <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
-      <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
-      
-      <ant antfile="lgoServer/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
-      <ant antfile="lgoServer/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
-      
+
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="littleware" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="littleApps" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="littleWeb" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="lgoServer" />
+      </antcall>
+            
       <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
       <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="javadoc" />
 </target>
 
-
+<target name="buildAll" depends="buildAuburn"
+    description="Build the littleware and Auburn/ subprojects" 
+    />
 
 </project>

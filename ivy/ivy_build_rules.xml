@@ -14,7 +14,7 @@
 
 
 <target name="-post-clean">
-    <delete dir="${basedir}/ivy" verbose="true" />
+    <delete dir="${basedir}/ivy" />
 </target>
 
     <target name="download-ivy" unless="skip.download"> 
@@ -57,36 +57,46 @@
     Delete dist/ivy.xml to force rebuild
     -->
     <delete file="dist/ivy.xml" />
-    <ivy:resolve resolveMode="dynamic" /> 
-        <ivy:retrieve conf="compile" pattern="ivy/compile/[artifact]-[revision]-[type].[ext]"
+    <mkdir dir="ivy/test" />
+    <mkdir dir="ivy/compile" />
+    <ivy:resolve resolveMode="dynamic" />
+    <ivy:retrieve conf="compile" pattern="ivy/compile/[artifact]-[revision]-[type].[ext]"
             overwriteMode="newer"
             sync="true"
             />
-        <pathconvert property="ivy.compile.classpath.computed" dirsep="/" pathsep=":">
+    <mkdir dir="ivy/compile" />            
+    <pathconvert property="ivy.compile.classpath.computed" dirsep="/" pathsep=":">
             <path>
                 <fileset dir="ivy/compile" includes="*.jar"/>
             </path>
             <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-        <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.compile.classpath" value="${ivy.compile.classpath.computed}"/>
-        </propertyfile>
+    </pathconvert>
+    <propertyfile file="nbproject/project.properties">
+            <entry operation="=" key="javac.classpath" value="${ivy.compile.classpath.computed}"/>
+            <entry operation="=" key="javac.test.classpath" value="${ivy.compile.classpath.computed}:${build.classes.dir}"/>
+    </propertyfile>
         
-        <mkdir dir="ivy/test" />
-        <ivy:retrieve conf="test" pattern="ivy/test/[artifact]-[revision]-[type].[ext]"
+    <ivy:retrieve conf="test" pattern="ivy/test/[artifact]-[revision]-[type].[ext]"
                overwriteMode="newer"
                sync="true"
                 />
-        <pathconvert property="ivy.test.classpath.computed" dirsep="/" pathsep=":">
+    <mkdir dir="ivy/test" />                
+    <pathconvert property="ivy.test.classpath.computed" dirsep="/" pathsep=":">
             <path>
                 <fileset dir="ivy/test" includes="*.jar"/>
             </path>
             <map from="${basedir}${file.separator}" to=""/>
-        </pathconvert>
-        <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="ivy.test.classpath" value="${ivy.test.classpath.computed}"/>
-        </propertyfile>        
-    </target>
+    </pathconvert>
+    <propertyfile file="nbproject/project.properties">
+            <entry operation="=" key="run.classpath" value="${ivy.test.classpath.computed}:${build.classes.dir}"/>
+            <entry operation="=" key="run.test.classpath" value="${ivy.test.classpath.computed}:${build.classes.dir}"/>
+    </propertyfile>
+    
+    <property name="javac.classpath" value="${ivy.compile.classpath.computed}" />
+    <property name="javac.test.classpath" value="${ivy.compile.classpath.computed}" />
+    <property name="run.classpath" value="${ivy.test.classpath.computed}:build/classes" />
+    <property name="run.test.classpath" value="${ivy.test.classpath.computed}:build/classes" />
+</target>
 
 <target name="-pre-init" depends="resolve" />
 

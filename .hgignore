@@ -23,4 +23,5 @@ ivy/ivy.jar
 ivy/littlesettings.xml
 ~$
 .zip$
+.orig$
 latest_session.properties$

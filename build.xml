@@ -10,6 +10,7 @@
 </target>
 
 <target name="buildSubproject">
+      <echo message="-----------------------\n------------- Building ${param.subproject}\n------------------" />
       <ant antfile="${param.subproject}/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
       <ant antfile="${param.subproject}/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
 </target>
@@ -20,6 +21,42 @@
      <antcall target="buildSubproject">
           <param name="param.subproject" value="Auburn/AuLibrary" />
       </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/Voyager" />
+      </antcall>      
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/VufindRegression" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/AuUnicodeFilter" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/CatRequest" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/ClickCount" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/EbscoX" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/EtdX" />
+      </antcall>      
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/I18n" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/MarcDownload" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/Vygr2Vfnd" />
+      </antcall>      
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/FishProject/Minnows" />
+      </antcall>
+     <antcall target="buildSubproject">
+          <param name="param.subproject" value="Auburn/RefStat" />
+      </antcall>      
      <antcall target="buildSubproject">
           <param name="param.subproject" value="ProductBrowser/SwingBrowser" />
       </antcall>   
@@ -42,11 +79,15 @@
           <param name="param.subproject" value="lgoServer" />
       </antcall>
             
-      <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
-      <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="javadoc" />
 </target>
 
-<target name="buildAll" depends="buildAuburn"
+<target name="javadoc" depends="buildAuburn" description="build javadoc/scaladoc projects">
+      <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
+      <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="javadoc" />
+      <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="scaladoc" />
+</target>
+
+<target name="buildAll" depends="buildLittleware,buildAuburn,javadoc"
     description="Build the littleware and Auburn/ subprojects" 
     />
 

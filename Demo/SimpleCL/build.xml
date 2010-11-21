@@ -9,6 +9,8 @@
 <!-- in the project's Project Properties dialog box.-->
 <project name="SimpleCL" default="default" basedir=".">
     <description>Builds, tests, and runs the project SimpleCL.</description>
+    <property name="ivy.deliver.revision" value="2.3" />
+    <import file="../../ivy/ivy_build_rules.xml"/>        
     <import file="nbproject/build-impl.xml"/>
     <!--
 

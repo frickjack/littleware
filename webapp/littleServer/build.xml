@@ -72,7 +72,7 @@
 
     -->
     
-    <property name="jardir.webstart" location="build/web/lib/jar" />
+    <property name="jardir.webstart" location="build/web/util/jar" />
     
 <target name="-littlelib-exists">
     <fail message="${param.jarFile} does not exist">
@@ -124,10 +124,11 @@
   </exec>
  </target>
 
+ <!--
  <target name="-littlelib-process" depends="-init-project" />
- <!-- overrides littlelib-process
+  overrides littlelib-process -->
 <import file="webstart.xml"/> 
--->
+
 
  <target name="webstart" depends="-init-project"
        description="setup webstart jars">
@@ -136,12 +137,14 @@
       <property file="nbproject/project.properties" />
       -->
       <mkdir dir="${jardir.webstart}" />
+      <doResolve param.ivy.config="client" />
       <antcall target="-littlelib-process">
           <param name="param.target" value="-webstart-lib" />
       </antcall>
+      
 </target>
 
-<target name="-post-compile">
+<target name="-post-compile" depends="webstart" >
   <copy todir="build/web/WEB-INF/lib">
     <fileset dir="ivy/test"/>
     <fileset dir="ivy/compile">

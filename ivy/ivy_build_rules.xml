@@ -51,51 +51,57 @@
     	<ivy:settings file="${ivy.jar.dir}/littlesettings.xml" />
     </target>    
 
+    
+<macrodef name="doResolve">
+    <attribute name="param.ivy.config" />
+<!--
+IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
+-->
+    <sequential>
+    <mkdir dir="ivy/@{param.ivy.config}" />
+    <ivy:resolve resolveMode="dynamic" />
+    <ivy:retrieve conf="@{param.ivy.config}" pattern="ivy/@{param.ivy.config}/[artifact]-[revision]-[type].[ext]"
+            overwriteMode="newer"
+            sync="true"
+            />
+    <pathconvert property="ivy.@{param.ivy.config}.classpath" dirsep="/" pathsep=":">
+            <path>
+                <fileset dir="ivy/@{param.ivy.config}" includes="*.jar"/>
+            </path>
+            <map from="${basedir}@{file.separator}" to=""/>
+    </pathconvert>
+    
+    <propertyfile file="nbproject/project.properties">
+            <entry operation="=" key="ivy.@{param.ivy.config}.classpath" value="${ivy.@{param.ivy.config}.classpath}"/>
+    </propertyfile>
+    </sequential>
+</macrodef>
+
+
 <target name="resolve" depends="install-ivy" description="-- retrieve dependencies with ivy">
     <!--
     We assume here that there are 'compile' and 'test' ivy configs.
     Delete dist/ivy.xml to force rebuild
     -->
     <delete file="dist/ivy.xml" />
-    <mkdir dir="ivy/test" />
-    <mkdir dir="ivy/compile" />
-    <ivy:resolve resolveMode="dynamic" />
-    <ivy:retrieve conf="compile" pattern="ivy/compile/[artifact]-[revision]-[type].[ext]"
-            overwriteMode="newer"
-            sync="true"
-            />
-    <mkdir dir="ivy/compile" />            
-    <pathconvert property="ivy.compile.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="ivy/compile" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-    </pathconvert>
+    
+    <doResolve param.ivy.config="compile" />
+    <doResolve param.ivy.config="test" />
+    
     <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="javac.classpath" value="${ivy.compile.classpath.computed}"/>
-            <entry operation="=" key="javac.test.classpath" value="${ivy.compile.classpath.computed}:${build.classes.dir}"/>
+            <entry operation="=" key="javac.classpath" value="${ivy.compile.classpath}"/>
+            <entry operation="=" key="javac.test.classpath" value="${ivy.compile.classpath}:${build.classes.dir}"/>
     </propertyfile>
         
-    <ivy:retrieve conf="test" pattern="ivy/test/[artifact]-[revision]-[type].[ext]"
-               overwriteMode="newer"
-               sync="true"
-                />
-    <mkdir dir="ivy/test" />                
-    <pathconvert property="ivy.test.classpath.computed" dirsep="/" pathsep=":">
-            <path>
-                <fileset dir="ivy/test" includes="*.jar"/>
-            </path>
-            <map from="${basedir}${file.separator}" to=""/>
-    </pathconvert>
     <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="run.classpath" value="${ivy.test.classpath.computed}:${build.classes.dir}"/>
-            <entry operation="=" key="run.test.classpath" value="${ivy.test.classpath.computed}:${build.classes.dir}"/>
+            <entry operation="=" key="run.classpath" value="${ivy.test.classpath}:${build.classes.dir}"/>
+            <entry operation="=" key="run.test.classpath" value="${ivy.test.classpath}:${build.classes.dir}"/>
     </propertyfile>
     
-    <property name="javac.classpath" value="${ivy.compile.classpath.computed}" />
-    <property name="javac.test.classpath" value="${ivy.compile.classpath.computed}" />
-    <property name="run.classpath" value="${ivy.test.classpath.computed}:build/classes" />
-    <property name="run.test.classpath" value="${ivy.test.classpath.computed}:build/classes" />
+    <property name="javac.classpath" value="${ivy.compile.classpath}" />
+    <property name="javac.test.classpath" value="${ivy.compile.classpath}" />
+    <property name="run.classpath" value="${ivy.test.classpath}:build/classes" />
+    <property name="run.test.classpath" value="${ivy.test.classpath}:build/classes" />
 </target>
 
 <target name="-pre-init" depends="resolve" />

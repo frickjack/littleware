@@ -17,5 +17,4 @@ public interface Validator {
      * @exception ValidateException on validation failure
      */
     public void validate() throws ValidationException;
-
 }

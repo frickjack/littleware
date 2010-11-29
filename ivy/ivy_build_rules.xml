@@ -64,6 +64,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
             overwriteMode="newer"
             sync="true"
             />
+    <mkdir dir="ivy/@{param.ivy.config}" /> <!-- in case no dependencies exist ... -->
     <pathconvert property="ivy.@{param.ivy.config}.classpath" dirsep="/" pathsep=":">
             <path>
                 <fileset dir="ivy/@{param.ivy.config}" includes="*.jar"/>

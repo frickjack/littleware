@@ -21,127 +21,96 @@ import littleware.base.Maybe;
 /**
  * Template mechanism for building asset trees or maybe other things too
  */
-public class AssetTreeTemplate {
+public interface AssetTreeTemplate {
 
     /**
      * Little POJO bucket holds the asset is a node on the tree,
      * and the exists property states whether or not that
      * asset already exists in the repository.
      */
-    public static class AssetInfo {
-
-        private final Asset asset;
-        private final boolean exists;
-
-        public AssetInfo(Asset asset, boolean exists) {
-            this.asset = asset;
-            this.exists = exists;
-        }
-
-        public Asset getAsset() {
-            return asset;
-        }
-
-        public boolean getAssetExists() {
-            return exists;
-        }
+    public interface AssetInfo {
+        public Asset getAsset();
+        public boolean getAssetExists();
     }
 
-    
-    private final AssetBuilder builder;
 
-    public List<AssetTreeTemplate> getChildren() {
-        return children;
-    }
-
-    public AssetBuilder getBuilder() {
-        return builder;
-    }
-    public String getName() {
-        return builder.getName();
-    }
-    public AssetType getType() {
-        return builder.getAssetType();
+    /**
+     * Begin building ...
+     */
+    public interface TemplateBuilder {
+        public ByAssetBuilder assetBuilder( AssetBuilder value );
+        /**
+         * Shortcut for assetBuilder( AssetType.GENERIC.create().name( name ) )
+         */
+        public ByAssetBuilder assetBuilder( String name );
+        public ByPathBuilder path( AssetPath value );
     }
 
-    private final List<AssetTreeTemplate> children;
+    /**
+     * Shared abstract interface
+     */
+    public interface GenericBuilder {
+        public GenericBuilder addChildren( AssetTreeTemplate ... children );
+        public GenericBuilder addChildren( Collection<? extends AssetTreeTemplate> children );
 
-    public AssetTreeTemplate(String name, AssetTreeTemplate... children) {
-        this.builder = AssetType.GENERIC.create().name( name );
-        this.children = new ImmutableList.Builder<AssetTreeTemplate>().addAll(Arrays.asList(children)).build();
+        public AssetTreeTemplate build();
     }
 
-    public AssetTreeTemplate(String name, Collection<? extends AssetTreeTemplate> children) {
-        this.builder = AssetType.GENERIC.create().name( name );
-        this.children = ImmutableList.copyOf(children);
+    /**
+     * Build a template that places children under a given asset
+     */
+    public interface ByAssetBuilder extends GenericBuilder {
+        public AssetBuilder getBuilder();        
+
+        @Override
+        public ByAssetBuilder addChildren( AssetTreeTemplate ... children );
+        @Override
+        public ByAssetBuilder addChildren( Collection<? extends AssetTreeTemplate> children );
+
     }
 
-    public AssetTreeTemplate( AssetBuilder builder, Collection<? extends AssetTreeTemplate> children) {
-        this.builder = builder;
-        this.children = ImmutableList.copyOf( children );
+    /**
+     * Build a template that places children under
+     * a given path
+     */
+    public interface ByPathBuilder extends GenericBuilder {
+        public AssetPath getPath();
+
+        @Override
+        public ByPathBuilder addChildren( AssetTreeTemplate ... children );
+        @Override
+        public ByPathBuilder addChildren( Collection<? extends AssetTreeTemplate> children );
     }
 
-    public AssetTreeTemplate( AssetBuilder builder, AssetTreeTemplate ... children ) {
-        this.builder = builder;
-        this.children = new ImmutableList.Builder<AssetTreeTemplate>().addAll(Arrays.asList(children)).build();
-    }
+    public List<AssetTreeTemplate> getChildren();
+    public AssetBuilder getBuilder();
 
-    public AssetTreeTemplate(String name, AssetType type, AssetTreeTemplate... children) {
-        this.builder = type.create().name( name );
-        this.children = new ImmutableList.Builder<AssetTreeTemplate>().addAll(Arrays.asList(children)).build();
-    }
-
-    public AssetTreeTemplate( String name, AssetType type, Collection<? extends AssetTreeTemplate> children ) {
-        this.builder = type.create().name( name );
-        this.children = ImmutableList.copyOf( children );
-    }
+    /**
+     * Shortcut for getBuilder.getName
+     */
+    public String getName();
+    /**
+     * Shortcut for getBuilder.getAssetType
+     */
+    public AssetType getType();
 
     /**
      * Scan the tree defined by this template under the given parent.
      * If name-unique asset already exists under a different parent then
      * just create a link to it, and continue down its subtree
      *
-     * @param parent ignored if null
+     * @param parent ignored if null, and begin traverse at getBuilder.getId -
+     *          recommended if caller knows that getBuilder.getId asset already exists,
+     *          or if getBulder.getAssetType == AssetType.HOME
      * @return collection of nodes that define the subtree under this template
      *      in asset-create safe order -
      *      some nodes may already exist, others may need to be saved to the repo
      */
-    public Collection<AssetInfo> visit(Asset parent, AssetSearchManager search) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Maybe<Asset> maybe = Maybe.empty();
+    public Collection<AssetInfo> visit(Asset parent, AssetSearchManager search) throws BaseException, AssetException, GeneralSecurityException, RemoteException;
 
-        if ( null != parent ) {
-            maybe = search.getAssetFrom(parent.getId(), builder.getName() );
-        } 
-        if ( maybe.isEmpty() && builder.getAssetType().isNameUnique() ) {
-            maybe = search.getByName( builder.getName(), builder.getAssetType() );
-        }
-        
-        final ImmutableList.Builder<AssetInfo> resultBuilder = ImmutableList.builder();
-        final Asset asset;
-        if (maybe.isEmpty()) {
-            if ( null != parent ) {
-                builder.parent( parent );
-            } 
-            if ( builder.getAssetType().isA( AssetType.HOME ) ) {
-                builder.setFromId(null);
-            }
-            asset = builder.build();
-            resultBuilder.add( new AssetInfo( asset, false ) );
-        } else {
-            asset = maybe.get();
-            if ( (null != parent)
-                    && (! asset.getFromId().equals( parent.getId() ) )
-            ) {
-                throw new IllegalArgumentException ( "Asset already exists under different tree: " +
-                        asset.getName() + " (" + asset.getAssetType() + ")"
-                        );
-            }
-            resultBuilder.add( new AssetInfo( asset, true ) );
-        }
 
-        for (AssetTreeTemplate child : children) {
-            resultBuilder.addAll( child.visit(asset, search ) );
-        }
-        return resultBuilder.build();
-    }
+    /**
+     * Same as visit( null, search )
+     */
+    public Collection<AssetInfo> visit( AssetSearchManager search) throws BaseException, AssetException, GeneralSecurityException, RemoteException;
 }

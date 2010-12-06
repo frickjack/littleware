@@ -94,6 +94,7 @@ public class AssetServerModule extends AbstractServerModule {
         binder.bind(AssetSpecializerRegistry.class).to(SimpleSpecializerRegistry.class).in(Scopes.SINGLETON);
         binder.bind(AssetPathFactory.class).to(SimpleAssetPathFactory.class);
         binder.bind(AccountManager.class).to(SimpleAccountManager.class).in(Scopes.SINGLETON);
+        binder.bind( AssetTreeTemplate.TemplateBuilder.class ).to( SimpleTemplateBuilder.class ).in( Scopes.SINGLETON );
 
         if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
             log.log( Level.INFO, "Configuring JPA in J2EE mode ..." );

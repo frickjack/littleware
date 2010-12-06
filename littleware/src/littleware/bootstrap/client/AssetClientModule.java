@@ -10,13 +10,19 @@
 package littleware.bootstrap.client;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.asset.AssetPathFactory;
+import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetType;
+import littleware.asset.SimpleAssetPathFactory;
+import littleware.asset.SimpleTemplateBuilder;
 import littleware.asset.client.AssetLoadEvent;
 import littleware.asset.client.ClientCache;
 import littleware.asset.client.LittleService;
@@ -33,6 +39,13 @@ import org.osgi.framework.BundleContext;
 public class AssetClientModule extends AbstractClientModule {
 
     private static final Logger log = Logger.getLogger(AssetClientModule.class.getName());
+
+    @Override
+    public void configure(Binder binder) {
+        binder.bind( AssetPathFactory.class ).to( SimpleAssetPathFactory.class ).in( Scopes.SINGLETON );
+        binder.bind( AssetTreeTemplate.TemplateBuilder.class ).to( SimpleTemplateBuilder.class ).in( Scopes.SINGLETON );
+    }
+
 
     //-------------------------
     public static class Factory implements ClientModuleFactory {

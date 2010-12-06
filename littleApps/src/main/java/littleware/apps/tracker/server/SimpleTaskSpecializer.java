@@ -27,6 +27,7 @@ import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.AssetInfo;
+import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.server.NullAssetSpecializer;
 import littleware.base.AbstractValidator;
 import littleware.base.BaseException;
@@ -48,16 +49,19 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
     private final TaskQueryManager queryManager;
     private final Provider<BuilderStart> queryBuilder;
     private final AssetManager assetMgr;
+    private final Provider<TemplateBuilder> treeBuilder;
 
     @Inject
     public SimpleTaskSpecializer(AssetSearchManager search,
             AssetManager assetMgr,
             TaskQueryManager queryManager,
-            Provider<TaskQuery.BuilderStart> queryBuilder) {
+            Provider<TaskQuery.BuilderStart> queryBuilder,
+            Provider<AssetTreeTemplate.TemplateBuilder> treeBuilder) {
         this.search = search;
         this.assetMgr = assetMgr;
         this.queryManager = queryManager;
         this.queryBuilder = queryBuilder;
+        this.treeBuilder = treeBuilder;
     }
 
     /**
@@ -83,9 +87,12 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
             builder.fromId(from.getId());
         } else {
             final ReadableDateTime now = new DateTime();
-            final AssetTreeTemplate template = new AssetTreeTemplate("Archive",
-                    new AssetTreeTemplate(Integer.toString(now.getYear()),
-                    new AssetTreeTemplate(now.toString("MMdd"))));
+            final AssetTreeTemplate template = treeBuilder.get().assetBuilder("Archive").addChildren(
+                        treeBuilder.get().assetBuilder(Integer.toString(now.getYear())).addChildren(
+                            treeBuilder.get().assetBuilder(now.toString("MMdd")).build()
+                            ).build()
+                          ).build();
+
             UUID lastId = null;
             for (AssetInfo info : template.visit(queue, search)) {
                 lastId = info.getAsset().getId();
@@ -123,8 +130,7 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
         final Task oldTask = old.narrow();
         final Task currentTask = current.narrow();
         AbstractValidator.assume(oldTask.getQueueId().equals(currentTask.getQueueId()),
-                "May not move a task between queues"
-                );
+                "May not move a task between queues");
 
         final Queue queue = search.getAsset(currentTask.getQueueId()).get().narrow();
         if (!old.getName().equals(current.getName())) {
@@ -136,4 +142,3 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
         }
     }
 }
-

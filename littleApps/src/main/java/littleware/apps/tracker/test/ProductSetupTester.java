@@ -26,6 +26,7 @@ import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.AssetInfo;
+import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.test.LittleTest;
 
 /**
@@ -38,18 +39,22 @@ public class ProductSetupTester extends LittleTest {
     private Asset testFolder;
     private final AssetSearchManager search;
     private final AssetManager assetMan;
+    private final TemplateBuilder treeBuilder;
 
     @Inject
-    public ProductSetupTester(AssetSearchManager search, AssetManager assetMan) {
+    public ProductSetupTester(AssetSearchManager search, AssetManager assetMan,
+            AssetTreeTemplate.TemplateBuilder treeBuilder
+            ) {
         setName("testProductSetup");
         this.search = search;
         this.assetMan = assetMan;
+        this.treeBuilder = treeBuilder;
     }
 
     @Override
     public void setUp() {
         try {
-            final AssetTreeTemplate template = new AssetTreeTemplate("ProductSetupTester");
+            final AssetTreeTemplate template = treeBuilder.assetBuilder("ProductSetupTester").build();
             for( AssetInfo info: template.visit(getTestHome(search), search) ) {
                 if ( ! info.getAssetExists() ) {
                     testFolder = assetMan.saveAsset( info.getAsset(), "setup test folder" );

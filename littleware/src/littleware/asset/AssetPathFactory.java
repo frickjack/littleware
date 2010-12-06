@@ -10,7 +10,6 @@
 
 package littleware.asset;
 
-import com.google.inject.ImplementedBy;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.*;
@@ -21,7 +20,6 @@ import littleware.base.ParseException;
 /**
  * Source of AssetPath objects.
  */
-@ImplementedBy(SimpleAssetPathFactory.class )
 public interface AssetPathFactory {
     /**
      * Prefix for different types of AssetPath

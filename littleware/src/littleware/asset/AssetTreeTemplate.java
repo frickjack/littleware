@@ -9,14 +9,11 @@
  */
 package littleware.asset;
 
-import com.google.common.collect.ImmutableList;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
 
 /**
  * Template mechanism for building asset trees or maybe other things too

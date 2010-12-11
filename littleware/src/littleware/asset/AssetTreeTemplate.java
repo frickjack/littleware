@@ -96,8 +96,9 @@ public interface AssetTreeTemplate {
      * If name-unique asset already exists under a different parent then
      * just create a link to it, and continue down its subtree
      *
-     * @param parent ignored if null, and begin traverse at getBuilder.getId -
-     *          recommended if caller knows that getBuilder.getId asset already exists,
+     * @param parent passed to getBuilder.parent but keeping getBulder.getAclId if not null;
+     *          parent ignored if null - may be null
+     *          if caller knows that getBuilder.getId asset already exists,
      *          or if getBulder.getAssetType == AssetType.HOME
      * @return collection of nodes that define the subtree under this template
      *      in asset-create safe order -

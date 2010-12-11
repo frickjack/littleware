@@ -91,7 +91,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
         if ( null == istream_help ) {
             return null;
         }
-        XmlDataHandler sax_handler = new XmlDataHandler ();
+        XmlDataHandler sax_handler = new XmlDataHandler ( s_path );
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -126,16 +126,21 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
      */
     private class XmlDataHandler extends DefaultHandler {
         private final static String  os_not_loaded = "none loaded";
-        String             os_full_name = os_not_loaded;
-        final List<String> ov_short_names = new ArrayList<String>();
-        String             os_synopsis = os_not_loaded;
-        String             os_description = os_not_loaded;
+        private String             os_full_name = os_not_loaded;
+        private final List<String> ov_short_names = new ArrayList<String>();
+        private String             os_synopsis = os_not_loaded;
+        private String             os_description = os_not_loaded;
                 
-        String                 os_example_title = os_not_loaded;
-        final List<LgoExample> ov_example = new ArrayList<LgoExample> ();
-        public StringBuilder   osb_buffer = new StringBuilder();
+        private String                 os_example_title = os_not_loaded;
+        private final List<LgoExample> ov_example = new ArrayList<LgoExample> ();
+        private StringBuilder   osb_buffer = new StringBuilder();
+        private final String filePath;
 
-        public XmlDataHandler() {
+        /**
+         * @param filePath path to XML file or whatever  - for error messages
+         */
+        public XmlDataHandler( String filePath ) {
+            this.filePath = filePath;
         }
 
         /**
@@ -163,12 +168,12 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
             if (s_namespace.equals(OS_XML_NAMESPACE)) {
                 osb_buffer.setLength(0);
                 if ( s_simple.equals( XmlTag.help.toString() )) {
-                    String s_full_name = v_attrs.getValue("", "fullname");
+                    final String s_full_name = v_attrs.getValue("fullname");
                     if ( null != s_full_name ) {
                         os_full_name = s_full_name;                        
                     } else {
                         os_full_name = os_not_loaded;
-                        log.log( Level.WARNING, "XML help file does not have fullname attribute set on root help:help element");
+                        log.log( Level.WARNING, "XML help file does not have fullname attribute set on root help:help element: " + filePath );
                     }               
                 } else if ( s_simple.equals( XmlTag.example.toString() ) ) {
                     String s_title = v_attrs.getValue( "", "title" );
@@ -176,7 +181,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                         os_example_title = s_title;
                     } else {
                         os_example_title = os_not_loaded;
-                        log.log( Level.WARNING, "XML help file does not have title attribute set on help:example element");
+                        log.log( Level.WARNING, "XML help file does not have title attribute set on help:example element: " + filePath );
                     }
                 }
             }            

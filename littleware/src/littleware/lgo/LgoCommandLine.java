@@ -52,6 +52,7 @@ public class LgoCommandLine {
      *  +url  [server-info] -- url specifies host/port information for the littleware server in client mode
      */
     private enum SpecialOption {
+
         user, url, mode, profile;
     };
     private final LgoCommandDictionary commandMgr;
@@ -78,6 +79,14 @@ public class LgoCommandLine {
     public int processCommand(String sCommand, List<String> processArgs, String sArg, Feedback feedback) {
         final Maybe<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(sCommand);
         try {
+            if (maybe.isEmpty() || sCommand.equalsIgnoreCase("help")) {
+                System.out.println("Command use:");
+                System.out.println("     lgo [+user name] [+mode client|app] [+url http://server:port] [+profile cli|swing] command options");
+                System.out.println("        +mode [local|client] -- client establishes session with littleware server, default is client");
+                System.out.println("        +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time");
+                System.out.println("        +user [username] -- user to authenticate as in client mode, defaults to current OS user");
+                System.out.println("        +url  [server-info] -- url specifies host/port information for the littleware server in client mode\n");
+            }
             if (maybe.isEmpty()) {
                 final LgoCommand help = commandMgr.buildCommand("help").get().buildWithInput(sCommand);
                 System.out.print(help.runCommandLine(feedback));
@@ -140,6 +149,14 @@ public class LgoCommandLine {
         return iExitStatus;
     }
 
+    private static String arrayToString(String[] in) {
+        final StringBuilder sb = (new StringBuilder()).append("[");
+        for (String scan : in) {
+            sb.append(" ").append(scan).append(",");
+        }
+        return sb.append(" ]").toString();
+    }
+
     // ---------------------------------------
     /**
      * Launch configures its own bootstrap launcher
@@ -161,20 +178,22 @@ public class LgoCommandLine {
          */
 
         // Support +url, +user, ...
-        String[] cleanArgs = argsIn;
+        final String[] cleanArgs;
+        log.log(Level.FINE, "Processing args: " + arrayToString(argsIn));
         final Map<SpecialOption, String> specialOptionMap;
         {
             final ImmutableMap.Builder<SpecialOption, String> builder = ImmutableMap.builder();
-            while (cleanArgs.length > 1) {
+            String[] tempArgs = argsIn;
+            while (tempArgs.length > 1) {
                 boolean isSpecial = false;
                 for (SpecialOption option : SpecialOption.values()) {
-                    if (cleanArgs[0].toLowerCase().matches("^[-\\+]+" + option.toString())) {
-                        builder.put(option, cleanArgs[1]);
+                    if (tempArgs[0].toLowerCase().matches("^[-\\+]+" + option.toString())) {
+                        builder.put(option, tempArgs[1]);
 
-                        if (cleanArgs.length > 2) {
-                            cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
+                        if (tempArgs.length > 2) {
+                            tempArgs = Arrays.copyOfRange(tempArgs, 2, tempArgs.length);
                         } else {
-                            cleanArgs = new String[0];
+                            tempArgs = new String[0];
                         }
                         isSpecial = true;
                         break;
@@ -185,12 +204,13 @@ public class LgoCommandLine {
                 }
             }
             specialOptionMap = builder.build();
+            cleanArgs = tempArgs;
         }
-        
+        log.log(Level.FINE, "Clean args: " + arrayToString(cleanArgs));
         final AppBootstrap.AppProfile profile;
-        if ( specialOptionMap.containsKey( SpecialOption.profile ) ) {
-            final String profileName = specialOptionMap.get( SpecialOption.profile ).toLowerCase().trim();
-            if ( profileName.equals( "cli" ) ) {
+        if (specialOptionMap.containsKey(SpecialOption.profile)) {
+            final String profileName = specialOptionMap.get(SpecialOption.profile).toLowerCase().trim();
+            if (profileName.equals("cli")) {
                 profile = AppBootstrap.AppProfile.CliApp;
             } else {
                 profile = AppBootstrap.AppProfile.SwingApp;
@@ -200,9 +220,8 @@ public class LgoCommandLine {
         }
 
         Maybe<LittleBootstrap> maybeBoot = Maybe.empty();
-        if ( (!specialOptionMap.containsKey(SpecialOption.mode))
-        	|| specialOptionMap.get( SpecialOption.mode ).toLowerCase().trim().equals( "client" )
-        	) {
+        if ((!specialOptionMap.containsKey(SpecialOption.mode))
+                || specialOptionMap.get(SpecialOption.mode).toLowerCase().trim().equals("client")) {
             final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
             if (specialOptionMap.containsKey(SpecialOption.url)) {
                 final String sUrl = specialOptionMap.get(SpecialOption.url);
@@ -213,26 +232,14 @@ public class LgoCommandLine {
                     throw new IllegalArgumentException("Malformed URL: " + sUrl);
                 }
             }
-            {
-                if (cleanArgs.length > 2) {
-                    cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
-                } else {
-                    cleanArgs = new String[0];
-                }
-            }
             final Maybe<String> maybeUser;
-            if ((cleanArgs.length > 1) && cleanArgs[0].toLowerCase().matches("^[-\\+]+user")) {
-                maybeUser = Maybe.something(cleanArgs[1]);
-                if (cleanArgs.length > 2) {
-                    cleanArgs = Arrays.copyOfRange(cleanArgs, 2, cleanArgs.length);
-                } else {
-                    cleanArgs = new String[0];
-                }
+            if ( specialOptionMap.containsKey(SpecialOption.user) ) {
+                maybeUser = Maybe.something( specialOptionMap.get( SpecialOption.user ));
             } else {
                 maybeUser = Maybe.empty();
             }
 
-            /*... need to rework this stuff ...
+            /*... need to rework this pipe/server stuff ...
             if ( cleanArgs.length > 0 ) {
             final String command = cleanArgs[0];
 
@@ -259,7 +266,7 @@ public class LgoCommandLine {
              */
 
             try {
-                final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get().profile( profile );
+                final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get().profile(profile);
                 if (maybeUser.isSet()) {
                     maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().login(
                             loginBuilder.build(), maybeUser.get(), ""));
@@ -271,7 +278,7 @@ public class LgoCommandLine {
                 log.log(Level.SEVERE, "Failed login", ex);
             }
         } else {
-            maybeBoot = Maybe.something((LittleBootstrap) AppBootstrap.appProvider.get().profile( profile ).build());
+            maybeBoot = Maybe.something((LittleBootstrap) AppBootstrap.appProvider.get().profile(profile).build());
         }
         int exitCode = 1;
         if (maybeBoot.isSet()) {

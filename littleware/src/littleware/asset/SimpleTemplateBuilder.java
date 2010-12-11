@@ -14,6 +14,7 @@ import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import littleware.asset.AssetTreeTemplate.ByAssetBuilder;
 import littleware.asset.AssetTreeTemplate.ByPathBuilder;
 import littleware.base.BaseException;
@@ -194,16 +195,6 @@ public class SimpleTemplateBuilder implements AssetTreeTemplate.TemplateBuilder 
             this.children = ImmutableList.copyOf(children);
         }
 
-        /**
-         * Scan the tree defined by this template under the given parent.
-         * If name-unique asset already exists under a different parent then
-         * just create a link to it, and continue down its subtree
-         *
-         * @param parent ignored if null
-         * @return collection of nodes that define the subtree under this template
-         *      in asset-create safe order -
-         *      some nodes may already exist, others may need to be saved to the repo
-         */
         @Override
         public Collection<AssetInfo> visit(Asset parent, AssetSearchManager search) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
             Maybe<Asset> maybe = Maybe.empty();
@@ -221,8 +212,12 @@ public class SimpleTemplateBuilder implements AssetTreeTemplate.TemplateBuilder 
             final ImmutableList.Builder<AssetInfo> resultBuilder = ImmutableList.builder();
             final Asset asset;
             if (maybe.isEmpty()) {
+                final UUID rememberAclId = builder.getAclId();
                 if (null != parent) {
                     builder.parent(parent);
+                    if ( null != rememberAclId ) {
+                        builder.aclId( rememberAclId );
+                    }
                 }
                 if (builder.getAssetType().isA(AssetType.HOME)) {
                     builder.setFromId(null);

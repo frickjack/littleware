@@ -26,18 +26,24 @@ import littleware.base.feedback.NullFeedback;
  * Simple implementation of Comment interface.
  */
 public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.CommentBuilder {
-    private static final Logger log = Logger.getLogger( SimpleCommentBuilder.class.getName() );
-    public static final String  fullTextBucketPath = "commentFullText.txt";
 
-    private static class SimpleComment extends SimpleAsset implements Comment {
+    private static final Logger log = Logger.getLogger(SimpleCommentBuilder.class.getName());
+    public static final String fullTextBucketPath = "commentFullText.txt";
+    private static int cutOffLength = 1000;
+
+    /* Note: must be public for client-side guice injection */
+    public static class SimpleComment extends SimpleAsset implements Comment {
+
         private transient BucketUtil bucketUtil;
-        private transient Feedback   feedback = new NullFeedback();
-        private Maybe<String>   maybeFullText = Maybe.empty();
+        private transient Feedback feedback = new NullFeedback();
+        private Maybe<String> maybeFullText = Maybe.empty();
 
-        public SimpleComment() {}
-        public SimpleComment( SimpleCommentBuilder builder ) {
-            super( builder );
-            maybeFullText = Maybe.something( builder.getFullText() );
+        public SimpleComment() {
+        }
+
+        public SimpleComment(SimpleCommentBuilder builder) {
+            super(builder);
+            maybeFullText = Maybe.something(builder.getFullText());
         }
 
         /**
@@ -47,7 +53,7 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
          * @param bucketManager
          */
         @Inject
-        public void injectClientServices( BucketUtil bucketManager ) {
+        public void injectClientServices(BucketUtil bucketManager) {
             this.bucketUtil = bucketManager;
         }
 
@@ -56,22 +62,25 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
             return getData();
         }
 
-
         @Override
         public String getFullText() {
-            if ( maybeFullText.isEmpty() ) {
-                synchronized( this ) {
-                    if ( maybeFullText.isEmpty() ) {
-                        if ( null == bucketUtil ) {
-                            throw new AssertionFailedException( "BucketManager not injected on cilent" );
-                        }
-                        if ( null == feedback ) {
-                            throw new AssertionFailedException( "Feedback not initialized" );
-                        }
-                        try {
-                            maybeFullText = Maybe.something( bucketUtil.readText(this.getId(), fullTextBucketPath, feedback ) );
-                        } catch (Exception ex) {
-                            throw new LazyLoadException( "Failed to retrieve comment full text", ex );
+            if (maybeFullText.isEmpty()) {
+                synchronized (this) {
+                    if (maybeFullText.isEmpty()) {
+                        if (getData().length() < cutOffLength) {
+                            maybeFullText = Maybe.something(getData());
+                        } else {
+                            if (null == bucketUtil) {
+                                throw new AssertionFailedException("BucketManager not injected on cilent");
+                            }
+                            if (null == feedback) {
+                                throw new AssertionFailedException("Feedback not initialized");
+                            }
+                            try {
+                                maybeFullText = Maybe.something(bucketUtil.readText(this.getId(), fullTextBucketPath, feedback));
+                            } catch (Exception ex) {
+                                throw new LazyLoadException("Failed to retrieve comment full text", ex);
+                            }
                         }
                     }
                 }
@@ -81,11 +90,9 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
 
         @Override
         public CommentBuilder copy() {
-            return new SimpleCommentBuilder().copy( this );
+            return new SimpleCommentBuilder().copy(this);
         }
-
     }
-
     private String fullText = "";
 
     /** Do nothing constructor */
@@ -95,42 +102,39 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
 
     @Override
     public CommentBuilder copy(Asset source) {
-        super.copy( source );
-        return fullText( ((Comment) source).getFullText() );
+        super.copy(source);
+        return fullText(((Comment) source).getFullText());
     }
 
     @Override
     public CommentBuilder parent(Asset value) {
-        super.parent( value );
+        super.parent(value);
         return this;
     }
-
 
     @Override
     public String getFullText() {
         return fullText;
     }
+
     @Override
     public final void setFullText(String value) {
-        fullText( value );
+        fullText(value);
     }
 
     @Override
     public CommentBuilder fullText(String value) {
         fullText = value;
-        if ( value.length() > 1000 ) {
-            setData( value.substring(0, 1000) + "..." );
+        if (value.length() > cutOffLength) {
+            setData(value.substring(0, cutOffLength) + "...");
         } else {
-            setData( value );
+            setData(value);
         }
         return this;
     }
 
     @Override
     public Comment build() {
-        return new SimpleComment( this );
+        return new SimpleComment(this);
     }
-
 }
-
-

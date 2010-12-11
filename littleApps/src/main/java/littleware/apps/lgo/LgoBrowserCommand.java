@@ -23,6 +23,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -185,10 +186,6 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
      * and initialized on the Swing dispatch thread;
      * the LgoBrowserCommand may be allocated
      * and bootstrap on an lgo shell worker thread.
-     * 
-     * @param provideBrowser to launch on run
-     * @param control to view browser
-     * @param provideToolbar to connect to the browser
      */
     public LgoBrowserCommand(
             Services services,
@@ -342,17 +339,18 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
     public static class SwingBaseLauncher implements Runnable {
 
         private final ViewBuilder viewBuilder;
-        private final LgoBrowserCommand browserCommand;
+        private final LgoBrowserCommand.Builder browserCommand;
 
         @Inject
-        public SwingBaseLauncher(BaseView.ViewBuilder viewBuilder, LgoBrowserCommand browserCommand) {
+        public SwingBaseLauncher(BaseView.ViewBuilder viewBuilder, LgoBrowserCommand.Builder browserCommand) {
             this.viewBuilder = viewBuilder;
             this.browserCommand = browserCommand;
         }
 
         @Override
         public void run() {
-            viewBuilder.basicContent(browserCommand.buildBrowserPanel()).build().getContainer().setVisible(true);
+            final List<String> args = Collections.emptyList();
+            viewBuilder.basicContent(browserCommand.buildFromArgs( args ).buildBrowserPanel()).build().getContainer().setVisible(true);
         }
     }
 

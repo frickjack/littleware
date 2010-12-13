@@ -10,24 +10,48 @@
 
 package littleware.apps.tracker;
 
+import com.google.inject.Binder;
+import com.google.inject.Module;
+import com.google.inject.Provider;
+import littleware.apps.tracker.Comment.CommentBuilder;
+import littleware.apps.tracker.Queue.QueueBuilder;
+import littleware.apps.tracker.Task.TaskBuilder;
 import littleware.asset.*;
 
 import littleware.base.UUIDFactory;
 
 /** 
  * AssetType specializer and bucket for littleware.apps.tracker
- * based AssetTypes.
+ * based AssetTypes.  Implements guice Module interface that
+ * different littleware modules can delegate to to bind
+ * Providers for Task.TaskBuilder, Comment.CommentBuilder, ...
  */
-public abstract class TrackerAssetType extends AssetType {
+public class TrackerAssetType implements Module {
 
-    public static final AssetType COMMENT = new AssetType(
-            UUIDFactory.parseUUID("FB8CC7B7C9324EC8953DE50A700344F3"), "littleware.apps.tracker.COMMENT") {
+    @Override
+    public void configure(Binder binder) {
+        binder.bind( Task.TaskBuilder.class ).toProvider( TrackerAssetType.TASK );
+        binder.bind( Queue.QueueBuilder.class ).toProvider( TrackerAssetType.QUEUE );
+        binder.bind( Comment.CommentBuilder.class ).toProvider( TrackerAssetType.COMMENT );
+    }
+
+    public static class CommentAssetType extends AssetType implements Provider<Comment.CommentBuilder> {
+        CommentAssetType() {
+            super(UUIDFactory.parseUUID("FB8CC7B7C9324EC8953DE50A700344F3"), "littleware.apps.tracker.COMMENT");
+        }
 
         @Override
         public Comment.CommentBuilder create() {
             return new SimpleCommentBuilder();
         }
-    };
+
+        @Override
+        public CommentBuilder get() {
+            return create();
+        }
+    }
+    
+    public static final CommentAssetType COMMENT = new CommentAssetType();
 
     
     public static final AssetType DEPENDENCY = new AssetType(
@@ -40,7 +64,7 @@ public abstract class TrackerAssetType extends AssetType {
     };
 
 
-    public static class TaskType extends AssetType {
+    public static class TaskType extends AssetType implements Provider<Task.TaskBuilder> {
         protected TaskType() {
             super(UUIDFactory.parseUUID("84F04E04DCE947B2A00294949DC38628"),
             "littleware.apps.tracker.TASK");
@@ -50,10 +74,16 @@ public abstract class TrackerAssetType extends AssetType {
         public Task.TaskBuilder create() {
             return new SimpleTaskBuilder();
         }
+
+        @Override
+        public TaskBuilder get() {
+            return create();
+        }
     }
+
     public static final TaskType TASK = new TaskType();
 
-    public static class QueueType extends AssetType {
+    public static class QueueType extends AssetType implements Provider<Queue.QueueBuilder> {
         protected QueueType() {
             super( UUIDFactory.parseUUID("0FE9FBED5F6846E1865526A2BFBC5182"),
             "littleware.apps.tracker.QUEUE");
@@ -62,6 +92,11 @@ public abstract class TrackerAssetType extends AssetType {
         @Override
         public Queue.QueueBuilder create() {
             return new SimpleQueueBuilder();
+        }
+
+        @Override
+        public QueueBuilder get() {
+            return create();
         }
     }
 

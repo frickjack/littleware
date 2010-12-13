@@ -21,8 +21,8 @@
     <resources>
         <!-- Application Resources -->
         <j2se version="1.6+" java-vm-args="-Xms200m -Xmx300m"/>
-        <jar href="littleClient-2.3.zSNAPSHOT-jar.jar" />
-        <jar href="littleApps-2.3.zSNAPSHOT-jar.jar" main="true" />
+        <jar href="littleClient-2.3.@zSNAPSHOT@-jar.jar" />
+        <jar href="littleApps-2.3.@zSNAPSHOT@-jar.jar" main="true" />
         <jar href="littleIcons-0.0-jar.jar"/>
         <jar href="org.apache.felix.framework-2.0.4-jar.jar"/>
         <jar href="google-collections-1.0-jar.jar"/>

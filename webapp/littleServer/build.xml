@@ -141,15 +141,31 @@
       <antcall target="-littlelib-process">
           <param name="param.target" value="-webstart-lib" />
       </antcall>
-      
+    <tstamp>
+        <format property="buildId" pattern="yyyyMMdd" />
+    </tstamp>
+   <copy todir="${jardir.webstart}" includeemptydirs="false">
+    <fileset dir="${jardir.webstart}" />  
+    <mapper type="glob" from="*zSNAPSHOT-jar.jar" to="*b${buildId}-jar.jar"/>
+  </copy>    
+   <copy todir="${jardir.webstart}" includeemptydirs="false">
+    <fileset dir="${jardir.webstart}" />  
+    <mapper type="glob" from="*zSNAPSHOT-jar.jar.pack.gz" to="*b${buildId}-jar.jar.pack.gz"/>
+  </copy>
+   <copy todir="${jardir.webstart}" includeemptydirs="false" overwrite="true">
+    <fileset dir="web/util/jar">
+       <include name="*.jnlp" />
+    </fileset>
+    <filterset>
+      <filter token="zSNAPSHOT" value="b${buildId}"/>
+    </filterset>    
+  </copy>            
 </target>
+
 
 <target name="-post-compile" depends="webstart" >
   <copy todir="build/web/WEB-INF/lib">
     <fileset dir="ivy/test"/>
-    <fileset dir="ivy/compile">
-        <include name="ojdbc*" />
-    </fileset>
   </copy>
 </target>
 

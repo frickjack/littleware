@@ -11,7 +11,7 @@
 <property name="ivy.install.version" value="2.2.0" /> 
 <dirname property="ivy.jar.dir" file="${ant.file.ivy-template}" /> 
 <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" /> 
-
+<property name="libs.CopyLibs.classpath" value="${ivy.jar.dir}/netbeans_ant/org-netbeans-modules-java-j2seproject-copylibstask.jar" />
 
 <target name="-post-clean">
     <delete dir="${basedir}/ivy" />

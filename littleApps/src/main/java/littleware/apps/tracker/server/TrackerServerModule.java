@@ -120,5 +120,6 @@ public class TrackerServerModule extends AbstractServerModule {
     @Override
     public void configure(Binder binder) {
         binder.bind(TaskQueryManager.class).to(JpaTaskQueryManager.class);
+        (new TrackerAssetType()).configure( binder );
     }
 }

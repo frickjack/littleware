@@ -64,10 +64,12 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
 
         @Override
         public String getFullText() {
+            return getData(); // something doesn't work right with RMI below ...
+            /*..
             if (maybeFullText.isEmpty()) {
                 synchronized (this) {
                     if (maybeFullText.isEmpty()) {
-                        if (getData().length() < cutOffLength) {
+                        if ( true ) { // getData().length() <= cutOffLength) {
                             maybeFullText = Maybe.something(getData());
                         } else {
                             if (null == bucketUtil) {
@@ -86,6 +88,8 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
                 }
             }
             return maybeFullText.get();
+             * 
+             */
         }
 
         @Override
@@ -106,6 +110,11 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
         return fullText(((Comment) source).getFullText());
     }
 
+    @Override public CommentBuilder name( String value ) {
+        super.name( value );
+        return this;
+    }
+    
     @Override
     public CommentBuilder parent(Asset value) {
         super.parent(value);
@@ -126,7 +135,8 @@ public class SimpleCommentBuilder extends SimpleAssetBuilder implements Comment.
     public CommentBuilder fullText(String value) {
         fullText = value;
         if (value.length() > cutOffLength) {
-            setData(value.substring(0, cutOffLength) + "...");
+            throw new UnsupportedOperationException( "Comments currently limited to " + cutOffLength + " characters" );
+            //setData(value.substring(0, cutOffLength) + "...");
         } else {
             setData(value);
         }

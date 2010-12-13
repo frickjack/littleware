@@ -31,10 +31,14 @@ public class PackageTestSuite extends TestSuite {
             Provider<QueryManagerTester> provideQueryTester,
             Provider<ProductSetupTester> provideProductTester,
             Provider<ZipUtilTester> provideZipTester,
-            Provider<ProductManagerTester> providePMTester
+            Provider<ProductManagerTester> providePMTester,
+            Provider<CommentTester> provideCommentTester
             ) {
         super(PackageTestSuite.class.getName());
-        boolean bRun = false;
+        boolean bRun = true;
+        if ( bRun ) {
+            this.addTest( provideCommentTester.get() );
+        }
         if (bRun) {
             this.addTest(provideQueryTester.get());
         }
@@ -44,7 +48,7 @@ public class PackageTestSuite extends TestSuite {
         if (bRun) {
             this.addTest( provideZipTester.get() );
         }
-        if (true) {
+        if (bRun) {
             this.addTest( providePMTester.get() );
         }
     }

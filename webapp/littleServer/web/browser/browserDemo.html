@@ -1,0 +1,324 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <head>
+        <title>Browser Demo</title>
+        <link rel="stylesheet" type="text/css"
+              href="http://yui.yahooapis.com/combo?3.2.0/build/cssreset/reset-min.css&3.2.0/build/cssfonts/fonts-min.css&3.2.0/build/cssgrids/grids-min.css"
+              />
+        <link rel="stylesheet" type="text/css"
+              href="util/css/browser.css"
+              />
+
+        <script type="text/javascript" charset="utf-8"
+                src="http://yui.yahooapis.com/3.2.0/build/yui/yui-min.js">
+        </script>
+        <!-- ...............
+        <script type="text/javascript" charset="utf-8"
+                src="util/js/Model.js">
+        </script>
+        <script type="text/javascript" charset="utf-8"
+                src="util/js/View.js">
+        </script>
+        <script type="text/javascript" charset="utf-8"
+                src="util/js/Controller.js">
+        </script>
+                 ... -->
+        <script type="text/javascript" charset="utf-8">
+            // <![CDATA[
+            YUI().use('tabview', 'event', 'yui2-dragdrop', 'yui2-datatable', function (Y) {
+                //var browser = new littleware.browser.Controller.BrowserBuilder( Y ).build();
+                var tabview = new Y.TabView({
+                    srcNode: '#navTabs'
+                });
+
+                tabview.render();
+
+                var YAHOO = Y.YUI2;
+
+                Y.on("available", function() {
+
+                    //This is the data from which the DataTable will be built:
+                    var bookorders = [
+                        {id:"po-0167", date:new Date(1980, 2, 24), quantity:1, amount:4, title:"A Book About Nothing",
+                            description: "Lorem ipsum dolor sit amet consectetuer Quisque ipsum suscipit Aenean ligula. Accumsan molestie nibh dui orci vitae auctor nec pulvinar ligula elit."},
+                        {id:"po-0783", date:new Date("January 3, 1983"), quantity:null, amount:12.12345, title:"The Meaning of Life",
+                            description: "Vestibulum scelerisque wisi adipiscing turpis odio Phasellus euismod id orci tristique. Hendrerit sem dictum volutpat cursus pretium dui vitae tincidunt Vivamus Aenean."},
+                        {id:"po-0297", date:new Date(1978, 11, 12), quantity:12, amount:1.25, title:"This Book Was Meant to Be Read Aloud",
+                            description: "Malesuada pellentesque nibh magna nisl tincidunt wisi dui Nam nunc convallis. Adipiscing leo augue Nulla tellus nec eros metus cursus pretium Sed."},
+                        {id:"po-1482", date:new Date("March 11, 1985"), quantity:6, amount:3.5, title:"Read Me Twice",
+                            description: "Libero justo pede nibh tincidunt ut tempus metus et Vestibulum vel. Sem justo morbi lacinia dui turpis In Lorem dictumst volutpat cursus."}
+                    ];
+
+                    var myColumnDefs = [
+                        {key:"id", sortable:true, resizeable:true},
+                        {key:"date", formatter:YAHOO.widget.DataTable.formatDate, sortable:true, sortOptions:{defaultDir:YAHOO.widget.DataTable.CLASS_DESC},resizeable:true},
+                        {key:"quantity", formatter:YAHOO.widget.DataTable.formatNumber, sortable:true, resizeable:true},
+                        {key:"amount", formatter:YAHOO.widget.DataTable.formatCurrency, sortable:true, resizeable:true},
+                        {key:"title", sortable:true, resizeable:true}
+                    ];
+
+                    var myDataSource = new YAHOO.util.DataSource(bookorders);
+                    myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
+                    myDataSource.responseSchema = {
+                        fields: ["id","date","quantity","amount","title"]
+                    };
+
+                    var myDataTable = new YAHOO.widget.DataTable("basic",
+                    myColumnDefs, myDataSource);
+
+                    myDataTable.subscribe("initEvent", function(){
+                        Y.log('******** hello from initEvent');
+                    });
+
+                    myDataTable.subscribe("rowClickEvent", function(){
+                        Y.log('******** hello from rowClickEvent');
+                    });
+
+                    return {
+                        oDS: myDataSource,
+                        oDT: myDataTable
+                    };
+
+                }, "#basic");
+
+            });
+            //]]>
+        </script>
+
+    </head>
+    <body>
+        <div id="head">
+            <h2>Project Bla Banner</h2> <b>/<a href="/ProjectHome">ProjectHome</a>/<a href="/ProjectHome/ParentProduct">ParentProduct</a>/ActiveProduct</b>
+        </div>
+        <div id="main" class="yui3-skin-sam yui-skin-sam">
+            <div id="productBase">
+                <div id="productInfo">
+                    <img alt="nodeGraph" src="./util/img/nodeGraph.png" width="100px" style="margin:20px;"/>
+                    <table class="browsercell"><tr>
+                            <td><img alt="icon" src="util/img/adobe_reader.jpg" /></td>
+                            <td><h3>ActiveProduct</h3></td>
+                        </tr></table>
+                    <p>
+                        Comment about this product - bla bla bla
+                    </p>
+                    <table class="deftable">
+                        <tr><th>Type:</th><td>Product</td></tr>
+                        <tr><th>Owner:</th><td>Reuben</td></tr>
+                        <tr><th>ACL:</th><td>everybody.read</td></tr>
+                    </table>
+                </div>
+                <div id="navTabs">
+                    <ul>
+                        <li><a href="#kids">Kids</a></li>
+                        <li><a href="#neighbors">Neighbors</a></li>
+                        <li><a href="#uncles">Uncles</a></li>
+                        <li><a href="#siblings">Siblings</a></li>
+                        <li><a href="#filebucket">File Bucket</a></li>
+                        <li><a href="#tableTop">Table Test</a></li>
+                    </ul>
+                    <div>
+                        <div id="kids" class="browser">
+                            <table class="browser">
+                                <tr><th>Relative XPath</th>
+                                    <th>Name/Comment</th>
+                                    <th>Last Update</th>
+                                    <th>Icon</th>
+                                </tr>
+                                <tr>
+                                    <td><a href=".">./Timmy</a></td>
+                                    <td><b>Timmy</b> <em>(littleware.Version)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href=".">./Tommy</a></td>
+                                    <td><b>Tommy</b> <em>(littleware.Version)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href=".">./Toby</a></td>
+                                    <td><b>Toby</b> <em>(littleware.Version)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href=".">./Triscia</a></td>
+                                    <td><b>Triscia</b> <em>(littleware.Version)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div id="neighbors" class="browser">
+                            <table class="browser">
+                                <tr><th>Relative XPath</th>
+                                    <th>Name/Comment</th>
+                                    <th>Last Update</th>
+                                    <th>Icon</th>
+                                </tr>
+                                <tr>
+                                    <td><a href="./@creator">./@creator</a></td>
+                                    <td><b>SomeDude</b> <em>(littleware.User)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="./@from">./@from</a></td>
+                                    <td><b>ParentName</b> <em>(littleware.Generic)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="./@owner">./@owner</a></td>
+                                    <td><b>Ms.Owner</b> <em>(littleware.User)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="./@acl">./@acl</a></td>
+                                    <td><b>acl.littleware.everybody.read</b> <em>(littleware.ACL)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/adobe_reader.jpg" /></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div id="uncles" class="browser">
+                            <table class="browser">
+                                <tr><th>Relative XPath</th>
+                                    <th>Name/Comment</th>
+                                    <th>Last Update</th>
+                                    <th>Icon</th>
+                                </tr>
+                                <tr>
+                                    <td><a href="../">../</a></td>
+                                    <td><b>ParentProduct</b> <em>(littleware.Generic)</em> parent of bla can what do up and where down for bla cluck cluck puppy doo</td>
+                                    <td>2010/01/02 bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="../../UncleJoe">../../UncleJoe</a></td>
+                                    <td><b>UncleJoe</b> <em>(littleware.Generic)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="../../AuntJane">../../AuntJane</a></td>
+                                    <td><b>AuntJane</b> <em>(littleware.Generic)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipad.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="../../UncleBob">../../UncleBob</a></td>
+                                    <td><b>UncleBob</b> <em>(littleware.Generic)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div id="siblings" class="browser">
+                            <table class="browser">
+                                <tr><th>Relative XPath</th>
+                                    <th>Name/Comment</th>
+                                    <th>Last Update</th>
+                                    <th>Icon</th>
+                                </tr>
+                                <tr>
+                                    <td><a href=".">../LittleBro</a></td>
+                                    <td><b>LittleBro</b> <em>(littleware.Generic)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href=".">../BigBro</a></td>
+                                    <td><b>BigBro</b> <em>(littleware.Generic)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href=".">../LittleSis</a></td>
+                                    <td><b>LittleSis</b> <em>(littleware.Generic)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                                <tr>
+                                    <td><a href=".">../BigSis</a></td>
+                                    <td><b>BigSis</b> <em>(littleware.Generic)</em></td>
+                                    <td><b>2010/01/02</b> bla bla bla uga uga bla bla uga bla bla uga gua gua alb alb</td>
+                                    <td><img alt="product image"  src="util/img/ipodclassic.jpg" /></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="filebucket" class="browser">
+                            <table class="browser">
+                                <tr><th>Filename</th>
+                                </tr>
+                                <tr><td><a href="download">Image.png</a></td></tr>
+                                <tr><td><a href="download">member.zip</a></td></tr>
+                            </table>
+                        </div>
+                        <div id="tableTop" class="browser">
+                            <div id="basic"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="productDetail">
+                <h3>Versions</h3>
+                <ul class="tree">
+                    <li> <span class="button">2.0</span>
+                        <h3>Members</h3>
+                        <ul class="tree">
+                            <li>default
+                                <h3>Index</h3>
+                                <ul class="tree">
+                                    <li>bla/bla.pdf</li>
+                                    <li>bla/bla.png</li>
+                                </ul>
+                            </li>
+                            <li>other</li>
+                        </ul>
+                    </li>
+                    <li>1.1</li>
+                    <li>1.0</li>
+                </ul>
+            </div>
+
+            <div id="history">
+                <h3>History</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th><th>Node</th><th>Event</th><th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2010/09/12 15:22:33</td>
+                            <td>ActiveProduct</td><td>Node created</td>
+                            <td>Test product setup</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ..................................................... -->
+      <div id="browserTemplate">
+
+      </div>
+
+        <div id="browserBox" clas="yui3-skin-sam yui-skin-sam">
+
+        </div>
+    </body>
+</html>
+

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      >
+    <f:view contentType="text/html">
+        <h:head>
+            <title><ui:insert name="title">Default title</ui:insert></title>
+            <link rel="stylesheet" type="text/css"
+                  href="http://yui.yahooapis.com/combo?3.2.0/build/cssreset/reset-min.css&amp;3.2.0/build/cssfonts/fonts-min.css&amp;3.2.0/build/cssgrids/grids-min.css"
+                  />
+
+            <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/util/css/little.css"/>
+
+            <ui:insert name="extraLinks"></ui:insert>
+        </h:head>
+
+        <h:body styleClass="yui-skin-sam">
+
+            <div>
+                <div id="hd">
+                    <h3>Littleware API Server</h3>
+                </div>
+
+                <div id="bd" class="yui-g">
+                    <div id="toolbar" class="yui3-u">
+                        <ui:insert name="navigation" >
+                            <ui:include src="navigation.xhtml"/>
+                        </ui:insert>
+                    </div>
+
+                    <div id="contentArea" class="yui3-u-4-5">
+                        <ui:insert name="content">
+                            <h3>Bla!</h3>
+                        </ui:insert>
+                    </div>
+
+                </div>
+
+
+                <div id="ft">
+                    <ui:insert name="footer">
+                        <ui:include src="footer.xhtml"/>
+                    </ui:insert>
+                </div>
+
+
+            </div>
+
+        </h:body>
+    </f:view>
+</html>

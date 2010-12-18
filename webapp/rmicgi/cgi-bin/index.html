@@ -1,0 +1,71 @@
+ <?xml version="1.0" encoding="UTF-8" ?>
+ 
+ <html
+ xmlns="http://www.w3.org/1999/xhtml"
+ >
+ <head> 
+ 	<title>RMI Tunnel Webapp</title>
+ </head>
+ <body>
+ <h3>This is the RMI-tunnel /cgi-bin/ webapp</h3>
+ 
+ <p>
+  The default RMI socket factory contains several "fallback"
+  mechanisms which enable an RMI client to communicate with a remote
+  server.  When an RMI client initiates contact with a remote server,
+  it attempts to establish a connection using each of the following
+  protocols in turn, until one succeeds:
+  <ul>
+	  <li>1. Direct TCP connection.</li>
+	  <li>2. Direct HTTP connection.</li>
+	  <li>3. Proxy connection (SOCKS or HTTP).</li>
+	  <li>4. Connection on port 80 over HTTP to a CGI script.</li>
+	  <li>5. Proxy HTTP connection to CGI script on port 80.</li>
+  </ul>
+  </p>
+  <p>
+  The RMI ServletHandler can be used as replacement for the
+  java-rmi.cgi script that comes with the Java Development Kit (and
+  is invoked in protocols 4 and 5 above).  The java-rmi.cgi script
+  and the ServletHandler both function as proxy applications that
+  forward remote calls embedded in HTTP to local RMI servers which
+  service these calls.  The RMI ServletHandler enables RMI to tunnel
+  remote method calls over HTTP more efficiently than the existing
+  java-rmi.cgi script.  The ServletHandler is only loaded once from
+  the servlet administration utility.  The script, java-rmi.cgi, is
+  executed once every remote call.
+  </p>
+  <p>
+  The ServletHandler class contains methods for executing as a Java
+  servlet extension.  Because the RMI protocol only makes use of the
+  HTTP post command, the ServletHandler only supports the
+  <code>doPost</code> <code>HttpServlet</code> method.  The
+  <code>doPost</code> method of this class interprets a servlet
+  request's query string as a command of the form
+  "<command>=<parameters>".  These commands are represented by the
+  abstract interface, <code>RMICommandHandler</code>.  Once the
+  <code>doPost</code> method has parsed the requested command, it
+  calls the execute method on one of several command handlers in the
+  <code>commands</code> array.
+  </p>
+  <p>
+  The command that actually proxies remote calls is the
+  <code>ServletForwardCommand</code>.  When the execute method is
+  invoked on the ServletForwardCommand, the command will open a
+  connection on a local port specified by its <code>param</code>
+  parameter and will proceed to write the body of the relevant post
+  request into this connection.  It is assumed that an RMI server
+  (e.g. SampleRMIServer) is listening on the local port, "param."
+  The "forward" command will then read the RMI server's response and
+  send this information back to the RMI client as the body of the
+  response to the HTTP post method.
+  </p>
+  <p>
+  Because the ServletHandler uses a local socket to proxy remote
+  calls, the servlet has the ability to forward remote calls to local
+  RMI objects that reside in the ServletVM or outside of it.
+  </p>
+ 
+ </body>
+ </html>
+

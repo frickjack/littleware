@@ -1,0 +1,29 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="javadoc"/>
+    <configurations>
+        <!-- compile may build against jars that only include interfaces -->
+        <conf name="compile" description="compile everything"/>
+        <conf name="test" extends="compile" visibility="private" description="just here to satisfy littleware ivy template rules"/>
+    </configurations>
+    <publications>
+        <!--
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
+    	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
+        -->
+    </publications>
+    
+    <dependencies>
+      <dependency org="littleware" name="lgoServer" rev="latest.integration" conf="compile->compile" />
+      <dependency org="littleware" name="productBrowser" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="etdX" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="vygr2vfnd" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="vufindRegression" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="refStat" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="Minnows" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="AuUnicodeFilter" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="marcDL" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="i18n" rev="latest.integration" conf="compile->compile" />
+    </dependencies>
+
+</ivy-module>

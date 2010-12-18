@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.prime.com.tr/ui"
+      xmlns:l="http://littleware.com/jsf"
+      >
+    <h:body>
+        <ui:composition template="/WEB-INF/layout/standard.xhtml">
+            <ui:define name="title">simple browser</ui:define>
+            <ui:define name="extraLinks">
+
+                <link rel="stylesheet" type="text/css"
+                      href="util/css/browser.css"
+                      />
+
+                <script type="text/javascript" charset="utf-8"
+                        src="http://yui.yahooapis.com/3.2.0/build/yui/yui-debug.js">
+                </script>
+                <!--
+                <script type="text/javascript" charset="utf-8"
+                        src="util/js/Model.js">
+                </script>
+                <script type="text/javascript" charset="utf-8"
+                        src="util/js/View.js">
+                </script>
+                <script type="text/javascript" charset="utf-8"
+                        src="util/js/Controller.js">
+                </script>
+                -->
+            </ui:define>
+
+            <!-- .................................................  -->
+
+            <ui:define name="content">
+
+
+                <div id="productBase" class="yui3-skin-sam">
+                    <div id="productInfo">
+                        <img alt="nodeGraph" src="./util/img/nodeGraph.png" width="100px" style="margin:20px;"/>
+                        <table class="browsercell"><tr>
+                                <td><img alt="icon" src="util/img/adobe_reader.jpg" /></td>
+                                <td><h3> <h:outputText value="#{hoodBean.asset.model.asset.name}" /> </h3></td>
+                            </tr></table>
+                        <p>
+                        <h:outputText value="#{hoodBean.asset.model.asset.comment}" />
+                        </p>
+                        <table class="deftable">
+                            <tr><th>Type:</th><td><h:outputText value="#{hoodBean.asset.model.asset.assetType}" /></td></tr>
+                            <tr><th>Home:</th><td><h:outputText value="#{hoodBean.asset.model.asset.homeId}" /></td></tr>
+                            <tr><th>Id</th><td><h:outputText value="#{hoodBean.asset.model.asset.homeId}" /></td></tr>
+                        </table>
+                    </div>
+
+                    <h:form>
+                        <div id="navTabs">
+                            <ul>
+                                <li><a href="#kids">Kids</a></li>
+                                <li><a href="#neighbors">Neighbors</a></li>
+                                <li><a href="#uncles">Uncles</a></li>
+                                <li><a href="#siblings">Siblings</a></li>
+                            </ul>
+                            <div>
+                                <div id="kids" class="browser">
+                                    <l:neighbor
+                                        neighborList="#{hoodBean.children}"
+                                        />
+                                </div>
+
+                                <!-- ............................... -->
+
+                                <div id="neighbors" class="browser">
+                                    <l:neighbor
+                                        neighborList="#{hoodBean.neighbors}"
+                                        />
+                                </div>
+
+                                <!-- ............................... -->
+
+                                <div id="uncles" class="browser">
+                                    <l:neighbor
+                                        neighborList="#{hoodBean.uncles}"
+                                        />
+
+                                </div>
+
+                                <!-- ............................... -->
+
+                                <div id="siblings" class="browser">
+                                    <l:neighbor
+                                        neighborList="#{hoodBean.siblings}"
+                                        />
+                                </div>
+                            </div>
+                        </div>
+                    </h:form>
+                </div>
+
+                <script type="text/javascript" charset="utf-8">
+                    // <![CDATA[
+                    //alert( "Ugh !" );
+                    YUI().use('tabview', 'event',
+                    "littleware.browser.Controller",
+                    "littleware.browser.Model",
+                    function (Y) {
+                        //var browser = new Y.littleware.browser.Controller.BrowserBuilder( Y ).build();
+                        //alert( "Frickjack!" );
+                        var tabview = new Y.TabView({
+                            srcNode: '#navTabs'
+                        });
+
+                        tabview.render();
+
+                    });
+                    //]]>
+                </script>
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

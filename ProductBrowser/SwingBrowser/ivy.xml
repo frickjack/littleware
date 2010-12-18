@@ -1,0 +1,32 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="productBrowser"/>
+    <configurations>
+        <!-- compile may build against jars that only include interfaces -->
+        <conf name="compile" description="compile everything"/>
+        <!-- java ee environment provides some runtime jars - so don't have to include them in runtime deployment -->
+        <conf name="ee_client"  description="non-server running in a java ee 6+ container"/>
+        <conf name="client"  extends="ee_client" description="non-server app outside ee container"/>
+        <conf name="test" extends="client" visibility="private" description="for testing our framework"/>
+        <!--
+    	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
+    	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
+    	<conf name="test" extends="cc-impl" visibility="private" description="for testing our framework"/>
+        -->
+    </configurations>    
+    <publications>
+    	<artifact name="SwingBrowser" ext="jar" type="jar"  conf="*" />
+        <!--
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
+    	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
+        -->
+    </publications>
+    
+    <dependencies>    
+      <dependency org="auburn.library" name="auLibrary" rev="1.2.+" 
+                  conf="compile->compile;client->client;ee_client->ee_client" 
+                  />
+      <dependency org="littleware" name="littleWeb" rev="2.3.+" conf="compile->compile;ee_client->ee_client;client->client" />
+    </dependencies>
+
+</ivy-module>

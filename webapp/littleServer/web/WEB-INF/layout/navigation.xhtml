@@ -1,0 +1,37 @@
+<div 
+    id="sidenav_code"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    >
+    <ui:insert name="nav.userLogin">
+          <div id="userinfo" class="sidenav">
+              Logged in as: <h:outputText value="#{userBean.user.name}" /> <br />
+              <!--
+              <img src="#{facesContext.externalContext.requestContextPath}/dispatch/thumb?path=/#{userBean.user.id}" alt="user thumbnail" />
+              -->
+                  <h:outputText value="[admin]" rendered="#{userBean.admin}" />
+                  <!--
+                <h:outputLink value="#{facesContext.externalContext.requestContextPath}/en/imageUpload/imageUpload.jsf"
+                            rendered="#{littleGuice.loggedIn}">Change image</h:outputLink>,
+                  -->
+<h:outputLink value="#{facesContext.externalContext.requestContextPath}/login/servlet/logout?action=logout&amp;logoutURL=/home.jsf"
+              rendered="#{littleGuice.loggedIn}">Logout</h:outputLink>
+ <h:outputLink value="#{facesContext.externalContext.requestContextPath}/login/login.jsf"
+               rendered="#{not littleGuice.loggedIn}">Login as another user</h:outputLink>
+          </div>
+    </ui:insert>
+    <ui:insert name="nav.resources">
+    <div id="resources" class="sidenav">
+            <h4>Resources</h4>
+            <ul>
+                <li><a href="#{facesContext.externalContext.requestContextPath}/admin/serverStats.jsf">Server Stats</a></li>
+                <li><a href="http://code.google.com/p/littleware/">Google Code</a></li>
+                <!--
+                <li><a href="/hudson/">Hudson</a> integration server</li>
+                -->
+            </ul>
+    </div>
+    </ui:insert>
+        </div>

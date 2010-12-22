@@ -42,10 +42,9 @@
                 <div id="productBase" class="yui3-skin-sam">
                     <div id="productInfo">
                         <img alt="nodeGraph" src="./util/img/nodeGraph.png" width="100px" style="margin:20px;"/>
-                        <table class="browsercell"><tr>
-                                <td><img alt="icon" src="util/img/adobe_reader.jpg" /></td>
-                                <td><h3> <h:outputText value="#{hoodBean.asset.model.asset.name}" /> </h3></td>
-                            </tr></table>
+                        <h3><h:outputText value="#{hoodBean.asset.absPath}" /></h3> <br />
+                        <img alt="icon" src="util/img/adobe_reader.jpg" /> <br />
+                        <h3>Comment:</h3>
                         <p>
                         <h:outputText value="#{hoodBean.asset.model.asset.comment}" />
                         </p>

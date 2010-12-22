@@ -17,7 +17,19 @@
     <delete dir="${basedir}/ivy" />
 </target>
 
-    <target name="download-ivy" unless="skip.download"> 
+<target name="config-check">
+    <available file="${ivy.jar.dir}/littlesettings.xml" property="settings.exists"/>
+    <available file="${ivy.jar.file}" property="ivyjar.exists"/>
+    <condition property="skip.download">
+        <and>
+            <isset property="settings.exists" />
+            <isset property="ivyjar.exists" />
+        </and>
+    </condition>
+</target>
+
+
+<target name="download-ivy" depends="config-check" unless="skip.download"> 
     	<mkdir dir="${ivy.jar.dir}"/> 
 		<!-- download Ivy from web site so that it can be used even without any special installation --> 
 		<echo message="installing ivy..."/> 
@@ -26,7 +38,7 @@
    	<get src="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml"
     		 dest="${ivy.jar.dir}/littlesettings.xml" usetimestamp="true"
     		 />    		 
-    </target> 
+</target> 
     
     <!-- ================================= 
           target: install-ivy         

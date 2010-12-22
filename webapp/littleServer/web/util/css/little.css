@@ -28,6 +28,9 @@ em {
     font-style:italic;
 }
 
+h1,h2,h3 {
+    font-weight: bold;
+}
 
 div#hd, div#ft {
     background-color: #aaaaaa;
@@ -42,6 +45,9 @@ div#hd, div#ft {
     clear: both;
 }
 
+div#hd a {
+    color: #ffffff;
+}
 div#hd h2 {
     font-size: 150%;
     padding: 0px;
@@ -58,7 +64,8 @@ div#bd {
 div#contentArea, div#toolbar {
     float:left;
     /* border: 2px black solid; */
-    padding: 5px;
+    padding: 10px;
+    min-height: 500px;
 }
 
 

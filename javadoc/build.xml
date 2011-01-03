@@ -21,7 +21,7 @@
            version="true"
            use="true"
            windowtitle="littleware"
-           classpath="${ivy.compile.classpath.computed}"
+           classpath="${ivy.compile.classpath}"
            >
 
     <packageset dir="../littleware/src" defaultexcludes="yes">
@@ -120,7 +120,7 @@
       destdir="api/scaladoc"
       deprecation="yes" unchecked="yes"
       doctitle="Auburn and Littleware Tools"
-      classpath="${ivy.compile.classpath.computed}"
+      classpath="${ivy.compile.classpath}"
        >
        <!--
             <classpath>

@@ -76,6 +76,7 @@
       <pathelement location="../Auburn/VufindRegression/src/main/scala" />
       <pathelement location="../Auburn/FishProject/Minnows/src/main/scala" />
       <pathelement location="../Auburn/RefStat/src/main/scala" />
+      <pathelement location="../Auburn/CircRequest/src/main/scala" />
       <pathelement location="../Auburn/CatRequest/src/main/scala" />
       <pathelement location="../Auburn/CatRequest/src/main/java" />
       <pathelement location="../Auburn/ClickCount/src/main/scala" />

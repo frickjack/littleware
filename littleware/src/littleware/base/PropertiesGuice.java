@@ -11,6 +11,8 @@ package littleware.base;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
+import com.google.inject.Provider;
+import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -87,22 +89,45 @@ public class PropertiesGuice implements Module {
         if (properties.containsKey("mail.smtp.host")) {
             try {
                 final String host = properties.getProperty("mail.smtp.host");
-                final Session session;
-                if (host.startsWith("jndi:")) {
-                    try {
-                        session = (Session) (new InitialContext()).lookup(host.substring("jndi:".length()));
-                    } catch (Exception ex) {
-                        throw new AssertionFailedException("Failed jndi lookup for smtp host: " + host);
+                /**
+                 * Setup lazy Session binding.
+                 * The mail.smtp.host property may be set on a global properties file
+                 * accessed by many apps that don't actually need to setup a mail session,
+                 * so be lazy - only setup session if needed.
+                 */
+                final Provider<Session> provider = new Provider<Session>() {
+
+                    private Session session = null;
+
+                    @Override
+                    public Session get() {
+                        if (null != session) {
+                            return session;
+                        }
+                        synchronized (this) {
+                            if (null == session) {
+                                if (host.startsWith("jndi:")) {
+                                    try {
+                                        session = (Session) (new InitialContext()).lookup(host.substring("jndi:".length()));
+                                    } catch (Exception ex) {
+                                        throw new AssertionFailedException("Failed jndi lookup for smtp host: " + host);
+                                    }
+                                } else {
+                                    session = Session.getInstance(properties, null);
+                                }
+                            }
+                        }
+
+                        return session;
                     }
-                } else {
-                    session = Session.getInstance(properties, null);
-                }
+                };
 
                 // then bind mail session
-                binder.bind(Session.class).toInstance(session);
+                binder.bind(Session.class).toProvider(provider).in(Scopes.SINGLETON);
             } catch (NoClassDefFoundError ex) {
                 // Do not require the app to link with mail.jar if it doesn't actually need a Session
-                log.log(Level.WARNING, "Not binding javax.mail.Session - mail.jar not in classpath", ex);
+                log.log(Level.INFO, "Not binding javax.mail.Session - mail.jar not in classpath" );
+                log.log(Level.FINE, "Not binding javax.mail.Session - mail.jar not in classpath", ex);
             }
         }
     }

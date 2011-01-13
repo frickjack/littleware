@@ -7,11 +7,12 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.bootstrap.server;
 
 import com.google.inject.Provider;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Logger;
 import littleware.bootstrap.LittleBootstrap;
 
 /**
@@ -20,13 +21,15 @@ import littleware.bootstrap.LittleBootstrap;
 public interface ServerBootstrap extends LittleBootstrap {
 
     public enum ServerProfile {
+
         Standalone, J2EE;
     }
 
     public ServerBootstrap.ServerProfile getProfile();
+
     @Override
     public Collection<? extends ServerModule> getModuleSet();
-    
+
     public interface ServerBuilder extends LittleBootstrap.Builder {
 
         /**
@@ -38,19 +41,17 @@ public interface ServerBootstrap extends LittleBootstrap {
 
         public ServerBuilder removeModuleFactory(ServerModuleFactory factory);
 
-        public ServerBuilder profile( ServerProfile profile );
+        public ServerBuilder profile(ServerProfile profile);
 
         @Override
         public ServerBootstrap build();
     }
-
     public static Provider<ServerBuilder> provider = new Provider<ServerBuilder>() {
 
         @Override
         public ServerBuilder get() {
             return new SimpleServerBuilder();
         }
-
     };
-}
 
+}

@@ -52,9 +52,9 @@ public class LgoCommandLine {
      *  +url  [server-info] -- url specifies host/port information for the littleware server in client mode
      */
     private enum SpecialOption {
-
         user, url, mode, profile;
     };
+
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
 
@@ -268,8 +268,9 @@ public class LgoCommandLine {
             try {
                 final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get().profile(profile);
                 if (maybeUser.isSet()) {
-                    maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().login(
-                            loginBuilder.build(), maybeUser.get(), ""));
+                    maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().automatic(
+                            loginBuilder.build(), maybeUser.get(), "")
+                            );
                 } else {
                     maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().automatic(loginBuilder.build()));
                 }

@@ -197,7 +197,7 @@ public class JPasswordDialog extends JDialog implements CallbackHandler {
        for ( Callback callback : callbackList ) {
            if ( callback instanceof NameCallback) {
                final NameCallback ncb = (NameCallback) callback;
-               if ( ncb.getDefaultName () != null ) {
+               if ( getUserName().isEmpty() && (ncb.getDefaultName () != null) ) {
                    setUserName( ncb.getDefaultName() );
                    break;
                }

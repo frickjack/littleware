@@ -150,10 +150,10 @@ public class ClientLoginModule implements LoginModule {
             userName = ((NameCallback) callbacks[ 0]).getName();
             password = new String(((PasswordCallback) callbacks[ 1]).getPassword());
 
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new LoginException("Failure handling callbacks, caught: " + e);
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch ( Exception ex ) {
+            throw (LoginException) (new LoginException("Failure handling callbacks" )).initCause( ex );
         }
 
         boolean sessionIdFromUsername = false;
@@ -201,7 +201,7 @@ public class ClientLoginModule implements LoginModule {
                 helper = sessionManager.getSessionHelper(sessionId);
             } catch (Exception ex) {
                 if ( sessionIdFromUsername ) {
-                    throw new FailedLoginException( "Failed to authenticate to session" );
+                    throw (LoginException)(new FailedLoginException( "Failed to authenticate to session" ).initCause(ex) );
                 }
                 log.log(Level.FINE, "Failed to login to cached session " + sessionId, ex);
             }
@@ -211,7 +211,7 @@ public class ClientLoginModule implements LoginModule {
                 helper = sessionManager.login(userName, password,
                         "ClientLoginModule login");
             } catch (Exception ex) {
-                throw new FailedLoginException("Failed " + userName + " login, caught: " + ex);
+                throw (LoginException)(new FailedLoginException("Failed " + userName + " login" ).initCause( ex) );
             }
         }
         if (userName.equals(loggedInUser)) {
@@ -264,13 +264,13 @@ public class ClientLoginModule implements LoginModule {
             }
             log.log(Level.INFO, "User authenticated: "
                     + user.getName());
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (LoginException e) {
-            throw e;
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Authentication of " + userName + "failed", e );
-            throw new FailedLoginException("Authentication of " + userName + " failed, caught: " + e);
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (LoginException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Authentication of " + userName + "failed", ex );
+            throw (LoginException)(new FailedLoginException("Authentication of " + userName + " failed" ).initCause(ex));
         }
         return true;
     }

@@ -9,11 +9,13 @@
  */
 package littleware.bootstrap.client;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.Configuration;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import littleware.base.AssertionFailedException;
@@ -103,7 +105,7 @@ public class SimpleLoginSetup implements ClientBootstrap.LoginSetup {
         try {
             return login(loginConfig, name, password);
         } catch (LoginException ex) {
-            log.log(Level.FINE, "Failed to authenticate with initial name/passowrd guess");
+            log.log(Level.FINE, "Failed to authenticate with initial password guess for " + name );
         }
         final AppBootstrap.AppProfile profile = builder.getProfile();
 
@@ -119,7 +121,7 @@ public class SimpleLoginSetup implements ClientBootstrap.LoginSetup {
             }
             try {
                 return login(new LoginContext(ConfigName, new Subject(), handler, loginConfig));
-            } catch (LoginException ex) {
+            } catch (FailedLoginException ex) {
                 if (i > 1) {
                     throw ex;
                 }

@@ -16,8 +16,13 @@ import java.util.logging.Logger;
 import java.io.IOException;
 
 import java.util.logging.Level;
+import littleware.asset.AssetPath;
+import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.AssetType;
+import littleware.base.AssertionFailedException;
 import littleware.base.Maybe;
+import littleware.security.AccountManager;
 import littleware.security.LittleAcl;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePermission;
@@ -74,11 +79,21 @@ public class SecurityFilter implements Filter {
 
         private AssetSearchManager search;
         private LittleUser user;
+        private AssetPathFactory pathFactory;
+        private LittleGroup adminGroup;
 
         @Inject
-        public void injectMe(AssetSearchManager search, LittleUser user) {
+        public void injectMe(AssetSearchManager search, LittleUser user, AssetPathFactory pathFactory) {
             this.search = search;
             this.user = user;
+            this.pathFactory = pathFactory;
+            try {
+                this.adminGroup = search.getByName( AccountManager.LITTLEWARE_ADMIN_GROUP, SecurityAssetType.GROUP).get().narrow();
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new AssertionFailedException("Failed to load admin group", ex);
+            }
         }
 
         /**
@@ -89,15 +104,27 @@ public class SecurityFilter implements Filter {
          */
         public boolean checkAccess(String sAccessSpec) {
             try {
-                if (sAccessSpec.startsWith("group:")) {
+                if ( adminGroup.isMember( user ) ) {
+                    return true;
+                }
+                if (sAccessSpec.startsWith("group:/")) {
+                    final AssetPath path = pathFactory.createPath(sAccessSpec.substring("group:".length()));
+                    return search.getAssetAtPath(path).get().narrow(LittleGroup.class).isMember(user);
+                } else if (sAccessSpec.startsWith("acl:read:/")) {
+                    final AssetPath path = pathFactory.createPath(sAccessSpec.substring("acl:read:".length()));
+                    return search.getAssetAtPath(path).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.READ);
+                } else if (sAccessSpec.startsWith("acl:write:/")) {
+                    final AssetPath path = pathFactory.createPath(sAccessSpec.substring("acl:write:".length()));
+                    return search.getAssetAtPath(path).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.WRITE);
+                } else if (sAccessSpec.startsWith("group:")) {
                     final String group = sAccessSpec.substring("group:".length());
-                    return search.getByName(group, SecurityAssetType.GROUP).get().narrow( LittleGroup.class ).isMember(user);
+                    return search.getByName(group, SecurityAssetType.GROUP).get().narrow(LittleGroup.class).isMember(user);
                 } else if (sAccessSpec.startsWith("acl:read:")) {
                     final String acl = sAccessSpec.substring("acl:read:".length());
-                    return search.getByName(acl, SecurityAssetType.ACL).get().narrow( LittleAcl.class ).checkPermission(user, LittlePermission.READ);
+                    return search.getByName(acl, SecurityAssetType.ACL).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.READ);
                 } else if (sAccessSpec.startsWith("acl:write:")) {
                     final String acl = sAccessSpec.substring("acl:write:".length());
-                    return search.getByName(acl, SecurityAssetType.ACL).get().narrow( LittleAcl.class ).checkPermission(user, LittlePermission.WRITE);
+                    return search.getByName(acl, SecurityAssetType.ACL).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.WRITE);
                 } else {
                     log.log(Level.WARNING, "Unknown access spec must be in (group:, acl:read:, acl:write:): " + sAccessSpec);
                     return false;
@@ -156,4 +183,3 @@ public class SecurityFilter implements Filter {
         chain.doFilter(sreq, sres);
     }
 }
-

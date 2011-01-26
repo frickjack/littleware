@@ -97,9 +97,10 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
         final HttpSession session = event.getSession();
         sessionDestroyed(session);
     }
-    String loginOkURL = "/login/welcome.jsp";
-    String loginFailedURL = "/login/ugh.jsp";
-    String logoutURL = "/login/goodbye.jsp";
+
+    private String loginOkURL = "/login/welcome.jsp";
+    private String loginFailedURL = "/login/ugh.jsp";
+    private String logoutURL = "/login/goodbye.jsp";
 
     public String getLoginFailedURL() {
         return loginFailedURL;

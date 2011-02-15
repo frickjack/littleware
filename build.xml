@@ -40,7 +40,7 @@
             <param name="param.subproject" value="Auburn/EbscoX" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/EtdX" />
+            <param name="param.subproject" value="Auburn/ETD/EtdX" />
         </antcall>
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Auburn/I18n" />

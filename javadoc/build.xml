@@ -71,7 +71,7 @@
      <pathelement location="../Auburn/Voyager/src/main/scala" />
      <pathelement location="../Auburn/Voyager/src/main/java" />
       <pathelement location="../Auburn/EbscoX/src/main/scala" />
-      <pathelement location="../Auburn/EtdX/src/main/scala" />
+      <pathelement location="../Auburn/ETD/EtdX/src/main/scala" />
       <pathelement location="../Auburn/Vygr2Vfnd/src/main/scala" />
       <pathelement location="../Auburn/VufindRegression/src/main/scala" />
       <pathelement location="../Auburn/FishProject/Minnows/src/main/scala" />

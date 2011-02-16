@@ -26,6 +26,7 @@ import littleware.base.UUIDFactory;
 import littleware.asset.*;
 import littleware.asset.server.LittleTransaction;
 import littleware.base.AssertionFailedException;
+import littleware.base.Whatever;
 
 /**
  * Simple implementation of BucketManager interface.
@@ -50,10 +51,19 @@ public class SimpleBucketManager implements BucketManager {
     @Inject
     public SimpleBucketManager(AssetSearchManager search, AssetManager assetMgr,
             Provider<LittleTransaction> provideTrans,
-            @Named("littleware.bucket.root") String bucketRoot) {
+            @Named("littleware.bucket.root") String bucketRootIn ) {
         this.search = search;
         this.assetMgr = assetMgr;
         this.provideTrans = provideTrans;
+        String bucketRoot = bucketRootIn.trim();
+        if ( (! bucketRoot.startsWith( "/" ))
+                && (! (new File( bucketRoot )).isAbsolute() )
+                && (! bucketRoot.startsWith( "./" ))  // ./ is relaive to current path
+                ) {
+            // not absolute, no explicitly relative to current path,
+            // so make relative to littleware.home
+            bucketRoot = Whatever.Folder.LittleHome.getFolder().getAbsolutePath() + "/" + bucketRoot;
+        }
         this.bucketRoots = new String[]{
                     bucketRoot + "/Library/LittlewareAssets/Volume1",
                     bucketRoot + "/Library/LittlewareAssets/Volume2",

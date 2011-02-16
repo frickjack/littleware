@@ -46,7 +46,7 @@
             if you already have ivy in your ant lib, you can simply remove this
             target and the dependency the 'go' target has on it
          ================================= --> 
-    <target name="install-ivy" depends="download-ivy" description="--> install ivy"> 
+<target name="install-ivy" depends="download-ivy" description="--> install ivy"> 
     	<!-- try to load ivy here from local ivy dir, in case the user has not already dropped
     	      it into ant's lib dir (note that the latter copy will always take precedence).
     	      We will not fail as long as local lib dir exists (it may be empty) and
@@ -61,7 +61,7 @@
     	<ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
     	-->
     	<ivy:settings file="${ivy.jar.dir}/littlesettings.xml" />
-    </target>    
+</target>    
 
     
 <macrodef name="doResolve">
@@ -169,5 +169,67 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
          <delete dir="${ivy.cache.dir}/${ivy.organisation}" />
 </target>
 
+<target depends="jar" name="test-jenkins"
+    description="Run jenkins test class specified by test.classFile"
+   >
+   <sequential>
+  <property name="test.reports.dir" value="testReports" />
+  <property name="test.littlehome.dir" value="${ivy.jar.dir}/littleTestHome" /> 
+  <property name="test.db.dir" value="${test.littlehome.dir}/testdb" />
+  
+  <mkdir dir="${test.littlehome.dir}" />
+  <copy todir="${test.littlehome.dir}">
+      <fileset dir="${ivy.jar.dir}/testProperties">
+        <include name="*.properties" />
+        <include name="*.conf" />
+      </fileset>  
+  </copy>
+  
+  <mkdir dir="${test.db.dir}" />
+  <copy todir="${test.db.dir}">
+      <fileset dir="${ivy.jar.dir}/../littleDistro/src/server/data/javadb" />
+  </copy>
+
+  <!--
+  <echo message="Run classpath: ${run.classpath}" />
+  -->
+  <delete dir="${test.reports.dir}" />
+  <mkdir dir="${test.reports.dir}"/>
+  <junit fork="yes " printsummary="no" haltonfailure="no">
+    <jvmarg value="-Xms300m" />
+    <jvmarg value="-Xmx300m" />
+    <jvmarg value="-Dderby.system.home=${test.db.dir}" />
+    <jvmarg value="-Djava.awt.headless=true" />
+    <jvmarg value="-Djava.util.logging.config.file=${test.littlehome.dir}/logging.properties" />
+    <jvmarg value="-Djava.awt.headless=true" />
+    <!--
+    <jvmarg value="-Djava.security.manager" />
+    <jvmarg value="-Djava.security.policy=${test.properties.dir}/littleware.policy" />
+    -->
+    <jvmarg value="-Dlittleware.home=${test.littlehome.dir}" />
+    <!--
+    <test name="${test.class.name}" />
+    -->
     
+    <batchtest fork="yes" todir="${test.reports.dir}" >
+      <fileset dir="${build.classes.dir}">
+        <include name="${test.classFile}" />
+      </fileset>
+    </batchtest>
+    
+    <formatter type="xml" />
+    <classpath path="${run.classpath}" />
+  </junit>
+
+  <junitreport todir="${test.reports.dir}">
+    <fileset dir="${test.reports.dir}">
+      <include name="TEST-*.xml" />
+    </fileset>
+    <report todir="${test.reports.dir}" />
+  </junitreport>
+  
+    </sequential>
+</target>
+
+
 </project>

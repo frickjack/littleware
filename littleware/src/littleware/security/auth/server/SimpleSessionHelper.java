@@ -100,18 +100,20 @@ public class SimpleSessionHelper implements SessionHelper {
         }
     }
 
+    public static String serverVersionName = "ServerVersin";
+
     @Override
     public String getServerVersion() throws RemoteException {
         // Create the session asset as the admin user - session has null from-id
         try {
-            final String name = "ServerVersion";
             final Asset home = om_search.getByName("littleware.home", AssetType.HOME).get();
-            final Maybe<Asset> maybe = om_search.getAssetFrom(home.getId(), name);
+            final Maybe<Asset> maybe = om_search.getAssetFrom(home.getId(), SimpleSessionHelper.serverVersionName );
             if (maybe.isSet()) {
                 return maybe.get().getData();
+            } else {
+                // Note: ServerVersionNode should be initialized in SessionManager if it doesn't exist
+                return "v0.0";
             }
-            return om_asset.saveAsset(AssetType.GENERIC.create().parent(home).name(name).data("v0.0").build(),
-                    "Setup v0.0 ServerVersion node").getData();
         } catch (Exception ex) {
             throw new AssertionFailedException("Unexpected exception: " + ex);
         }

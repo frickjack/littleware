@@ -63,8 +63,8 @@ public class PackageTestSuite extends TestSuite {
 
     public static Test suite() {
         try {
-            final ServerModuleFactory test = ServerModuleFactory.class.cast( Class.forName( "littleware.apps.filebucket.server.BucketServerModule$Factory" ).newInstance() );
-            log.log( Level.INFO, "Instantiated test factory!" );
+            //final ServerModuleFactory test = ServerModuleFactory.class.cast( Class.forName( "littleware.apps.filebucket.server.BucketServerModule$Factory" ).newInstance() );
+            //log.log( Level.INFO, "Instantiated test factory!" );
             final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
             final ClientBootstrap.ClientBuilder clientBuilder = ClientBootstrap.clientProvider.get(
                     ); //.addModuleFactory( new LgoServerModule.Factory() );

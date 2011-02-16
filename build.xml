@@ -15,6 +15,7 @@
         <ant antfile="${param.subproject}/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
     </target>
 
+    <!-- ............................... -->
     <target name="buildAuburn" depends="buildLittleware,auburn-check" if="auburn.exists"
     description="Build the Auburn/ projects, and the littleware/ projects that depend on them"
    >
@@ -94,4 +95,10 @@
     description="Build the littleware and Auburn/ subprojects" 
     />
 
+    <target name="buildAndTest" depends="buildAll" description="buildAll, then run regression tests on subprojects">
+            <ant antfile="littleware/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="littleApps/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="Auburn/AuLibrary/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+    </target>
 </project>

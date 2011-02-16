@@ -28,6 +28,7 @@
       <dependency org="org.primefaces" name="primefaces" rev="2.2.RC1" conf="compile,ee_client->*" />
       <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" />
       <dependency org="commons-io" name="commons-io" rev="1.4" conf="ee_client->*" />
+      <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525" conf="client->*"/>
     </dependencies>
 
 </ivy-module>

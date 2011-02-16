@@ -7,6 +7,7 @@ derby.log
 ^littleware/LittleTestCache
 ^littleware/littleTest
 /dist/
+/testReports/
 ^littleware/doc
 ^littleware_client
 ^littleware/ddl/derbycache
@@ -15,6 +16,7 @@ nbproject/private
 /cachedir/
 ^scratch
 /ivy/
+^ivy/littleTestHome/
 /ydoc/
 /yparser/
 \.pyc$

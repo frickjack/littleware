@@ -31,7 +31,6 @@
       <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="7.0.1.v20091125" conf="compile,client->*" />
       <dependency org="org.eclipse.jetty" name="jetty-util" rev="7.0.1.v20091125" conf="compile,client->*" />
       <dependency org="org.eclipse.jetty" name="jetty-security" rev="7.0.1.v20091125" conf="compile,client->*" />
-       <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525" conf="client->*"/>
       
       <dependency org="httpunit" name="httpunit" rev="1.7" conf="compile,client->*" />
       <dependency org="javax.jnlp" name="jnlp" rev="6" conf="compile,client->*" />

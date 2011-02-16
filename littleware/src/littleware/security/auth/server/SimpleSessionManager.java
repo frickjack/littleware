@@ -76,27 +76,38 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
      */
     private class SetupSessionAction implements PrivilegedExceptionAction<LittleSession> {
 
-        private final String os_session_comment;
-        private final LittleSession osession;
+        private final String sessionComment;
+        private final LittleSession session;
 
         /**
          * Stash the comment to attach to the new session asset,
          * and the name of the user creating the session.
          */
-        public SetupSessionAction(LittleSession session, String s_session_comment) {
-            osession = session;
-            os_session_comment = s_session_comment;
+        public SetupSessionAction(LittleSession session, String sessionComment) {
+            this.session = session;
+            this.sessionComment = sessionComment;
         }
 
         @Override
         public LittleSession run() throws Exception {
+            final Asset home = search.getByName("littleware.home", AssetType.HOME).get();
+
+            // First - verify ServerVersion node exists -
+            // TODO: find a better place to do this
+            if (search.getAssetFrom(home.getId(), SimpleSessionHelper.serverVersionName).isEmpty()) {
+                // Only administrator can creat child of littleware.home ...
+                assetMgr.saveAsset(
+                        AssetType.GENERIC.create().parent(home).name(SimpleSessionHelper.serverVersionName).data("v0.0").build(),
+                        "Setup v0.0 ServerVersion node");
+            }
             // Let's create a hierarchy
             final DateTime now = new DateTime();
             final List<String> pathList = Arrays.asList(
                     "Sessions", Integer.toString(now.getYear()),
                     now.toString("MM"),
                     now.toString("dd"));
-            Asset parent = search.getByName("littleware.home", AssetType.HOME).get();
+
+            Asset parent = home;
             for (String childName : pathList) {
                 final Maybe<Asset> maybe = search.getAssetFrom(parent.getId(), childName);
                 if (maybe.isSet()) {
@@ -104,10 +115,10 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                     continue;
                 }
                 final Asset child = AssetType.GENERIC.create().parent(parent).name(childName).build();
-                parent = assetMgr.saveAsset(child, os_session_comment);
+                parent = assetMgr.saveAsset(child, sessionComment);
             }
-            return assetMgr.saveAsset(osession.copy().fromId(parent.getId()).homeId(parent.getHomeId()).build(),
-                    os_session_comment).narrow();
+            return assetMgr.saveAsset(session.copy().fromId(parent.getId()).homeId(parent.getHomeId()).build(),
+                    sessionComment).narrow();
         }
     }
 
@@ -228,9 +239,9 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
             }
         }
         // Create the session asset as the admin user - session has null from-id
-        final PrivilegedExceptionAction act_setup_session = new SetupSessionAction(session, s_session_comment);
+        final PrivilegedExceptionAction setupSessionAction = new SetupSessionAction(session, s_session_comment);
         try {
-            return setupNewHelper((LittleSession) Subject.doAs(adminSubject, act_setup_session));
+            return setupNewHelper((LittleSession) Subject.doAs(adminSubject, setupSessionAction));
         } catch (PrivilegedActionException e) {
             handlePrivilegedException(e);
             throw new AssertionFailedException("Should not make it here");

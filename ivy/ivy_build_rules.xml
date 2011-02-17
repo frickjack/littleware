@@ -195,7 +195,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
   -->
   <delete dir="${test.reports.dir}" />
   <mkdir dir="${test.reports.dir}"/>
-  <junit fork="yes " printsummary="no" haltonfailure="no">
+  <junit fork="yes" dir="${basedir}" printsummary="no" haltonfailure="no">
     <jvmarg value="-Xms300m" />
     <jvmarg value="-Xmx300m" />
     <jvmarg value="-Dderby.system.home=${test.db.dir}" />

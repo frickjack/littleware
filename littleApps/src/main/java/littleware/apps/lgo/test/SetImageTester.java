@@ -46,7 +46,7 @@ public class SetImageTester extends LittleTest {
             ).runCommand( new LoggerFeedback() );
         } catch ( Exception ex ) {
             log.log( Level.WARNING, "Failed test", ex );
-            assertTrue( "Caught unexpected: " + ex, false );
+            fail( "Caught unexpected: " + ex );
         }
     }
 }

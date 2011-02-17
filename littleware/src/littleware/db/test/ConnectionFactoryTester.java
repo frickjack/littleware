@@ -27,7 +27,7 @@ import littleware.test.LittleTest;
 public class ConnectionFactoryTester extends LittleTest {
 
     private static final Logger log = Logger.getLogger(ConnectionFactoryTester.class.getName());
-    private static final String TEST_QUERY = "SELECT 'hello'";
+    private static final String TEST_QUERY = "SELECT 'hello' FROM asset";
     
     private final DataSource dsource;
     private final DataSourceHandler proxyHandler;
@@ -37,9 +37,8 @@ public class ConnectionFactoryTester extends LittleTest {
      * Constructor takes a connection factory and a test query to run
      * against a checked out connection.  The supplied query should just return 'Hello'.
      *
-     * @param s_name of test method to run
      * @param dsource to test against
-     * @param s_test_query that returns 'Hello' result
+     * @param proxyHandler to test against
      */
     @Inject
     public ConnectionFactoryTester(
@@ -52,7 +51,7 @@ public class ConnectionFactoryTester extends LittleTest {
     }
 
     /**
-     * Run a test query
+     * Run a test query - note: only works against some databases ...
      */
     public void testQuery() {
         Connection conn = null;

@@ -15,6 +15,7 @@
     
 <target name="javadoc" depends="resolve" description="generate javadoc for public littleware APIs" >
     <mkdir dir="api/javadoc" />
+    <copy file="src/index.html" todir="api/" />
  <javadoc
            destdir="api/javadoc"
            author="true"
@@ -94,8 +95,8 @@
 	 depends="resolve"
 	 description="generate scaladoc"
          >
-
     <mkdir dir="api/scaladoc" />
+    <copy file="src/index.html" todir="api/" />
         <property environment="env"/>
         <condition property="scala.home" value="${env.SCALA_HOME}">
             <isset property="env.SCALA_HOME"/>

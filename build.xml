@@ -50,6 +50,9 @@
             <param name="param.subproject" value="Auburn/MarcDownload" />
         </antcall>
         <antcall target="buildSubproject">
+            <param name="param.subproject" value="Auburn/MarcViewer" />
+        </antcall>        
+        <antcall target="buildSubproject">
             <param name="param.subproject" value="Auburn/Vygr2Vfnd" />
         </antcall>
         <antcall target="buildSubproject">

@@ -24,6 +24,7 @@
       <dependency org="auburn.library" name="Minnows" rev="latest.integration" conf="compile->compile" />
       <dependency org="auburn.library" name="AuUnicodeFilter" rev="latest.integration" conf="compile->compile" />
       <dependency org="auburn.library" name="marcDL" rev="latest.integration" conf="compile->compile" />
+      <dependency org="auburn.library" name="marcViewer" rev="latest.integration" conf="compile->compile" />
       <dependency org="auburn.library" name="i18n" rev="latest.integration" conf="compile->compile" />
     </dependencies>
 

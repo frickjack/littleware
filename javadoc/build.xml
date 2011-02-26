@@ -84,6 +84,7 @@
       <pathelement location="../Auburn/ClickCount/src/main/java" />
       <pathelement location="../Auburn/I18n/src/main/scala" />
       <pathelement location="../Auburn/MarcDownload/src" />
+      <pathelement location="../Auburn/MarcViewer/src" />
       <pathelement location="../ProductBrowser/SwingBrowser/src/main/scala" />
     <!--
     <pathelement path="${java.class.path}/"/>

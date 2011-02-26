@@ -103,5 +103,6 @@
             <ant antfile="littleApps/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="Auburn/AuLibrary/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="Auburn/MarcViewer/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
     </target>
 </project>

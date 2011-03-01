@@ -5,64 +5,64 @@
     >
     <description>Builds "milestone" rule for the various littleware assets.</description>
 
-    <target name="auburn-check">
-        <available file="Auburn" property="auburn.exists"/>
+    <target name="cat-check">
+        <available file="Catalog" property="catalog.exists"/>
     </target>
 
     <target name="buildSubproject">
-        <echo message="-----------------------\n------------- Building ${param.subproject}\n------------------" />
+        <echo message="----------------------- Building ${param.subproject} ------------------" />
         <ant antfile="${param.subproject}/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
         <ant antfile="${param.subproject}/build.xml" useNativeBasedir="true" inheritAll="false" target="milestone" />
     </target>
 
     <!-- ............................... -->
-    <target name="buildAuburn" depends="buildLittleware,auburn-check" if="auburn.exists"
-    description="Build the Auburn/ projects, and the littleware/ projects that depend on them"
+    <target name="buildCatalog" depends="buildLittleware,cat-check" if="catalog.exists"
+    description="Build the Catalog/ projects, and the littleware/ projects that depend on them"
    >
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/AuLibrary" />
+            <param name="param.subproject" value="Catalog/AuLibrary" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/Voyager" />
+            <param name="param.subproject" value="Catalog/Voyager" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/VufindRegression" />
+            <param name="param.subproject" value="Catalog/VufindRegression" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/AuUnicodeFilter" />
+            <param name="param.subproject" value="Catalog/AuUnicodeFilter" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/CatRequest" />
+            <param name="param.subproject" value="Catalog/CatRequest" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/ClickCount" />
+            <param name="param.subproject" value="Catalog/ClickCount" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/EbscoX" />
+            <param name="param.subproject" value="Catalog/EbscoX" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/ETD/EtdX" />
+            <param name="param.subproject" value="Catalog/ETD/EtdX" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/I18n" />
+            <param name="param.subproject" value="Catalog/I18n" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/MarcDownload" />
+            <param name="param.subproject" value="Catalog/MarcDownload" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/MarcViewer" />
+            <param name="param.subproject" value="Catalog/MarcViewer" />
         </antcall>        
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/Vygr2Vfnd" />
+            <param name="param.subproject" value="Catalog/Vygr2Vfnd" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/FishProject/Minnows" />
+            <param name="param.subproject" value="Catalog/FishProject/Minnows" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/RefStat" />
+            <param name="param.subproject" value="Catalog/RefStat" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="Auburn/CircRequest" />
+            <param name="param.subproject" value="Catalog/CircRequest" />
         </antcall>
         <antcall target="buildSubproject">
             <param name="param.subproject" value="ProductBrowser/SwingBrowser" />
@@ -88,21 +88,21 @@
             
     </target>
 
-    <target name="javadoc" depends="buildAuburn" description="build javadoc/scaladoc projects">
+    <target name="javadoc" depends="buildCatalog" description="build javadoc/scaladoc projects">
         <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="clean" />
         <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="javadoc" />
         <ant antfile="javadoc/build.xml" useNativeBasedir="true" inheritAll="false" target="scaladoc" />
     </target>
 
-    <target name="buildAll" depends="buildLittleware,buildAuburn,javadoc"
-    description="Build the littleware and Auburn/ subprojects" 
+    <target name="buildAll" depends="buildLittleware,buildCatalog,javadoc"
+    description="Build the littleware and Catalog/ subprojects" 
     />
 
     <target name="buildAndTest" depends="buildAll" description="buildAll, then run regression tests on subprojects">
             <ant antfile="littleware/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="littleApps/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
-            <ant antfile="Auburn/AuLibrary/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
-            <ant antfile="Auburn/MarcViewer/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="Catalog/AuLibrary/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="Catalog/MarcViewer/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
     </target>
 </project>

@@ -144,7 +144,7 @@ public class PropertiesLoader {
      * 
      * @return "littleware.properties"
      */
-    public String  getDefaultProps () {
+    public final String  getDefaultProps () {
         return "littleware.properties";
     }
     
@@ -228,11 +228,11 @@ public class PropertiesLoader {
      * Prevent unauthorized code from loading config files by setting
      * file-access security policies on the directories where the properties live.
      *
-     * @param name should be file basename and System property override
-     * @return loaded (if possible) + defaults properties or cache under s_name
+     * @param name properties path
+     * @return loaded (if possible) + defaults properties or cache under name
      * @exception IOException if file exists, but load fails
      */
-    public synchronized Properties loadProperties(String name ) throws IOException {
+    public final synchronized Properties loadProperties(String name ) throws IOException {
         Properties prop_filedata = cache.get(name);
 
         log.log( Level.FINE, "Attempting to load properties for: " + name +

@@ -18,7 +18,7 @@ import javax.swing.JFileChooser;
 
 import javax.swing.JTextField;
 
-class FileBrowseAction extends AbstractAction {
+public class FileBrowseAction extends AbstractAction {
 
     private final JTextField jtextField;
 

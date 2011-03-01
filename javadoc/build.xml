@@ -37,24 +37,24 @@
     <packageset dir="../lgoServer/src/main/java" defaultexcludes="yes">
        <include name="littleware/**" />
     </packageset>    
-    <packageset dir="../Auburn/AuLibrary/src/main/java" defaultexcludes="yes">
+    <packageset dir="../Catalog/AuLibrary/src/main/java" defaultexcludes="yes">
        <include name="edu/auburn/**" />
     </packageset>
-    <packageset dir="../Auburn/Voyager/src/main/java" defaultexcludes="yes">
+    <packageset dir="../Catalog/Voyager/src/main/java" defaultexcludes="yes">
        <include name="edu/auburn/**" />
     </packageset>        
-    <packageset dir="../Auburn/AuUnicodeFilter/src" defaultexcludes="yes">
+    <packageset dir="../Catalog/AuUnicodeFilter/src" defaultexcludes="yes">
        <include name="schema/**" />
     </packageset>    
-    <packageset dir="../Auburn/CatRequest/src/main/java" defaultexcludes="yes">
+    <packageset dir="../Catalog/CatRequest/src/main/java" defaultexcludes="yes">
        <include name="edu/auburn/**" />
     </packageset>    
-    <packageset dir="../Auburn/ClickCount/src/main/java" defaultexcludes="yes">
+    <packageset dir="../Catalog/ClickCount/src/main/java" defaultexcludes="yes">
        <include name="edu/auburn/**" />
     </packageset>    
 
     <doctitle><![CDATA[<h1>littleware and auburn</h1>]]></doctitle>
-    <bottom><![CDATA[<i>Copyright &#169; 2010 littleware.  Licensed to public under GPL v2.0.</i>]]></bottom>
+    <bottom><![CDATA[<i>Copyright &#169; 2011 <a href="http://frickjack.com">http://frickjack.com</a>.  Licensed to public under GPL v2.0.</i>]]></bottom>
           <!--
     <tag name="todo" scope="all" description="To do:"/>
     <group title="Group 1 Packages" packages="com.dummy.test.a*"/>
@@ -67,24 +67,24 @@
 
 
  <path id="scaladoc.src">
-     <pathelement location="../Auburn/AuLibrary/src/main/scala" />
-     <pathelement location="../Auburn/AuLibrary/src/main/java" />
-     <pathelement location="../Auburn/Voyager/src/main/scala" />
-     <pathelement location="../Auburn/Voyager/src/main/java" />
-      <pathelement location="../Auburn/EbscoX/src/main/scala" />
-      <pathelement location="../Auburn/ETD/EtdX/src/main/scala" />
-      <pathelement location="../Auburn/Vygr2Vfnd/src/main/scala" />
-      <pathelement location="../Auburn/VufindRegression/src/main/scala" />
-      <pathelement location="../Auburn/FishProject/Minnows/src/main/scala" />
-      <pathelement location="../Auburn/RefStat/src/main/scala" />
-      <pathelement location="../Auburn/CircRequest/src/main/scala" />
-      <pathelement location="../Auburn/CatRequest/src/main/scala" />
-      <pathelement location="../Auburn/CatRequest/src/main/java" />
-      <pathelement location="../Auburn/ClickCount/src/main/scala" />
-      <pathelement location="../Auburn/ClickCount/src/main/java" />
-      <pathelement location="../Auburn/I18n/src/main/scala" />
-      <pathelement location="../Auburn/MarcDownload/src" />
-      <pathelement location="../Auburn/MarcViewer/src" />
+     <pathelement location="../Catalog/AuLibrary/src/main/scala" />
+     <pathelement location="../Catalog/AuLibrary/src/main/java" />
+     <pathelement location="../Catalog/Voyager/src/main/scala" />
+     <pathelement location="../Catalog/Voyager/src/main/java" />
+      <pathelement location="../Catalog/EbscoX/src/main/scala" />
+      <pathelement location="../Catalog/ETD/EtdX/src/main/scala" />
+      <pathelement location="../Catalog/Vygr2Vfnd/src/main/scala" />
+      <pathelement location="../Catalog/VufindRegression/src/main/scala" />
+      <pathelement location="../Catalog/FishProject/Minnows/src/main/scala" />
+      <pathelement location="../Catalog/RefStat/src/main/scala" />
+      <pathelement location="../Catalog/CircRequest/src/main/scala" />
+      <pathelement location="../Catalog/CatRequest/src/main/scala" />
+      <pathelement location="../Catalog/CatRequest/src/main/java" />
+      <pathelement location="../Catalog/ClickCount/src/main/scala" />
+      <pathelement location="../Catalog/ClickCount/src/main/java" />
+      <pathelement location="../Catalog/I18n/src/main/scala" />
+      <pathelement location="../Catalog/MarcDownload/src" />
+      <pathelement location="../Catalog/MarcViewer/src" />
       <pathelement location="../ProductBrowser/SwingBrowser/src/main/scala" />
     <!--
     <pathelement path="${java.class.path}/"/>
@@ -122,7 +122,7 @@
       srcref="scaladoc.src" 
       destdir="api/scaladoc"
       deprecation="yes" unchecked="yes"
-      doctitle="Auburn and Littleware Tools"
+      doctitle="Littleware Tools"
       classpath="${ivy.compile.classpath}"
        >
        <!--

@@ -60,10 +60,10 @@
        <mapper type="glob" from="*zSNAPSHOT-jar.jar" to="*b${buildId}-jar.jar"/>
   </copy>
   
-  <ant antfile="../Auburn/webapp/build.xml" useNativeBasedir="true" inheritAll="false" target="dist" />
+  <ant antfile="../Catalog/webapp/build.xml" useNativeBasedir="true" inheritAll="false" target="dist" />
   <copy todir="${dist.dir}/littleware/webapp" includeemptydirs="false">
-       <fileset dir="../Auburn/webapp/dist/" />  
-       <mapper type="glob" from="*webapp.war" to="AuCataloging.war"/>
+       <fileset dir="../Catalog/webapp/dist/" />  
+       <mapper type="glob" from="*webapp.war" to="littleCat.war"/>
   </copy>
   
 </target>

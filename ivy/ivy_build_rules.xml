@@ -123,6 +123,12 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     <available file="cli" property="cli.exists"/>
 </target>
 
+<target name="-set-buildId" unless="buildId">
+    <tstamp>
+        <format property="buildId" pattern="yyyyMMdd.HHmm" />
+    </tstamp>
+</target>
+
 <target name="-post-jar"
         depends="-init-project,cli-check"
         if="cli.exists"
@@ -153,10 +159,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
          <delete dir="${ivy.cache.dir}/${ivy.organisation}" />
     </target>
     
-<target name="milestone" depends="publish" description="deliver MILESTONE build to local repository">
-    <tstamp>
-        <format property="buildId" pattern="yyyyMMdd.HHmm" />
-    </tstamp>
+<target name="milestone" depends="publish,-set-buildId" description="deliver MILESTONE build to local repository">
 	<ivy:publish  overwrite="true"
 			           resolver="local"
 			           pubrevision="${ivy.deliver.revision}.b${buildId}"

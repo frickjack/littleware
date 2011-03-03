@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
@@ -117,9 +118,13 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
                 );
         //System.setProperty( "org.osgi.framework.storage", PropertiesLoader.get().getLittleHome().toString() + "/osgi_cache" );
         {
-            // setup cache under little home
-            final File cacheDir = PropertiesLoader.get().getLittleHome().
-                    getOr(new File(System.getProperty("java.io.tmpdir")));
+            // setup cache out of the way -
+            // not used by littleware, but otherwise felix leaves
+            // annoying directories laying around.
+            // Note - felix tries to lock the directory, so create a new one every time - bla
+            final File cacheDir = new File( new File(System.getProperty("java.io.tmpdir")),
+                    "littleFelixCache_" + UUID.randomUUID()
+                    );
             felixPropertyMap.put(BundleCache.CACHE_ROOTDIR_PROP, cacheDir.toString());
         }
         felixPropertyMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activatorList);

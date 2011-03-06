@@ -169,7 +169,7 @@ public class SessionHelperProxy implements SessionHelperService {
         @Override
         public Object invoke(Object proxy, Method method_call, Object[] v_args) throws Throwable {
             // Try to reset service reference on RemoteException
-            RemoteExceptionHandler handler_retry = new RemoteExceptionHandler() {
+            final RemoteExceptionHandler handler_retry = new RemoteExceptionHandler() {
 
                 @Override
                 public void handle(RemoteException e_remote) throws RemoteException {
@@ -216,19 +216,23 @@ public class SessionHelperProxy implements SessionHelperService {
                     } else {
                         return method_call.invoke(om_service, v_args);
                     }
-                } catch (RemoteException e) {
-                    handler_retry.handle(e);
+                } catch (RemoteException ex) {
+                    handler_retry.handle(ex);
+                } catch (NullPointerException ex) {
+                    // running into issue with proxy throwing NullPointerException after laptop resume,
+                    // so retry on NullPointerException like a RemoteException
+                    handler_retry.handle( new RemoteException( "Service is null?", ex ) );
                 } catch (IllegalAccessException e) {
                     throw new AssertionFailedException("Illegal access: " + e, e);
                 } catch (InvocationTargetException e) {
-                    Throwable err = e.getCause();
+                    final Throwable cause = e.getCause();
 
-                    if (err instanceof RemoteException) {
-                        handler_retry.handle((RemoteException) err);
-                    } else if (err instanceof Exception) {
-                        throw (Exception) err;
-                    } else if (err instanceof Error) {
-                        throw (Error) err;
+                    if (cause instanceof RemoteException) {
+                        handler_retry.handle((RemoteException) cause);
+                    } else if (cause instanceof Exception) {
+                        throw (Exception) cause;
+                    } else if (cause instanceof Error) {
+                        throw (Error) cause;
                     } else {
                         throw new AssertionFailedException("Unexpected throwable error: " + e, e);
                     }
@@ -257,10 +261,10 @@ public class SessionHelperProxy implements SessionHelperService {
         }
 
         m_service = getNewCoreService(n_type);
-        InvocationHandler handler_retry = new RemoteRetryInvocationHandler<T>(m_service, n_type);
+        final InvocationHandler handler_retry = new RemoteRetryInvocationHandler<T>(m_service, n_type);
 
-        log.log(Level.FINE, "Setting up service " + n_type + " using object of class: " +
-                m_service.getClass().toString());
+        log.log(Level.FINE, "Setting up service " + n_type + " using object of class: "
+                + m_service.getClass().toString());
         final Class<T> class_service = n_type.getInterface();
         m_service = (T) Proxy.newProxyInstance(class_service.getClassLoader(),
                 new Class[]{class_service},
@@ -284,7 +288,7 @@ public class SessionHelperProxy implements SessionHelperService {
             m_service = om_real.getService(n_type);
         } catch (RemoteException e) {
             final SessionHelper helper = om_session.getSessionHelper(ou_session);
-            if ( helper instanceof SessionHelperProxy ) {
+            if (helper instanceof SessionHelperProxy) {
                 om_real = ((SessionHelperProxy) helper).om_real;
             } else {
                 om_real = helper;
@@ -334,7 +338,6 @@ public class SessionHelperProxy implements SessionHelperService {
             }
         }
     }
-
     private transient List<LittleServiceListener> ovListener = new ArrayList<LittleServiceListener>();
 
     /**
@@ -359,6 +362,4 @@ public class SessionHelperProxy implements SessionHelperService {
             service.removeServiceListener(listener);
         }
     }
-
-
 }

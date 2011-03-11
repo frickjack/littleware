@@ -11,9 +11,9 @@
 package littleware.apps.tracker.browser.model
 
 import com.google.inject.Provider
-import edu.auburn.library.util.AuburnHelper
 import littleware.asset.AssetPath
 import littleware.base.ValidationException
+import littleware.scala.LittleHelper
 
 object ProductDataProvider extends Provider[ProductData.Builder] {
 
@@ -24,7 +24,7 @@ object ProductDataProvider extends Provider[ProductData.Builder] {
         Option( parentPath ).getOrElse(
           { throw new ValidationException( "Empty product parent") }
         ),
-        AuburnHelper.emptyCheck( name  ).getOrElse(
+        LittleHelper.emptyCheck( name  ).getOrElse(
           { throw new ValidationException( "Empty name" ) }
         ),
         comment

@@ -23,7 +23,7 @@
     </publications>
     
     <dependencies>    
-      <dependency org="auburn.library" name="auLibrary" rev="1.2.+" 
+      <dependency org="littleware" name="littleScala" rev="2.3.+" 
                   conf="compile->compile;client->client;ee_client->ee_client" 
                   />
       <dependency org="littleware" name="littleWeb" rev="2.3.+" conf="compile->compile;ee_client->ee_client;client->client" />

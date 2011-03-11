@@ -11,8 +11,6 @@
 package littleware.apps.tracker.browser.web
 
 import com.google.inject.Inject
-import edu.auburn.library.util.AuburnHelper
-import edu.auburn.library.util.LazyLogger
 import java.util.UUID
 import java.util.logging.Level
 import javax.faces.bean.ManagedBean
@@ -20,6 +18,7 @@ import javax.faces.bean.SessionScoped
 import littleware.apps.tracker.browser.controller
 import littleware.apps.tracker.browser.model.NeighborInfo
 import littleware.base.UUIDFactory
+import littleware.scala.LazyLogger
 import littleware.security.LittleUser
 import littleware.web.beans.InjectMeBean
 import scala.collection.JavaConversions._

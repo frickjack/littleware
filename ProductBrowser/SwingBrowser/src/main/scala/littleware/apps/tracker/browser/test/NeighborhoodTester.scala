@@ -11,11 +11,11 @@
 package littleware.apps.tracker.browser.test
 
 import com.google.inject.Inject
-import edu.auburn.library.util.LazyLogger
 import java.util.logging.Level
 import junit.framework.Assert
 import littleware.apps.tracker.browser.controller.Controller
 import littleware.asset.AssetSearchManager
+import littleware.scala.LazyLogger
 import littleware.security.LittleUser
 import littleware.test.LittleTest
 

@@ -13,7 +13,6 @@ package littleware.apps.tracker.browser.controller
 import com.google.inject.Inject
 import littleware.apps.tracker.{Member,Product,Version, ProductManager}
 import com.google.inject.Provider
-import edu.auburn.library.util.LazyLogger
 import java.security.GeneralSecurityException
 import java.util.UUID
 import java.util.logging.Level
@@ -27,6 +26,7 @@ import littleware.asset.AssetType
 import littleware.base.BaseException
 import littleware.base.feedback.Feedback
 import scala.collection.JavaConversions._
+import littleware.scala.LazyLogger
 import scala.Option._
 
 

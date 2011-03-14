@@ -8,17 +8,19 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.base;
+package littleware.base.validate;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Aggregate several validators
  */
-public class CompoundValidator implements Validator {
-    private final List<Validator> validatorSet;
+public class CompoundValidator extends AbstractValidator implements Validator {
+    private final ImmutableList<Validator> validatorSet;
 
     protected CompoundValidator( Validator ... validators ) {
         validatorSet = ImmutableList.copyOf( Arrays.asList( validators ) );
@@ -29,10 +31,14 @@ public class CompoundValidator implements Validator {
     }
 
     @Override
-    public final void validate() {
+    public final Collection<String> checkIfValid() {
         for( Validator check : validatorSet ) {
-            check.validate();
+            final Collection<String> errors = check.checkIfValid();
+            if( ! errors.isEmpty() ) {
+                return errors;
+            }
         }
+        return Collections.emptyList();
     }
 
 
@@ -43,4 +49,5 @@ public class CompoundValidator implements Validator {
     public static Validator build( Iterable<? extends Validator> validators ) {
         return new CompoundValidator( validators );
     }
+
 }

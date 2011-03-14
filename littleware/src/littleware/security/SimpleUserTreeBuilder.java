@@ -14,7 +14,7 @@ import com.google.inject.Provider;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.AssetType;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 
 /**
  * Simple UserTreeBuilder implementation sets up tree-template

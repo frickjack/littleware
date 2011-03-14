@@ -31,7 +31,7 @@ import java.util.zip.ZipOutputStream;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import littleware.apps.tracker.MemberIndex.IndexBuilder;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 import littleware.base.Whatever;
 import littleware.base.XmlSpecial;
 import littleware.base.feedback.Feedback;

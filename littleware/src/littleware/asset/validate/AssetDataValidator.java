@@ -10,9 +10,11 @@
 
 package littleware.asset.validate;
 
+import java.util.Collection;
+import java.util.Collections;
 import littleware.asset.AssetBuilder;
-import littleware.base.AbstractValidator;
-import littleware.base.Validator;
+import littleware.base.validate.AbstractValidator;
+import littleware.base.validate.Validator;
 
 /**
  * Validate an AssetBuilder's Data property
@@ -25,10 +27,12 @@ public class AssetDataValidator {
     public Validator build( final String data ) {
         return new AbstractValidator(){
             @Override
-            public void validate() {
-                assume( AssetDataValidator.this.validate( data ),
-                        "Asset data < 1024 characters"
-                        );
+            public Collection<String> checkIfValid() {
+                if( ! AssetDataValidator.this.validate( data ) ) {
+                    return Collections.singletonList( "Asset data < 1024 characters" );
+                } else {
+                    return Collections.emptyList();
+                }
             }
         };
     }
@@ -39,10 +43,8 @@ public class AssetDataValidator {
     public Validator build( final AssetBuilder builder ) {
         return new AbstractValidator(){
             @Override
-            public void validate() {
-                assume( AssetDataValidator.this.validate( builder.getData() ),
-                        "Asset data < 1024 characters"
-                        );
+            public Collection<String> checkIfValid() {
+                return build( builder.getData() ).checkIfValid();
             }
         };
     }

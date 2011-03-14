@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 
 
 /**

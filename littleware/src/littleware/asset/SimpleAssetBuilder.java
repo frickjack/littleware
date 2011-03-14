@@ -9,6 +9,8 @@
  */
 package littleware.asset;
 
+import littleware.base.validate.ValidationException;
+import littleware.base.validate.AbstractValidator;
 import com.google.common.collect.ImmutableMap;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -24,7 +26,7 @@ import littleware.base.*;
 /**
  * Asset data-bucket base-class.
  */
-public class SimpleAssetBuilder implements AssetBuilder {
+public class SimpleAssetBuilder extends AbstractValidator implements AssetBuilder {
 
     private static final Factory<UUID> uuidFactory = UUIDFactory.getFactory();
     private static final Logger log = Logger.getLogger(SimpleAssetBuilder.class.getName());
@@ -51,7 +53,7 @@ public class SimpleAssetBuilder implements AssetBuilder {
     private int state = 0;
     private PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
     private long transaction = -1L;
-    private final AssetBuilderValidator validator;
+    private final AssetBuilderValidator validatorBuilder;
     private final Map<String, UUID> linkMap = new HashMap<String, UUID>();
     private final Map<String, UUID> roLinkMap = Collections.unmodifiableMap(linkMap);
     private final Map<String, String> attributeMap = new HashMap<String, String>();
@@ -105,9 +107,9 @@ public class SimpleAssetBuilder implements AssetBuilder {
     /**
      * Constructor with validator override
      */
-    public SimpleAssetBuilder(AssetType assetType, AssetBuilderValidator validator) {
+    public SimpleAssetBuilder(AssetType assetType, AssetBuilderValidator validatorBuilder) {
         this.assetType = assetType;
-        this.validator = validator;
+        this.validatorBuilder = validatorBuilder;
     }
 
     @Override
@@ -848,8 +850,8 @@ public class SimpleAssetBuilder implements AssetBuilder {
     }
 
     @Override
-    public void validate() {
-        validator.build(this).validate();
+    public Collection<String> checkIfValid() {
+        return validatorBuilder.build(this).checkIfValid();
     }
 
     @Override

@@ -26,7 +26,7 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.server.NullAssetSpecializer;
 import littleware.base.BaseException;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 
 /**
  * Specializer for product-tracking asset types

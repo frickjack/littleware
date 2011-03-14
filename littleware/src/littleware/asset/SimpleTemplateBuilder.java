@@ -19,7 +19,7 @@ import littleware.asset.AssetTreeTemplate.ByAssetBuilder;
 import littleware.asset.AssetTreeTemplate.ByPathBuilder;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 
 /**
  * Simple implementation of AssetTreeTemplate and supporting interfaces

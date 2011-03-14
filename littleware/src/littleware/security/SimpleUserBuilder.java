@@ -11,7 +11,7 @@
 package littleware.security;
 
 import littleware.asset.SimpleAssetBuilder;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 import static littleware.security.LittleUser.Status;
 
 

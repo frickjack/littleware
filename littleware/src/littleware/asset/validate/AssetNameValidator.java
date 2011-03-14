@@ -7,40 +7,42 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.validate;
 
+import java.util.Collection;
+import java.util.Collections;
 import littleware.asset.AssetBuilder;
-import littleware.base.AbstractValidator;
-import littleware.base.Validator;
+import littleware.base.validate.AbstractValidator;
+import littleware.base.validate.Validator;
 
 /**
  * Validate whether a given name is valid or not
  */
 public class AssetNameValidator {
 
-    public boolean validate( String name ) {
+    public boolean validate(String name) {
         return name.matches("^\\w[\\w-#:\\.]*$");
     }
 
-    public Validator build( final String assetName ) {
+    public Validator build(final String assetName) {
         return new AbstractValidator() {
+
             @Override
-            public void validate() {
-                assume( AssetNameValidator.this.validate( assetName ),
-                        "Valid asset name: " + assetName
-                        );
+            public Collection<String> checkIfValid() {
+                if (!AssetNameValidator.this.validate(assetName)) {
+                    return Collections.singletonList("asset name is invalid: " + assetName);
+                }
+                return Collections.emptyList();
             }
         };
     }
 
-    public Validator build( final AssetBuilder builder ) {
-        return new AbstractValidator(){
+    public Validator build(final AssetBuilder builder) {
+        return new AbstractValidator() {
 
             @Override
-            public void validate() {
-                assume( AssetNameValidator.this.validate( builder.getName() ),
-                        "Valid asset name: " + builder.getName() );
+            public Collection<String> checkIfValid() {
+                return build(builder.getName()).checkIfValid();
             }
         };
     }

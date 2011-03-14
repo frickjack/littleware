@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import littleware.base.LittleBean;
-import littleware.base.Validator;
+import littleware.base.validate.Validator;
 
 
 public interface AssetBuilder extends LittleBean, Validator {

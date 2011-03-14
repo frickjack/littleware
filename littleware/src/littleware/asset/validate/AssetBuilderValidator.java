@@ -11,7 +11,7 @@
 package littleware.asset.validate;
 
 import littleware.asset.AssetBuilder;
-import littleware.base.Validator;
+import littleware.base.validate.Validator;
 
 /**
  * Validate AssetBuilder properties are in propert state

@@ -30,7 +30,7 @@ import littleware.base.*;
  * of XML-based getData/setData via annotations.
  */
 public class XmlAssetTester extends TestCase {
-    private static Logger log = Logger.getLogger(XmlAssetTester.class.getName());
+    private static final Logger log = Logger.getLogger(XmlAssetTester.class.getName());
 
     /**
      * Do nothing constructor - just pass the test-name through to super.

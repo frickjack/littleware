@@ -9,6 +9,7 @@
  */
 package littleware.security;
 
+import littleware.base.validate.ValidationException;
 import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import java.util.logging.Logger;

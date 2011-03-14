@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 import littleware.apps.swingbase.controller.SwingBaseTool;
 import littleware.apps.swingbase.model.BaseData;
 import littleware.apps.swingclient.FeedbackBundle;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 import littleware.base.feedback.Feedback;
 import littleware.bootstrap.client.AbstractClientModule;
 import littleware.bootstrap.client.AppBootstrap;

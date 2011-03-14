@@ -34,7 +34,7 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.server.db.jpa.JpaLittleTransaction;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 
 
 @Singleton

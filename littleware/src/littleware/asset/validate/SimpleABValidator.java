@@ -7,26 +7,26 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.validate;
 
 import com.google.inject.Inject;
+import java.util.Collection;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
-import littleware.base.AbstractValidator;
-import littleware.base.CompoundValidator;
-import littleware.base.Validator;
+import littleware.base.validate.AbstractValidator;
+import littleware.base.validate.CompoundValidator;
+import littleware.base.validate.Validator;
 
 public class SimpleABValidator implements AssetBuilderValidator {
+
     private final AssetNameValidator nameValidator;
     private final AssetDataValidator dataValidator;
     private final AssetAttrValidator attrValidator;
 
     @Inject
-    public SimpleABValidator( AssetNameValidator nameValidator,
+    public SimpleABValidator(AssetNameValidator nameValidator,
             AssetDataValidator dataValidator,
-            AssetAttrValidator attrValidator
-            ) {
+            AssetAttrValidator attrValidator) {
         this.nameValidator = nameValidator;
         this.dataValidator = dataValidator;
         this.attrValidator = attrValidator;
@@ -36,39 +36,25 @@ public class SimpleABValidator implements AssetBuilderValidator {
      * Self injecting constructor
      */
     public SimpleABValidator() {
-        this( new AssetNameValidator(), new AssetDataValidator(),
-                new AssetAttrValidator()
-                );
+        this(new AssetNameValidator(), new AssetDataValidator(),
+                new AssetAttrValidator());
     }
-
 
     @Override
-    public Validator build( final AssetBuilder builder ) {
+    public Validator build(final AssetBuilder builder) {
         return new CompoundValidator(
                 nameValidator.build(builder),
-                dataValidator.build( builder ),
+                dataValidator.build(builder),
                 attrValidator.build(builder),
-                new AbstractValidator(){
+                new AbstractValidator() {
 
-            @Override
-            public void validate() {
-                assume( (null != builder.getId())
-                        && (null != builder.getHomeId())
-                        && (
-                            AssetType.HOME.equals( builder.getAssetType() )
-                            ^ (null != builder.getFromId())
-                            )
-                        && (
-                            AssetType.HOME.equals( builder.getAssetType() )
-                            ^ (! builder.getId().equals( builder.getHomeId() ))
-                            ),
-                            "Home-id, From-id check passed"
-                            );
-            }
-        }
-        ) {};
+                    @Override
+                    public Collection<String> checkIfValid() {
+                        return buildErrorTracker().check((null != builder.getId()), "id must be set").check((null != builder.getHomeId()), "homeId must be set").check((AssetType.HOME.equals(builder.getAssetType())
+                                ^ (null != builder.getFromId())), "exactly one of home-type asset and non-null fromId must be true").check((AssetType.HOME.equals(builder.getAssetType())
+                                ^ (!builder.getId().equals(builder.getHomeId()))), "homeId == id for home-type asset, otherwise homeId != id").getErrors();
+                    }
+                }) {
+        };
     }
-
 }
-
-

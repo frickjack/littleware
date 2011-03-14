@@ -13,7 +13,6 @@
     <description>Builds, tests, and runs the project littleware.</description>
     <property name="ivy.deliver.revision" value="2.3" />
     <property name="test.classFile" value="littleware/test/PackageTestSuite.class" />
-    <property name="test.class.name" value="littleware.test.PackageTestSuite" />
     <import file="../ivy/ivy_build_rules.xml"/>
     <import file="nbproject/build-impl.xml"/>
     <!--

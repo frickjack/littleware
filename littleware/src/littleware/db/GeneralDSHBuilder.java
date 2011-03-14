@@ -16,7 +16,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import littleware.base.Maybe;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 import littleware.db.DataSourceHandler.DSHBuilder;
 import oracle.jdbc.pool.OracleDataSource;
 

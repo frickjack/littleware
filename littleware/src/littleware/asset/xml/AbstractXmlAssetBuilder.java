@@ -19,7 +19,7 @@ import littleware.asset.AssetBuilder;
 
 import littleware.asset.AssetType;
 import littleware.asset.SimpleAssetBuilder;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 
 public abstract class AbstractXmlAssetBuilder extends SimpleAssetBuilder implements XmlAssetBuilder {
     public AbstractXmlAssetBuilder( AssetType assetType ) {

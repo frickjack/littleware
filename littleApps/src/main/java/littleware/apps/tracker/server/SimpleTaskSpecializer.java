@@ -29,10 +29,9 @@ import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.AssetInfo;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.server.NullAssetSpecializer;
-import littleware.base.AbstractValidator;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
-import littleware.base.ValidationException;
+import littleware.base.validate.ValidationException;
 import org.joda.time.DateTime;
 import org.joda.time.ReadableDateTime;
 
@@ -50,6 +49,12 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
     private final Provider<BuilderStart> queryBuilder;
     private final AssetManager assetMgr;
     private final Provider<TemplateBuilder> treeBuilder;
+
+    private void assume( boolean test, String message ) {
+        if( ! test ) {
+            throw new ValidationException( message );
+        }
+    }
 
     @Inject
     public SimpleTaskSpecializer(AssetSearchManager search,
@@ -129,13 +134,13 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
     public void postUpdateCallback(Asset old, Asset current) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Task oldTask = old.narrow();
         final Task currentTask = current.narrow();
-        AbstractValidator.assume(oldTask.getQueueId().equals(currentTask.getQueueId()),
+        assume(oldTask.getQueueId().equals(currentTask.getQueueId()),
                 "May not move a task between queues");
 
         final Queue queue = search.getAsset(currentTask.getQueueId()).get().narrow();
         if (!old.getName().equals(current.getName())) {
             final TaskQuery query = queryBuilder.get().queue(queue).withTaskName(currentTask.getName()).build();
-            AbstractValidator.assume(
+            assume(
                     queryManager.runQuery(query).size() <= 1,
                     "May not have more than one task with the same name " + currentTask.getName()
                     + " under queue " + queue.getName() + " (" + queue.getId() + ")");

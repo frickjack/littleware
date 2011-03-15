@@ -13,15 +13,19 @@ package littleware.apps.littleId.internal
 import java.net.URL
 import littleware.apps.littleId.OIdUserCreds
 
-object SimpleOIdUserBuilder {
-  case class SimpleOIdUser( override val email:String,
-                           override val openId:URL
-  ) extends OIdUserCreds {}
+object OIdUserBuilder {
+  case class SimpleOIdUser(
+    @scala.reflect.BeanProperty
+    email:String,
+    @scala.reflect.BeanProperty
+    openId:URL
+  ) extends OIdUserCreds {
+  }
 }
 
-class SimpleOIdUserBuilder extends OIdUserCreds.Builder {
+class OIdUserBuilder extends OIdUserCreds.Builder {
   override def build:OIdUserCreds = {
     this.validate()
-    new SimpleOIdUserBuilder.SimpleOIdUser( email, openId )
+    OIdUserBuilder.SimpleOIdUser( email, openId )
   }
 }

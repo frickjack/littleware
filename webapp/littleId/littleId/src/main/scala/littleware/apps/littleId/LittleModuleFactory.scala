@@ -22,11 +22,11 @@ object LittleModuleFactory {
 
   class LittleModule ( profile:AppBootstrap.AppProfile ) extends AbstractClientModule( profile ) {
     override def configure( binder:Binder ):Unit = {
-      binder.bind( classOf[OIdUserCreds.Builder]).to( classOf[internal.SimpleOIdUserBuilder] )
+      binder.bind( classOf[OIdUserCreds.Builder]).to( classOf[internal.OIdUserBuilder] )
       binder.bind( classOf[server.controller.OpenIdTool]
                   ).to( classOf[server.controller.internal.SimpleOidTool]
                   ).in( Scopes.SINGLETON )
-
+      binder.bind( classOf[server.model.AuthResponse.Builder] ).to( classOf[server.model.internal.AuthResponseBuilder] )
     }
   }
 

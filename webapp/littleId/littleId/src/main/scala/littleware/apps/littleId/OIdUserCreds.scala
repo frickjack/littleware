@@ -33,7 +33,7 @@ object OIdUserCreds {
       this
     }
 
-    override def runCheck():Seq[String] = LittleValidator.helper.
+    override def checkSanity():Seq[String] = LittleValidator.helper.
           check( LittleHelper.emptyCheck( email ).isDefined, "Email defined"
                 ).check( null != openId, "OpenId URL defined"
                 ).errors

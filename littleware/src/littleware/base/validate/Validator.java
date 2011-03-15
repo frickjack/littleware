@@ -26,4 +26,5 @@ public interface Validator {
      * @return empty message collection on validation success, one or messages on validation failure
      */
     public Collection<String> checkIfValid();
+
 }

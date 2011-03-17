@@ -8,7 +8,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.base;
+package littleware.base.cache;
 
 import java.util.UUID;
 

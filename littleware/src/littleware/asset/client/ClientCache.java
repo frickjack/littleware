@@ -12,7 +12,7 @@ package littleware.asset.client;
 import com.google.inject.ImplementedBy;
 import java.util.UUID;
 import littleware.asset.Asset;
-import littleware.base.Cache;
+import littleware.base.cache.Cache;
 
 
 /**

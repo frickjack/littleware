@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.base;
+package littleware.base.cache;
 
 import java.io.Serializable;
 import java.util.UUID;

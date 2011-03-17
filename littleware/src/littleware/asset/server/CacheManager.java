@@ -13,7 +13,7 @@ package littleware.asset.server;
 import littleware.asset.*;
 import java.util.*;
 
-import littleware.base.Cache;
+import littleware.base.cache.Cache;
 
 /**
  * Internal API for managing the asset-cache on and between servers.

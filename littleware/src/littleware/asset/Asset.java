@@ -12,7 +12,7 @@ package littleware.asset;
 import java.util.UUID;
 import java.util.Date;
 import java.util.Map;
-import littleware.base.CacheableObject;
+import littleware.base.cache.CacheableObject;
 import littleware.base.Maybe;
 
 /**

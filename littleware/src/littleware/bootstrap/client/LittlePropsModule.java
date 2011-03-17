@@ -15,6 +15,8 @@ import com.google.inject.Binder;
 import java.io.IOException;
 import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesGuice;
+import littleware.base.cache.Cache;
+import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.bootstrap.client.AppBootstrap.AppProfile;
 
 /**
@@ -38,6 +40,7 @@ public class LittlePropsModule extends AbstractClientModule {
     public void configure( Binder binder ) {
         try {
             (new PropertiesGuice()).configure(binder);
+            binder.bind( Cache.Builder.class ).to( InMemoryCacheBuilder.class );
         } catch (IOException ex) {
             throw new AssertionFailedException( "Unexpected failure loading littleware.properties", ex );
         }

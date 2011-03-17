@@ -9,6 +9,7 @@
  */
 package littleware.asset;
 
+import littleware.base.cache.SimpleCacheableObject;
 import littleware.base.validate.ValidationException;
 import littleware.base.validate.AbstractValidator;
 import com.google.common.collect.ImmutableMap;

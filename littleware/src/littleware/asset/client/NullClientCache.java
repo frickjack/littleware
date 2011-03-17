@@ -11,23 +11,29 @@
 
 package littleware.asset.client;
 
+import com.google.inject.Inject;
 import java.util.UUID;
 import littleware.asset.Asset;
-import littleware.base.Cache;
-import littleware.base.NullCache;
+import littleware.base.cache.Cache;
+import littleware.base.cache.NullCacheBuilder;
 
 /**
  * NOOP ClientCache
  */
 public class NullClientCache implements ClientCache, java.io.Serializable {
     private static final long serialVersionUID = 42234L;
+    private Cache<String,Object> cache;
+
+    @Inject
+    public NullClientCache( NullCacheBuilder cacheBuilder ) {
+        this.cache = cacheBuilder.build();
+    }
 
     @Override
     public long getTransaction() {
         return 0L;
     }
 
-    private final Cache<String,Object> cache = new NullCache<String,Object>();
 
     @Override
     public Cache<String, Object> getCache() {

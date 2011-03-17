@@ -10,6 +10,7 @@
 
 package littleware.asset.server;
 
+import littleware.base.cache.Cache;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.rmi.RemoteException;
@@ -22,6 +23,7 @@ import java.security.GeneralSecurityException;
 import littleware.asset.*;
 import littleware.asset.server.db.*;
 import littleware.base.*;
+import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.security.*;
 import littleware.db.*;
 
@@ -38,15 +40,16 @@ import littleware.db.*;
  */
 public class SimpleCacheManager implements CacheManager {
 
-    private static final Logger olog_generic = Logger.getLogger( SimpleCacheManager.class.getName() );
+    private static final Logger log = Logger.getLogger( SimpleCacheManager.class.getName() );
+
     public final static int OI_MAXSIZE = 100000;
     public final static int OI_MAXSECS = 1000000; // no max age
     /**
      * Need to track null cache-entries separately,
-     * since littleware.base.Cache assumes non-null values.
+     * since littleware.base.cache.Cache assumes non-null values.
      */
-    private Set<UUID> ov_null_entries = Collections.synchronizedSet(new HashSet<UUID>());
-    private Cache<UUID, Asset> ocache_asset = new SimpleCache<UUID, Asset>(OI_MAXSECS, OI_MAXSIZE);
+    private final Set<UUID> ov_null_entries = Collections.synchronizedSet(new HashSet<UUID>());
+    private final Cache<UUID, Asset> ocache_asset;
     /** DbManager action factory - access via getDbManager () method */
     private final DbCacheManager om_db;
     private final Provider<LittleTransaction> oprovideTrans;
@@ -59,9 +62,13 @@ public class SimpleCacheManager implements CacheManager {
      * @exception SingletonException after the 1st time this gets called
      */
     @Inject
-    public SimpleCacheManager( DbCacheManager m_dbcache, Provider<LittleTransaction> provideTrans ) {
+    public SimpleCacheManager( DbCacheManager m_dbcache, 
+            Provider<LittleTransaction> provideTrans,
+            InMemoryCacheBuilder cacheBuilder
+            ) {
         om_db = m_dbcache;
         oprovideTrans = provideTrans;
+         ocache_asset = cacheBuilder.maxAgeSecs( OI_MAXSECS ).maxSize(OI_MAXSIZE).build();
     }
 
     @Override
@@ -73,18 +80,10 @@ public class SimpleCacheManager implements CacheManager {
     public int getMaxSize() {
         return ocache_asset.getMaxSize();
     }
-    @Override
-    public void setMaxSize( int iSize ) {
-        ocache_asset.setMaxSize( iSize );
-    }
 
     @Override
     public int getMaxEntryAgeSecs() {
         return ocache_asset.getMaxEntryAgeSecs();
-    }
-    @Override
-    public void setMaxEntryAgeSecs( int iSecs ) {
-        ocache_asset.setMaxEntryAgeSecs(iSecs);
     }
 
     /** 
@@ -387,7 +386,7 @@ public class SimpleCacheManager implements CacheManager {
             JdbcDbWriter<Set<Asset>> db_writer = om_db.makeDbAssetsByNameSaver(s_name, n_type, u_home);
             db_writer.saveObject( v_data);
         } catch (SQLException e) {
-            olog_generic.log(Level.WARNING, "Cache update caught unexpected: " + e +
+            log.log(Level.WARNING, "Cache update caught unexpected: " + e +
                     ", " + BaseException.getStackTrace(e));
             throw new AssertionFailedException("Data access failure: " + e, e);
         }

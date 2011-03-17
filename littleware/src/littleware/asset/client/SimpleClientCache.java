@@ -17,9 +17,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
-import littleware.base.Cache;
-import littleware.base.Cache.Policy;
-import littleware.base.SimpleCache;
+import littleware.base.cache.Cache;
+import littleware.base.cache.Cache.Policy;
+import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
 import littleware.security.SecurityAssetType;
@@ -32,8 +32,8 @@ import littleware.security.auth.LittleSession;
 public class SimpleClientCache implements LittleServiceListener, ClientCache {
 
     private static final Logger log = Logger.getLogger(SimpleClientCache.class.getName());
-    private final Cache<String, Object> cacheLong = new SimpleCache<String, Object>(900, 20000);
-    private final Cache<String, Object> cacheShort = new SimpleCache<String, Object>(30, 20000);
+    private final Cache<String, Object> cacheLong;
+    private final Cache<String, Object> cacheShort;
     /** Extend cache to add some special asset handling */
     private final Cache<String, Object> ocache = new Cache<String, Object>() {
 
@@ -47,20 +47,12 @@ public class SimpleClientCache implements LittleServiceListener, ClientCache {
             return cacheShort.getMaxSize();
         }
 
-        @Override
-        public void setMaxSize(int iSize) {
-            cacheShort.setMaxSize(iSize);
-        }
 
         @Override
         public int getMaxEntryAgeSecs() {
             return cacheShort.getMaxEntryAgeSecs();
         }
 
-        @Override
-        public void setMaxEntryAgeSecs(int iSecs) {
-            cacheShort.setMaxEntryAgeSecs(iSecs);
-        }
 
         @Override
         public Object put(String key, Object value) {
@@ -133,7 +125,11 @@ public class SimpleClientCache implements LittleServiceListener, ClientCache {
      * @param helper to register this as a listener with, and to retrieve session from
      */
     @Inject
-    public SimpleClientCache( LittleSession session ) {
+    public SimpleClientCache( LittleSession session,
+            InMemoryCacheBuilder cacheBuilder
+            ) {
+        cacheLong = cacheBuilder.maxAgeSecs( 900 ).maxSize( 20000 ).build();
+        cacheShort = cacheBuilder.maxAgeSecs( 30 ).maxSize( 20000 ).build();
         olTransaction = session.getTransaction();
         ocache.put(session.getId().toString(), session);
     }

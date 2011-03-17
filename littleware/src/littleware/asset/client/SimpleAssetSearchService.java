@@ -28,7 +28,7 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
 import littleware.base.BaseException;
-import littleware.base.Cache;
+import littleware.base.cache.Cache;
 import littleware.base.Maybe;
 
 /**

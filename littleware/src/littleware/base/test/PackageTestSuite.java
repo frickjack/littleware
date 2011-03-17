@@ -34,6 +34,7 @@ public class PackageTestSuite extends TestSuite {
     public PackageTestSuite( Provider<WhateverTester> provideWhatever,
             Provider<FbIteratorTester> provideFbTester,
             Provider<PropLoaderTester> providePropTester,
+            Provider<CacheTester> provideCacheTester,
             NullFeedbackTester nullFbTester
             ) {
         super( PackageTestSuite.class.getName() );
@@ -53,12 +54,9 @@ public class PackageTestSuite extends TestSuite {
             this.addTest( new XmlResourceBundleTester( "testBasicXmlBundle" ) );
         }
         if (b_run) {
-            int i_ageout_secs = 10;
-            int i_maxsize = 100;
-            Cache x_cache = new SimpleCache(i_ageout_secs, i_maxsize);
-            this.addTest(new CacheTester("testGeneric", x_cache, i_ageout_secs, i_maxsize));
-            this.addTest(new CacheTester("testAgeOut", x_cache, i_ageout_secs, i_maxsize));
-            this.addTest(new CacheTester("testSizeLimit", x_cache, i_ageout_secs, i_maxsize));
+            this.addTest( provideCacheTester.get().putName("testGeneric") );
+            this.addTest( provideCacheTester.get().putName("testAgeOut") );
+            this.addTest( provideCacheTester.get().putName("testSizeLimit") );
         }
         if (b_run) {
             this.addTest(new UUIDFactoryTester("testFactory", UUIDFactory.getFactory()));
@@ -77,18 +75,6 @@ public class PackageTestSuite extends TestSuite {
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 
-    public static Test suite() {
-        return Guice.createInjector().getInstance(PackageTestSuite.class );
-    }
-
-    /**
-     * Run through the various lilttleware.sql test cases
-     */
-    public static void main(String[] argsIn) {
-        final String[] testArgs = {"-noloading", "littleware.base.test.PackageTestSuite"};
-        
-        junit.swingui.TestRunner.main(testArgs);
-    }
 }
 
 

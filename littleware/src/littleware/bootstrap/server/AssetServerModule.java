@@ -52,6 +52,8 @@ import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
+import littleware.base.cache.Cache;
+import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.bootstrap.server.ServerBootstrap.ServerProfile;
 import littleware.db.DbGuice;
 import littleware.security.AccountManager;
@@ -87,6 +89,7 @@ public class AssetServerModule extends AbstractServerModule {
 
     @Override
     public void configure(Binder binder) {
+        binder.bind( Cache.Builder.class ).to( InMemoryCacheBuilder.class );
         binder.bind(AssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
         binder.bind(AssetRetriever.class).to(AssetSearchManager.class).in(Scopes.SINGLETON);
         binder.bind(AssetSearchManager.class).to(SimpleAssetSearchManager.class).in(Scopes.SINGLETON);

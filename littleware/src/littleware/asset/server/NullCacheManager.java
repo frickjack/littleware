@@ -10,6 +10,7 @@
 
 package littleware.asset.server;
 
+import littleware.base.cache.Cache;
 import java.rmi.RemoteException;
 import littleware.asset.*;
 import java.util.*;
@@ -225,14 +226,6 @@ public class NullCacheManager implements CacheManager {
                                                  ) throws BaseException
     {
         throw new CacheMissException ();
-    }
-
-    @Override
-    public void setMaxSize(int iSize) {
-    }
-
-    @Override
-    public void setMaxEntryAgeSecs(int iSecs) {
     }
 
     @Override

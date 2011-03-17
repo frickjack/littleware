@@ -15,6 +15,7 @@ class SharedObjectFactory implements Factory {
   }
 
   /** Get the object managed by this factory */
+    @Override
   public Object create () { return ox_shared_object; }
 
   /** 

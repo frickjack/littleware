@@ -23,8 +23,8 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.base.BaseException;
-import littleware.base.Cache;
 import littleware.base.Maybe;
+import littleware.base.cache.Cache;
 
 
 /**

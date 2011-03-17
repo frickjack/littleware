@@ -28,12 +28,11 @@ import littleware.apps.image.ImageManager.SizeOption;
 import littleware.apps.image.ThumbManager;
 import littleware.apps.image.ThumbManager.Thumb;
 import littleware.asset.AssetSearchManager;
-import littleware.base.Cache;
 import littleware.base.Maybe;
 import littleware.base.PropertiesLoader;
-import littleware.base.SimpleCache;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
+import littleware.base.cache.Cache;
 
 @Singleton
 public class SimpleImageCache implements ImageCache {
@@ -128,11 +127,8 @@ public class SimpleImageCache implements ImageCache {
             throw new IllegalStateException("CacheEntry is not in cache");
         }
     }
-    private final Cache<CacheKey, Maybe<BufferedImage>> cache =
-            new SimpleCache<CacheKey, Maybe<BufferedImage>>(900, 1000);
-    private final Cache<UUID, ThumbManager.Thumb> thumbCache =
-            new SimpleCache<UUID, ThumbManager.Thumb>(900, 1000);
-
+    private final Cache<CacheKey, Maybe<BufferedImage>> cache;
+    private final Cache<UUID, ThumbManager.Thumb> thumbCache;
     private final File dirCache = new File(PropertiesLoader.get().getLittleHome().getOr(new File(System.getProperty("java.io.tmpdir"))), "imageCache");
 
     {
@@ -144,20 +140,25 @@ public class SimpleImageCache implements ImageCache {
     private final AssetSearchManager search;
 
     @Inject
-    public SimpleImageCache(AssetSearchManager search) {
+    public SimpleImageCache(AssetSearchManager search,
+            Cache.Builder cacheBuilder) {
         this.search = search;
+        cache = cacheBuilder.maxAgeSecs(900).maxSize(1000).build();
+        thumbCache = cacheBuilder.maxAgeSecs(900).maxSize(1000).build();
+
     }
 
     @Override
-    public Maybe<ThumbManager.Thumb>  getThumb( UUID assetId ) {
-        return Maybe.emptyIfNull( thumbCache.get( assetId ) );
+    public Maybe<ThumbManager.Thumb> getThumb(UUID assetId) {
+        return Maybe.emptyIfNull(thumbCache.get(assetId));
     }
+
     @Override
-    public void putThumb( UUID assetId, Thumb thumb ) {
-        if ( null == thumb ) {
-            throw new NullPointerException( "thumb is null" );
+    public void putThumb(UUID assetId, Thumb thumb) {
+        if (null == thumb) {
+            throw new NullPointerException("thumb is null");
         }
-        thumbCache.put( assetId, thumb );
+        thumbCache.put(assetId, thumb);
     }
 
     /**
@@ -165,7 +166,7 @@ public class SimpleImageCache implements ImageCache {
      */
     private void removeFromCache(CacheKey key) {
         cache.remove(key);
-        thumbCache.remove( key.id );
+        thumbCache.remove(key.id);
         for (File file : Arrays.asList(key.infoFile, key.pngFile)) {
             try {
                 if (file.exists()) {
@@ -183,7 +184,7 @@ public class SimpleImageCache implements ImageCache {
         { // check in-memory cache
             final Maybe<BufferedImage> maybe = cache.get(key);
 
-            if ( null != maybe ) {
+            if (null != maybe) {
                 return new SimpleEntry(key, maybe);
             }
         }

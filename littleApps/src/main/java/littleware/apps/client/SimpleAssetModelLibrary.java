@@ -9,6 +9,7 @@
  */
 package littleware.apps.client;
 
+import com.google.inject.Inject;
 import littleware.base.feedback.SimpleLittleTool;
 import littleware.base.feedback.LittleListener;
 import littleware.base.feedback.LittleEvent;
@@ -35,8 +36,8 @@ import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
-import littleware.base.SimpleCache;
 import littleware.base.Whatever;
+import littleware.base.cache.Cache;
 
 /**
  * Simple implementation of AssetModelLibrary interface for
@@ -44,10 +45,11 @@ import littleware.base.Whatever;
  * Intended to be a singleton PER-USER.
  */
 @Singleton
-public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
+public class SimpleAssetModelLibrary 
         implements AssetModelLibrary {
 
-    private static final Logger olog_generic = Logger.getLogger(SimpleAssetModelLibrary.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleAssetModelLibrary.class.getName());
+    private final Cache<UUID,AssetModel> cache;
 
     @Override
     public Maybe<Asset> retrieveAsset(UUID u_id, AssetRetriever retriever) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
@@ -56,6 +58,51 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
             return Maybe.empty();
         }
         return Maybe.something(maybe.get().getAsset());
+    }
+
+    @Override
+    public Policy getPolicy() {
+        return cache.getPolicy();
+    }
+
+    @Override
+    public int getMaxSize() {
+        return cache.getMaxSize();
+    }
+
+    @Override
+    public int getMaxEntryAgeSecs() {
+        return cache.getMaxEntryAgeSecs();
+    }
+
+    @Override
+    public AssetModel put(UUID k, AssetModel v) {
+        return cache.put( k, v );
+    }
+
+    @Override
+    public AssetModel get(UUID k) {
+        return cache.get( k );
+    }
+
+    @Override
+    public void clear() {
+        cache.clear();
+    }
+
+    @Override
+    public int size() {
+        return cache.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return cache.isEmpty();
+    }
+
+    @Override
+    public Map<UUID, AssetModel> cacheContents() {
+        return cache.cacheContents();
     }
 
     /**
@@ -162,7 +209,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
          */
         @Override
         public Asset syncAsset(Asset a_new) {
-            olog_generic.log(Level.FINE, "Syncing: " + a_new);
+            log.log(Level.FINE, "Syncing: " + a_new);
 
             if ((null == a_new) || (oa_data == a_new)) {
                 return oa_data;
@@ -271,8 +318,9 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
      * Constructor initializes the underlying SimpleCache with huge
      * timeout and max-size
      */
-    public SimpleAssetModelLibrary() {
-        super(10000000, 1000000);
+    @Inject
+    public SimpleAssetModelLibrary( Cache.Builder cacheBuilder ) {
+        cache = cacheBuilder.maxAgeSecs(10000000 ).maxSize( 1000000).build();
     }
 
     @Override
@@ -322,7 +370,7 @@ public class SimpleAssetModelLibrary extends SimpleCache<UUID, AssetModel>
 
     @Override
     public AssetModel remove(UUID u_remove) {
-        AssetModel amodel_remove = super.remove(u_remove);
+        AssetModel amodel_remove = cache.remove(u_remove);
         if ((null != amodel_remove) && amodel_remove.getAsset().getAssetType().isNameUnique()) {
             Asset a_remove = amodel_remove.getAsset();
             for (AssetType atype = a_remove.getAssetType();

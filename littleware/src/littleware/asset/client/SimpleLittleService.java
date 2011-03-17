@@ -14,6 +14,7 @@ import java.io.ObjectStreamException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.base.cache.NullCacheBuilder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
@@ -64,7 +65,6 @@ public class SimpleLittleService implements LittleService {
 
     /** Constructor uses this as the source */
     public SimpleLittleService() {
-        oxSource = this;
     }
 
     @Override
@@ -97,7 +97,7 @@ public class SimpleLittleService implements LittleService {
     protected LittleService getSource() {
         return oxSource;
     }
-    private ClientCache cache = new NullClientCache();
+    private ClientCache cache = new NullClientCache( new NullCacheBuilder() );
 
     /**
      * Access the client-side cache if available

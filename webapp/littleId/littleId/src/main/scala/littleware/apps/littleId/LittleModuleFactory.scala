@@ -26,6 +26,9 @@ object LittleModuleFactory {
       binder.bind( classOf[server.controller.OpenIdTool]
                   ).to( classOf[server.controller.internal.SimpleOidTool]
                   ).in( Scopes.SINGLETON )
+      binder.bind( classOf[server.controller.AuthVerifyTool]
+                  ).to( classOf[server.controller.internal.InMemoryVerifyTool]
+                  ).in( Scopes.SINGLETON )
       binder.bind( classOf[server.model.AuthResponse.Builder] ).to( classOf[server.model.internal.AuthResponseBuilder] )
     }
   }

@@ -30,6 +30,9 @@ object OpenIdTool {
 
 import OpenIdTool._
 
+/**
+ * Tool for interacting with an OId provider
+ */
 trait OpenIdTool {
   /**
    * Assemble the URL and POST parameters to send to the OpenID provider

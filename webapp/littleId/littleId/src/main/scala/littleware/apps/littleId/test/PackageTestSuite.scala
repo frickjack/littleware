@@ -19,10 +19,12 @@ import littleware.scala.LazyLogger
 import littleware.test.TestFactory
 
 class PackageTestSuite @Inject() (
-  openIdToolTester:OIdToolTester
+  openIdToolTester:OIdToolTester,
+  verifyToolTester:VerifyToolTester
 ) extends TestSuite {
   setName( getClass.getName )
   addTest( openIdToolTester )
+  addTest( verifyToolTester )
 }
 
 object PackageTestSuite {

@@ -13,6 +13,7 @@ package littleware.apps.littleId.server.model
 /**
  * Data backing AuthResponse interaction
  */
+import java.util.UUID
 import littleware.apps.littleId.OIdUserCreds
 
 trait AuthResponse {
@@ -40,6 +41,10 @@ object AuthResponse {
   trait BuildStep2 {
     val request:AuthRequest
     def success( userInfo:OIdUserCreds, verifySecret:String ):AuthSuccess
+    /**
+     * Calls 2-arg success with random UUID secret
+     */
+    def success( userInfo:OIdUserCreds ):AuthSuccess = success( userInfo, UUID.randomUUID.toString )
     def failure():AuthFailure
   }
   

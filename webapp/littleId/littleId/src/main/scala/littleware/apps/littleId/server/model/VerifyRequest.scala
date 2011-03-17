@@ -10,12 +10,18 @@
 
 package littleware.apps.littleId.server.model
 
+import littleware.apps.littleId
+
 trait VerifyRequest {
-  val authResponse:AuthResponse
+  val creds:littleId.OIdUserCreds
+  val secret:String
 }
 
 object VerifyRequest {
-  private case class SimpleRequest( authResponse:AuthResponse ) extends VerifyRequest {}
+  private case class SimpleRequest( 
+  creds:littleId.OIdUserCreds,
+  secret:String
+  ) extends VerifyRequest {}
 
-  def apply( authResponse:AuthResponse ):VerifyRequest = SimpleRequest( authResponse )
+  def apply( creds:littleId.OIdUserCreds, secret:String ):VerifyRequest = SimpleRequest( creds, secret )
 }

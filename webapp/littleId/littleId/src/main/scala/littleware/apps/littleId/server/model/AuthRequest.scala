@@ -20,29 +20,17 @@ import littleware.scala.LittleHelper
  */
 trait AuthRequest {
   val openIdProvider:OIdProvider.Value
-  val clientSecret:String
 }
 
 object AuthRequest {
   private case class SimpleRequest(
     @scala.reflect.BeanProperty
-    openIdProvider:OIdProvider.Value,
-    @scala.reflect.BeanProperty
-    clientSecret:String
+    openIdProvider:OIdProvider.Value
   ) extends AuthRequest with java.io.Serializable {
-    ValidatorUtil.check(
+    require(
       null != openIdProvider, "openIdProvider set"
     )
-    ValidatorUtil.check(
-      LittleHelper.emptyCheck( clientSecret ).isDefined,
-      "client secret set"
-    )
-
   }
 
-  def apply(   openIdProvider:OIdProvider.Value,
-            clientSecret:String
-  ) {
-    SimpleRequest( openIdProvider, clientSecret )
-  }
+  def apply(   openIdProvider:OIdProvider.Value ):AuthRequest = SimpleRequest( openIdProvider )
 }

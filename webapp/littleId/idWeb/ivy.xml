@@ -1,0 +1,17 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="idWeb"/>
+    <configurations>
+        <conf name="ee_client"  description="client webapp dependencies"/>
+        <conf name="compile"  description="compile against api's only"/>
+        <conf name="test" extends="ee_client" visibility="private" description="test runtime config" />
+    </configurations>
+    <publications>
+    </publications>
+    
+    <dependencies>        
+      <dependency org="littleware" name="littleId" rev="latest.integration" 
+                conf="compile->compile;ee_client->ee_client" 
+                />
+    </dependencies>
+
+</ivy-module>

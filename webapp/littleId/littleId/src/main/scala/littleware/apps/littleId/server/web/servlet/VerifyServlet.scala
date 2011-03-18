@@ -1,6 +1,6 @@
 /*
  * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * You may not use this file except in compliance with the
@@ -17,34 +17,25 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import littleware.apps.littleId.server._
+import littleware.apps.littleId
+import littleId.server._
 import littleware.scala.LazyLogger
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
 import scala.collection.JavaConversions._
 
-object ProviderRespServlet {
+object VerifyServlet {
   @Inject
   class Tools(
-    val openIdTool:controller.OpenIdTool,
-    val responseBuilder:Provider[model.AuthResponse.Builder]
+    val verifyTool:controller.AuthVerifyTool,
+    val userBuilder:Provider[littleId.OIdUserCreds.Builder]
   ) {}
 
-  /**
-   * Data for client-response jsp to work with
-   */
-  case class ClientResponseBean(
-    val authSuccess:Boolean,
-    val email:String,
-    val openId:String,
-    val verifySecret:String
-  ) {
-  }
 
-  val clientResponseBeanKey = "clientResponseBean"
+  val verifyResponseBeanKey = "verifyResponseBean"
 }
 
-import ProviderRespServlet._
+import VerifyServlet._
 
 
 /**
@@ -55,10 +46,10 @@ import ProviderRespServlet._
  *
  * @TODO implement InjectMeServlet abstract base class
  */
-class ProviderRespServlet extends HttpServlet {
+class VerifyServlet extends HttpServlet {
   private val log = LazyLogger( getClass )
 
-  var clientResponsePage:String = "/openId/view/en/respondToClient.jsp"
+  var verifyResponsePage:String = "/openId/view/en/verifyResponse.jsp"
   private var tools:Tools = null
 
   @Inject
@@ -72,7 +63,7 @@ class ProviderRespServlet extends HttpServlet {
    */
   @throws(classOf[ServletException])
   override def init():Unit = try {
-    Option( getServletConfig.getInitParameter( "clientResponsePage" ) ).map( (value) => { clientResponsePage = value })
+    Option( getServletConfig.getInitParameter( "verifyResponsePage" ) ).map( (value) => { verifyResponsePage = value })
     val gbean:GuiceBean = getServletContext.getAttribute( WebBootstrap.littleGuice ).asInstanceOf[GuiceBean]
     gbean.injectMembers(this)
   } catch {
@@ -88,33 +79,19 @@ class ProviderRespServlet extends HttpServlet {
   @throws(classOf[ServletException])
   def doGetOrPost( req:HttpServletRequest, resp:HttpServletResponse ):Unit = {
     val session = req.getSession
-    val oIdRequestData:controller.OpenIdTool.OIdRequestData = session.getAttribute( AuthReqServlet.oIdRequestDataKey ).asInstanceOf
-    val authRequest:model.AuthRequest = session.getAttribute( AuthReqServlet.authRequestKey ).asInstanceOf
-    require( oIdRequestData != null, "OId request data is stored with session" )
-    require( authRequest != null, "Client authRequest data is stored with session")
-    val response:model.AuthResponse = tools.openIdTool.processResponse(oIdRequestData, new URL( req.getRequestURL.toString ),
-                                                                       req.getParameterMap.entrySet.map( (entry) => (entry.getKey -> entry.getValue)
-      ).toMap
-    ) match {
-      case Some(creds) => tools.responseBuilder.get.request( authRequest ).success( creds )
-      case _ => tools.responseBuilder.get.request( authRequest ).failure
-    }
-    val responseBean = response match {
-      case success:model.AuthResponse.AuthSuccess =>
-        ClientResponseBean( true, success.userInfo.email,
-                           success.userInfo.openId.toString,
-                           success.verifySecret
-        )
-      case _ => ClientResponseBean( false, "authorization failed", "authorization failed", "authorization failed")
-    }
-
-    req.setAttribute( clientResponseBeanKey, responseBean )
-    req.getRequestDispatcher( clientResponsePage ).forward(req,resp)
+    val secret:String = Option( req.getParameter( "secret" ) ).getOrElse( "" )
+    val userCreds:littleId.OIdUserCreds = tools.userBuilder.get.email(
+      Option( req.getParameter( "email" ) ).getOrElse( "" )
+      ).openId(
+      Option( req.getParameter( "openId" ) ).map( (id) => new URL( id ) ).getOrElse( new URL( "http://openId/not/provided/"))
+    ).build
+    req.setAttribute( "verifyRequest", model.VerifyRequest( userCreds, secret ) )
+    req.setAttribute( "verifyResponse", model.VerifyResponse( tools.verifyTool.verifyCreds(secret, userCreds) )  )
+    req.getRequestDispatcher( verifyResponsePage ).forward(req,resp)
   }
 
   @throws(classOf[ServletException])
   override def doPost( req:HttpServletRequest, resp:HttpServletResponse ):Unit = doGetOrPost( req, resp )
   @throws(classOf[ServletException])
   override def doGet( req:HttpServletRequest, resp:HttpServletResponse ):Unit = doGetOrPost( req, resp )
-
 }

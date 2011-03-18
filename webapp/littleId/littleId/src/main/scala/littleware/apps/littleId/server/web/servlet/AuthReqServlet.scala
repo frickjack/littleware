@@ -84,7 +84,7 @@ class AuthReqServlet extends HttpServlet {
    * that builds and submits the provider-data form using the FormDataBean
    * published by this servlet's doGet or doPost methods
    */
-  var providerSubmitForm = "/en/openId/postToProvider.jsp"
+  var providerSubmitForm = "/openId/view/en/postToProvider.jsp"
 
   /**
    * Lookup the GuiceBean, and self-inject.

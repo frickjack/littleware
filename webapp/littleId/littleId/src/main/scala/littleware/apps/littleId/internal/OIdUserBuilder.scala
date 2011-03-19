@@ -20,6 +20,11 @@ object OIdUserBuilder {
     @scala.reflect.BeanProperty
     openId:URL
   ) extends OIdUserCreds {
+    override def equals( in:Any ):Boolean = in match {
+      case null => false
+      case other:OIdUserCreds => (email == other.email) && (openId == other.openId)
+      case _ => false
+    }
   }
 }
 

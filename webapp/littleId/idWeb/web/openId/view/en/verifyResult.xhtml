@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+      xmlns:h="http://java.sun.com/jsf/html">
+<ui:composition template="/WEB-INF/layout/standard.xhtml">
+  <ui:define name="title">access openId provider</ui:define>
+  <ui:define name="content">
+
+      <c:choose>
+          <c:when test="${verifyResponse.isDataValid}">
+              <h3>Authentication Verified</h3>
+
+              <p>Authentication data is valid.</p>
+          </c:when>
+          <c:otherwise>
+              <h3>Invalid Authentication Data</h3>
+
+              <p>Invalid authentication data: <h:outputText value="${verifyResponse.isDataValid}" />.</p>
+          </c:otherwise>
+      </c:choose>
+  </ui:define>
+</ui:composition>
+</html>
+

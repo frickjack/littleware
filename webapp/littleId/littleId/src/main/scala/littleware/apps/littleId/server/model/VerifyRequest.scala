@@ -18,9 +18,11 @@ trait VerifyRequest {
 }
 
 object VerifyRequest {
-  private case class SimpleRequest( 
-  creds:littleId.OIdUserCreds,
-  secret:String
+  private case class SimpleRequest(
+    @reflect.BeanProperty
+    creds:littleId.OIdUserCreds,
+    @reflect.BeanProperty
+    secret:String
   ) extends VerifyRequest {}
 
   def apply( creds:littleId.OIdUserCreds, secret:String ):VerifyRequest = SimpleRequest( creds, secret )

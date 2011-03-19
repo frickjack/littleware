@@ -31,8 +31,8 @@ import littleware.web.servlet.WebBootstrap
 import scala.collection.JavaConversions._
 
 object AuthReqServlet {
-  @Inject
-  class Tools(
+  
+  class Tools @Inject() (
     val openIdTool:controller.OpenIdTool
   ) {}
 
@@ -92,7 +92,7 @@ class AuthReqServlet extends HttpServlet {
    */
   @throws(classOf[ServletException])
   override def init():Unit = try {
-    Option( getServletConfig.getInitParameter( "providerSubmitForm" ) ).map( (value) => { providerSubmitForm = value })
+    Option( getServletConfig.getInitParameter( "viewPath" ) ).map( (value) => { providerSubmitForm = value })
     val gbean:GuiceBean = getServletContext.getAttribute( WebBootstrap.littleGuice ).asInstanceOf[GuiceBean]
     gbean.injectMembers(this)
   } catch {

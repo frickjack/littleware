@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+<ui:composition template="/WEB-INF/layout/standard.xhtml">
+  <ui:define name="title">access openId provider</ui:define>
+  <ui:define name="content">
+
+      <c:choose>
+          <c:when test="${clientResponseBean.authSuccess}">
+              <h3>Authentication Success!</h3>
+              <ul>
+                  <li>Email: <h:outputText value="${clientResponseBean.email}" /></li>
+                  <li>OpenId: <h:outputText value="${clientResponseBean.openId}" /></li>
+                  <li>Secret: <h:outputText value="${clientResponseBean.verifySecret}" /></li>
+              </ul>
+              <p>
+              <form name="verifyForm" action="${facesContext.externalContext.requestContextPath}/openId/services/verify/" method="post" accept-charset="UTF-8">
+                  <input type="hidden" name="email" value="${clientResponseBean.email}" />
+                  <input type="hidden" name="openId" value="${clientResponseBean.openId}" />
+                  <input type="hidden" name="secret" value="${clientResponseBean.verifySecret}" />
+                  <a href="#" onclick="javascript:(function(){ document.verifyForm.submit(); return false; })();">Verify</a>
+              </form>
+              </p>
+          </c:when>
+          <c:otherwise>
+              <h3>Authentication Failed</h3>
+          </c:otherwise>
+      </c:choose>
+
+  </ui:define>
+</ui:composition>
+</html>
+

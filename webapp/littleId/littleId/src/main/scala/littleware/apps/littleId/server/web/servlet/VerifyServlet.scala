@@ -25,8 +25,8 @@ import littleware.web.servlet.WebBootstrap
 import scala.collection.JavaConversions._
 
 object VerifyServlet {
-  @Inject
-  class Tools(
+  
+  class Tools @Inject() (
     val verifyTool:controller.AuthVerifyTool,
     val userBuilder:Provider[littleId.OIdUserCreds.Builder]
   ) {}
@@ -63,7 +63,7 @@ class VerifyServlet extends HttpServlet {
    */
   @throws(classOf[ServletException])
   override def init():Unit = try {
-    Option( getServletConfig.getInitParameter( "verifyResponsePage" ) ).map( (value) => { verifyResponsePage = value })
+    Option( getServletConfig.getInitParameter( "viewPath" ) ).map( (value) => { verifyResponsePage = value })
     val gbean:GuiceBean = getServletContext.getAttribute( WebBootstrap.littleGuice ).asInstanceOf[GuiceBean]
     gbean.injectMembers(this)
   } catch {

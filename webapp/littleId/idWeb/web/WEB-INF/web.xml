@@ -13,9 +13,48 @@
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>AuthReq Servlet</servlet-name>
+        <servlet-class>littleware.apps.littleId.server.web.servlet.AuthReqServlet</servlet-class>
+        <init-param>
+            <param-name> viewPath </param-name>
+            <param-value> /openId/view/en/postToProvider.jsf </param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>ProviderResp Servlet</servlet-name>
+        <servlet-class>littleware.apps.littleId.server.web.servlet.ProviderRespServlet</servlet-class>
+         <init-param>
+            <param-name> viewPath </param-name>
+            <param-value> /openId/view/en/authProviderResponse.jsf </param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>Verify Servlet</servlet-name>
+        <servlet-class>littleware.apps.littleId.server.web.servlet.VerifyServlet</servlet-class>
+         <init-param>
+            <param-name> viewPath </param-name>
+            <param-value> /openId/view/en/verifyResult.jsf </param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AuthReq Servlet</servlet-name>
+        <url-pattern>/openId/services/authRequest/*</url-pattern>
+    </servlet-mapping>
+        <servlet-mapping>
+        <servlet-name>ProviderResp Servlet</servlet-name>
+        <url-pattern>/openId/services/providerResponse/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Verify Servlet</servlet-name>
+        <url-pattern>/openId/services/verify/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

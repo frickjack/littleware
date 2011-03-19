@@ -24,9 +24,10 @@ import littleware.web.servlet.WebBootstrap
 import scala.collection.JavaConversions._
 
 object ProviderRespServlet {
-  @Inject
-  class Tools(
+  
+  class Tools @Inject() (
     val openIdTool:controller.OpenIdTool,
+    val verifyTool:controller.AuthVerifyTool,
     val responseBuilder:Provider[model.AuthResponse.Builder]
   ) {}
 
@@ -34,9 +35,13 @@ object ProviderRespServlet {
    * Data for client-response jsp to work with
    */
   case class ClientResponseBean(
+    @reflect.BeanProperty
     val authSuccess:Boolean,
+    @reflect.BeanProperty
     val email:String,
+    @reflect.BeanProperty
     val openId:String,
+    @reflect.BeanProperty
     val verifySecret:String
   ) {
   }
@@ -72,7 +77,7 @@ class ProviderRespServlet extends HttpServlet {
    */
   @throws(classOf[ServletException])
   override def init():Unit = try {
-    Option( getServletConfig.getInitParameter( "clientResponsePage" ) ).map( (value) => { clientResponsePage = value })
+    Option( getServletConfig.getInitParameter( "viewPath" ) ).map( (value) => { clientResponsePage = value })
     val gbean:GuiceBean = getServletContext.getAttribute( WebBootstrap.littleGuice ).asInstanceOf[GuiceBean]
     gbean.injectMembers(this)
   } catch {
@@ -88,8 +93,10 @@ class ProviderRespServlet extends HttpServlet {
   @throws(classOf[ServletException])
   def doGetOrPost( req:HttpServletRequest, resp:HttpServletResponse ):Unit = {
     val session = req.getSession
-    val oIdRequestData:controller.OpenIdTool.OIdRequestData = session.getAttribute( AuthReqServlet.oIdRequestDataKey ).asInstanceOf
-    val authRequest:model.AuthRequest = session.getAttribute( AuthReqServlet.authRequestKey ).asInstanceOf
+    val oIdRequestData:controller.OpenIdTool.OIdRequestData = session.getAttribute( AuthReqServlet.oIdRequestDataKey ).asInstanceOf[controller.OpenIdTool.OIdRequestData]
+    val authRequest:model.AuthRequest = session.getAttribute( AuthReqServlet.authRequestKey ).asInstanceOf[model.AuthRequest]
+    session.removeAttribute( AuthReqServlet.oIdRequestDataKey )
+    session.removeAttribute( AuthReqServlet.authRequestKey )
     require( oIdRequestData != null, "OId request data is stored with session" )
     require( authRequest != null, "Client authRequest data is stored with session")
     val response:model.AuthResponse = tools.openIdTool.processResponse(oIdRequestData, new URL( req.getRequestURL.toString ),
@@ -100,11 +107,13 @@ class ProviderRespServlet extends HttpServlet {
       case _ => tools.responseBuilder.get.request( authRequest ).failure
     }
     val responseBean = response match {
-      case success:model.AuthResponse.AuthSuccess =>
-        ClientResponseBean( true, success.userInfo.email,
-                           success.userInfo.openId.toString,
-                           success.verifySecret
-        )
+      case success:model.AuthResponse.AuthSuccess => {
+          tools.verifyTool.cacheCreds( success.verifySecret, success.userInfo )
+          ClientResponseBean( true, success.userInfo.email,
+                             success.userInfo.openId.toString,
+                             success.verifySecret
+          )
+        }
       case _ => ClientResponseBean( false, "authorization failed", "authorization failed", "authorization failed")
     }
 

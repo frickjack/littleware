@@ -1,0 +1,43 @@
+/* 
+        CSS associated with littleware.littleId javascript module
+*/
+
+
+div.littleId_popup {
+    margin-left:auto;
+    margin-right:auto;
+    clear:both;
+    margin-top: -10px;
+    margin-bottom: -10px;
+    background-color: #aaaaaa;
+    padding: 10px;
+    display: none;
+}
+
+div.littleId_popupBody {
+    margin:auto;
+    width:100%;
+    border: 1px solid black;
+    background-color:#ffffff;
+}
+
+div.littleId_popupBody p, div.littleId_popupBody img {
+    padding: 5px;
+    margin-left: 10px;
+}
+
+div.littleId_popupHead, div.littleId_popupFoot {
+    font-size: 80%;
+    padding: 2px;
+    width: 100%;
+}
+
+div.littleId_popupHead a:hover {
+    background-color: #cccccc;
+}
+
+div.littleId_popupBody iframe {
+    border: 0px;
+}
+
+

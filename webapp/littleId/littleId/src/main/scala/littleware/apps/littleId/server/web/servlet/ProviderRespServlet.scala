@@ -95,8 +95,8 @@ class ProviderRespServlet extends HttpServlet {
     val session = req.getSession
     val oIdRequestData:controller.OpenIdTool.OIdRequestData = session.getAttribute( AuthReqServlet.oIdRequestDataKey ).asInstanceOf[controller.OpenIdTool.OIdRequestData]
     val authRequest:model.AuthRequest = session.getAttribute( AuthReqServlet.authRequestKey ).asInstanceOf[model.AuthRequest]
-    session.removeAttribute( AuthReqServlet.oIdRequestDataKey )
-    session.removeAttribute( AuthReqServlet.authRequestKey )
+    //session.removeAttribute( AuthReqServlet.oIdRequestDataKey )
+    //session.removeAttribute( AuthReqServlet.authRequestKey )
     require( oIdRequestData != null, "OId request data is stored with session" )
     require( authRequest != null, "Client authRequest data is stored with session")
     val response:model.AuthResponse = tools.openIdTool.processResponse(oIdRequestData, new URL( req.getRequestURL.toString ),

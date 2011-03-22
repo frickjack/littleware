@@ -11,15 +11,18 @@
         <h:head>
             <title><ui:insert name="title">Default title</ui:insert></title>
             <link rel="stylesheet" type="text/css"
-                  href="http://yui.yahooapis.com/combo?3.2.0/build/cssreset/reset-min.css&amp;3.2.0/build/cssfonts/fonts-min.css&amp;3.2.0/build/cssgrids/grids-min.css"
+                  href="http://yui.yahooapis.com/combo?3.3.0/build/cssreset/reset-min.css&amp;3.3.0/build/cssfonts/fonts-min.css&amp;3.3.0/build/cssgrids/grids-min.css&amp;3.3.0/build/cssbase/base-min.css"
                   />
-
+            <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script>
+            <style type="text/css" id="yuiInsertBeforeMe"></style>
             <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/resources/css/little.css"/>
+
+
 
             <ui:insert name="extraLinks"></ui:insert>
         </h:head>
 
-        <h:body styleClass="yui-skin-sam">
+        <h:body styleClass="yui-skin-sam, yui3-skin-sam">
 
             <div>
                 <div id="hd">

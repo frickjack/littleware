@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+Copyright 2011 
+
+The contents of this file are subject to the terms of the Lesser GNU
+General Public License Version 2.1 only ("LGPL").
+http://www.gnu.org/licenses/lgpl-2.1.html
+
+-->
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>littleware js Test Page</title>
+
+        <link rel="stylesheet" type="text/css"
+              href="http://yui.yahooapis.com/combo?3.3.0/build/cssreset/reset-min.css&amp;3.3.0/build/cssfonts/fonts-min.css&amp;3.3.0/build/cssgrids/grids-min.css&amp;3.3.0/build/cssbase/base-min.css"
+              />
+
+        <style id="yuiInsertBeforeMe" type="text/css">
+            body {
+                padding: 10px;
+            };
+        </style>
+        <link rel="stylesheet" type="text/css" href="../../css/littleware/littleId.css" />
+    </head>
+    <body class="yui3-skin-sam">
+        <div id="intro">
+            <h3>littleware js Test Page</h3>
+        </div>
+
+        <div id="pageStatus">
+            <p>
+            <img alt="waiting" src="../../img/wait.gif" /> Running tests ...
+            </p>
+        </div>
+        <div id="littleIdUI" class="littleId_popup"></div>
+
+        <script type="text/javascript"  src="http://yui.yahooapis.com/3.3.0/build/yui/yui-debug.js"
+        charset="utf-8"></script>
+        <script type="text/javascript"
+                src="./littleYUI.js"
+        charset="utf-8"></script>
+        <script language="javascript" type="text/javascript">
+            littleware.littleYUI.bootstrap().use( 'anim', 'console', 'node', 'test', 'littleware-littleUtil', 'littleware-littleId', function(Y) {
+                var logSrc = "testSuite.html";
+                new Y.Console( { newestOnTop:false }).render();
+                Y.log( "We're up and running!", "info", logSrc );
+                var suite = new Y.Test.Suite( "littleware Test Suite" );
+                if( Y.Lang.isUndefined( suite ) ) {
+                    Y.log( "What the frick ? Undefined test suite ..." );
+                } else {
+                    Y.log( "Test suite defined ok ..." );
+
+                    suite.add( Y.littleware.littleUtil.buildTestSuite() );
+                    suite.add( Y.littleware.littleId.buildTestSuite() );
+                    Y.Test.Runner.add( suite );
+                    Y.Test.Runner.run();
+                    var statusNode = Y.one( '#pageStatus' );
+                    statusNode.get( 'children' ).remove();
+                    statusNode.appendChild( Y.Node.create( "<p>Test Complete</p>" ) );
+                }
+            });
+        </script>
+    </body>
+</html>

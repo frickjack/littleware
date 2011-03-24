@@ -30,6 +30,7 @@ object LittleModuleFactory {
                   ).to( classOf[server.controller.internal.InMemoryVerifyTool]
                   ).in( Scopes.SINGLETON )
       binder.bind( classOf[server.model.AuthResponse.Builder] ).to( classOf[server.model.internal.AuthResponseBuilder] )
+      binder.bind( classOf[server.model.AuthRequest.Builder] ).to( classOf[server.model.internal.AuthRequestBuilder] )
     }
   }
 

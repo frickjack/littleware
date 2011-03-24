@@ -10,9 +10,8 @@
 
 package littleware.apps.littleId.server.model
 
+import java.net.URL
 import littleware.apps.littleId.OIdProvider
-import littleware.base.validate.ValidatorUtil
-import littleware.scala.LittleHelper
 
 
 /**
@@ -20,17 +19,37 @@ import littleware.scala.LittleHelper
  */
 trait AuthRequest {
   val openIdProvider:OIdProvider.Value
+  val replyTo:URL
+  val replyMethod:AuthRequest.ReplyMethod.Value
 }
 
 object AuthRequest {
-  private case class SimpleRequest(
-    @scala.reflect.BeanProperty
-    openIdProvider:OIdProvider.Value
-  ) extends AuthRequest with java.io.Serializable {
-    require(
-      null != openIdProvider, "openIdProvider set"
-    )
+  object ReplyMethod extends Enumeration {
+    val GET, POST = Value
   }
 
-  def apply(   openIdProvider:OIdProvider.Value ):AuthRequest = SimpleRequest( openIdProvider )
+  trait Builder {
+    var openIdProvider:OIdProvider.Value = null
+    def openIdProvider( value:OIdProvider.Value ):this.type = {
+      openIdProvider = value
+      this
+    }
+
+    var replyTo:URL = null
+    def replyTo( value:URL ):this.type = {
+      replyTo = value
+      this
+    }
+
+    var replyMethod:AuthRequest.ReplyMethod.Value = ReplyMethod.POST
+    def replyMethod( value:ReplyMethod.Value ):this.type = {
+      replyMethod = value
+      this
+    }
+
+    def build():AuthRequest
+  }
+
+  
+  
 }

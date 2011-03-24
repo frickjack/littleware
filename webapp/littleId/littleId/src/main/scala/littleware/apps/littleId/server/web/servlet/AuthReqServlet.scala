@@ -33,7 +33,8 @@ import scala.collection.JavaConversions._
 object AuthReqServlet {
   
   class Tools @Inject() (
-    val openIdTool:controller.OpenIdTool
+    val openIdTool:controller.OpenIdTool,
+    val authReqBuilder:Provider[model.AuthRequest.Builder]
   ) {}
 
   /**
@@ -45,7 +46,7 @@ object AuthReqServlet {
     val actionURL:URL,
     @scala.reflect.BeanProperty
     val params:java.util.Map[String,String]
-    ) {}
+  ) {}
 
 
   /**
@@ -97,22 +98,36 @@ class AuthReqServlet extends HttpServlet {
     gbean.injectMembers(this)
   } catch {
     case ex:Exception => {
-      log.log( Level.WARNING, "AuthServlet initialization failed", ex )
-      ex match {
-        case _:ServletException => throw ex
-        case _ => throw new ServletException( "AuthServlet initialization failed", ex )
+        log.log( Level.WARNING, "AuthServlet initialization failed", ex )
+        ex match {
+          case _:ServletException => throw ex
+          case _ => throw new ServletException( "AuthServlet initialization failed", ex )
+        }
       }
-    }
   }
 
   @throws(classOf[ServletException])
   def doGetOrPost( req:HttpServletRequest, resp:HttpServletResponse ):Unit = {
-    val provider:OIdProvider.Value = LittleHelper.emptyCheck( req.getParameter( "provider" ) ).getOrElse( "google" )toLowerCase match {
-      case "yahoo" => OIdProvider.Yahoo
-      case _ => OIdProvider.Google
-    }
-    val authReq:model.AuthRequest = model.AuthRequest( provider )
-    val oidReq:controller.OpenIdTool.OIdRequestData = tools.openIdTool.buildRequest(provider)
+    val authReq:model.AuthRequest = tools.authReqBuilder.get(
+    ).openIdProvider(
+      LittleHelper.emptyCheck( req.getParameter( "provider" ) ).getOrElse( "google" )toLowerCase match {
+        case "yahoo" => OIdProvider.Yahoo
+        case _ => OIdProvider.Google
+      }
+    ).replyTo(
+      LittleHelper.emptyCheck( req.getParameter( "replyTo" ) ).getOrElse(
+        req.getHeader( "Referer" )
+      ) match {
+        case null => null
+        case urlString:String => new java.net.URL( urlString )
+      }
+    ).replyMethod(
+      LittleHelper.emptyCheck( req.getParameter( "replyMethod" ) ).getOrElse( "post" )toLowerCase match {
+        case "post" => model.AuthRequest.ReplyMethod.POST
+        case _ => model.AuthRequest.ReplyMethod.GET
+      }
+    ).build
+    val oidReq:controller.OpenIdTool.OIdRequestData = tools.openIdTool.buildRequest(authReq.openIdProvider)
     val session = req.getSession
     session.setAttribute( oIdRequestDataKey, oidReq )
     session.setAttribute( authRequestKey, authReq )

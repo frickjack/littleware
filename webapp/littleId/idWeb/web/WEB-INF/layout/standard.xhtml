@@ -13,12 +13,11 @@
             <link rel="stylesheet" type="text/css"
                   href="http://yui.yahooapis.com/combo?3.3.0/build/cssreset/reset-min.css&amp;3.3.0/build/cssfonts/fonts-min.css&amp;3.3.0/build/cssgrids/grids-min.css&amp;3.3.0/build/cssbase/base-min.css"
                   />
-            <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script>
+            <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="UTF-8"></script>
+            <script type="text/javascript" src="#{facesContext.externalContext.requestContextPath}/resources/js/littleware/littleYUI.js" charset="UTF-8"></script>
             <style type="text/css" id="yuiInsertBeforeMe"></style>
             <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/resources/css/little.css"/>
-
-
-
+            <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/resources/css/littleware/littleId.css"/>
             <ui:insert name="extraLinks"></ui:insert>
         </h:head>
 
@@ -26,7 +25,7 @@
 
             <div>
                 <div id="hd">
-                    <h3><a href="#{facesContext.externalContext.requestContextPath}/">Littleware API Server</a></h3>
+                    <h3><a href="#{facesContext.externalContext.requestContextPath}/">frickjack.com littleware services</a></h3>
                 </div>
 
                 <div id="bd" class="yui-g">

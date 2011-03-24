@@ -32,6 +32,11 @@ h1,h2,h3 {
     font-weight: bold;
 }
 
+table, tr, td, th {
+    border-style:none;
+}
+
+
 div#hd, div#ft {
     background-color: #aaaaaa;
     color: #ffffff;
@@ -57,7 +62,8 @@ div#hd h2 {
 }
 
 div#bd {
-    width:1200px;
+    /* width:1200px; */
+    width: 100%;
     clear:both;
 }
 
@@ -74,6 +80,9 @@ ul.inline li {
     list-style-type: none;
 }
 
+ul.clean li {
+    list-style-type: none;
+}
 
 table.deftable tr th {
     border-style: none;
@@ -99,4 +108,12 @@ span.button {
 
 div.sidenav {
     padding-top: 10px;
+}
+
+.oblique {
+    font-style:oblique;
+}
+
+.padded {
+    padding: 10px;
 }

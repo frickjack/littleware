@@ -37,8 +37,8 @@ littleware.littleYUI = (function() {
                     path: "littleUtil.js"
                 },
                 'littleware-littleId': {
-                    path: "littleId.js"
-                    //requires: ['yui2_yde']
+                    path: "littleId.js",
+                    requires: ['anim', 'base', 'node-base', 'node']
                 }
             }
         }    ;

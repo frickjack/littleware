@@ -11,7 +11,7 @@
 package littleware.apps.littleId.server.model
 
 import java.net.URL
-import littleware.apps.littleId.OIdProvider
+import littleware.apps.littleId.common.model.OIdProvider
 
 
 /**

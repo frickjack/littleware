@@ -23,7 +23,10 @@ import org.openid4java.message
 import scala.collection.JavaConversions._
 
 
-class SimpleOidTool @Inject() ( consumerMgr:consumer.ConsumerManager ) extends controller.OpenIdTool {
+class SimpleOidTool @Inject() (
+  consumerMgr:consumer.ConsumerManager,
+  userBuilder:littleId.common.model.OIdUserCreds.Builder
+) extends controller.OpenIdTool {
   private val log = LazyLogger( getClass )
   private val props:Properties = PropertiesLoader.get.loadProperties( classOf[controller.OpenIdTool] )
 
@@ -32,14 +35,12 @@ class SimpleOidTool @Inject() ( consumerMgr:consumer.ConsumerManager ) extends c
     override val providerEndpoint:URL,
     override val params:Map[String,String]
   ) extends controller.OpenIdTool.OIdRequestData {}
-
-  private case class UserCreds( email:String, openId:URL ) extends littleId.OIdUserCreds {}
   
   val consumerURL = new URL( props.getProperty( "consumerURL" ) )
 
-  def buildRequest( oidProvider:littleId.OIdProvider.Value ):controller.OpenIdTool.OIdRequestData = {
+  def buildRequest( oidProvider:littleId.common.model.OIdProvider.Value ):controller.OpenIdTool.OIdRequestData = {
     val openid:URL = oidProvider match {
-      case littleId.OIdProvider.Yahoo => new URL( "https://me.yahoo.com" )
+      case littleId.common.model.OIdProvider.Yahoo => new URL( "https://me.yahoo.com" )
       case _ => new URL( "https://www.google.com/accounts/o8/id" )
     }
 
@@ -75,7 +76,7 @@ class SimpleOidTool @Inject() ( consumerMgr:consumer.ConsumerManager ) extends c
 
   def processResponse( requestData:controller.OpenIdTool.OIdRequestData, 
                       consumerEndpoint:URL, responseParams:Map[String,Array[String]]
-  ):Option[littleId.OIdUserCreds] = {
+  ):Option[littleId.common.model.OIdUserCreds] = {
     // Verify the validity of the response
     consumerMgr.verify(
       consumerEndpoint.toString(),
@@ -91,7 +92,7 @@ class SimpleOidTool @Inject() ( consumerMgr:consumer.ConsumerManager ) extends c
                     None
                 }
               }
-          maybeEmail.map( (email) => UserCreds( email, new URL( openId ) ) )
+          maybeEmail.map( (email) => userBuilder.email( email ).openId( new URL( openId ) ).build )
         }
       case _ => None
 

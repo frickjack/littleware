@@ -8,22 +8,22 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.server.model
+package littleware.apps.littleId.common.model
 
 import littleware.apps.littleId
 
 trait VerifyRequest {
-  val creds:littleId.OIdUserCreds
+  val creds:Map[String,String]
   val secret:String
 }
 
 object VerifyRequest {
   private case class SimpleRequest(
     @reflect.BeanProperty
-    creds:littleId.OIdUserCreds,
+    creds:Map[String,String],
     @reflect.BeanProperty
     secret:String
   ) extends VerifyRequest {}
 
-  def apply( creds:littleId.OIdUserCreds, secret:String ):VerifyRequest = SimpleRequest( creds, secret )
+  def apply( creds:Map[String,String], secret:String ):VerifyRequest = SimpleRequest( creds, secret )
 }

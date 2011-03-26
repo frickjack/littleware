@@ -20,7 +20,7 @@ class AuthResponseBuilder extends model.AuthResponse.Builder {
     @scala.reflect.BeanProperty
     request:model.AuthRequest,
     @scala.reflect.BeanProperty
-    userInfo:littleId.OIdUserCreds,
+    userInfo:littleId.common.model.OIdUserCreds,
     @scala.reflect.BeanProperty
     verifySecret:String
   ) extends model.AuthResponse.AuthSuccess {}
@@ -35,7 +35,7 @@ class AuthResponseBuilder extends model.AuthResponse.Builder {
   ) extends model.AuthResponse.BuildStep2 {
     require( null != request, "AuthResponseBuilder request may not be null" )
 
-    override def success( userInfo:littleId.OIdUserCreds, verifySecret:String ):model.AuthResponse.AuthSuccess = {
+    override def success( userInfo:littleId.common.model.OIdUserCreds, verifySecret:String ):model.AuthResponse.AuthSuccess = {
       require( null != userInfo, "userInfo may not be null")
       require( LittleHelper.emptyCheck( verifySecret ).isDefined, "verifySecret may not be empty" )
       Success( request, userInfo, verifySecret )

@@ -22,10 +22,10 @@ trait AuthVerifyTool {
    * A new authentication is cached for at most 5 minutes, and only
    * supports one verification.
    */
-  def cacheCreds( secret:String, creds:littleId.OIdUserCreds ):Unit
+  def cacheCreds( secret:String, creds:littleId.common.model.OIdUserCreds ):Unit
 
   /**
    * Verify the given credentials against the verification data cache
    */
-  def verifyCreds( secret:String, creds:littleId.OIdUserCreds ):Boolean
+  def verifyCreds( secret:String, creds:Map[String,String] ):Boolean
 }

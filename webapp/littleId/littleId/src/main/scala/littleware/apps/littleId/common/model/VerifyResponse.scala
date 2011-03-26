@@ -8,16 +8,17 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId
+package littleware.apps.littleId.common.model
 
-import java.security.Principal
-
-/**
- * E-mail based user id credentials
- */
-trait UserCreds extends Principal with java.io.Serializable {
-  val email:String
-  override def getName = email
+trait VerifyResponse {
+  val isDataValid:Boolean
 }
 
+object VerifyResponse {
+  private case class SimpleResponse(
+    @scala.reflect.BeanProperty
+    isDataValid:Boolean
+  ) extends VerifyResponse {}
 
+  def apply( isDataValid:Boolean ):VerifyResponse = SimpleResponse( isDataValid )
+}

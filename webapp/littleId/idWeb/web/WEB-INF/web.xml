@@ -36,7 +36,7 @@
         <servlet-class>littleware.apps.littleId.server.web.servlet.VerifyServlet</servlet-class>
          <init-param>
             <param-name> viewPath </param-name>
-            <param-value> /openId/view/en/verifyResult.jsf </param-value>
+            <param-value> /openId/view/en/verifyXml.jsp </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

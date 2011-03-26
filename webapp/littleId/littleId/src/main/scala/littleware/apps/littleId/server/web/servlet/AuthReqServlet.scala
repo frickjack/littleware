@@ -11,19 +11,15 @@
 package littleware.apps.littleId.server.web.servlet
 
 import com.google.inject.Inject
-import com.google.inject.Injector
 import com.google.inject.Provider
 import java.net.URL
-import java.util.UUID
 import java.util.logging.Level
-import javax.naming.InitialContext
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import littleware.apps.littleId.OIdProvider
+import littleware.apps.littleId.common.model.OIdProvider
 import littleware.apps.littleId.server._
-import littleware.bootstrap.client.AppBootstrap
 import littleware.scala.LazyLogger
 import littleware.scala.LittleHelper
 import littleware.web.beans.GuiceBean

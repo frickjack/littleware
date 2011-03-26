@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import littleware.base.PropertiesGuice;
+import littleware.base.PropertiesLoader;
 
 /**
  * Specialization extends PropertiesGuice with ability to
@@ -31,16 +32,33 @@ public class DbGuice extends PropertiesGuice {
 
     private static final Logger log = Logger.getLogger(DbGuice.class.getName());
 
-    public DbGuice(Properties props) {
+    protected DbGuice(Properties props) {
         super(props);
     }
 
-    public DbGuice(String propPath) throws IOException {
-        super(propPath);
+    /**
+     * Factory method
+     *
+     * @param props to back the new Module with
+     */
+    public static DbGuice build( Properties props ) {
+        return new DbGuice( props );
+    }
+    /**
+     * Shortcut injects this( PropertiesLoader.loadProps( propPath )
+     */
+    public static DbGuice build(String propPath) throws IOException {
+        return build(PropertiesLoader.get().loadProperties(propPath));
     }
 
-    public DbGuice() throws IOException {
-        super();
+    /** Shortcut to PropertiesLoader.loadProperties() */
+    public static DbGuice build() throws IOException {
+        return build(PropertiesLoader.get().loadProperties());
+    }
+
+    /** Shortcut to PropertiesLoader.loadProperties() */
+    public static DbGuice build( Class<?> propClass ) throws IOException {
+        return build(PropertiesLoader.get().loadProperties( propClass ));
     }
 
     /**
@@ -49,7 +67,7 @@ public class DbGuice extends PropertiesGuice {
     public void bindDataSource(Binder binder, String name,
             String url) {
         // just hard code to embedded derby provider for now
-        log.log(Level.INFO, "Binding DataSource " + name + " to " + url);
+        log.log(Level.INFO, "Binding DataSource {0} to {1}", new Object[]{name, url});
 
         final DataSourceHandler handler = (new GeneralDSHBuilder()).url(url).name(name).build();
         binder.bind(DataSource.class).annotatedWith(Names.named(name)).toInstance(

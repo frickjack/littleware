@@ -34,8 +34,34 @@ public class PropertiesGuice implements Module {
     private static final Logger log = Logger.getLogger(PropertiesGuice.class.getName());
     private final Properties properties;
 
-    public PropertiesGuice(Properties prop) {
+    protected PropertiesGuice(Properties prop) {
         properties = prop;
+    }
+
+
+    /** 
+     * Factory method
+     * 
+     * @param props to back the new Module with
+     */
+    public static PropertiesGuice build( Properties props ) {
+        return new PropertiesGuice( props );
+    }
+    /**
+     * Shortcut injects this( PropertiesLoader.loadProps( propPath )
+     */
+    public static PropertiesGuice build(String propPath) throws IOException {
+        return build(PropertiesLoader.get().loadProperties(propPath));
+    }
+
+    /** Shortcut to PropertiesLoader.loadProperties() */
+    public static PropertiesGuice build() throws IOException {
+        return build(PropertiesLoader.get().loadProperties());
+    }
+    
+    /** Shortcut to PropertiesLoader.loadProperties() */
+    public static PropertiesGuice build( Class<?> propClass ) throws IOException {
+        return build(PropertiesLoader.get().loadProperties( propClass ));
     }
 
     /**
@@ -47,17 +73,6 @@ public class PropertiesGuice implements Module {
         return properties;
     }
 
-    /**
-     * Shortcut injects this( PropertiesLoader.loadProps( propPath )
-     */
-    public PropertiesGuice(String propPath) throws IOException {
-        this(PropertiesLoader.get().loadProperties(propPath));
-    }
-
-    /** Shortcut to PropertiesLoader.loadProperties() */
-    public PropertiesGuice() throws IOException {
-        this(PropertiesLoader.get().loadProperties());
-    }
 
     /**
      * Guice bind a @Named key constant to the given value.

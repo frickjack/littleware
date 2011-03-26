@@ -105,14 +105,14 @@ public class AssetServerModule extends AbstractServerModule {
         } else {
             log.log( Level.INFO, "Configuring JPA in standalone (hibernate) mode ..." );
             try {
-                (new DbGuice("littleware_jdbc.properties")).configure(binder);
+                DbGuice.build("littleware_jdbc.properties").configure(binder);
             } catch (IOException ex) {
                 throw new AssertionFailedException("Failed to load littleware_jdbc.properties", ex);
             }
             (new HibernateGuice()).configure(binder);
         }
         try {
-            (new PropertiesGuice()).configure(binder);
+            PropertiesGuice.build().configure(binder);
         } catch (IOException ex) {
             throw new AssertionFailedException("Failed to access littleware.properties file", ex);
         }

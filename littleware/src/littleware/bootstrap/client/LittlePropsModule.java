@@ -39,7 +39,7 @@ public class LittlePropsModule extends AbstractClientModule {
     @Override
     public void configure( Binder binder ) {
         try {
-            (new PropertiesGuice()).configure(binder);
+            PropertiesGuice.build().configure(binder);
             binder.bind( Cache.Builder.class ).to( InMemoryCacheBuilder.class );
         } catch (IOException ex) {
             throw new AssertionFailedException( "Unexpected failure loading littleware.properties", ex );

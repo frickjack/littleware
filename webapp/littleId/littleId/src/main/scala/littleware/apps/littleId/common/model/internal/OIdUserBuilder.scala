@@ -8,18 +8,21 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.internal
+package littleware.apps.littleId.common.model.internal
 
 import java.net.URL
-import littleware.apps.littleId.OIdUserCreds
+import littleware.apps.littleId.common.model.OIdUserCreds
 
 object OIdUserBuilder {
   case class SimpleOIdUser(
     @scala.reflect.BeanProperty
     email:String,
     @scala.reflect.BeanProperty
-    openId:URL
+    openId:URL,
+    credentials:Map[String,String]
   ) extends OIdUserCreds {
+    override val name = email
+
     override def equals( in:Any ):Boolean = in match {
       case null => false
       case other:OIdUserCreds => (email == other.email) && (openId == other.openId)
@@ -31,6 +34,6 @@ object OIdUserBuilder {
 class OIdUserBuilder extends OIdUserCreds.Builder {
   override def build:OIdUserCreds = {
     this.validate()
-    OIdUserBuilder.SimpleOIdUser( email, openId )
+    OIdUserBuilder.SimpleOIdUser( email, openId, Map( "email" -> email, "openId" -> openId.toString ) )
   }
 }

@@ -18,7 +18,8 @@ import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import littleware.apps.littleId
-import littleId.server._
+import littleId.common.model
+import littleId.server.controller
 import littleware.scala.LazyLogger
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
@@ -28,7 +29,7 @@ object VerifyServlet {
   
   class Tools @Inject() (
     val verifyTool:controller.AuthVerifyTool,
-    val userBuilder:Provider[littleId.OIdUserCreds.Builder]
+    val userBuilder:Provider[littleId.common.model.OIdUserCreds.Builder]
   ) {}
 
 
@@ -79,14 +80,19 @@ class VerifyServlet extends HttpServlet {
   @throws(classOf[ServletException])
   def doGetOrPost( req:HttpServletRequest, resp:HttpServletResponse ):Unit = {
     val session = req.getSession
-    val secret:String = Option( req.getParameter( "secret" ) ).getOrElse( "" )
-    val userCreds:littleId.OIdUserCreds = tools.userBuilder.get.email(
-      Option( req.getParameter( "email" ) ).getOrElse( "" )
-      ).openId(
-      Option( req.getParameter( "openId" ) ).map( (id) => new URL( id ) ).getOrElse( new URL( "http://openId/not/provided/"))
+    val secret:String = Option( req.getParameter( "secret" ) ).getOrElse(
+      throw new IllegalArgumentException( "secret is a required parameter" )
+    )
+    val creds:Map[String,String] = req.getParameterNames.filter( { _ != "secret" }
+    ).map( (name) => name -> req.getParameter(name)
+    ).toMap
+    val userCreds:littleId.common.model.OIdUserCreds = tools.userBuilder.get.email(
+      creds.getOrElse( "email", "email@not.given" )
+    ).openId(
+      new URL( creds.getOrElse( "openId", "http://openId/not/provided/" ) )
     ).build
-    req.setAttribute( "verifyRequest", model.VerifyRequest( userCreds, secret ) )
-    req.setAttribute( "verifyResponse", model.VerifyResponse( tools.verifyTool.verifyCreds(secret, userCreds) )  )
+    req.setAttribute( "verifyRequest", model.VerifyRequest( creds, secret ) )
+    req.setAttribute( "verifyResponse", model.VerifyResponse( tools.verifyTool.verifyCreds(secret, creds ) )  )
     req.getRequestDispatcher( verifyResponsePage ).forward(req,resp)
   }
 

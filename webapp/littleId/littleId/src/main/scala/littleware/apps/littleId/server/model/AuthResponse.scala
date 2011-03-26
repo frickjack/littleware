@@ -14,7 +14,7 @@ package littleware.apps.littleId.server.model
  * Data backing AuthResponse interaction
  */
 import java.util.UUID
-import littleware.apps.littleId.OIdUserCreds
+import littleware.apps.littleId.common.model.OIdUserCreds
 
 trait AuthResponse {
   val request:AuthRequest

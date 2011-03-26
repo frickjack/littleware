@@ -8,13 +8,13 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.test
+package littleware.apps.littleId.server.test
 
 import com.google.inject.Inject
 import java.util.logging.Level
 import junit.framework.Assert
 import junit.framework.TestCase
-import littleware.apps.littleId.OIdProvider
+import littleware.apps.littleId.common.model.OIdProvider
 import littleware.apps.littleId.server.controller
 import littleware.scala.LazyLogger
 

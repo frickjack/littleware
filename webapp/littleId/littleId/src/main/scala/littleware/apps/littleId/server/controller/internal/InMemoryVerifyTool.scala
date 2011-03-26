@@ -18,29 +18,29 @@ import littleware.scala.LazyLogger
 
 class InMemoryVerifyTool @Inject() (
   cacheBuilder:Provider[Cache.Builder]
-  ) extends controller.AuthVerifyTool {
+) extends controller.AuthVerifyTool {
   private val log = LazyLogger( getClass )
 
-  private val cache:Cache[String,littleId.OIdUserCreds] = cacheBuilder.get.maxAgeSecs( 300 ).maxSize( 20000 ).build()
+  private val cache:Cache[String,littleId.common.model.OIdUserCreds] = cacheBuilder.get.maxAgeSecs( 300 ).maxSize( 20000 ).build()
 
-  override def cacheCreds( secret:String, creds:littleId.OIdUserCreds ):Unit = {
+  override def cacheCreds( secret:String, creds:littleId.common.model.OIdUserCreds ):Unit = {
     log.fine( "Caching secret: " + secret )
     cache.put( secret, creds )
   }
-  override def verifyCreds( secret:String, checkCreds:littleId.OIdUserCreds ):Boolean = {
-    Option( cache.remove( secret ) ).map(
-      (savedCreds) => {
-        if( (savedCreds.email == checkCreds.email) && (savedCreds.openId == checkCreds.openId) ) {
-          true
-        } else {
-          log.fine( "Credentials do not match: " + savedCreds + " ?= " + checkCreds )
-          false
+  
+  override def verifyCreds( secret:String, checkCreds:Map[String,String] ):Boolean = {
+    cache.remove( secret ) match {
+      case null => false
+      case savedCreds => {
+          ( checkCreds.size > 0 ) && // "Must check at least one credential to verify" )
+          ! (checkCreds.toSeq.exists( _ match {
+                // find a credential that doesn't match
+                case (key,value) => {
+                    savedCreds.credentials.get( key ).map( { _ != value } ).getOrElse( true )
+                  }
+              }
+            ))
         }
-      }
-    ).getOrElse( {
-        log.fine( "No entry for secret: " + secret )
-        false
     }
-        )
   }
 }

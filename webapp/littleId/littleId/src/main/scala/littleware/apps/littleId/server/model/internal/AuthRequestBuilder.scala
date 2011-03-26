@@ -16,7 +16,7 @@ import littleId.server.model
 class AuthRequestBuilder extends model.AuthRequest.Builder {
   private case class SimpleRequest(
     @scala.reflect.BeanProperty
-    openIdProvider:littleId.OIdProvider.Value,
+    openIdProvider:littleId.common.model.OIdProvider.Value,
     @scala.reflect.BeanProperty
     replyTo:URL,
     @scala.reflect.BeanProperty

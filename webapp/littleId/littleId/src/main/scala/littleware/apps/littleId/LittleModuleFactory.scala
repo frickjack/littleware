@@ -22,7 +22,7 @@ object LittleModuleFactory {
 
   class LittleModule ( profile:AppBootstrap.AppProfile ) extends AbstractClientModule( profile ) {
     override def configure( binder:Binder ):Unit = {
-      binder.bind( classOf[OIdUserCreds.Builder]).to( classOf[internal.OIdUserBuilder] )
+      binder.bind( classOf[common.model.OIdUserCreds.Builder]).to( classOf[common.model.internal.OIdUserBuilder] )
       binder.bind( classOf[server.controller.OpenIdTool]
                   ).to( classOf[server.controller.internal.SimpleOidTool]
                   ).in( Scopes.SINGLETON )
@@ -31,6 +31,12 @@ object LittleModuleFactory {
                   ).in( Scopes.SINGLETON )
       binder.bind( classOf[server.model.AuthResponse.Builder] ).to( classOf[server.model.internal.AuthResponseBuilder] )
       binder.bind( classOf[server.model.AuthRequest.Builder] ).to( classOf[server.model.internal.AuthRequestBuilder] )
+      binder.bind( classOf[client.controller.VerifyTool]
+        ).to( classOf[client.controller.internal.HttpVerifyTool]
+        ).in( Scopes.SINGLETON )
+      littleware.base.PropertiesGuice.build(
+        classOf[client.controller.internal.HttpVerifyTool]
+      ).configure( binder )
     }
   }
 

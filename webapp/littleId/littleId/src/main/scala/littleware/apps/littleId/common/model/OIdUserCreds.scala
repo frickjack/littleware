@@ -8,14 +8,18 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId
+package littleware.apps.littleId.common.model
 
 import java.net.URL
 import littleware.scala.LittleHelper
 import littleware.scala.LittleValidator
 
 
+/**
+ * UserCredentials guaranteed to have e-mail and open-id
+ */
 trait OIdUserCreds extends UserCreds {
+  val email:String
   val openId:URL
 }
 

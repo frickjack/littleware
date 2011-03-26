@@ -41,7 +41,7 @@ trait OpenIdTool {
    * @param oidProvider to build request data for
    * @return data needed to route the client over to the OId provider
    */
-  def buildRequest( oidProvider:littleId.OIdProvider.Value ):OIdRequestData
+  def buildRequest( oidProvider:littleId.common.model.OIdProvider.Value ):OIdRequestData
 
   /**
    * Process the authentication response from the OID provider
@@ -51,5 +51,5 @@ trait OpenIdTool {
    * @param responseParams HTTP parameters delivered by the response
    * @return credentials for the authenticated user - or none if no user authenticated
    */
-  def processResponse( requestData:OIdRequestData, consumerEndpoint:URL, responseParams:Map[String,Array[String]] ):Option[littleId.OIdUserCreds]
+  def processResponse( requestData:OIdRequestData, consumerEndpoint:URL, responseParams:Map[String,Array[String]] ):Option[littleId.common.model.OIdUserCreds]
 }

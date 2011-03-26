@@ -8,17 +8,12 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.server.model
+package littleware.apps.littleId.common.model
 
-trait VerifyResponse {
-  val isDataValid:Boolean
-}
-
-object VerifyResponse {
-  private case class SimpleResponse(
-    @scala.reflect.BeanProperty
-    isDataValid:Boolean
-  ) extends VerifyResponse {}
-
-  def apply( isDataValid:Boolean ):VerifyResponse = SimpleResponse( isDataValid )
+/**
+ * Just enumerate the supported OpenId providers
+ */
+object OIdProvider extends Enumeration {
+  @scala.reflect.BeanProperty
+  val Google, Yahoo = Value
 }

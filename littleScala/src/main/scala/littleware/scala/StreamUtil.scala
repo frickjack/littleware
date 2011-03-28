@@ -11,6 +11,7 @@
 package littleware.scala
 
 import java.io
+import java.nio.CharBuffer
 
 /**
  * Some convenience methods for working with java.io
@@ -165,25 +166,33 @@ object StreamUtil {
   }
 
   /**
+   * Convenience class - lets
+   */
+  trait Closer[T] {
+    val data:T
+    def close():this.type
+  }
+
+  /**
+   * Read everything from the given reader
+   */
+  def readAll( source:io.Reader ):Closer[String] = new Closer[String]() {
+    val data:String = ((new StringBuilder) /: bufferStream( source.read, new Array[Char](10240) ))(
+      (sb,dataBuffer) => sb.appendAll( dataBuffer.buffer, 0, dataBuffer.dataSize )
+    ).toString
+    def close():this.type = {
+      source.close
+      this
+    }
+  }
+
+
+  /**
    * Assume UTF-8 encoding
    */
-  def readAll( source:io.File ):String = {
-    /** Non-closing stream */
-    class MyStream( reader:io.Reader ) {
-      def read( buf:Array[Char] ):Int = reader.read(buf )
-      def close():Unit = reader.close
-    }
-
-    (
-      (new StringBuilder) /:
-      selfClosingBufferStream[Char](
-        Source( (new io.InputStreamReader( new io.FileInputStream( source ),
-                                  littleware.base.Whatever.UTF8
-          )) ),
-        new Array[Char]( 10240 )
+  def readAll( source:io.File ):String = 
+    readAll( new io.InputStreamReader( new io.FileInputStream( source ),
+                                      littleware.base.Whatever.UTF8
       )
-    )(
-      (sb,dataBuffer) => sb.append( dataBuffer.buffer, 0, dataBuffer.dataSize )
-    ).toString
-  }
+    ).close.data
 }

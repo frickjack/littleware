@@ -29,7 +29,7 @@ littleware.littleYUI = (function() {
     var getLittleModules = function() {
         return {
             combine: false,
-            base: '/openId/resources/js/littleware/',
+            base: '/services/resources/js/littleware/',
             //comboBase: 'http://yui.yahooapis.com/combo?',
             //root: '2.8.0r4/build/',
             modules:  { // one or more external modules that can be loaded along side of YUI

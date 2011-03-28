@@ -10,6 +10,7 @@
     </listener>
         <!-- Listeners -->
     <listener>
+        <description>Login support garbage.</description>
         <listener-class>littleware.apps.littleId.client.web.servlet.LoginHandler</listener-class>
     </listener>
 
@@ -48,6 +49,19 @@
     <servlet>
         <servlet-name>Login Servlet</servlet-name>
         <servlet-class>littleware.apps.littleId.client.web.servlet.LoginHandler</servlet-class>
+         <init-param>
+            <param-name> loginOkURL </param-name>
+            <param-value> /services/ </param-value>
+        </init-param>
+         <init-param>
+            <param-name> loginFailedURL </param-name>
+            <param-value> /services/login/view/en/loginFailed.jsf </param-value>
+        </init-param>
+         <init-param>
+            <param-name> logoutURL </param-name>
+            <param-value> /services/ </param-value>
+        </init-param>
+
         <load-on-startup>1</load-on-startup>
     </servlet>
     

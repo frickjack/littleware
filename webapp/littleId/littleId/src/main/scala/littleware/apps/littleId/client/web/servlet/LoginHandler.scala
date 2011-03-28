@@ -31,6 +31,7 @@ import client.controller.VerifyTool
 import client.web.bean
 import littleware.apps.littleId.client.controller.JaasLoginModule
 import littleware.scala.LazyLogger
+import littleware.scala.LittleHelper
 import littleware.security.auth.SimpleCallbackHandler
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
@@ -52,7 +53,7 @@ class LoginHandler extends HttpServlet with HttpSessionListener {
 
   private def sessionCreated(session:HttpSession ):Unit = {
     val idBean:bean.IdBean = session.getAttribute( "idBean" ).asInstanceOf[bean.IdBean]
-
+    log.log( Level.FINE, "Session created")
     if (null == idBean) {
       session.setAttribute( "idBean", new bean.IdBean() )
     }
@@ -62,7 +63,7 @@ class LoginHandler extends HttpServlet with HttpSessionListener {
    * Inject a guest IdBean into the session
    */
   override def sessionCreated( event:HttpSessionEvent ):Unit = {
-    sessionCreated(event.getSession());
+    sessionCreated( event.getSession() );
   }
 
 
@@ -141,7 +142,7 @@ class LoginHandler extends HttpServlet with HttpSessionListener {
                             jaasConfig)
           ).login()
           request.getSession.setAttribute( "idBean", new bean.IdBean( subject.getPrincipals.head ) )
-          redirect( request, response, Option( request.getParameter( "loginOkURL" ) ).getOrElse( loginOkURL ) )
+          redirect( request, response, LittleHelper.emptyCheck( request.getParameter( "loginOkURL" ) ).getOrElse( loginOkURL ) )
         } catch {
           case  ex:ServletException => throw ex
           case ex:Exception => {

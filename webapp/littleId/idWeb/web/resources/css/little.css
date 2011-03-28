@@ -28,8 +28,12 @@ em {
     font-style:italic;
 }
 
-h1,h2,h3 {
+h1,h2,h3,h4 {
     font-weight: bold;
+}
+h4 {
+    padding: 3px;
+    color: #5E740B;
 }
 
 table, tr, td, th {
@@ -106,8 +110,17 @@ span.button {
     background-color: #ccccff;
 }
 
+div#sidenav {
+    width: 200px;
+}
+
 div.sidenav {
     padding-top: 10px;
+}
+
+div.sidenav ul, div.sidenav ul li {
+    padding-left: 2px;
+    margin-left: 2px;
 }
 
 .oblique {

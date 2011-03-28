@@ -9,7 +9,7 @@
         </manager-properties>
       </session-manager>
     </session-config>
-  <context-root>/openId</context-root>
+  <context-root>/services</context-root>
   <class-loader delegate="true"/>
   <jsp-config>
     <property name="keepgenerated" value="false">

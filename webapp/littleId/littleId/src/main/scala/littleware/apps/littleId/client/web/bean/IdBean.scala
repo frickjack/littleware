@@ -15,6 +15,8 @@ import littleware.apps.littleId.common.model.UserCreds
 /**
  * Bean injected into the HTTP Session by the servlet.LoginHandler
  */
+@javax.faces.bean.ManagedBean
+@javax.faces.bean.SessionScoped
 case class IdBean (
   @reflect.BeanProperty
   user:Principal,

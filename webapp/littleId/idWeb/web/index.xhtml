@@ -1,12 +1,45 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://java.sun.com/jsf/html">
-    <h:head>
-        <title>Facelet Title</title>
-    </h:head>
-    <h:body>
-        Hello from Facelets
-    </h:body>
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      >
+
+    <ui:composition template="/WEB-INF/layout/standard.xhtml">
+        <ui:define name="title">welcome to littleware services @ frickjack.com</ui:define>
+        <ui:define name="content">
+
+            <h3>Littleware Services</h3>
+
+            <p>
+                Welcome to <a href="#">services.frickjack.com</a> - a set of online
+                services that I hope to evolve over time.
+            </p>
+
+            <div style="border-top: 1px solid black;">
+                <h4>littleId service</h4>
+            <p>
+            The <a href="./openId/index.jsf">littleId</a> service
+            acts as an <a href="http://openid.net">openId</a> assistant service
+            that coordinates a web application's login process with an openId
+            consumer hosted locally or at
+            <a href="http://services.frickjack.com">services.frickjack.com</a>.
+            </p>
+            <p>
+                The littleId client (javascript, java, scala, and php) and openId are
+                open-source under the <a href="http://www.gnu.org/licenses/lgpl-2.1.html">LGPL</a>
+                license.
+            </p>
+            </div>
+            <div style="border-top: 1px solid black;">
+                <h4>Library Cataloging Tools</h4>
+                <p>
+                    A small number of cataloging web-start tools are available
+                    on our <a href="http://code.google.com/p/littleware">Google code site</a>.
+                </p>
+            </div>
+
+        </ui:define>
+    </ui:composition>
 </html>
 

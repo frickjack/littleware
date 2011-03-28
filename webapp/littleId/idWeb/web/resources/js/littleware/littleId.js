@@ -42,7 +42,7 @@ YUI.add('littleware-littleId', function(Y) {
         }
 
         LoginProcess.NAME = "LoginProcess"
-        LoginProcess.openIdURL = "http://beta.frickjack.com:8080/openId/"
+        LoginProcess.openIdURL = "http://beta.frickjack.com:8080/services/"
         LoginProcess.STATES = [ "NotYetStarted", "Started", "CanceledByUser", "Waiting4Provider", "CredsReady", "FailedAuth"];
 
         LoginProcess.ATTRS = {

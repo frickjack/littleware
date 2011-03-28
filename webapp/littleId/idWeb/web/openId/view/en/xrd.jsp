@@ -6,7 +6,7 @@
   <XRD>
     <Service priority="0">
       <Type>http://openid.net/signon/1.0</Type>
-      <URI><%= request.getScheme() + "://beta.frickjack.com:" + request.getServerPort()%>/openId/openId/services/providerResponse/</URI>
+      <URI><%= request.getScheme() + "://beta.frickjack.com:" + request.getServerPort()%>/services/openId/services/providerResponse/</URI>
     </Service>
   </XRD>
 </xrds:XRDS>

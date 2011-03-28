@@ -22,3 +22,9 @@ trait UserCreds extends Principal with java.io.Serializable {
 }
 
 
+object UserCreds {
+  private case class User( name:String, credentials:Map[String,String] ) extends UserCreds {}
+
+  def apply( name:String ):UserCreds = User( name, Map.empty )
+  def apply( name:String, creds:Map[String,String] ):UserCreds = User( name, creds )
+}

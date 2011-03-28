@@ -18,9 +18,13 @@ import littleware.scala.LazyLogger
 import littleware.test.TestFactory
 
 
-class PackageTestSuite @Inject()( verifyTester:VerifyToolTester ) extends TestSuite {
+class PackageTestSuite @Inject()(
+  verifyTester:VerifyToolTester,
+  jaasTester:JaasLoginTester
+) extends TestSuite {
   setName( getClass.getName )
   addTest( verifyTester )
+  addTest( jaasTester )
 }
 
 object PackageTestSuite {

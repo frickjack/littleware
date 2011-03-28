@@ -80,7 +80,7 @@
                     littleware.littleId = Y.littleware.littleId
                     Y.on( 'click', function(ev) {
                         ev.preventDefault();
-                        login.promptUserForProvider( "#promptTest" );
+                        login.promptUserForProvider();
                     }, "#aOpenId" );
                     login.after( 'loginStateChange', function(ev) {
                         var state = login.get( 'loginState' )
@@ -128,7 +128,7 @@
                     littleware.littleId = Y.littleware.littleId
                     Y.on( 'click', function(ev) {
                         ev.preventDefault();
-                        login.promptUserForProvider( "#promptTest" );
+                        login.promptUserForProvider();
                     }, "#aOpenId" );
                     login.after( 'loginStateChange', function(ev) {
                         var state = login.get( 'loginState' )

@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+
+      xmlns:h="http://java.sun.com/jsf/html">
+
+    <ui:composition template="/WEB-INF/layout/standard.xhtml">
+        <ui:define name="title">simple login</ui:define>
+        <ui:define name="content">
+
+            <c:set var="path" value="${facesContext.externalContext.requestContextPath}" />
+            <h3>A Simple Login</h3>
+
+            <p>
+                You are currently logged in as <h:outputText value="${idBean.user.name}" />.
+            </p>
+            <form id="loginForm" action="${path}/login/services/login/"
+                  method="POST" accept-charset="UTF-8"
+                  >
+                    <input id="inputEmail" type="text" name="email" value="" />
+                    <input id="inputSecret" type="text" name="secret" value="" />
+                    <input type="hidden" name="loginOkURL" value="${requestScope['javax.servlet.forward.request_uri']}" />
+                    <input type="hidden" name="loginFailedURL" value="${path}/login/view/en/loginFailed.jsf" />
+            </form>
+
+            <p>
+                A simple login process that posts the e-mail and verification secret
+                acquired via a littleId openId authentication to the
+                <a href="http://wiki.littleware.googlecode.com/hg/scaladoc/index.html">littleId.client.web.servlet.LoginServlet</a>
+                that employs the <a href="http://wiki.littleware.googlecode.com/hg/scaladoc/index.html">littleId.client.controller.JaasLoginModule</a>
+                to verify those credentials with the littleId verification service.
+            </p>
+            <ul class="clean">
+                <li><b>Step 1</b> - authenticate with an openId provider.
+                    Just <i>view source</i> to see how that's done -
+                    the <a href="#{facesContext.externalContext.requestContextPath}/openId/en/view/demoLogin.jsf">demo</a>
+                    has more details.
+                    <div id="littleIdUI" class="littleId_popup"></div>
+                </li>
+                <li><b>Step 2</b> - report the credentials to our application server,
+                    and wait for the server to verify the credentials to defend against
+                    malicious clients.
+                </li>
+            </ul>
+
+            <script type="text/javascript" language="JavaScript">
+      // <![CDATA[
+      littleware.littleYUI.bootstrap().use( 'node', 'node-base', 'littleware-littleId', function(Y) {
+              var login = Y.littleware.littleId.LoginProcess;
+              var urlBase = /^(https?:\/\/[^\/]+\/\w+\/).+/.exec( window.location.href )[1];
+              // open-id popup should redirect back to our popupReturn page with a GET HTTP request
+              login.set( 'replyToURL', urlBase + "openId/view/en/demo/popupReturn.jsf" );
+              login.set( 'replyMethod', 'GET' );
+              // expose littleware.littleId for global access by the open-id popup
+              littleware.littleId = Y.littleware.littleId
+              login.promptUserForProvider()
+              login.after( 'loginStateChange', function(ev) {
+                  var state = login.get( 'loginState' )
+                  Y.log( "Login state changed! : " + state )
+                  if ( state == 'CredsReady' ) {
+                      var creds = login.get( 'userCreds' );
+                      Y.one( '#inputEmail' ).set( 'value', creds.email );
+                      Y.one( '#inputSecret' ).set( 'value', creds.secret )
+                      alert( "bla!" )
+                      Y.one( '#loginForm' ).submit()
+                  }
+              });
+      }
+      );
+      // ]]>
+            </script>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

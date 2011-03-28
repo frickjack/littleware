@@ -13,7 +13,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.UUID;

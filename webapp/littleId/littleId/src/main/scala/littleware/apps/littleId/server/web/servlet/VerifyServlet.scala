@@ -84,13 +84,10 @@ class VerifyServlet extends HttpServlet {
       throw new IllegalArgumentException( "secret is a required parameter" )
     )
     val creds:Map[String,String] = req.getParameterNames.filter( { _ != "secret" }
-    ).map( (name) => name -> req.getParameter(name)
+    ).map(
+      (name) => name -> req.getParameter(name)
     ).toMap
-    val userCreds:littleId.common.model.OIdUserCreds = tools.userBuilder.get.email(
-      creds.getOrElse( "email", "email@not.given" )
-    ).openId(
-      new URL( creds.getOrElse( "openId", "http://openId/not/provided/" ) )
-    ).build
+    log.log( Level.FINE, "VerifyServlet processing parameters: {0}", Array[Object]( creds ) )
     req.setAttribute( "verifyRequest", model.VerifyRequest( creds, secret ) )
     req.setAttribute( "verifyResponse", model.VerifyResponse( tools.verifyTool.verifyCreds(secret, creds ) )  )
     req.getRequestDispatcher( verifyResponsePage ).forward(req,resp)

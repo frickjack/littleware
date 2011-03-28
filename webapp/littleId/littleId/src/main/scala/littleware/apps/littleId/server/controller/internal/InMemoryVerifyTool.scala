@@ -13,6 +13,7 @@ package littleware.apps.littleId.server.controller.internal
 import com.google.inject.{Inject,Provider}
 import littleware.apps.littleId
 import littleware.base.cache.Cache
+import java.util.logging.Level
 import littleId.server.{controller,model}
 import littleware.scala.LazyLogger
 
@@ -36,7 +37,24 @@ class InMemoryVerifyTool @Inject() (
           ! (checkCreds.toSeq.exists( _ match {
                 // find a credential that doesn't match
                 case (key,value) => {
-                    savedCreds.credentials.get( key ).map( { _ != value } ).getOrElse( true )
+                    savedCreds.credentials.get( key ).map(
+                      (cacheValue) => {
+                        (cacheValue != value) match {
+                          case true => {
+                              log.log( Level.FINE, "{0} credentials do not match: {1} != {2}",
+                                      Array[Object]( key, value, cacheValue )
+                              )
+                              true
+                          }
+                          case _ => false
+                        }
+                      }
+                    ).getOrElse(
+                      {
+                        log.log( Level.FINE, "Could not match credential: " +key )
+                        true 
+                      }
+                    )
                   }
               }
             ))

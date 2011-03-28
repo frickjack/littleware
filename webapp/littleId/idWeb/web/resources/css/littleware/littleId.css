@@ -11,6 +11,8 @@ div.littleId_popup {
     background-color: #aaaaaa;
     padding: 10px;
     display: none;
+    z-index: 10;
+    position: relative;
 }
 
 div.littleId_popupBody {

@@ -27,24 +27,9 @@
             </form>
             </div>
             <p>
-                A simple login process that posts the e-mail and verification secret
-                acquired via a littleId openId authentication to the
-                <a href="http://wiki.littleware.googlecode.com/hg/scaladoc/index.html">littleId.client.web.servlet.LoginServlet</a>
-                that employs the <a href="http://wiki.littleware.googlecode.com/hg/scaladoc/index.html">littleId.client.controller.JaasLoginModule</a>
-                to verify those credentials with the littleId verification service.
+                Authenticate with the frickjack.com littleId service with Google or Yahoo openId credentials.
             </p>
-            <ul class="clean">
-                <li><b>Step 1</b> - authenticate with an openId provider.
-                    Just <i>view source</i> to see how that's done -
-                    the <a href="#{facesContext.externalContext.requestContextPath}/openId/en/view/demoLogin.jsf">demo</a>
-                    has more details.
                     <div id="littleIdUI" class="littleId_popup"></div>
-                </li>
-                <li><b>Step 2</b> - report the credentials to our application server,
-                    and wait for the server to verify the credentials to defend against
-                    malicious clients.
-                </li>
-            </ul>
 
             <script type="text/javascript" language="JavaScript">
       // <![CDATA[

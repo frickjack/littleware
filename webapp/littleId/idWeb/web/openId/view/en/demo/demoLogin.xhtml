@@ -16,20 +16,51 @@
         </ui:define>
         <ui:define name="content">
 
-            <h3>Hypothetical Login Page!</h3>
+            <h3>Hypothetical Login Page</h3>
             <p>
-                Here is a typical login form for a typical web application that
+                Here is a typical login form for a simple web application that
                 maintains its own user database.  How can we openId-enable this
-                application using <a>frickjack.com's littleware</a> services ?
+                application using frickjack.com's littleId services ?
+            </p>
+            <ul>
+                <li>First, the applications directs the client (possibly in a popup)
+                    to a littleId service
+                    at frickjack.com or running on the application's server
+                    with <i>provider</i>,
+                    <i>replyToURL</i>, and <i>replyMethod</i> properties set.
+                    <a href="http://littleware.frickjack.com/services/openId/services/authRequest/?provider=google&amp;replyToURL=http://myserver/littleIdPopup/&amp;replyMethod=GET">
+                        http://littleware.frickjack.com/services/openId/services/authRequest/?provider=google&amp;replyToURL=http://myserver/littleIdPopup/&amp;replyMethod=GET
+                    </a>
+                </li>
+                <li>
+                    The littleId server eventually redirects the client back to the <i>replyToURL</i> with
+                    <i>authSuccess</i> (true or false), <i>email</i>, <i>openId</i>, and
+                    <i>verifySecret</i> properties.
+                    The verifySecret is a one-use token that expires in 5 minutes.
+                </li>
+                <li>
+                    Finally, the application server can access littleId's verification web-service to
+                    check the validity of the credentials delivered to the replyToURL:
+                    <a href="http://littleware.frickjack.com/services/openId/services/verify/?secret=XXXX&amp;email=email@email&amp;openId=http://id">
+                        http://littleware.frickjack.com/services/openId/services/verify/?secret=XXXX&amp;email=email@email&amp;openId=http://id
+                    </a>
+                </li>
+            </ul>
+            <p>
+                The following demonstration shows how an application can use the littleId javascript
+                and web-service libraries (available in java, scala, and php) to manage this
+                authentication process.
+                How does this demonstration work ?
                 Click on the <i>Login with ...</i> link, and
                 <span class="oblique">view source</span> to find out!
             </p>
             <div id="demo" style="background-color:#bbffbb;" class="padded">
-                <form id="loginForm" action="." method="POST" accept-charset="UTF-8">
+                <form id="loginForm" action="${facesContext.externalContext.requestContextPath}/login/services/login/" method="POST" accept-charset="UTF-8">
                     <table>
-                        <tr><td>Username:</td><td> <input id="inputName" type="text" name="user"></input></td></tr>
-                        <tr><td>Password:</td><td> <input id="inputPassword" type="password" name="password"></input></td></tr>
+                        <tr><td>Email:</td><td> <input id="inputName" type="text" name="email"></input></td></tr>
+                        <tr><td>1-time Secret:</td><td> <input id="inputPassword" type="text" name="secret"></input></td></tr>
                     </table>
+                    <input type="submit" name="Go" value="Go" />
                 </form>
                 <a id="aOpenId" href="#">Login with Google or Yahoo Open Id</a>
                 <div id="littleIdUI" class="littleId_popup"></div>
@@ -87,7 +118,7 @@
                         Y.log( "Login state changed! : " + state )
                         if ( state == 'CredsReady' ) {
                             var creds = login.get( 'userCreds' );
-                            Y.one( '#inputName' ).set( 'value', creds.email + "/" + creds.openId );
+                            Y.one( '#inputName' ).set( 'value', creds.email );
                             Y.one( '#inputPassword' ).set( 'value', creds.secret )
                         }
                     });
@@ -101,7 +132,8 @@
                     <p>
                         The open-id login process routes the user to a Google or Yahoo login page in a popup
                         that eventually returns to our own <a href="popupReturn.jsf">popupReturn</a>
-                        that just runs the following script to report the user's credentials back to this page.
+                        that just runs the following script to report the user's credentials back to this page
+                        via the <i>LoginProcess.handleProviderCallback</i> javascript method.
                     </p>
                     <pre class="brush: js">
                 //&lt;![CDATA[
@@ -111,6 +143,96 @@
                         window.close();
                 });
                 // ]]&gt;
+                    </pre>
+                </li>
+                <li>
+                    The <i>LoginProcess.handleProviderCallback</i> method updates the <i>loginState</i>
+                    and <i>userCreds</i> attributes, which triggers the change-listener (in the code above and copied below) that in turn
+                    populates the login-form input fields.
+                                        <pre class="brush: js">
+                    login.after( 'loginStateChange', function(ev) {
+                        var state = login.get( 'loginState' )
+                        Y.log( "Login state changed! : " + state )
+                        if ( state == 'CredsReady' ) {
+                            var creds = login.get( 'userCreds' );
+                            Y.one( '#inputName' ).set( 'value', creds.email );
+                            Y.one( '#inputPassword' ).set( 'value', creds.secret )
+                        }
+                    });
+
+                                        </pre>
+                </li>
+                <li><p>
+                    Finally, the login-form posts the verify-secret and user email to
+                    the application server, which
+                    accesses the littleId verify service (via littleId's java or php API)
+                    to verify the credentials.
+                    </p>
+                    <pre class="brush: xml">
+                &lt;form id="loginForm" action="/services/login/services/login/" method="POST" accept-charset="UTF-8"&gt;
+                    &lt;table&gt;
+                        &lt;tr&gt;&lt;td&gt;Email:&lt;/td&gt;&lt;td&gt; &lt;input id="inputName" type="text" name="email" /&gt;&lt;/td&gt;&lt;/tr&gt;
+                        &lt;tr&gt;&lt;td&gt;1-time Secret:&lt;/td&gt;&lt;td&gt; &lt;input id="inputPassword" type="text" name="secret" /&gt;&lt;/td&gt;&lt;/tr&gt;
+                    &lt;/table&gt;
+                    &lt;input type="submit" name="Go" value="Go" /&gt;
+                &lt;/form&gt;
+                    </pre>
+                    <p>
+                        Obviously this form could be made invisible with a <i>display:none</i> style,
+                        then auto-submitted by the javascript that populates the input fields.
+                        This sites <a href="#{facesContext.externalContext.requestContextPath}/login/view/en/simpleLogin.jsf">simple login form</a>
+                        shows another submission form variation.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    The littleId java API includes implementations of a login servlet, security filter,
+                    idBean, and JAAS manager in addition to the basic VerifyTool class.
+                    The <i>SecurityFilter</i> forwards an unauthenticated user session
+                    to a login form (like the one above).  For example, the SecurityFilter forces
+                    authentication to access <a href="#{facesContext.externalContext.requestContextPath}/login/view/en/secure/securePage.jsf">this page</a>.
+                    The following excerpt from
+                    a simple web.xml configuration file registers the LoginHandler servlet
+                    and SecurityFilter with a java web application.
+                    </p>
+                    <pre class="brush: xml">
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Login Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;littleware.apps.littleId.client.web.servlet.LoginHandler&lt;/servlet-class&gt;
+         &lt;init-param&gt;
+            &lt;param-name&gt; loginOkURL &lt;/param-name&gt;
+            &lt;param-value&gt; /services/ &lt;/param-value&gt;
+        &lt;/init-param&gt;
+         &lt;init-param&gt;
+            &lt;param-name&gt; loginFailedURL &lt;/param-name&gt;
+            &lt;param-value&gt; /services/login/view/en/loginFailed.jsf &lt;/param-value&gt;
+        &lt;/init-param&gt;
+         &lt;init-param&gt;
+            &lt;param-name&gt; logoutURL &lt;/param-name&gt;
+            &lt;param-value&gt; /services/ &lt;/param-value&gt;
+        &lt;/init-param&gt;
+
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Login Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/login/services/login/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+    &lt;filter&gt;
+        &lt;filter-name&gt;SecureFilter&lt;/filter-name&gt;
+        &lt;filter-class&gt;littleware.apps.littleId.client.web.servlet.SecurityFilter&lt;/filter-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;loginForm&lt;/param-name&gt;
+            &lt;param-value&gt;/login/view/en/simpleLogin.jsf&lt;/param-value&gt;
+        &lt;/init-param&gt;
+    &lt;/filter&gt;
+
+    &lt;filter-mapping&gt;
+        &lt;filter-name&gt;SecureFilter&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/login/view/en/secure/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+
                     </pre>
                 </li>
             </ul>
@@ -135,7 +257,7 @@
                         Y.log( "Login state changed! : " + state )
                         if ( state == 'CredsReady' ) {
                             var creds = login.get( 'userCreds' );
-                            Y.one( '#inputName' ).set( 'value', creds.email + "/" + creds.openId );
+                            Y.one( '#inputName' ).set( 'value', creds.email );
                             Y.one( '#inputPassword' ).set( 'value', creds.secret )
                         }
                     });

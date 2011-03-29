@@ -81,7 +81,7 @@
         <servlet-name>Verify Servlet</servlet-name>
         <url-pattern>/openId/services/verify/*</url-pattern>
     </servlet-mapping>
-        <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>Login Servlet</servlet-name>
         <url-pattern>/login/services/login/*</url-pattern>
     </servlet-mapping>

@@ -37,7 +37,7 @@ public class PackageTestSuite extends TestSuite {
      * junit.swingui.TestRunner looks for this.
      */
     @Inject
-    public PackageTestSuite ( Provider<BeanTester> provideBeanTester,
+    public PackageTestSuite ( 
             Provider<BrowserTypeTester> provideBrowserTypeTester,
             Provider<ThumbServletTester> provideThumbServTester
             ) {
@@ -46,15 +46,12 @@ public class PackageTestSuite extends TestSuite {
         log.log(Level.INFO, "Trying to setup littleware.web test suite");
 
         // This should get the SimpleSessionManager up and listening on the default port
-        boolean b_run = true;
+        boolean runTest = true;
 
-        if (b_run) {
-            this.addTest(provideBeanTester.get());
-        }
-        if (b_run) {
+        if (runTest) {
             this.addTest( provideBrowserTypeTester.get() );
         }
-        if ( b_run ) {
+        if ( runTest ) {
             this.addTest( provideThumbServTester.get() );
         }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");

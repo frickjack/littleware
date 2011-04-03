@@ -12,10 +12,8 @@ package littleware.apps.tracker.browser
 
 import com.google.inject.Binder
 import com.google.inject.Scopes
-import littleware.bootstrap.client.AbstractClientModule
-import littleware.bootstrap.client.AppBootstrap
-import littleware.bootstrap.client.ClientModule
-import littleware.bootstrap.client.ClientModuleFactory
+import littleware.asset.client.bootstrap.{AbstractClientModule,ClientModule,ClientModuleFactory}
+import littleware.bootstrap.AppBootstrap
 import littleware.lgo.LgoCommand
 import littleware.lgo.LgoServiceModule
 import scala.collection.JavaConversions._

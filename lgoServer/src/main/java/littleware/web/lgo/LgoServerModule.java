@@ -9,6 +9,7 @@
  */
 package littleware.web.lgo;
 
+import com.google.inject.Binder;
 import com.google.inject.Inject;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,14 +26,14 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
+import littleware.asset.client.bootstrap.AbstractClientModule;
+import littleware.asset.client.bootstrap.ClientModule;
+import littleware.asset.client.bootstrap.ClientModuleFactory;
 import littleware.base.Maybe;
 import littleware.base.swing.GridBagWrap;
+import littleware.bootstrap.AppBootstrap;
+import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.client.AbstractClientModule;
-import littleware.bootstrap.client.AppBootstrap;
-import littleware.bootstrap.client.AppBootstrap.AppProfile;
-import littleware.bootstrap.client.ClientModule;
-import littleware.bootstrap.client.ClientModuleFactory;
 import org.joda.time.DateTime;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -52,6 +53,10 @@ public class LgoServerModule extends AbstractClientModule {
         } else {
             return Activator.class;
         }
+    }
+
+    public void configure(Binder binder) {
+        // NOOP
     }
 
     

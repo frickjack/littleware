@@ -11,7 +11,7 @@
 package littleware.apps.tracker.browser.model
 
 import littleware.asset.AssetPath
-import littleware.base.ValidationException
+import littleware.base.validate.ValidationException
 
 trait ProductData {
   val  parentPath:AssetPath

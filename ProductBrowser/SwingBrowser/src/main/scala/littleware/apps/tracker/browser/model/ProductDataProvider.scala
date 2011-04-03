@@ -12,7 +12,7 @@ package littleware.apps.tracker.browser.model
 
 import com.google.inject.Provider
 import littleware.asset.AssetPath
-import littleware.base.ValidationException
+import littleware.base.validate.ValidationException
 import littleware.scala.LittleHelper
 
 object ProductDataProvider extends Provider[ProductData.Builder] {

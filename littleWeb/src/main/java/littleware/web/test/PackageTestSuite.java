@@ -16,12 +16,11 @@ import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import junit.framework.*;
+import littleware.asset.client.bootstrap.ClientBootstrap;
+import littleware.asset.server.bootstrap.ServerBootstrap;
+import littleware.asset.test.AssetTestFactory;
 import littleware.base.AssertionFailedException;
-import littleware.bootstrap.client.AppModuleFactory;
-import littleware.bootstrap.client.ClientBootstrap;
-import littleware.bootstrap.server.ServerBootstrap;
-import littleware.bootstrap.server.ServerModuleFactory;
-import littleware.test.TestFactory;
+import littleware.bootstrap.AppModuleFactory;
 
 
 
@@ -68,7 +67,7 @@ public class PackageTestSuite extends TestSuite {
             for( AppModuleFactory scan : clientBuilder.getModuleSet() ) {
                 log.log( Level.INFO, "Scanning client module set: {0}", scan.getClass().getName());
             }
-            return (new TestFactory()).build(serverBoot,
+            return (new AssetTestFactory()).build(serverBoot,
                     clientBuilder.build(),
                     PackageTestSuite.class
                     );

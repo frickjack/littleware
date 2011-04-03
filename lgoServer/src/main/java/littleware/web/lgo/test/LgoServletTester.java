@@ -19,12 +19,12 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import littleware.asset.test.AbstractAssetTest;
 import littleware.base.Whatever;
-import littleware.test.LittleTest;
 import littleware.web.lgo.LgoServlet;
 import org.easymock.EasyMock;
 
-public class LgoServletTester extends LittleTest {
+public class LgoServletTester extends AbstractAssetTest {
     private static final Logger log = Logger.getLogger( LgoServletTester.class.getName() );
     private final LgoServlet servlet;
 

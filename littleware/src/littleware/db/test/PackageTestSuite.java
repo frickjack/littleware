@@ -13,12 +13,9 @@ package littleware.db.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import junit.framework.*;
-import littleware.bootstrap.server.ServerBootstrap;
-import littleware.test.TestFactory;
 
 
 /**
@@ -40,19 +37,6 @@ public class PackageTestSuite extends TestSuite {
         this.addTest( provideFactoryTester.get().putName("testProxy"));
     }
 
-
-    public static Test suite() {
-        log.log(Level.WARNING, "Guice 2.0 has an AOP bug that may throw an exception booting in test-runner class-loader");
-        try {
-            return (new TestFactory()).build(
-                    ServerBootstrap.provider.get().profile(ServerBootstrap.ServerProfile.Standalone).build(),
-                    PackageTestSuite.class
-                    );
-        } catch (RuntimeException ex) {
-            log.log(Level.SEVERE, "Test setup failed", ex);
-            throw ex;
-        }
-    }
 
 }
 

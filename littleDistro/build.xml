@@ -65,7 +65,18 @@
        <fileset dir="../Catalog/webapp/dist/" />  
        <mapper type="glob" from="*webapp.war" to="littleCat.war"/>
   </copy>
+
+  <ant antfile="../webapp/littleId/idWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="dist" />
+  <copy todir="${dist.dir}/littleware/webapp" includeemptydirs="false">
+       <fileset dir="../webapp/littleId/idWeb/dist/" />   
+  </copy>
   
+  <copy todir="${dist.dir}/littleware/api">
+      <fileset dir="../javadoc/api" />
+  </copy>
+  <copy todir="${dist.dir}/littleware/api/ydoc">
+     <fileset dir="../webapp/littleId/idWeb/build/web/resources/js/ydoc" />
+  </copy>
 </target>
 
 </project>

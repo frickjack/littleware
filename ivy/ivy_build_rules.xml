@@ -18,7 +18,9 @@
 </target>
 
 <target name="config-check">
+     <!--
     <available file="${ivy.jar.dir}/littlesettings.xml" property="settings.exists"/>
+    -->
     <available file="${ivy.jar.file}" property="ivyjar.exists"/>
     <condition property="skip.download">
         <and>
@@ -35,9 +37,11 @@
 		<echo message="installing ivy..."/> 
     	<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
     		 dest="${ivy.jar.file}" usetimestamp="true"/> 
+    		 <!--
    	<get src="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml"
     		 dest="${ivy.jar.dir}/littlesettings.xml" usetimestamp="true"
-    		 />    		 
+    		 />  
+    		 -->
 </target> 
     
     <!-- ================================= 
@@ -172,10 +176,10 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
          <delete dir="${ivy.cache.dir}/${ivy.organisation}" />
 </target>
 
-<target depends="jar" name="test-jenkins"
-    description="Run jenkins test class specified by test.classFile"
-   >
-   <sequential>
+<target name="jenkins-prep" depends="jar">
+    <!--
+      Setup reports directory, etc.
+      -->
   <property name="test.reports.dir" value="testReports" />
   <property name="test.littlehome.dir" value="${ivy.jar.dir}/littleTestHome" /> 
   <property name="test.db.dir" value="${test.littlehome.dir}/testdb" />
@@ -198,6 +202,12 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
   -->
   <delete dir="${test.reports.dir}" />
   <mkdir dir="${test.reports.dir}"/>
+      
+</target>
+
+<macrodef name="runTest">
+    <attribute name="param.test.files" />
+ <sequential>
   <junit fork="yes" dir="${basedir}" printsummary="no" haltonfailure="no">
     <jvmarg value="-Xms300m" />
     <jvmarg value="-Xmx300m" />
@@ -216,14 +226,21 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     
     <batchtest fork="yes" todir="${test.reports.dir}" >
       <fileset dir="${build.classes.dir}">
-        <include name="${test.classFile}" />
+        <include name="@{param.test.files}" />
       </fileset>
     </batchtest>
     
     <formatter type="xml" />
     <classpath path="${run.classpath}" />
   </junit>
+    </sequential>
+</macrodef>
 
+<target depends="jenkins-prep" name="test-jenkins"
+    description="Run jenkins test class specified by test.classFile"
+   >
+   <sequential>
+  <runTest param.test.files="${test.classFile}" />
   <junitreport todir="${test.reports.dir}">
     <fileset dir="${test.reports.dir}">
       <include name="TEST-*.xml" />

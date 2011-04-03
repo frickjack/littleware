@@ -1,0 +1,63 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="littleAsset"/>
+    <configurations>
+        <!-- compile may build against jars that only include interfaces -->
+        <conf name="compile" visibility="private" extends="client_compile" 
+                  description="compile everything"/>
+        <conf name="client_junit" extends="client" description="extends client with junit dependencies"/>
+        <conf name="client_compile" extends="client_junit" description="extends client with javaee interfaces dependencies"/>
+        <conf name="server_compile" extends="client_compile" description="extends client_compile with server-side classes"/>
+        <!-- java ee environment provides some runtime jars - so don't have to include them in runtime deployment -->
+        <conf name="ee_server"  extends="client" description="combined server+client running in a java ee 6+ container"/>
+        <conf name="client"  description="generic app"/>
+        <conf name="server"  extends="ee_server" description="combined server+client outside ee container"/>
+    	<conf name="test" extends="server,client_junit" visibility="private" description="for testing our framework"/>        
+        <!--
+    	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
+    	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
+    	<conf name="test" extends="cc-impl" visibility="private" description="for testing our framework"/>
+        -->
+    </configurations>
+    <publications>
+    	<artifact name="littleAsset" ext="jar" type="jar"  conf="server_compile,ee_server" />
+    	<artifact name="littleAssetClient" ext="jar" type="jar"  conf="client" />
+        <!--
+        <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
+    	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>
+        -->
+    </publications>
+    
+    <dependencies>    
+        <dependency org="littleware" name="littleIcons" rev="0.0"  />
+        <dependency org="littleware" name="littleware" rev="2.4.+" 
+           conf="client->client;client_junit->client_junit;client_compile->client_compile;server->client_derby,client_postgres,client_mysql" />
+        <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-Final" conf="compile,server->*" />
+        <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-Final" conf="compile,server->*"/>
+        <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-Final" conf="compile,server->*" />
+        <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="3.2.0.Final" conf="server->*" />
+        <dependency org="org.hibernate" name="hibernate-validator" rev="4.0.2.GA" conf="server->*" />
+        <dependency org="org.hibernate.java-persistence" name="jpa-api" rev="2.0-cr-1" conf="server->*" />
+        <!-- hibernate needs this -->
+        <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="server->*" />
+        
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.8" conf="server->*" />
+        <dependency org="org.slf4j" name="slf4j-simple" rev="1.5.8" conf="server->*" />
+        <dependency org="log4j" name="log4j" rev="1.2.14" conf="server->*" />
+        <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="server->*">
+            <exclude module=".+" ext="jar" type="src" matcher="regexp" />
+        </dependency>
+        <dependency org="javassist" name="javassist" rev="3.11.0.GA" conf="server->*" />
+        <dependency org="javax.transaction" name="jta" rev="1.1" conf="server->*">
+           <exclude module=".+" ext="jar" type="src" matcher="regexp" />
+        </dependency>
+        <dependency org="antlr" name="antlr" rev="2.7.7" conf="server->*" />
+
+        <!--
+        <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525"/>
+                -->
+        <dependency org="com.google.code.gson" name="gson" rev="1.4" />
+        <dependency org="junit" name="junit" rev="3.8.+" conf="compile,test->*" />
+    </dependencies>
+
+</ivy-module>

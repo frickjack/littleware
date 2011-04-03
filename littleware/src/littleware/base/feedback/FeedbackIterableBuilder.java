@@ -10,6 +10,7 @@
 
 package littleware.base.feedback;
 
+import littleware.base.feedback.internal.SimpleIterable;
 import com.google.inject.ImplementedBy;
 import java.util.Collection;
 

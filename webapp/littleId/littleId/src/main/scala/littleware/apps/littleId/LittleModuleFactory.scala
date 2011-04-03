@@ -12,15 +12,12 @@ package littleware.apps.littleId
 
 import com.google.inject.Binder
 import com.google.inject.Scopes
-import littleware.bootstrap.client.AbstractClientModule
-import littleware.bootstrap.client.AppBootstrap
-import littleware.bootstrap.client.AppModule
-import littleware.bootstrap.client.AppModuleFactory
+import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,helper}
 import scala.collection.JavaConversions._
 
 object LittleModuleFactory {
 
-  class LittleModule ( profile:AppBootstrap.AppProfile ) extends AbstractClientModule( profile ) {
+  class LittleModule ( profile:AppBootstrap.AppProfile ) extends helper.AbstractAppModule( profile ) {
     override def configure( binder:Binder ):Unit = {
       binder.bind( classOf[common.model.OIdUserCreds.Builder]).to( classOf[common.model.internal.OIdUserBuilder] )
       binder.bind( classOf[server.controller.OpenIdTool]

@@ -15,8 +15,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.base.EventBarrier;
 import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.client.ClientBootstrap;
-import littleware.bootstrap.server.ServerBootstrap;
+
+
 
 /**
  * Utility to setup TestSuite that can bootstrap
@@ -37,11 +37,11 @@ public class TestFactory {
      * environment that shuts down
      * the environment in the last test.
      */
-    public TestSuite build(final LittleBootstrap bootstrap,
-            final Class<? extends TestSuite> testSuiteClass) {
+    public <T extends TestSuite> T build(final LittleBootstrap bootstrap,
+            final Class<T> testSuiteClass) {
         final SetupBarrier suiteBarrier = new SetupBarrier();
         try {
-            final TestSuite suite = bootstrap.bootstrap( testSuiteClass );
+            final T suite = bootstrap.bootstrap( testSuiteClass );
             suite.addTest(new TestCase( "shutdownTest" ) {
                 @Override
                 public void runTest() {
@@ -56,30 +56,4 @@ public class TestFactory {
         }
     }
 
-    /**
-     * Bootstraps a client environment
-     * within a server environment, and
-     * return a test suite that runs the given tests
-     * as a client in the client environment, then shuts
-     * down both environments.
-     *
-     * @param clientBuilder to invoke test() login on once
-     *          embedded server environment is up and running
-     */
-    public TestSuite build(final ServerBootstrap serverBootstrap,
-            final ClientBootstrap.LoginSetup clientBuilder,
-            final Class<? extends TestSuite> testSuiteClass) {
-
-        serverBootstrap.bootstrap();
-        final TestSuite suite = build(clientBuilder.test(), testSuiteClass);
-        suite.addTest(
-                new TestCase("shutdownLittlewareServer") {
-                    @Override
-                    public void runTest() {
-                        serverBootstrap.shutdown();
-                    }
-                });
-        log.log(Level.INFO, "Returning TestSuite");
-        return suite;
-    }
 }

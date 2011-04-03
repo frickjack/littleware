@@ -15,8 +15,8 @@ import java.util.Arrays
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.security.auth.login.LoginException
-import littleware.lgo.LgoCommandLine
-import littleware.bootstrap.client.ClientBootstrap
+import littleware.apps.lgo.LgoAssetCLI
+import littleware.asset.client.bootstrap.ClientBootstrap
 import littleware.security.auth.client.ClientLoginModule
 
 object CliApp {
@@ -42,7 +42,7 @@ object CliApp {
       val boot = ClientBootstrap.clientProvider.get.build.automatic(
         loginBuilder.build
       )
-      val cl = boot.bootstrap(classOf[LgoCommandLine])
+      val cl = boot.bootstrap(classOf[LgoAssetCLI])
       //val cl = boot.;
       val exitCode = cl.run(cleanArgs)
       boot.shutdown();

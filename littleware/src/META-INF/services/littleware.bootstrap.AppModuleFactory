@@ -1,0 +1,4 @@
+# littleware AppModule service providers
+littleware.bootstrap.helper.LittlePropsModule$Factory
+littleware.bootstrap.helper.ExecutorModule$Factory
+littleware.lgo.LgoModule$Factory

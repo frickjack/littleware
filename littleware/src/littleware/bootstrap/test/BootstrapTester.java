@@ -12,8 +12,7 @@ package littleware.bootstrap.test;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.TestCase;
-import littleware.bootstrap.client.ClientBootstrap;
-import littleware.bootstrap.server.ServerBootstrap;
+import littleware.bootstrap.AppBootstrap;
 
 public class BootstrapTester extends TestCase {
 
@@ -29,13 +28,9 @@ public class BootstrapTester extends TestCase {
      */
     public void testModuleLoad() {
         try {
-            assertTrue("Found a server module",
-                    !ServerBootstrap.provider.get().build().getModuleSet().isEmpty()
+            assertTrue("Found an app module",
+                    !AppBootstrap.appProvider.get().build().getModuleSet().isEmpty()
                     );
-            assertTrue("Found a client module",
-                    !ClientBootstrap.clientProvider.get().getModuleSet().isEmpty()
-                    );
-
         } catch (Exception ex) {
             log.log(Level.WARNING, "Test failed", ex);
             fail("Caught exception: " + ex);

@@ -14,8 +14,8 @@ package littleware.web.servlet;
 import com.google.inject.Injector;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-import littleware.bootstrap.client.AppBootstrap;
-import littleware.bootstrap.client.ClientBootstrap;
+import littleware.asset.client.bootstrap.ClientBootstrap;
+import littleware.bootstrap.AppBootstrap;
 import littleware.security.auth.SessionHelper;
 import littleware.web.beans.GuiceBean;
 

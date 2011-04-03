@@ -17,12 +17,12 @@ nbproject/private
 ^scratch
 /ivy/
 ^ivy/littleTestHome/
+^ivy/ivyRepo/
 /ydoc/
 /yparser/
 \.pyc$
 javadoc/api
 ivy/ivy.jar
-ivy/littlesettings.xml
 ~$
 .zip$
 .orig$

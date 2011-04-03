@@ -16,11 +16,11 @@ import java.util.logging.Logger;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import littleware.test.LittleTest;
+import littleware.asset.test.AbstractAssetTest;
 import littleware.web.servlet.ThumbServlet;
 import org.easymock.EasyMock;
 
-public class ThumbServletTester extends LittleTest {
+public class ThumbServletTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(ThumbServletTester.class.getName());
     private final ThumbServlet servlet;

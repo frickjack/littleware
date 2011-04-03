@@ -10,26 +10,21 @@
 package littleware.lgo;
 
 import com.google.common.collect.ImmutableMap;
-import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import javax.security.auth.login.LoginException;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.client.AppBootstrap;
-import littleware.bootstrap.client.ClientBootstrap;
-import littleware.security.auth.client.ClientLoginModule;
+import littleware.bootstrap.AppBootstrap;
 
 /**
  * Command-line based lgo launcher.
@@ -46,15 +41,11 @@ public class LgoCommandLine {
     /**
      * Special options that LgoCommandLine.launch looks for as first
      * arguments before the command's name:
-     *  +mode [local|client] -- client establishes session with littleware server, default is client
      *  +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time
-     *  +user [username] -- user to authenticate as in client mode, defaults to current OS user
-     *  +url  [server-info] -- url specifies host/port information for the littleware server in client mode
      */
     private enum SpecialOption {
-        user, url, mode, profile;
+        profile;
     };
-
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
 
@@ -81,11 +72,8 @@ public class LgoCommandLine {
         try {
             if (maybe.isEmpty() || sCommand.equalsIgnoreCase("help")) {
                 System.out.println("Command use:");
-                System.out.println("     lgo [+user name] [+mode client|app] [+url http://server:port] [+profile cli|swing] command options");
-                System.out.println("        +mode [local|client] -- client establishes session with littleware server, default is client");
+                System.out.println("     lgo [+profile cli|swing] command options");
                 System.out.println("        +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time");
-                System.out.println("        +user [username] -- user to authenticate as in client mode, defaults to current OS user");
-                System.out.println("        +url  [server-info] -- url specifies host/port information for the littleware server in client mode\n");
             }
             if (maybe.isEmpty()) {
                 final LgoCommand help = commandMgr.buildCommand("help").get().buildWithInput(sCommand);
@@ -219,78 +207,16 @@ public class LgoCommandLine {
             profile = AppBootstrap.AppProfile.SwingApp;
         }
 
-        Maybe<LittleBootstrap> maybeBoot = Maybe.empty();
-        if ((!specialOptionMap.containsKey(SpecialOption.mode))
-                || specialOptionMap.get(SpecialOption.mode).toLowerCase().trim().equals("client")) {
-            final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
-            if (specialOptionMap.containsKey(SpecialOption.url)) {
-                final String sUrl = specialOptionMap.get(SpecialOption.url);
-                try {
-                    final URL url = new URL(sUrl);
-                    loginBuilder.host(url.getHost());
-                } catch (MalformedURLException ex) {
-                    throw new IllegalArgumentException("Malformed URL: " + sUrl);
-                }
-            }
-            final Maybe<String> maybeUser;
-            if ( specialOptionMap.containsKey(SpecialOption.user) ) {
-                maybeUser = Maybe.something( specialOptionMap.get( SpecialOption.user ));
-            } else {
-                maybeUser = Maybe.empty();
-            }
+        final LittleBootstrap boot = (LittleBootstrap) AppBootstrap.appProvider.get().profile(profile).build();
 
-            /*... need to rework this pipe/server stuff ...
-            if ( cleanArgs.length > 0 ) {
-            final String command = cleanArgs[0];
-
-            if (command.equalsIgnoreCase("pipe")) {
-            bootBuilder.getOSGiActivator().add( LgoPipeActivator.class );
-            bootBuilder.bootstrap();
-            //processPipe(feedback);
-            return;
-            }
-
-            if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
-            log.log( Level.INFO, "Launching lgo server ..." );
-            bootBuilder.getOSGiActivator().add( LgoServerActivator.class );
-            bootBuilder.bootstrap();
-            return;
-            }
-            if ( command.equals( "jserver" ) ) { // launch lgo server - jnlp environment
-            log.log( Level.INFO, "Launching lgo jnlp server ..." );
-            bootBuilder.getOSGiActivator().add( JLgoServerActivator.class );
-            bootBuilder.bootstrap();
-            return;
-            }
-            }
-             */
-
-            try {
-                final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get().profile(profile);
-                if (maybeUser.isSet()) {
-                    maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().automatic(
-                            loginBuilder.build(), maybeUser.get(), "")
-                            );
-                } else {
-                    maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().automatic(loginBuilder.build()));
-                }
-
-            } catch (LoginException ex) {
-                log.log(Level.SEVERE, "Failed login", ex);
-            }
-        } else {
-            maybeBoot = Maybe.something((LittleBootstrap) AppBootstrap.appProvider.get().profile(profile).build());
-        }
         int exitCode = 1;
-        if (maybeBoot.isSet()) {
-            final LittleBootstrap boot = maybeBoot.get();
-            final LgoCommandLine cl = boot.bootstrap(LgoCommandLine.class);
-            try {
-                exitCode = cl.run(cleanArgs);
-            } finally {
-                boot.shutdown();
-            }
+        final LgoCommandLine cl = boot.bootstrap(LgoCommandLine.class);
+        try {
+            exitCode = cl.run(cleanArgs);
+        } finally {
+            boot.shutdown();
         }
+
         System.exit(exitCode);
     }
 

@@ -17,7 +17,7 @@
 
     <!-- ............................... -->
     <target name="buildCatalog" depends="buildLittleware,cat-check" if="catalog.exists"
-    description="Build the Catalog/ projects, and the littleware/ projects that depend on them"
+    description="Build the Catalog/ projects"
    >
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/AuLibrary" />
@@ -25,15 +25,19 @@
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/Voyager" />
         </antcall>
+        <!-- ... disable for now ...
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/VufindRegression" />
         </antcall>
+        -->
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/AuUnicodeFilter" />
         </antcall>
+        <!--
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/CatRequest" />
         </antcall>
+        -->
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/ClickCount" />
         </antcall>
@@ -55,35 +59,43 @@
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/Vygr2Vfnd" />
         </antcall>
+        <!--
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/FishProject/Minnows" />
         </antcall>
+        -->
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/RefStat" />
         </antcall>
         <antcall target="buildSubproject">
             <param name="param.subproject" value="Catalog/CircRequest" />
         </antcall>
-        <antcall target="buildSubproject">
-            <param name="param.subproject" value="ProductBrowser/SwingBrowser" />
-        </antcall>
     </target>
     
     <target name="buildLittleware"
-	 description="build milestones for littleware/, littleApps/, littleWeb/, lgoServer/, and javadoc/"
+	 description="build milestones for littleware/, littleAsset/, littleWeb/, lgoServer/, and javadoc/"
       >
 
         <antcall target="buildSubproject">
             <param name="param.subproject" value="littleware" />
         </antcall>
         <antcall target="buildSubproject">
-            <param name="param.subproject" value="littleApps" />
+            <param name="param.subproject" value="littleAsset" />
         </antcall>
         <antcall target="buildSubproject">
             <param name="param.subproject" value="littleWeb" />
         </antcall>
         <antcall target="buildSubproject">
             <param name="param.subproject" value="lgoServer" />
+        </antcall>
+        <antcall target="buildSubproject">
+            <param name="param.subproject" value="littleScala" />
+        </antcall>        
+        <antcall target="buildSubproject">
+            <param name="param.subproject" value="ProductBrowser/SwingBrowser" />
+        </antcall>
+        <antcall target="buildSubproject">
+            <param name="param.subproject" value="webapp/littleId/littleId" />
         </antcall>
             
     </target>
@@ -98,11 +110,16 @@
     description="Build the littleware and Catalog/ subprojects" 
     />
 
-    <target name="buildAndTest" depends="buildAll" description="buildAll, then run regression tests on subprojects">
+    <target name="testAll" description="run regression tests, assumes everything is already built">
             <ant antfile="littleware/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
-            <ant antfile="littleApps/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="littleAsset/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="littleScala/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="webapp/littleId/littleId/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="Catalog/AuLibrary/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="Catalog/MarcViewer/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+    </target>
+    
+    <target name="buildAndTest" depends="buildAll,testAll" description="buildAll, then run regression tests on subprojects">
     </target>
 </project>

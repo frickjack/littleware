@@ -13,8 +13,7 @@
  * YUI doc comments: http://developer.yahoo.com/yui/yuidoc/
  * YUI extension mechanism: http://developer.yahoo.com/yui/3/yui/#yuiadd
  *
- * @module littleware
- * @submodule littleId
+ * @module littleware.littleId
  * @namespace littleware.littleId
  */
 YUI.add('littleware-littleId', function(Y) {

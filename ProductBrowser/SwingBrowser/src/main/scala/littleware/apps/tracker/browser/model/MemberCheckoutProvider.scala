@@ -13,7 +13,7 @@ package littleware.apps.tracker.browser.model
 import com.google.inject.Provider
 import java.io.File
 import littleware.apps.tracker.Member
-import littleware.base.ValidationException
+import littleware.base.validate.ValidationException
 
 
 object MemberCheckoutProvider extends Provider[MemberCheckoutData.Builder] {

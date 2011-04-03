@@ -18,11 +18,11 @@ import com.google.inject.Scopes;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.bootstrap.client.AbstractClientModule;
-import littleware.bootstrap.client.AppBootstrap;
-import littleware.bootstrap.client.AppBootstrap.AppProfile;
-import littleware.bootstrap.client.AppModule;
-import littleware.bootstrap.client.AppModuleFactory;
+import littleware.bootstrap.AppBootstrap;
+import littleware.bootstrap.AppBootstrap.AppProfile;
+import littleware.bootstrap.AppModule;
+import littleware.bootstrap.AppModuleFactory;
+import littleware.bootstrap.helper.AbstractAppModule;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -30,7 +30,7 @@ import org.osgi.framework.BundleContext;
  * Guice module for bootstrapping the LittleGo
  * application.  Sets up easy Lgo implementation.
  */
-public class LgoModule extends AbstractClientModule implements LgoServiceModule {
+public class LgoModule extends AbstractAppModule implements LgoServiceModule {
     private static final Logger log = Logger.getLogger( LgoModule.class.getName() );
     
     public static class Factory implements AppModuleFactory {

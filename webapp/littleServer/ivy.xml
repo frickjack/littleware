@@ -14,7 +14,7 @@
       <dependency org="littleware" name="productBrowser" rev="latest.integration" 
                 conf="compile->compile;ee_server,ee_client->ee_client" 
                 />
-      <dependency org="littleware" name="littleApps" rev="latest.integration" 
+      <dependency org="littleware" name="littleAsset" rev="latest.integration" 
             conf="compile->compile;ee_client->ee_client;ee_server->ee_server;client->client" 
             />
       <dependency org="javax.jnlp" name="jnlp-servlet" rev="6" conf="ee_client,ee_server->*" />

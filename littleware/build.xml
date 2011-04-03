@@ -11,8 +11,8 @@
     name="littleware" default="default" basedir="."
     >
     <description>Builds, tests, and runs the project littleware.</description>
-    <property name="ivy.deliver.revision" value="2.3" />
-    <property name="test.classFile" value="littleware/test/PackageTestSuite.class" />
+    <property name="ivy.deliver.revision" value="2.4" />
+    <property name="test.classFile" value="littleware/test/JenkinsTestSuite.class" />
     <import file="../ivy/ivy_build_rules.xml"/>
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -76,33 +76,5 @@
     nbproject/build-impl.xml file. 
 
     -->
- <target name="-post-jar" depends="littleClient" />
- <target name="littleClient"
-	 description="build littleClient.jar"
-      >
-      <jar id="jarclient" jarfile="dist/littleClient.jar"
-	basedir="build/classes"
-        index="true"
-	level="9"
-     >     
-   <exclude name="derby/**" />
-   <exclude name="mysql/**" />
-   <exclude name="postgres/**" />
-   <exclude name="META-INF/persistence.xml" />
-   <exclude name="META-INF/services/littleware.bootstrap.server.ServerModuleFactory" />
-   <exclude name="littleware/apps/calendar/**" />
-   <exclude name="littleware/alarmClock/**" />
-   <exclude name="littleware/apps/backup/**" />
-   <exclude name="littleware/browser/**" />
-   <exclude name="littleware/calendar/**" />
-   <exclude name="littleware/cookbook/**" />
-   <exclude name="trash/**" />
-   <exclude name="3rdparty/**" />
-   <exclude name="**/server/**" />
-   <exclude name="**/test/**" />
-   <exclude name="**/web/**" />
-   <fileset dir="build/classes" includes="littleware/test/**" />
-     </jar>
-</target>
 
 </project>

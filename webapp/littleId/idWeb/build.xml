@@ -9,7 +9,8 @@
 <!-- in the project's Project Properties dialog box.-->
 <project name="idWeb" default="default" basedir=".">
     <description>Builds, tests, and runs the project idWeb.</description>
-    <property name="ivy.deliver.revision" value="2.3" />
+    <property name="ivy.deliver.revision" value="2.4" />
+    <property name="ydoc.path" value="/Users/pasquini/Documents/Code/yuidoc/bin/ydoc.bat" />
     <import file="../../../ivy/ivy_build_rules.xml"/>         
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -70,12 +71,25 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-ydoc-exists">
+         <available file="${ydoc.path}" property="ydoc.exists" />
+    </target>
+    
+    <target name="ydoc" depends="-ydoc-exists" if="ydoc.exists" 
+        description="run ydoc on build/ js"
+        >
+      <exec executable="${ydoc.path}">
+        <arg value="build/web/resources/js/littleware"/>
+     </exec>    
+    </target>
+    
     
     <target name="jar" depends="dist" />
-    <target name="-post-compile" >
+    <target name="-post-compile" depends="ydoc">
       <copy todir="build/web/WEB-INF/lib">
         <fileset dir="ivy/test"/>
       </copy>
+      
     </target>
 
 </project>

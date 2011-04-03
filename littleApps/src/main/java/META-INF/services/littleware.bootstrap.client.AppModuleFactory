@@ -1,3 +1,0 @@
-# littleware AppModule service providers
-littleware.apps.client.ExecutorModule$Factory
-littleware.apps.tracker.client.TrackerAppModule$AppFactory

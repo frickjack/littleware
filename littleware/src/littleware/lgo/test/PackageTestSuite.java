@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.bootstrap.client.AppBootstrap;
+import littleware.bootstrap.AppBootstrap;
 import littleware.test.TestFactory;
 
 /**

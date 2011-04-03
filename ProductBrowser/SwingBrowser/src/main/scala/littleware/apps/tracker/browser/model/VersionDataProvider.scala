@@ -12,7 +12,7 @@ package littleware.apps.tracker.browser.model
 
 import com.google.inject.Provider
 import littleware.apps.tracker.Product
-import littleware.base.ValidationException
+import littleware.base.validate.ValidationException
 import littleware.base.Whatever
 
 object VersionDataProvider extends Provider[VersionData.Builder] {

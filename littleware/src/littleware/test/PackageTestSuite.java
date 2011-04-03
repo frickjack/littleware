@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  *
- * The contents of this file are subject to the terms of the
+ * The contents of this file are available subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.test;
@@ -12,10 +10,7 @@ package littleware.test;
 import com.google.inject.Inject;
 import java.util.logging.*;
 import junit.framework.*;
-//import littleware.apps.client.ClientBootstrap;
-import littleware.asset.AssetSearchManager;
-import littleware.base.BaseException;
-import littleware.bootstrap.server.ServerBootstrap;
+import littleware.bootstrap.AppBootstrap;
 
 /**
  * Test suite constructor that pulls together tests from
@@ -27,49 +22,43 @@ public class PackageTestSuite extends TestSuite {
 
     @Inject
     public PackageTestSuite(
-            littleware.base.test.PackageTestSuite suite_base,
-            littleware.db.test.PackageTestSuite  suite_db,
-            littleware.asset.test.PackageTestSuite suite_asset,
-            littleware.security.test.PackageTestSuite suite_security,
+            littleware.base.test.PackageTestSuite baseSuite,
+            //littleware.db.test.PackageTestSuite  dbSuite,
             littleware.bootstrap.test.BootstrapTester bootstrapTester,
-            AssetSearchManager search) {
+            littleware.apps.swingbase.test.PackageTestSuite swingBaseSuite) {
         super(PackageTestSuite.class.getName());
         // disable server tests
         final boolean bRun = true;
 
         log.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
-            if ( bRun ) {
-                this.addTest( bootstrapTester );
+            if (bRun) {
+                this.addTest(bootstrapTester);
             }
             if (bRun) {
                 log.log(Level.INFO, "Trying to setup littleware.base test suite");
-                this.addTest(suite_base);
+                this.addTest(baseSuite);
             }
-            if ( bRun ) {
-                log.log( Level.INFO, "Trying to setup lgo test suite" );
+            if (bRun) {
+                log.log(Level.INFO, "Trying to setup lgo test suite");
                 // lgo is an app-module, not a server module - setup nested OSGi environment
-                this.addTest( littleware.lgo.test.PackageTestSuite.suite() );
+                this.addTest(littleware.lgo.test.PackageTestSuite.suite());
             }
 
-            if (bRun) {
+            if (false) {
+                // Move this test out to littleAsset sub-project - littleAsset sets up a databse connection
                 log.log(Level.INFO, "Trying to setup littleware.db test suite");
-                this.addTest( suite_db );
+                //this.addTest( dbSuite );
             }
 
             if (bRun) {
-                log.log(Level.INFO, "Trying to setup littleware.asset test suite");
-                this.addTest(suite_asset);
+                log.log(Level.INFO, "Trying to setup littleware.apps.swingbase test suite");
+                this.addTest(swingBaseSuite);
             }
 
-            if (bRun) {
-                log.log(Level.INFO, "Trying to setup littleware.security test suite");
-                this.addTest(suite_security);
-            }
-
-        } catch (RuntimeException e) {
-            log.log(Level.SEVERE, "Failed to setup test suite, caught: " + e + ", " + BaseException.getStackTrace(e));
-            throw e;
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Failed to setup test suite", ex);
+            throw ex;
         }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
@@ -82,9 +71,9 @@ public class PackageTestSuite extends TestSuite {
         log.log(Level.WARNING, "Guice 2.0 has an AOP bug that may throw an exception booting in test-runner class-loader");
         try {
             return (new TestFactory()).build(
-                    ServerBootstrap.provider.get().profile(ServerBootstrap.ServerProfile.Standalone).build(),
-                    PackageTestSuite.class
-                    );
+                    littleware.apps.swingbase.test.PackageTestSuite.registerSwingBase(
+                    AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.SwingApp)).build(),
+                    PackageTestSuite.class);
         } catch (RuntimeException ex) {
             log.log(Level.SEVERE, "Test setup failed", ex);
             throw ex;

@@ -14,7 +14,7 @@ import com.google.inject.Inject
 import java.util.logging.Level
 import junit.framework.TestSuite
 import littleware.base.AssertionFailedException
-import littleware.bootstrap.client.AppBootstrap
+import littleware.bootstrap.AppBootstrap
 import littleware.scala.LazyLogger
 import littleware.test.TestFactory
 

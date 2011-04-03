@@ -18,31 +18,23 @@ import java.util.logging.Level;
 
 import javax.swing.*;
 
-import junit.framework.*;
 
 import littleware.base.swing.*;
+import littleware.test.LittleTest;
 
 /**
  * Test implementations of littleware.base.swing components
  */
-public class SwingTester extends TestCase {
+public class SwingTester extends LittleTest {
 
-    private Logger olog_generic = Logger.getLogger("littleware.base.test.SwingTester");
+    private static final Logger log = Logger.getLogger(SwingTester.class.getName() );
     public static final String OS_NEWLINE = System.getProperty("line.separator");
 
     /**
      * Do nothing constructor - calls through to super
      */
-    public SwingTester(String s_name) {
-        super(s_name);
-    }
-
-    /** Do nothing */
-    public void setUp() {
-    }
-
-    /** Just flush the cache */
-    public void tearDown() {
+    public SwingTester() {
+        setName("testJTextAppender");
     }
 
     /**
@@ -64,11 +56,12 @@ public class SwingTester extends TestCase {
                 try {
                     wait();
                 } catch (InterruptedException e) {
-                    olog_generic.log(Level.INFO, "Caught waiting for shutdown: " + e);
+                    log.log(Level.INFO, "Caught waiting for shutdown: " + e, e);
                 }
             }
         }
 
+        @Override
         public void run() {
             try {
                 for (int i = 0; !ob_shutdown; ++i) {
@@ -76,7 +69,7 @@ public class SwingTester extends TestCase {
                     Thread.sleep(1000);
                 }
             } catch (Exception e) {
-                olog_generic.log(Level.INFO, "AppendThread caught: " + e);
+                log.log(Level.INFO, "AppendThread caught: " + e, e);
             } finally {
                 synchronized (this) {
                     ob_shutdown = true;

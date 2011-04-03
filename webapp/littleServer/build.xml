@@ -10,7 +10,7 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" 
       name="littleServer" default="default" basedir=".">
     <description>Builds, tests, and runs the project littleWeb.</description>
-    <property name="ivy.deliver.revision" value="2.3" />
+    <property name="ivy.deliver.revision" value="2.4" />
     <import file="../../ivy/ivy_build_rules.xml"/>     
     <import file="nbproject/build-impl.xml"/>
     <!--

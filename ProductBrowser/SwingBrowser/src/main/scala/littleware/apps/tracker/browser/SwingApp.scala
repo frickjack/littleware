@@ -17,7 +17,7 @@ import javax.swing.JFrame
 import javax.swing.JPanel
 import littleware.apps.swingbase.SwingBaseModule
 import littleware.apps.swingbase.view.BaseView
-import littleware.bootstrap.client.ClientBootstrap
+import littleware.asset.client.bootstrap.ClientBootstrap
 import littleware.scala.LittleHelper
 import littleware.security.auth.client.ClientLoginModule
 

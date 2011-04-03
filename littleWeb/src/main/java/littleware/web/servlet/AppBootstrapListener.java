@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import littleware.base.Maybe;
-import littleware.bootstrap.client.AppBootstrap;
+import littleware.bootstrap.AppBootstrap;
 
 /**
  * Servlet manages bootup and shutdown of littleware in "application"

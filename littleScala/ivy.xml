@@ -5,8 +5,9 @@
         <conf name="compile" visibility="private" extends="client_compile" 
                   description="compile everything"/>
         <conf name="client_junit" extends="client" description="extends client with junit dependencies"/>
-        <conf name="client_compile" extends="client_junit" description="extends client with compile-time stub dependencies"/>
-        <conf name="client"  description="generic app"/>
+        <conf name="client_compile" extends="ee_client" description="extends client with compile-time stub dependencies"/>
+        <conf name="ee_client"  description="generic app in ee sandbox"/>
+        <conf name="client" extends="ee_client"  description="generic app"/>
         <conf name="test" extends="client_junit" visibility="private" description="for testing our framework"/>
     </configurations>
     <publications>
@@ -19,7 +20,7 @@
     </publications>
     
     <dependencies>    
-      <dependency org="littleware" name="littleware" rev="2.4.+" conf="client_compile->client_compile;client_junit->client_junit;client->client" />
+      <dependency org="littleware" name="littleware" rev="2.4.+" conf="client_compile->client_compile;client_junit->client_junit;client->client;ee_client->ee_client" />
       <dependency org="org.scala-lang" name="scala-library" rev="2.8.1" />
       <dependency org="org.scala-lang" name="scala-swing" rev="2.8.1" />
     </dependencies>

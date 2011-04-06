@@ -1,12 +1,16 @@
-<ivy-module version="2.0">
+<ivy-module version="2.0"
+    xmlns:m="http://ant.apache.org/ivy/maven"
+    xmlns:e="http://ant.apache.org/ivy/extra"
+>
     <info organisation="littleware" module="littleware" status="integration" />
     <configurations>
         <!-- compile may build against jars that only include interfaces -->
         <conf name="compile" visibility="private" extends="client_compile" 
                   description="compile everything"/>
         <conf name="client_junit" extends="client" description="extends client with junit dependencies"/>
-        <conf name="client_compile" extends="client_junit" description="extends client with javaee interfaces dependencies"/>                  
-        <conf name="client"  description="generic client app"/>
+        <conf name="client_compile" extends="ee_client" description="extends client with javaee interfaces dependencies"/>
+        <conf name="ee_client"  description="client app in ee6 container"/>
+        <conf name="client"  extends="ee_client" description="generic client app"/>
         <conf name="client_mail" extends="client" description="extends client with JavaMail sesssion injection"/>
         <conf name="client_postgres" extends="client" description="extends client with Postgres DataSource injection"/>
         <conf name="client_mysql" extends="client" description="extends client with MySQL DataSource injection"/>
@@ -28,19 +32,22 @@
     
         <dependency org="javax" name="javaee-api" rev="6.+" conf="client_compile->*" />
         <dependency org="javax.mail" name="mail" rev="1.4.3" conf="client_mail->*" />        
-        <dependency org="com.google.inject" name="guice_no_aop" rev="2.0" />
+        <dependency org="com.google.inject" name="guice" rev="3.0" e:classifier="no_aop">
+            <artifact name="guice" type="no_aop" ext="jar" />
+        </dependency>
+        <dependency org="javax.inject" name="javax.inject" rev="1" conf="client->*" />
         <!--
         <dependency org="com.google.inject" name="guice" rev="2.0" />
         <dependency org="aopalliance" name="aopalliance" rev="1.0" />
         -->
         <dependency org="joda-time" name="joda-time" rev="1.6" />
-        <dependency org="com.google.collections" name="google-collections" rev="1.0" />
+        <dependency org="com.google.guava" name="guava" rev="r08" />
         <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="3.1.0.SNAP" />
         
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" conf="compile,client_mysql->*" />
         <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" conf="compile,client_derby->*" />
         <dependency org="org.apache.derby" name="derbyclient" rev="10.5.3.0_1" conf="compile,client_derby->*" />
-        <dependency org="junit" name="junit" rev="3.8.+" conf="client_junit->*" />
+        <dependency org="junit" name="junit" rev="3.8.+" conf="client_junit,client_compile->*" />
         <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1" 
                 conf="compile,client_derby,client_postgres->*" 
                 > 

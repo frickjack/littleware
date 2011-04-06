@@ -10,7 +10,7 @@
 
 package littleware.scala
 
-import com.google.inject.internal.ImmutableList
+import com.google.common.collect.ImmutableList
 import littleware.base.validate._
 
 object LittleValidator {

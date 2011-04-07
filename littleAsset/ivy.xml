@@ -21,7 +21,7 @@
     </configurations>
     <publications>
     	<artifact name="littleAsset" ext="jar" type="jar"  conf="server_compile,ee_server" />
-    	<artifact name="littleAssetClient" ext="jar" type="jar"  conf="client" />
+    	<artifact name="littleAssetClient" ext="jar" type="jar"  conf="ee_client" />
         <!--
         <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
     	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>

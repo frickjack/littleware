@@ -8,12 +8,13 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.filebucket.server;
+package littleware.apps.filebucket.server.internal;
 
 import com.google.inject.Inject;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.apps.filebucket.server.DeleteCBProvider;
 import littleware.asset.Asset;
 
 /**

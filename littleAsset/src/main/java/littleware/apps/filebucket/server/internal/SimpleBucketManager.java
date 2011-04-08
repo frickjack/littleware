@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.filebucket.server;
+package littleware.apps.filebucket.server.internal;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

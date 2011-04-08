@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.client.bootstrap;
+package littleware.asset.client.bootstrap.internal;
 
 import littleware.bootstrap.AppBootstrap;
 import java.util.logging.Level;
@@ -18,6 +18,7 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.AssertionFailedException;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SimpleCallbackHandler;

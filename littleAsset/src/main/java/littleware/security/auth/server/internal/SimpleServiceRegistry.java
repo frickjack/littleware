@@ -8,7 +8,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.security.auth.server;
+package littleware.security.auth.server.internal;
 
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -18,6 +18,8 @@ import littleware.base.NoSuchThingException;
 import littleware.base.SimpleLittleRegistry;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
+import littleware.security.auth.server.ServiceFactory;
+import littleware.security.auth.server.ServiceRegistry;
 
 
 public class SimpleServiceRegistry

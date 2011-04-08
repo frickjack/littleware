@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.security.auth.server;
+package littleware.security.auth.server.internal;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -30,6 +30,7 @@ import littleware.base.stat.Sampler;
 import littleware.base.stat.SimpleSampler;
 import littleware.security.*;
 import littleware.security.auth.*;
+import littleware.security.auth.server.ServiceRegistry;
 import org.joda.time.DateTime;
 
 /**
@@ -47,25 +48,22 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private final AssetManager assetMgr;
     private final ServiceRegistry serviceRegistry;
     private final Map<UUID, WeakReference<SessionHelper>> sessionCache = new HashMap<UUID, WeakReference<SessionHelper>>();
-    private static SimpleSessionManager sessionMgr = null;
+    private static boolean isSingletonUp = false;
     private final Sampler statSampler = new SimpleSampler();
     private final Provider<UserTreeBuilder> userTreeBuilder;
 
-    /**
-     * Inject dependencies
-     */
+
     @Inject
     public SimpleSessionManager(AssetManager m_asset,
             AssetSearchManager m_search,
             ServiceRegistry reg_service,
             Provider<UserTreeBuilder> provideUserTree) throws RemoteException {
-        //super( littleware.security.auth.SessionUtil.getRegistryPort() );
         assetMgr = m_asset;
         search = m_search;
-        if (null != sessionMgr) {
+        if ( isSingletonUp ) {
             throw new IllegalStateException("SimpleSessionManager must be a singleton");
         }
-        sessionMgr = this;
+        isSingletonUp = true;
         serviceRegistry = reg_service;
         this.userTreeBuilder = provideUserTree;
     }
@@ -140,6 +138,14 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         return rmiWrapper;
     }
 
+    /**
+     * Extract cause of PrivilegedActionException, and throw that
+     *
+     * @param exIn
+     * @throws BaseException
+     * @throws GeneralSecurityException
+     * @throws DataAccessException fall through case
+     */
     private static void handlePrivilegedException(PrivilegedActionException exIn) throws BaseException, GeneralSecurityException {
         try {
             throw exIn.getCause();
@@ -249,27 +255,42 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     }
 
     @Override
-    public SessionHelper getSessionHelper(UUID u_session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public SessionHelper getSessionHelper( final UUID sessionId ) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         // Note that the SessionHelper will take care of doing SessionExpired checks, etc.
-        WeakReference<SessionHelper> ref_helper = sessionCache.get(u_session);
+        WeakReference<SessionHelper> ref_helper = sessionCache.get(sessionId);
 
         if (null != ref_helper) {
-            SessionHelper m_helper = ref_helper.get();
-            if (null != m_helper) {
+            final SessionHelper helper = ref_helper.get();
+            if (null != helper) {
                 // Make sure the sesion hasn't expired
-                if (m_helper.getSession().getEndDate().getTime() > new Date().getTime()) {
-                    return m_helper;
+                if (helper.getSession().getEndDate().getTime() > new Date().getTime()) {
+                    return helper;
                 } else {
-                    throw new SessionExpiredException("Expired at: " + m_helper.getSession().getEndDate());
+                    throw new SessionExpiredException("Expired at: " + helper.getSession().getEndDate());
                 }
             } else {
-                sessionCache.remove(u_session);
+                sessionCache.remove(sessionId);
             }
         }
 
         try {
-            final LittleSession a_session = search.getAsset(u_session).get().narrow(LittleSession.class);
-            return setupNewHelper(a_session);
+            // Need to do this as administrator!  A LittleSession is not globally accessible ...
+            final Subject adminSubject = new Subject();
+            adminSubject.getPrincipals().add(search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow(LittlePrincipal.class));
+            adminSubject.setReadOnly();
+
+            final LittleSession session = Subject.doAs( adminSubject,
+                    new PrivilegedExceptionAction<LittleSession>() {
+                        @Override
+                        public LittleSession run() throws BaseException, GeneralSecurityException, RemoteException {
+                            return search.getAsset(sessionId).get().narrow(LittleSession.class);
+                        }
+                    }
+            );
+            return setupNewHelper(session);
+        } catch ( PrivilegedActionException ex ) {
+            handlePrivilegedException( ex );
+            throw new AssertionFailedException( "Should not reach here!" );
         } catch (GeneralSecurityException e) {
             throw new AccessDeniedException("Caught unexpected: " + e, e);
         }

@@ -8,8 +8,9 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.security.auth.client;
+package littleware.security.auth.client.internal;
 
+import littleware.security.auth.internal.SessionUtil;
 import littleware.security.auth.*;
 import java.rmi.RemoteException;
 import java.net.URL;
@@ -38,15 +39,14 @@ public class SessionManagerProxy implements SessionManager {
          * to rebootstrap a session on a server restart.
          */
         @Override
-        public void handle(RemoteException e_remote) throws RemoteException {
-            super.handle(e_remote);
+        public void handle(RemoteException remoteEx) throws RemoteException {
+            super.handle(remoteEx);
             try {
                 sessionMgr = SessionUtil.get ().getSessionManager(
                         sessionUrl.getHost(),
                         sessionUrl.getPort());
-            } catch (Exception e) {
-                log.log(Level.WARNING, "Retry handler failed to reconnect to down SessionManager, caught: " +
-                        e + ", " + BaseException.getStackTrace(e));
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Retry handler failed to reconnect to down SessionManager", ex );
             }
             try { // sleep between retries
                 Thread.sleep(1000);

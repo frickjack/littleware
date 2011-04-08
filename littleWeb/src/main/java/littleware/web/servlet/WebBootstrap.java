@@ -33,13 +33,14 @@ public class WebBootstrap {
 
     /**
      * Little helper function to setup a standard client-session environment
-     * with a GuiceBean, whatever.
+     * with a GuiceBean, and Bootstrap object in session scope.
+     *
+     * @param boot bootstrap instance ready to call .boot( ... )
+     * @param session to annotate with beans
      */
-    public static ClientBootstrap bootstrap( SessionHelper helper, HttpSession session ) {
-        final ClientBootstrap boot = ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build(
-                ).helper(helper);
-        final Injector injector = boot.bootstrap( Injector.class );
-        session.setAttribute(littleGuice, new GuiceBean( injector ) );
+    public static ClientBootstrap bootstrap( ClientBootstrap boot, HttpSession session ) {
+        final GuiceBean bean = boot.bootstrap( GuiceBean.class );
+        session.setAttribute(littleGuice, bean );
         session.setAttribute(littleBoot, boot );
         return boot;
     }

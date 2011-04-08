@@ -29,7 +29,7 @@ import littleware.security.*;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;
-import littleware.security.auth.SessionUtil;
+import littleware.security.auth.internal.SessionUtil;
 
 /**
  * Login module for littleware clients.

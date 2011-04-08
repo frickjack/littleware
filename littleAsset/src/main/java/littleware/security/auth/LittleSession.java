@@ -10,7 +10,6 @@
 package littleware.security.auth;
 
 import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import javax.security.auth.Subject;
 import java.security.GeneralSecurityException;
 
@@ -18,10 +17,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetException;
-import littleware.base.DataAccessException;
-import littleware.base.NoSuchThingException;
 import littleware.base.BaseException;
-import littleware.security.AccessDeniedException;
 
 /**
  * Specialization of Asset for session-tracking.

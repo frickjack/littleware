@@ -10,6 +10,7 @@
 
 package littleware.asset.client.bootstrap;
 
+import littleware.asset.client.bootstrap.internal.SimpleClientBuilder;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import com.google.inject.Provider;

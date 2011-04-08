@@ -8,10 +8,9 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.security.auth.server;
+package littleware.security.auth.server.internal;
 
 import java.rmi.RemoteException;
-//import java.rmi.server.UnicastRemoteObject;
 import java.security.GeneralSecurityException;
 
 import littleware.asset.AssetException;
@@ -35,7 +34,6 @@ public class RmiSessionHelper extends LittleRemoteObject implements SessionHelpe
      * around the given helper implementation.
      */
     public RmiSessionHelper(SessionHelper helper) throws RemoteException {
-        //super( littleware.security.auth.SessionUtil.getRegistryPort() );        
         coreHelper = helper;
     }
 

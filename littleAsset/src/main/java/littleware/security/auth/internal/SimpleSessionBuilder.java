@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.security.auth;
+package littleware.security.auth.internal;
 
 import java.rmi.RemoteException;
 import java.util.Set;
@@ -20,6 +20,7 @@ import javax.security.auth.*;
 import littleware.security.*;
 import littleware.base.*;
 import littleware.asset.*;
+import littleware.security.auth.LittleSession;
 import littleware.security.auth.LittleSession.Builder;
 
 /**

@@ -7,9 +7,9 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.security.auth;
+package littleware.security.auth.internal;
 
-import littleware.security.auth.client.SessionManagerProxy;
+import littleware.security.auth.client.internal.SessionManagerProxy;
 import com.google.inject.Inject;
 import java.rmi.*;
 import java.util.logging.Logger;
@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.*;
 import java.net.*;
 import littleware.base.*;
+import littleware.security.auth.SessionManager;
 
 /**
  * Just a little utility class that provides

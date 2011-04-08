@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.security.auth.client;
+package littleware.security.auth.client.internal;
 
 import java.io.IOException;
 import java.io.ObjectStreamException;
@@ -27,6 +27,7 @@ import littleware.asset.*;
 import littleware.asset.client.LittleService;
 import littleware.asset.client.LittleServiceListener;
 import littleware.base.*;
+import littleware.security.auth.client.SessionHelperService;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -49,27 +50,29 @@ public class SessionHelperProxy implements SessionHelperService {
 
     private static final Logger log = Logger.getLogger(SessionHelperProxy.class.getName());
     private static final long serialVersionUID = -1391174273951630071L;
-    private SessionHelper om_real = null;
-    private SessionManager om_session = null;
-    private UUID ou_session = null;
-    private transient RemoteExceptionHandler ohandler_remote;
+    private SessionHelper realHelper = null;
+    private SessionManager sessionMgr = null;
+    private UUID sessionId = null;
+    private transient RemoteExceptionHandler remoteExceptionHelper;
+    private transient List<LittleServiceListener> listenerList = new ArrayList<LittleServiceListener>();
+    private Map<ServiceType<?>, LittleService> serviceCache = new HashMap<ServiceType<?>, LittleService>();
     private Maybe<BundleContext> maybeContext = Maybe.empty();
 
     private void initTransient() {
-        ohandler_remote = new RemoteExceptionHandler() {
+        remoteExceptionHelper = new RemoteExceptionHandler() {
 
             @Override
             public void handle(RemoteException e_remote) throws RemoteException {
                 super.handle(e_remote);
                 try {
-                    om_real = om_session.getSessionHelper(ou_session);
-                } catch (Exception e) {
-                    log.log(Level.WARNING, "Failure to re-establish session, caught: " + e);
+                    realHelper = sessionMgr.getSessionHelper(sessionId);
+                } catch (Exception ex) {
+                    log.log(Level.WARNING, "Failure to re-establish session", ex);
                     throw e_remote;
                 }
             }
         };
-        ovListener = new ArrayList<LittleServiceListener>();
+        listenerList = new ArrayList<LittleServiceListener>();
     }
 
     /**
@@ -106,9 +109,9 @@ public class SessionHelperProxy implements SessionHelperService {
     public SessionHelperProxy(SessionHelper m_real,
             SessionManagerProxy m_session,
             UUID u_session) {
-        om_real = m_real;
-        om_session = m_session;
-        ou_session = u_session;
+        realHelper = m_real;
+        sessionMgr = m_session;
+        sessionId = u_session;
         initTransient();
     }
 
@@ -117,9 +120,9 @@ public class SessionHelperProxy implements SessionHelperService {
             GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return om_real.getSession();
+                return realHelper.getSession();
             } catch (RemoteException e) {
-                ohandler_remote.handle(e);
+                remoteExceptionHelper.handle(e);
             }
         }
     }
@@ -127,7 +130,7 @@ public class SessionHelperProxy implements SessionHelperService {
     @Override
     public void start(BundleContext ctx) throws Exception {
         this.maybeContext = Maybe.something(ctx);
-        for (LittleService service : ov_cache.values()) {
+        for (LittleService service : serviceCache.values()) {
             try {
                 service.start(ctx);
             } catch (Exception ex) {
@@ -138,7 +141,7 @@ public class SessionHelperProxy implements SessionHelperService {
 
     @Override
     public void stop(BundleContext ctx) throws Exception {
-        for (LittleService service : ov_cache.values()) {
+        for (LittleService service : serviceCache.values()) {
             try {
                 service.stop(ctx);
             } catch (Exception ex) {
@@ -153,46 +156,50 @@ public class SessionHelperProxy implements SessionHelperService {
      */
     private class RemoteRetryInvocationHandler<T extends LittleService> implements InvocationHandler {
 
-        final ServiceType<T> on_type;
-        T om_service = null;
-        InvocationHandler ohandler_proxy = null;
+        private final ServiceType<T> serviceType;
+        private  T theService = null;
+        /**
+         * It's possible we're wrapping something that's already wrapped ... ugh.
+         */
+        private InvocationHandler proxyHandler = null;
 
         public RemoteRetryInvocationHandler(T m_service,
                 ServiceType<T> n_type) {
-            om_service = m_service;
-            on_type = n_type;
-            if (Proxy.isProxyClass(om_service.getClass())) {
-                ohandler_proxy = Proxy.getInvocationHandler(om_service);
+            theService = m_service;
+            serviceType = n_type;
+            if (Proxy.isProxyClass(theService.getClass())) {
+                proxyHandler = Proxy.getInvocationHandler(theService);
             }
         }
 
         @Override
         public Object invoke(Object proxy, Method method_call, Object[] v_args) throws Throwable {
             // Try to reset service reference on RemoteException
-            final RemoteExceptionHandler handler_retry = new RemoteExceptionHandler() {
+            final RemoteExceptionHandler retryHandler = new RemoteExceptionHandler() {
 
                 @Override
-                public void handle(RemoteException e_remote) throws RemoteException {
+                public void handle(RemoteException remoteEx) throws RemoteException {
                     // super throws exception after max retries
-                    super.handle(e_remote);
+                    super.handle(remoteEx);
+                    // try to reset the connection
                     try {
-                        ohandler_proxy = null;
+                        proxyHandler = null;
                         /**
                          * ?? Why are we using om_real here - probably
                          * the remote SessionHelper has lost its connection too ...
                          */
-                        if ((null != om_service) && maybeContext.isSet()) {
+                        if ((null != theService) && maybeContext.isSet()) {
                             try {
-                                final LittleService service = om_service;
-                                om_service = null;
+                                final LittleService service = theService;
+                                theService = null;
                                 service.stop(maybeContext.get());
                             } catch (Exception ex) {
                                 log.log(Level.WARNING, "Service shutdown failed", ex);
                             }
                         }
-                        om_service = getNewCoreService(on_type);
-                        if (Proxy.isProxyClass(om_service.getClass())) {
-                            ohandler_proxy = Proxy.getInvocationHandler(om_service);
+                        theService = getNewCoreService(serviceType);
+                        if (Proxy.isProxyClass(theService.getClass())) {
+                            proxyHandler = Proxy.getInvocationHandler(theService);
                         }
                         /**
                          * TODO - come up with a better way to integrate
@@ -203,32 +210,32 @@ public class SessionHelperProxy implements SessionHelperService {
                          */
                     } catch (Exception e) {
                         // e already logged below
-                        throw e_remote;
+                        throw remoteEx;
                     }
                 }
             };
 
             while (true) { // Retry on RemoteException
                 try {
-                    if (null != ohandler_proxy) {
+                    if (null != proxyHandler) {
                         // An RMI reference is itself a Proxy - cannot use Method.invoke on that
-                        return ohandler_proxy.invoke(proxy, method_call, v_args);
+                        return proxyHandler.invoke(proxy, method_call, v_args);
                     } else {
-                        return method_call.invoke(om_service, v_args);
+                        return method_call.invoke(theService, v_args);
                     }
                 } catch (RemoteException ex) {
-                    handler_retry.handle(ex);
+                    retryHandler.handle(ex);
                 } catch (NullPointerException ex) {
                     // running into issue with proxy throwing NullPointerException after laptop resume,
                     // so retry on NullPointerException like a RemoteException
-                    handler_retry.handle( new RemoteException( "Service is null?", ex ) );
+                    retryHandler.handle( new RemoteException( "Service is null?", ex ) );
                 } catch (IllegalAccessException e) {
                     throw new AssertionFailedException("Illegal access: " + e, e);
                 } catch (InvocationTargetException e) {
                     final Throwable cause = e.getCause();
 
                     if (cause instanceof RemoteException) {
-                        handler_retry.handle((RemoteException) cause);
+                        retryHandler.handle((RemoteException) cause);
                     } else if (cause instanceof Exception) {
                         throw (Exception) cause;
                     } else if (cause instanceof Error) {
@@ -240,7 +247,6 @@ public class SessionHelperProxy implements SessionHelperService {
             }
         }
     }
-    private Map<ServiceType<?>, LittleService> ov_cache = new HashMap<ServiceType<?>, LittleService>();
 
     /**
      * Return a dynamic-proxy wrapper around the
@@ -255,7 +261,7 @@ public class SessionHelperProxy implements SessionHelperService {
         return (T) this;
         }
          */
-        T m_service = (T) ov_cache.get(n_type);
+        T m_service = (T) serviceCache.get(n_type);
         if (null != m_service) {
             return m_service;
         }
@@ -263,13 +269,12 @@ public class SessionHelperProxy implements SessionHelperService {
         m_service = getNewCoreService(n_type);
         final InvocationHandler handler_retry = new RemoteRetryInvocationHandler<T>(m_service, n_type);
 
-        log.log(Level.FINE, "Setting up service " + n_type + " using object of class: "
-                + m_service.getClass().toString());
+        log.log(Level.FINE, "Setting up service {0} using object of class: {1}", new Object[]{n_type, m_service.getClass().toString()});
         final Class<T> class_service = n_type.getInterface();
         m_service = (T) Proxy.newProxyInstance(class_service.getClassLoader(),
                 new Class[]{class_service},
                 handler_retry);
-        ov_cache.put(n_type, m_service);
+        serviceCache.put(n_type, m_service);
         return m_service;
     }
 
@@ -285,15 +290,15 @@ public class SessionHelperProxy implements SessionHelperService {
         T m_service = null;
 
         try {
-            m_service = om_real.getService(n_type);
+            m_service = realHelper.getService(n_type);
         } catch (RemoteException e) {
-            final SessionHelper helper = om_session.getSessionHelper(ou_session);
+            final SessionHelper helper = sessionMgr.getSessionHelper(sessionId);
             if (helper instanceof SessionHelperProxy) {
-                om_real = ((SessionHelperProxy) helper).om_real;
+                realHelper = ((SessionHelperProxy) helper).realHelper;
             } else {
-                om_real = helper;
+                realHelper = helper;
             }
-            m_service = om_real.getService(n_type);
+            m_service = realHelper.getService(n_type);
         }
 
         if (null == m_service) {
@@ -301,7 +306,7 @@ public class SessionHelperProxy implements SessionHelperService {
         }
 
         // Add listeners
-        for (LittleServiceListener listener : ovListener) {
+        for (LittleServiceListener listener : listenerList) {
             m_service.addServiceListener(listener);
         }
         // Register with client side OSGi environment
@@ -321,9 +326,9 @@ public class SessionHelperProxy implements SessionHelperService {
             GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return om_real.createNewSession(s_session_comment);
+                return realHelper.createNewSession(s_session_comment);
             } catch (RemoteException e) {
-                ohandler_remote.handle(e);
+                remoteExceptionHelper.handle(e);
             }
         }
     }
@@ -332,13 +337,13 @@ public class SessionHelperProxy implements SessionHelperService {
     public String getServerVersion() throws RemoteException {
         while (true) {
             try {
-                return om_real.getServerVersion();
+                return realHelper.getServerVersion();
             } catch (RemoteException e) {
-                ohandler_remote.handle(e);
+                remoteExceptionHelper.handle(e);
             }
         }
     }
-    private transient List<LittleServiceListener> ovListener = new ArrayList<LittleServiceListener>();
+
 
     /**
      * Add listener to every LittleService in the cache
@@ -347,18 +352,18 @@ public class SessionHelperProxy implements SessionHelperService {
      */
     @Override
     public void addServiceListener(LittleServiceListener listener) {
-        if (!ovListener.contains(listener)) {
-            ovListener.add(listener);
+        if (!listenerList.contains(listener)) {
+            listenerList.add(listener);
         }
-        for (LittleService service : ov_cache.values()) {
+        for (LittleService service : serviceCache.values()) {
             service.addServiceListener(listener);
         }
     }
 
     @Override
     public void removeServiceListener(LittleServiceListener listener) {
-        ovListener.remove(listener);
-        for (LittleService service : ov_cache.values()) {
+        listenerList.remove(listener);
+        for (LittleService service : serviceCache.values()) {
             service.removeServiceListener(listener);
         }
     }

@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.client.bootstrap;
+package littleware.asset.client.bootstrap.internal;
 
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
@@ -28,10 +28,13 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.client.AssetManagerService;
 import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.LittleService;
+import littleware.asset.client.bootstrap.AbstractClientModule;
+import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.AssertionFailedException;
 import littleware.bootstrap.helper.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.asset.client.bootstrap.ClientBootstrap.ClientBuilder;
+import littleware.asset.client.bootstrap.ClientModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.security.AccountManager;

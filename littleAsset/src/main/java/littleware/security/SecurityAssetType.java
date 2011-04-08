@@ -16,7 +16,7 @@ import littleware.asset.*;
 import littleware.base.UUIDFactory;
 import littleware.base.FactoryException;
 import littleware.base.Maybe;
-import littleware.security.auth.SimpleSessionBuilder;
+import littleware.security.auth.internal.SimpleSessionBuilder;
 import littleware.security.auth.LittleSession;
 
 /** 

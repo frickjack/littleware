@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.security.auth.server;
+package littleware.security.auth.server.internal;
 
 import java.rmi.RemoteException;
 import java.util.UUID;
@@ -25,6 +25,7 @@ import littleware.security.AccessDeniedException;
 import littleware.security.SecurityAssetType;
 import littleware.security.LittleUser;
 import littleware.base.*;
+import littleware.security.auth.server.ServiceRegistry;
 
 /**
  * Straight forward implementation of SessionHelper - 

@@ -7,8 +7,9 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.security.auth.server;
+package littleware.security.auth.server.internal;
 
+import littleware.security.auth.server.internal.SimpleSessionManager;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provider;
@@ -21,6 +22,7 @@ import littleware.base.UUIDFactory;
 import littleware.security.LittleUser;
 import littleware.security.SecurityAssetType;
 import littleware.security.auth.SessionManager;
+import littleware.security.auth.server.ServiceRegistry;
 
 /**
  * Bind SessionManager, ServiceProvideRegistery, and LittleUser

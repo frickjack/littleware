@@ -9,6 +9,9 @@
  */
 package littleware.apps.filebucket.server;
 
+import littleware.apps.filebucket.server.internal.SimpleDeleteCBProvider;
+import littleware.apps.filebucket.server.internal.SimpleBucketManager;
+import littleware.apps.filebucket.server.internal.RmiBucketManager;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -19,7 +22,7 @@ import java.util.logging.Logger;
 import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.BucketServiceType;
 import littleware.apps.filebucket.client.BucketManagerService;
-import littleware.apps.filebucket.client.SimpleBucketService;
+import littleware.apps.filebucket.client.internal.SimpleBucketService;
 import littleware.asset.AssetException;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;

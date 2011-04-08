@@ -1,4 +1,4 @@
-package littleware.apps.filebucket.server;
+package littleware.apps.filebucket.server.internal;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

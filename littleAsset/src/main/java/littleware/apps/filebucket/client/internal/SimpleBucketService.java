@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.filebucket.client;
+package littleware.apps.filebucket.client.internal;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -16,6 +16,7 @@ import java.util.UUID;
 import littleware.apps.filebucket.Bucket;
 import littleware.apps.filebucket.BucketException;
 import littleware.apps.filebucket.BucketManager;
+import littleware.apps.filebucket.client.BucketManagerService;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.client.AssetLoadEvent;

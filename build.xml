@@ -110,14 +110,21 @@
     description="Build the littleware and Catalog/ subprojects" 
     />
 
-    <target name="testAll" description="run regression tests, assumes everything is already built">
+    <target name="testCatalog" depends="cat-check" if="catalog.exists">
+            <ant antfile="Catalog/AuLibrary/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="Catalog/CircRequest/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="Catalog/MarcViewer/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />    
+    </target>
+    
+    <target name="testLittleware">
             <ant antfile="littleware/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="littleAsset/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="littleWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
             <ant antfile="littleScala/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
-            <ant antfile="webapp/littleId/littleId/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
-            <ant antfile="Catalog/AuLibrary/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
-            <ant antfile="Catalog/MarcViewer/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />
+            <ant antfile="webapp/littleId/littleId/build.xml" useNativeBasedir="true" inheritAll="false" target="test-jenkins" />    
+    </target>
+    
+    <target name="testAll" depends="testLittleware,testCatalog" description="run regression tests, assumes everything is already built">
     </target>
     
     <target name="buildAndTest" depends="buildAll,testAll" description="buildAll, then run regression tests on subprojects">

@@ -24,6 +24,11 @@ body, html {
     margin: 0px;
 }
 
+body {
+    width: 960px;
+    margin: auto;
+}
+
 em {
     font-style:italic;
 }
@@ -53,6 +58,7 @@ div#hd, div#ft {
     width: 100%;
     clear: both;
 }
+
 
 div#hd a {
     color: #ffffff;

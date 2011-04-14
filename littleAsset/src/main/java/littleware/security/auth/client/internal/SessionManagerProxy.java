@@ -58,40 +58,44 @@ public class SessionManagerProxy implements SessionManager {
     /**
      * Stash the wrapped manager and the URL it came from
      */
-    public SessionManagerProxy(SessionManager m_session, URL url_session) {
-        sessionMgr = m_session;
-        sessionUrl = url_session;
+    public SessionManagerProxy(SessionManager sessionMgr, URL sessionUrl ) {
+        this.sessionMgr = sessionMgr;
+        this.sessionUrl = sessionUrl ;
     }
 
     @Override
-    public SessionHelper login(String s_name,
-            String s_password,
-            String s_session_comment) throws BaseException, AssetException,
+    public SessionHelper login(String userName,
+            String password,
+            String sessionComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                SessionHelper m_helper = sessionMgr.login(s_name, s_password,
-                        s_session_comment);
-                return new SessionHelperProxy(m_helper, this,
-                        m_helper.getSession().getId());
-            } catch (RemoteException e) {
-                remoteExceptionHandler.handle(e);
+                final SessionHelper helper = sessionMgr.login(userName, password,
+                        sessionComment);
+                return new SessionHelperProxy(helper, this,
+                        helper.getSession().getId());
+            } catch (RemoteException ex ) {
+                remoteExceptionHandler.handle(ex );
+            } catch ( NullPointerException ex ) {
+                remoteExceptionHandler.handle( new RemoteException( "Unexpected exception", ex ) );
             }
         }
     }
 
     @Override
-    public SessionHelper getSessionHelper(UUID u_session) throws BaseException, AssetException,
+    public SessionHelperProxy getSessionHelper(UUID sessionId) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        RemoteException e_last = null;
+        RemoteException lastException = null;
 
         while (true) {
             try {
-                SessionHelper m_helper = sessionMgr.getSessionHelper(u_session);
+                final SessionHelper helper = sessionMgr.getSessionHelper(sessionId);
 
-                return new SessionHelperProxy(m_helper, this, u_session);
-            } catch (RemoteException e) {
-                remoteExceptionHandler.handle(e);
+                return new SessionHelperProxy(helper, this, sessionId);
+            } catch (RemoteException ex ) {
+                remoteExceptionHandler.handle(ex );
+            } catch ( NullPointerException ex ) {
+                remoteExceptionHandler.handle( new RemoteException( "Unexpected exception", ex ) );
             }
         }
     }

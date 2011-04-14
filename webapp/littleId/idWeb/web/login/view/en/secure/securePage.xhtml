@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      >
+
+    <ui:composition template="/WEB-INF/layout/standard.xhtml">
+        <ui:define name="title">secure page</ui:define>
+        <ui:define name="content">
+
+            <h3>Secure Page</h3>
+
+            <p>
+                If the <a href="http://wiki.littleware.googlecode.com/hg/scaladoc/index.html">littleId.client.web.servlet.SecurityFilter</a>
+                is working correctly, then only authenticated non-guest users can view this page ...
+            </p>
+            <p>
+                You are currently logged in as <h:outputText value="${idBean.user.name}" />.
+            </p>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

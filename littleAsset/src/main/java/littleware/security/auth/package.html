@@ -1,0 +1,31 @@
+<body>
+This package houses some authentication specific classes.
+
+<p>
+The SessionUtil, SessionManager, and SessionHelper
+are particularly concerned with setting up a JAAS session
+for a remote client.
+The SessionUtil manages the client configuration to establish
+a SessionManager RMI reference by which the client can authenticate
+and acquire a SessionHelper reference by which the client
+may in turn lookup different littleware services.
+</p>
+<p>
+The ClientLoginModule implements JAAS authentication by
+acquiring a SessionManager and authenticating
+via SessionManager.login or SessionManager.getSessionHelper.
+The SimpleLoginModule is the server-side LoginModule that
+manages the SessionManager server&apos;s access to the
+littleware password database, but the server may be configured
+to authenticate users via other LoginModules via the normal
+JAAS policy mechanism.
+</p>
+<p>
+The SubjectInvocationHandler 
+constructs on the serverside JAAS aware
+dynamic proxies that transparently forward method calls
+as PrivilegedActions through Subject.doAs - setting up the
+JAAS security context for each client RMI method invocation.
+</p>
+
+</body>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:ivy="antlib:org.apache.ivy.ant" 
+      name="littleDistro" default="default" basedir=".">
+    <description>Prep a simple littleware distribution.</description>
+    <property name="ivy.deliver.revision" value="0.0" />
+    <property name="dist.dir" value="dist" />
+    <import file="../ivy/ivy_build_rules.xml"/>     
+
+
+ <target name="resolve" depends="install-ivy"
+      description="resolve ivy dependencies">
+      <!-- set keystore.password in private.properties 
+      <property file="nbproject/private/private.properties" />
+      <property file="nbproject/project.properties" />
+      -->
+      <doResolve param.ivy.config="client" />
+      <doResolve param.ivy.config="server" />
+</target>
+
+
+
+<target name="-init-project">
+   <mkdir dir="nbproject" />
+</target>
+
+<target name="jar"  />      
+
+<target name="clean" depends="-post-clean" description="clean out the dist/ directory">
+    <delete dir="${dist.dir}" />
+</target>
+
+<target name="dist" depends="resolve" description="prep dist directory">
+    <mkdir dir="${dist.dir}" />
+    <copy todir="${dist.dir}/littleware" overwrite="true">
+        <fileset dir="src" />
+    </copy>
+    <tstamp>
+        <format property="buildId" pattern="yyyyMMdd" />
+    </tstamp>
+    <echo message="Copy 1 ${dist.dir}/littleware/client/lib" />
+   <copy todir="${dist.dir}/littleware/client/lib" includeemptydirs="false">
+        <fileset dir="ivy/client">  
+            <exclude name="*zSNAPSHOT-jar.jar" />
+        </fileset>
+   </copy>    
+   <copy todir="${dist.dir}/littleware/client/lib" includeemptydirs="false">
+      <fileset dir="ivy/client" />  
+      <mapper type="glob" from="*zSNAPSHOT-jar.jar" to="*b${buildId}-jar.jar"/>
+  </copy>
+  
+  <echo message="Copy 2 ${dist.dir}/littleware/server/lib" />
+  <copy todir="${dist.dir}/littleware/server/lib" includeemptydirs="false">
+        <fileset dir="ivy/server">  
+            <exclude name="*zSNAPSHOT-jar.jar" />
+        </fileset>
+  </copy>  
+  <copy todir="${dist.dir}/littleware/server/lib" includeemptydirs="false">
+       <fileset dir="ivy/server" />  
+       <mapper type="glob" from="*zSNAPSHOT-jar.jar" to="*b${buildId}-jar.jar"/>
+  </copy>
+  
+  <ant antfile="../Catalog/webapp/build.xml" useNativeBasedir="true" inheritAll="false" target="dist" />
+  <copy todir="${dist.dir}/littleware/webapp" includeemptydirs="false">
+       <fileset dir="../Catalog/webapp/dist/" />  
+       <mapper type="glob" from="*webapp.war" to="littleCat.war"/>
+  </copy>
+
+  <ant antfile="../webapp/littleId/idWeb/build.xml" useNativeBasedir="true" inheritAll="false" target="dist" />
+  <copy todir="${dist.dir}/littleware/webapp" includeemptydirs="false">
+       <fileset dir="../webapp/littleId/idWeb/dist/" />   
+  </copy>
+  
+  <copy todir="${dist.dir}/littleware/api">
+      <fileset dir="../javadoc/api" />
+  </copy>
+  <copy todir="${dist.dir}/littleware/api/ydoc">
+     <fileset dir="../webapp/littleId/idWeb/build/web/resources/js/ydoc" />
+  </copy>
+</target>
+
+</project>

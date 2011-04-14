@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<help fullname="littleware.apps.lgo.GetAssetCommand"
+   xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
+  >
+  <synopsis>Get the asset at a given path</synopsis>
+  <description>
+      Get the asset at a given path:
+
+      get -path /path/to/asset
+      cat -path /path/to/asset
+  </description>
+  <shortname>get</shortname>
+  <shortname>cat</shortname>
+</help>

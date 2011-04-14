@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <ui:composition template="/WEB-INF/layout/standard.xhtml">
+        <ui:define name="title">access openId provider</ui:define>
+        <ui:define name="navigation"></ui:define>
+        <ui:define name="content">
+
+            <c:choose>
+                <c:when test="${clientResponseBean.authSuccess}">
+                    <h3>Authentication Success!</h3>
+                    <ul>
+                        <li>Email: <h:outputText value="${clientResponseBean.email}" /></li>
+                        <li>OpenId: <h:outputText value="${clientResponseBean.openId}" /></li>
+                        <li>Verify token: <h:outputText value="${clientResponseBean.verifySecret}" /></li>
+
+                    </ul>
+                    <c:if test="${false}">
+                        <!-- just enable this block for testing -->
+                        <p>
+                        <form name="verifyForm" action="${facesContext.externalContext.requestContextPath}/openId/services/verify/" method="post" accept-charset="UTF-8">
+                            <input type="hidden" name="email" value="${clientResponseBean.email}" />
+                            <input type="hidden" name="openId" value="${clientResponseBean.openId}" />
+                            <input type="hidden" name="secret" value="${clientResponseBean.verifySecret}" />
+                            <a id="aVerify" href="#" onclick="javascript:(function(){ document.verifyForm.submit(); return false; })();">Verify</a>
+                        </form>
+                        </p>
+                    </c:if>
+                </c:when>
+                <c:otherwise>
+                    <h3>Authentication Failed</h3>
+                </c:otherwise>
+            </c:choose>
+
+            <!--
+      Javascript below enables one or other of the pShare or pError
+            -->
+            <p id="pShare">
+                <a href="." id="aShare">Click here to share</a> these credentials with
+            <h:outputText value="${authRequest.replyTo}" />,
+            otherwise just close this window.
+
+            <form name="replyForm" method="${authRequest.replyMethod}" action="${authRequest.replyTo}">
+                <input type="hidden" name="authSuccess" value="${clientResponseBean.authSuccess}" />
+                <input type="hidden" name="openId" value="${clientResponseBean.openId}" />
+                <input type="hidden" name="email" value="${clientResponseBean.email}" />
+                <input type="hidden" name="verifySecret" value="${clientResponseBean.verifySecret}" />
+            </form>
+            </p>
+
+            <script type="text/javascript" language="JavaScript">
+
+                littleware.littleYUI.bootstrap().use( 'node', 'node-base', function(Y) {
+                  //<![CDATA[
+                  Y.on( 'click', function(ev) {
+                      ev.preventDefault();
+                      document.replyForm.submit();
+                  }, '#aShare' 
+              );
+                });
+
+                // ]]>
+            </script>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

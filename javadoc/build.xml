@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+     xmlns:ivy="antlib:org.apache.ivy.ant"
+     name="little-javadoc"
+     default="javadoc"
+     >
+    <description>littleware global javadoc builder</description>
+    <property name="ivy.deliver.revision" value="2.3" />
+    <import file="../ivy/ivy_build_rules.xml"/>
+
+    <target name="clean" description="Erase the last build">
+        <delete dir="api" />
+    </target>
+    
+<target name="javadoc" depends="resolve" description="generate javadoc for public littleware APIs" >
+    <mkdir dir="api/javadoc" />
+    <copy file="src/index.html" todir="api/" />
+ <javadoc
+           destdir="api/javadoc"
+           author="true"
+           version="true"
+           use="true"
+           windowtitle="littleware"
+           classpath="${ivy.compile.classpath}"
+           >
+
+    <packageset dir="../littleware/src" defaultexcludes="yes">
+       <include name="littleware/**" />
+    </packageset>
+    <packageset dir="../littleAsset/src/main/java" defaultexcludes="yes">
+       <include name="littleware/**" />
+    </packageset>    
+    <packageset dir="../littleWeb/src/main/java" defaultexcludes="yes">
+       <include name="littleware/**" />
+    </packageset>    
+    <packageset dir="../lgoServer/src/main/java" defaultexcludes="yes">
+       <include name="littleware/**" />
+    </packageset>
+    <packageset dir="../Catalog/AuLibrary/src/main/java" defaultexcludes="yes">
+       <include name="edu/auburn/**" />
+    </packageset>
+    <packageset dir="../Catalog/Voyager/src/main/java" defaultexcludes="yes">
+       <include name="edu/auburn/**" />
+    </packageset>        
+    <packageset dir="../Catalog/AuUnicodeFilter/src" defaultexcludes="yes">
+       <include name="schema/**" />
+    </packageset>    
+    <!--
+    <packageset dir="../Catalog/CatRequest/src/main/java" defaultexcludes="yes">
+       <include name="edu/auburn/**" />
+    </packageset>
+     -->    
+    <packageset dir="../Catalog/ClickCount/src/main/java" defaultexcludes="yes">
+       <include name="edu/auburn/**" />
+    </packageset>    
+
+    <doctitle><![CDATA[<h1>littleware and auburn</h1>]]></doctitle>
+    <bottom><![CDATA[<i>Copyright &#169; 2011 <a href="http://frickjack.com">http://frickjack.com</a>.  Licensed to public under GPL v2.0.</i>]]></bottom>
+          <!--
+    <tag name="todo" scope="all" description="To do:"/>
+    <group title="Group 1 Packages" packages="com.dummy.test.a*"/>
+    <group title="Group 2 Packages" packages="com.dummy.test.b*:com.dummy.test.c*"/>
+          -->
+    <link offline="true" href="http://download.oracle.com/javase/6/docs/api/" packagelistLoc="C:\tmp"/>
+    <link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/>
+  </javadoc>
+</target>
+
+
+ <path id="scaladoc.src">
+     <pathelement location="../Catalog/AuLibrary/src/main/scala" />
+     <pathelement location="../Catalog/AuLibrary/src/main/java" />
+     <pathelement location="../Catalog/Voyager/src/main/scala" />
+     <pathelement location="../Catalog/Voyager/src/main/java" />
+      <pathelement location="../Catalog/EbscoX/src/main/scala" />
+      <pathelement location="../Catalog/ETD/EtdX/src/main/scala" />
+      <pathelement location="../Catalog/Vygr2Vfnd/src/main/scala" />
+      <!-- disable for now
+      <pathelement location="../Catalog/VufindRegression/src/main/scala" />
+      <pathelement location="../Catalog/FishProject/Minnows/src/main/scala" />
+            <pathelement location="../Catalog/CatRequest/src/main/scala" />
+            <pathelement location="../Catalog/CatRequest/src/main/java" />
+      -->
+      <pathelement location="../Catalog/RefStat/src/main/scala" />
+      <pathelement location="../Catalog/CircRequest/src/main/scala" />
+      <pathelement location="../Catalog/ClickCount/src/main/scala" />
+      <pathelement location="../Catalog/ClickCount/src/main/java" />
+      <pathelement location="../Catalog/I18n/src/main/scala" />
+      <pathelement location="../Catalog/MarcDownload/src" />
+      <pathelement location="../Catalog/MarcViewer/src" />
+      <pathelement location="../ProductBrowser/SwingBrowser/src/main/scala" />
+      <pathelement location="../webapp/littleId/littleId/src/main/scala" />
+    <!--
+    <pathelement path="${java.class.path}/"/>
+    <pathelement path="${additional.path}"/>
+    -->
+  </path>
+
+<target name="scaladoc"
+	 depends="resolve"
+	 description="generate scaladoc"
+         >
+    <mkdir dir="api/scaladoc" />
+    <copy file="src/index.html" todir="api/" />
+        <property environment="env"/>
+        <condition property="scala.home" value="${env.SCALA_HOME}">
+            <isset property="env.SCALA_HOME"/>
+        </condition>
+        <fail unless="scala.home">
+                    You must set SCALA_HOME or environment property and append "-J-Dscala.home=scalahomepath"
+                    property to the end of "netbeans_default_options" in NetBeansInstallationPath/etc/netbeans.conf to point to
+                    Scala installation directory.
+                </fail>
+        <property name="scala.compiler" value="${scala.home}/lib/scala-compiler.jar"/>
+        <property name="scala.library" value="${scala.home}/lib/scala-library.jar"/>
+        <property name="scala.lib" value="${scala.home}/lib"/>
+        <taskdef resource="scala/tools/ant/antlib.xml">
+            <classpath>
+                <pathelement location="${scala.compiler}"/>
+                <pathelement location="${scala.library}"/>
+            </classpath>
+        </taskdef>  
+
+    
+    <scaladoc
+      srcref="scaladoc.src" 
+      destdir="api/scaladoc"
+      deprecation="yes" unchecked="yes"
+      doctitle="Littleware Tools"
+      classpath="${ivy.compile.classpath}"
+       >
+       <!--
+            <classpath>
+                <path path="${ivy.docs.classpath.computed}"/>
+            </classpath>
+            -->
+   <include name="**/*.scala" />
+   <include name="**/*.java" />
+   <!-- scaladoc freaks out on JPA annotations ... --> 
+   <exclude name="**/SimpleEtdStub.scala" />
+   <exclude name="**/SimpleProqUpload.scala" />
+   
+   </scaladoc>
+   
+ </target>
+
+
+<!-- for the ivy build rules ... -->
+<target name="-init-project" />
+<target name="jar" />
+<target name="publish" />
+    
+</project>

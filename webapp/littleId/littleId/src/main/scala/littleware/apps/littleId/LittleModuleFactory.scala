@@ -1,0 +1,47 @@
+/*
+ * Copyright 2011 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
+package littleware.apps.littleId
+
+import com.google.inject.Binder
+import com.google.inject.Scopes
+import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,helper}
+import scala.collection.JavaConversions._
+
+object LittleModuleFactory {
+
+  class LittleModule ( profile:AppBootstrap.AppProfile ) extends helper.AbstractAppModule( profile ) {
+    override def configure( binder:Binder ):Unit = {
+      binder.bind( classOf[common.model.OIdUserCreds.Builder]).to( classOf[common.model.internal.OIdUserBuilder] )
+      binder.bind( classOf[server.controller.OpenIdTool]
+                  ).to( classOf[server.controller.internal.SimpleOidTool]
+                  ).in( Scopes.SINGLETON )
+      binder.bind( classOf[server.controller.AuthVerifyTool]
+                  ).to( classOf[server.controller.internal.InMemoryVerifyTool]
+                  ).in( Scopes.SINGLETON )
+      binder.bind( classOf[server.model.AuthResponse.Builder] ).to( classOf[server.model.internal.AuthResponseBuilder] )
+      binder.bind( classOf[server.model.AuthRequest.Builder] ).to( classOf[server.model.internal.AuthRequestBuilder] )
+      binder.bind( classOf[client.controller.VerifyTool]
+        ).to( classOf[client.controller.internal.HttpVerifyTool]
+        ).in( Scopes.SINGLETON )
+      littleware.base.PropertiesGuice.build(
+        classOf[client.controller.internal.HttpVerifyTool]
+      ).configure( binder )
+    }
+  }
+
+}
+
+/**
+ * Littleware module data for littleware.apps.littleId
+ */
+class LittleModuleFactory extends AppModuleFactory {
+  override def build( profile:AppBootstrap.AppProfile ):AppModule = new LittleModuleFactory.LittleModule( profile )
+}

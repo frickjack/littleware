@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN" 
+"http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee">
+	<tlibversion>1.1</tlibversion>
+	<jspversion>2.0</jspversion>
+	<shortname>littleware</shortname>
+	<description>littleware taglib</description>
+    <uri>http://www.littleware.com/xml/taglib/2006/general</uri>
+  <tag>
+    <name>ifAclAccess</name>
+    <tagclass>littleware.web.tags.IfAclAccessAction</tagclass>
+  <!--Body content can have a value of 
+  	 empty: no body 
+      JSP: body that is evaluated by container, then possibly processed by the tag 
+      tagdependent: body is only processed by tag; JSP in body is not evaluated.
+      scriptless: body does not include jsp:scriptlet's
+   -->
+    <bodycontent>JSP</bodycontent>
+    <description>
+	An java.security.acl.Acl based access-control tag.
+    </description>
+  <!-- Optional attributes  -->
+  <attribute>
+      <name>acl</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+  </attribute>
+    <attribute>
+      <name>access</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+  </attribute>
+    <attribute>
+      <name>helper</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+      <type>littleware.security.auth.SessionHelper</type>
+  </attribute>
+      <attribute>
+      <name>var</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+  </attribute>
+      <attribute>
+      <name>scope</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+  </attribute>
+</tag>
+
+  <tag>
+    <name>cache</name>
+    <tagclass>littleware.web.tags.CacheTagAction</tagclass>
+  <!--Body content can have a value of 
+  	 empty: no body 
+      JSP: body that is evaluated by container, then possibly processed by the tag 
+      tagdependent: body is only processed by tag; JSP in body is not evaluated.
+   -->
+    <bodycontent>scriptless</bodycontent>
+    <description>
+	A simple automated timeout cache.
+    </description>
+  <!-- Optional attributes  -->
+  <attribute>
+      <name>id</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+  </attribute>
+    <attribute>
+      <name>ageoutSecs</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+      <name>scope</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+  </attribute>
+</tag>
+
+  <tag>
+    <name>filter</name>
+    <tagclass>littleware.web.tags.FilterTagAction</tagclass>
+  <!--Body content can have a value of 
+  	 empty: no body 
+      JSP: body that is evaluated by container, then possibly processed by the tag 
+      tagdependent: body is only processed by tag; JSP in body is not evaluated.
+   -->
+    <bodycontent>scriptless</bodycontent>
+    <description>
+	Simple filter passes JSP content between begin/end inclusive.
+    </description>
+  <!-- Optional attributes  -->
+  <attribute>
+      <name>begin</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+  </attribute>
+    <attribute>
+      <name>end</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+  </attribute>
+</tag>
+
+</taglib>

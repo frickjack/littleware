@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <ui:composition template="/WEB-INF/layout/standard.xhtml">
+        <ui:define name="title">frickjack openId demo</ui:define>
+        <ui:define name="extraLinks">
+            <script type="text/javascript" src="#{facesContext.externalContext.requestContextPath}/resources/js/syntaxhighlighter/scripts/shCore.js" charset="UTF-8"></script>
+            <script type="text/javascript" src="#{facesContext.externalContext.requestContextPath}/resources/js/syntaxhighlighter/scripts/shBrushXml.js" charset="UTF-8"></script>
+            <script type="text/javascript" src="#{facesContext.externalContext.requestContextPath}/resources/js/syntaxhighlighter/scripts/shBrushJScript.js" charset="UTF-8"></script>
+            <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/resources/js/syntaxhighlighter/styles/shCore.css" />
+            <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/resources/js/syntaxhighlighter/styles/shThemeDefault.css" />
+
+        </ui:define>
+        <ui:define name="content">
+
+            <h3>Hypothetical Login Page</h3>
+            <p>
+                Here is a typical login form for a simple web application that
+                maintains its own user database.  How can we openId-enable this
+                application using frickjack.com's littleId services ?
+            </p>
+            <ul>
+                <li>First, the applications directs the client (possibly in a popup)
+                    to a littleId service
+                    at frickjack.com or running on the application's server
+                    with <i>provider</i>,
+                    <i>replyToURL</i>, and <i>replyMethod</i> properties set.
+                    <a href="http://littleware.frickjack.com/services/openId/services/authRequest/?provider=google&amp;replyToURL=http://myserver/littleIdPopup/&amp;replyMethod=GET">
+                        http://littleware.frickjack.com/services/openId/services/authRequest/?provider=google&amp;replyToURL=http://myserver/littleIdPopup/&amp;replyMethod=GET
+                    </a>
+                </li>
+                <li>
+                    The littleId server eventually redirects the client back to the <i>replyToURL</i> with
+                    <i>authSuccess</i> (true or false), <i>email</i>, <i>openId</i>, and
+                    <i>verifySecret</i> properties.
+                    The verifySecret is a one-use token that expires in 5 minutes.
+                </li>
+                <li>
+                    Finally, the application server can access littleId's verification web-service to
+                    check the validity of the credentials delivered to the replyToURL:
+                    <a href="http://littleware.frickjack.com/services/openId/services/verify/?secret=XXXX&amp;email=email@email&amp;openId=http://id">
+                        http://littleware.frickjack.com/services/openId/services/verify/?secret=XXXX&amp;email=email@email&amp;openId=http://id
+                    </a>
+                </li>
+            </ul>
+            <p>
+                The following demonstration shows how an application can use the littleId javascript
+                and web-service libraries (available in java, scala, and php) to manage this
+                authentication process.
+                How does this demonstration work ?
+                Click on the <i>Login with ...</i> link, and
+                <span class="oblique">view source</span> to find out!
+            </p>
+            <div id="demo" style="background-color:#bbffbb;" class="padded">
+                <form id="loginForm" action="${facesContext.externalContext.requestContextPath}/login/services/login/" method="POST" accept-charset="UTF-8">
+                    <table>
+                        <tr><td>Email:</td><td> <input id="inputName" type="text" name="email"></input></td></tr>
+                        <tr><td>1-time Secret:</td><td> <input id="inputPassword" type="text" name="secret"></input></td></tr>
+                    </table>
+                    <input type="submit" name="Go" value="Go" />
+                </form>
+                <a id="aOpenId" href="#">Login with Google or Yahoo Open Id</a>
+                <div id="littleIdUI" class="littleId_popup"></div>
+            </div>
+
+            <ul>
+                <li><p>First, we include a few dependencies on our page, so we can load the
+                        <span class="oblique">littleId</span> javascript module.
+                        The littleware javascript modules build on Yahoo's <a href="http://developer.yahoo.com/yui/3/">YUI3</a>
+                        javascript library.
+                        The <span class="oblique">"insertBeforeMe"</span> block is just a marker in the page
+                        where the <span class="oblique">littleware.littleYUI.bootstrap</span>
+                        convenience method tells YUI to insert its dependencies.
+                    </p>
+                    <pre class="brush: xml">
+            &lt;link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.3.0/build/cssreset/reset-min.css&amp;3.3.0/build/cssfonts/fonts-min.css&amp;3.3.0/build/cssgrids/grids-min.css&amp;3.3.0/build/cssbase/base-min.css" /&gt;
+            &lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="UTF-8"&gt;&lt;/script&gt;
+            &lt;script type="text/javascript" src="/openId/resources/js/littleware/littleYUI.js" charset="UTF-8"&gt;&lt;/script&gt;
+            &lt;style type="text/css" id="yuiInsertBeforeMe"&gt;&lt;/style&gt;
+            &lt;link rel="stylesheet" type="text/css" href="/openId/resources/css/little.css" /&gt;
+            &lt;link rel="stylesheet" type="text/css" href="/openId/resources/css/littleware/littleId.css" /&gt; 
+                    </pre>
+                </li>
+                <li>
+                    <p>
+                        Next, we add a "login with OpenId" link, and a "littleIdUI" div where we want the openId UI to appear.
+                    </p>
+                    <pre class="brush: xml">
+                    &lt;a id="aOpenId"&gt;Login with Google or Yahoo Open Id&lt;/a&gt;
+                    &lt;div id="littleIdUI" class="littleId_popup"&gt;&lt;/div&gt;
+                    </pre>
+                </li>
+                <li>
+                    <p>
+                        The following javascript adds an "onclick" event handler to the openId login link that
+                        launches the <span class="oblique">littleId.LoginProcess</span> UI, and listens for a <i>loginState</i> change
+                        event to auto-fill the form that posts credentials to our local webapp.
+                    </p>
+                    <pre class="brush: js">
+            // &lt;![CDATA[
+            littleware.littleYUI.bootstrap().use( 'node', 'node-base', 'littleware-littleId', function(Y) {
+                    var login = Y.littleware.littleId.LoginProcess;
+                    var urlBase = /(.+)\/\w+\.\w+/.exec( window.location.href )[1];
+                    // open-id popup should redirect back to our popupReturn page with a GET HTTP request
+                    login.set( 'replyToURL', urlBase + "/popupReturn.jsf" );
+                    login.set( 'replyMethod', 'GET' );
+                    // expose littleware.littleId for global access by the open-id popup
+                    littleware.littleId = Y.littleware.littleId
+                    Y.on( 'click', function(ev) {
+                        ev.preventDefault();
+                        login.promptUserForProvider();
+                    }, "#aOpenId" );
+                    login.after( 'loginStateChange', function(ev) {
+                        var state = login.get( 'loginState' )
+                        Y.log( "Login state changed! : " + state )
+                        if ( state == 'CredsReady' ) {
+                            var creds = login.get( 'userCreds' );
+                            Y.one( '#inputName' ).set( 'value', creds.email );
+                            Y.one( '#inputPassword' ).set( 'value', creds.secret )
+                        }
+                    });
+            }
+            );
+            // ]]&gt;
+
+                    </pre>
+                </li>
+                <li>
+                    <p>
+                        The open-id login process routes the user to a Google or Yahoo login page in a popup
+                        that eventually returns to our own <a href="popupReturn.jsf">popupReturn</a>
+                        that just runs the following script to report the user's credentials back to this page
+                        via the <i>LoginProcess.handleProviderCallback</i> javascript method.
+                    </p>
+                    <pre class="brush: js">
+                //&lt;![CDATA[
+                littleware.littleYUI.bootstrap().use( 'node', 'node-base', 'littleware-littleId', function(Y) {
+                        var loginData = Y.littleware.littleId.CalbackData.buildFromHref( window.location.href )
+                        window.opener.littleware.littleId.LoginProcess.handleProviderCallback( loginData );
+                        window.close();
+                });
+                // ]]&gt;
+                    </pre>
+                </li>
+                <li>
+                    The <i>LoginProcess.handleProviderCallback</i> method updates the <i>loginState</i>
+                    and <i>userCreds</i> attributes, which triggers the change-listener (in the code above and copied below) that in turn
+                    populates the login-form input fields.
+                                        <pre class="brush: js">
+                    login.after( 'loginStateChange', function(ev) {
+                        var state = login.get( 'loginState' )
+                        Y.log( "Login state changed! : " + state )
+                        if ( state == 'CredsReady' ) {
+                            var creds = login.get( 'userCreds' );
+                            Y.one( '#inputName' ).set( 'value', creds.email );
+                            Y.one( '#inputPassword' ).set( 'value', creds.secret )
+                        }
+                    });
+
+                                        </pre>
+                </li>
+                <li><p>
+                    Finally, the login-form posts the verify-secret and user email to
+                    the application server, which
+                    accesses the littleId verify service (via littleId's java or php API)
+                    to verify the credentials.
+                    </p>
+                    <pre class="brush: xml">
+                &lt;form id="loginForm" action="/services/login/services/login/" method="POST" accept-charset="UTF-8"&gt;
+                    &lt;table&gt;
+                        &lt;tr&gt;&lt;td&gt;Email:&lt;/td&gt;&lt;td&gt; &lt;input id="inputName" type="text" name="email" /&gt;&lt;/td&gt;&lt;/tr&gt;
+                        &lt;tr&gt;&lt;td&gt;1-time Secret:&lt;/td&gt;&lt;td&gt; &lt;input id="inputPassword" type="text" name="secret" /&gt;&lt;/td&gt;&lt;/tr&gt;
+                    &lt;/table&gt;
+                    &lt;input type="submit" name="Go" value="Go" /&gt;
+                &lt;/form&gt;
+                    </pre>
+                    <p>
+                        Obviously this form could be made invisible with a <i>display:none</i> style,
+                        then auto-submitted by the javascript that populates the input fields.
+                        This sites <a href="#{facesContext.externalContext.requestContextPath}/login/view/en/simpleLogin.jsf">simple login form</a>
+                        shows another submission form variation.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                    The littleId java API includes implementations of a login servlet, security filter,
+                    idBean, and JAAS manager in addition to the basic VerifyTool class.
+                    The <i>SecurityFilter</i> forwards an unauthenticated user session
+                    to a login form (like the one above).  For example, the SecurityFilter forces
+                    authentication to access <a href="#{facesContext.externalContext.requestContextPath}/login/view/en/secure/securePage.jsf">this page</a>.
+                    The following excerpt from
+                    a simple web.xml configuration file registers the LoginHandler servlet
+                    and SecurityFilter with a java web application.
+                    </p>
+                    <pre class="brush: xml">
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Login Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;littleware.apps.littleId.client.web.servlet.LoginHandler&lt;/servlet-class&gt;
+         &lt;init-param&gt;
+            &lt;param-name&gt; loginOkURL &lt;/param-name&gt;
+            &lt;param-value&gt; /services/ &lt;/param-value&gt;
+        &lt;/init-param&gt;
+         &lt;init-param&gt;
+            &lt;param-name&gt; loginFailedURL &lt;/param-name&gt;
+            &lt;param-value&gt; /services/login/view/en/loginFailed.jsf &lt;/param-value&gt;
+        &lt;/init-param&gt;
+         &lt;init-param&gt;
+            &lt;param-name&gt; logoutURL &lt;/param-name&gt;
+            &lt;param-value&gt; /services/ &lt;/param-value&gt;
+        &lt;/init-param&gt;
+
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Login Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/login/services/login/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+    &lt;filter&gt;
+        &lt;filter-name&gt;SecureFilter&lt;/filter-name&gt;
+        &lt;filter-class&gt;littleware.apps.littleId.client.web.servlet.SecurityFilter&lt;/filter-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;loginForm&lt;/param-name&gt;
+            &lt;param-value&gt;/login/view/en/simpleLogin.jsf&lt;/param-value&gt;
+        &lt;/init-param&gt;
+    &lt;/filter&gt;
+
+    &lt;filter-mapping&gt;
+        &lt;filter-name&gt;SecureFilter&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/login/view/en/secure/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+
+                    </pre>
+                </li>
+            </ul>
+
+            <script type="text/javascript" language="JavaScript">
+                SyntaxHighlighter.all();
+            // <![CDATA[
+            littleware.littleYUI.bootstrap().use( 'node', 'node-base', 'littleware-littleId', function(Y) {
+                    var login = Y.littleware.littleId.LoginProcess;
+                    var urlBase = /(.+)\/\w+\.\w+/.exec( window.location.href )[1];
+                    // open-id popup should redirect back to our popupReturn page with a GET HTTP request
+                    login.set( 'replyToURL', urlBase + "/popupReturn.jsf" );
+                    login.set( 'replyMethod', 'GET' );
+                    // expose littleware.littleId for global access by the open-id popup
+                    littleware.littleId = Y.littleware.littleId
+                    Y.on( 'click', function(ev) {
+                        ev.preventDefault();
+                        login.promptUserForProvider();
+                    }, "#aOpenId" );
+                    login.after( 'loginStateChange', function(ev) {
+                        var state = login.get( 'loginState' )
+                        Y.log( "Login state changed! : " + state )
+                        if ( state == 'CredsReady' ) {
+                            var creds = login.get( 'userCreds' );
+                            Y.one( '#inputName' ).set( 'value', creds.email );
+                            Y.one( '#inputPassword' ).set( 'value', creds.secret )
+                        }
+                    });
+            }
+            );
+            // ]]>
+            </script>
+        </ui:define>
+    </ui:composition>
+</html>
+

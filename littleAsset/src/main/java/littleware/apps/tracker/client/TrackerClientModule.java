@@ -20,7 +20,7 @@ import littleware.apps.tracker.MemberAlias;
 import littleware.apps.tracker.Product;
 import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.ProductManager;
-import littleware.apps.tracker.SimpleTaskManager;
+import littleware.apps.tracker.internal.SimpleTaskManager;
 import littleware.apps.tracker.TaskManager;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TrackerAssetType;

@@ -53,18 +53,6 @@ public interface Asset extends CacheableObject {
      */
     public String getLastUpdate();
 
-    public String getData();
-
-    /**
-     * Source of directed link this asset represents - may be null
-     */
-    public UUID getFromId();
-
-    /**
-     * Destination of directed link - may be null
-     */
-    public UUID getToId();
-
     /**
      * Id of home-asset this asset is associated with - should never be null
      */
@@ -78,70 +66,11 @@ public interface Asset extends CacheableObject {
      */
     public UUID getOwnerId();
 
-    /**
-     * Asset may have a date-range associated with it
-     */
-    public Date getStartDate();
-
-    /**
-     * Asset may have a date-range associated with it
-     */
-    public Date getEndDate();
 
     public Date getCreateDate();
 
     public Date getLastUpdateDate();
 
-    /**
-     * Asset may have a float value associated with it
-     * interpreted differently for different asset types
-     * (priority, cost, whatever).
-     *
-     * @return value as an Object - so we can Proxy this interface easily
-     */
-    public Float getValue();
-
-    /**
-     * It's very common for asset pipelines to want to put
-     * assets into one of several states.
-     * Subtypes should generally map a state to an enumeration.
-     *
-     * @return integer asset state
-     */
-    public Integer getState();
-    /**
-     * Return human-readable state based on integer state and locale
-     */
-    public String  getStateString();
-
-
-    /**
-     * Index of supplemental links extending from this node
-     */
-    public Map<String,UUID> getLinkMap();
-    /**
-     * Shortcut for Maybe.emtpyIfNull( getLinks().get( name ) )
-     */
-    public Maybe<UUID> getLink( String key );
-
-    /**
-     * Index of supplemental date info associated with this node
-     */
-    public Map<String,Date> getDateMap();
-    /**
-     * Shortcut for Maybe.emtpyIfNull( getDates().get( name ) )
-     */
-    public Maybe<Date> getDate( String key );
-
-
-    /**
-     * Get user-supplied attributes attached to this node
-     */
-    public Map<String,String>  getAttributeMap();
-    /**
-     * Shortcut for Maybe.emptyIfNull( getUserAttributes().get( name ) )
-     */
-    public Maybe<String> getAttribute( String key );
 
     /**
      * Shortcut for a.getAssetType().create().copy( a )

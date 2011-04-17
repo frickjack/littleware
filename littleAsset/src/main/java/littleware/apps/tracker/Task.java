@@ -10,6 +10,7 @@
 package littleware.apps.tracker;
 
 
+import littleware.apps.tracker.internal.SimpleTaskBuilder;
 import com.google.inject.ImplementedBy;
 import java.util.UUID;
 import littleware.asset.Asset;

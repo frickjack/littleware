@@ -37,7 +37,7 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      * @param s_name to retrieve
      * @param n_type must be unique-name type
      * @return the asset or null if none found    
-     * @exception InavlidAssetTypeException if n_type is not name-unique
+     * @throws InavlidAssetTypeException if n_type is not name-unique
      */
     @ReadOnly
     public  Maybe<Asset> getByName(String name, AssetType type) throws BaseException, AssetException,
@@ -50,11 +50,10 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      *
      * @param path_asset to traverse
      * @return the asset at the end of the path
-     * @exception GeneralSecurityException if caller does not have read-access
+     * @throws GeneralSecurityException if caller does not have read-access
      *             to every asset along the path
-     * @exception AssetPathTooLongException if traversal exceeds limit on number of assets
-     * @exception LinkLoopException if a loop is detected during automatic link traversal
-     * @exception DanglingLinkException if traversal runs into a link pointing TO nowhere
+     * @throws AssetPathTooLongException if traversal exceeds limit on number of assets
+     * @throws LinkLoopException if a loop is detected during automatic link traversal
      */
     public 
     @ReadOnly
@@ -68,9 +67,9 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      * @param u_id of asset to get history for
      * @param t_start earliest date to go back to in history search
      * @param t_end most recent date to go up to in history search
-     * @exception NoSuchThingException if the given asset does not exist in the database
-     * @exception AccessDeniedException if do not CURRENTLY have read-access to the asset
-     * @exception DataAccessException on database access/interaction failure
+     * @throws NoSuchThingException if the given asset does not exist in the database
+     * @throws AccessDeniedException if do not CURRENTLY have read-access to the asset
+     * @throws DataAccessException on database access/interaction failure
      */
     public 
     @ReadOnly
@@ -84,7 +83,7 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      *
      * @param u_from result&apos;s FROM-asset id
      * @param s_name of result asset
-     * @exception NoSuchThingException if requested asset does not exist
+     * @throws NoSuchThingException if requested asset does not exist
      */
     public 
     @ReadOnly
@@ -123,11 +122,11 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      * @param u_to asset - result&apos;s TO-asset
      * @param n_type to limit search to - may NOT be null
      * @return ids of children of type n_type linking TO a_to
-     * @exception AccessDeniedException if caller does not have read access
+     * @throws AccessDeniedException if caller does not have read access
      *                to a_source
-     * @exception DataAccessException on database access/interaction failure
-     * @exception IllegalArgumentExcetion if limit is out of bounds
-     * @exception AssetException if limit is too large 
+     * @throws DataAccessException on database access/interaction failure
+     * @throws IllegalArgumentExcetion if limit is out of bounds
+     * @throws AssetException if limit is too large 
      */
     public 
     @ReadOnly

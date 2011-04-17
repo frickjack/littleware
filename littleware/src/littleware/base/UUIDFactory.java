@@ -29,7 +29,7 @@ public abstract class UUIDFactory implements Factory<UUID>, java.io.Serializable
 	 *
 	 * @param s_uuid string to derive UUID from
 	 * @return parsed UUID or null if s_uuid is null
-	 * @exception IllegalArgumentException if s_uuid is not null and is not parsable
+	 * @throws IllegalArgumentException if s_uuid is not null and is not parsable
 	 */
 	public static UUID parseUUID ( String s_uuid ) throws IllegalArgumentException {
 		if ( null == s_uuid ) {

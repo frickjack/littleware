@@ -9,6 +9,7 @@
  */
 package littleware.asset;
 
+import littleware.asset.internal.SimpleAssetTreeTool;
 import com.google.inject.ImplementedBy;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;

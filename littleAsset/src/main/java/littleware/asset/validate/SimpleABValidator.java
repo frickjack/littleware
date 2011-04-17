@@ -50,8 +50,8 @@ public class SimpleABValidator implements AssetBuilderValidator {
 
                     @Override
                     public Collection<String> checkIfValid() {
-                        return buildErrorTracker().check((null != builder.getId()), "id must be set").check((null != builder.getHomeId()), "homeId must be set").check((AssetType.HOME.equals(builder.getAssetType())
-                                ^ (null != builder.getFromId())), "exactly one of home-type asset and non-null fromId must be true").check((AssetType.HOME.equals(builder.getAssetType())
+                        return buildErrorTracker().check((null != builder.getId()), "id must be set").check((null != builder.getHomeId()), "homeId must be set").check((LittleHome.HOME_TYPE.equals(builder.getAssetType())
+                                ^ (null != builder.getFromId())), "exactly one of home-type asset and non-null fromId must be true").check((LittleHome.HOME_TYPE.equals(builder.getAssetType())
                                 ^ (!builder.getId().equals(builder.getHomeId()))), "homeId == id for home-type asset, otherwise homeId != id").getErrors();
                     }
                 }) {

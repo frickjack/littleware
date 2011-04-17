@@ -88,14 +88,14 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
 
         @Override
         public LittleSession run() throws Exception {
-            final Asset home = search.getByName("littleware.home", AssetType.HOME).get();
+            final Asset home = search.getByName("littleware.home", LittleHome.HOME_TYPE).get();
 
             // First - verify ServerVersion node exists -
             // TODO: find a better place to do this
             if (search.getAssetFrom(home.getId(), SimpleSessionHelper.serverVersionName).isEmpty()) {
                 // Only administrator can creat child of littleware.home ...
                 assetMgr.saveAsset(
-                        AssetType.GENERIC.create().parent(home).name(SimpleSessionHelper.serverVersionName).data("v0.0").build(),
+                        GenericAsset.GENERIC.create().parent(home).name(SimpleSessionHelper.serverVersionName).data("v0.0").build(),
                         "Setup v0.0 ServerVersion node");
             }
             // Let's create a hierarchy
@@ -112,7 +112,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
                     parent = maybe.get();
                     continue;
                 }
-                final Asset child = AssetType.GENERIC.create().parent(parent).name(childName).build();
+                final Asset child = GenericAsset.GENERIC.create().parent(parent).name(childName).build();
                 parent = assetMgr.saveAsset(child, sessionComment);
             }
             return assetMgr.saveAsset(session.copy().fromId(parent.getId()).homeId(parent.getHomeId()).build(),
@@ -203,7 +203,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
 
                         @Override
                         public Maybe<Asset> run() throws BaseException, GeneralSecurityException, RemoteException {
-                            for (AssetTreeTemplate.AssetInfo treeInfo : userTreeBuilder.get().user(s_name).build().visit(search.getByName("littleware.home", AssetType.HOME).get(), search)) {
+                            for (AssetTreeTemplate.AssetInfo treeInfo : userTreeBuilder.get().user(s_name).build().visit(search.getByName("littleware.home", LittleHome.HOME_TYPE).get(), search)) {
                                 if (!treeInfo.getAssetExists()) {
                                     assetMgr.saveAsset(treeInfo.getAsset(), "Setup new user: " + s_name);
                                 }

@@ -52,7 +52,7 @@ public class ReaderWriter implements Runnable {
 	 * Just read till the end of stream gets reached
 	 * or IOException thrown. 
 	 *
-	 * @exception NullPointerException if Reader or Writer are null
+	 * @throws NullPointerException if Reader or Writer are null
 	 */
 	public void run () {
 		try {

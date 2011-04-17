@@ -60,7 +60,7 @@ public class CommentTester extends AbstractAssetTest {
     public void setUp() {
         try {
             for (AssetTreeTemplate.AssetInfo info :
-                    treeBuilder.get().assetBuilder(AssetType.GENERIC.create().name("CommentTester")).build().visit(getTestHome(search), search)) {
+                    treeBuilder.get().assetBuilder(GenericAsset.GENERIC.create().name("CommentTester")).build().visit(getTestHome(search), search)) {
                 if (!info.getAssetExists()) {
                     testFolder = Maybe.something(
                             assetMan.saveAsset(info.getAsset(), "setting up test folder"));

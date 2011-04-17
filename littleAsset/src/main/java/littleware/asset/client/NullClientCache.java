@@ -30,7 +30,7 @@ public class NullClientCache implements ClientCache, java.io.Serializable {
     }
 
     @Override
-    public long getTransaction() {
+    public long getTimestamp() {
         return 0L;
     }
 

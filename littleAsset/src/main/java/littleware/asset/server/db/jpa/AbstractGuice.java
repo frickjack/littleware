@@ -19,9 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import littleware.asset.server.CacheManager;
 import littleware.asset.server.LittleTransaction;
-import littleware.asset.server.NullCacheManager;
 import littleware.asset.server.db.DbAssetManager;
 import littleware.base.ThreadLocalProvider;
 
@@ -31,7 +29,8 @@ import littleware.base.ThreadLocalProvider;
  * NullCacheManager, etc.
  */
 public abstract class AbstractGuice implements Module {
-    private static final Logger olog = Logger.getLogger( AbstractGuice.class.getName() );
+    private static final Logger log = Logger.getLogger( AbstractGuice.class.getName() );
+    
     /** Guice provider calls through to injected EntityManagerFactory */
     public static class EntityManagerProvider implements Provider<EntityManager> {
         private final EntityManagerFactory ofactory;
@@ -62,8 +61,7 @@ public abstract class AbstractGuice implements Module {
 
     @Override
     public void configure( Binder binder ) {
-        olog.log( Level.FINE, "Configuring JPA database access" );
-        binder.bind( CacheManager.class ).to( NullCacheManager.class ).in( Scopes.SINGLETON );
+        log.log( Level.FINE, "Configuring JPA database access" );
         binder.bind( LittleTransaction.class ).to( JpaLittleTransaction.class );
         binder.bind( JpaLittleTransaction.class ).to( SimpleJpaTransaction.class );
         binder.bind( SimpleJpaTransaction.class ).toProvider(TransactionProvider.class);

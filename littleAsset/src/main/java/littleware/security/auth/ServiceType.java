@@ -18,7 +18,7 @@ import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.LittleService;
 import littleware.base.*;
 import littleware.base.stat.*;
-import littleware.security.client.AccountManagerService;
+
 
 /**
  * Enumerate different types of services exported by the 
@@ -104,10 +104,11 @@ public class ServiceType<T extends LittleService> extends DynamicEnum<ServiceTyp
     public static final ServiceType<SessionHelperService> SESSION_HELPER =
             new ServiceType<SessionHelperService>(UUIDFactory.parseUUID("BD4110EF7A3C482D9B3500DFC74829DE"),
             "littleware.SESSION_HELPER_SERVICE", SessionHelperService.class );
-         ..*/
     
     public static final ServiceType<AccountManagerService> ACCOUNT_MANAGER =
             new ServiceType<AccountManagerService>(UUIDFactory.parseUUID("402DD983DD8C47118232285E430611C2"),
             "littleware.ACCOUNT_MANAGER_SERVICE", AccountManagerService.class );
+     * 
+     */
 }
 

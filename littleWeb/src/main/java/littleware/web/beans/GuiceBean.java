@@ -60,7 +60,7 @@ public class GuiceBean {
      * later if possible.
      *
      * @param injectMe needs members injected by Guice
-     * @exception IllegalStateException if injector not initialized
+     * @throws IllegalStateException if injector not initialized
      */
     public void injectMembers( Object injectMe ) {
         if ( maybeInjector.isEmpty() ) {

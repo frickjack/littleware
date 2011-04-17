@@ -9,6 +9,7 @@
  */
 package littleware.security.auth.client;
 
+import littleware.security.internal.SimpleRole;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileReader;
@@ -125,7 +126,7 @@ public class ClientLoginModule implements LoginModule {
      * Attempt phase-1 login using cached CallbackHandler to get user info
      *
      * @return true if authentication succeeds, false to ignore this module
-     * @exception LoginException if authentication fails
+     * @throws LoginException if authentication fails
      */
     @Override
     public boolean login() throws LoginException {
@@ -280,7 +281,7 @@ public class ClientLoginModule implements LoginModule {
      * Idea is that multiple modules may go through a phase 1 login,
      * then phase 2 comes through once all is ok.
      *
-     * @exception LoginException if commit fails
+     * @throws LoginException if commit fails
      */
     @Override
     public boolean commit() throws LoginException {
@@ -291,7 +292,7 @@ public class ClientLoginModule implements LoginModule {
      * Abort the login process - always returns true for now -
      * should cancel out the LittleSession later.
      *
-     * @exception LoginException if abort fails
+     * @throws LoginException if abort fails
      */
     @Override
     public boolean abort() {
@@ -303,7 +304,7 @@ public class ClientLoginModule implements LoginModule {
      * Does nothing for now - should cancel out the LittleSession later.
      *
      * @return true if logout ok, false to ignore this module
-     * @exception LoginException if logout fails
+     * @throws LoginException if logout fails
      */
     @Override
     public boolean logout() throws LoginException {

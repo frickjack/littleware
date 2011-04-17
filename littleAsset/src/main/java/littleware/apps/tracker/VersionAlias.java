@@ -11,6 +11,7 @@
 package littleware.apps.tracker;
 
 import java.util.UUID;
+import littleware.apps.tracker.internal.SimpleVABuilder;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
@@ -37,7 +38,7 @@ public interface VersionAlias extends Asset {
         public VABuilder name( String value );
 
         /**
-         * @exception IllegalArgumentException if value is not a Product
+         * @throws IllegalArgumentException if value is not a Product
          * @param value product 
          */
         @Override

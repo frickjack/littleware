@@ -15,6 +15,7 @@ import java.util.Iterator;
 /** 
  * Slight specialization of Iterator to allow us to 
  * add some new methods in the future to batch-return methods.
+ * Should also extend to support asynchronous load.
  */
 public interface AssetCursor<T> extends Iterator<T> {
 

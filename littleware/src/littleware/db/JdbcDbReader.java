@@ -29,9 +29,9 @@ public interface JdbcDbReader<T, R> extends DbReader<T, R> {
      * @param sql_conn connection to prepare the statement against
      * @return statement possibly requiring parameters to be set against it -
      *             caller must properly close() the statement
-     * @exception SQLException pass through exceptions thrown by sql_conn access
-     * @exception LittleSqlException if unable to prepare statement
-     * @exception UnsupportedOperationException if not implemented
+     * @throws SQLException pass through exceptions thrown by sql_conn access
+     * @throws LittleSqlException if unable to prepare statement
+     * @throws UnsupportedOperationException if not implemented
      */
     public PreparedStatement prepareStatement(Connection sql_conn) throws SQLException;
 
@@ -42,8 +42,8 @@ public interface JdbcDbReader<T, R> extends DbReader<T, R> {
      * @param x_arg to parameterize the statement with before execution
      * @return ResultSet ready for extraction - properly handling ReferenceCursor
      *             results of CallableStatement - caller must close the ResultSet
-     * @exception LittleSqlException if unable to prepare statement
-     * @exception UnsupportedOperationException if not implemented
+     * @throws LittleSqlException if unable to prepare statement
+     * @throws UnsupportedOperationException if not implemented
      */
     public ResultSet executeStatement(PreparedStatement sql_stmt, R x_arg) throws SQLException;
 
@@ -54,7 +54,7 @@ public interface JdbcDbReader<T, R> extends DbReader<T, R> {
      * @param sql_data_source to connect with the database
      * @param x_arg to parameterize the statement with before execution
      * @return object extracted from db
-     * @exception SQLException pass through exceptions thrown by sql_rset access
+     * @throws SQLException pass through exceptions thrown by sql_rset access
      */
     public T loadObject(javax.sql.DataSource sql_data_source, R x_arg) throws SQLException;
 
@@ -65,7 +65,7 @@ public interface JdbcDbReader<T, R> extends DbReader<T, R> {
      * @param sql_conn to the database
      * @param x_arg to parameterize the statement with before execution
      * @return object extracted from db
-     * @exception SQLException pass through exceptions thrown by sql_rset access
+     * @throws SQLException pass through exceptions thrown by sql_rset access
      */
     public T loadObject(Connection sql_conn, R x_arg) throws SQLException;
 
@@ -78,7 +78,7 @@ public interface JdbcDbReader<T, R> extends DbReader<T, R> {
      * @param x_arg to parameterize the statement with before execution
      * @return object extracted from ResultSet, or null if x_rset.next()
      *        returns false
-     * @exception SQLException pass through exceptions thrown by sql_rset access
+     * @throws SQLException pass through exceptions thrown by sql_rset access
      */
     public T loadObject(PreparedStatement sql_stmt, R x_arg) throws SQLException;
 
@@ -91,7 +91,7 @@ public interface JdbcDbReader<T, R> extends DbReader<T, R> {
      *                caller must close the result set
      * @return object extracted from ResultSet, or null if x_rset.next()
      *        returns false
-     * @exception SQLException pass through exceptions thrown by sql_rset access
+     * @throws SQLException pass through exceptions thrown by sql_rset access
      */
     public T loadObject(ResultSet sql_rset) throws SQLException;
 }

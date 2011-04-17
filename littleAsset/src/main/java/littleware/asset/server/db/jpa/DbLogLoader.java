@@ -59,8 +59,8 @@ class DbLogLoader implements DbReader<List<IdWithClock>, Long> {
                 "FROM Asset x " +
                 "WHERE x.homeId = :homeId AND x.lastTransaction > :minTransaction " +
                 "ORDER BY x.lastTransaction";
-        final long minTransaction = (trans.getTransaction() - 200 > minTransactionIn.longValue()) ?
-            (trans.getTransaction() - 200) : minTransactionIn.longValue();
+        final long minTransaction = (trans.getTimestamp() - 200 > minTransactionIn.longValue()) ?
+            (trans.getTimestamp() - 200) : minTransactionIn.longValue();
         final Query query = entMgr.createQuery(sQuery).
                 setParameter("homeId", UUIDFactory.makeCleanString(homeId)).
                 setParameter("minTransaction", minTransaction );
@@ -69,7 +69,7 @@ class DbLogLoader implements DbReader<List<IdWithClock>, Long> {
         for( ClockIdType data : dataList ) {
             result.add( clockBuilder.build( UUIDFactory.parseUUID( data.getId() ),
                                             UUIDFactory.parseUUID( data.getFromId() ),
-                                            data.getTransaction()
+                                            data.getTimestamp()
                                             )
                                             );
         }

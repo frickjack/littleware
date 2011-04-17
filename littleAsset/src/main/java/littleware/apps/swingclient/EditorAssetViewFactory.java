@@ -41,7 +41,7 @@ public class EditorAssetViewFactory extends SimpleAssetViewFactory implements As
 
         registerProvider( SecurityAssetType.ACL, provideAclEditor
                                     , JAclEditor.class );
-        registerProvider( AssetType.GENERIC, provideGenericEditor,
+        registerProvider( GenericAsset.GENERIC, provideGenericEditor,
                             JGenericAssetEditor.class );
     }
     

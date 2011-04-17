@@ -29,7 +29,7 @@ public interface ServiceRegistry extends LittleRegistry<ServiceType<?>,ServiceFa
      *     ServiceFactory<T>.createServiceProvider
      * and casts the result to the ServiceType
      *
-     * @exception NoSuchThingException if no ServiceProvider registered for the
+     * @throws NoSuchThingException if no ServiceProvider registered for the
      *                requested service type
      */
     public <T extends LittleService> T getService( ServiceType<T> servtype, SessionHelper helper ) throws BaseException,

@@ -10,6 +10,7 @@
 
 package littleware.apps.tracker;
 
+import littleware.apps.tracker.internal.SimplePABuilder;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;

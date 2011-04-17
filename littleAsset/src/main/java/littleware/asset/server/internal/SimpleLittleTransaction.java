@@ -42,7 +42,7 @@ public class SimpleLittleTransaction extends AbstractLittleTransaction
      * rather than share the per-thread cache.
      * Use getThreadTransaction to share the thread cache.
      *
-     * @exception IllegalStateException if data-source not set
+     * @throws IllegalStateException if data-source not set
      */
     @Inject
     public SimpleLittleTransaction(@Named("datasource.littleware") DataSource datasource) {
@@ -100,7 +100,7 @@ public class SimpleLittleTransaction extends AbstractLittleTransaction
     }
 
     @Override
-    public long getTransaction() {
+    public long getTimestamp() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -116,7 +116,7 @@ public class SimpleLittleTransaction extends AbstractLittleTransaction
          * Automatically stashes a getConnection.setSavepoint (),
          * and records the current length of the deferTillTransactionEnd list.
          *
-         * @exception SQLException on failure to get JDBC savepoint
+         * @throws SQLException on failure to get JDBC savepoint
          */
         public MySavepoint() throws SQLException {
             osavept_jdbc = getConnection().setSavepoint();

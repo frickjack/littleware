@@ -18,8 +18,8 @@ public interface JdbcDbWriter<T> extends DbWriter<T> {
 	 * @param sql_conn connection to prepare the statement against
 	 * @return statement possibly requiring parameters to be set against it -
 	 *             caller must properly close() the statement
-	 * @exception SQLException pass through exceptions thrown by sql_conn access
-	 * @exception UnsupportedOperationException if not implemented for complex aggregate-object saves
+	 * @throws SQLException pass through exceptions thrown by sql_conn access
+	 * @throws UnsupportedOperationException if not implemented for complex aggregate-object saves
 	 */
 	public PreparedStatement prepareStatement ( Connection sql_conn ) throws SQLException;
 	
@@ -33,7 +33,7 @@ public interface JdbcDbWriter<T> extends DbWriter<T> {
 	 *                 possibly null for some aggregate-based saves.
 	 * @param x_object to save
 	 * @return result of sql_stmt.execute()
-	 * @exception SQLException pass through exceptions thrown by sql_stmt access
+	 * @throws SQLException pass through exceptions thrown by sql_stmt access
 	 */
 	public boolean saveObject ( PreparedStatement sql_stmt, T x_object ) throws SQLException;
 	
@@ -42,7 +42,7 @@ public interface JdbcDbWriter<T> extends DbWriter<T> {
 	 *
 	 * @param sql_conn to issue commands against
 	 * @param x_object to save
-	 * @exception SQLException
+	 * @throws SQLException
 	 */
 	public void saveObject ( Connection sql_conn, T x_object ) throws SQLException;
 	
@@ -51,7 +51,7 @@ public interface JdbcDbWriter<T> extends DbWriter<T> {
 	 *
 	 * @param sql_data_source to get connection from
 	 * @param x_object to save
-	 * @exception SQLException on SQL interaction failures
+	 * @throws SQLException on SQL interaction failures
 	 */
 	public void saveObject ( javax.sql.DataSource sql_data_source, T x_object ) throws SQLException;
 		

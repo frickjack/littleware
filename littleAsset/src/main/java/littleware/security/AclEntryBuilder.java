@@ -9,6 +9,8 @@
  */
 package littleware.security;
 
+import littleware.asset.spi.AbstractAsset;
+import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.validate.ValidationException;
 import com.google.common.collect.ImmutableSet;
 import java.util.*;
@@ -30,7 +32,7 @@ import littleware.base.*;
  * Simple implementation of the LittleAclEntry interface.
  * Overrides setData/getData to extract XML permission data.
  */
-class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Builder {
+class AclEntryBuilder extends AbstractAssetBuilder implements LittleAclEntry.Builder {
 
     private static final Logger log = Logger.getLogger("littleware.security.SimpleAclEntry");
 
@@ -136,8 +138,8 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
     }
 
     @Override
-    public Builder transaction(long value) {
-        super.transaction( value ); return this;
+    public Builder timestamp(long value) {
+        super.timestamp( value ); return this;
     }
 
     @Override
@@ -145,7 +147,7 @@ class AclEntryBuilder extends SimpleAssetBuilder implements LittleAclEntry.Build
         super.copy( value ); return this;
     }
 
-    private static class Entry extends SimpleAssetBuilder.SimpleAsset implements LittleAclEntry {
+    private static class Entry extends AbstractAsset implements LittleAclEntry {
 
         private static final long serialVersionUID = -5342316532664742997L;
         private LittlePrincipal principal;

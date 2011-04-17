@@ -9,6 +9,7 @@
  */
 package littleware.asset.server.internal;
 
+import littleware.asset.internal.SimpleAssetPathFactory;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.rmi.RemoteException;
@@ -111,7 +112,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 mapResult = getAssetsAlongPath(path_asset.getParent());
 
                 if (mapResult.size() > 20) {
-                    throw new TraverseTooLongException("Path traversal (" + path_asset +
+                    throw new PathTraverseException("Path traversal (" + path_asset +
                             ") exceeds 20 assets at " + s_path);
                 }
 
@@ -121,10 +122,10 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 if (!maybeParent.isSet()) {
                     maybeResult = maybeParent;
                 } else if (s_name.equals("@")) {
-                    if (null == maybeParent.get().getToId()) {
+                    if (null == maybeParent.get().narrow( LinkAsset.class ).getToId()) {
                         maybeResult = Maybe.empty("Link parent has null to-id: " + s_path);
                     } else {
-                        maybeResult = getAsset(maybeParent.get().getToId());
+                        maybeResult = getAsset(maybeParent.get().narrow( LinkAsset.class ).getToId());
                     }
                 } else {
                     maybeResult = getAssetFrom(maybeParent.get().getId(), s_name);
@@ -137,12 +138,12 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 
 
             for (int i_link_count = 0;
-                    maybeResult.isSet() && maybeResult.get().getAssetType().equals(AssetType.LINK) && (maybeResult.get().getToId() != null);
+                    maybeResult.isSet() && maybeResult.get().getAssetType().equals(AssetType.LINK) && (maybeResult.get().narrow( LinkAsset.class ).getToId() != null);
                     ++i_link_count) {
                 if (i_link_count > 5) {
-                    throw new LinkLimitException("Traversal exceeded 5 link limit at " + s_path);
+                    throw new PathTraverseException("Traversal exceeded 5 link limit at " + s_path);
                 }
-                maybeResult = getAsset(maybeResult.get().getToId());
+                maybeResult = getAsset(maybeResult.get().narrow( LinkAsset.class ).getToId());
             }
 
             mapResult.put(path_asset, maybeResult);
@@ -181,11 +182,11 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 Asset a_check = getAssetOrNullInsecure(entry_x.getKey());
                 if (null != a_check) {
                     // asset exists
-                    if (a_check.getTransaction() >
+                    if (a_check.getTimestamp() >
                             entry_x.getValue()) {
                         // client is out of date
                         v_result.put(a_check.getId(),
-                                a_check.getTransaction());
+                                a_check.getTimestamp());
                         log.log(Level.FINE, "Transaction count missync for: " + a_check);
                     } else {
                         log.log(Level.FINE, "Transaction count ok for: " + a_check);

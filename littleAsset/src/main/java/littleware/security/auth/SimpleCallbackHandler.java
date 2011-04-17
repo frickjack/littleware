@@ -43,8 +43,8 @@ public class SimpleCallbackHandler implements CallbackHandler {
      * Handle the given array of callbacks
      *
      * @param callbacks to manage
-     * @exception UnsupportedCallbackException if recieve other than Name or Password callback
-     * @exception IOException to complete interface
+     * @throws UnsupportedCallbackException if recieve other than Name or Password callback
+     * @throws IOException to complete interface
      */
     @Override
     public void handle(Callback[] callbacks) throws UnsupportedCallbackException, IOException {

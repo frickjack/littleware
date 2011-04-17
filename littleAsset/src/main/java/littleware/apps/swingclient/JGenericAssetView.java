@@ -425,7 +425,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
         owlink_name.setLink(a_data);
         owlabel_id.setText(UUIDFactory.makeCleanString(a_data.getId()));
         owlabel_value.setText(a_data.getValue().toString());
-        owlabel_transaction.setText(Long.toString(a_data.getTransaction()));
+        owlabel_transaction.setText(Long.toString(a_data.getTimestamp()));
 
         updateLabelInfo(owlink_acl, a_data.getAclId());
         updateLabelInfo(owlink_to, a_data.getToId());

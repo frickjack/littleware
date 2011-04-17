@@ -10,6 +10,9 @@
 
 package littleware.asset;
 
+import littleware.asset.AssetPath;
+import littleware.asset.AssetType;
+
 
 
 /**

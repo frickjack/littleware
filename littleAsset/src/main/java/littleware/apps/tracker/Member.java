@@ -10,6 +10,7 @@
 
 package littleware.apps.tracker;
 
+import littleware.apps.tracker.internal.SimpleMemberBuilder;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;

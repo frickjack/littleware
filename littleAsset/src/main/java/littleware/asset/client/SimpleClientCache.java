@@ -120,7 +120,7 @@ public class SimpleClientCache implements LittleServiceListener, ClientCache {
      * with a SimpleCache.MIN_AGEOUT_SECONDS age-out
      * and 20000 max size.
      *
-     * @param session initializes transaction to session.getTransactionCount,
+     * @param session initializes transaction to session.getTimestampCount,
      *           and puts the session in the cache.
      * @param helper to register this as a listener with, and to retrieve session from
      */
@@ -130,7 +130,7 @@ public class SimpleClientCache implements LittleServiceListener, ClientCache {
             ) {
         cacheLong = cacheBuilder.maxAgeSecs( 900 ).maxSize( 20000 ).build();
         cacheShort = cacheBuilder.maxAgeSecs( 30 ).maxSize( 20000 ).build();
-        olTransaction = session.getTransaction();
+        olTransaction = session.getTimestamp();
         ocache.put(session.getId().toString(), session);
     }
 
@@ -156,7 +156,7 @@ public class SimpleClientCache implements LittleServiceListener, ClientCache {
     }
      */
     @Override
-    public long getTransaction() {
+    public long getTimestamp() {
         return olTransaction;
     }
 
@@ -179,7 +179,7 @@ public class SimpleClientCache implements LittleServiceListener, ClientCache {
     public void receiveServiceEvent(LittleServiceEvent eventLittle) {
         if (eventLittle instanceof AssetLoadEvent) {
             final AssetLoadEvent eventLoad = (AssetLoadEvent) eventLittle;
-            if (eventLoad.getAsset().getTransaction() > getTransaction()) {
+            if (eventLoad.getAsset().getTimestamp() > getTimestamp()) {
                 log.log( Level.FINE, "Clearing cache on transaction advance" );
                 getCache().clear();
             }

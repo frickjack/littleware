@@ -53,11 +53,11 @@ public class ListChildrenTester extends AbstractAssetTest {
             {
                 final ListChildrenCommand command = provideCommand.get(
                     ).buildFromArgs( Arrays.asList( "-path", getTestHome(),
-                                    "-type", AssetType.GENERIC.toString() )
+                                    "-type", GenericAsset.GENERIC.toString() )
                                     );
                 final ListChildrenCommand.Input testData = command.getInput();
                 assertTrue( "Generic asset-type detected in args parsing: " + testData.getChildType(),
-                        testData.getChildType().isSet() && testData.getChildType().get().equals( AssetType.GENERIC )
+                        testData.getChildType().isSet() && testData.getChildType().get().equals( GenericAsset.GENERIC )
                         );
             }
 

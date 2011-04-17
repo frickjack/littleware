@@ -58,8 +58,8 @@ public class AssetModelLibTester extends AbstractAssetTest {
         try {
             // couple bogus test assets - donot save to repository
             final Asset home = getTestHome(osearch);
-            a_bogus1 = AssetType.GENERIC.create().name("bogus1").parent(home).build();
-            a_bogus2 = AssetType.GENERIC.create().name("bogus2").parent(home).build();
+            a_bogus1 = GenericAsset.GENERIC.create().name("bogus1").parent(home).build();
+            a_bogus2 = GenericAsset.GENERIC.create().name("bogus2").parent(home).build();
             final Asset a_test = osession;
 
             olibAsset.remove(a_test.getId());
@@ -99,7 +99,7 @@ public class AssetModelLibTester extends AbstractAssetTest {
             // Adding a_bogus2 to the asset repository should trigger a Property.assetsLinkingFrom
             // property-change event on listeners to a_bogus1 AssetModel
             olibAsset.syncAsset(a_bogus2.copy().fromId(a_bogus1.getId()).
-                    transaction(a_bogus2.getTransaction() + 1).build());
+                    timestamp(a_bogus2.getTimestamp() + 1).build());
             Thread.sleep(4000); // let any asynchrony work itself out
             assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().getValue());
         } catch (Exception e) {

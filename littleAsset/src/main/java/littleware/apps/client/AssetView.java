@@ -44,7 +44,7 @@ public interface AssetView extends LittleTool {
      * This view registers as a listener of the new model,
      * and unregisters from the old model if any.
      *
-     * @exception LibraryMismatchException if model_asset does not
+     * @throws LibraryMismatchException if model_asset does not
      *             belong to the same AssetModelLibrary as the
      *             current AssetModel assigned to this view.
      */

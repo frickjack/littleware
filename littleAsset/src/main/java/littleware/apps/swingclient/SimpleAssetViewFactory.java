@@ -58,7 +58,7 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
             Provider<JAclView> provide_acl
             //,Provider<JQView>   provide_queue
             ) {
-        registerProvider( AssetType.GENERIC, provide_generic, JGenericAssetView.class );
+        registerProvider( GenericAsset.GENERIC, provide_generic, JGenericAssetView.class );
         registerProvider( SecurityAssetType.GROUP, provide_group, JGroupView.class );
         registerProvider( SecurityAssetType.ACL, provide_acl, JAclView.class );
         //registerProvider( TrackerAssetType.QUEUE, provide_queue, JQView.class );
@@ -71,7 +71,7 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
         if ( omapRegistry.containsKey(n_asset ) ) {
             view = omapRegistry.get( n_asset ).get();
         } else {
-            view = omapRegistry.get( AssetType.GENERIC ).get();
+            view = omapRegistry.get( GenericAsset.GENERIC ).get();
         }
         view.setAssetModel(model_asset);
         return view;
@@ -84,7 +84,7 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
         if ( omapClassCheck.containsKey( n_asset ) ) {
             return omapClassCheck.get( n_asset ).isInstance( view_check );
         } else {
-            return omapClassCheck.get( AssetType.GENERIC ).isInstance( view_check );
+            return omapClassCheck.get( GenericAsset.GENERIC ).isInstance( view_check );
         }
     }
 

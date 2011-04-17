@@ -38,7 +38,7 @@ public interface ClientCache {
      * Get the current transaction count that an asset load greater
      * than that would cause a cache flush.
      */
-    public long getTransaction();
+    public long getTimestamp();
 
     /**
      * Get the cache - can add, query, whatever in user-specific way.

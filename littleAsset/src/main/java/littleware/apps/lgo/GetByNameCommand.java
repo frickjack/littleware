@@ -11,7 +11,6 @@ package littleware.apps.lgo;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
-import littleware.lgo.LgoCommand;
 import com.google.inject.Inject;
 import java.util.Map;
 import java.util.logging.Level;
@@ -22,6 +21,7 @@ import littleware.asset.AssetType;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.feedback.Feedback;
 import littleware.lgo.AbstractLgoBuilder;
+import littleware.security.SecurityAssetType;
 
 public class GetByNameCommand extends AbstractAssetCommand<GetByNameCommand.Input, Asset> {
 
@@ -72,7 +72,7 @@ public class GetByNameCommand extends AbstractAssetCommand<GetByNameCommand.Inpu
         public GetByNameCommand buildFromArgs(List<String> args) {
             final Map<String, String> mapDefault =
                     ImmutableMap.of(Option.name.toString(), "",
-                    Option.type.toString(), AssetType.LOCK.toString());
+                    Option.type.toString(), SecurityAssetType.USER.toString());
             final Map<String, String> mapArg = processArgs(args, mapDefault);
             final String sName = mapArg.get(Option.name.toString());
             final String sType = mapArg.get(Option.type.toString()).toLowerCase();

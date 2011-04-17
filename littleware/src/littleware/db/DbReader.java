@@ -24,7 +24,7 @@ public interface DbReader<T,R> {
 	 *
 	 * @param x_arg to parameterize the statement with before execution
 	 * @return object extracted from db
-	 * @exception SQLException pass through exceptions thrown by sql_rset access - 
+	 * @throws SQLException pass through exceptions thrown by sql_rset access - 
      *                  should refactor this to something independent later - ugh
 	 */
 	public T loadObject( R x_arg ) throws SQLException;	

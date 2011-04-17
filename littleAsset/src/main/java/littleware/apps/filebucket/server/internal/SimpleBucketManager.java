@@ -119,7 +119,7 @@ public class SimpleBucketManager implements BucketManager {
      * illegal characters.
      *
      * @param path into bucket to check
-     * @exception IllegalBucketPathException if path is illegal
+     * @throws IllegalBucketPathException if path is illegal
      */
     public void checkBucketPath(String path) throws IllegalBucketPathException {
         if ((null == path)

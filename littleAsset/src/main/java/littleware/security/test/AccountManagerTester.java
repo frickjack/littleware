@@ -24,6 +24,7 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.security.*;
 import littleware.base.BaseException;
+import littleware.security.server.QuotaUtil;
 
 /**
  * TestFixture runs SecurityMnaager implementations
@@ -36,6 +37,7 @@ public class AccountManagerTester extends AbstractAssetTest {
     private final AccountManager accountMgr;
     private final AssetManager assetMgr;
     private final LittleUser caller;
+    private final QuotaUtil quotaUtil;
 
     /**
      * Constructor registers the AccountManager to test against.
@@ -50,11 +52,13 @@ public class AccountManagerTester extends AbstractAssetTest {
             AccountManager m_account,
             AssetManager m_asset,
             AssetSearchManager search,
+            QuotaUtil quotaUtil,
             LittleUser caller ) {
         this.accountMgr = m_account;
         this.assetMgr = m_asset;
         this.search = search;
         this.caller = caller;
+        this.quotaUtil = quotaUtil;
         setName("testGetPrincipals");
     }
 
@@ -88,11 +92,11 @@ public class AccountManagerTester extends AbstractAssetTest {
      */
     public void testQuota() {
         try {
-            Quota a_quota_before = accountMgr.getQuota(caller);
+            final Quota a_quota_before = quotaUtil.getQuota(caller, search);
             assertTrue("Got a quota we can test against",
                     (null != a_quota_before) && (a_quota_before.getQuotaLimit() > 0) && (a_quota_before.getQuotaCount() >= 0));
-            accountMgr.incrementQuotaCount();
-            Quota a_quota_after = accountMgr.getQuota(caller);
+            quotaUtil.incrementQuotaCount( caller, assetMgr, search );
+            final Quota a_quota_after = quotaUtil.getQuota(caller,search);
             assertTrue("Quota incremented by 1: " + a_quota_before.getQuotaCount() +
                     " -> " + a_quota_after.getQuotaCount(),
                     a_quota_before.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
@@ -101,8 +105,7 @@ public class AccountManagerTester extends AbstractAssetTest {
                     a_quota_after.getData().equals(a_quota_after.copy().data(a_quota_after.getData()).build().getData()));
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed test", ex );
-            assertTrue("Caught unexpected exception: " + ex + ", " +
-                    BaseException.getStackTrace(ex), false);
+            fail("Caught exception: " + ex );
         }
     }
 
@@ -141,9 +144,9 @@ public class AccountManagerTester extends AbstractAssetTest {
             assertTrue( caller.getName() + " is not a member of " + groupTest.getName(),
                     !groupTest.isMember(caller)
                     );
-        } catch (Exception e) {
-            log.log(Level.INFO, "Caught: " + e + ", " + BaseException.getStackTrace(e));
-            assertTrue("Should not have caught: " + e, false);
+        } catch (Exception ex) {
+            log.log(Level.INFO, "Failed test", ex );
+            fail("Should not have caught: " + ex);
         }
     }
 }

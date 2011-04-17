@@ -15,7 +15,7 @@ import java.util.UUID;
 /**
  * Cacheable object subtypes have a globally unique
  * object id, and a monotionically increasing
- * transaction counter that takes on the value of a
+ * timestamp that takes on the value of a
  * globally incrementing counter after every update
  * to the object.  The object-id/transaction-counter
  * can be used by a cacheing system to decide whether
@@ -34,6 +34,6 @@ public interface CacheableObject extends Comparable<CacheableObject>, Cloneable,
 	/**
 	 * Get the transaction count
 	 */
-	public long getTransaction ();
+	public long getTimestamp ();
 }
 

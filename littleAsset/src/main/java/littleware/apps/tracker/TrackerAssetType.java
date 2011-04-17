@@ -10,6 +10,9 @@
 
 package littleware.apps.tracker;
 
+import littleware.apps.tracker.internal.SimpleQueueBuilder;
+import littleware.apps.tracker.internal.SimpleTaskBuilder;
+import littleware.apps.tracker.internal.SimpleCommentBuilder;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provider;

@@ -67,7 +67,7 @@ public class IfAclAccessAction extends ConditionalTagSupport {
      * acl.  Return false if the ACL does not exist, or
      * no user is authenticated.
      *
-     * @exception JspTagException on failure to access littleware backend
+     * @throws JspTagException on failure to access littleware backend
      */
     @Override
     public boolean condition () throws JspTagException {

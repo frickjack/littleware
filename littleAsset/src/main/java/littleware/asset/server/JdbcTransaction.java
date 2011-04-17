@@ -18,7 +18,7 @@ public interface JdbcTransaction extends LittleTransaction {
      * so we can make sure to return the Connection
      * to the underlying data source once this thread's processing completes.
      *
-     * @exception SQLException if unable to access data source, or if not
+     * @throws SQLException if unable to access data source, or if not
      *               within create/recycle block
      */
     public Connection getConnection () throws SQLException;

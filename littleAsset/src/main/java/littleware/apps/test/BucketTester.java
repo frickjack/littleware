@@ -66,10 +66,10 @@ public class BucketTester extends AbstractAssetTest {
     public void setUp() {
         try {
             final Asset home = getTestHome( search );
-            UUID testFolderId = search.getAssetIdsFrom(home.getId(), AssetType.GENERIC).get(testFolderName);
+            UUID testFolderId = search.getAssetIdsFrom(home.getId(), GenericAsset.GENERIC).get(testFolderName);
             if (null == testFolderId) {
                 testFolderId = assetMgr.saveAsset(
-                        AssetType.GENERIC.create().parent(home).
+                        GenericAsset.GENERIC.create().parent(home).
                             name(testFolderName).build(),
                              "setup folder for test"
                              ).getId();
@@ -78,7 +78,7 @@ public class BucketTester extends AbstractAssetTest {
             final Date now = new Date();
             
             testAsset = assetMgr.saveAsset(
-                    AssetType.GENERIC.create().parent( search.getAsset(testFolderId).get()).
+                    GenericAsset.GENERIC.create().parent( search.getAsset(testFolderId).get()).
                                 name("test" + now.getTime()).build()
                                 , "setup new test"
                                 );

@@ -3,18 +3,26 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset;
 
-import java.util.*;
+
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import littleware.base.BaseException;
+import littleware.base.DataAccessException;
+import littleware.base.Maybe;
+import littleware.base.NoSuchThingException;
+import littleware.base.ReadOnly;
+import littleware.security.AccessDeniedException;
 
 
-import littleware.base.*;
+
 
 /**
  * Interface for retrieving assets from various sources -
@@ -43,37 +51,37 @@ public interface AssetRetriever extends java.rmi.Remote {
     /**
      * Get the asset with the specified id.
      *
-     * @param u_id of asset to retrieve
+     * @param assetId of asset to retrieve
      * @return fully initialized asset.
      *           If the asset is a PRIINCIPAL or ACL AssetType,
      *           then the returned object will implent the Principal
      *           and Acl interfaces respectively.
-     * @exception AccessDeniedException if caller does not have permission to read
+     * @throws AccessDeniedException if caller does not have permission to read
      *                 the specified asset
-     * @exception DataAccessException on database access/interaction failure
-     * @exception AssetException some other failure condition
+     * @throws DataAccessException on database access/interaction failure
+     * @throws AssetException some other failure condition
      */
     public
     @ReadOnly
-    Maybe<Asset> getAsset(UUID u_id) throws BaseException,
+    Maybe<Asset> getAsset(UUID assetId) throws BaseException,
             GeneralSecurityException, RemoteException;
 
     /**
      * Get as many of the assets in the given collection of ids as possible.
      *
-     * @param v_id set of asset ids to retrieve
+     * @param idSet set of asset ids to retrieve
      * @return list of assets loaded in order - 2 entries
      *                with the same id may reference the same object,
      *                skips ids that do not exist 
-     * @exception NoSuchThingException if requested asset does not exist in the db
-     * @exception AccessDeniedException if caller does not have permission to read
+     * @throws NoSuchThingException if requested asset does not exist in the db
+     * @throws AccessDeniedException if caller does not have permission to read
      *                 the specified asset
-     * @exception DataAccessException on database access/interaction failure
-     * @exception AssetException if some other failure condition
+     * @throws DataAccessException on database access/interaction failure
+     * @throws AssetException if some other failure condition
      */
     public
     @ReadOnly
-    List<Asset> getAssets(Collection<UUID> v_id) throws BaseException, AssetException,
+    List<Asset> getAssets(Collection<UUID> idSet) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -81,8 +89,8 @@ public interface AssetRetriever extends java.rmi.Remote {
      * for open-ended searches.
      *
      * @return mapping from home name to UUID.
-     * @exception DataAccessException on database access/interaction failure
-     * @exception AccessDeniedException if caller is not an administrator
+     * @throws DataAccessException on database access/interaction failure
+     * @throws AccessDeniedException if caller is not an administrator
      */
     public
     @ReadOnly
@@ -98,11 +106,11 @@ public interface AssetRetriever extends java.rmi.Remote {
      * @param type to limit search to
      * @param stateto limit search to
      * @return mapping from child-name to child-id
-     * @exception AccessDeniedException if caller does not have read access
+     * @throws AccessDeniedException if caller does not have read access
      *                to a_source
-     * @exception DataAccessException on database access/interaction failure
-     * @exception IllegalArgumentExcetion if limit is out of bounds
-     * @exception AssetException if limit is too large
+     * @throws DataAccessException on database access/interaction failure
+     * @throws IllegalArgumentExcetion if limit is out of bounds
+     * @throws AssetException if limit is too large
      */
     public
     @ReadOnly

@@ -17,7 +17,7 @@ public interface Factory<T> {
   /**
    * Create an object
    *
-   * @exception FactoryException if unable to supply new object
+   * @throws FactoryException if unable to supply new object
    */
   public T create () throws FactoryException;
 

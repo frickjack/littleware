@@ -9,6 +9,10 @@
  */
 package littleware.security;
 
+import littleware.security.internal.GroupBuilder;
+import littleware.security.internal.QuotaBuilder;
+import littleware.security.internal.SimpleUserBuilder;
+import littleware.security.internal.SimpleACLBuilder;
 import java.util.*;
 
 import littleware.asset.*;

@@ -65,11 +65,11 @@ public abstract class AbstractServiceFactory<T extends LittleService> implements
      * @param b_readonly_service is this service ok for a read-only session ?
      *            Set true if any methods are read-only, and let
      *            the proxy do a per-method check for the @ReadOnly annotation.
-     * @exception AccessDeniedException if service exists, but session-principal
+     * @throws AccessDeniedException if service exists, but session-principal
      *                    does not have read-access to its asset
-     * @exception ReadOnlyException if this is not a read-only service and a_session is
+     * @throws ReadOnlyException if this is not a read-only service and a_session is
      *                a read-only session
-     * @exception SessionExpiredException if a_session has expired
+     * @throws SessionExpiredException if a_session has expired
      */
     protected <R extends Remote> R checkAccessMakeProxy(
             SessionHelper m_helper,

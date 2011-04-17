@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
+import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.asset.server.db.DbAssetManager;
 import littleware.base.Maybe;
 import littleware.db.DbReader;
@@ -38,6 +39,7 @@ public class JpaDbAssetManager implements DbAssetManager {
     private final Provider<DbHomeLoader> oprovideHomeLoader;
     private final DbLogLoader.Builder dbLogBuilder;
     private final Provider<DbTypeChecker> oprovideTypeChecker;
+    private final AssetSpecializerRegistry assetRegistry;
 
     @Inject
     public JpaDbAssetManager(
@@ -47,7 +49,8 @@ public class JpaDbAssetManager implements DbAssetManager {
             Provider<DbAssetDeleter> provideDeleter,
             Provider<DbHomeLoader> provideHomeLoader,
             Provider<DbTypeChecker> provideTypeChecker,
-            DbLogLoader.Builder dbLogBuilder
+            DbLogLoader.Builder dbLogBuilder,
+            AssetSpecializerRegistry assetRegistry
             )
     {
         oprovideLoader = provideLoader;
@@ -57,6 +60,7 @@ public class JpaDbAssetManager implements DbAssetManager {
         oprovideHomeLoader = provideHomeLoader;
         oprovideTypeChecker = provideTypeChecker;
         this.dbLogBuilder = dbLogBuilder;
+        this.assetRegistry = assetRegistry;
     }
 
     @Override
@@ -101,7 +105,7 @@ public class JpaDbAssetManager implements DbAssetManager {
 
     @Override
     public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(String sName, AssetType aType) {
-        return new DbByNameLoader(oprovideTrans, sName, aType);
+        return new DbByNameLoader(oprovideTrans, assetRegistry, sName, aType);
     }
 
     @Override

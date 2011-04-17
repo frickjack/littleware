@@ -7,9 +7,9 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.server;
 
+import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.asset.*;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -28,52 +28,52 @@ import littleware.base.*;
  * based specializer mechanism.
  */
 public interface AssetSpecializer {
-	/**
-	 * Decorate the input asset with whatever supplemental data
-	 * is necessary to implement the AssetType supported by this
-	 * specializer.  Throws the same set of exceptions as getAsset().
-	 *
-	 * @param asset instance of class returned by a_in.getAssetType ().create ()
-	 * @return asset decorated with new data, or a new Asset consistent with the data in a_in
-	 */
-	public <T extends Asset> T narrow ( T asset
-						  ) throws BaseException, AssetException, 
-	GeneralSecurityException, RemoteException;
+    /**
+     * Create the AbstractAssetBuilder subtype that corresponds with type.
+     */
+    public AssetBuilder create( AssetType type );
 
-	/**
-	 * Post asset-creation callback made by the AssetManager up to the specializer
-	 * responsible for the AssetType of the just created asset.
-	 * Throws the same set of exceptions as AssetManager.createAsset...
-	 *
-	 * @param asset just created
-	 * @param m_asset manager making the callback
-	 */
-	public void postCreateCallback ( Asset asset
-			 ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
-	
-	/**
-	 * Post asset-update callback made by the AssetManager up to the specializer
-	 * responsible for the AssetType of the just updated asset.
-	 * Throws the same set of exceptions as AssetManager.postUpdateCallback...
-	 *
-	 * @param oldAsset copy of the asset loaded by the AssetManager
-	 *                    before applying the update
-	 * @param currentAsset current state of the asset after update
-	 */
-	public void postUpdateCallback ( Asset oldAsset, Asset currentAsset
-									 ) throws BaseException, AssetException, 
-		GeneralSecurityException, RemoteException;
+    /**
+     * Decorate the input asset with whatever supplemental data
+     * is necessary to implement the AssetType supported by this
+     * specializer.  Throws the same set of exceptions as getAsset().
+     *
+     * @param assetIn instance of class returned by a_in.getAssetType ().create ()
+     * @return asset, or a new Asset consistent with the data in assetIn
+     */
+    public <T extends Asset> T narrow(T asset) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
 
-	
-	/**
-	 * Post asset-delete callback made by the AssetManager up to the specializer
-	 * responsible for the AssetType of the just deleted asset.
-	 * Throws the same set of exceptions as AssetManager.postUpdateCallback...
-	 *
-	 * @param asset that just got cleared out
-	 */
-	public void postDeleteCallback ( Asset asset ) throws BaseException, AssetException,
-		GeneralSecurityException, RemoteException;
+    /**
+     * Post asset-creation callback made by the AssetManager up to the specializer
+     * responsible for the AssetType of the just created asset.
+     * Throws the same set of exceptions as AssetManager.createAsset...
+     *
+     * @param asset just created
+     * @param m_asset manager making the callback
+     */
+    public void postCreateCallback(Asset asset) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
 
+    /**
+     * Post asset-update callback made by the AssetManager up to the specializer
+     * responsible for the AssetType of the just updated asset.
+     * Throws the same set of exceptions as AssetManager.postUpdateCallback...
+     *
+     * @param oldAsset copy of the asset loaded by the AssetManager
+     *                    before applying the update
+     * @param currentAsset current state of the asset after update
+     */
+    public void postUpdateCallback(Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
+
+    /**
+     * Post asset-delete callback made by the AssetManager up to the specializer
+     * responsible for the AssetType of the just deleted asset.
+     * Throws the same set of exceptions as AssetManager.postUpdateCallback...
+     *
+     * @param asset that just got cleared out
+     */
+    public void postDeleteCallback(Asset asset) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException;
 }

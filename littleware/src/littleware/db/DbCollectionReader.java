@@ -24,9 +24,9 @@ public class DbCollectionReader<T,R> extends DbSimpleReader<Collection<T>,R> {
 	 * reader that knows how to read individual members of a collection.
 	 *
 	 * @param x_reader to prepare statement against
-	 * @exception InstantiationException if unable to invoke
+	 * @throws InstantiationException if unable to invoke
 	 *           v_base_collection.getClass().newInstance ()
-	 * @exception IllegalAccessException if unable to invoke
+	 * @throws IllegalAccessException if unable to invoke
 	 *           v_base_collection.getClass().newInstance ()
 	 */
 	public DbCollectionReader ( JdbcDbReader<T,R> x_reader ) {
@@ -47,8 +47,8 @@ public class DbCollectionReader<T,R> extends DbSimpleReader<Collection<T>,R> {
 	 * @param sql_conn connection to prepare the statement against
 	 * @return statement possibly requiring parameters to be set against it -
 	 *             caller must properly close() the statement
-	 * @exception SQLException pass through exceptions thrown by sql_conn access
-	 * @exception UnsupportedOperationException if not implemented
+	 * @throws SQLException pass through exceptions thrown by sql_conn access
+	 * @throws UnsupportedOperationException if not implemented
 	 */
 	public PreparedStatement prepareStatement ( Connection sql_conn ) throws SQLException	{
 		return ox_reader.prepareStatement ( sql_conn );
@@ -71,7 +71,7 @@ public class DbCollectionReader<T,R> extends DbSimpleReader<Collection<T>,R> {
 	 * @param sql_rset to extract from, possible from sql_stmt.executeQuery -
 	 *                caller must close the result set
 	 * @return list of objects - possibly empty - extracted from db
-	 * @exception SQLException pass through exceptions thrown by sql access
+	 * @throws SQLException pass through exceptions thrown by sql access
 	 */
 	public Collection<T> loadObject( ResultSet sql_rset ) throws SQLException {
 		List<T> v_result = new Vector<T> ();

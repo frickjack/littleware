@@ -9,6 +9,7 @@
  */
 package littleware.security;
 
+import littleware.security.internal.QuotaBuilder;
 import com.google.inject.ImplementedBy;
 import java.rmi.RemoteException;
 import java.util.UUID;
@@ -146,7 +147,7 @@ public interface Quota extends Asset {
         public Builder state(int value);
 
         @Override
-        public Builder transaction(long value);
+        public Builder timestamp(long value);
 
         @Override
         public Builder copy(Asset source);

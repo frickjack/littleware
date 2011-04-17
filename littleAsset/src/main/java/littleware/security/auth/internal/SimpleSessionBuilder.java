@@ -9,6 +9,8 @@
  */
 package littleware.security.auth.internal;
 
+import littleware.asset.spi.AbstractAsset;
+import littleware.asset.spi.AbstractAssetBuilder;
 import java.rmi.RemoteException;
 import java.util.Set;
 import java.util.HashSet;
@@ -27,7 +29,7 @@ import littleware.security.auth.LittleSession.Builder;
  * Simple implementation of LittleSession 
  * interface backed by a database entry.
  */
-public class SimpleSessionBuilder extends SimpleAssetBuilder implements LittleSession.Builder {
+public class SimpleSessionBuilder extends AbstractAssetBuilder implements LittleSession.Builder {
 
     /** Do-nothing constructor for java.io.Serializable */
     public SimpleSessionBuilder() {
@@ -37,7 +39,7 @@ public class SimpleSessionBuilder extends SimpleAssetBuilder implements LittleSe
         this.setEndDate(new Date(now.getTime() + 60 * 60 * 24 * 1000));
     }
 
-    private static class SessionAsset extends SimpleAsset implements LittleSession {
+    private static class SessionAsset extends AbstractAsset implements LittleSession {
 
         /** For serialization */
         public SessionAsset() {

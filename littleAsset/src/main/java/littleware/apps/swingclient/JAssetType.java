@@ -12,7 +12,7 @@ import littleware.asset.AssetType;
 public class JAssetType extends JLabel implements ListCellRenderer {
     private final   PropertyChangeSupport  oprop_support = new PropertyChangeSupport ( this );
     private final   IconLibrary            olib_icon;
-    private AssetType                      on_type = AssetType.GENERIC;
+    private AssetType                      on_type = GenericAsset.GENERIC;
     
     /**
      * Constructor stashes away icon library

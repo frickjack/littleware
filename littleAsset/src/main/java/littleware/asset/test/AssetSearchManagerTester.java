@@ -50,7 +50,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
     public void testSearch() {
         try {
             Asset a_lookup = search.getByName(AssetManagerTester.MS_TEST_HOME,
-                    AssetType.HOME).getOr(null);
+                    LittleHome.HOME_TYPE).getOr(null);
             assertTrue("Got some home-by-name data", null != a_lookup);
 
             assertTrue("Searcher did not freak out on empty search",
@@ -74,7 +74,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
 
     /**
      * Update a well known asset, then make sure
-     * it shows up in the transaction log
+     * it shows up in the timestamp log
      */
     public void testTransactionLog() {
         try {
@@ -86,26 +86,26 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
               if ( maybeTest.isSet() ) {
                   aTest = assetMan.saveAsset( maybeTest.get(), "force an update for testing" );
               } else {
-                  aTest = assetMan.saveAsset( AssetType.GENERIC.create().name( name ).parent( home ).build(),
+                  aTest = assetMan.saveAsset( GenericAsset.GENERIC.create().name( name ).parent( home ).build(),
                                "setup test asset");
               }
           }
           final List<IdWithClock> data = search.checkTransactionLog( home.getId(), 0 );
           assertTrue( "Some transaction in the log", ! data.isEmpty() );
-          assertTrue( "Data not too old", data.get(0).getTransaction() > aTest.getTransaction() - 1000 );
+          assertTrue( "Data not too old", data.get(0).getTimestamp() > aTest.getTimestamp() - 1000 );
           long lastTransaction = 0;
           boolean bFoundTest = false;
           final Set<UUID>  idSet = new HashSet<UUID>();
           for( IdWithClock scan : data ) {
               assertTrue( "no duplicate ids in data", ! idSet.contains( scan.getId() ) );
               assertTrue( "data is in transaction order",
-                      scan.getTransaction() >= lastTransaction );
-              lastTransaction = scan.getTransaction ();
+                      scan.getTimestamp() >= lastTransaction );
+              lastTransaction = scan.getTimestamp ();
               if ( scan.getId().equals( aTest.getId() ) ) {
                   bFoundTest = true;
-                  assertTrue( "Test transaction count matches expected value " + scan.getTransaction () +
-                          " == " + aTest.getTransaction(),
-                          scan.getTransaction() == aTest.getTransaction()
+                  assertTrue( "Test transaction count matches expected value " + scan.getTimestamp () +
+                          " == " + aTest.getTimestamp(),
+                          scan.getTimestamp() == aTest.getTimestamp()
                           );
               }
           }

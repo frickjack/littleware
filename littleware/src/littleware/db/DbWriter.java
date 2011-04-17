@@ -15,7 +15,7 @@ public interface DbWriter<T> {
 	 * Save an object to this writer's internal DataSource
 	 *
 	 * @param x_object to save
-	 * @exception SQLException on SQL interaction failures - REFACTOR later
+	 * @throws SQLException on SQL interaction failures - REFACTOR later
 	 */
 	public void saveObject ( T x_object ) throws SQLException;
 	

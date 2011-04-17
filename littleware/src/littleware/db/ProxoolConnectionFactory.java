@@ -143,7 +143,7 @@ public class ProxoolConnectionFactory implements ConnectionFactory {
      * Type-specific alias for Factory create() method.
      *
      * @return a db connection that should be recycled back into this factory
-     * @exception LittleSqlException if some problem allocating a connection
+     * @throws LittleSqlException if some problem allocating a connection
      */
     public Connection create() throws FactoryException {
         try {

@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.asset.*;
+import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.db.*;
 import littleware.db.*;
@@ -47,6 +48,7 @@ public class DbAssetManagerTester extends LittleTest {
     }
     private final DbAssetManager dbMgr;
     private final Provider<LittleTransaction> provideTrans;
+    private final Provider<TreeNodeBuilder> nodeProvider;
 
     /**
      * Constructor stashes data to run tests against
@@ -55,10 +57,12 @@ public class DbAssetManagerTester extends LittleTest {
      */
     @Inject
     public DbAssetManagerTester(DbAssetManager mgrDb,
-            Provider<LittleTransaction> provideTrans) {
+            Provider<LittleTransaction> provideTrans,
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider ) {
         setName("testLoad");
         dbMgr = mgrDb;
         this.provideTrans = provideTrans;
+        this.nodeProvider = nodeProvider;
     }
 
     /**
@@ -71,7 +75,7 @@ public class DbAssetManagerTester extends LittleTest {
             DbReader<Asset, UUID> db_reader = dbMgr.makeDbAssetLoader();
             Asset a_result = db_reader.loadObject(testHomeId);
             assertTrue("Asset is of proper type",
-                    a_result.getAssetType().equals(AssetType.HOME));
+                    a_result.getAssetType().equals(LittleHome.HOME_TYPE));
             assertTrue("Asset has right id", a_result.getId().equals(testHomeId));
             // Verify that looking up a non-existent thing does not throw an exceptioon
             final UUID uTest = UUIDFactory.getFactory().create();
@@ -99,7 +103,7 @@ public class DbAssetManagerTester extends LittleTest {
         boolean bRollback = false;
         try {
             final DbReader<Asset, UUID> dbReader = dbMgr.makeDbAssetLoader();
-            final Asset aHome = dbReader.loadObject(testHomeId);
+            final LittleHome aHome = dbReader.loadObject(testHomeId).narrow();
             {
                 Asset aTest = dbReader.loadObject(testCreateId);
                 if (null != aTest) {
@@ -107,7 +111,7 @@ public class DbAssetManagerTester extends LittleTest {
                     dbDelete.saveObject(aTest);
                 }
             }
-            final Asset testSave = AssetType.GENERIC.create().name("DbAssetTester").parent(aHome).
+            final TreeNode testSave = nodeProvider.get().name("DbAssetTester").parent(aHome).
                     id(testCreateId).
                     parent(aHome).
                     comment("Just a test").
@@ -115,14 +119,14 @@ public class DbAssetManagerTester extends LittleTest {
                     creatorId(aHome.getCreatorId()).
                     lastUpdaterId(aHome.getCreatorId()).
                     ownerId(aHome.getOwnerId()).
-                    transaction( trans.getTransaction() ).build();
+                    timestamp( trans.getTimestamp() ).build().narrow();
             final DbWriter<Asset> dbSaver = dbMgr.makeDbAssetSaver();
             
             dbSaver.saveObject(testSave);
-            final Asset aTest = dbMgr.makeDbAssetLoader().loadObject(testSave.getId());
-            assertTrue("From preserved on load", testSave.getFromId().equals(aHome.getId()));
+            final TreeNode aTest = dbMgr.makeDbAssetLoader().loadObject(testSave.getId()).narrow();
+            assertTrue("From preserved on load", testSave.getParentId().equals(aHome.getId()));
             // Test from-loader
-            final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader(testHomeId, Maybe.something((AssetType) AssetType.GENERIC), Maybe.empty(Integer.class)).loadObject("");
+            final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader(testHomeId, Maybe.something((AssetType) GenericAsset.GENERIC), Maybe.empty(Integer.class)).loadObject("");
             assertTrue("Able to load children: " + mapChildren.size(),
                     !mapChildren.isEmpty());
             dbMgr.makeDbAssetDeleter().saveObject(aTest);

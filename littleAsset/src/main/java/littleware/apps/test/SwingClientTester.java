@@ -112,8 +112,8 @@ public class SwingClientTester extends AbstractAssetTest {
      */
     public void testAssetModelLibrary() {
         // couple bogus test assets - donot save to repository
-        final Asset a_bogus1 = AssetType.GENERIC.create().name("bogus1").build();
-        final Asset a_bogus2 = AssetType.GENERIC.create().name("bogus2").build();
+        final Asset a_bogus1 = GenericAsset.GENERIC.create().name("bogus1").build();
+        final Asset a_bogus2 = GenericAsset.GENERIC.create().name("bogus2").build();
 
 
         try {
@@ -291,7 +291,7 @@ public class SwingClientTester extends AbstractAssetTest {
                 LittleAcl acl_test = (LittleAcl) search.getByName(s_acl_name,
                         SecurityAssetType.ACL).getOr(null);
                 if (null == acl_test) {
-                    final Asset a_testhome = search.getByName("littleware.test_home", AssetType.HOME).get();
+                    final Asset a_testhome = search.getByName("littleware.test_home", LittleHome.HOME_TYPE).get();
                     final LittleGroup groupEverbody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP).get().narrow();
                     final LittleAcl acl = SecurityAssetType.ACL.create().name(s_acl_name).parent(a_testhome).
                             comment("AclEditor test acl").build().narrow();
@@ -323,7 +323,7 @@ public class SwingClientTester extends AbstractAssetTest {
      * Run the create-asset wizard through a test
      */
     public void testWizardCreate() {
-        final Asset testAsset = AssetType.GENERIC.create().name("test_asset").
+        final Asset testAsset = GenericAsset.GENERIC.create().name("test_asset").
                 parent(testHome).build();
 
         try {
@@ -361,7 +361,7 @@ public class SwingClientTester extends AbstractAssetTest {
     final LittleGroup group_everybody =  m_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
     SecurityAssetType.GROUP);
 
-    a_folder = AssetType.GENERIC.create();
+    a_folder = GenericAsset.GENERIC.create();
     a_folder.setHomeId(u_home);
     a_folder.setAclId(acl_everybody.getId());
     a_folder.setFromId(u_home);

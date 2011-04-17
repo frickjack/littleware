@@ -45,10 +45,10 @@ public class DeleteAssetTester extends AbstractAssetTest {
     @Override
     public void setUp() {
         try {
-            final Asset aHome = search.getByName( getTestHome(), AssetType.HOME ).get();
+            final Asset aHome = search.getByName( getTestHome(), LittleHome.HOME_TYPE ).get();
             deleteMeAsset = search.getAssetFrom( aHome.getId(), osName ).getOr( null );
             if ( null == deleteMeAsset ) {
-                final Asset aNew = AssetType.GENERIC.create().parent( aHome ).name( osName ).build();
+                final Asset aNew = GenericAsset.GENERIC.create().parent( aHome ).name( osName ).build();
                 deleteMeAsset = assetMgr.saveAsset( aNew, "Setup test asset" );
             }
         } catch ( RuntimeException ex ) {

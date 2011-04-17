@@ -29,7 +29,7 @@ public abstract class InjectMeBean {
     /**
      * Invokes gbean.injectMembers( this ) first time called
      *
-     * @exception IllegalStateException if called multiple times
+     * @throws IllegalStateException if called multiple times
      */
     public void setGuiceBean ( GuiceBean gbean ) {
         if ( null != guiceBean ) {

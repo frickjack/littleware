@@ -11,7 +11,6 @@
 package littleware.asset.server.test;
 
 
-import littleware.asset.server.CacheManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.lang.reflect.InvocationHandler;
@@ -44,10 +43,8 @@ public class JenkinsTestSuite extends TestSuite {
      */
     @Inject
     public JenkinsTestSuite(
-            CacheManager m_cache,
             SimpleAssetManager m_asset,
             SimpleAssetSearchManager m_search,
-            Provider<CacheManagerTester> provideCacheTester,
             Provider<TransactionTester> provideTransTester,
             Provider<DbAssetManagerTester> provideDbTester,
             Provider<AssetRetrieverTester> provideRetrieverTest,
@@ -66,9 +63,6 @@ public class JenkinsTestSuite extends TestSuite {
             this.addTest( provideDbTester.get().putName( "testAssetTypeCheck" ) );
         }
 
-        if (false) { // Disable these test - running with NullCacheManager now ...
-            this.addTest( provideCacheTester.get() );
-        }
         if (runTest) {
             this.addTest( provideTransTester.get() );
         }

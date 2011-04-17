@@ -20,6 +20,8 @@ import javax.persistence.Query;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
+import littleware.asset.server.AssetSpecializerRegistry;
+import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
 
@@ -31,11 +33,15 @@ class DbByNameLoader implements DbReader<Set<Asset>, String> {
     private final String osName;
     private final AssetType oatype;
     private final Provider<JpaLittleTransaction> oprovideTrans;
+    private final AssetSpecializerRegistry assetRegistry;
 
-    public DbByNameLoader(Provider<JpaLittleTransaction> provideTrans, String sName, AssetType atype) {
+    public DbByNameLoader(Provider<JpaLittleTransaction> provideTrans,
+            AssetSpecializerRegistry assetRegistry,
+            String sName, AssetType atype) {
         osName = sName;
         oatype = atype;
         oprovideTrans = provideTrans;
+        this.assetRegistry = assetRegistry;
     }
 
     @Override
@@ -46,14 +52,13 @@ class DbByNameLoader implements DbReader<Set<Asset>, String> {
         final Query query = entMgr.createQuery(sQuery).
                 setParameter("name", osName).
                 setParameter("typeId", UUIDFactory.makeCleanString(oatype.getObjectId()));
-        vInfo.addAll( query.getResultList() );
+        vInfo.addAll(query.getResultList());
         if (vInfo.isEmpty()) {
             final AssetTypeEntity typeEnt = entMgr.find(AssetTypeEntity.class, UUIDFactory.makeCleanString(oatype.getObjectId()));
 
             for (AssetTypeEntity subtype : typeEnt.getSubtypeList()) {
-                vInfo.addAll( query.setParameter("typeId", subtype.getObjectId()).
-                        getResultList()
-                        );
+                vInfo.addAll(query.setParameter("typeId", subtype.getObjectId()).
+                        getResultList());
                 if (!vInfo.isEmpty()) {
                     break;
                 }
@@ -62,10 +67,12 @@ class DbByNameLoader implements DbReader<Set<Asset>, String> {
         try {
             final Set<Asset> vResult = new HashSet<Asset>();
             for (AssetEntity ent : vInfo) {
-                vResult.add(ent.buildAsset());
+                final AssetType assetType = AssetType.getMember(UUIDFactory.parseUUID(ent.getTypeId()));
+
+                vResult.add(ent.buildAsset(assetRegistry.getService(assetType).create(assetType)));
             }
             return vResult;
-        } catch (AssetException ex) {
+        } catch (BaseException ex) {
             throw new SQLException("Failed to resolve entity to asset", ex);
         }
     }

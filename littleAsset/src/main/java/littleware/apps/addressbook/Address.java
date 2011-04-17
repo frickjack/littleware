@@ -75,7 +75,7 @@ public interface Address extends Asset {
 	/**
 	 * Set the e-mail address - may be null
 	 *
-	 * @exception AddressException on illegally formatted e-mail address
+	 * @throws AddressException on illegally formatted e-mail address
 	 */
 	public void setEmail ( InternetAddress mail_address );
 	

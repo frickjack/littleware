@@ -11,6 +11,7 @@
 
 package littleware.apps.tracker;
 
+import littleware.apps.tracker.internal.SimpleTaskSetBuilder;
 import com.google.inject.ImplementedBy;
 import java.util.Collection;
 import java.util.Iterator;

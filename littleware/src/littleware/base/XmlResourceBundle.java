@@ -76,7 +76,7 @@ public class XmlResourceBundle extends ResourceBundle {
      *                                    ClassLoader.getSystemClassLoader
      * );
      * 
-     * @exception MissingResourceException on failure
+     * @throws MissingResourceException on failure
      */
     public static ResourceBundle getXmlBundle ( String s_basename ) 
     {
@@ -89,7 +89,7 @@ public class XmlResourceBundle extends ResourceBundle {
      *                                    
      *      );
      * 
-     * @exception MissingResourceException on failure
+     * @throws MissingResourceException on failure
      */
     public static ResourceBundle getXmlBundle ( String s_basename, Locale locale ) 
     {
@@ -108,8 +108,8 @@ public class XmlResourceBundle extends ResourceBundle {
      * @param s_basename of resource to lookup
      * @param locale of resource 
      * @param classloader to search with 
-     * @exception MissingResourceException on failure
-     * @exception NullPoitnerException if locale is null or classloader is null
+     * @throws MissingResourceException on failure
+     * @throws NullPoitnerException if locale is null or classloader is null
      */
     public static ResourceBundle getXmlBundle ( String s_basename,
             Locale locale, 

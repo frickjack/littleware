@@ -25,8 +25,9 @@ import littleware.asset.server.AbstractLittleTransaction;
 import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.PermissionCache;
-import littleware.asset.server.QuotaUtil;
+import littleware.security.server.QuotaUtil;
 import littleware.asset.server.db.*;
+import littleware.asset.spi.AbstractAsset;
 import littleware.base.*;
 import littleware.db.*;
 import littleware.security.*;
@@ -74,7 +75,7 @@ public class SimpleAssetManager implements AssetManager {
                         }
 
                         @Override
-                        public long getTransaction() {
+                        public long getTimestamp() {
                             throw new UnsupportedOperationException("Not supported yet.");
                         }
                     };
@@ -132,7 +133,7 @@ public class SimpleAssetManager implements AssetManager {
             final LittlePrincipal caller = provideCaller.get();
             // Get the asset for ourselves - make sure it's a valid asset
             Asset asset = search.getAsset(u_asset).get();
-            final AssetBuilder builder = asset.getAssetType().create().copy(asset);
+            final AssetBuilder builder = asset.copy();
             builder.setLastUpdateDate(new Date());
             builder.setLastUpdaterId(caller.getId());
             builder.setLastUpdate(s_update_comment);
@@ -171,7 +172,7 @@ public class SimpleAssetManager implements AssetManager {
         final LittleUser userCaller = provideCaller.get();
         // Get the asset for ourselves - make sure it's a valid asset
         Asset oldAsset = null;
-        final AssetBuilder builder = asset.getAssetType().create().copy(asset);
+        final AssetBuilder builder = asset.copy();
         log.log(Level.FINE, "Check ready");
         if (null == asset.getName()) {
             throw new IllegalArgumentException("May not save an asset with a null name");
@@ -180,17 +181,17 @@ public class SimpleAssetManager implements AssetManager {
             builder.setOwnerId(userCaller.getId());
         }
         if ((null == asset.getHomeId())) {
-            if (asset.getAssetType().equals(AssetType.HOME)) {
+            if (asset.getAssetType().equals(LittleHome.HOME_TYPE)) {
                 builder.setHomeId(asset.getId());
             } else {
                 builder.setHomeId(userCaller.getHomeId());
             }
         }
 
-        // Don't lookup the same asset more than once in this transaction
+        // Don't lookup the same asset more than once in this timestamp
         final LittleTransaction trans_save = provideTrans.get();
         final Map<UUID, Asset> v_cache = trans_save.startDbAccess();
-        // Don't save the same asset more than once in this transaction
+        // Don't save the same asset more than once in this timestamp
         final Map<UUID, Asset> v_save_cycle = provideSaveCycle.get().startDbAccess();
         final boolean bCallerIsAdmin = permissionCache.isAdmin(userCaller, search);
         final boolean cycleSave;  // is this a save via a callback ?  - avoid infinite loops
@@ -198,7 +199,7 @@ public class SimpleAssetManager implements AssetManager {
         try {
             if (null == asset.getId()) {
                 builder.setId(uuidFactory.create());
-                if (asset.getAssetType().equals(AssetType.HOME)) {
+                if (asset.getAssetType().equals(LittleHome.HOME_TYPE)) {
                     // HOME asset type should reference itself
                     builder.setHomeId(asset.getId());
                 }
@@ -226,7 +227,7 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     // Check the caller's quota
                     if (v_save_cycle.isEmpty()) {
-                        log.log(Level.FINE, "Incrementing quota before saving: " + asset);
+                        log.log(Level.FINE, "Incrementing quota before saving: {0}", asset);
                         quotaUtil.incrementQuotaCount(userCaller, this, search);
                     }
                     // Only allow admins to create new users and homes, etc.
@@ -248,10 +249,10 @@ public class SimpleAssetManager implements AssetManager {
                     if (!oldAsset.getCreatorId().equals(asset.getCreatorId())) {
                         throw new AccessDeniedException("May not change asset creator");
                     }
-                    // 0 transaction count allows client to ignore serialization
-                    if ((asset.getTransaction() > 0) && (oldAsset.getTransaction() > asset.getTransaction())) {
+                    // 0 timestamp count allows client to ignore serialization
+                    if ((asset.getTimestamp() > 0) && (oldAsset.getTimestamp() > asset.getTimestamp())) {
                         throw new AssetSyncException("Attempt to save asset not in sync with database backend: " + oldAsset +
-                                ", " + oldAsset.getTransaction() + " gt " + asset.getTransaction()
+                                ", " + oldAsset.getTimestamp() + " gt " + asset.getTimestamp()
                                 );
                     }
 
@@ -274,28 +275,28 @@ public class SimpleAssetManager implements AssetManager {
                     }
                 }
 
-                if (asset.getAssetType().equals(AssetType.HOME)) {
+                if (asset.getAssetType().equals(LittleHome.HOME_TYPE)) {
                     builder.setHomeId(asset.getId());
                 } else {
                     log.log(Level.FINE, "Retrieving HOME");
                     final Asset a_home = search.getAsset(asset.getHomeId()).get();
                     log.log(Level.FINE, "Got HOME");
-                    if (!a_home.getAssetType().equals(AssetType.HOME)) {
-                        throw new HomeIdException("Home id must link to HOME type asset");
+                    if (!a_home.getAssetType().equals(LittleHome.HOME_TYPE)) {
+                        throw new IllegalArgumentException("Home id must link to HOME type asset");
                     }
                     // If from-id is null from non-home orphan asset,
                     // then must have home-write permission to write home asset
-                    if ((null == asset.getFromId()) && (!a_home.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search)) && (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_home.getAclId()))) {
+                    if ((null == ((AbstractAsset) asset).getFromId()) ) { //&& (!a_home.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search)) && (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_home.getAclId()))) {
                         // caller must have WRITE on Home permission to create a rootless
                         // (null from-id) asset
                         throw new AccessDeniedException("Must have home-write permission to create asset with null fromId");
                     }
                 }
 
-                if ((null != asset.getFromId()) && ((null == oldAsset) || (!asset.getFromId().equals(oldAsset.getFromId())))) {
+                if ((null != ((AbstractAsset) asset).getFromId()) && ((null == oldAsset) || (!((AbstractAsset) asset).getFromId().equals(((AbstractAsset) oldAsset).getFromId())))) {
                     log.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
-                    final Asset a_from = search.getAsset(asset.getFromId()).get();
+                    final Asset a_from = search.getAsset(((AbstractAsset) asset).getFromId()).get();
 
                     if ((!a_from.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search))) {
                         if (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_from.getAclId())) {
@@ -305,15 +306,11 @@ public class SimpleAssetManager implements AssetManager {
                         }
                     }
                     if ((!a_from.getHomeId().equals(asset.getHomeId()))) {
-                        throw new HomeIdException("May not link FROM an asset with a different HOME");
+                        throw new IllegalArgumentException("May not link FROM an asset with a different HOME");
                     }
                     if (a_from.getAssetType().equals(AssetType.LINK)) {
-                        throw new FromLinkException("May not link FROM an asset of type AssetType.LINK");
+                        throw new IllegalArgumentException("May not link FROM an asset of type AssetType.LINK");
                     }
-                }
-                if (null != asset.getToId()) {
-                    // Verify have READ access to to-asset - rely on om_retriever security check
-                    search.getAsset(asset.getToId());
                 }
 
                 builder.setLastUpdateDate(new Date());
@@ -322,7 +319,7 @@ public class SimpleAssetManager implements AssetManager {
 
                 boolean b_rollback = true;
                 trans_save.startDbUpdate();
-                builder.setTransaction(trans_save.getTransaction());
+                builder.setTimestamp(trans_save.getTimestamp());
                 final Asset assetSave = builder.build();
                 try {
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver();
@@ -357,14 +354,17 @@ public class SimpleAssetManager implements AssetManager {
                     throw ex;
                 }
                 return (T) search.getAsset(assetSave.getId()).get();
-            } catch (Throwable e) {
+            } catch (Throwable ex) {
                 // Should check SQLException error-string for specific error translation here ...
                 // Do not propagate database exception to client - may not be serializable
-                if (e.toString().indexOf("littleware(sync)") >= 0) {
+                if (ex.toString().indexOf("littleware(sync)") >= 0) {
                     throw new AssetSyncException("Attempt to save asset not in sync with database backend");
                 }
-                log.log( Level.INFO, "Save failed", e );
-                throw new DataAccessException("Unexpected: " + e);
+                log.log( Level.INFO, "Save failed", ex );
+                if ( ex instanceof RuntimeException ) {
+                    throw (RuntimeException) ex;
+                }
+                throw new DataAccessException("Unexpected: " + ex);
             }
 
         } finally {

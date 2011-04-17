@@ -233,7 +233,7 @@ public class GridBagWrap {
      * at the same position.
      *
      * @return this
-     * @exception IllegalArgumentException if attempt to
+     * @throws IllegalArgumentException if attempt to
      *     place component at same position as last addition
      */
      public GridBagWrap add( Component wcomp ) {

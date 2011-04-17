@@ -36,10 +36,10 @@ public class TransactionEntity implements Serializable {
     }
 
     @Column( name="l_transaction")
-    public long getTransaction() {
+    public long getTimestamp() {
         return olTransaction;
     }
-    public void setTransaction ( long lTransaction ) {
+    public void setTimestamp ( long lTransaction ) {
         olTransaction = lTransaction;
     }
 }

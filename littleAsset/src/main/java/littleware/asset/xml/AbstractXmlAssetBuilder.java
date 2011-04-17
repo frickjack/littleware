@@ -18,10 +18,10 @@ import java.io.*;
 import littleware.asset.AssetBuilder;
 
 import littleware.asset.AssetType;
-import littleware.asset.SimpleAssetBuilder;
+import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.validate.ValidationException;
 
-public abstract class AbstractXmlAssetBuilder extends SimpleAssetBuilder implements XmlAssetBuilder {
+public abstract class AbstractXmlAssetBuilder extends AbstractAssetBuilder implements XmlAssetBuilder {
     public AbstractXmlAssetBuilder( AssetType assetType ) {
         super( assetType );
     }

@@ -197,7 +197,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         }
         // Make sure some icon is set for tree expander
         if (orenderTree.getIcon() == null) {
-            orenderTree.setIcon(this.olib_icon.lookupIcon(AssetType.GENERIC));
+            orenderTree.setIcon(this.olib_icon.lookupIcon(GenericAsset.GENERIC));
         }
         return orenderTree;
     }

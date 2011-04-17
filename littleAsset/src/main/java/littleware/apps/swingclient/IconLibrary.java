@@ -41,7 +41,7 @@ public interface IconLibrary {
      * @param s_root hostname/rootdir under which
      *                     the expected icon directory structure
      *                     http://s_url_root/hierarchy
-     * @exception MalformedURLException if s_url_root leads to illegal URL
+     * @throws MalformedURLException if s_url_root leads to illegal URL
      */
     public void setRoot ( String s_url_root ) throws java.net.MalformedURLException;
     

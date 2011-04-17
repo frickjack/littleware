@@ -167,7 +167,7 @@ GRANT EXECUTE ON FUNCTION littleware.stringToTimestamp ( VARCHAR	 )
 --                 if not null - otherwise throws a synchronization exception
 -- @param i_src id of client issueing the command
 -- @return the new transaction number assigned to the asset
--- @exception synchException
+-- @throws synchException
 -- 
 CREATE OR REPLACE FUNCTION littleware.saveAsset ( VARCHAR, VARCHAR, VARCHAR, VARCHAR, 
                                                     VARCHAR, VARCHAR, VARCHAR, NUMERIC(16,4), 
@@ -368,7 +368,7 @@ GRANT EXECUTE ON FUNCTION
 --- updateAssetData ( i_asset_id, str_data, l_last_transaction_id );
 --- updateAssetcreator ( i_asset_id, i_creator_id, l_last_transaction_id );
 --- updateAssetAcl ( i_asset_id, i_acl_id, l_last_transaction_id );
---- getAssetTransactions ( i_asset_id );
+--- getAssetTimestamps ( i_asset_id );
 
 --
 -- Get the asset with the specified ID

@@ -37,12 +37,10 @@ import littleware.asset.client.bootstrap.ClientBootstrap.ClientBuilder;
 import littleware.asset.client.bootstrap.ClientModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
-import littleware.security.AccountManager;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
-import littleware.security.client.AccountManagerService;
 
 public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
@@ -142,7 +140,6 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
             // Frick - need to bind core interfaces here explicitly
             binder.bind(AssetSearchManager.class).to(AssetSearchService.class);
-            binder.bind(AccountManager.class).to(AccountManagerService.class);
             binder.bind(AssetManager.class).to(AssetManagerService.class);
             binder.bind( AppBootstrap.AppProfile.class ).toInstance( bootstrap.getProfile() );
             binder.bind(LittleSession.class).toProvider(new Provider<LittleSession>() {

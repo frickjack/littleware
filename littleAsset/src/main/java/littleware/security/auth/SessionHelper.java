@@ -12,10 +12,13 @@ package littleware.security.auth;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import littleware.asset.AssetException;
 
-import littleware.asset.*;
+
 import littleware.asset.client.LittleService;
-import littleware.base.*;
+import littleware.base.BaseException;
+import littleware.base.ReadOnly;
+
 
 /**
  * After a Principal has authenticated itself,
@@ -40,12 +43,10 @@ public interface SessionHelper extends Remote {
     /**
      * Get the session asset this SessionHelper is associated with
      *
-     * @exception SessionExpiredException if the session this helper is
+     * @throws SessionExpiredException if the session this helper is
      *          associated with is no longer active
      */
-    public
-    @ReadOnly
-    LittleSession getSession() throws BaseException, AssetException,
+    public LittleSession getSession() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -53,12 +54,10 @@ public interface SessionHelper extends Remote {
      *
      * @param serviceType of the service desired
      * @return the service manager - caller should cast to appropriate type
-     * @exception SessionExpiredException if the session this helper is
+     * @throws SessionExpiredException if the session this helper is
      *          associated with is no longer active
      */
-    public
-    @ReadOnly
-    <T extends LittleService> T getService(ServiceType<T> serviceType) throws BaseException, AssetException,
+    public <T extends LittleService> T getService(ServiceType<T> serviceType) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**

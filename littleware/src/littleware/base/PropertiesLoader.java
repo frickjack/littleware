@@ -230,7 +230,7 @@ public class PropertiesLoader {
      *
      * @param name properties path
      * @return loaded (if possible) + defaults properties or cache under name
-     * @exception IOException if file exists, but load fails
+     * @throws IOException if file exists, but load fails
      */
     public final synchronized Properties loadProperties(String name ) throws IOException {
         Properties prop_filedata = cache.get(name);

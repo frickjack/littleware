@@ -30,7 +30,7 @@ public interface PickleMaker<T> {
 	 *
 	 * @param reader to read from
 	 * @return object unpickled from the stream
-	 * @exception littleware.base.ParseException on failure to parse data
+	 * @throws littleware.base.ParseException on failure to parse data
 	 */
 	public T unpickle ( Reader reader ) throws AssetException, BaseException,
 	                             GeneralSecurityException, IOException;

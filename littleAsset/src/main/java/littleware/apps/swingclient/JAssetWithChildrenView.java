@@ -103,7 +103,7 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
      * @param s_children_header label for the children-list area (ex: "Group members")
      * @param s_tab_label short string to label the child-tab with
      * @param icon_tab icon to label the child-tab with - may be null
-     * @exception IllegalArgumentException if model_asset does not reference a group
+     * @throws IllegalArgumentException if model_asset does not reference a group
      */
     @Inject
     protected JAssetWithChildrenView( AssetRetriever m_retriever,

@@ -36,7 +36,7 @@ public class ThumbManagerTester extends LittleTest {
     @Override
     public void setUp() {
         try {
-            session = imageMgr.deleteImage(session.copy().transaction(-1).build(),
+            session = imageMgr.deleteImage(session.copy().timestamp(-1).build(),
                     "Setting up thumb test"
                     ).narrow();
             thumbMgr.clearCache(session.getId() );

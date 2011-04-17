@@ -34,16 +34,17 @@ import littleware.asset.client.AssetManagerService;
 import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.SimpleAssetManagerService;
 import littleware.asset.client.SimpleAssetSearchService;
+import littleware.asset.internal.SharedGuiceModule;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.NullAssetSpecializer;
-import littleware.asset.server.QuotaUtil;
+import littleware.security.server.QuotaUtil;
 import littleware.asset.server.internal.RmiAssetManager;
 import littleware.asset.server.internal.RmiSearchManager;
 import littleware.asset.server.internal.SimpleAssetManager;
 import littleware.asset.server.internal.SimpleAssetSearchManager;
-import littleware.asset.server.internal.SimpleQuotaUtil;
+import littleware.security.server.internal.SimpleQuotaUtil;
 import littleware.asset.server.internal.SimpleSpecializerRegistry;
 import littleware.asset.server.db.DbAssetManager;
 import littleware.asset.server.db.jpa.HibernateGuice;
@@ -52,11 +53,10 @@ import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
+import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
-import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import littleware.db.DbGuice;
-import littleware.security.AccountManager;
 import littleware.security.SecurityAssetType;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
@@ -66,11 +66,8 @@ import littleware.security.auth.server.AbstractServiceFactory;
 import littleware.security.auth.server.internal.AuthServerGuice;
 import littleware.security.auth.server.ServiceFactory;
 import littleware.security.auth.server.ServiceRegistry;
-import littleware.security.client.AccountManagerService;
-import littleware.security.client.SimpleAccountManagerService;
-import littleware.security.server.RmiAccountManager;
-import littleware.security.server.SimpleAccountManager;
-import littleware.security.server.SimpleAclManager;
+import littleware.security.server.internal.SimpleAccountManager;
+import littleware.security.server.internal.SimpleAclManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -89,21 +86,18 @@ public class AssetServerModule extends AbstractServerModule {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind( Cache.Builder.class ).to( InMemoryCacheBuilder.class );
+        (new SharedGuiceModule()).configure(binder);
+        binder.bind(Cache.Builder.class).to(InMemoryCacheBuilder.class);
         binder.bind(AssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
         binder.bind(AssetRetriever.class).to(AssetSearchManager.class).in(Scopes.SINGLETON);
         binder.bind(AssetSearchManager.class).to(SimpleAssetSearchManager.class).in(Scopes.SINGLETON);
         binder.bind(QuotaUtil.class).to(SimpleQuotaUtil.class).in(Scopes.SINGLETON);
         binder.bind(AssetSpecializerRegistry.class).to(SimpleSpecializerRegistry.class).in(Scopes.SINGLETON);
-        binder.bind(AssetPathFactory.class).to(SimpleAssetPathFactory.class);
-        binder.bind(AccountManager.class).to(SimpleAccountManager.class).in(Scopes.SINGLETON);
-        binder.bind( AssetTreeTemplate.TemplateBuilder.class ).to( SimpleTemplateBuilder.class ).in( Scopes.SINGLETON );
-
         if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
-            log.log( Level.INFO, "Configuring JPA in J2EE mode ..." );
+            log.log(Level.INFO, "Configuring JPA in J2EE mode ...");
             (new J2EEGuice()).configure(binder);
         } else {
-            log.log( Level.INFO, "Configuring JPA in standalone (hibernate) mode ..." );
+            log.log(Level.INFO, "Configuring JPA in standalone (hibernate) mode ...");
             try {
                 DbGuice.build("littleware_jdbc.properties").configure(binder);
             } catch (IOException ex) {
@@ -227,22 +221,6 @@ public class AssetServerModule extends AbstractServerModule {
         return Activator.class;
     }
 
-    public static class AccountServiceFactory extends AbstractServiceFactory<AccountManagerService> {
-
-        private final AccountManager accountMgr;
-
-        @Inject
-        public AccountServiceFactory(AssetSearchManager search, AccountManager accountMgr) {
-            super(ServiceType.ACCOUNT_MANAGER, search);
-            this.accountMgr = accountMgr;
-        }
-
-        @Override
-        public AccountManagerService createServiceProvider(SessionHelper helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-            return new SimpleAccountManagerService(new RmiAccountManager(this.checkAccessMakeProxy(helper, false, accountMgr, AccountManager.class)));
-        }
-    }
-
     public static class AssetServiceFactory extends AbstractServiceFactory<AssetManagerService> {
 
         private final AssetManager saver;
@@ -281,7 +259,7 @@ public class AssetServerModule extends AbstractServerModule {
 
         {
             final ImmutableMap.Builder<AssetType, Class<? extends AssetSpecializer>> builder = ImmutableMap.builder();
-            for (AssetType assetType : Arrays.asList(AssetType.GENERIC, AssetType.HOME, AssetType.LINK, AssetType.LOCK)) {
+            for (AssetType assetType : Arrays.asList(GenericAsset.GENERIC, LittleHome.HOME_TYPE, AssetType.LINK )) {
                 builder.put(assetType, NullAssetSpecializer.class);
             }
             for (AssetType assetType : Arrays.asList(SecurityAssetType.PRINCIPAL,
@@ -303,7 +281,7 @@ public class AssetServerModule extends AbstractServerModule {
         {
             final ImmutableMap.Builder<ServiceType, Class<? extends ServiceFactory>> builder =
                     ImmutableMap.builder();
-            serviceMap = builder.put(ServiceType.ASSET_SEARCH, SearchServiceFactory.class).put(ServiceType.ACCOUNT_MANAGER, AccountServiceFactory.class).put(ServiceType.ASSET_MANAGER, AssetServiceFactory.class).build();
+            serviceMap = builder.put(ServiceType.ASSET_SEARCH, SearchServiceFactory.class).put(ServiceType.ASSET_MANAGER, AssetServiceFactory.class).build();
         }
 
         @Override

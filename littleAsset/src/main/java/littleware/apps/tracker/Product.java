@@ -9,6 +9,7 @@
  */
 package littleware.apps.tracker;
 
+import littleware.apps.tracker.internal.SimpleProductBuilder;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Map;

@@ -1,5 +1,6 @@
 package littleware.security;
 
+import littleware.security.internal.GroupBuilder;
 import com.google.inject.ImplementedBy;
 import java.util.Collection;
 import java.util.Date;
@@ -76,7 +77,7 @@ public interface LittleGroup extends LittlePrincipal {
         public Builder state(int value);
 
         @Override
-        public Builder transaction(long value);
+        public Builder timestamp(long value);
 
         @Override
         public Builder copy( Asset value );

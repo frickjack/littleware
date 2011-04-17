@@ -58,7 +58,7 @@ public interface LittleTransaction {
      * endTransaction (below).  Does a startDbAccess() call that endTransaction matches
      * with a endDbAccess().
      *
-     * @exception IllegalStateException if unable to setup transaction SavePoint
+     * @throws IllegalStateException if unable to setup transaction SavePoint
      */
     public void startDbUpdate ();
     
@@ -86,7 +86,7 @@ public interface LittleTransaction {
      *
      * @param b_rollback set true if the transaction failed, and needs rolled back
      *             to its SavePoint, otherwise release the SavePoint.
-     * @exception RuntimeException if db commit/rollback fails
+     * @throws RuntimeException if db commit/rollback fails
      */
     public void endDbUpdate ( boolean b_rollback );
 
@@ -95,9 +95,9 @@ public interface LittleTransaction {
      *
      * @return transaction-counter to assign to every asset's transaction property
      *             saved during the current transacton
-     * @exception IllegalStateException if not in an update transaction
+     * @throws IllegalStateException if not in an update transaction
      */
-    public long getTransaction();
+    public long getTimestamp();
     
     /**
      * If isDbUpdating(), then defer the given Runnable action until

@@ -4,15 +4,12 @@ import java.util.*;
 
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
-import littleware.asset.CacheMissException;
 import littleware.db.*;
 
 /**
  * Factory interface for cache database command-object creation.
  * Note that the results of cache-queries are only valid if
  * the query-result has been stashed in the cache by a previous query.
- * A lookup throws littleware.asset.db.CacheMissException 
- * if its query is not in the query-log.
  */
 public interface DbCacheManager {
 

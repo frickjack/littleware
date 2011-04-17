@@ -10,9 +10,7 @@
 
 package littleware.asset.server.db;
 
-import littleware.asset.server.CacheManager;
 import java.util.*;
-import java.sql.SQLException;
 
 import littleware.asset.*;
 import littleware.base.Maybe;

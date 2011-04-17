@@ -46,7 +46,7 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @param s_name of asset to lookup
      * @param atype of asset to lookup - must be a name-unique asset type
      * @return cached asset-model or null
-     * @exception InvalidAssetTypeException if atype is not name-unique
+     * @throws InvalidAssetTypeException if atype is not name-unique
      */
     public Maybe<AssetModel> getByName( String s_name, AssetType atype
             ) throws InvalidAssetTypeException;
@@ -93,10 +93,10 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @param u_id of asset to retrieve AssetModel for
      * @return the asset or NULL if the asset does not exist
      * @param m_retriever to access the repository with if necessary
-     * @exception BaseException may be thrown by AssetRetriever.getAssetOrNull
-     * @exception GeneralSecurityException may be thrown by AssetRetriever.getAssetOrNull
-     * @exception AssetException may be thrown by AssetRetriever.getAssetOrNull
-     * @exception RemoteException may be thrown by AssetRetriever.getAssetOrNull
+     * @throws BaseException may be thrown by AssetRetriever.getAssetOrNull
+     * @throws GeneralSecurityException may be thrown by AssetRetriever.getAssetOrNull
+     * @throws AssetException may be thrown by AssetRetriever.getAssetOrNull
+     * @throws RemoteException may be thrown by AssetRetriever.getAssetOrNull
      */
     public Maybe<AssetModel> retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException,
         AssetException, GeneralSecurityException, RemoteException;
@@ -115,10 +115,10 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @param n_type of asset to retrieve AssetModel for - must by a name-unique asset
      * @return the asset or NULL if the asset does not exist
      * @param m_search to access the repository with if necessary - via getByName
-     * @exception BaseException may be thrown by AssetRetriever.getAssetOrNull
-     * @exception GeneralSecurityException may be thrown by AssetRetriever.getAssetOrNull
-     * @exception AssetException may be thrown by AssetRetriever.getAssetOrNull
-     * @exception RemoteException may be thrown by AssetRetriever.getAssetOrNull
+     * @throws BaseException may be thrown by AssetRetriever.getAssetOrNull
+     * @throws GeneralSecurityException may be thrown by AssetRetriever.getAssetOrNull
+     * @throws AssetException may be thrown by AssetRetriever.getAssetOrNull
+     * @throws RemoteException may be thrown by AssetRetriever.getAssetOrNull
      *
      * TODO: fill this in
      *

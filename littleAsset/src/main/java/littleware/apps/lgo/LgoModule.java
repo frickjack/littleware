@@ -79,7 +79,6 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
         builder.add(GetAssetCommand.Builder.class);
         builder.add(CreateFolderCommand.Builder.class);
         builder.add(CreateUserCommand.Builder.class);
-        builder.add(CreateLockCommand.class);
         builder.add(GetByNameCommand.Builder.class);
         builder.add(SetImageCommand.Builder.class);
         builder.add(GetRootPathCommand.Builder.class);

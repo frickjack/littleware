@@ -40,13 +40,13 @@ public class PickleTester extends LittleTest {
 
 
     /**
-     * Stupid little test - check whether pickling an AssetType.GENERIC
+     * Stupid little test - check whether pickling an GenericAsset.GENERIC
      * asset twice yields the same result both times.
      * Not all PickleMaker may require that.
      */
     public void testPickleTwice() {
         try {
-            final Asset testAsset = AssetType.GENERIC.create().
+            final Asset testAsset = GenericAsset.GENERIC.create().
                     name("bogus_pickletest_asset").
                     homeId(UUID.randomUUID()).
                     fromId(UUID.randomUUID()).

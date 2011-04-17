@@ -61,10 +61,9 @@ public interface AssetPathFactory {
      * and 
      *       {@link AssetPathByRootName byname:} ROOT rules exist.
      *
-     * @exception NoSuchTypeException on failure to resolve requested AssetType
-     * @exception AssetException allows generalization in the future
-     * @exception InvalidAssetTypeException if path specifies as non name-unique asset-type
-     * @exception ParseException on generic parsing error
+     * @throws AssetException allows generalization in the future
+     * @throws InvalidAssetTypeException if path specifies as non name-unique asset-type
+     * @throws ParseException on generic parsing error
      */
     public abstract AssetPath createPath ( String s_path_with_root
                                            ) throws AssetException, ParseException;
@@ -75,7 +74,7 @@ public interface AssetPathFactory {
      *
      * @param s_root_name name of the root asset
      * @param n_root_type asset-type of the root asset
-     * @exception InvalidAssetTypeException if n_root_type is not name-unique
+     * @throws InvalidAssetTypeException if n_root_type is not name-unique
      */
     public abstract AssetPath createPath ( String s_root_name,
                                            AssetType n_root_type, 

@@ -26,7 +26,7 @@ public class ClockIdType {
         return id;
     }
 
-    public long getTransaction() {
+    public long getTimestamp() {
         return transaction;
     }
 

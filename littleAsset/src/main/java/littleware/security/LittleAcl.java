@@ -9,6 +9,7 @@
  */
 package littleware.security;
 
+import littleware.security.internal.SimpleACLBuilder;
 import com.google.inject.ImplementedBy;
 
 import java.security.acl.Permission;
@@ -120,7 +121,7 @@ public interface LittleAcl extends Asset {
         public Builder state(int value);
 
         @Override
-        public Builder transaction(long value);
+        public Builder timestamp(long value);
 
         @Override
         public Builder copy(Asset source);

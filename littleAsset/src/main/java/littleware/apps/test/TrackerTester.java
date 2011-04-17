@@ -38,7 +38,6 @@ public class TrackerTester extends LittleTest {
     private AssetManager om_asset = null;
     private AssetSearchManager om_search = null;
     private BucketManager om_bucket = null;
-    private AccountManager om_account = null;
     private final SessionHelper om_helper;
     //private final Provider<JQView>  oprovide_view;
     private Set<Asset> ov_test = new HashSet<Asset>();
@@ -66,15 +65,14 @@ public class TrackerTester extends LittleTest {
             om_asset = om_helper.getService(ServiceType.ASSET_MANAGER);
             om_search = om_helper.getService(ServiceType.ASSET_SEARCH);
             om_bucket = om_helper.getService(BucketServiceType.BUCKET_MANAGER);
-            om_account = om_helper.getService(ServiceType.ACCOUNT_MANAGER);
 
             if (null == oa_test_folder) {
                 UUID u_home = om_search.getHomeAssetIds().get("littleware.test_home");
-                Map<String, UUID> v_children = om_search.getAssetIdsFrom(u_home, AssetType.GENERIC);
+                Map<String, UUID> v_children = om_search.getAssetIdsFrom(u_home, GenericAsset.GENERIC);
                 UUID u_test_folder = v_children.get(os_test_folder);
 
                 if (null == u_test_folder) {
-                    AssetBuilder a_folder = AssetType.GENERIC.create();
+                    AssetBuilder a_folder = GenericAsset.GENERIC.create();
                     a_folder.setFromId(u_home);
                     a_folder.setHomeId(u_home);
                     a_folder.setName(os_test_folder);
@@ -127,7 +125,7 @@ public class TrackerTester extends LittleTest {
             ov_test.add(q_test);
 
             Task task_1 = TrackerAssetType.TASK.create();
-            long l_starting_transaction = task_1.getTransactionCount();
+            long l_starting_transaction = task_1.getTimestampCount();
             task_1.setHomeId(oa_test_folder.getHomeId());
             task_1.setName("task_1_" + t_now.getTime());
             task_1.setAclId(oa_test_folder.getAclId());
@@ -136,13 +134,13 @@ public class TrackerTester extends LittleTest {
             assertTrue("Task points to its queue", task_1.getToId().equals(q_test.getId()));
             task_1.setTaskStatus(TaskStatus.WAITING_IN_Q);
             task_1.save(om_asset, "setup task1 in test queue");
-            assertTrue("Transaction count adavances on save", task_1.getTransactionCount() > l_starting_transaction);
+            assertTrue("Transaction count adavances on save", task_1.getTimestampCount() > l_starting_transaction);
             ov_test.add(task_1);
 
 
             Map<UUID, Long> v_check = new HashMap();
-            v_check.put(q_test.getId(), q_test.getTransactionCount());
-            v_check.put(task_1.getId(), task_1.getTransactionCount());
+            v_check.put(q_test.getId(), q_test.getTimestampCount());
+            v_check.put(task_1.getId(), task_1.getTimestampCount());
             Map<UUID, Long> v_check_result = om_search.checkTransactionCount(v_check);
 
             assertTrue("Queue needs update after adding task", v_check_result.containsKey(q_test.getId()));
@@ -178,14 +176,14 @@ public class TrackerTester extends LittleTest {
             ov_test.add(comment_simple);
 
             v_check.clear();
-            v_check.put(task_1.getId(), task_1.getTransactionCount());
+            v_check.put(task_1.getId(), task_1.getTimestampCount());
             v_check_result = om_search.checkTransactionCount(v_check);
             assertTrue("Task needs sync after adding comment", v_check_result.containsKey(task_1.getId()));
             task_1.sync(om_search);
             assertTrue("Task comment list has one entry", task_1.getTaskComments().size() == 1);
             assertTrue("Task contains expected comment: " + comment_simple.getId() + " =? " + task_1.getTaskComments().get(0), task_1.getTaskComments().contains(comment_simple.getId()));
             comment_simple.eraseComment(om_bucket);
-            v_check.put(task_1.getId(), task_1.getTransactionCount());
+            v_check.put(task_1.getId(), task_1.getTimestampCount());
             v_check_result = om_search.checkTransactionCount(v_check);
             assertTrue("Task does not need sync after updating already added comment", !v_check_result.containsKey(task_1.getId()));
 

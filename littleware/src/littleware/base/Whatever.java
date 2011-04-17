@@ -114,7 +114,7 @@ public class Whatever {
      *
      * @param read_all reader to suck dry
      * @return string pulled from reader
-     * @exception IOException if something goes wrong
+     * @throws IOException if something goes wrong
      */
     public String readAll(Reader read_all) throws IOException {
         final int i_buffer = 10240;
@@ -175,7 +175,7 @@ public class Whatever {
      * Just invokes call directly if already on dispatch thread -
      * otherwise dispatches with event barrier.
      *
-     * @exception IllegalStateException of call throws exception
+     * @throws IllegalStateException of call throws exception
      */
     public <T> T callOnSwingDispatcher( final Callable<T> call ) {
         if ( SwingUtilities.isEventDispatchThread() ) {

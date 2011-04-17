@@ -31,9 +31,9 @@ public interface AssetManager extends Remote {
      *
      * @param u_asset id of asset to delete - must have WRITE permission
      * @param s_update_comment to attach to asset giving reason for deletion
-     * @exception NoSuchThingException if the given asset does not exist in the database
-     * @exception AccessDeniedException if do not have write-permission on the link source
-     * @exception DataAccessException on database access/interaction failure
+     * @throws NoSuchThingException if the given asset does not exist in the database
+     * @throws AccessDeniedException if do not have write-permission on the link source
+     * @throws DataAccessException on database access/interaction failure
      */
     public void deleteAsset(UUID u_asset,
             String s_update_comment) throws BaseException, AssetException,
@@ -56,12 +56,12 @@ public interface AssetManager extends Remote {
      *              save side-effects.  References a_asset on local JVM call,
      *              but critical that RMI clients collect the result to
      *              maintain up-to-date local data.
-     * @exception NoSuchThingException if the given asset references an
+     * @throws NoSuchThingException if the given asset references an
      *                   ACL or owner that does not exist in the database
-     * @exception AccessDeniedException if do not have write-permission on the link source
-     * @exception DataAccessException on database access/interaction failure
-     * @exception IllegalArgumentException if supplied asset does not have a valid name
-     * @exception AlreadyExistsException if asset save violates some uniqueness constraint
+     * @throws AccessDeniedException if do not have write-permission on the link source
+     * @throws DataAccessException on database access/interaction failure
+     * @throws IllegalArgumentException if supplied asset does not have a valid name
+     * @throws AlreadyExistsException if asset save violates some uniqueness constraint
      */
     public <T extends Asset> T saveAsset(T a_asset,
             String s_update_comment) throws BaseException, AssetException,

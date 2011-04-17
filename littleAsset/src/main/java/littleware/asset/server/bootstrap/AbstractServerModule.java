@@ -24,7 +24,7 @@ import littleware.security.auth.ServiceType;
 import littleware.security.auth.server.ServiceFactory;
 import org.osgi.framework.BundleActivator;
 
-public class AbstractServerModule implements ServerModule {
+public abstract class AbstractServerModule implements ServerModule {
 
     private final ServerProfile profile;
     private final Map<AssetType, Class<? extends AssetSpecializer>> typeMap;
@@ -77,7 +77,4 @@ public class AbstractServerModule implements ServerModule {
         return NullActivator.class;
     }
 
-    @Override
-    public void configure(Binder binder) {
-    }
 }

@@ -14,40 +14,42 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import littleware.asset.Asset;
-import littleware.asset.AssetException;
+import littleware.asset.AssetType;
+import littleware.asset.server.AssetSpecializerRegistry;
+import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
 
-/**
- *
- * @author pasquini
- */
 public class DbAssetLoader implements DbReader<Asset, UUID> {
-    private static final Logger olog = Logger.getLogger( DbAssetLoader.class.getName() );
-    private Provider<JpaLittleTransaction> oprovideTrans;
+    private static final Logger log = Logger.getLogger( DbAssetLoader.class.getName() );
+    private Provider<JpaLittleTransaction> transactionProvider;
+    private final AssetSpecializerRegistry assetRegistry;
 
     @Inject
-    public DbAssetLoader( Provider<JpaLittleTransaction> provideTrans ) {
-        oprovideTrans = provideTrans;
+    public DbAssetLoader( Provider<JpaLittleTransaction> provideTrans,
+            AssetSpecializerRegistry assetRegistry
+            ) {
+        transactionProvider = provideTrans;
+        this.assetRegistry = assetRegistry;
     }
 
     @Override
     public Asset loadObject(UUID id) throws SQLException {
-        final EntityManager entMgr = oprovideTrans.get().getEntityManager();
+        final EntityManager entMgr = transactionProvider.get().getEntityManager();
         final AssetEntity ent = entMgr.find( AssetEntity.class,
                 UUIDFactory.makeCleanString(id)
                 );
         try {
+            final AssetType assetType = AssetType.getMember(UUIDFactory.parseUUID( ent.getTypeId()));
             if ( null != ent ) {
-                return ent.buildAsset();
+                return ent.buildAsset( assetRegistry.getService(assetType).create(assetType) );
             } else {
                 return null;
             }
-        } catch (AssetException ex) {
+        } catch (BaseException ex) {
             throw new SQLException( "Failed data load for " + id, ex );
         }
     }

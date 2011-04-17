@@ -39,7 +39,7 @@ public class EventBarrier<T> implements Future<T> {
      * Publish event data
      *
      * @param data to supply to waiters
-     * @exception IllegalStateException if event data already published to this barrier
+     * @throws IllegalStateException if event data already published to this barrier
      */
     public synchronized void publishEventData( T data ) {
         if ( isEventReady ) {

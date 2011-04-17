@@ -11,7 +11,6 @@ package littleware.asset.server.db.jpa;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -25,7 +24,7 @@ import littleware.asset.server.AbstractLittleTransaction;
  */
 public class SimpleJpaTransaction extends AbstractLittleTransaction implements JpaLittleTransaction {
 
-    private static final Logger olog = Logger.getLogger(SimpleJpaTransaction.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleJpaTransaction.class.getName());
     private final Provider<EntityManager> oprovideEntMgr;
     private EntityManager oentMgr = null;
 
@@ -62,7 +61,7 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
     private long transactionCounter = -1L;
 
     @Override
-    public long getTransaction() {
+    public long getTimestamp() {
         if (!isDbUpdating()) {
             throw new IllegalStateException("Update-transaction not initialized");
         }
@@ -80,8 +79,8 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
             }
             oentMgr.getTransaction().begin();
             final TransactionEntity trans = oentMgr.find(TransactionEntity.class, new Integer(1));
-            transactionCounter = trans.getTransaction() + 1;
-            trans.setTransaction(transactionCounter);
+            transactionCounter = trans.getTimestamp() + 1;
+            trans.setTimestamp(transactionCounter);
         }
         super.startDbUpdate();
     }
@@ -103,7 +102,7 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
             } finally {
                 transactionCounter = -1L;
             }
-            olog.log(Level.FINE, "Transaction complete, rollback: " + b_rollback);
+            log.log(Level.FINE, "Transaction complete, rollback: {0}", b_rollback);
         } else if (b_rollback) {
             oentMgr.getTransaction().setRollbackOnly();
             throw new IllegalStateException("Nested rollback not supported by this transaction implementation");

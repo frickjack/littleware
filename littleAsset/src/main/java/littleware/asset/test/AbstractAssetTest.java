@@ -40,7 +40,7 @@ public abstract class AbstractAssetTest extends LittleTest {
      * assets under it.
      */
     public static Asset getTestHome(AssetSearchManager search) throws BaseException, RemoteException, GeneralSecurityException {
-        return search.getByName(getTestHome(), AssetType.HOME).get();
+        return search.getByName(getTestHome(), LittleHome.HOME_TYPE).get();
     }
 
     /**

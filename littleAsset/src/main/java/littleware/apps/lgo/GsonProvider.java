@@ -128,7 +128,7 @@ public class GsonProvider implements Provider<Gson> {
             result.addProperty( "updateComment", asset.getLastUpdate() );
             result.addProperty("startDate", toStringOrNull(asset.getStartDate()));
             result.addProperty("endDate", toStringOrNull(asset.getEndDate()));
-            result.addProperty("transaction", Long.toString(asset.getTransaction()));
+            result.addProperty("transaction", Long.toString(asset.getTimestamp()));
             result.addProperty("comment", asset.getComment());
             result.addProperty("value", asset.getValue());
             result.addProperty("state", asset.getState());

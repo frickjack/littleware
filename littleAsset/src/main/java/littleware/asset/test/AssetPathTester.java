@@ -58,7 +58,7 @@ public class AssetPathTester extends AbstractAssetTest {
             Asset a_test = search.getAssetFrom(a_home.getId(), "AssetPathTester").getOr(null);
             if (null == a_test) {
                 a_test = assetMgr.saveAsset(
-                        AssetType.GENERIC.create().parent(a_home).
+                        GenericAsset.GENERIC.create().parent(a_home).
                         name("AssetPathTester").
                         comment("AssetPath traversal test area").build(), "Setting up AssetPathTester test area");
             }
@@ -66,7 +66,7 @@ public class AssetPathTester extends AbstractAssetTest {
             Asset a_pointer = search.getAssetFrom(a_test.getId(), "Points2A").getOr(null);
             if (null == a_A) {
                 a_A = assetMgr.saveAsset(
-                        AssetType.GENERIC.create().parent(a_test).
+                        GenericAsset.GENERIC.create().parent(a_test).
                         name("A").
                         comment("AssetPath traversal test area").build(), "Setting up AssetPathTester test area");
 
@@ -88,7 +88,7 @@ public class AssetPathTester extends AbstractAssetTest {
                 Asset a_number = search.getAssetFrom(a_A.getId(), s_name).getOr(null);
                 if (null == a_number) {
                     a_number = assetMgr.saveAsset(
-                            AssetType.GENERIC.create().
+                            GenericAsset.GENERIC.create().
                             name(s_name).
                             comment("Setting up AssetPathTester").
                             parent(a_A).

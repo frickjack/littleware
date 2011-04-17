@@ -114,7 +114,7 @@ public class ActionResult {
      * Little utility generates standard ActionResult
      * in response to the given exception.  Also logs the exception.
      *
-     * @exception e_action exception caught by a Form action that
+     * @throws e_action exception caught by a Form action that
      *      must now generate an appropriate ActionResult.
      */
     public static ActionResult handleException ( Exception e_action ) {

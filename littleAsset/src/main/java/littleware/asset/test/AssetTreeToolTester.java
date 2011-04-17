@@ -65,7 +65,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             if (!maybeRoot.isSet()) {
                 maybeRoot = Maybe.something(
                         manager.saveAsset(
-                        AssetType.GENERIC.create().name("TreeToolTester").parent(home).build(),
+                        GenericAsset.GENERIC.create().name("TreeToolTester").parent(home).build(),
                         "Setup test"));
             }
             final Asset aParent = maybeRoot.get();
@@ -76,7 +76,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
                 final Asset aChild;
                 final Map<String, UUID> mapBrat;
                 if (!maybeChildId.isSet()) {
-                    aChild = manager.saveAsset(AssetType.GENERIC.create().name(sChild).parent(aParent).build(), "Setup test");
+                    aChild = manager.saveAsset(GenericAsset.GENERIC.create().name(sChild).parent(aParent).build(), "Setup test");
                     mapBrat = Collections.emptyMap();
                 } else {
                     aChild = search.getAsset(maybeChildId.get()).get();
@@ -85,7 +85,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
                 for (int j = 0; j <= i; ++j) {
                     final String sBrat = "Brat" + j;
                     if (!mapBrat.containsKey(sBrat)) {
-                        manager.saveAsset(AssetType.GENERIC.create().name(sBrat).parent(aChild).build(),
+                        manager.saveAsset(GenericAsset.GENERIC.create().name(sBrat).parent(aChild).build(),
                                 "Setup test");
                     }
                 }
@@ -112,7 +112,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             for (int i = 0; i < 3; ++i) {
                 children.add(
                         treeBuilder.get().assetBuilder(
-                        AssetType.GENERIC.create().name("Child" + i)).build());
+                        GenericAsset.GENERIC.create().name("Child" + i)).build());
             }
             final Collection<AssetTreeTemplate.AssetInfo> infoList =
                     treeBuilder.get().path(testFolderPath).addChildren(

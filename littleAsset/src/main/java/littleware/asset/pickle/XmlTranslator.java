@@ -33,7 +33,7 @@ public abstract class XmlTranslator<T> extends DefaultHandler implements PickleM
 	 * Intended for internal use only - in support
 	 * of handler chaining.
 	 *
-	 * @exception IllegalStateException if somebody tries
+	 * @throws IllegalStateException if somebody tries
 	 *         to retrieve a result before it is ready.
 	 */
 	public abstract T   getResult () throws IllegalStateException;

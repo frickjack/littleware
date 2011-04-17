@@ -89,12 +89,12 @@ public class XmlAssetTester extends TestCase {
                 "http://www.littleware.com/xml/namespace/2006/testxml";
 
         /**
-         * Constructor just assigns AssetType.GENERIC,
+         * Constructor just assigns GenericAsset.GENERIC,
          * an object-id, and a name.  Passes namespace and prefix
          * through to super.
          */
         public TestBuilder() {
-            super( OS_NAMESPACE, "txml", "test_data", AssetType.GENERIC);
+            super( OS_NAMESPACE, "txml", "test_data", GenericAsset.GENERIC);
             setName("testcase");
         }
 

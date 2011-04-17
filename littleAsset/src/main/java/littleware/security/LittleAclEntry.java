@@ -25,6 +25,8 @@ public interface LittleAclEntry extends Asset {
      * Covariant return-type: LittlePrincipal
      */
     public LittlePrincipal getPrincipal();
+    public UUID  getOwningAclId();
+    public UUID  getPrincipalId();
 
     public boolean checkPermission(Permission permission);
 

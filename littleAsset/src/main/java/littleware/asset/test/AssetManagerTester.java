@@ -70,7 +70,7 @@ public class AssetManagerTester extends LittleTest {
      */
     public void testAssetCreation() {
         try {
-            final Asset home = searchMgr.getByName(MS_TEST_HOME, AssetType.HOME).get();
+            final Asset home = searchMgr.getByName(MS_TEST_HOME, LittleHome.HOME_TYPE).get();
             final Asset acl = null;
 
             log.log(Level.INFO, "Running with test home: " + home);
@@ -82,7 +82,7 @@ public class AssetManagerTester extends LittleTest {
             final Date t_now = new Date();
             log.log(Level.INFO, "Saving new asset");
             final Asset a_test = assetMgr.saveAsset(
-                    AssetType.GENERIC.create().
+                    GenericAsset.GENERIC.create().
                     name(s_name).
                     data("<data>no data </data>").
                     parent(user).
@@ -99,9 +99,9 @@ public class AssetManagerTester extends LittleTest {
 
             log.log(Level.INFO, "Just created asset: " + s_name);
             assertTrue("Created an asset with some valid data",
-                    (a_test.getId() != null) && a_test.getName().equals(s_name) && a_test.getAssetType().equals(AssetType.GENERIC)
+                    (a_test.getId() != null) && a_test.getName().equals(s_name) && a_test.getAssetType().equals(GenericAsset.GENERIC)
                     && t_now.getTime() < a_test.getEndDate().getTime()
-                    && (a_test.getTransaction() > 0)
+                    && (a_test.getTimestamp() > 0)
                     && a_test.getDate("test").isSet()
                     && a_test.getAttribute( "test" ).getOr( "frick" ).equals( "test" )
                     && a_test.getLink("test" ).isSet()
@@ -111,7 +111,7 @@ public class AssetManagerTester extends LittleTest {
             assertTrue("Able to clone new asset",
                     a_test.equals(a_clone) && a_clone.getName().equals(a_test.getName())
                     && a_clone.getAssetType().equals(a_test.getAssetType())
-                    && a_clone.getTransaction() == a_test.getTransaction()
+                    && a_clone.getTimestamp() == a_test.getTimestamp()
                     && a_clone.getAttributeMap().equals( a_test.getAttributeMap() )
                     && a_clone.getDateMap().equals( a_test.getDateMap() )
                     && a_clone.getLinkMap().equals( a_test.getLinkMap() )
@@ -126,8 +126,8 @@ public class AssetManagerTester extends LittleTest {
                     build(),
                     "data update"
                     );
-            assertTrue("Transaction count increases: " + a_save.getTransaction(),
-                    a_save.getTransaction() > a_clone.getTransaction()
+            assertTrue("Transaction count increases: " + a_save.getTimestamp(),
+                    a_save.getTimestamp() > a_clone.getTimestamp()
                     );
             assertTrue( "Property maps updated on save",
                     (a_save.getAttributeMap().size() == 1)

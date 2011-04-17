@@ -35,7 +35,7 @@ public class ListModelIterator implements Iterator<Object> {
     /**
      * Not supported
      *
-     * @exception UnsupportedOperationException always thrown
+     * @throws UnsupportedOperationException always thrown
      */
     public void remove () {
         throw new UnsupportedOperationException ();

@@ -120,7 +120,7 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
 
         @Inject
         public Builder(Services services) {
-            this(CreateFolderCommand.class.getName(), services, AssetType.GENERIC );
+            this(CreateFolderCommand.class.getName(), services, GenericAsset.GENERIC );
         }
 
         @Override

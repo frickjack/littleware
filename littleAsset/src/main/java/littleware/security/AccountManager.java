@@ -9,13 +9,7 @@
  */
 package littleware.security;
 
-import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
-import java.rmi.Remote;
 import java.util.UUID;
-import littleware.asset.AssetException;
-import littleware.base.BaseException;
-import littleware.base.ReadOnly;
 
 
 /**
@@ -25,7 +19,7 @@ import littleware.base.ReadOnly;
  * read-access to littleware Principal data, but should
  * enforce write-access restrictions.
  */
-public interface AccountManager extends Remote {
+public interface AccountManager {
 
     /** group-name of admin group */
     public static final String LITTLEWARE_ADMIN_GROUP = "group.littleware.administrator";
@@ -38,28 +32,5 @@ public interface AccountManager extends Remote {
     /** Admin group id */
     public static final UUID UUID_ADMIN_GROUP = littleware.base.UUIDFactory.parseUUID("89A1CB79B5944447BED9F38D398A7D12");
 
-    /**
-     * Increment the quota op-count on all the quotas
-     * in the quota-chain associated with the calling user.
-     * Internally does a setuid up to administrator to get permissions
-     * to update the underlying Quota assets.
-     *
-     * @return number of operations remaining in the user's quota, -1 indicates no limit
-     */
-    int incrementQuotaCount() throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
-
-
-
-
-    /**
-     * Get the end of the quota-chain associated with the given user.
-     *
-     * @return the user's quota, or null if quota of specified type is not
-     *                              assigned to the user
-     * @exception NoSuchThingException if quota not found
-     */
-    public Quota getQuota(LittleUser user) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
 }
 

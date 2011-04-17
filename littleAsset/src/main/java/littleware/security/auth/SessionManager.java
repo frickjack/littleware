@@ -34,13 +34,11 @@ public interface SessionManager extends Remote {
      * Get the SessionHelper associated with the Principal
      * with the given credentials.
      *
-     * @param s_name
-     * @param s_password
-     * @param s_session_comment briefly describing the purpose of this new login session
+     * @param comment briefly describing the purpose of this new login session
      */
-    public SessionHelper login(String s_name,
-            String s_password,
-            String s_session_comment) throws BaseException, AssetException,
+    public SessionHelper login(String userName,
+            String password,
+            String comment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -53,7 +51,7 @@ public interface SessionManager extends Remote {
      * and any applications relying on the session will be denied access to the
      * data repository.
      */
-    public SessionHelper getSessionHelper(UUID u_session) throws BaseException, AssetException,
+    public SessionHelper getSessionHelper(UUID sessionId) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 }

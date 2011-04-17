@@ -113,7 +113,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
             if ( event_little instanceof CreateRequestEvent ) {
                 final CreateRequestEvent event_create = (CreateRequestEvent) event_little;
                 final AssetModel         amodel_view = event_create.getAssetModel ();
-                final AssetBuilder       assetBuilder = AssetType.GENERIC.create ().
+                final AssetBuilder       assetBuilder = GenericAsset.GENERIC.create ().
                         ownerId ( oa_session.getOwnerId () ).
                         name ( "username.new_asset" );
 

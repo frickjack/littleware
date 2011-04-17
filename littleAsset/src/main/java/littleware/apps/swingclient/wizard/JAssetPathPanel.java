@@ -321,8 +321,8 @@ public class JAssetPathPanel extends JPanel {
      * Set the asset-path.
      *
      * @param path_asset to set to after verification - may be null
-     * @exception GeneralSecurityException if unable to resolve AssetPath due to security
-     * @exception InvalidAssetTypeException if AssetPath resolves to an Asset 
+     * @throws GeneralSecurityException if unable to resolve AssetPath due to security
+     * @throws InvalidAssetTypeException if AssetPath resolves to an Asset 
      *                not of legal type for this Panel.
      */
     public void setAssetPath ( AssetPath path_asset 
@@ -353,8 +353,8 @@ public class JAssetPathPanel extends JPanel {
      * Set the asset-path.
      *
      * @param s_path string path to parse then set
-     * @exception GeneralSecurityException if unable to resolve AssetPath due to security
-     * @exception InvalidAssetTypeException if AssetPath resolves to an Asset 
+     * @throws GeneralSecurityException if unable to resolve AssetPath due to security
+     * @throws InvalidAssetTypeException if AssetPath resolves to an Asset 
      *                not of legal type for this Panel.
      */
     public void setAssetPath ( String s_path

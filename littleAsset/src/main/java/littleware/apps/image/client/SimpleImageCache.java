@@ -211,7 +211,7 @@ public class SimpleImageCache implements ImageCache {
         if (transaction > 0) {
             // check image-save transaction against asset's current transaction value
             try {
-                if (search.getAsset(assetId).get().getTransaction() <= transaction) {
+                if (search.getAsset(assetId).get().getTimestamp() <= transaction) {
                     maybe = Maybe.emptyIfNull(ImageIO.read(key.pngFile));
                 }
             } catch (Exception ex) {
@@ -250,7 +250,7 @@ public class SimpleImageCache implements ImageCache {
         try { // write out file
             final Writer writer = new FileWriter(key.infoFile);
             try {
-                writer.write("" + search.getAsset(assetId).get().getTransaction() + Whatever.NEWLINE);
+                writer.write("" + search.getAsset(assetId).get().getTimestamp() + Whatever.NEWLINE);
             } finally {
                 writer.close();
             }

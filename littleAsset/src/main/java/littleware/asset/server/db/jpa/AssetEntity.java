@@ -10,7 +10,6 @@
 package littleware.asset.server.db.jpa;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +21,8 @@ import javax.persistence.*;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetException;
-import littleware.asset.AssetType;
+import littleware.asset.spi.AbstractAsset;
+import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.UUIDFactory;
 
 /**
@@ -299,9 +299,10 @@ public class AssetEntity implements Serializable {
         return x.toString();
     }
 
-    public Asset buildAsset() throws AssetException {
-        final AssetBuilder builder = AssetType.getMember(UUIDFactory.parseUUID(getTypeId())).create();
-
+    public Asset buildAsset( final AssetBuilder assetBuilder ) throws AssetException {
+        //final AssetBuilder builder = AssetType.getMember(UUIDFactory.parseUUID(getTypeId())).create();
+        final AbstractAssetBuilder builder = (AbstractAssetBuilder) assetBuilder;
+        
         try {
             builder.setId(UUIDFactory.parseUUID(getObjectId()));
             builder.setName(getName());
@@ -321,7 +322,7 @@ public class AssetEntity implements Serializable {
             builder.setEndDate(getEnd());
             builder.setStartDate(getStart());
             builder.setLastUpdateDate(getTimeUpdated());
-            builder.setTransaction(getLastTransaction());
+            builder.setTimestamp(getLastTransaction());
             for( AssetAttribute scan : getAttributeSet() ) {
                 builder.putAttribute( scan.getKey(), scan.getValue() );
             }
@@ -341,9 +342,11 @@ public class AssetEntity implements Serializable {
      * Pull property values from the given asset
      * 
      * @param asset to filter
-     * @exception IllegalArgumentException if asset.getId != this.getId
+     * @throws IllegalArgumentException if asset.getId != this.getId
      */
-    public void filter( Asset asset ) {
+    public void filter( final Asset assetIn ) {
+        final AbstractAsset asset = (AbstractAsset) assetIn;
+        
         this.setTypeId(UUIDFactory.makeCleanString(asset.getAssetType().getObjectId()));
         this.setName(asset.getName());
         this.setValue(asset.getValue());
@@ -362,7 +365,7 @@ public class AssetEntity implements Serializable {
         this.setEnd(asset.getEndDate());
         this.setStart(asset.getStartDate());
         this.setTimeUpdated(asset.getLastUpdateDate());
-        this.setLastTransaction(asset.getTransaction());
+        this.setLastTransaction(asset.getTimestamp());
         {
             final Map<String,AssetAttribute> oldMap = new HashMap<String,AssetAttribute>();
             for ( AssetAttribute scan : this.getAttributeSet() ) {

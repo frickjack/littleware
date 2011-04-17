@@ -140,7 +140,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                             // update events get fired on save
                             setAssetModel(olib_asset.syncAsset(newTypeAsset));
                         }
-                        if (getLocalAsset().getAssetType().equals(AssetType.HOME)) {
+                        if (getLocalAsset().getAssetType().equals(LittleHome.HOME_TYPE)) {
                             changeLocalAsset().setHomeId(getLocalAsset().getId());
                         }
                     }
@@ -223,7 +223,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                     @Override
                     public void setAssetId(UUID u_asset) {
                         changeLocalAsset().setFromId(u_asset);
-                        if ((null != u_asset) && (!changeLocalAsset().getAssetType().equals(AssetType.HOME))) {
+                        if ((null != u_asset) && (!changeLocalAsset().getAssetType().equals(LittleHome.HOME_TYPE))) {
                             // Must have same HOME when linking FROM an asset
                             try {
                                 AssetModel model_from = olib_asset.retrieveAssetModel(u_asset, om_search).get();

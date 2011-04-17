@@ -22,14 +22,17 @@ import java.util.logging.Logger;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetType;
-import littleware.asset.SimpleAssetPathFactory;
-import littleware.asset.SimpleTemplateBuilder;
+import littleware.asset.GenericAsset;
+import littleware.asset.LittleHome;
+import littleware.asset.internal.SimpleAssetPathFactory;
+import littleware.asset.internal.SimpleTemplateBuilder;
 import littleware.asset.client.AssetLoadEvent;
 import littleware.asset.client.ClientCache;
 import littleware.asset.client.LittleService;
 import littleware.asset.client.LittleServiceEvent;
 import littleware.asset.client.LittleServiceListener;
 import littleware.asset.client.SimpleClientCache;
+import littleware.asset.internal.SharedGuiceModule;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.security.SecurityAssetType;
@@ -44,10 +47,10 @@ public class AssetClientModule extends AbstractClientModule {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind( AssetPathFactory.class ).to( SimpleAssetPathFactory.class ).in( Scopes.SINGLETON );
-        binder.bind( AssetTreeTemplate.TemplateBuilder.class ).to( SimpleTemplateBuilder.class ).in( Scopes.SINGLETON );
+        (new SharedGuiceModule()).configure(binder);
+        binder.bind(AssetPathFactory.class).to(SimpleAssetPathFactory.class).in(Scopes.SINGLETON);
+        binder.bind(AssetTreeTemplate.TemplateBuilder.class).to(SimpleTemplateBuilder.class).in(Scopes.SINGLETON);
     }
-
 
     //-------------------------
     public static class Factory implements ClientModuleFactory {
@@ -56,7 +59,7 @@ public class AssetClientModule extends AbstractClientModule {
 
         {
             final ImmutableList.Builder<AssetType> builder = ImmutableList.builder();
-            typeSet = builder.add(AssetType.GENERIC).add(AssetType.HOME).add(AssetType.LINK).add(AssetType.LOCK).add(SecurityAssetType.ACL).add(SecurityAssetType.ACL_ENTRY).add(SecurityAssetType.GROUP).add(SecurityAssetType.GROUP_MEMBER).add(SecurityAssetType.PRINCIPAL).add(SecurityAssetType.QUOTA).add(SecurityAssetType.SERVICE_STUB).add(SecurityAssetType.SESSION).add(SecurityAssetType.USER).build();
+            typeSet = builder.add(GenericAsset.GENERIC).add(LittleHome.HOME_TYPE).add(AssetType.LINK).add(SecurityAssetType.ACL).add(SecurityAssetType.ACL_ENTRY).add(SecurityAssetType.GROUP).add(SecurityAssetType.GROUP_MEMBER).add(SecurityAssetType.PRINCIPAL).add(SecurityAssetType.QUOTA).add(SecurityAssetType.SERVICE_STUB).add(SecurityAssetType.SESSION).add(SecurityAssetType.USER).build();
         }
         private final Collection<Class<? extends LittleServiceListener>> listenerSet;
 
@@ -69,7 +72,7 @@ public class AssetClientModule extends AbstractClientModule {
 
         {
             final ImmutableList.Builder<ServiceType> builder = ImmutableList.builder();
-            serviceSet = builder.add(ServiceType.ACCOUNT_MANAGER).add(ServiceType.ASSET_MANAGER).add(ServiceType.ASSET_SEARCH).build();
+            serviceSet = builder.add(ServiceType.ASSET_MANAGER).add(ServiceType.ASSET_SEARCH).build();
         }
 
         @Override

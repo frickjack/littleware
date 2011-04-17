@@ -72,14 +72,14 @@ public class JDeleteAssetTester extends AbstractAssetTest {
         tearDown();
         try {
             final Asset home = getTestHome(search);
-            final Asset aTest = AssetType.GENERIC.create().name( TestFolder ).parent( home).build();
+            final Asset aTest = GenericAsset.GENERIC.create().name( TestFolder ).parent( home).build();
             final List<Asset> vCreate = new ArrayList<Asset>();
             vCreate.add(aTest);
             for (String sName : Arrays.asList("A", "B", "C")) {
-                final Asset aFolder = AssetType.GENERIC.create().name( sName ).parent( aTest).build();
+                final Asset aFolder = GenericAsset.GENERIC.create().name( sName ).parent( aTest).build();
                 vCreate.add(aFolder);
                 for (String sSuffix : Arrays.asList("A", "B", "C")) {
-                    final Asset aChild = AssetType.GENERIC.create().name( sName + sSuffix ).
+                    final Asset aChild = GenericAsset.GENERIC.create().name( sName + sSuffix ).
                             parent(aFolder).build();
                     vCreate.add(aChild);
                 }

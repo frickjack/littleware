@@ -77,20 +77,20 @@ public class SimpleServerSync implements ServerSync {
                 continue;
             }
             for (IdWithClock data : search.checkTransactionLog(homeId, minTransaction)) {
-                if (data.getTransaction() > newMin) {
-                    newMin = data.getTransaction();
+                if (data.getTimestamp() > newMin) {
+                    newMin = data.getTimestamp();
                 }
                 final AssetModel model = libAsset.get(data.getId());
 
                 if ((null != model)
-                        && (model.getAsset().getTransaction() < data.getTransaction())) {
+                        && (model.getAsset().getTimestamp() < data.getTimestamp())) {
                     result.add(data.getId());
                 } else if ((null == model)
-                        && data.getFrom().isSet()
-                        && (null != libAsset.get(data.getFrom().get()))) {
+                        && data.getParentId().isSet()
+                        && (null != libAsset.get(data.getParentId().get()))) {
                     // tracking parent, so go ahead and add this child
                     // to inform parent listeners of new child
-                    result.add(data.getFrom().get());
+                    result.add(data.getParentId().get());
                 }
             }
         }
@@ -134,7 +134,7 @@ public class SimpleServerSync implements ServerSync {
                     if (maybe.isSet()) {
                         final Asset asset = maybe.get();
                         log.log(Level.FINE, "Syncing asset " + asset.getId() + ", " + asset.getName()
-                                + ", " + asset.getTransaction());
+                                + ", " + asset.getTimestamp());
                         libAsset.syncAsset(maybe.get());
                     }
                 } catch (Exception ex) {

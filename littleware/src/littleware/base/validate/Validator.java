@@ -16,7 +16,7 @@ import java.util.Collection;
  */
 public interface Validator {
     /**
-     * @exception ValidateException on validation failure
+     * @throws ValidateException on validation failure
      */
     public void validate() throws ValidationException;
     /**

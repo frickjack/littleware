@@ -215,7 +215,7 @@ public class SimpleAssetModelLibrary
                 return oa_data;
             }
             if ((null != oa_data)
-                    && (a_new.getTransaction() <= oa_data.getTransaction()) ) {
+                    && (a_new.getTimestamp() <= oa_data.getTimestamp()) ) {
                 return oa_data;
             }
             final UUID fromIdOld = (null != oa_data) ? oa_data.getFromId() : null;

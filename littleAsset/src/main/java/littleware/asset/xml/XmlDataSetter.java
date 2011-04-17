@@ -43,7 +43,7 @@ public interface XmlDataSetter {
 	 *
 	 * @param x_target to invoke method against
 	 * @param s_data from XML
-	 * @exception ParseException on failure to assign the data via the given setter
+	 * @throws ParseException on failure to assign the data via the given setter
 	 */
 	public void setData ( Object x_target, String s_data ) throws ParseException;
 }

@@ -51,7 +51,7 @@ public interface AssetModel extends Comparable<AssetModel> {
      * an AssetModelEvent to listeners.
      *
      * @param a_data for getAsset to return from now on
-     * @exception IllegalArgumentException RuntimeException if a_data.getObjectId is
+     * @throws IllegalArgumentException RuntimeException if a_data.getObjectId is
      *              not the same as the id of the asset this Model is
      *              already observing
      *
@@ -60,13 +60,13 @@ public interface AssetModel extends Comparable<AssetModel> {
     
     /**
      * Little utility function - replace asset if
-     *     a_data.getTransaction () > getAsset().getTransaction ()
+     *     a_data.getTimestamp () > getAsset().getTimestamp ()
      * or a_data.isDirty() and fires various AssetModelEvents
      * depending on state change.
      *
      * @param a_data for getAsset to return from now on if a_data has newer TransactionCount
-     * @return (a_data.getTransaction () > getAsset ().getTransaction ()) ? a_data : getAsset ()
-     * @exception IllegalArgumentException RuntimeExcption if object-ids do not match
+     * @return (a_data.getTimestamp () > getAsset ().getTimestamp ()) ? a_data : getAsset ()
+     * @throws IllegalArgumentException RuntimeExcption if object-ids do not match
      */
     public Asset syncAsset ( Asset a_data );
 

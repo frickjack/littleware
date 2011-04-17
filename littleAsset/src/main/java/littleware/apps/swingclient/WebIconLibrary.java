@@ -107,7 +107,7 @@ public class WebIconLibrary implements IconLibrary {
                              );
         
         //....................
-        ov_asset_urls.put ( AssetType.GENERIC,
+        ov_asset_urls.put ( GenericAsset.GENERIC,
                                                        "/geronimo/foldr_16.gif" 
                              );
         
@@ -128,7 +128,7 @@ public class WebIconLibrary implements IconLibrary {
                                             "/geronimo/link_16.gif"
                              );
 
-        ov_asset_urls.put ( AssetType.HOME,
+        ov_asset_urls.put ( LittleHome.HOME_TYPE,
                                                "/geronimo/home_16.gif" 
                              );
         /*..
@@ -186,7 +186,7 @@ public class WebIconLibrary implements IconLibrary {
      * @param s_root hostname/rootdir under which
      *                     the expected icon directory structure
      *                     s_url_root/hierarchy
-     * @exception MalformedURLException if s_url_root leads to illegal URL
+     * @throws MalformedURLException if s_url_root leads to illegal URL
      */
     @Override
     public void setRoot ( String s_url_root ) throws MalformedURLException {
@@ -252,10 +252,10 @@ public class WebIconLibrary implements IconLibrary {
         if ( atype.isA ( AssetType.LINK ) ) {
             return lookupProvider( AssetType.LINK );
         }
-        if ( atype.equals( AssetType.GENERIC ) ) {
+        if ( atype.equals( GenericAsset.GENERIC ) ) {
             throw new AssertionFailedException( "No icon registered for Generic asset type?" );
         }
-        return lookupProvider( AssetType.GENERIC );
+        return lookupProvider( GenericAsset.GENERIC );
     }
 
     @Override

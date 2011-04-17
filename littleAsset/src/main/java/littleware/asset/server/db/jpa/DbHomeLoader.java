@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.persistence.EntityManager;
-import littleware.asset.AssetType;
+import littleware.asset.LittleHome;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
 
@@ -38,7 +38,7 @@ public class DbHomeLoader implements DbReader<Map<String, UUID>,String> {
     public Map<String, UUID> loadObject(String x_arg) throws SQLException {
         final EntityManager entMgr = oprovideTrans.get().getEntityManager();
         final List<NameIdType> vInfo = entMgr.createQuery( "SELECT NEW littleware.asset.server.db.jpa.NameIdType( x.name, x.objectId, x.typeId ) FROM Asset x WHERE x.typeId='" +
-                UUIDFactory.makeCleanString( AssetType.HOME.getObjectId() ) + "'"
+                UUIDFactory.makeCleanString( LittleHome.HOME_TYPE.getObjectId() ) + "'"
                 ).getResultList();
         final Map<String,UUID> mapResult = new HashMap<String,UUID>();
 

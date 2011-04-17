@@ -22,11 +22,10 @@ import littleware.base.Maybe;
 public interface IdWithClock {
 
     /** Factory for IdWithClock objects */
-    @ImplementedBy(IdWithClockBuilder.class)
     public interface Builder {
-        public IdWithClock build( UUID id, long transaction );
+        public IdWithClock build( UUID id, long timestamp );
         /** from may be null */
-        public IdWithClock build( UUID id, UUID from, long transaction );
+        public IdWithClock build( UUID id, UUID parent, long timestamp );
     }
 
 
@@ -36,6 +35,6 @@ public interface IdWithClock {
      * A client that is not tracking id may still chose to load
      * id if the client is tracking id's parent.
      */
-    public Maybe<UUID> getFrom();
-    public long getTransaction();
+    public Maybe<UUID> getParentId();
+    public long getTimestamp();
 }

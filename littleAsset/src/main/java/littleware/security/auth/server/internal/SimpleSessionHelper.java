@@ -107,7 +107,7 @@ public class SimpleSessionHelper implements SessionHelper {
     public String getServerVersion() throws RemoteException {
         // Create the session asset as the admin user - session has null from-id
         try {
-            final Asset home = om_search.getByName("littleware.home", AssetType.HOME).get();
+            final Asset home = om_search.getByName("littleware.home", LittleHome.HOME_TYPE).get();
             final Maybe<Asset> maybe = om_search.getAssetFrom(home.getId(), SimpleSessionHelper.serverVersionName );
             if (maybe.isSet()) {
                 return maybe.get().getData();

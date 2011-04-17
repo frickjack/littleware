@@ -184,7 +184,7 @@ public class RmiTunnelServlet extends HttpServlet
      *
      * @param config Standard configuration object for an http servlet.
      *
-     * @exception ServletException Calling
+     * @throws ServletException Calling
      *           <code>super.init(config)</code> may cause a servlet
      *           exception to be thrown.
      */
@@ -344,7 +344,7 @@ public class RmiTunnelServlet extends HttpServlet
      * @param req  HTTP servlet request, contains incoming command and
      *             arguments
      * @param res  HTTP servlet response
-     * @exception  ServletException and IOException when invoking
+     * @throws  ServletException and IOException when invoking
      *             methods of <code>req<code> or <code>res<code>.  
      */
     @Override
@@ -406,7 +406,7 @@ public class RmiTunnelServlet extends HttpServlet
      *
      * @param res  http Servlet response
      *
-     * @exception  ServletException and IOException when invoking
+     * @throws  ServletException and IOException when invoking
      *             methods of <code>req<code> or <code>res<code>.
      */
     @Override

@@ -89,7 +89,7 @@ public class SimpleHumanPickler implements AssetHumanPickler {
      */
     protected void pickleData( StringBuilder sb, Asset aIn ) {
         if (obShowData) {
-            appendProperty(sb, "data", aIn.getData());
+            //appendProperty(sb, "data", aIn.getData());
         }
     }
 
@@ -104,19 +104,20 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         appendProperty(sb, "id", aIn.getId());
         appendProperty(sb, "home", aIn.getHomeId());
         appendProperty(sb, "acl", aIn.getAclId());
-        appendProperty(sb, "from", aIn.getFromId());
-        appendProperty(sb, "to", aIn.getToId());
+        //appendProperty(sb, "from", aIn.getFromId());
+        //appendProperty(sb, "to", aIn.getToId());
         appendProperty(sb, "owner", aIn.getOwnerId());
         appendProperty(sb, "creator", aIn.getCreatorId());
         appendProperty(sb, "createDate", aIn.getCreateDate());
         appendProperty(sb, "updater", aIn.getLastUpdaterId());
         appendProperty(sb, "updateDate", aIn.getLastUpdateDate());
-        appendProperty(sb, "startDate", aIn.getStartDate());
-        appendProperty(sb, "endDate", aIn.getEndDate());
-        appendProperty(sb, "transaction", Long.toString(aIn.getTransaction()));
+        //appendProperty(sb, "startDate", aIn.getStartDate());
+        //appendProperty(sb, "endDate", aIn.getEndDate());
+        appendProperty(sb, "transaction", Long.toString(aIn.getTimestamp()));
         appendProperty( sb, "comment", aIn.getComment() );
-        appendProperty( sb, "value", aIn.getValue() );
-        appendProperty( sb, "state", aIn.getState() );
+        //appendProperty( sb, "value", aIn.getValue() );
+        //appendProperty( sb, "state", aIn.getState() );
+        /*..
         final Iterator<String> mapLabel = Arrays.asList( "-attr-", "-link-", "-date-" ).iterator();
         for( Map<String,?> dataMap : Arrays.asList( aIn.getAttributeMap(),
                                                     aIn.getLinkMap(), aIn.getDateMap()
@@ -127,6 +128,8 @@ public class SimpleHumanPickler implements AssetHumanPickler {
                appendProperty( sb, label + entry.getKey(), entry.getValue() );
            }
         }
+         *
+         */
         // Go ahead and add some special handling of GROUP type assets here.
         // Can move out to separate registered handler later if we want
         if ( aIn.getAssetType().isA( SecurityAssetType.GROUP ) ) {

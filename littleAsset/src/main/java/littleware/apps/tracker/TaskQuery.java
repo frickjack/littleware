@@ -10,6 +10,7 @@
 
 package littleware.apps.tracker;
 
+import littleware.apps.tracker.internal.SimpleQueryBuilder;
 import com.google.inject.ImplementedBy;
 import java.util.Date;
 import littleware.security.LittleUser;

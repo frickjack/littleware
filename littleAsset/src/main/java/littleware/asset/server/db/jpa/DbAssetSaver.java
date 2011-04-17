@@ -33,7 +33,7 @@ public class DbAssetSaver implements DbWriter<Asset> {
     @Override
     public void saveObject(Asset asset) throws SQLException {
         final JpaLittleTransaction trans = provideTrans.get();
-        if ( asset.getTransaction() != trans.getTransaction() ) {
+        if ( asset.getTimestamp() != trans.getTimestamp() ) {
             throw new IllegalStateException( "Transaction not established" );
         }
         final EntityManager entMgr = trans.getEntityManager();

@@ -94,7 +94,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Lookup the registered enum meber by UUID.
      *
-     * @exception NoSuchThingException if type not registered
+     * @throws NoSuchThingException if type not registered
      */
     public static <T extends DynamicEnum> T getMember(UUID u_type_id, Class<T> c_class) throws NoSuchThingException {
         SubtypeData<T> x_data = null;
@@ -117,7 +117,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Lookup the registered enum meber by UUID.
      *
-     * @exception NoSuchThingException if type not registered
+     * @throws NoSuchThingException if type not registered
      */
     public static <T extends DynamicEnum> T getMember(String s_name, Class<T> c_class) throws NoSuchThingException {
         SubtypeData<T> x_data = null;

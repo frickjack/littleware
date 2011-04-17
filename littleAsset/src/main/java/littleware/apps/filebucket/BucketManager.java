@@ -36,8 +36,8 @@ public interface BucketManager extends Remote {
      * As long as the bucket remains empty, the path
      * to the bucket is arbitrary and changeable.
      * 
-     * @exception BucketException on failure to access bucket file system
-     * @exception GeneralSecurityException if user does not have asset READ permission
+     * @throws BucketException on failure to access bucket file system
+     * @throws GeneralSecurityException if user does not have asset READ permission
      */
     public Bucket getBucket ( UUID assetId ) throws BaseException, GeneralSecurityException,
                        AssetException, RemoteException, IOException;

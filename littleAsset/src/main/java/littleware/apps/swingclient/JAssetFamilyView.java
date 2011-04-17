@@ -390,7 +390,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
             // handle littleware.home special case
             if (!littleHomeId.isSet()) {
                 littleHomeId = Maybe.something(
-                        osearch.getByName("littleware.home", AssetType.HOME).get().getId());
+                        osearch.getByName("littleware.home", LittleHome.HOME_TYPE).get().getId());
             }
             if (uParent.equals(littleHomeId.get())) {
                 final DefaultMutableTreeNode homeNode = new DefaultMutableTreeNode("(Home Assets)");

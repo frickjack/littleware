@@ -4,8 +4,9 @@ import com.google.inject.Singleton;
 import littleware.asset.*;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import littleware.base.BaseException;
 
-import littleware.base.*;
+
 
 /**
  * Do nothing specializer.  3rd party implementations ought to 
@@ -34,6 +35,11 @@ public class NullAssetSpecializer implements AssetSpecializer {
     @Override
     public void postDeleteCallback(Asset asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
+    }
+
+    @Override
+    public AssetBuilder create(AssetType type) {
+        throw new UnsupportedOperationException("Not supported by NullSpecializer.");
     }
 }
 

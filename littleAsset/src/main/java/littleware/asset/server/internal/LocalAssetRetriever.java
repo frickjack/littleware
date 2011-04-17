@@ -109,7 +109,7 @@ public class LocalAssetRetriever implements AssetRetriever {
             // update cycle cache
             v_cycle_cache.put(a_result.getId(), a_result);
             if (a_result.getAssetType().equals(SecurityAssetType.USER) || a_result.getAssetType().equals(SecurityAssetType.GROUP) || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER) || ( // acl-entry may be protected by its own ACL
-                    a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals(a_result.getFromId()) && v_cycle_cache.containsKey(a_result.getAclId()))) {
+                    a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals( ((LittleAclEntry) a_result).getOwningAclId()) && v_cycle_cache.containsKey(a_result.getAclId()))) {
                 /**
                  * No access limitation on USER, GROUP - 
                  * chicken/egg problem since need these guys to implement security.

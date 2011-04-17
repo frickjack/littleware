@@ -42,8 +42,8 @@ public class DbCollectionWriter<T> extends DbSimpleWriter<Collection<? extends T
 	 * @param sql_conn connection to prepare the statement against
 	 * @return statement possibly requiring parameters to be set against it -
 	 *             caller must properly close() the statement
-	 * @exception SQLException pass through exceptions thrown by sql_conn access
-	 * @exception UnsupportedOperationException if not implemented by the
+	 * @throws SQLException pass through exceptions thrown by sql_conn access
+	 * @throws UnsupportedOperationException if not implemented by the
 	 *                            underlying object
 	 */
 	public PreparedStatement prepareStatement ( Connection sql_conn ) throws SQLException
@@ -61,7 +61,7 @@ public class DbCollectionWriter<T> extends DbSimpleWriter<Collection<? extends T
 	 * @param x_writer to write each member of the collection with
 	 * @param v_collection to save
 	 * @return result of the last call to sql_stmt.execute()
-	 * @exception SQLException pass through exceptions thrown by sql_stmt access
+	 * @throws SQLException pass through exceptions thrown by sql_stmt access
 	 */
 	public static <T> boolean saveCollection ( PreparedStatement sql_stmt,
 										   JdbcDbWriter<T> x_writer,
@@ -86,7 +86,7 @@ public class DbCollectionWriter<T> extends DbSimpleWriter<Collection<? extends T
 	 *                 possibly null for some aggregate-based saves.
 	 * @param v_collection to save
 	 * @return result of last call to sql_stmt.execute()
-	 * @exception SQLException pass through exceptions thrown by sql_stmt access
+	 * @throws SQLException pass through exceptions thrown by sql_stmt access
 	 */
 	public boolean saveObject ( PreparedStatement sql_stmt, Collection<? extends T> v_collection ) throws SQLException
 	{

@@ -29,13 +29,13 @@ public interface LittleUser extends LittlePrincipal {
     /** Maps getValue() to a UserStatus */
     public Status getStatus();
 
+    @Override
+    public Builder copy();
+
     public interface Builder extends AssetBuilder {
         @Override
         LittleUser build();
-        /** Maps to setValue() */
         public void setStatus(Status status);
-
-        /** Maps getValue() to a UserStatus */
         public Status getStatus();
         public Builder status( Status status );
 

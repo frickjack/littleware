@@ -62,12 +62,12 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
     /**
      * Create a PickleMaker that can handle assets of the
      * given Asset-type.  In general, normal clients should
-     * request AssetType.UNKNOWN or AssetType.GENERIC, then
+     * request AssetType.UNKNOWN or GenericAsset.GENERIC, then
      * let the GENERIC handler call back here to chain off
      * to the appropriate specialized asset type.
      *
      * @param n_asset to handle
-     * @exception PickleClassException if no handler is
+     * @throws PickleClassException if no handler is
      *      registered for the given asset-type for littleware.asset.Asset
      */
     public abstract PickleMaker<Asset> createPickleMaker(AssetType n_asset)
@@ -108,7 +108,7 @@ public abstract class PickleType extends DynamicEnum<PickleType> {
         Properties prop_defaults = new Properties();
         prop_defaults.setProperty(AssetType.UNKNOWN.getName(),
                 littleware.asset.pickle.PickleXml.class.getName());
-        prop_defaults.setProperty(AssetType.GENERIC.getName(),
+        prop_defaults.setProperty(GenericAsset.GENERIC.getName(),
                 littleware.asset.pickle.PickleXml.class.getName());
         /*...
         prop_defaults.setProperty ( SecurityAssetType.QUOTA.getName (),

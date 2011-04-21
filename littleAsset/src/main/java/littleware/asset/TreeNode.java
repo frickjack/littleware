@@ -8,13 +8,12 @@
 package littleware.asset;
 
 import java.util.UUID;
-import littleware.base.Maybe;
 import littleware.base.UUIDFactory;
 
 /**
  * Asset with a parent
  */
-public interface TreeNode extends Asset {
+public interface TreeNode extends TreeParent {
 
     public UUID getParentId();
 
@@ -65,8 +64,6 @@ public interface TreeNode extends Asset {
         /**
          * Sets parentId, homeId, and aclId from parent
          */
-        public TreeNodeBuilder parent(TreeNode parent);
-
-        public TreeNodeBuilder parent(LittleHome parent);
+        public TreeNodeBuilder parent(TreeParent parent);
     }
 }

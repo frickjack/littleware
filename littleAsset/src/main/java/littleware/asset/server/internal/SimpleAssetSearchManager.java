@@ -138,7 +138,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 
 
             for (int i_link_count = 0;
-                    maybeResult.isSet() && maybeResult.get().getAssetType().equals(AssetType.LINK) && (maybeResult.get().narrow( LinkAsset.class ).getToId() != null);
+                    maybeResult.isSet() && maybeResult.get().getAssetType().equals(LinkAsset.LINK_TYPE) && (maybeResult.get().narrow( LinkAsset.class ).getToId() != null);
                     ++i_link_count) {
                 if (i_link_count > 5) {
                     throw new PathTraverseException("Traversal exceeded 5 link limit at " + s_path);

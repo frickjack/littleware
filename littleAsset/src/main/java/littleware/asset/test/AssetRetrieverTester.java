@@ -30,12 +30,11 @@ public class AssetRetrieverTester extends AbstractAssetTest {
     /**
      * Stash AssetRetriever instance to run tests against
      *
-     * @param s_test_name of test to run - pass to super class
-     * @param m_asset to test against
+     * @param search to test against
      */
     @Inject
-    public AssetRetrieverTester(AssetRetriever m_asset) {
-        search = m_asset;
+    public AssetRetrieverTester(AssetRetriever search) {
+        this.search = search;
         setName("testLoad");
     }
 
@@ -70,37 +69,7 @@ public class AssetRetrieverTester extends AbstractAssetTest {
             assertTrue("Caught: " + e, false);
         }
     }
-    AssetType BOGUS = new AssetType(
-            UUIDFactory.parseUUID("7D7B573B-4BF5-4A2F-BDC1-A614935E56AD"),
-            "littleware.BOGUS") {
 
-        /** Get a LittleUser implementation */
-        @Override
-        public AssetBuilder create() {
-            return null;
-        }
-
-        @Override
-        public Maybe<AssetType> getSuperType() {
-            return Maybe.something( (AssetType) SecurityAssetType.PRINCIPAL );
-        }
-    };
-
-    /**
-     * Just stick this test here rather than make a separate class.
-     * Verify that AssetType inheritance sort of works.
-     */
-    public void testAssetType() {
-        assertTrue("BOGUS isA PRINCIPAL",
-                BOGUS.isA(SecurityAssetType.PRINCIPAL));
-        assertTrue("BOGUS != PRINCIPAL",
-                !BOGUS.equals(SecurityAssetType.PRINCIPAL));
-        assertTrue("BOGUS is name unique",
-                BOGUS.isNameUnique());
-        assertTrue("BOGUS is not admin-create only",
-                !BOGUS.isAdminToCreate()
-                );
-    }
 }
 
 

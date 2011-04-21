@@ -18,7 +18,7 @@ import littleware.asset.spi.AbstractAsset;
 import littleware.asset.Asset;
 import littleware.asset.spi.AbstractAssetBuilder;
 
-public class SimpleMABuilder extends AbstractAssetBuilder implements MemberAlias.MABuilder {
+public class SimpleMABuilder extends AbstractAssetBuilder<MemberAlias.MABuilder> implements MemberAlias.MABuilder {
 
     public SimpleMABuilder() {
         super(MemberAlias.MAType);
@@ -29,17 +29,10 @@ public class SimpleMABuilder extends AbstractAssetBuilder implements MemberAlias
         return (MABuilder) super.name(value);
     }
 
-    @Override
-    public MABuilder parent(Asset parent) {
-        if (!(parent instanceof Version)) {
-            throw new IllegalArgumentException("Parent must be a Version");
-        }
-        return (MABuilder) super.parent(parent);
-    }
 
     @Override
-    public MABuilder version(Version parent) {
-        return parent(parent);
+    public MABuilder version(Version value) {
+        return parentInternal( value );
     }
 
     @Override

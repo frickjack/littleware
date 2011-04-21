@@ -12,7 +12,6 @@ package littleware.apps.swingclient.wizard;
 import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import javax.swing.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.List;
@@ -32,8 +31,9 @@ import littleware.asset.AssetType;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.LittleHome;
 import littleware.base.BaseException;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleAcl;
 
 /**
  * Specialization of Wizard setup to manage
@@ -95,7 +95,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
             opanel_acl = oprovideAssetPanel.get();
             opanel_acl.setInstructions("Enter AssetPath to ACL");
             final List<AssetType> vLegal = new ArrayList<AssetType>();
-            vLegal.add(SecurityAssetType.ACL);
+            vLegal.add(LittleAcl.ACL_TYPE);
             opanel_acl.setLegalAssetType(vLegal);
         }
         opanel_from = oprovideAssetPanel.get();
@@ -129,6 +129,8 @@ public class CreateAssetWizard extends WizardAssetEditor {
                         AssetTypeSelector select_atype = opanel_atype.getAssetTypeSelector();
                         if (!getLocalAsset().getAssetType().equals(select_atype.getSelectedAssetType())) {
                             final Asset oldTypeAsset = getLocalAsset();
+                            throw new IllegalStateException( "This is busted!" );
+                            /*
                             final Asset newTypeAsset = select_atype.getSelectedAssetType().create(
                                     ).name( oldTypeAsset.getName()
                                     ).fromId(oldTypeAsset.getFromId()
@@ -139,6 +141,8 @@ public class CreateAssetWizard extends WizardAssetEditor {
                             // register bald model with library, so
                             // update events get fired on save
                             setAssetModel(olib_asset.syncAsset(newTypeAsset));
+                             *
+                             */
                         }
                         if (getLocalAsset().getAssetType().equals(LittleHome.HOME_TYPE)) {
                             changeLocalAsset().setHomeId(getLocalAsset().getId());
@@ -222,6 +226,8 @@ public class CreateAssetWizard extends WizardAssetEditor {
 
                     @Override
                     public void setAssetId(UUID u_asset) {
+                        throw new IllegalStateException( "This is busted!" );
+                        /*..
                         changeLocalAsset().setFromId(u_asset);
                         if ((null != u_asset) && (!changeLocalAsset().getAssetType().equals(LittleHome.HOME_TYPE))) {
                             // Must have same HOME when linking FROM an asset
@@ -235,6 +241,8 @@ public class CreateAssetWizard extends WizardAssetEditor {
                                         JOptionPane.ERROR_MESSAGE);
                             }
                         }
+                         * 
+                         */
                     }
                 });
         this.registerWizardPanel(BasicPanel.PickTo,
@@ -254,12 +262,12 @@ public class CreateAssetWizard extends WizardAssetEditor {
 
                     @Override
                     public UUID getAssetId() {
-                        return getLocalAsset().getToId();
+                        return null; //getLocalAsset().getToId();
                     }
 
                     @Override
                     public void setAssetId(UUID u_asset) {
-                        changeLocalAsset().setToId(u_asset);
+                        //changeLocalAsset().setToId(u_asset);
                     }
                 });
         this.registerWizardPanel(BasicPanel.PickComment,

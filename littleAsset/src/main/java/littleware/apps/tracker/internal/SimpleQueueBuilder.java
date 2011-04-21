@@ -13,12 +13,25 @@ package littleware.apps.tracker.internal;
 
 import littleware.apps.tracker.Queue;
 import littleware.apps.tracker.Queue.QueueBuilder;
-import littleware.apps.tracker.TrackerAssetType;
 import littleware.asset.spi.AbstractAsset;
-import littleware.asset.Asset;
 import littleware.asset.spi.AbstractAssetBuilder;
 
-public class SimpleQueueBuilder extends AbstractAssetBuilder implements Queue.QueueBuilder {
+public class SimpleQueueBuilder extends AbstractAssetBuilder<Queue.QueueBuilder> implements Queue.QueueBuilder {
+
+    @Override
+    public int getNextTaskNumber() {
+        return getValue().intValue();
+    }
+
+    @Override
+    public void setNextTaskNumber(int value) {
+        nextTaskNumber( value );
+    }
+
+    @Override
+    public QueueBuilder nextTaskNumber(int value) {
+        return value( value );
+    }
 
     private static class SimpleQueue extends AbstractAsset implements Queue {
 
@@ -28,32 +41,23 @@ public class SimpleQueueBuilder extends AbstractAssetBuilder implements Queue.Qu
         }
 
         @Override
-        public QueueBuilder copy() {
-            return super.copy().narrow();
+        public int getNextTaskNumber() {
+            return this.getValue().intValue();
         }
 
         @Override
-        public int getNextTaskNumber() {
-            return this.getValue().intValue();
+        public QueueBuilder copy() {
+            return (new SimpleQueueBuilder()).copy( this );
         }
     }
 
 
     public SimpleQueueBuilder() {
-        super( TrackerAssetType.QUEUE );
+        super( Queue.QUEUE_TYPE );
         value( 1 );
     }
 
     
-    @Override
-    public QueueBuilder copy(Asset value) {
-        return super.copy( value ).narrow();
-    }
-
-    @Override
-    public QueueBuilder parent(Asset value) {
-        return super.parent( value ).narrow();
-    }
 
     @Override
     public Queue build() {

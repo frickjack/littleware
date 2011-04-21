@@ -10,12 +10,15 @@
 package littleware.asset.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 
 import littleware.asset.*;
+import littleware.asset.LinkAsset.LinkBuilder;
+import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.base.*;
 
 /**
@@ -27,6 +30,8 @@ public class AssetPathTester extends AbstractAssetTest {
     private final AssetManager assetMgr;
     private final AssetSearchManager search;
     private final AssetPathFactory pathFactory;
+    private final Provider<TreeNodeBuilder> nodeProvider;
+    private final Provider<LinkBuilder> linkProvider;
 
     /**
      * Stash AssetSearchManager instance to run tests against
@@ -38,10 +43,15 @@ public class AssetPathTester extends AbstractAssetTest {
     @Inject
     public AssetPathTester(AssetSearchManager m_search,
             AssetManager m_asset,
-            AssetPathFactory pathFactory) {
+            AssetPathFactory pathFactory,
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider,
+            Provider<LinkAsset.LinkBuilder>  linkProvider
+            ) {
         search = m_search;
         assetMgr = m_asset;
         this.pathFactory = pathFactory;
+        this.nodeProvider = nodeProvider;
+        this.linkProvider = linkProvider;
         setName("testPathTraverse");
     }
 
@@ -54,64 +64,68 @@ public class AssetPathTester extends AbstractAssetTest {
     @Override
     public void setUp() {
         try {
-            final Asset a_home = getTestHome(search);
-            Asset a_test = search.getAssetFrom(a_home.getId(), "AssetPathTester").getOr(null);
-            if (null == a_test) {
-                a_test = assetMgr.saveAsset(
-                        GenericAsset.GENERIC.create().parent(a_home).
+            final LittleHome testHome = getTestHome(search);
+            TreeNode testFolder = (TreeNode) search.getAssetFrom(testHome.getId(), "AssetPathTester").getOr(null);
+            if (null == testFolder) {
+                testFolder = assetMgr.saveAsset(
+                        nodeProvider.get().parent(testHome).
                         name("AssetPathTester").
-                        comment("AssetPath traversal test area").build(), "Setting up AssetPathTester test area");
+                        comment("AssetPath traversal test area").build(), 
+                        "Setting up AssetPathTester test area"
+                        );
             }
-            Asset a_A = search.getAssetFrom(a_test.getId(), "A").getOr(null);
-            Asset a_pointer = search.getAssetFrom(a_test.getId(), "Points2A").getOr(null);
-            if (null == a_A) {
-                a_A = assetMgr.saveAsset(
-                        GenericAsset.GENERIC.create().parent(a_test).
+            TreeNode nodeA = (TreeNode) search.getAssetFrom(testFolder.getId(), "A").getOr(null);
+            LinkAsset pointer = (LinkAsset) search.getAssetFrom(testFolder.getId(), "Points2A").getOr(null);
+            if (null == nodeA) {
+                nodeA = assetMgr.saveAsset(
+                        nodeProvider.get().parent(testFolder).
                         name("A").
-                        comment("AssetPath traversal test area").build(), "Setting up AssetPathTester test area");
+                        comment("AssetPath traversal test area").build(), 
+                        "Setting up AssetPathTester test area"
+                        );
 
-                if (null != a_pointer) {
-                    a_pointer = assetMgr.saveAsset(a_pointer.copy().toId(a_A.getId()).build(), "Update TO pointer for new A asset");
+                if (null != pointer) {
+                    pointer = assetMgr.saveAsset(pointer.copy().toId(nodeA.getId()).build(), "Update TO pointer for new A asset");
                 }
             }
-            if (null == a_pointer) {
-                a_pointer = assetMgr.saveAsset(
-                        AssetType.LINK.create().
+            if (null == pointer) {
+                pointer = assetMgr.saveAsset(
+                        linkProvider.get().
                         name("Points2A").
                         comment("link to A").
-                        parent(a_test).
-                        toId(a_A.getId()).build(), "Setup LINK in AssetPathTester test tree");
+                        parent(testFolder).
+                        toId(nodeA.getId()).build(), "Setup LINK in AssetPathTester test tree");
             }
-            Asset[] v_number = new Asset[3];
+            final TreeNode[] numberNodes = new TreeNode[3];
             for (int i = 1; i < 4; ++i) {
-                String s_name = Integer.toString(i);
-                Asset a_number = search.getAssetFrom(a_A.getId(), s_name).getOr(null);
-                if (null == a_number) {
-                    a_number = assetMgr.saveAsset(
-                            GenericAsset.GENERIC.create().
-                            name(s_name).
+                String numberName = Integer.toString(i);
+                TreeNode numberNode = (TreeNode) search.getAssetFrom(nodeA.getId(), numberName).getOr(null);
+                if (null == numberNode) {
+                    numberNode = assetMgr.saveAsset(
+                            nodeProvider.get().
+                            name(numberName).
                             comment("Setting up AssetPathTester").
-                            parent(a_A).
-                            toId(a_A.getId()).build(), "Setting up AssetPathTester");
+                            parent(nodeA).
+                            toId(nodeA.getId()).build(), "Setting up AssetPathTester");
                 }
-                v_number[i - 1] = a_number;
+                numberNodes[i - 1] = numberNode;
             }
-            Asset a_smallest = search.getAssetFrom(a_A.getId(), "smallest").getOr(null);
-            if (null == a_smallest) {
-                a_smallest = assetMgr.saveAsset(
-                        AssetType.LINK.create().
+            LinkAsset smallestPointer = (LinkAsset) search.getAssetFrom(nodeA.getId(), "smallest").getOr(null);
+            if (null == smallestPointer) {
+                smallestPointer = assetMgr.saveAsset(
+                        linkProvider.get().
                         name("smallest").
-                        parent(a_A).
-                        toId(v_number[0].getId()).
+                        parent(nodeA).
+                        toId(numberNodes[0].getId()).
                         comment("link to smallest number").build(), "Setting up AssetPathTester");
             }
-            Asset a_biggest = search.getAssetFrom(a_A.getId(), "biggest").getOr(null);
-            if (null == a_biggest) {
-                a_biggest = assetMgr.saveAsset(
-                        AssetType.LINK.create().
+            LinkAsset bigestPointer = (LinkAsset) search.getAssetFrom(nodeA.getId(), "biggest").getOr(null);
+            if (null == bigestPointer) {
+                bigestPointer = assetMgr.saveAsset(
+                        linkProvider.get().
                         name("biggest").
-                        parent(a_A).
-                        toId(v_number[v_number.length - 1].getId()).
+                        parent(nodeA).
+                        toId(numberNodes[numberNodes.length - 1].getId()).
                         comment("link to biggest number").build(), "Setting up AssetPathTester");
             }
         } catch (RuntimeException e) {
@@ -192,10 +206,9 @@ public class AssetPathTester extends AbstractAssetTest {
                 }
             }
 
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Caught unexpected: " + e +
-                    ", " + BaseException.getStackTrace(e));
-            assertTrue("Caught: " + e, false);
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Failed test", ex );
+            fail("Caught: " + ex);
         }
     }
 
@@ -206,10 +219,9 @@ public class AssetPathTester extends AbstractAssetTest {
         try {
             final AssetPath path = pathFactory.createPath("/" + getTestHome() + "/bogusFrickjack/bogus/ugh");
             assertTrue("Path not found: " + path, search.getAssetAtPath(path).isEmpty());
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Caught unexpected: " + e +
-                    ", " + BaseException.getStackTrace(e));
-            assertTrue("Caught: " + e, false);
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Test failed", ex );
+            fail("Caught: " + ex );
         }
     }
 }

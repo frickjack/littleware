@@ -11,6 +11,7 @@
 
 package littleware.security;
 
+import littleware.security.internal.SimpleUserTreeBuilder;
 import com.google.inject.ImplementedBy;
 import littleware.asset.AssetTreeTemplate;
 

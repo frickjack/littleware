@@ -13,6 +13,7 @@ package littleware.asset.validate;
 import java.util.Collection;
 import java.util.Collections;
 import littleware.asset.AssetBuilder;
+import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.validate.AbstractValidator;
 import littleware.base.validate.Validator;
 
@@ -44,7 +45,7 @@ public class AssetDataValidator {
         return new AbstractValidator(){
             @Override
             public Collection<String> checkIfValid() {
-                return build( builder.getData() ).checkIfValid();
+                return build( ((AbstractAssetBuilder) builder).getData() ).checkIfValid();
             }
         };
     }

@@ -114,4 +114,5 @@ public interface AssetBuilder extends LittleBean, Validator {
     public <T extends AssetBuilder> T narrow(Class<T> type);
 
     public <T extends AssetBuilder> T narrow();
+
 }

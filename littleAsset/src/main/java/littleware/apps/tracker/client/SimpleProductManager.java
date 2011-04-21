@@ -11,13 +11,12 @@
 package littleware.apps.tracker.client;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
@@ -25,8 +24,10 @@ import java.util.logging.Logger;
 import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.BucketUtil;
 import littleware.apps.tracker.Member;
+import littleware.apps.tracker.Member.MemberBuilder;
 import littleware.apps.tracker.MemberIndex;
 import littleware.apps.tracker.ProductManager;
+import littleware.apps.tracker.Version;
 import littleware.apps.tracker.ZipUtil;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
@@ -42,19 +43,22 @@ public class SimpleProductManager implements ProductManager {
     private final AssetSearchManager search;
     private final ZipUtil zipUtil;
     private final BucketUtil bucketUtil;
+    private final Provider<MemberBuilder> memberProvider;
 
     @Inject
     public SimpleProductManager( BucketManager bucketMan,
             BucketUtil bucketUtil,
             AssetManager assetMan,
             AssetSearchManager search,
-            ZipUtil zipUtil
+            ZipUtil zipUtil,
+            Provider<Member.MemberBuilder> memberProvider
             ) {
         this.bucketMan = bucketMan;
         this.bucketUtil = bucketUtil;
         this.assetMan = assetMan;
         this.search = search;
         this.zipUtil = zipUtil;
+        this.memberProvider = memberProvider;
     }
 
     @Override
@@ -81,8 +85,8 @@ public class SimpleProductManager implements ProductManager {
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException {
         feedback.info( "Setting up member asset: " + memberName );
         Member member = assetMan.saveAsset(
-                Member.MemberType.create().parent(
-                    search.getAsset( versionId ).get()
+                memberProvider.get().version(
+                    search.getAsset( versionId ).get().narrow( Version.class )
                     ).name( memberName ).build(),
                     "Setup member"
                     );

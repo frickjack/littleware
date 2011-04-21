@@ -19,12 +19,13 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Queue;
+import littleware.apps.tracker.Queue.QueueBuilder;
 import littleware.apps.tracker.Task;
+import littleware.apps.tracker.Task.TaskBuilder;
 import littleware.apps.tracker.TaskQuery;
 import littleware.apps.tracker.TaskQuery.BuilderStart;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskStatus;
-import littleware.apps.tracker.TrackerAssetType;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPath;
@@ -48,6 +49,8 @@ public class QueryManagerTester extends AbstractAssetTest {
     private final AssetSearchManager search;
     private final AssetManager assetMgr;
     private final LittleUser user;
+    private final Provider<QueueBuilder> queueProvider;
+    private final Provider<TaskBuilder> taskProvider;
 
     @Inject
     public QueryManagerTester( TaskQueryManager queryManager,
@@ -55,7 +58,9 @@ public class QueryManagerTester extends AbstractAssetTest {
             AssetPathFactory pathFactory,
             AssetSearchManager search,
             AssetManager  assetMgr,
-            LittleUser user
+            LittleUser user,
+            Provider<Queue.QueueBuilder> queueProvider,
+            Provider<Task.TaskBuilder> taskProvider
             ) {
         this.queryManager = queryManager;
         this.provideQuery = provideQuery;
@@ -63,6 +68,8 @@ public class QueryManagerTester extends AbstractAssetTest {
         this.search = search;
         this.assetMgr = assetMgr;
         this.user = user;
+        this.queueProvider = queueProvider;
+        this.taskProvider = taskProvider;
         try {
             this.queuePath = pathFactory.createPath("/" + getTestHome() + "/" + queueName );
         } catch ( Exception ex ) {
@@ -78,7 +85,7 @@ public class QueryManagerTester extends AbstractAssetTest {
             if ( maybe.isSet() ) {
                 return;
             }
-            final Queue.QueueBuilder qbuilder = TrackerAssetType.QUEUE.create();
+            final Queue.QueueBuilder qbuilder = queueProvider.get();
             assetMgr.saveAsset(
                     qbuilder.parent( getTestHome( search ) ).name( queueName ).build(),
                     "Test setup"
@@ -95,14 +102,14 @@ public class QueryManagerTester extends AbstractAssetTest {
             final Queue queue = search.getAssetAtPath(queuePath).get().narrow();
             // Setup a few test tasks
             final Task task1 = assetMgr.saveAsset(
-                    TrackerAssetType.TASK.create().queue( queue ).build(),
+                    taskProvider.get().queue( queue ).build(),
                     "Setup test"
                     );
             assertTrue( "Task status defaults to complete: " + task1.getTaskStatus(),
                     task1.getTaskStatus().equals( TaskStatus.COMPLETE )
                     );
             final Task task2 = assetMgr.saveAsset(
-                    TrackerAssetType.TASK.create().queue( queue ).taskStatus( TaskStatus.UNASSIGNED ).build(),
+                    taskProvider.get().queue( queue ).taskStatus( TaskStatus.UNASSIGNED ).build(),
                     "Setup test"
                     );
             assertTrue( "Task id increments: " + task1.getName() + ", " + task2.getName(),
@@ -111,7 +118,7 @@ public class QueryManagerTester extends AbstractAssetTest {
             assertTrue( "Task in unassigned state: " + task2.getTaskStatus(),
                     task2.getTaskStatus().equals( TaskStatus.UNASSIGNED ) );
             final Task task3 = assetMgr.saveAsset(
-                    TrackerAssetType.TASK.create().queue( queue ).taskStatus( TaskStatus.ASSIGNED ).assignTo(user).build(),
+                    taskProvider.get().queue( queue ).taskStatus( TaskStatus.ASSIGNED ).assignTo(user).build(),
                     "Setup test"
                     );
             assertTrue( "Task assigned", task3.getTaskStatus().equals( TaskStatus.ASSIGNED ) );

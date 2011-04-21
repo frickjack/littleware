@@ -31,9 +31,9 @@ import littleware.base.Maybe;
  * The @ allows us to easily use a path to traverse links in our asset.
  * Paths like "A/B/@", "/A/@/@/@/@/B/C", "/@/@/@/A/B" behave as expected.
  * If a path "A/B/C" traverses an asset B that 
- * is of type AssetType.LINK, then the traversal transparently attempts to evaluate
+ * is of type LinkAsset.LINK_TYPE, then the traversal transparently attempts to evaluate
  * "A/B@/C"; if "A/B@" references an asset X 
- * of type AssetType.LINK, then the traversal progresses to, "A/B/@/@/C", and so on 
+ * of type LinkAsset.LINK_TYPE, then the traversal progresses to, "A/B/@/@/C", and so on 
  * until a path is found or the search fails.  
  * Automatic link traversal applies to any element 
  * in the path including the last.

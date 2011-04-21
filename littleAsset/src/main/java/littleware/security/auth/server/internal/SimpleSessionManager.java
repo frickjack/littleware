@@ -3,8 +3,6 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.security.auth.server.internal;
@@ -25,11 +23,15 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import littleware.asset.*;
+import littleware.asset.AssetTreeTemplate.AssetInfo;
+import littleware.asset.AssetTreeTemplate.TemplateBuilder;
+import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.base.*;
 import littleware.base.stat.Sampler;
 import littleware.base.stat.SimpleSampler;
 import littleware.security.*;
 import littleware.security.auth.*;
+import littleware.security.auth.LittleSession.Builder;
 import littleware.security.auth.server.ServiceRegistry;
 import org.joda.time.DateTime;
 
@@ -51,13 +53,22 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private static boolean isSingletonUp = false;
     private final Sampler statSampler = new SimpleSampler();
     private final Provider<UserTreeBuilder> userTreeBuilder;
+    private final Provider<GenericBuilder> provideGenerics;
+    private final Provider<TemplateBuilder> templateProvider;
+    private final Provider<AssetPathFactory> pathFactory;
+    private final Provider<Builder> sessionProvider;
 
 
     @Inject
     public SimpleSessionManager(AssetManager m_asset,
             AssetSearchManager m_search,
             ServiceRegistry reg_service,
-            Provider<UserTreeBuilder> provideUserTree) throws RemoteException {
+            Provider<UserTreeBuilder> provideUserTree,
+            Provider<GenericAsset.GenericBuilder> provideGenerics,
+            Provider<AssetTreeTemplate.TemplateBuilder> templateProvider,
+            Provider<AssetPathFactory> pathFactory,
+            Provider<LittleSession.Builder> sessionProvider
+            ) throws RemoteException {
         assetMgr = m_asset;
         search = m_search;
         if ( isSingletonUp ) {
@@ -66,6 +77,10 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         isSingletonUp = true;
         serviceRegistry = reg_service;
         this.userTreeBuilder = provideUserTree;
+        this.provideGenerics = provideGenerics;
+        this.templateProvider = templateProvider;
+        this.pathFactory = pathFactory;
+        this.sessionProvider = sessionProvider;
     }
 
     /**
@@ -88,34 +103,33 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
 
         @Override
         public LittleSession run() throws Exception {
-            final Asset home = search.getByName("littleware.home", LittleHome.HOME_TYPE).get();
+            final LittleHome home = search.getByName("littleware.home", LittleHome.HOME_TYPE).get().narrow();
 
             // First - verify ServerVersion node exists -
             // TODO: find a better place to do this
             if (search.getAssetFrom(home.getId(), SimpleSessionHelper.serverVersionName).isEmpty()) {
                 // Only administrator can creat child of littleware.home ...
                 assetMgr.saveAsset(
-                        GenericAsset.GENERIC.create().parent(home).name(SimpleSessionHelper.serverVersionName).data("v0.0").build(),
+                        provideGenerics.get().parent(home).name(SimpleSessionHelper.serverVersionName).data("v0.0").build(),
                         "Setup v0.0 ServerVersion node");
             }
             // Let's create a hierarchy
             final DateTime now = new DateTime();
-            final List<String> pathList = Arrays.asList(
-                    "Sessions", Integer.toString(now.getYear()),
-                    now.toString("MM"),
-                    now.toString("dd"));
-
+            final AssetPath path = pathFactory.get().createPath( "/" + home.getName() + "/" +
+                    Integer.toString(now.getYear()) + "/" +
+                    now.toString("MM") + "/" +
+                    now.toString("dd")
+                    );
+            final AssetTreeTemplate template = templateProvider.get().path(path).build();
             Asset parent = home;
-            for (String childName : pathList) {
-                final Maybe<Asset> maybe = search.getAssetFrom(parent.getId(), childName);
-                if (maybe.isSet()) {
-                    parent = maybe.get();
-                    continue;
+            for( AssetInfo info : template.visit( home, search)) {
+                parent = info.getAsset();
+                if ( ! info.getAssetExists() ) {
+                    parent = assetMgr.saveAsset( info.getAsset(), sessionComment);
                 }
-                final Asset child = GenericAsset.GENERIC.create().parent(parent).name(childName).build();
-                parent = assetMgr.saveAsset(child, sessionComment);
             }
-            return assetMgr.saveAsset(session.copy().fromId(parent.getId()).homeId(parent.getHomeId()).build(),
+
+            return assetMgr.saveAsset(session.copy().parentId(parent.getId()).homeId(parent.getHomeId()).build(),
                     sessionComment).narrow();
         }
     }
@@ -128,7 +142,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
     private SessionHelper setupNewHelper(LittleSession session) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Subject caller = session.getSubject(search);
 
-        final SessionHelper helper = new SimpleSessionHelper(session.getId(), search, assetMgr, this, serviceRegistry);
+        final SessionHelper helper = new SimpleSessionHelper(session.getId(), search, assetMgr, this, serviceRegistry, sessionProvider );
         final InvocationHandler handler = new SubjectInvocationHandler(caller, helper, statSampler);
         final SessionHelper proxy = (SessionHelper) Proxy.newProxyInstance(SessionHelper.class.getClassLoader(),
                 new Class[]{SessionHelper.class},
@@ -189,26 +203,26 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         }
 
         final Subject adminSubject = new Subject();
-        adminSubject.getPrincipals().add(search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow(LittlePrincipal.class));
+        adminSubject.getPrincipals().add(search.getByName(AccountManager.LITTLEWARE_ADMIN, LittleUser.USER_TYPE).get().narrow(LittlePrincipal.class));
         adminSubject.setReadOnly();
 
         // Do a little LoginContext sim - need to clean this up
         // Who am I running as now ?  What the frick ?
         final LittleUser user;
         {
-            Maybe<? extends Asset> maybeUser = search.getByName(s_name, SecurityAssetType.USER);
+            Maybe<? extends Asset> maybeUser = search.getByName(s_name, LittleUser.USER_TYPE);
             if (!maybeUser.isSet()) {
                 try {
                     maybeUser = Subject.doAs(adminSubject, new PrivilegedExceptionAction<Maybe<Asset>>() {
 
                         @Override
                         public Maybe<Asset> run() throws BaseException, GeneralSecurityException, RemoteException {
-                            for (AssetTreeTemplate.AssetInfo treeInfo : userTreeBuilder.get().user(s_name).build().visit(search.getByName("littleware.home", LittleHome.HOME_TYPE).get(), search)) {
+                            for (AssetTreeTemplate.AssetInfo treeInfo : userTreeBuilder.get().user(s_name).build().visit(search.getByName("littleware.home", LittleHome.HOME_TYPE).get().narrow( LittleHome.class ), search)) {
                                 if (!treeInfo.getAssetExists()) {
                                     assetMgr.saveAsset(treeInfo.getAsset(), "Setup new user: " + s_name);
                                 }
                             }
-                            return search.getByName(s_name, SecurityAssetType.USER);
+                            return search.getByName(s_name, LittleUser.USER_TYPE);
                         }
                     });
                 } catch (PrivilegedActionException ex) {
@@ -234,7 +248,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         // ok - user authenticated ok by here - setup user session
         final LittleSession session;
         {
-            final LittleSession.Builder sessionBuilder = SecurityAssetType.SESSION.create();
+            final LittleSession.Builder sessionBuilder = sessionProvider.get();
             sessionBuilder.setId(UUID.randomUUID());
             sessionBuilder.setName(s_name + "_" + UUIDFactory.makeCleanString(sessionBuilder.getId()));
             sessionBuilder.setOwnerId(user.getId());
@@ -276,7 +290,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         try {
             // Need to do this as administrator!  A LittleSession is not globally accessible ...
             final Subject adminSubject = new Subject();
-            adminSubject.getPrincipals().add(search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow(LittlePrincipal.class));
+            adminSubject.getPrincipals().add(search.getByName(AccountManager.LITTLEWARE_ADMIN, LittleUser.USER_TYPE).get().narrow(LittlePrincipal.class));
             adminSubject.setReadOnly();
 
             final LittleSession session = Subject.doAs( adminSubject,

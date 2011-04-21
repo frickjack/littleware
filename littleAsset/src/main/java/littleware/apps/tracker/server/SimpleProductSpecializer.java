@@ -54,7 +54,8 @@ public class SimpleProductSpecializer extends NullAssetSpecializer {
     public void postCreateCallback(Asset asset) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final AssetType assetType = asset.getAssetType();
         if (assetType.isA(ProductAlias.PAType)) {
-            if ((null == asset.getToId()) || asset.getToId().equals(asset.getId())) {
+            final ProductAlias pa = asset.narrow();
+            if ((null == pa.getProductId()) || pa.getProductId().equals(pa.getId())) {
                 throw new ValidationException("Alias cannot reference itself");
             }
 
@@ -71,11 +72,12 @@ public class SimpleProductSpecializer extends NullAssetSpecializer {
                 throw new ValidationException("Version and VersionAlias must link from a Product");
             }
             if (assetType.isA(VersionAlias.VAType)) {
-                if ((null == asset.getToId()) || asset.getToId().equals(asset.getId())) {
+                final VersionAlias alias = asset.narrow();
+                if ((null == alias.getVersionId()) || alias.getVersionId().equals(alias.getId())) {
                     throw new ValidationException("Alias cannot reference itself");
                 }
 
-                final Asset version = search.getAsset(asset.getToId()).get();
+                final Version version = search.getAsset(alias.getVersionId()).get().narrow();
                 if (!(version.getAssetType().isA(Version.VersionType)
                         || version.getAssetType().isA(VersionAlias.VAType))) {
                     throw new ValidationException("VersionAlias must reference Version or VersionAlias");
@@ -88,10 +90,11 @@ public class SimpleProductSpecializer extends NullAssetSpecializer {
                 throw new ValidationException("Member and MemberAlias must link from a Version");
             }
             if (assetType.isA(MemberAlias.MAType)) {
-                if ((null == asset.getToId()) || asset.getToId().equals(asset.getId())) {
+                final MemberAlias alias = asset.narrow();
+                if ((null == alias.getMemberId()) || alias.getMemberId().equals(alias.getId())) {
                     throw new ValidationException("Alias cannot reference itself");
                 }
-                final Asset member = search.getAsset(asset.getToId()).get();
+                final Asset member = search.getAsset(alias.getMemberId()).get();
                 if (!(member.getAssetType().isA(Member.MemberType)
                         || member.getAssetType().isA(MemberAlias.MAType))) {
                     throw new ValidationException("MemberAlias must reference a Member or MemberAlias");

@@ -17,14 +17,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Comment;
 import littleware.apps.tracker.Comment.CommentBuilder;
-import littleware.apps.tracker.TrackerAssetType;
+import littleware.apps.tracker.internal.TrackerGuiceModule;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
-import littleware.asset.AssetType;
+import littleware.asset.TreeNode;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.Maybe;
 
@@ -54,16 +54,17 @@ public class CommentTester extends AbstractAssetTest {
         this.pathFactory = pathFactory;
         this.commentProvider = commentProvider;
     }
-    Maybe<Asset> testFolder = Maybe.empty();
+    Maybe<TreeNode> testFolder = Maybe.empty();
 
     @Override
     public void setUp() {
         try {
             for (AssetTreeTemplate.AssetInfo info :
-                    treeBuilder.get().assetBuilder(GenericAsset.GENERIC.create().name("CommentTester")).build().visit(getTestHome(search), search)) {
+                    treeBuilder.get().assetBuilder("CommentTester").build().visit(getTestHome(search), search)) {
                 if (!info.getAssetExists()) {
                     testFolder = Maybe.something(
-                            assetMan.saveAsset(info.getAsset(), "setting up test folder"));
+                            assetMan.saveAsset(info.getAsset(), "setting up test folder")
+                            );
                 } else {
                     testFolder = Maybe.something(info.getAsset());
                 }
@@ -78,7 +79,7 @@ public class CommentTester extends AbstractAssetTest {
     public void tearDown() {
         try {
             for (Asset folder : testFolder) {
-                for (UUID id : search.getAssetIdsFrom(folder.getId(), TrackerAssetType.COMMENT).values()) {
+                for (UUID id : search.getAssetIdsFrom(folder.getId(), Comment.COMMENT_TYPE).values()) {
                     assetMan.deleteAsset(id, "tearDown test");
                 }
             }

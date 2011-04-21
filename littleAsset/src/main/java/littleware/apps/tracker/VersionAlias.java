@@ -10,17 +10,16 @@
 
 package littleware.apps.tracker;
 
+import java.util.Date;
 import java.util.UUID;
-import littleware.apps.tracker.internal.SimpleVABuilder;
 import littleware.asset.Asset;
-import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
-import littleware.base.Maybe;
+import littleware.asset.LinkAsset;
 import littleware.base.UUIDFactory;
 
 
 
-public interface VersionAlias extends Asset {
+public interface VersionAlias extends LinkAsset {
     /**
      * Alias for getFromId
      */
@@ -33,16 +32,10 @@ public interface VersionAlias extends Asset {
     @Override
     public VABuilder copy();
     
-    public interface VABuilder extends AssetBuilder {
+    public interface VABuilder extends LinkAsset.LinkBuilder {
         @Override
         public VABuilder name( String value );
 
-        /**
-         * @throws IllegalArgumentException if value is not a Product
-         * @param value product 
-         */
-        @Override
-        public VABuilder parent( Asset value );
         /** Type-safe alias for parent */
         public VABuilder product( Product value );
         /** Id of version to reference - identical to toId */
@@ -54,27 +47,49 @@ public interface VersionAlias extends Asset {
         
         @Override
         public VersionAlias build();
-    }
-    
-    public static class Type extends AssetType {
-        private Type() {
-            super(
-            UUIDFactory.parseUUID("1CD26A5FDBD141D2904AACCEC3D0B3F2"),
-            "littleware.VersionAlias"
-            );
-        }
-
-        @Override
-        public Maybe<AssetType> getSuperType() {
-            return Maybe.something( (AssetType) AssetType.LINK );
-        }
         
         @Override
-        public VABuilder create() {
-            return new SimpleVABuilder();
-        }
+        public VABuilder creatorId(UUID value);
+
+        @Override
+        public VABuilder lastUpdaterId(UUID value);
+
+        @Override
+        public VABuilder aclId(UUID value);
+
+        @Override
+        public VABuilder ownerId(UUID value);
+
+        @Override
+        public VABuilder comment(String value);
+
+        @Override
+        public VABuilder lastUpdate(String value);
+
+        @Override
+        public VABuilder homeId(UUID value);
+
+
+        @Override
+        public VABuilder createDate(Date value);
+
+        @Override
+        public VABuilder lastUpdateDate(Date value);
+
+
+        @Override
+        public VABuilder timestamp(long value);
+
+        @Override
+        public VABuilder fromId( UUID value );
+
+
     }
     
-    public static final Type VAType = new Type();
+    
+    public static final AssetType VAType = new AssetType(
+            UUIDFactory.parseUUID("1CD26A5FDBD141D2904AACCEC3D0B3F2"),
+            "littleware.VersionAlias", LinkAsset.LINK_TYPE
+            );
     
 }

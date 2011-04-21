@@ -37,7 +37,7 @@ import littleware.base.AssertionFailedException;
  */
 public abstract class SimpleXmlAssetBuilder extends AbstractXmlAssetBuilder {
 
-    private static final Logger olog_generic = Logger.getLogger(SimpleXmlAssetBuilder.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleXmlAssetBuilder.class.getName());
     private HashMap<String, XmlDataSetter> ov_element_in = new HashMap<String, XmlDataSetter>();
     private HashMap<String, XmlDataSetter> ov_attribute_in = new HashMap<String, XmlDataSetter>();
     private HashMap<String, XmlDataGetter> ov_element_out = new HashMap<String, XmlDataGetter>();
@@ -73,8 +73,8 @@ public abstract class SimpleXmlAssetBuilder extends AbstractXmlAssetBuilder {
         ov_attribute_out = new HashMap<String, XmlDataGetter>();
         try {
             scanForAnnotations();
-        } catch (java.security.AccessControlException e) {
-            olog_generic.log(Level.WARNING, "Security constrained environment, caught: " + e);
+        } catch (java.security.AccessControlException ex) {
+            log.log(Level.WARNING, "Security constrained environment", ex);
         }
     }
 

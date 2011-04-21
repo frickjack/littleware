@@ -34,7 +34,7 @@ import littleware.asset.client.AssetManagerService;
 import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.SimpleAssetManagerService;
 import littleware.asset.client.SimpleAssetSearchService;
-import littleware.asset.internal.SharedGuiceModule;
+import littleware.asset.internal.AssetGuiceModule;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.asset.server.LittleTransaction;
@@ -57,7 +57,12 @@ import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.db.DbGuice;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleAcl;
+import littleware.security.LittleAclEntry;
+import littleware.security.LittleGroup;
+import littleware.security.LittlePrincipal;
+import littleware.security.LittleUser;
+import littleware.security.Quota;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
 import littleware.security.auth.SessionManager;
@@ -86,7 +91,7 @@ public class AssetServerModule extends AbstractServerModule {
 
     @Override
     public void configure(Binder binder) {
-        (new SharedGuiceModule()).configure(binder);
+        (new AssetGuiceModule()).configure(binder);
         binder.bind(Cache.Builder.class).to(InMemoryCacheBuilder.class);
         binder.bind(AssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
         binder.bind(AssetRetriever.class).to(AssetSearchManager.class).in(Scopes.SINGLETON);
@@ -259,17 +264,17 @@ public class AssetServerModule extends AbstractServerModule {
 
         {
             final ImmutableMap.Builder<AssetType, Class<? extends AssetSpecializer>> builder = ImmutableMap.builder();
-            for (AssetType assetType : Arrays.asList(GenericAsset.GENERIC, LittleHome.HOME_TYPE, AssetType.LINK )) {
+            for (AssetType assetType : Arrays.asList(GenericAsset.GENERIC, LittleHome.HOME_TYPE, LinkAsset.LINK_TYPE )) {
                 builder.put(assetType, NullAssetSpecializer.class);
             }
-            for (AssetType assetType : Arrays.asList(SecurityAssetType.PRINCIPAL,
-                    SecurityAssetType.GROUP,
-                    SecurityAssetType.QUOTA,
-                    SecurityAssetType.USER)) {
+            for (AssetType assetType : Arrays.asList(LittlePrincipal.PRINCIPAL_TYPE,
+                    LittleGroup.GROUP_TYPE,
+                    Quota.QUOTA_TYPE,
+                    LittleUser.USER_TYPE)) {
                 builder.put(assetType, SimpleAccountManager.class);
             }
-            for (AssetType assetType : Arrays.asList(SecurityAssetType.ACL,
-                    SecurityAssetType.ACL_ENTRY)) {
+            for (AssetType assetType : Arrays.asList(LittleAcl.ACL_TYPE,
+                    LittleAclEntry.ACL_ENTRY)) {
                 builder.put(assetType, SimpleAclManager.class);
             }
 

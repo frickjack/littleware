@@ -11,6 +11,7 @@ package littleware.apps.lgo;
 
 import java.util.List;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.HashMap;
 import java.util.Map;
 import littleware.asset.Asset;
@@ -19,6 +20,8 @@ import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
+import littleware.asset.LittleHome;
+import littleware.asset.TreeNode;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
@@ -35,9 +38,14 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
         private final AssetPathFactory pathFactory;
         private final AssetManager assetMgr;
         private final HumanPicklerProvider pickleProvider;
+        private final Provider<TreeNode.TreeNodeBuilder> nodeProvider;
 
         public HumanPicklerProvider getPickleProvider() {
             return pickleProvider;
+        }
+
+        public Provider<TreeNode.TreeNodeBuilder> getNodeProvider() {
+            return nodeProvider;
         }
 
         public AssetManager getAssetMgr() {
@@ -56,11 +64,13 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
         public Services(AssetSearchManager search,
                 AssetManager assetMgr,
                 AssetPathFactory pathFactory,
-                HumanPicklerProvider pickleProvider) {
+                HumanPicklerProvider pickleProvider,
+                Provider<TreeNode.TreeNodeBuilder> nodeProvider) {
             this.search = search;
             this.assetMgr = assetMgr;
             this.pathFactory = pathFactory;
             this.pickleProvider = pickleProvider;
+            this.nodeProvider = nodeProvider;
         }
     }
 
@@ -91,6 +101,7 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
     private final AssetSearchManager search;
     private final AssetManager assetMgr;
     private final AssetPathFactory pathFactory;
+    private final Provider<TreeNode.TreeNodeBuilder> nodeProvider;
 
     /**
      * Allow subtypes to specialize based on asset-type
@@ -102,17 +113,20 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
         this.search = services.getSearch();
         this.assetMgr = services.getAssetMgr();
         this.pathFactory = services.getPathFactory();
+        this.nodeProvider = services.getNodeProvider();
     }
 
     public static class Builder extends AbstractLgoBuilder<Input> {
+
         private final AssetType defaultType;
+
         public enum Option {
+
             path, comment, atype;
         }
-
         private final Services services;
 
-        protected Builder(String lgoName, Services services, AssetType defaultType ) {
+        protected Builder(String lgoName, Services services, AssetType defaultType) {
             super(lgoName);
             this.services = services;
             this.defaultType = defaultType;
@@ -120,7 +134,7 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
 
         @Inject
         public Builder(Services services) {
-            this(CreateFolderCommand.class.getName(), services, GenericAsset.GENERIC );
+            this(CreateFolderCommand.class.getName(), services, TreeNode.TREE_NODE_TYPE);
         }
 
         @Override
@@ -133,9 +147,9 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
             final Map<String, String> mapDefault = new HashMap<String, String>();
             mapDefault.put(Option.path.toString(), "");
             mapDefault.put(Option.comment.toString(), "no comment");
-            mapDefault.put(Option.atype.toString(), defaultType.getName() );
+            mapDefault.put(Option.atype.toString(), defaultType.getName());
 
-            final Map<String, String> mapArgs = processArgs( args, mapDefault );
+            final Map<String, String> mapArgs = processArgs(args, mapDefault);
             for (Option opt : Option.values()) {
                 if (Whatever.get().empty(mapArgs.get(opt.toString()))) {
                     throw new IllegalArgumentException("Missing required argument: " + opt);
@@ -144,26 +158,25 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
             final AssetPath path;
             try {
                 path = services.getPathFactory().createPath(mapArgs.get(Option.path.toString()));
-            } catch ( IllegalArgumentException ex ) {
+            } catch (IllegalArgumentException ex) {
                 throw ex;
-            } catch ( Exception ex ) {
-                throw new IllegalArgumentException( "Failed to parse path: " + mapArgs.get( Option.path.toString() ));
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("Failed to parse path: " + mapArgs.get(Option.path.toString()));
             }
-            final String typeName = mapArgs.get( Option.atype.toString() ).toLowerCase();
+            final String typeName = mapArgs.get(Option.atype.toString()).toLowerCase();
             AssetType assetType = null;
-            for( AssetType scan : AssetType.getMembers() ) {
-                if ( scan.getName().toLowerCase().indexOf( typeName ) >= 0 ) {
+            for (AssetType scan : AssetType.getMembers()) {
+                if (scan.getName().toLowerCase().indexOf(typeName) >= 0) {
                     assetType = scan;
                     break;
                 }
             }
-            if ( null == assetType ) {
-                throw new IllegalArgumentException( "Unable to map asset type: " + typeName );
+            if (null == assetType) {
+                throw new IllegalArgumentException("Unable to map asset type: " + typeName);
             }
-            return buildSafe( new Input( path, mapArgs.get( Option.comment.toString() ), assetType ));
+            return buildSafe(new Input(path, mapArgs.get(Option.comment.toString()), assetType));
         }
     }
-
 
     /**
      * Create the folder at /parent/name,
@@ -178,12 +191,13 @@ public class CreateFolderCommand extends AbstractAssetCommand<CreateFolderComman
     public Asset runCommand(Feedback feedback) throws Exception {
         final Input input = getInput();
         final Asset parent = search.getAssetAtPath(
-                input.getPath().getParent()
-                ).get();
-        final Asset asset = input.getAssetType().create().parent(parent
-                ).name(input.getPath().getBasename()
-                ).comment(input.getComment()
-                ).build();
+                input.getPath().getParent()).get().narrow();
+        final Asset asset;
+        if (parent instanceof TreeNode) {
+            asset = this.nodeProvider.get().parent((TreeNode) parent).name(input.getPath().getBasename()).comment(input.getComment()).build();
+        } else {
+            asset = this.nodeProvider.get().parent((LittleHome) parent).name(input.getPath().getBasename()).comment(input.getComment()).build();
+        }
         return assetMgr.saveAsset(asset, input.getComment());
     }
 }

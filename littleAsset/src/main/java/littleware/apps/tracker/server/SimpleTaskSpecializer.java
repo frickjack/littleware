@@ -29,6 +29,7 @@ import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.AssetInfo;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.server.NullAssetSpecializer;
+import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.validate.ValidationException;
@@ -89,7 +90,7 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
             if (!from.getQueueId().equals(task.getFromId())) {
                 throw new ValidationException("New subtask queue-id does not match parent task queue-id");
             }
-            builder.fromId(from.getId());
+            ((AbstractAssetBuilder) builder).fromId(from.getId());
         } else {
             final ReadableDateTime now = new DateTime();
             final AssetTreeTemplate template = treeBuilder.get().assetBuilder("Archive").addChildren(
@@ -105,7 +106,7 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
                     assetMgr.saveAsset(info.getAsset(), "Setup queue tree");
                 }
             }
-            builder.fromId(lastId);
+            ((AbstractAssetBuilder) builder).fromId(lastId);
         }
         int taskNumber = -1;
         for (int i = 0; i < 100; ++i) {
@@ -119,7 +120,7 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
             throw new IllegalStateException("Failed to find unused task-number under queue " + queue.getName() + " (" + queue.getId() + ")");
         }
         builder.name(Integer.toString(taskNumber));
-        assetMgr.saveAsset(queue.copy().value(taskNumber + 1).build(),
+        assetMgr.saveAsset(queue.copy().nextTaskNumber(taskNumber + 1).build(),
                 "Advance queue task number");
 
         assetMgr.saveAsset(

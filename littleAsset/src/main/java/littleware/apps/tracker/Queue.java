@@ -3,8 +3,6 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -12,7 +10,10 @@ package littleware.apps.tracker;
 
 
 import littleware.asset.Asset;
-import littleware.asset.AssetBuilder;
+import littleware.asset.AssetType;
+import littleware.asset.TreeNode;
+import littleware.asset.TreeParent;
+import littleware.base.UUIDFactory;
 
 
 /**
@@ -20,7 +21,7 @@ import littleware.asset.AssetBuilder;
  * The task-set and iterator methods are lazy-load wrappers
  * around calls to TaskManager
  */
-public interface Queue extends Asset {
+public interface Queue extends TreeNode {
     /**
      * Integer used to name tasks in queue - increments
      * whenever task added to queue.
@@ -31,11 +32,20 @@ public interface Queue extends Asset {
     @Override
     public QueueBuilder copy();
 
-    public interface QueueBuilder extends AssetBuilder {
+    //-------------------------------------------------------
+    public static final AssetType QUEUE_TYPE = new AssetType( UUIDFactory.parseUUID("0FE9FBED5F6846E1865526A2BFBC5182"),
+            "littleware.apps.tracker.QUEUE", TreeNode.TREE_NODE_TYPE );
+
+    //-----------------------------------------------------
+    
+    public interface QueueBuilder extends TreeNode.TreeNodeBuilder {
         @Override
         public QueueBuilder copy( Asset value );
         @Override
-        public QueueBuilder parent( Asset value );
+        public QueueBuilder parent( TreeParent value );
+        public int getNextTaskNumber();
+        public void setNextTaskNumber( int value );
+        public QueueBuilder nextTaskNumber( int value );
         @Override
         public Queue build();
     }

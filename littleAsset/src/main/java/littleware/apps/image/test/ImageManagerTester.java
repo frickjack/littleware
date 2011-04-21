@@ -86,7 +86,7 @@ public class ImageManagerTester extends LittleTest {
      *
     public ImageManagerTester buildMockTest () {
         final BufferedImage img = new BufferedImage( 100, 100, BufferedImage.TYPE_INT_ARGB);
-        final LittleSession session = SecurityAssetType.SESSION.create();
+        final LittleSession session = LittleSession.SESSION_TYPE.create();
         BucketManager  mockBucket = createMock( BucketManager.class );
 
         return null;

@@ -14,9 +14,9 @@ import littleware.apps.tracker.Queue;
 import littleware.apps.tracker.Task;
 import littleware.apps.tracker.Task.TaskBuilder;
 import littleware.apps.tracker.TaskStatus;
-import littleware.apps.tracker.TrackerAssetType;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.Asset;
+import littleware.asset.TreeParent;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.Maybe;
 import littleware.security.LittleUser;
@@ -24,7 +24,7 @@ import littleware.security.LittleUser;
 /**
  * Simple implementation of Task
  */
-public class SimpleTaskBuilder extends AbstractAssetBuilder implements Task.TaskBuilder {
+public class SimpleTaskBuilder extends AbstractAssetBuilder<Task.TaskBuilder> implements Task.TaskBuilder {
 
     public static final String QueueIdKey = "QueueId";
     private static final TaskStatus[] statusValues = TaskStatus.values();
@@ -82,7 +82,7 @@ public class SimpleTaskBuilder extends AbstractAssetBuilder implements Task.Task
     }
 
     public SimpleTaskBuilder() {
-        super(TrackerAssetType.TASK);
+        super(Task.TASK_TYPE);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class SimpleTaskBuilder extends AbstractAssetBuilder implements Task.Task
     }
 
     @Override
-    public TaskBuilder parent(Asset value) {
+    public TaskBuilder parent(TreeParent value) {
         if ( value instanceof Queue ) {
             queue( (Queue) value );
         } else {

@@ -27,7 +27,14 @@ import javax.swing.ImageIcon;
 import littleware.asset.Asset;
 import littleware.base.AssertionFailedException;
 import littleware.asset.AssetType;
-import littleware.security.SecurityAssetType;
+import littleware.asset.GenericAsset;
+import littleware.asset.LinkAsset;
+import littleware.asset.LittleHome;
+import littleware.security.LittleAcl;
+import littleware.security.LittleAclEntry;
+import littleware.security.LittleGroup;
+import littleware.security.LittleGroupMember;
+import littleware.security.LittleUser;
 //import littleware.apps.addressbook.AddressAssetType;
 //import littleware.apps.tracker.TrackerAssetType;
 
@@ -41,7 +48,7 @@ import littleware.security.SecurityAssetType;
  */
 @Singleton
 public class WebIconLibrary implements IconLibrary {
-    private static final Logger  olog = Logger.getLogger( WebIconLibrary.class.getName() );
+    private static final Logger  log = Logger.getLogger( WebIconLibrary.class.getName() );
     private static final Map<AssetType,String>   ov_asset_urls= new HashMap<AssetType,String> ();
     private static final Map<String,String>      ov_named_urls = new HashMap<String,String> ();
     
@@ -111,20 +118,20 @@ public class WebIconLibrary implements IconLibrary {
                                                        "/geronimo/foldr_16.gif" 
                              );
         
-        ov_asset_urls.put ( SecurityAssetType.USER,
+        ov_asset_urls.put ( LittleUser.USER_TYPE,
                                                "/geronimo/user_16.gif" 
                              );
-        ov_asset_urls.put ( SecurityAssetType.GROUP,
+        ov_asset_urls.put ( LittleGroup.GROUP_TYPE,
                                                 "/geronimo/group_16.gif" 
                              );
-        ov_asset_urls.put ( SecurityAssetType.GROUP_MEMBER,
+        ov_asset_urls.put ( LittleGroupMember.GROUP_MEMBER_TYPE,
                                             "/geronimo/link_16.gif"
                              );
 
-        ov_asset_urls.put ( SecurityAssetType.ACL,
+        ov_asset_urls.put ( LittleAcl.ACL_TYPE,
                                               "/geronimo/lock_16.gif" 
                              );
-        ov_asset_urls.put ( SecurityAssetType.ACL_ENTRY,
+        ov_asset_urls.put ( LittleAclEntry.ACL_ENTRY,
                                             "/geronimo/link_16.gif"
                              );
 
@@ -138,17 +145,17 @@ public class WebIconLibrary implements IconLibrary {
         ov_asset_urls.put ( AddressAssetType.ADDRESS,
                                                        "/geronimo/addbk_16.gif" 
                              );
-        ov_asset_urls.put ( TrackerAssetType.TASK,
+        ov_asset_urls.put ( Task.TASK_TYPE,
                                                        "/geronimo/go_16.gif" 
                              );
-        ov_asset_urls.put ( TrackerAssetType.COMMENT,
+        ov_asset_urls.put ( Comment.COMMENT_TYPE,
                                                        "/geronimo/list_pages_16.gif" 
                              );
-        ov_asset_urls.put ( TrackerAssetType.QUEUE,
+        ov_asset_urls.put ( Queue.QUEUE_TYPE,
                                                        "/geronimo/trafficlight_green_16.png" 
                              );
          */
-        ov_asset_urls.put ( AssetType.LINK,
+        ov_asset_urls.put ( LinkAsset.LINK_TYPE,
                                                        "/geronimo/link_16.gif" 
                              );        
 
@@ -161,7 +168,7 @@ public class WebIconLibrary implements IconLibrary {
      */
     @Inject
     public WebIconLibrary( @Named( "icon.base_url" ) String s_url_root ) {
-        olog.log( Level.FINE, "Setting icon base to: " + s_url_root );
+        log.log( Level.FINE, "Setting icon base to: {0}", s_url_root);
         os_url_root = s_url_root;
     }
     
@@ -239,18 +246,18 @@ public class WebIconLibrary implements IconLibrary {
                 if ( null != url_icon ) {
                     provider = new DefaultProvider( new ImageIcon( url_icon ) );
                 } else {
-                    olog.log( Level.WARNING, "Unable to find asset type icon resource: " + s_full_url );
+                    log.log( Level.WARNING, "Unable to find asset type icon resource: " + s_full_url );
                     provider = new DefaultProvider( new ImageIcon() );
                 }
             } catch ( MalformedURLException e ) {
-                olog.log( Level.WARNING, "Invalid icon root property, caught: " + e );
+                log.log( Level.WARNING, "Invalid icon root property, caught: " + e );
                 provider = new DefaultProvider( new ImageIcon () );
             }
             ov_asset_icons.put( atype, provider );
             return provider;
         }
-        if ( atype.isA ( AssetType.LINK ) ) {
-            return lookupProvider( AssetType.LINK );
+        if ( atype.isA ( LinkAsset.LINK_TYPE ) ) {
+            return lookupProvider( LinkAsset.LINK_TYPE );
         }
         if ( atype.equals( GenericAsset.GENERIC ) ) {
             throw new AssertionFailedException( "No icon registered for Generic asset type?" );
@@ -276,7 +283,7 @@ public class WebIconLibrary implements IconLibrary {
         }
         String s_url_tail = ov_named_urls.get( s_icon );
         if ( null == s_url_tail ) {
-            olog.log( Level.WARNING, "Request for unregistered icon: " + s_icon );
+            log.log( Level.WARNING, "Request for unregistered icon: " + s_icon );
             return null;
         }
         try {   
@@ -291,15 +298,15 @@ public class WebIconLibrary implements IconLibrary {
                 url_icon = ClassLoader.getSystemResource( s_full_url );
             }
             
-            olog.log( Level.FINE, "Loading icon: " + url_icon );
+            log.log( Level.FINE, "Loading icon: " + url_icon );
             if ( null != url_icon ) {
                 icon_result = new ImageIcon( url_icon );
             } else {
-                olog.log( Level.WARNING, "Unable to find icon resource: " + s_full_url );
+                log.log( Level.WARNING, "Unable to find icon resource: " + s_full_url );
                 icon_result =new ImageIcon ();
             }
         } catch( Exception e ) {
-            olog.log( Level.WARNING, "Failed to map icon URL, caught: " + e );
+            log.log( Level.WARNING, "Failed to map icon URL, caught: " + e );
             icon_result = new ImageIcon ();
         }
         ov_named_icons.put( s_icon, icon_result );

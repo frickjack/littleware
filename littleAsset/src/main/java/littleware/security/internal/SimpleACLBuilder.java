@@ -33,12 +33,11 @@ import littleware.security.LittleAclEntry;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
 import littleware.security.LittleUser;
-import littleware.security.SecurityAssetType;
 
 /**
  * Simple implementation of ACL.
  */
-public class SimpleACLBuilder extends AbstractAssetBuilder implements LittleAcl.Builder {
+public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> implements LittleAcl.Builder {
 
     private static Logger log = Logger.getLogger(SimpleACLBuilder.class.getName());
 
@@ -46,7 +45,7 @@ public class SimpleACLBuilder extends AbstractAssetBuilder implements LittleAcl.
      * Do nothing constructor - needed for serializable, etc.
      */
     public SimpleACLBuilder() {
-        super(SecurityAssetType.ACL);
+        super(LittleAcl.ACL_TYPE);
     }
 
     private static class AclAsset extends AbstractAsset implements LittleAcl {
@@ -216,7 +215,7 @@ public class SimpleACLBuilder extends AbstractAssetBuilder implements LittleAcl.
 
         @Override
         public Builder copy() {
-            return (Builder) super.copy();
+            return (new SimpleACLBuilder()).copy( this );
         }
     }
 

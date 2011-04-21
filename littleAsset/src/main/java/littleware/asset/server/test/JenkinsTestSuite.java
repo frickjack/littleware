@@ -13,23 +13,17 @@ package littleware.asset.server.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import javax.security.auth.Subject;
 import junit.framework.*;
-import littleware.asset.AssetManager;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.asset.server.db.test.DbAssetManagerTester;
-import littleware.asset.server.internal.RmiAssetManager;
 import littleware.asset.server.internal.SimpleAssetManager;
 import littleware.asset.server.internal.SimpleAssetSearchManager;
 import littleware.asset.test.AssetManagerTester;
 import littleware.asset.test.AssetRetrieverTester;
 import littleware.asset.test.AssetSearchManagerTester;
 import littleware.asset.test.AssetTestFactory;
-import littleware.base.stat.SimpleSampler;
 import littleware.security.LittleUser;
 
 /**
@@ -49,7 +43,8 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<DbAssetManagerTester> provideDbTester,
             Provider<AssetRetrieverTester> provideRetrieverTest,
             Provider<AssetSearchManagerTester> provideSearchTest,
-            Provider<LittleUser> provideCaller
+            Provider<LittleUser> provideCaller,
+            Provider<AssetManagerTester>  provideAssetMgrTest
             ) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
@@ -83,6 +78,8 @@ public class JenkinsTestSuite extends TestSuite {
         }
 
         if (runTest) {
+            this.addTest( provideAssetMgrTest.get() );
+            /*..
             try {
                 final Subject subject = new Subject();
                 subject.getPrincipals().add( provideCaller.get() );
@@ -99,6 +96,8 @@ public class JenkinsTestSuite extends TestSuite {
             } catch (Exception e) {
                 throw new littleware.base.AssertionFailedException("Failed to setup RmiAssetManager, caught: " + e, e);
             }
+             * 
+             */
         }
 
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");

@@ -17,11 +17,8 @@ import java.util.logging.Logger;
 import littleware.apps.filebucket.BucketUtil;
 import littleware.apps.tracker.Comment;
 import littleware.apps.tracker.Comment.CommentBuilder;
-import littleware.apps.tracker.TrackerAssetType;
 
 import littleware.asset.*;
-import littleware.base.AssertionFailedException;
-import littleware.base.LazyLoadException;
 import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
@@ -29,7 +26,7 @@ import littleware.base.feedback.NullFeedback;
 /**
  * Simple implementation of Comment interface.
  */
-public class SimpleCommentBuilder extends AbstractAssetBuilder implements Comment.CommentBuilder {
+public class SimpleCommentBuilder extends AbstractAssetBuilder<Comment.CommentBuilder> implements Comment.CommentBuilder {
 
     private static final Logger log = Logger.getLogger(SimpleCommentBuilder.class.getName());
     public static final String fullTextBucketPath = "commentFullText.txt";
@@ -105,24 +102,13 @@ public class SimpleCommentBuilder extends AbstractAssetBuilder implements Commen
 
     /** Do nothing constructor */
     public SimpleCommentBuilder() {
-        super(TrackerAssetType.COMMENT);
+        super(Comment.COMMENT_TYPE);
     }
 
     @Override
     public CommentBuilder copy(Asset source) {
         super.copy(source);
         return fullText(((Comment) source).getFullText());
-    }
-
-    @Override public CommentBuilder name( String value ) {
-        super.name( value );
-        return this;
-    }
-    
-    @Override
-    public CommentBuilder parent(Asset value) {
-        super.parent(value);
-        return this;
     }
 
     @Override

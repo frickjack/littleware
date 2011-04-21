@@ -14,24 +14,14 @@ import littleware.apps.tracker.Product;
 import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.ProductAlias.PABuilder;
 import littleware.asset.spi.AbstractAsset;
-import littleware.asset.Asset;
 import littleware.asset.spi.AbstractAssetBuilder;
 
-public class SimplePABuilder extends AbstractAssetBuilder implements ProductAlias.PABuilder {
+public class SimplePABuilder extends AbstractAssetBuilder<ProductAlias.PABuilder> implements ProductAlias.PABuilder {
 
     public SimplePABuilder() {
         super(ProductAlias.PAType);
     }
 
-    @Override
-    public PABuilder name(String value) {
-        return (PABuilder) super.name(value);
-    }
-
-    @Override
-    public PABuilder parent(Asset value) {
-        return (PABuilder) super.parent(value);
-    }
 
     @Override
     public PABuilder product(Product value) {
@@ -48,10 +38,6 @@ public class SimplePABuilder extends AbstractAssetBuilder implements ProductAlia
         return new SimpleAlias(this);
     }
 
-    @Override
-    public PABuilder copy(Asset source) {
-        return (PABuilder) super.copy(source);
-    }
 
     public static class SimpleAlias extends AbstractAsset implements ProductAlias {
 

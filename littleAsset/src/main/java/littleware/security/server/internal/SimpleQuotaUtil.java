@@ -50,7 +50,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
             GeneralSecurityException, RemoteException {
         if (null == oj_admin) {
             try {
-                final LittleUser admin = m_search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow();
+                final LittleUser admin = m_search.getByName(AccountManager.LITTLEWARE_ADMIN, LittleUser.USER_TYPE).get().narrow();
                 Set<Principal> v_users = new HashSet<Principal>();
 
                 v_users.add(admin);
@@ -66,7 +66,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
     public Quota getQuota(LittleUser p_user, AssetSearchManager m_search ) throws BaseException,
             GeneralSecurityException, RemoteException {
         Map<String, UUID> v_quotas = m_search.getAssetIdsFrom(p_user.getId(),
-                SecurityAssetType.QUOTA);
+                Quota.QUOTA_TYPE);
         UUID u_child = v_quotas.get("littleware_quota");
         if (null == u_child) {
             return null;
@@ -96,15 +96,15 @@ public class SimpleQuotaUtil implements QuotaUtil {
 
                             trans_quota.startDbAccess();
                             try {
-                                for (Quota a_quota = getQuota(p_user, m_search);
-                                        null != a_quota;
-                                        a_quota = (null != a_quota.getToId()) ? ((Quota) m_search.getAsset(a_quota.getToId()).getOr(null))
+                                for (Quota quota = getQuota(p_user, m_search);
+                                        null != quota;
+                                        quota = (null != quota.getNextInChainId()) ? ((Quota) m_search.getAsset(quota.getNextInChainId()).getOr(null))
                                                 : null) {
-                                    final Quota.Builder quotaBuilder = a_quota.copy();
+                                    final Quota.Builder quotaBuilder = quota.copy();
                                     v_chain.add( quotaBuilder );
-                                    if ((null != a_quota.getEndDate()) && (a_quota.getEndDate().getTime() < t_now.getTime())) {
-                                        long l_period = a_quota.getEndDate().getTime() -
-                                                a_quota.getStartDate().getTime();
+                                    if ((null != quota.getEndDate()) && (quota.getEndDate().getTime() < t_now.getTime())) {
+                                        long l_period = quota.getEndDate().getTime() -
+                                                quota.getStartDate().getTime();
 
                                         if (l_period < 1000000) {
                                             l_period = 1000000;
@@ -113,9 +113,9 @@ public class SimpleQuotaUtil implements QuotaUtil {
                                         quotaBuilder.setStartDate(t_now);
                                         quotaBuilder.setEndDate(t_end);
                                         quotaBuilder.setQuotaCount(0);
-                                    } else if ((a_quota.getQuotaLimit() >= 0) && (a_quota.getQuotaLimit() < a_quota.getQuotaCount())) {
-                                        throw new QuotaException("Quota exceeded: " + a_quota.getQuotaLimit() +
-                                                " less than " + a_quota.getQuotaCount());
+                                    } else if ((quota.getQuotaLimit() >= 0) && (quota.getQuotaLimit() < quota.getQuotaCount())) {
+                                        throw new QuotaException("Quota exceeded: " + quota.getQuotaLimit() +
+                                                " less than " + quota.getQuotaCount());
                                     }
 
                                     int i_left = quotaBuilder.getQuotaLimit() -

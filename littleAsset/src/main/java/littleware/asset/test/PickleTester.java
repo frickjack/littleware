@@ -14,6 +14,7 @@ import java.util.*;
 import java.io.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import littleware.asset.GenericAsset.GenericBuilder;
 
 
 import littleware.base.*;
@@ -29,13 +30,17 @@ public class PickleTester extends LittleTest {
     private static final Logger log = Logger.getLogger(PickleTester.class.getName());
 
     private final Provider<? extends PickleMaker<Asset>> picklerProvider;
+    private final Provider<GenericBuilder> assetProvider;
 
     /**
      * Constructor stashes PickleType to test against
      */
-    public PickleTester(Provider<? extends PickleMaker<Asset>> providePickler) {
+    public PickleTester(Provider<? extends PickleMaker<Asset>> providePickler,
+            Provider<GenericAsset.GenericBuilder> assetProvider
+            ) {
         setName("testPickleTwice");
         this.picklerProvider = providePickler;
+        this.assetProvider = assetProvider;
     }
 
 
@@ -46,7 +51,7 @@ public class PickleTester extends LittleTest {
      */
     public void testPickleTwice() {
         try {
-            final Asset testAsset = GenericAsset.GENERIC.create().
+            final Asset testAsset = assetProvider.get().
                     name("bogus_pickletest_asset").
                     homeId(UUID.randomUUID()).
                     fromId(UUID.randomUUID()).

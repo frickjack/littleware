@@ -171,7 +171,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
             List<Asset>  v_groups = new ArrayList<Asset> ();
             {
                 Collection<UUID>    v_ids = new ArrayList<UUID> ();  // serializable collection
-                v_ids.addAll ( om_search.getAssetIdsFrom ( a_root.getId (), SecurityAssetType.GROUP ).values () );
+                v_ids.addAll ( om_search.getAssetIdsFrom ( a_root.getId (), LittleGroup.GROUP_TYPE ).values () );
                 v_groups.addAll ( om_search.getAssets ( v_ids ) );
             }
             Collections.sort ( v_groups, new Comparator<Asset> () {

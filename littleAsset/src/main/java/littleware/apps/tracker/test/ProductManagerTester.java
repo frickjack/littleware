@@ -11,17 +11,20 @@
 package littleware.apps.tracker.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.io.File;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Member;
 import littleware.apps.tracker.Product;
+import littleware.apps.tracker.Product.ProductBuilder;
 import littleware.apps.tracker.ProductManager;
 import littleware.apps.tracker.Version;
-import littleware.asset.Asset;
+import littleware.apps.tracker.Version.VersionBuilder;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.LittleHome;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
@@ -39,16 +42,22 @@ public class ProductManagerTester extends AbstractAssetTest {
     private int   testDirSize = 0;
     private final FileUtil fileUtil;
     private final Feedback feedback;
+    private final Provider<ProductBuilder> productProvider;
+    private final Provider<VersionBuilder> versionProvider;
 
     @Inject
     public ProductManagerTester( AssetSearchManager search, AssetManager assetMan,
-            ProductManager prodMan, FileUtil fileUtil, Feedback feedback
+            ProductManager prodMan, FileUtil fileUtil, Feedback feedback,
+            Provider<Product.ProductBuilder> productProvider,
+            Provider<Version.VersionBuilder> versionProvider
             ) {
         this.search = search;
         this.assetMan = assetMan;
         this.prodMan = prodMan;
         this.fileUtil = fileUtil;
         this.feedback = feedback;
+        this.productProvider = productProvider;
+        this.versionProvider = versionProvider;
         setName( "testProdMan" );
     }
 
@@ -80,15 +89,15 @@ public class ProductManagerTester extends AbstractAssetTest {
     public void testProdMan() {
         try {
             final Date now = new Date();
-            final Asset home = getTestHome( search );
+            final LittleHome home = getTestHome( search );
             final Product product = assetMan.saveAsset(
-                    Product.ProductType.create().parent(home
+                    productProvider.get().parent(home
                     ).name( "PMTester" + now.getTime()
                     ).build(),
                     "Setup test product"
                     );
             final Version version = assetMan.saveAsset(
-                    Version.VersionType.create().product(product
+                    versionProvider.get().product(product
                     ).name("1.0.0"
                     ).build(),
                     "Setup test version"

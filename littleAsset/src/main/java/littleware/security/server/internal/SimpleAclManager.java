@@ -48,18 +48,19 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
      * Specialize ACL type assets
      */
     @Override
-    public <T extends Asset> T narrow(T a_in) throws BaseException, AssetException,
+    public <T extends Asset> T narrow(T assetIn) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        if ( a_in instanceof LittleAclEntry ) {
-            return (T) ((LittleAclEntry) a_in).copy().principal(
-                    (LittlePrincipal) search.getAsset( a_in.getToId() ).get()
+        if ( assetIn instanceof LittleAclEntry ) {
+            final LittleAclEntry entry = (LittleAclEntry) assetIn;
+            return (T) entry.copy().principal(
+                    (LittlePrincipal) search.getAsset( entry.getPrincipalId() ).get()
                     ).build();
         }
         // LittleAcl
-        final LittleAcl.Builder aclBuilder = a_in.narrow(LittleAcl.class).copy();
+        final LittleAcl.Builder aclBuilder = assetIn.narrow(LittleAcl.class).copy();
 
         final Map<String, UUID> linkMap = search.getAssetIdsFrom(aclBuilder.getId(),
-                SecurityAssetType.ACL_ENTRY);
+                LittleAclEntry.ACL_ENTRY);
 
         final List<Asset> linkAssets = search.getAssets(linkMap.values());
 
@@ -69,10 +70,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
             final LittleAclEntry aclEntry = link.narrow( LittleAclEntry.class );
 
             aclBuilder.addEntry(aclEntry);
-            log.log(Level.FINE, "Just added entry for " + aclEntry.getName() +
-                    " (negative: " + aclEntry.isNegative() +
-                    ") to ACL " + aclBuilder.getName()
-                    );
+            log.log(Level.FINE, "Just added entry for {0} (negative: {1}) to ACL {2}", new Object[]{aclEntry.getName(), aclEntry.isNegative(), aclBuilder.getName()});
         }
         return (T) aclBuilder.build();
     }
@@ -84,17 +82,17 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     @Override
     public void postCreateCallback(Asset asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        if (SecurityAssetType.ACL.equals(asset.getAssetType())) {
+        if (LittleAcl.ACL_TYPE.equals(asset.getAssetType())) {
             final LittleAcl acl = asset.narrow();
 
             for (Enumeration<LittleAclEntry> entries = ((LittleAcl) asset).entries();
                     entries.hasMoreElements();) {
                 final LittleAclEntry startEntry = (LittleAclEntry) entries.nextElement();
-                final LittlePrincipal principal = search.getAsset( startEntry.getToId() ).get().narrow();
+                final LittlePrincipal principal = search.getAsset( startEntry.getPrincipalId() ).get().narrow();
                 final LittleAclEntry.Builder entryBuilder = (LittleAclEntry.Builder) startEntry.copy().
                         principal( principal ).
                         name( principal.getName() + "." + (startEntry.isNegative() ? "negative" : "positive")).
-                        parent( acl ).
+                        acl( acl ).
                         ownerId(acl.getOwnerId());
                  assetMgr.saveAsset(entryBuilder.build(), "ACL entry tracker");
             }
@@ -104,7 +102,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     @Override
     public void postUpdateCallback(Asset a_pre_update, Asset a_now) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        if (SecurityAssetType.ACL.equals(a_now.getAssetType())) {
+        if (LittleAcl.ACL_TYPE.equals(a_now.getAssetType())) {
             Set<UUID> v_now_entries = new HashSet<UUID>();
 
             for (Enumeration<LittleAclEntry> v_entries = ((LittleAcl) a_now).entries();
@@ -129,7 +127,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     @Override
     public void postDeleteCallback(Asset a_deleted) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        if (SecurityAssetType.ACL.equals(a_deleted.getAssetType())) {
+        if (LittleAcl.ACL_TYPE.equals(a_deleted.getAssetType())) {
             // Delete all the ACL_ENTRY assets off this thing
             for (Enumeration<LittleAclEntry> v_entries = ((LittleAcl) a_deleted).entries();
                     v_entries.hasMoreElements();) {

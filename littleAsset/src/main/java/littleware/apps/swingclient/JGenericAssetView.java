@@ -424,25 +424,25 @@ public class JGenericAssetView extends JPanel implements AssetView {
 
         owlink_name.setLink(a_data);
         owlabel_id.setText(UUIDFactory.makeCleanString(a_data.getId()));
-        owlabel_value.setText(a_data.getValue().toString());
+        //owlabel_value.setText(a_data.getValue().toString());
         owlabel_transaction.setText(Long.toString(a_data.getTimestamp()));
 
         updateLabelInfo(owlink_acl, a_data.getAclId());
-        updateLabelInfo(owlink_to, a_data.getToId());
+        //updateLabelInfo(owlink_to, a_data.getToId());
         updateLabelInfo(owlink_from, a_data.getFromId());
         updateLabelInfo(owlink_home, a_data.getHomeId());
         updateLabelInfo(owlink_owner, a_data.getOwnerId());
         updateLabelInfo(owlink_creator, a_data.getCreatorId());
         updateLabelInfo(owlink_updater, a_data.getLastUpdaterId());
 
-        updateLabelInfo(owlabel_start, a_data.getStartDate());
-        updateLabelInfo(owlabel_end, a_data.getEndDate());
+        //updateLabelInfo(owlabel_start, a_data.getStartDate());
+        //updateLabelInfo(owlabel_end, a_data.getEndDate());
         updateLabelInfo(owlabel_date_updated, a_data.getLastUpdateDate());
         updateLabelInfo(owlabel_date_created, a_data.getCreateDate());
 
         owtext_comment.setText(a_data.getComment());
         owtext_update.setText(a_data.getLastUpdate());
-        owtext_data.setText(a_data.getData());
+        //owtext_data.setText(a_data.getData());
 
         this.repaint();
     }

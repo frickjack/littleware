@@ -71,20 +71,20 @@ public class AssetModelLibTester extends AbstractAssetTest {
 
             final AssetModel amodel_everybody =
                     olibAsset.syncAsset(osearch.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP).get());
+                    LittleGroup.GROUP_TYPE).get());
             assertTrue("ModelLibrary getByName inheritance aware 1",
                     olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.PRINCIPAL).isSet());
+                    LittlePrincipal.PRINCIPAL_TYPE).isSet());
             assertTrue("ModelLibrary getByName inheritance aware 2",
                     !olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.USER).isSet());
+                    LittleUser.USER_TYPE).isSet());
             assertTrue("ModelLibrary getByName inheritance aware 3",
                     olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP).isSet());
+                    LittleGroup.GROUP_TYPE).isSet());
             olibAsset.remove(amodel_everybody.getAsset().getId());
             assertTrue("ModelLibrary getByName cleared after remove",
                     !olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP).isSet());
+                    LittleGroup.GROUP_TYPE).isSet());
 
             final AssetEditor edit_bogus = new AbstractAssetEditor(this) {
 

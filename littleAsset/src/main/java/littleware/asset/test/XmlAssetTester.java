@@ -65,6 +65,11 @@ public class XmlAssetTester extends TestCase {
         private int oi_100 = 100;
         private TestType on_type = TestType.OK;
 
+        @Override
+        public Asset build() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
         /** Custom XML setter for setNum100 */
         public static class Num100Setter extends SimpleXmlDataSetter {
 
@@ -153,9 +158,9 @@ public class XmlAssetTester extends TestCase {
      */
     public void testXmlAsset() {
         try {
-            Asset a_xml = new TestBuilder().homeId( UUID.randomUUID() ).
-                    fromId( UUID.randomUUID() ).build();
-            String s_xml = a_xml.getData();
+            final GenericAsset a_xml = ((TestBuilder) (new TestBuilder()).homeId( UUID.randomUUID() )).
+                    fromId( UUID.randomUUID() ).build().narrow();
+            final String s_xml = a_xml.getData();
 
             log.log(Level.INFO, "TestBuilder getData got: " + s_xml);
 

@@ -10,6 +10,7 @@
 package littleware.security.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 
 import java.security.Principal;
@@ -24,6 +25,7 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.security.*;
 import littleware.base.BaseException;
+import littleware.security.LittleGroup.Builder;
 import littleware.security.server.QuotaUtil;
 
 /**
@@ -38,6 +40,7 @@ public class AccountManagerTester extends AbstractAssetTest {
     private final AssetManager assetMgr;
     private final LittleUser caller;
     private final QuotaUtil quotaUtil;
+    private final Provider<Builder> groupProvider;
 
     /**
      * Constructor registers the AccountManager to test against.
@@ -53,12 +56,15 @@ public class AccountManagerTester extends AbstractAssetTest {
             AssetManager m_asset,
             AssetSearchManager search,
             QuotaUtil quotaUtil,
-            LittleUser caller ) {
+            LittleUser caller,
+            Provider<LittleGroup.Builder> groupProvider
+            ) {
         this.accountMgr = m_account;
         this.assetMgr = m_asset;
         this.search = search;
         this.caller = caller;
         this.quotaUtil = quotaUtil;
+        this.groupProvider = groupProvider;
         setName("testGetPrincipals");
     }
 
@@ -67,10 +73,10 @@ public class AccountManagerTester extends AbstractAssetTest {
      */
     public void testGetPrincipals() {
         try {
-            final LittleUser userAdmin = search.getByName(AccountManager.LITTLEWARE_ADMIN, SecurityAssetType.USER).get().narrow();
+            final LittleUser userAdmin = search.getByName(AccountManager.LITTLEWARE_ADMIN, LittleUser.USER_TYPE).get().narrow();
             final LittleGroup groupAdmin = search.getByName(
                     AccountManager.LITTLEWARE_ADMIN_GROUP,
-                    SecurityAssetType.GROUP).get().narrow();
+                    LittleGroup.GROUP_TYPE).get().narrow();
 
             for (LittlePrincipal member : groupAdmin.getMembers() ) {
                 log.log(Level.INFO, "Got admin group member: " + member.getName() +
@@ -102,7 +108,8 @@ public class AccountManagerTester extends AbstractAssetTest {
                     a_quota_before.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
             // Verify get/setData parsing
             assertTrue("get/setData consistency",
-                    a_quota_after.getData().equals(a_quota_after.copy().data(a_quota_after.getData()).build().getData()));
+                    a_quota_after.getQuotaLimit() == a_quota_after.copy().build().getQuotaLimit()
+                    );
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed test", ex );
             fail("Caught exception: " + ex );
@@ -115,10 +122,10 @@ public class AccountManagerTester extends AbstractAssetTest {
     public void testGroupUpdate() {
         try {
             final String name = "group.littleware.test_user";
-            LittleGroup groupTest = (LittleGroup) search.getByName(name, SecurityAssetType.GROUP).getOr(null);
+            LittleGroup groupTest = (LittleGroup) search.getByName(name, LittleGroup.GROUP_TYPE).getOr(null);
             if (null == groupTest) {
                 groupTest = assetMgr.saveAsset(
-                        SecurityAssetType.GROUP.create().add(caller).name(name).parent(getTestHome(search)).
+                        groupProvider.get().add(caller).name(name).parent(getTestHome(search)).
                         build(), "setup test group").narrow();
                 assertTrue( caller.getName() + " is member of new group " + groupTest.getName(),
                         groupTest.isMember(caller)
@@ -126,7 +133,7 @@ public class AccountManagerTester extends AbstractAssetTest {
             }
             if ( ! groupTest.isMember( caller ) ) {
                 LittleGroup copy = groupTest.copy().add(caller).build();
-                copy = copy.getAssetType().create().copy( copy ).build().narrow();
+                copy = copy.copy().build().narrow();
                 assertTrue( caller.getName() + " added to " + copy.getName(),
                     copy.isMember( caller )
                     );
@@ -140,7 +147,7 @@ public class AccountManagerTester extends AbstractAssetTest {
                     groupTest.isMember( caller )
                     );
             groupTest = assetMgr.saveAsset(groupTest.copy().remove(caller).build(), "Removed tester " + caller.getName());
-            groupTest = search.getByName(name, SecurityAssetType.GROUP).get().narrow();
+            groupTest = search.getByName(name, LittleGroup.GROUP_TYPE).get().narrow();
             assertTrue( caller.getName() + " is not a member of " + groupTest.getName(),
                     !groupTest.isMember(caller)
                     );

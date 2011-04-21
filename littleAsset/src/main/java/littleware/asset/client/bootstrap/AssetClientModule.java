@@ -23,6 +23,7 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetType;
 import littleware.asset.GenericAsset;
+import littleware.asset.LinkAsset;
 import littleware.asset.LittleHome;
 import littleware.asset.internal.SimpleAssetPathFactory;
 import littleware.asset.internal.SimpleTemplateBuilder;
@@ -32,12 +33,21 @@ import littleware.asset.client.LittleService;
 import littleware.asset.client.LittleServiceEvent;
 import littleware.asset.client.LittleServiceListener;
 import littleware.asset.client.SimpleClientCache;
-import littleware.asset.internal.SharedGuiceModule;
+import littleware.asset.internal.AssetGuiceModule;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
+import littleware.security.LittleAcl;
+import littleware.security.LittleAclEntry;
+import littleware.security.LittleGroup;
+import littleware.security.LittleGroupMember;
+import littleware.security.LittlePrincipal;
+import littleware.security.LittleUser;
+import littleware.security.Quota;
 import littleware.security.SecurityAssetType;
+import littleware.security.auth.LittleSession;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.SessionHelper;
+import littleware.security.internal.SecurityGuiceModule;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -47,7 +57,8 @@ public class AssetClientModule extends AbstractClientModule {
 
     @Override
     public void configure(Binder binder) {
-        (new SharedGuiceModule()).configure(binder);
+        (new AssetGuiceModule()).configure(binder);
+        (new SecurityGuiceModule()).configure( binder );
         binder.bind(AssetPathFactory.class).to(SimpleAssetPathFactory.class).in(Scopes.SINGLETON);
         binder.bind(AssetTreeTemplate.TemplateBuilder.class).to(SimpleTemplateBuilder.class).in(Scopes.SINGLETON);
     }
@@ -59,7 +70,7 @@ public class AssetClientModule extends AbstractClientModule {
 
         {
             final ImmutableList.Builder<AssetType> builder = ImmutableList.builder();
-            typeSet = builder.add(GenericAsset.GENERIC).add(LittleHome.HOME_TYPE).add(AssetType.LINK).add(SecurityAssetType.ACL).add(SecurityAssetType.ACL_ENTRY).add(SecurityAssetType.GROUP).add(SecurityAssetType.GROUP_MEMBER).add(SecurityAssetType.PRINCIPAL).add(SecurityAssetType.QUOTA).add(SecurityAssetType.SERVICE_STUB).add(SecurityAssetType.SESSION).add(SecurityAssetType.USER).build();
+            typeSet = builder.add(GenericAsset.GENERIC).add(LittleHome.HOME_TYPE).add(LinkAsset.LINK_TYPE).add(LittleAcl.ACL_TYPE).add(LittleAclEntry.ACL_ENTRY).add(LittleGroup.GROUP_TYPE).add(LittleGroupMember.GROUP_MEMBER_TYPE).add(LittlePrincipal.PRINCIPAL_TYPE).add(Quota.QUOTA_TYPE).add(SecurityAssetType.SERVICE_STUB).add(LittleSession.SESSION_TYPE).add(LittleUser.USER_TYPE).build();
         }
         private final Collection<Class<? extends LittleServiceListener>> listenerSet;
 

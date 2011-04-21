@@ -38,7 +38,7 @@ public class JAclView extends JAssetWithChildrenView {
         AssetModel model_view = getAssetModel ();
         Map<Asset,String> v_childinfo = new HashMap<Asset,String> ();
         
-        if ( ! model_view.getAsset ().getAssetType ().equals ( SecurityAssetType.ACL ) ) {
+        if ( ! model_view.getAsset ().getAssetType ().equals ( LittleAcl.ACL_TYPE ) ) {
             olog_generic.log ( Level.FINE, "Ignoring non-ACL asset" );
             super.setTabEnabled ( false );
             return v_childinfo;
@@ -78,7 +78,7 @@ public class JAclView extends JAssetWithChildrenView {
                        Provider<JAssetLink> provideLinkView
                        ) {
         super( m_retriever, lib_icon, lib_asset, "ACL entries",
-               "ACL Entries", lib_icon.lookupIcon( SecurityAssetType.ACL ),
+               "ACL Entries", lib_icon.lookupIcon( LittleAcl.ACL_TYPE ),
                "View ACL entries", jListChildren, provideLinkView
                );
     }

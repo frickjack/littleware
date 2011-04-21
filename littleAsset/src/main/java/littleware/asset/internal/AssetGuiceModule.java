@@ -18,11 +18,15 @@ import littleware.asset.GenericAsset;
 import littleware.asset.IdWithClock;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
+import littleware.asset.pickle.HumanPicklerProvider;
+import littleware.asset.pickle.XmlPicklerProvider;
+import littleware.asset.pickle.internal.SimpleHumanRegistry;
+import littleware.asset.pickle.internal.SimpleXmlRegistry;
 
 /**
  * Guice bindings common to both client and server bootstrap setups
  */
-public class SharedGuiceModule implements Module {
+public class AssetGuiceModule implements Module {
 
     @Override
     public void configure(Binder binder) {
@@ -32,6 +36,8 @@ public class SharedGuiceModule implements Module {
         binder.bind( IdWithClock.Builder.class ).to( IdWithClockBuilder.class );
         binder.bind(AssetPathFactory.class).to(SimpleAssetPathFactory.class);
         binder.bind( AssetTreeTemplate.TemplateBuilder.class ).to( SimpleTemplateBuilder.class ).in( Scopes.SINGLETON );
+        binder.bind( HumanPicklerProvider.class ).to( SimpleHumanRegistry.class ).in( Scopes.SINGLETON );
+        binder.bind( XmlPicklerProvider.class ).to( SimpleXmlRegistry.class ).in( Scopes.SINGLETON );
     }
 
 }

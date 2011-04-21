@@ -63,7 +63,7 @@ public class SimpleClientCache implements LittleServiceListener, ClientCache {
                     // not modified in 5 days
                     cacheLong.put(key, value);
                 }
-                if (asset.getAssetType().isA(SecurityAssetType.GROUP)) {
+                if (asset.getAssetType().isA(LittleGroup.GROUP_TYPE)) {
                     // go ahead and harvest group members
                     final LittleGroup group = asset.narrow();
                     for ( LittlePrincipal member : group.getMembers() ) {

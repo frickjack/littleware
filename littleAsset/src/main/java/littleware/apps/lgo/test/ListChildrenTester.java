@@ -16,7 +16,8 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.ListChildrenCommand;
-import littleware.asset.AssetType;
+import littleware.asset.GenericAsset;
+import littleware.asset.TreeNode;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.feedback.LoggerFeedback;
 
@@ -53,11 +54,11 @@ public class ListChildrenTester extends AbstractAssetTest {
             {
                 final ListChildrenCommand command = provideCommand.get(
                     ).buildFromArgs( Arrays.asList( "-path", getTestHome(),
-                                    "-type", GenericAsset.GENERIC.toString() )
+                                    "-type", TreeNode.TREE_NODE_TYPE.toString() )
                                     );
                 final ListChildrenCommand.Input testData = command.getInput();
-                assertTrue( "Generic asset-type detected in args parsing: " + testData.getChildType(),
-                        testData.getChildType().isSet() && testData.getChildType().get().equals( GenericAsset.GENERIC )
+                assertTrue( "asset-type detected in args parsing: " + testData.getChildType(),
+                        testData.getChildType().isSet() && testData.getChildType().get().equals( TreeNode.TREE_NODE_TYPE )
                         );
             }
 

@@ -20,7 +20,8 @@ import junit.framework.*;
 import littleware.asset.*;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.asset.pickle.PickleMaker;
-import littleware.asset.pickle.PickleType;
+import littleware.asset.pickle.XmlPicklerProvider;
+
 
 /**
  * Test suite for littleware.asset package
@@ -36,7 +37,9 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetRetrieverTester> provideRetrieverTest,
             Provider<AssetPathTester> providePathTester,
             Provider<AssetTreeToolTester> provideTreeTester,
-            Provider<AssetSearchManagerTester> provideSearchTest
+            Provider<AssetSearchManagerTester> provideSearchTest,
+            HumanPicklerProvider  humanPickler,
+            XmlPicklerProvider    xmlPickler
             ) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
@@ -45,15 +48,8 @@ public class JenkinsTestSuite extends TestSuite {
             this.addTest( provideTreeTester.get() );
         }
         if (runTest) {
-            this.addTest(new PickleTester(new HumanPicklerProvider()));
-            this.addTest(new PickleTester(
-                    new Provider<PickleMaker<Asset>>() {
-
-                        @Override
-                        public PickleMaker<Asset> get() {
-                            return PickleType.XML.createPickleMaker();
-                        }
-                    }));
+            this.addTest(new PickleTester( humanPickler ));
+            this.addTest(new PickleTester( xmlPickler ) );
         }
 
         if (runTest) {

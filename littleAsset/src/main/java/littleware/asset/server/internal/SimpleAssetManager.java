@@ -27,7 +27,6 @@ import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.PermissionCache;
 import littleware.security.server.QuotaUtil;
 import littleware.asset.server.db.*;
-import littleware.asset.spi.AbstractAsset;
 import littleware.base.*;
 import littleware.db.*;
 import littleware.security.*;
@@ -151,7 +150,7 @@ public class SimpleAssetManager implements AssetManager {
                 b_rollback = false;
                 //trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
                 final AssetType type = builder.getAssetType();
-                if (type.isA(SecurityAssetType.ACL) || type.isA(SecurityAssetType.ACL_ENTRY) || type.isA(SecurityAssetType.GROUP) || type.isA(SecurityAssetType.GROUP_MEMBER)) {
+                if (type.isA(LittleAcl.ACL_TYPE) || type.isA(LittleAclEntry.ACL_ENTRY) || type.isA(LittleGroup.GROUP_TYPE) || type.isA(LittleGroupMember.GROUP_MEMBER_TYPE)) {
                     permissionCache.clear();
                 }
             } finally {
@@ -286,17 +285,17 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     // If from-id is null from non-home orphan asset,
                     // then must have home-write permission to write home asset
-                    if ((null == ((AbstractAsset) asset).getFromId()) ) { //&& (!a_home.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search)) && (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_home.getAclId()))) {
+                    if ( null == asset.getFromId() ) { //&& (!a_home.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search)) && (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_home.getAclId()))) {
                         // caller must have WRITE on Home permission to create a rootless
                         // (null from-id) asset
                         throw new AccessDeniedException("Must have home-write permission to create asset with null fromId");
                     }
                 }
 
-                if ((null != ((AbstractAsset) asset).getFromId()) && ((null == oldAsset) || (!((AbstractAsset) asset).getFromId().equals(((AbstractAsset) oldAsset).getFromId())))) {
+                if ((null != asset.getFromId()) && ((null == oldAsset) || (! asset.getFromId().equals( oldAsset.getFromId())))) {
                     log.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
-                    final Asset a_from = search.getAsset(((AbstractAsset) asset).getFromId()).get();
+                    final Asset a_from = search.getAsset( asset.getFromId()).get();
 
                     if ((!a_from.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search))) {
                         if (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_from.getAclId())) {
@@ -308,8 +307,8 @@ public class SimpleAssetManager implements AssetManager {
                     if ((!a_from.getHomeId().equals(asset.getHomeId()))) {
                         throw new IllegalArgumentException("May not link FROM an asset with a different HOME");
                     }
-                    if (a_from.getAssetType().equals(AssetType.LINK)) {
-                        throw new IllegalArgumentException("May not link FROM an asset of type AssetType.LINK");
+                    if (a_from.getAssetType().equals(LinkAsset.LINK_TYPE)) {
+                        throw new IllegalArgumentException("May not link FROM an asset of type LinkAsset.LINK_TYPE");
                     }
                 }
 
@@ -338,7 +337,7 @@ public class SimpleAssetManager implements AssetManager {
                     }
 
                     final AssetType type = assetSave.getAssetType();
-                    if (type.isA(SecurityAssetType.ACL) || type.isA(SecurityAssetType.ACL_ENTRY) || type.isA(SecurityAssetType.GROUP) || type.isA(SecurityAssetType.GROUP_MEMBER)) {
+                    if (type.isA(LittleAcl.ACL_TYPE) || type.isA(LittleAclEntry.ACL_ENTRY) || type.isA(LittleGroup.GROUP_TYPE) || type.isA(LittleGroupMember.GROUP_MEMBER_TYPE)) {
                         permissionCache.clear();
                     }
 

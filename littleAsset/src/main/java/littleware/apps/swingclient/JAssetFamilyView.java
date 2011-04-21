@@ -52,7 +52,7 @@ import littleware.apps.client.event.AssetModelEvent;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
+import littleware.asset.LittleHome;
 import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.stat.Timer;

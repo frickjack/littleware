@@ -24,7 +24,7 @@ import littleware.asset.AssetSearchManager;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.BaseException;
 
-public class SimpleVersionBuilder extends AbstractAssetBuilder implements Version.VersionBuilder {
+public class SimpleVersionBuilder extends AbstractAssetBuilder<Version.VersionBuilder> implements Version.VersionBuilder {
 
     public SimpleVersionBuilder() {
         super(Version.VersionType);
@@ -40,13 +40,6 @@ public class SimpleVersionBuilder extends AbstractAssetBuilder implements Versio
         return (VersionBuilder) super.copy(value);
     }
 
-    @Override
-    public VersionBuilder parent(Asset value) {
-        if (!(value instanceof Product)) {
-            throw new IllegalArgumentException("Version parent must be a product");
-        }
-        return (VersionBuilder) super.parent(value);
-    }
 
     @Override
     public VersionBuilder product(Product value) {
@@ -65,7 +58,7 @@ public class SimpleVersionBuilder extends AbstractAssetBuilder implements Versio
         private SimpleVersion() {
         }
 
-        private SimpleVersion(VersionBuilder builder) {
+        private SimpleVersion(SimpleVersionBuilder builder) {
             super(builder);
         }
 

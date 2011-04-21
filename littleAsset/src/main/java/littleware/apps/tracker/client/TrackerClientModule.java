@@ -15,15 +15,18 @@ import com.google.inject.Scopes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Logger;
+import littleware.apps.tracker.Comment;
 import littleware.apps.tracker.Member;
 import littleware.apps.tracker.MemberAlias;
 import littleware.apps.tracker.Product;
 import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.ProductManager;
+import littleware.apps.tracker.Queue;
+import littleware.apps.tracker.Task;
 import littleware.apps.tracker.internal.SimpleTaskManager;
 import littleware.apps.tracker.TaskManager;
 import littleware.apps.tracker.TaskQueryManager;
-import littleware.apps.tracker.TrackerAssetType;
+import littleware.apps.tracker.internal.TrackerGuiceModule;
 import littleware.apps.tracker.Version;
 import littleware.apps.tracker.VersionAlias;
 import littleware.asset.AssetType;
@@ -45,7 +48,7 @@ public class TrackerClientModule extends AbstractClientModule {
 
     static {
         final ImmutableList.Builder<AssetType> builder = ImmutableList.builder();
-        typeSet = builder.add(TrackerAssetType.COMMENT).add(TrackerAssetType.DEPENDENCY).add(TrackerAssetType.QUEUE).add(TrackerAssetType.TASK).add(Product.ProductType).add(ProductAlias.PAType).add(Version.VersionType).add(VersionAlias.VAType).add(Member.MemberType).add(MemberAlias.MAType).build();
+        typeSet = builder.add(Comment.COMMENT_TYPE).add(Queue.QUEUE_TYPE).add(Task.TASK_TYPE).add(Product.ProductType).add(ProductAlias.PAType).add(Version.VersionType).add(VersionAlias.VAType).add(Member.MemberType).add(MemberAlias.MAType).build();
     }
     private static final Collection<ServiceType> serviceSet =
             Collections.singleton((ServiceType) TaskQueryManager.SERVICE_HANDLE);
@@ -68,6 +71,6 @@ public class TrackerClientModule extends AbstractClientModule {
         binder.bind(TaskQueryManager.class).to(TaskQueryManagerService.class);
         binder.bind(TaskManager.class).to(SimpleTaskManager.class).in(Scopes.SINGLETON);
         binder.bind(ProductManager.class).to(SimpleProductManager.class).in(Scopes.SINGLETON);
-        (new TrackerAssetType()).configure( binder );
+        (new TrackerGuiceModule()).configure( binder );
     }
 }

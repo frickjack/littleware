@@ -27,13 +27,12 @@ import littleware.asset.*;
 import littleware.base.*;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
-import littleware.security.SecurityAssetType;
 
 /**
  * Quota asset gets attached to a user to restrict
  * the user's access to the littleware database in some way.
  */
-public class QuotaBuilder extends AbstractAssetBuilder implements Quota.Builder {
+public class QuotaBuilder extends AbstractAssetBuilder<Quota.Builder> implements Quota.Builder {
 
     private final static String xmlNamespace =
             "http://www.littleware.com/xml/namespace/2006/quota";
@@ -41,7 +40,7 @@ public class QuotaBuilder extends AbstractAssetBuilder implements Quota.Builder 
     private int limit = -1;
 
     public QuotaBuilder() {
-        super(SecurityAssetType.QUOTA);
+        super(Quota.QUOTA_TYPE);
     }
 
     @Override
@@ -176,6 +175,36 @@ public class QuotaBuilder extends AbstractAssetBuilder implements Quota.Builder 
         super.copy(source); return this;
     }
 
+    @Override
+    public UUID getUserId() {
+        return getToId();
+    }
+
+    @Override
+    public final void setUserId(UUID value) {
+        setToId( value );
+    }
+
+    @Override
+    public Builder userId(UUID value) {
+        return toId( value );
+    }
+
+    @Override
+    public UUID getNextInChainId() {
+        return getToId();
+    }
+
+    @Override
+    public final void setNextInChainId(UUID value) {
+        nextInChainId( value );
+    }
+
+    @Override
+    public Builder nextInChainId(UUID value) {
+        return toId( value );
+    }
+
 
     /**
      * SAX parser handler
@@ -292,7 +321,7 @@ public class QuotaBuilder extends AbstractAssetBuilder implements Quota.Builder 
 
         @Override
         public Quota.Builder copy() {
-            return (Builder) super.copy();
+            return (new QuotaBuilder()).copy( this );
         }
     }
 }

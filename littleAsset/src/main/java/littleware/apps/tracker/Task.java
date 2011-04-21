@@ -9,6 +9,7 @@
  */
 package littleware.apps.tracker;
 
+import java.util.Date;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
@@ -61,5 +62,36 @@ public interface Task extends Asset {
 
         @Override
         public Task build();
+
+        @Override
+        public TaskBuilder creatorId(UUID value);
+
+        @Override
+        public TaskBuilder lastUpdaterId(UUID value);
+
+        @Override
+        public TaskBuilder aclId(UUID value);
+
+        @Override
+        public TaskBuilder ownerId(UUID value);
+
+        @Override
+        public TaskBuilder comment(String value);
+
+        @Override
+        public TaskBuilder lastUpdate(String value);
+
+        @Override
+        public TaskBuilder homeId(UUID value);
+
+        @Override
+        public TaskBuilder createDate(Date value);
+
+        @Override
+        public TaskBuilder lastUpdateDate(Date value);
+
+
+        @Override
+        public TaskBuilder timestamp(long value);
     }
 }

@@ -9,8 +9,11 @@
  */
 package littleware.apps.test;
 
+import littleware.asset.GenericAsset.GenericBuilder;
+import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.base.feedback.LittleTool;
 import littleware.base.feedback.LittleEvent;
+import littleware.security.LittleGroup.Builder;
 import littleware.test.JLittleDialog;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -21,6 +24,8 @@ import java.util.logging.Level;
 import javax.swing.*;
 
 import com.nexes.wizard.Wizard;
+import java.util.ArrayList;
+import java.util.List;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
@@ -28,7 +33,6 @@ import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.*;
 import littleware.apps.swingclient.wizard.CreateAssetWizard;
 import littleware.asset.test.AbstractAssetTest;
-import littleware.base.*;
 import littleware.security.auth.*;
 import littleware.security.*;
 
@@ -40,17 +44,21 @@ public class SwingClientTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(SwingClientTester.class.getName());
     private final IconLibrary olib_icon;
-    private final AssetModelLibrary olib_asset;
+    private final AssetModelLibrary assetLibrary;
     private final AssetViewFactory ofactory_view;
     private final AssetEditorFactory ofactory_edit;
     private final Provider<CreateAssetWizard> oprovideWizard;
     private final Provider<JAssetBrowser> oprovideBrowser;
     private final Provider<ExtendedAssetViewController> oprovideController;
     private final Provider<JSimpleAssetToolbar> oprovideToolbar;
-    private Asset testHome;
     private final AssetSearchManager search;
     private final LittleSession session;
     private final AssetManager saver;
+    private final Provider<TreeNodeBuilder> nodeProvider;
+    private final Provider<GenericBuilder> genericProvider;
+    private final Provider<Builder> groupProvider;
+    private final Provider<LittleAclEntry.Builder> aclEntryProvider;
+    private final Provider<LittleAcl.Builder> aclProvider;
 
     /** Inject dependencies */
     @Inject
@@ -63,11 +71,22 @@ public class SwingClientTester extends AbstractAssetTest {
             Provider<CreateAssetWizard> provideWizard,
             Provider<JAssetBrowser> provideBrowser,
             Provider<ExtendedAssetViewController> provideController,
-            Provider<JSimpleAssetToolbar> provideToolbar) {
+            Provider<JSimpleAssetToolbar> provideToolbar,
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider,
+            Provider<GenericAsset.GenericBuilder> genericProvider,
+            Provider<LittleGroup.Builder> groupProvider,
+            Provider<LittleAcl.Builder> aclProvider,
+            Provider<LittleAclEntry.Builder> aclEntryProvider
+        ) {
         this.search = search;
         this.session = session;
         this.saver = saver;
-        olib_asset = lib_asset;
+        this.nodeProvider = nodeProvider;
+        this.genericProvider = genericProvider;
+        this.groupProvider = groupProvider;
+        this.aclProvider = aclProvider;
+        this.aclEntryProvider = aclEntryProvider;
+        assetLibrary = lib_asset;
         olib_icon = lib_icon;
         ofactory_view = factory_view;
         ofactory_edit = factory_edit;
@@ -77,32 +96,14 @@ public class SwingClientTester extends AbstractAssetTest {
         oprovideToolbar = provideToolbar;
     }
 
-    /** 
-     * No setup necessary
-     */
-    @Override
-    public void setUp() {
-        try {
-            testHome = getTestHome(search);
-        } catch (Exception ex) {
-            log.log(Level.SEVERE, "Setup failed", ex);
-            fail("Caught: " + ex);
-        }
-    }
-
-    /** Do nothing	 */
-    @Override
-    public void tearDown() {
-    }
-
     public void testClientSession() {
         try {
             // assert that the login session has a non-zero duration
-            assertTrue("Session t_end (" + session.getEndDate() + ") > t_start (" +
-                    session.getStartDate() + ")",
-                    session.getEndDate().getTime() > (session.getStartDate().getTime() + 60 * 1000));
+            assertTrue("Session t_end (" + session.getEndDate() + ") > t_start ("
+                    + session.getCreateDate() + ")",
+                    session.getEndDate().getTime() > (session.getCreateDate().getTime() + 60 * 1000));
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Failed test", ex );
+            log.log(Level.WARNING, "Failed test", ex);
             assertTrue("Caught unexpected: " + ex, false);
         }
     }
@@ -111,36 +112,37 @@ public class SwingClientTester extends AbstractAssetTest {
      * Run the injected AssetModelLibrary through a few simple tests
      */
     public void testAssetModelLibrary() {
-        // couple bogus test assets - donot save to repository
-        final Asset a_bogus1 = GenericAsset.GENERIC.create().name("bogus1").build();
-        final Asset a_bogus2 = GenericAsset.GENERIC.create().name("bogus2").build();
-
+        final List<Asset> cleanupList = new ArrayList<Asset>();
 
         try {
-            final Asset a_test = session;
+            final LittleHome testHome = getTestHome(search);
+            final GenericAsset testAsset1 = genericProvider.get().name("bogus1").build();
+            final TreeNode testAsset2 = nodeProvider.get().name("bogus2").build();
+            cleanupList.add(testAsset1);
+            cleanupList.add(testAsset2);
 
-            olib_asset.remove(a_test.getId());
+            assetLibrary.remove(session.getId());
 
             assertTrue("Simple sync is ok",
-                    olib_asset.syncAsset(a_test).getAsset() == a_test);
+                    assetLibrary.syncAsset(session).getAsset() == session);
             assertTrue("No retrieval if not necessary",
-                    olib_asset.retrieveAssetModel(a_test.getId(), search).get().getAsset() == a_test);
+                    assetLibrary.retrieveAssetModel(session.getId(), search).get().getAsset() == session);
 
-            AssetModel amodel_everybody =
-                    olib_asset.syncAsset(search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+            final AssetModel amodel_everybody =
+                    assetLibrary.syncAsset(search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE).get());
             assertTrue("ModelLibrary getByName inheritance aware 1",
-                    olib_asset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    assetLibrary.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittlePrincipal.PRINCIPAL_TYPE) != null);
             assertTrue("ModelLibrary getByName inheritance aware 2",
-                    olib_asset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    assetLibrary.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleUser.USER_TYPE) == null);
             assertTrue("ModelLibrary getByName inheritance aware 3",
-                    olib_asset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    assetLibrary.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE) != null);
-            olib_asset.remove(amodel_everybody.getAsset().getId());
+            assetLibrary.remove(amodel_everybody.getAsset().getId());
             assertTrue("ModelLibrary getByName cleared after remove",
-                    olib_asset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    assetLibrary.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE) == null);
 
             final AssetEditor edit_bogus = new AbstractAssetEditor(this) {
@@ -149,22 +151,23 @@ public class SwingClientTester extends AbstractAssetTest {
                 public void eventFromModel(LittleEvent event_property) {
                     // just do something - anything
                     log.log(Level.INFO, "Test editor received event from model, setting value to 5");
-                    changeLocalAsset().setValue(5);
+                    changeLocalAsset().narrow(GenericAsset.GenericBuilder.class).setValue(5);
                 }
             };
-            edit_bogus.setAssetModel(olib_asset.syncAsset(a_bogus1)); //addPropertyChangeListener ( listen_assetprop );
+            edit_bogus.setAssetModel(assetLibrary.syncAsset(testAsset1)); //addPropertyChangeListener ( listen_assetprop );
             // Adding a_bogus2 to the asset repository should trigger a Property.assetsLinkingFrom
             // property-change event on listeners to a_bogus1 AssetModel
-            olib_asset.syncAsset(a_bogus2.copy().fromId(a_bogus1.getId()).build());
+            assetLibrary.syncAsset(testAsset2.copy().parentId(testAsset1.getId()).build());
             Thread.sleep(4000); // let any asynchrony work itself out
-            assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().getValue());
+            assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().narrow(GenericAsset.class).getValue());
 
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Failed test", ex );
-            fail("Caught unexpected: " + ex );
+            log.log(Level.WARNING, "Failed test", ex);
+            fail("Caught unexpected: " + ex);
         } finally {
-            olib_asset.remove(a_bogus1.getId());
-            olib_asset.remove(a_bogus2.getId());
+            for (Asset trash : cleanupList) {
+                assetLibrary.remove(trash.getId());
+            }
         }
     }
 
@@ -173,19 +176,19 @@ public class SwingClientTester extends AbstractAssetTest {
      */
     public void testJAssetViews() {
         try {
-            AssetModel model_asset = olib_asset.syncAsset(session);
+            AssetModel model_asset = assetLibrary.syncAsset(session);
             JComponent w_asset = (JComponent) ofactory_view.createView(model_asset);
 
             //w_asset.setPreferredSize ( new Dimension ( 800, 700 ) );  // force big
             assertTrue("User confirmed asset-viewer UI functional",
                     JLittleDialog.showTestDialog(w_asset,
-                    "play with the AssetView widget. \n" +
-                    "Hit OK when test successfully done"));
+                    "play with the AssetView widget. \n"
+                    + "Hit OK when test successfully done"));
 
             log.log(Level.INFO, "GETTING GROUP: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
             final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE).get().narrow();
-            AssetModel model_everybody = olib_asset.syncAsset(group_everybody);
+            AssetModel model_everybody = assetLibrary.syncAsset(group_everybody);
             log.log(Level.INFO, "GROUP SYNCED: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
 
             JComponent wview_group = (JComponent) ofactory_view.createView(model_everybody);
@@ -193,19 +196,19 @@ public class SwingClientTester extends AbstractAssetTest {
 
             assertTrue("User confirmed group-viewer UI functional",
                     JLittleDialog.showTestDialog(wview_group,
-                    "play with the GroupView widget. \n" +
-                    "Hit OK when test successfully done"));
+                    "play with the GroupView widget. \n"
+                    + "Hit OK when test successfully done"));
 
             final LittleAcl acl_everybody = search.getByName(LittleAcl.ACL_EVERYBODY_READ,
                     LittleAcl.ACL_TYPE).get().narrow();
-            JComponent w_acl = (JComponent) ofactory_view.createView(olib_asset.syncAsset(acl_everybody));
+            JComponent w_acl = (JComponent) ofactory_view.createView(assetLibrary.syncAsset(acl_everybody));
             //w_acl.setPreferredSize ( new Dimension ( 800, 700 ) );  // force big
             assertTrue("User confirmed acl-viewer UI functional",
                     JLittleDialog.showTestDialog(w_acl,
-                    "play with the AclView widget. \n" +
-                    "Hit OK when test successfully done"));
+                    "play with the AclView widget. \n"
+                    + "Hit OK when test successfully done"));
         } catch (Exception e) {
-            log.log(Level.WARNING, "Failed test", e );
+            log.log(Level.WARNING, "Failed test", e);
             fail("Caught: " + e);
         }
     }
@@ -215,7 +218,7 @@ public class SwingClientTester extends AbstractAssetTest {
      */
     public void testJAssetBrowser() {
         try {
-            AssetModel model_asset = olib_asset.syncAsset(session);
+            AssetModel model_asset = assetLibrary.syncAsset(session);
             JComponent wbrowser_asset = oprovideBrowser.get();
             SimpleAssetViewController listen_control = oprovideController.get();
             listen_control.setControlView((AssetView) wbrowser_asset);
@@ -248,12 +251,12 @@ public class SwingClientTester extends AbstractAssetTest {
 
             assertTrue("User confirmed browser UI functional",
                     JLittleDialog.showTestDialog(wpanel_browser, //new JLabel ( "Play with the browser" ),
-                    "play with the asset browser widget. \n" +
-                    "Hit OK when test successfully done"));
+                    "play with the asset browser widget. \n"
+                    + "Hit OK when test successfully done"));
 
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Failed test", ex );
-            fail("Caught: " + ex );
+            log.log(Level.WARNING, "Failed test", ex);
+            fail("Caught: " + ex);
         }
     }
 
@@ -262,7 +265,8 @@ public class SwingClientTester extends AbstractAssetTest {
      */
     public void testJEditor() {
         try {
-            olib_asset.syncAsset(session);
+            final LittleHome testHome = getTestHome( search );
+            assetLibrary.syncAsset(session);
 
             if (true) { // Simple group editor
                 final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
@@ -270,21 +274,21 @@ public class SwingClientTester extends AbstractAssetTest {
                 LittleGroup group_test = (LittleGroup) search.getByName("group.littleware.test_user",
                         LittleGroup.GROUP_TYPE).getOr(null);
                 if (null == group_test) {
-                    group_test = saver.saveAsset(LittleGroup.GROUP_TYPE.create().name("group.littleware.test_user").parent(getTestHome(search)).build(),
+                    group_test = saver.saveAsset(groupProvider.get().name("group.littleware.test_user").parent(getTestHome(search)).build(),
                             "Setup test asset").narrow();
                 }
                 group_test = group_test.copy().add(group_everybody).build();
 
                 assertTrue("Test group " + group_test.getName() + " has members",
                         !group_test.getMembers().isEmpty());
-                AssetModel model_test = olib_asset.syncAsset(group_test);
+                AssetModel model_test = assetLibrary.syncAsset(group_test);
                 JComponent wedit_group = (JComponent) ofactory_edit.createView(model_test);
                 //wedit_group.setPreferredSize ( new Dimension ( 1000, 700 ) );  // force big
 
                 assertTrue("User confirmed group-editor UI functional",
                         JLittleDialog.showTestDialog(wedit_group,
-                        "play with the GroupEditor widget. \n" +
-                        "Hit OK when test successfully done"));
+                        "play with the GroupEditor widget. \n"
+                        + "Hit OK when test successfully done"));
             }
             if (true) { // Simple acl editor
                 final String s_acl_name = "SwingClientTester.acl";
@@ -293,28 +297,28 @@ public class SwingClientTester extends AbstractAssetTest {
                 if (null == acl_test) {
                     final Asset a_testhome = search.getByName("littleware.test_home", LittleHome.HOME_TYPE).get();
                     final LittleGroup groupEverbody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP, LittleGroup.GROUP_TYPE).get().narrow();
-                    final LittleAcl acl = LittleAcl.ACL_TYPE.create().name(s_acl_name).parent(a_testhome).
+                    final LittleAcl acl = aclProvider.get().name(s_acl_name).parent(testHome).
                             comment("AclEditor test acl").build().narrow();
 
                     acl_test = saver.saveAsset(acl.copy().addEntry(
-                            LittleAclEntry.ACL_ENTRY.create().
+                            aclEntryProvider.get().
                             principal(groupEverbody).
                             acl(acl).
                             addPermission(LittlePermission.READ).
                             build()).aclId(acl.getId()).build(), "Setting up test asset").narrow();
                 }
-                AssetModel model_test = olib_asset.syncAsset(acl_test);
+                AssetModel model_test = assetLibrary.syncAsset(acl_test);
                 JComponent wedit_acl = (JComponent) ofactory_edit.createView(model_test); // Add AclEditor to Factory!!!
                 //wedit_acl.setPreferredSize ( new Dimension ( 1000, 700 ) );  // force big
 
                 assertTrue("User confirmed acl-editor UI functional",
                         JLittleDialog.showTestDialog(wedit_acl,
-                        "play with the AclEditor widget. \n" +
-                        "Hit OK when test successfully done"));
+                        "play with the AclEditor widget. \n"
+                        + "Hit OK when test successfully done"));
             }
 
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Failed test", ex );
+            log.log(Level.WARNING, "Failed test", ex);
             fail("Caught: " + ex);
         }
     }
@@ -323,21 +327,26 @@ public class SwingClientTester extends AbstractAssetTest {
      * Run the create-asset wizard through a test
      */
     public void testWizardCreate() {
-        final Asset testAsset = GenericAsset.GENERIC.create().name("test_asset").
-                parent(testHome).build();
+        final List<Asset> cleanupList = new ArrayList<Asset>();
 
         try {
+            final LittleHome testHome = getTestHome(search);
+            final GenericAsset testAsset = genericProvider.get().name("test_asset").
+                    parent(testHome).build();
+            cleanupList.add(testAsset);
             final CreateAssetWizard wizard_create = oprovideWizard.get();
-            wizard_create.setAssetModel(olib_asset.syncAsset(testAsset));
+            wizard_create.setAssetModel(assetLibrary.syncAsset(testAsset));
             assertTrue("User closed create-asset wizard ok",
                     Wizard.FINISH_RETURN_CODE == wizard_create.showModalDialog());
             assertTrue("Asset-create wizard has asset changes",
                     wizard_create.getHasLocalChanges());
         } catch (Exception ex) {
-            log.log(Level.INFO, "Failed test", ex );
+            log.log(Level.INFO, "Failed test", ex);
             fail("Caught unexpected: " + ex);
         } finally {
-            olib_asset.remove(testAsset.getId());
+            for( Asset trash : cleanupList ) {
+                assetLibrary.remove( trash.getId() );
+            }
         }
     }
     /**
@@ -418,4 +427,3 @@ public class SwingClientTester extends AbstractAssetTest {
     }
      */
 }
-

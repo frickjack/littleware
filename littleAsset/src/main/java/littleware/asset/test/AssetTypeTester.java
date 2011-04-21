@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import littleware.asset.AssetType;
 import littleware.base.Maybe;
 import littleware.base.UUIDFactory;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittlePrincipal;
 import littleware.test.LittleTest;
 
 /**

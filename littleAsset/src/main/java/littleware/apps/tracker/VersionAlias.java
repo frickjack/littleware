@@ -82,6 +82,8 @@ public interface VersionAlias extends LinkAsset {
 
         @Override
         public VABuilder fromId( UUID value );
+        @Override
+        public VABuilder from( Asset value );
 
 
     }

@@ -16,10 +16,9 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import junit.framework.*;
+import littleware.asset.GenericAsset;
 
-import littleware.asset.*;
 import littleware.asset.pickle.HumanPicklerProvider;
-import littleware.asset.pickle.PickleMaker;
 import littleware.asset.pickle.XmlPicklerProvider;
 
 
@@ -39,7 +38,8 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetTreeToolTester> provideTreeTester,
             Provider<AssetSearchManagerTester> provideSearchTest,
             HumanPicklerProvider  humanPickler,
-            XmlPicklerProvider    xmlPickler
+            XmlPicklerProvider    xmlPickler,
+            Provider<GenericAsset.GenericBuilder> genericProvider
             ) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
@@ -48,8 +48,8 @@ public class JenkinsTestSuite extends TestSuite {
             this.addTest( provideTreeTester.get() );
         }
         if (runTest) {
-            this.addTest(new PickleTester( humanPickler ));
-            this.addTest(new PickleTester( xmlPickler ) );
+            this.addTest(new PickleTester( humanPickler, genericProvider ));
+            this.addTest(new PickleTester( xmlPickler, genericProvider ) );
         }
 
         if (runTest) {

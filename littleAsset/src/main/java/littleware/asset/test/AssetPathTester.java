@@ -19,7 +19,6 @@ import java.util.logging.Level;
 import littleware.asset.*;
 import littleware.asset.LinkAsset.LinkBuilder;
 import littleware.asset.TreeNode.TreeNodeBuilder;
-import littleware.base.*;
 
 /**
  * Test traversal of some asset paths.
@@ -93,7 +92,7 @@ public class AssetPathTester extends AbstractAssetTest {
                         linkProvider.get().
                         name("Points2A").
                         comment("link to A").
-                        parent(testFolder).
+                        from(testFolder).
                         toId(nodeA.getId()).build(), "Setup LINK in AssetPathTester test tree");
             }
             final TreeNode[] numberNodes = new TreeNode[3];
@@ -106,7 +105,7 @@ public class AssetPathTester extends AbstractAssetTest {
                             name(numberName).
                             comment("Setting up AssetPathTester").
                             parent(nodeA).
-                            toId(nodeA.getId()).build(), "Setting up AssetPathTester");
+                            build(), "Setting up AssetPathTester");
                 }
                 numberNodes[i - 1] = numberNode;
             }
@@ -115,7 +114,7 @@ public class AssetPathTester extends AbstractAssetTest {
                 smallestPointer = assetMgr.saveAsset(
                         linkProvider.get().
                         name("smallest").
-                        parent(nodeA).
+                        from(nodeA).
                         toId(numberNodes[0].getId()).
                         comment("link to smallest number").build(), "Setting up AssetPathTester");
             }
@@ -124,7 +123,7 @@ public class AssetPathTester extends AbstractAssetTest {
                 bigestPointer = assetMgr.saveAsset(
                         linkProvider.get().
                         name("biggest").
-                        parent(nodeA).
+                        from(nodeA).
                         toId(numberNodes[numberNodes.length - 1].getId()).
                         comment("link to biggest number").build(), "Setting up AssetPathTester");
             }

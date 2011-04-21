@@ -7,10 +7,10 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -20,10 +20,11 @@ import littleware.apps.filebucket.BucketUtil;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
+import littleware.asset.LittleHome;
+import littleware.asset.TreeNode;
+import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.feedback.Feedback;
-
 
 /**
  * Tester for the file-bucket tools in the
@@ -33,13 +34,14 @@ public class BucketTester extends AbstractAssetTest {
 
     private static final String testData = "Frickjack bla bla " + (new Date()).getTime();
     private static final String testFolderName = "BucketTester";
-    private static final Logger log = Logger.getLogger(BucketTester.class.getName() );
+    private static final Logger log = Logger.getLogger(BucketTester.class.getName());
     private final BucketManager bucketMgr;
     private final AssetManager assetMgr;
     private final AssetSearchManager search;
     private Asset testAsset = null;
     private final BucketUtil bucketUtil;
     private final Feedback feedback;
+    private final Provider<TreeNodeBuilder> nodeProvider;
 
     /**
      * Stash managers to use during test
@@ -48,43 +50,40 @@ public class BucketTester extends AbstractAssetTest {
     public BucketTester(AssetManager assetMgr, AssetSearchManager seach,
             BucketManager bucketMgr,
             BucketUtil bucketUtil,
-            Feedback   feedback
-            ) {
+            Feedback feedback,
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider) {
         this.assetMgr = assetMgr;
         this.search = seach;
         this.bucketMgr = bucketMgr;
         this.bucketUtil = bucketUtil;
-        this.feedback=feedback;
+        this.feedback = feedback;
+        this.nodeProvider = nodeProvider;
         setName("testBucket");
     }
 
-    
     /**
      * Setup a test asset.
      */
     @Override
     public void setUp() {
         try {
-            final Asset home = getTestHome( search );
-            UUID testFolderId = search.getAssetIdsFrom(home.getId(), GenericAsset.GENERIC).get(testFolderName);
+            final LittleHome home = getTestHome(search);
+            UUID testFolderId = search.getAssetIdsFrom(home.getId(), TreeNode.TREE_NODE_TYPE).get(testFolderName);
             if (null == testFolderId) {
                 testFolderId = assetMgr.saveAsset(
-                        GenericAsset.GENERIC.create().parent(home).
-                            name(testFolderName).build(),
-                             "setup folder for test"
-                             ).getId();
+                        nodeProvider.get().parent(home).
+                        name(testFolderName).build(),
+                        "setup folder for test").getId();
             }
 
             final Date now = new Date();
-            
+
             testAsset = assetMgr.saveAsset(
-                    GenericAsset.GENERIC.create().parent( search.getAsset(testFolderId).get()).
-                                name("test" + now.getTime()).build()
-                                , "setup new test"
-                                );
+                    nodeProvider.get().parent(search.getAsset(testFolderId).get().narrow(TreeNode.class)).
+                    name("test" + now.getTime()).build(), "setup new test");
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Failed setup", ex );
-            fail( "Caught exception: " + ex );
+            log.log(Level.WARNING, "Failed setup", ex);
+            fail("Caught exception: " + ex);
         }
     }
 
@@ -96,8 +95,8 @@ public class BucketTester extends AbstractAssetTest {
         try {
             assetMgr.deleteAsset(testAsset.getId(), "Cleanup after test");
         } catch (Exception ex) {
-            log.log( Level.WARNING, "Failed teardown", ex );
-            fail( "Caught exception: " + ex );
+            log.log(Level.WARNING, "Failed teardown", ex);
+            fail("Caught exception: " + ex);
         }
     }
 
@@ -109,7 +108,7 @@ public class BucketTester extends AbstractAssetTest {
             Bucket bucket = bucketMgr.getBucket(testAsset.getId());
             assertTrue("Bucket tracks right asset", bucket.getAssetId().equals(testAsset.getId()));
             assertTrue("Bucket starts empty", bucket.getPaths().isEmpty());
-            testAsset = bucketUtil.writeText(testAsset, "test1", testData, "writing test data", feedback );
+            testAsset = bucketUtil.writeText(testAsset, "test1", testData, "writing test data", feedback);
             bucket = bucketMgr.getBucket(testAsset.getId());
 
             assertTrue("Bucket has a path now", bucket.getPaths().contains("test1"));
@@ -118,13 +117,12 @@ public class BucketTester extends AbstractAssetTest {
 
             assertTrue("Rename went ok", bucket.getPaths().contains("test_rename") && (bucket.getPaths().size() == 1));
             testAsset = bucketUtil.writeText(testAsset, "test1", testData + testData,
-                                    "write another test file to the bucket", feedback
-                                    );
+                    "write another test file to the bucket", feedback);
             bucket = bucketMgr.getBucket(testAsset.getId());
 
             assertTrue("Bucket with multiple files went ok", bucket.getPaths().contains("test_rename") && bucket.getPaths().contains("test1") && (bucket.getPaths().size() == 2));
 
-            final String readData = bucketUtil.readText(testAsset.getId(), "test_rename", feedback );
+            final String readData = bucketUtil.readText(testAsset.getId(), "test_rename", feedback);
             assertTrue("Got expected data from bucket: " + readData, readData.equals(testData));
             testAsset = bucketMgr.eraseFromBucket(testAsset, "test_rename", "erase some test data");
             bucket = bucketMgr.getBucket(testAsset.getId());
@@ -136,9 +134,8 @@ public class BucketTester extends AbstractAssetTest {
 
             assertTrue("Erase to empty ok", bucket.getPaths().isEmpty());
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Caught exception", ex );
-            fail("Caught: " + ex );
+            log.log(Level.WARNING, "Caught exception", ex);
+            fail("Caught: " + ex);
         }
     }
 }
-

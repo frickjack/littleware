@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.xml;
 
 import org.xml.sax.*;
@@ -21,9 +20,10 @@ import littleware.asset.AssetType;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.validate.ValidationException;
 
-public abstract class AbstractXmlAssetBuilder extends AbstractAssetBuilder implements XmlAssetBuilder {
-    public AbstractXmlAssetBuilder( AssetType assetType ) {
-        super( assetType );
+public abstract class AbstractXmlAssetBuilder<T extends XmlAssetBuilder> extends AbstractAssetBuilder<T> implements XmlAssetBuilder {
+
+    public AbstractXmlAssetBuilder(AssetType assetType) {
+        super(assetType);
     }
 
     /**
@@ -33,14 +33,14 @@ public abstract class AbstractXmlAssetBuilder extends AbstractAssetBuilder imple
      */
     @Override
     public abstract String getData();
-    
-        /**
+
+    /**
      * Parses the supplied s_xml data, and makes up-calls to 
      * subtype methods annotated with XmlGetter annotations.
      * Uses a ContentHandler retrieved from getContentHandler.
      */
     @Override
-    public AssetBuilder data(String s_xml)  {
+    public T data(String s_xml) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -49,7 +49,7 @@ public abstract class AbstractXmlAssetBuilder extends AbstractAssetBuilder imple
 
             sax_parser.parse(new InputSource(new StringReader(s_xml)),
                     sax_handler);
-            return this;
+            return (T) this;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

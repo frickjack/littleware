@@ -17,7 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Comment;
 import littleware.apps.tracker.Comment.CommentBuilder;
-import littleware.apps.tracker.internal.TrackerGuiceModule;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
@@ -91,7 +90,7 @@ public class CommentTester extends AbstractAssetTest {
 
     public void testComments() {
         try {
-            final Asset folder = testFolder.get();
+            final TreeNode folder = testFolder.get();
             final String commentString = "Test bla bla bla!";
             final Comment comment = assetMan.saveAsset(
                     commentProvider.get().parent( folder

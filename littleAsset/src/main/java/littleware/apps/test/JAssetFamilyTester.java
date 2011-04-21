@@ -18,7 +18,7 @@ import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.swingclient.JAssetFamilyView;
 import littleware.asset.AssetSearchManager;
 import littleware.security.AccountManager;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleGroup;
 import littleware.test.JLittleDialog;
 import littleware.test.LittleTest;
 

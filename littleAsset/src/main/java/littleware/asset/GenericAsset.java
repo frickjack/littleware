@@ -16,8 +16,9 @@ import littleware.base.UUIDFactory;
 /**
  * Extends base Asset with various useful properties.
  */
-public interface GenericAsset extends TreeNode, LinkAsset {
-
+public interface GenericAsset extends TreeNode {
+    public UUID getToId();
+    
     public String getData();
 
     /**
@@ -89,7 +90,12 @@ public interface GenericAsset extends TreeNode, LinkAsset {
     @Override
     public GenericBuilder copy();
 
-    public interface GenericBuilder extends TreeNode.TreeNodeBuilder, LinkAsset.LinkBuilder {
+    public interface GenericBuilder extends TreeNode.TreeNodeBuilder {
+        public UUID getToId();
+
+        public void setToId(UUID value);
+
+        public GenericBuilder toId(UUID value);
 
         /**
          * Set the data blob attached to this asset.
@@ -188,7 +194,8 @@ public interface GenericAsset extends TreeNode, LinkAsset {
         public GenericBuilder timestamp(long value);
 
         @Override
-        public GenericBuilder parent(TreeNode parent);
+        public GenericBuilder parent(TreeParent parent);
+
     }
     /** GENERIC asset-type */
     public static final AssetType GENERIC = new AssetType(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),

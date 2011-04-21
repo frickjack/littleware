@@ -45,7 +45,7 @@ public interface AssetManager extends Remote {
      * based on asset-type.
      * If asset does not have an ObjectId, then one is assigned.  
      * Enforces various rules including every asset must have an owner,
-     * security checks, and no assets may link FROM an AssetType.LINK type asset.
+     * security checks, and no assets may link FROM an LinkAsset.LINK_TYPE type asset.
      *
      * @param a_asset to save - new asset created if object-id is null
      *           or asset with id does not exist, otherwise

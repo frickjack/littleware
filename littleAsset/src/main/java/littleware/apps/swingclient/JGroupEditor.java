@@ -64,8 +64,8 @@ public class JGroupEditor extends JGenericAssetEditor  {
     {
             /*...
         AssetType[] v_ptype = {
-            SecurityAssetType.USER,
-            SecurityAssetType.GROUP
+            LittleUser.USER_TYPE,
+            LittleGroup.GROUP_TYPE
         };
         
         owcombo_ptype = new JComboBox ( v_ptype );
@@ -92,7 +92,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
     private void uiAddNewMember () {
         try {
             final String            name = owtext_add.getText ();
-            final LittlePrincipal   principal = om_search.getByName ( name, SecurityAssetType.PRINCIPAL ).get().narrow();
+            final LittlePrincipal   principal = om_search.getByName ( name, LittlePrincipal.PRINCIPAL_TYPE ).get().narrow();
             ((LittleGroup.Builder) this.changeLocalAsset ()).add(principal);
             omodel_memberlist.addElement( principal );
         } catch ( Exception e ) {
@@ -218,7 +218,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
             grid_control.gridy += grid_control.gridheight;
         }
         
-        Icon icon_group = olib_icon.lookupIcon ( SecurityAssetType.GROUP );                
+        Icon icon_group = olib_icon.lookupIcon ( LittleGroup.GROUP_TYPE );                
         insertTab ( "Edit Group", icon_group, owpanel_build, "Edit Group", -1 );
         ob_built = true;
     }
@@ -277,7 +277,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
         AssetModel  model_view = getAssetModel ();
 
         if ( (null == model_view) 
-             || (! (model_view.getAsset ().getAssetType ().equals ( SecurityAssetType.GROUP ) ))
+             || (! (model_view.getAsset ().getAssetType ().equals ( LittleGroup.GROUP_TYPE ) ))
              ) {
             olog_generic.log ( Level.FINE, "Non-group model" );
             setTabEnabled ( owpanel_build, false );

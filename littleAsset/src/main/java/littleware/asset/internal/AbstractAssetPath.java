@@ -28,7 +28,7 @@ import littleware.base.Maybe;
  */
 public abstract class AbstractAssetPath implements AssetPath {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.asset.AbstractAssetPath");
+    private static final Logger log = Logger.getLogger("littleware.asset.AbstractAssetPath");
     private String os_subroot_path = null;
     private String os_path = null;
     private AssetPathFactory opathFactory;
@@ -110,7 +110,7 @@ public abstract class AbstractAssetPath implements AssetPath {
                         os_path.lastIndexOf("/"));
                 return path_result;
             } catch (StringIndexOutOfBoundsException e) {
-                olog_generic.log(Level.INFO, "Unexpected " + e + " processing " + os_path +
+                log.log(Level.INFO, "Unexpected " + e + " processing " + os_path +
                         ", " + os_subroot_path);
                 throw e;
             }

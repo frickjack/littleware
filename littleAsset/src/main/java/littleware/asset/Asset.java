@@ -59,6 +59,16 @@ public interface Asset extends CacheableObject {
     public UUID getHomeId();
 
     /**
+     * Every asset (except home-type LittleHome) assets link from
+     * some other asset in the node graph.
+     * An asset subtype may alias the fromId property depending on
+     * its application - ex: TreeNode's parentId property is an alias for fromId.
+     * Note that the AssetBuilder does not include the fromId property -
+     * a subtype determine how the fromId gets set.
+     */
+    public UUID getFromId();
+
+    /**
      * Id of Principal that owns this asset - may be null.
      * Members of
      * the littewlare.admin group are also implicit owners

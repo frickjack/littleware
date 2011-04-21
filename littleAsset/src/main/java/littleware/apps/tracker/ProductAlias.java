@@ -10,11 +10,11 @@
 
 package littleware.apps.tracker;
 
-import littleware.apps.tracker.internal.SimplePABuilder;
+import java.util.Date;
 import java.util.UUID;
 import littleware.asset.Asset;
-import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
+import littleware.asset.LinkAsset;
 import littleware.base.Maybe;
 import littleware.base.UUIDFactory;
 
@@ -22,7 +22,7 @@ import littleware.base.UUIDFactory;
  *
  * @author pasquini
  */
-public interface ProductAlias extends Asset {
+public interface ProductAlias extends LinkAsset {
     /**
      * Alias for getToId - reference to product or product alias
      */
@@ -31,12 +31,10 @@ public interface ProductAlias extends Asset {
     @Override
     public PABuilder copy();
     
-    public interface PABuilder extends AssetBuilder {
+    public interface PABuilder extends LinkAsset.LinkBuilder {
         @Override
         public PABuilder name( String value );
         
-        @Override
-        public PABuilder parent( Asset value );
         /**
          * Alias for setToId
          */
@@ -48,26 +46,42 @@ public interface ProductAlias extends Asset {
         
         @Override
         public ProductAlias build();
-    }
-    
-    public static class Type extends AssetType {
-        private Type() {
-            super(
-            UUIDFactory.parseUUID("1A827A6E61AE45939DE46B62F69B93B2"),
-            "littleware.ProductAlias"
-            );
-        }
 
         @Override
-        public Maybe<AssetType> getSuperType() {
-            return Maybe.something( (AssetType) AssetType.LINK );
-        }
-        
+        public PABuilder creatorId(UUID value);
+
         @Override
-        public PABuilder create() {
-            return new SimplePABuilder();
-        }
+        public PABuilder lastUpdaterId(UUID value);
+
+        @Override
+        public PABuilder aclId(UUID value);
+
+        @Override
+        public PABuilder ownerId(UUID value);
+
+        @Override
+        public PABuilder comment(String value);
+
+        @Override
+        public PABuilder lastUpdate(String value);
+
+        @Override
+        public PABuilder homeId(UUID value);
+
+        @Override
+        public PABuilder createDate(Date value);
+
+        @Override
+        public PABuilder lastUpdateDate(Date value);
+
+        @Override
+        public PABuilder fromId( UUID value );
+
+        @Override
+        public PABuilder timestamp(long value);
+
     }
     
-    public static final Type PAType = new Type();
+    public static final AssetType PAType = new AssetType(UUIDFactory.parseUUID("1A827A6E61AE45939DE46B62F69B93B2"),
+            "littleware.ProductAlias", LinkAsset.LINK_TYPE );
 }

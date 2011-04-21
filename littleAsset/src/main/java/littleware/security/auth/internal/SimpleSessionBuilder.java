@@ -29,11 +29,11 @@ import littleware.security.auth.LittleSession.Builder;
  * Simple implementation of LittleSession 
  * interface backed by a database entry.
  */
-public class SimpleSessionBuilder extends AbstractAssetBuilder implements LittleSession.Builder {
+public class SimpleSessionBuilder extends AbstractAssetBuilder<LittleSession.Builder> implements LittleSession.Builder {
 
     /** Do-nothing constructor for java.io.Serializable */
     public SimpleSessionBuilder() {
-        super(SecurityAssetType.SESSION);
+        super(LittleSession.SESSION_TYPE);
         final Date now = new Date();
         this.setStartDate(now);
         this.setEndDate(new Date(now.getTime() + 60 * 60 * 24 * 1000));
@@ -75,7 +75,7 @@ public class SimpleSessionBuilder extends AbstractAssetBuilder implements Little
 
         @Override
         public LittleSession.Builder copy() {
-            return (Builder) super.copy();
+            return (new SimpleSessionBuilder()).copy( this );
         }
     }
 

@@ -16,18 +16,17 @@ import littleware.asset.Asset;
 import littleware.base.validate.ValidationException;
 import littleware.security.LittleUser;
 import littleware.security.LittleUser.Builder;
-import littleware.security.SecurityAssetType;
 import static littleware.security.LittleUser.Status;
 
 
 /**
  * Simple implementation of the SimpleUserBuilder interface
  */
-public class SimpleUserBuilder extends AbstractAssetBuilder implements LittleUser.Builder {
+public class SimpleUserBuilder extends AbstractAssetBuilder<LittleUser.Builder> implements LittleUser.Builder {
 
     /** Do-nothing constructor for java.io.Serializable */
     public SimpleUserBuilder() {
-        super( SecurityAssetType.USER );
+        super( LittleUser.USER_TYPE );
         setOwnerId( getId() );
     }
 
@@ -87,7 +86,7 @@ public class SimpleUserBuilder extends AbstractAssetBuilder implements LittleUse
 
         @Override
         public LittleUser.Builder copy() {
-            return (Builder) (new SimpleUserBuilder()).copy(this);
+            return (new SimpleUserBuilder()).copy(this);
         }
 
     }

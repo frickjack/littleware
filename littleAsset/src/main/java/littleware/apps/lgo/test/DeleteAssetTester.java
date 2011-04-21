@@ -11,6 +11,7 @@
 package littleware.apps.lgo.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +20,10 @@ import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
+import littleware.asset.GenericAsset;
+import littleware.asset.LittleHome;
+import littleware.asset.TreeNode;
+import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.AssertionFailedException;
 import littleware.base.feedback.LoggerFeedback;
@@ -38,6 +42,7 @@ public class DeleteAssetTester extends AbstractAssetTest {
     private final AssetPathFactory     pathFactory;
 
     private Asset   deleteMeAsset = null;
+    private final Provider<TreeNodeBuilder> nodeProvider;
     
     /**
      * Create the "deleteCommandTest" asset
@@ -45,10 +50,10 @@ public class DeleteAssetTester extends AbstractAssetTest {
     @Override
     public void setUp() {
         try {
-            final Asset aHome = search.getByName( getTestHome(), LittleHome.HOME_TYPE ).get();
-            deleteMeAsset = search.getAssetFrom( aHome.getId(), osName ).getOr( null );
+            final LittleHome home = search.getByName( getTestHome(), LittleHome.HOME_TYPE ).get().narrow();
+            deleteMeAsset = search.getAssetFrom( home.getId(), osName ).getOr( null );
             if ( null == deleteMeAsset ) {
-                final Asset aNew = GenericAsset.GENERIC.create().parent( aHome ).name( osName ).build();
+                final Asset aNew = nodeProvider.get().parent( home ).name( osName ).build();
                 deleteMeAsset = assetMgr.saveAsset( aNew, "Setup test asset" );
             }
         } catch ( RuntimeException ex ) {
@@ -64,13 +69,15 @@ public class DeleteAssetTester extends AbstractAssetTest {
             AssetSearchManager search,
             AssetManager       mgrAsset,
             DeleteAssetCommand.Builder commandBuilder,
-            AssetPathFactory   factory
+            AssetPathFactory   factory,
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider
             ) {
         setName( "testCommand" );
         this.search = search;
         this.assetMgr = mgrAsset;
         this.commandBuilder = commandBuilder;
         this.pathFactory = factory;
+        this.nodeProvider = nodeProvider;
     }
 
     public void testCommand() {

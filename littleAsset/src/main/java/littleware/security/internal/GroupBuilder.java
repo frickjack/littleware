@@ -25,7 +25,6 @@ import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.security.LittleGroup;
 import littleware.security.LittleGroup.Builder;
 import littleware.security.LittlePrincipal;
-import littleware.security.SecurityAssetType;
 
 /**
  * Implement java.security.Group interface for tracking groups as principles in 
@@ -38,7 +37,7 @@ import littleware.security.SecurityAssetType;
  * creator, X for group.X groups, and the group's owner 
  * (see editGroup) are the owners of a group.
  */
-public class GroupBuilder extends AbstractAssetBuilder implements LittleGroup.Builder {
+public class GroupBuilder extends AbstractAssetBuilder<LittleGroup.Builder> implements LittleGroup.Builder {
 
     private ImmutableSet.Builder<LittlePrincipal> memberBuilder = ImmutableSet.builder();
 
@@ -47,7 +46,7 @@ public class GroupBuilder extends AbstractAssetBuilder implements LittleGroup.Bu
      * and java.io.Serializable
      */
     public GroupBuilder() {
-        super(SecurityAssetType.GROUP);
+        super(LittleGroup.GROUP_TYPE);
     }
 
     @Override
@@ -82,7 +81,7 @@ public class GroupBuilder extends AbstractAssetBuilder implements LittleGroup.Bu
 
     @Override
     public LittleGroup.Builder copy( Asset source ) {
-        super.copy( (AbstractAsset) source );
+        super.copy( source );
         if ( ! (source instanceof GroupAsset) ) {
             return this;
         }
@@ -235,7 +234,7 @@ public class GroupBuilder extends AbstractAssetBuilder implements LittleGroup.Bu
 
         @Override
         public LittleGroup.Builder copy() {
-            return (new GroupBuilder()).copy();
+            return (new GroupBuilder()).copy( this );
         }
     }
 

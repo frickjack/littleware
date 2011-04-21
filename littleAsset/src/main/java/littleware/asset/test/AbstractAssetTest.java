@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
+import littleware.asset.LittleHome;
 import littleware.base.BaseException;
 import littleware.test.LittleTest;
 
@@ -39,8 +39,8 @@ public abstract class AbstractAssetTest extends LittleTest {
      * Lots of test need to get the test-home in order to create
      * assets under it.
      */
-    public static Asset getTestHome(AssetSearchManager search) throws BaseException, RemoteException, GeneralSecurityException {
-        return search.getByName(getTestHome(), LittleHome.HOME_TYPE).get();
+    public static LittleHome getTestHome(AssetSearchManager search) throws BaseException, RemoteException, GeneralSecurityException {
+        return search.getByName(getTestHome(), LittleHome.HOME_TYPE).get().narrow( LittleHome.class );
     }
 
     /**

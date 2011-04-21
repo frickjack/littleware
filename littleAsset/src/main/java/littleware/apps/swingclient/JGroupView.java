@@ -37,7 +37,7 @@ public class JGroupView extends JAssetWithChildrenView {
         AssetModel model_view = getAssetModel ();
         Map<Asset,String> v_childinfo = new HashMap<Asset,String> ();
 
-        if ( ! model_view.getAsset ().getAssetType ().equals ( SecurityAssetType.GROUP ) ) {
+        if ( ! model_view.getAsset ().getAssetType ().equals ( LittleGroup.GROUP_TYPE ) ) {
             super.setTabEnabled ( false );
             return v_childinfo;
         }
@@ -62,7 +62,7 @@ public class JGroupView extends JAssetWithChildrenView {
                        ) {
         super( m_retriever, lib_icon, lib_asset,
                 "Group members",
-               "Group Members", lib_icon.lookupIcon ( SecurityAssetType.GROUP ),
+               "Group Members", lib_icon.lookupIcon ( LittleGroup.GROUP_TYPE ),
                "View members of group", jListChildren, provideLinkView
                );
     }

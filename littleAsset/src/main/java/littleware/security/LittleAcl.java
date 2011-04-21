@@ -9,8 +9,6 @@
  */
 package littleware.security;
 
-import littleware.security.internal.SimpleACLBuilder;
-import com.google.inject.ImplementedBy;
 
 import java.security.acl.Permission;
 import java.util.Collection;
@@ -18,8 +16,11 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.UUID;
 import littleware.asset.Asset;
-import littleware.asset.AssetBuilder;
+import littleware.asset.AssetType;
+import littleware.asset.TreeNode;
+import littleware.asset.TreeParent;
 import littleware.base.Maybe;
+import littleware.base.UUIDFactory;
 
 /**
  * Slight specialization of Acl to incorporate into littleware Asset framework.
@@ -29,10 +30,28 @@ import littleware.base.Maybe;
  * Littleware repository.
  * Override Acl methods with no-exception versions.
  */
-public interface LittleAcl extends Asset {
+public interface LittleAcl extends TreeNode {
 
     public final static String ACL_EVERYBODY_READ = "acl.littleware.everybody.read";
     public final static String ACL_EVERYBODY_WRITE = "acl.littleware.everybody.write";
+
+    /** ACL asset type - with AclManager asset specializer */
+    public static final AssetType ACL_TYPE = new AssetType(
+            UUIDFactory.parseUUID("04E11B112526462F91152DFFB51D21C9"),
+            "littleware.ACL") {
+
+        private final Maybe<AssetType> superType = Maybe.something( TreeNode.TREE_NODE_TYPE );
+
+        @Override
+        public Maybe<AssetType>  getSuperType() {
+            return superType;
+        }
+
+        @Override
+        public boolean isNameUnique() {
+            return true;
+        }
+    };
 
     /**
      * Get enumeration view of the ACL entries.
@@ -59,8 +78,8 @@ public interface LittleAcl extends Asset {
     @Override
     public Builder copy();
 
-    @ImplementedBy(SimpleACLBuilder.class)
-    public interface Builder extends AssetBuilder {
+
+    public interface Builder extends TreeNode.TreeNodeBuilder {
 
         /**
          * Utility since our Acl implementation does not care who the caller is
@@ -91,22 +110,11 @@ public interface LittleAcl extends Asset {
         public Builder lastUpdate(String value);
 
         @Override
-        public Builder data(String value);
-
-        @Override
         public Builder homeId(UUID value);
 
         @Override
-        public Builder fromId(UUID value);
+        public Builder parentId(UUID value);
 
-        @Override
-        public Builder toId(UUID value);
-
-        @Override
-        public Builder startDate(Date value);
-
-        @Override
-        public Builder endDate(Date value);
 
         @Override
         public Builder createDate(Date value);
@@ -114,14 +122,12 @@ public interface LittleAcl extends Asset {
         @Override
         public Builder lastUpdateDate(Date value);
 
-        @Override
-        public Builder value(float value);
-
-        @Override
-        public Builder state(int value);
 
         @Override
         public Builder timestamp(long value);
+
+        @Override
+        public Builder parent(TreeParent value);
 
         @Override
         public Builder copy(Asset source);

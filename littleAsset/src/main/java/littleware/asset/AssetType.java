@@ -36,9 +36,9 @@ import littleware.base.*;
  *     granted AccessPermission "littleware.asset.resource.newtype"
  */
 public class AssetType extends DynamicEnum<AssetType> {
-
     private static final long serialVersionUID = 1111142L;
     private static final Logger log = Logger.getLogger(AssetType.class.getName());
+    private Maybe<AssetType>  superType = Maybe.empty();
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -52,10 +52,14 @@ public class AssetType extends DynamicEnum<AssetType> {
      * Constructor for subtypes to register a u_id/s_name
      * for the default implementation of getObjectId() and getName()
      */
-    protected AssetType(UUID typeId, String typeName) {
+    public AssetType(UUID typeId, String typeName) {
         super(typeId, typeName, AssetType.class);
     }
-
+    
+    public AssetType( UUID typeId, String typeName, AssetType superType ) {
+        super(typeId, typeName, AssetType.class);
+        this.superType = Maybe.something( superType );
+    }
 
     /** Shortcut to DynamicEnum.getMembers */
     public static Set<AssetType> getMembers() {
@@ -96,7 +100,7 @@ public class AssetType extends DynamicEnum<AssetType> {
      * @return super-type, or null if no super-type (this implementation returns null)
      */
     public Maybe<AssetType> getSuperType() {
-        return Maybe.empty();
+        return superType;
     }
 
     /**
@@ -132,10 +136,6 @@ public class AssetType extends DynamicEnum<AssetType> {
         return (getSuperType().isEmpty()) ? false : getSuperType().get().isAdminToCreate();
     }
 
-
-    /** LINK assset-type */
-    public static final AssetType LINK = new AssetType(UUIDFactory.parseUUID("926D122F82FE4F28A8F5C790E6733665"),
-            "littleware.LINK");
 
     /**
      * UNKNOWN asset-type - place holder for asset-types that we don't have a handler for.

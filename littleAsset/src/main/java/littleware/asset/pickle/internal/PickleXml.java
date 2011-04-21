@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.pickle;
+package littleware.asset.pickle.internal;
 
 import org.xml.sax.*;
 import javax.xml.parsers.SAXParserFactory;
@@ -21,7 +21,8 @@ import java.text.SimpleDateFormat;
 
 import littleware.base.*;
 import littleware.asset.*;
-import littleware.asset.xml.*;
+import littleware.asset.pickle.AssetXmlPickler;
+import littleware.asset.pickle.XmlTranslator;
 
 /**
  * XmlTranslator for GenericAsset.GENERIC/AssetType.UNKNOWN
@@ -358,15 +359,17 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
         if (on_state.equals(ParserState.DELEGATE)) {
             opickle_chain.startElement(s_namespace, s_simple, s_qualified, v_attrs);
         } else if (on_state.equals(ParserState.SCANNING)) {
-            String s_typename = v_attrs.getValue(XmlTranslator.OS_ASSET_NAMESPACE,
+            final String typeName = v_attrs.getValue(XmlTranslator.OS_ASSET_NAMESPACE,
                     "asset_type");
-            if (null != s_typename) {
+            if (null != typeName) {
                 try {
-                    AssetType n_type = AssetType.getMember(s_typename);
-                    if ((!n_type.equals(GenericAsset.GENERIC))
-                            && (!n_type.equals(AssetType.UNKNOWN))
-                            && PickleType.XML.hasPickleMaker(n_type)) {
-                        opickle_chain = (XmlTranslator<? extends Asset>) PickleType.XML.createPickleMaker(n_type);
+                    final AssetType assetType = AssetType.getMember(typeName);
+                    throw new UnsupportedOperationException( "Need to setup an asset allocator framework!" );
+                    /*...
+                    if ((!assetType.equals(GenericAsset.GENERIC))
+                            && (!assetType.equals(AssetType.UNKNOWN))
+                            && PickleType.XML.hasPickleMaker(assetType)) {
+                        opickle_chain = (XmlTranslator<? extends Asset>) PickleType.XML.createPickleMaker(assetType);
                         on_state = ParserState.DELEGATE;
                         opickle_chain.startElement(s_namespace, s_simple,
                                 s_qualified, v_attrs);
@@ -377,13 +380,18 @@ public class PickleXml extends XmlTranslator<Asset> implements AssetXmlPickler {
                         // recurse on this data now that we're in the IN_ASSET state
                         startElement(s_namespace, s_simple, s_qualified, v_attrs);
                     }
+                     *
+                     */
                 } catch (RuntimeException e) {
                     throw e;
+                    /*
                 } catch (SAXException e) {
                     throw e;
+                     * 
+                     */
                 } catch (Exception e) {
                     throw new SAXException("Failure to resolve pickle handler for asset type: "
-                            + s_typename);
+                            + typeName);
                 }
             }
         } else if (on_state.equals(ParserState.IN_ASSET)) {

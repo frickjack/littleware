@@ -10,23 +10,30 @@
 package littleware.apps.tracker.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Member;
+import littleware.apps.tracker.Member.MemberBuilder;
 import littleware.apps.tracker.MemberAlias;
+import littleware.apps.tracker.MemberAlias.MABuilder;
 import littleware.apps.tracker.Product;
+import littleware.apps.tracker.Product.ProductBuilder;
 import littleware.apps.tracker.ProductAlias;
+import littleware.apps.tracker.ProductAlias.PABuilder;
 import littleware.apps.tracker.Version;
+import littleware.apps.tracker.Version.VersionBuilder;
 import littleware.apps.tracker.VersionAlias;
-import littleware.asset.Asset;
+import littleware.apps.tracker.VersionAlias.VABuilder;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.AssetInfo;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
+import littleware.asset.TreeNode;
 import littleware.asset.test.AbstractAssetTest;
 
 /**
@@ -36,19 +43,37 @@ public class ProductSetupTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(ProductSetupTester.class.getName());
     private final String productName = "SetupTest" + (new Date()).getTime();
-    private Asset testFolder;
+    private TreeNode testFolder;
     private final AssetSearchManager search;
     private final AssetManager assetMan;
     private final TemplateBuilder treeBuilder;
+    private final Provider<MABuilder> memberAliasProvider;
+    private final Provider<ProductBuilder> productProvider;
+    private final Provider<PABuilder> prodAliasProvider;
+    private final Provider<VersionBuilder> versionProvider;
+    private final Provider<VABuilder> versionAliasProvider;
+    private final Provider<MemberBuilder> memberProvider;
 
     @Inject
     public ProductSetupTester(AssetSearchManager search, AssetManager assetMan,
-            AssetTreeTemplate.TemplateBuilder treeBuilder
+            AssetTreeTemplate.TemplateBuilder treeBuilder,
+            Provider<Product.ProductBuilder> productProvider,
+            Provider<Version.VersionBuilder> versionProvider,
+            Provider<ProductAlias.PABuilder> prodAliasProvider,
+            Provider<VersionAlias.VABuilder> versionAliasProvider,
+            Provider<Member.MemberBuilder> memberProvider,
+            Provider<MemberAlias.MABuilder> memberAliasProvider
             ) {
         setName("testProductSetup");
         this.search = search;
         this.assetMan = assetMan;
         this.treeBuilder = treeBuilder;
+        this.productProvider = productProvider;
+        this.prodAliasProvider = prodAliasProvider;
+        this.versionProvider = versionProvider;
+        this.versionAliasProvider = versionAliasProvider;
+        this.memberProvider = memberProvider;
+        this.memberAliasProvider = memberAliasProvider;
     }
 
     @Override
@@ -71,38 +96,38 @@ public class ProductSetupTester extends AbstractAssetTest {
     public void testProductSetup() {
         try {
             final Product product; {
-                final Product.ProductBuilder builder = Product.ProductType.create();
+                final Product.ProductBuilder builder = productProvider.get();
                 product = assetMan.saveAsset( builder.name( productName ).parent( testFolder ).build(),
                         "test product creation"
                         );
             }
             {
-                final ProductAlias.PABuilder builder = ProductAlias.PAType.create();
-                assetMan.saveAsset( builder.name( "testAlias" ).parent(product).product(product).build(),
+                final ProductAlias.PABuilder builder = prodAliasProvider.get();
+                assetMan.saveAsset( builder.name( "testAlias" ).fromId(product.getId()).product(product).build(),
                         "Setup test alias"
                         );
             }
             final Version version; {
-                final Version.VersionBuilder builder = Version.VersionType.create();
+                final Version.VersionBuilder builder = versionProvider.get();
                 version = assetMan.saveAsset( builder.name( "1.0" ).product(product).build(),
                         "Setup test version"
                         );
             }
             {
-                final VersionAlias.VABuilder builder = VersionAlias.VAType.create();
+                final VersionAlias.VABuilder builder = versionAliasProvider.get();
                 assetMan.saveAsset( builder.name( "versionAlias" ).product(product).version(version).build(),
                         "Test alias"
                         );
             }
             final Member member; {
-                final Member.MemberBuilder builder = Member.MemberType.create();
+                final Member.MemberBuilder builder = memberProvider.get();
                 member = assetMan.saveAsset(
-                        builder.name( "member" ).parent( version ).build(),
+                        builder.name( "member" ).version( version ).build(),
                         "Test member"
                         );
             }
             {
-                final MemberAlias.MABuilder builder = MemberAlias.MAType.create();
+                final MemberAlias.MABuilder builder = memberAliasProvider.get();
                 assetMan.saveAsset(
                         builder.name( "memberAlias" ).version(version).member(member).build(),
                         "test alias"

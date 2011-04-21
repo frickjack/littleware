@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.security;
+package littleware.security.internal;
 
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
@@ -25,31 +25,29 @@ import javax.xml.parsers.SAXParser;
 import java.io.StringReader;
 
 import java.security.acl.Permission;
-import littleware.asset.*;
 import littleware.base.*;
+import littleware.security.LittleAcl;
+import littleware.security.LittleAclEntry;
+import littleware.security.LittlePermission;
+import littleware.security.LittlePrincipal;
 
 /**
  * Simple implementation of the LittleAclEntry interface.
  * Overrides setData/getData to extract XML permission data.
  */
-class AclEntryBuilder extends AbstractAssetBuilder implements LittleAclEntry.Builder {
+class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> implements LittleAclEntry.Builder {
 
-    private static final Logger log = Logger.getLogger("littleware.security.SimpleAclEntry");
+    private static final Logger log = Logger.getLogger( AclEntryBuilder.class.getName() );
 
 
-    private Set<Permission> permissionSet = new HashSet<Permission>();
+    private Set<Permission> permissionSet = Collections.emptySet();
     private LittlePrincipal principal = null;
 
     @Override
     public LittleAclEntry build() {
-        return new Entry( this, principal, permissionSet );
+        return new EntryAsset( this, principal, permissionSet );
     }
 
-    @Override
-    public Builder parent( Asset value ) {
-        super.parent( (LittleAcl) value );
-        return this;
-    }
 
     @Override
     public Builder acl(LittleAcl acl) {
@@ -57,106 +55,19 @@ class AclEntryBuilder extends AbstractAssetBuilder implements LittleAclEntry.Bui
         return this;
     }
 
-    @Override
-    public Builder name(String value) {
-        super.name( value ); return this;
-    }
 
-    @Override
-    public Builder creatorId(UUID value) {
-        super.creatorId( value ); return this;
-    }
+    //------------------------------------------------------
 
-    @Override
-    public Builder lastUpdaterId(UUID value) {
-        super.lastUpdaterId( value ); return this;
-    }
-
-    @Override
-    public Builder aclId(UUID value) {
-        super.aclId( value ); return this;
-    }
-
-    @Override
-    public Builder ownerId(UUID value) {
-        super.ownerId( value ); return this;
-    }
-
-    @Override
-    public Builder comment(String value) {
-        super.comment( value ); return this;
-    }
-
-    @Override
-    public Builder lastUpdate(String value) {
-        super.lastUpdate( value ); return this;
-    }
-
-    @Override
-    public Builder homeId(UUID value) {
-        super.homeId( value ); return this;
-    }
-
-    @Override
-    public Builder fromId(UUID value) {
-        super.fromId( value ); return this;
-    }
-
-    @Override
-    public Builder toId(UUID value) {
-        super.toId(value); return this;
-    }
-
-    @Override
-    public Builder startDate(Date value) {
-        super.startDate( value ); return this;
-    }
-
-    @Override
-    public Builder endDate(Date value) {
-        super.endDate( value ); return this;
-    }
-
-    @Override
-    public Builder createDate(Date value) {
-        super.createDate( value ); return this;
-    }
-
-    @Override
-    public Builder lastUpdateDate(Date value) {
-        super.lastUpdateDate( value ); return this;
-    }
-
-    @Override
-    public Builder value(float value) {
-        super.value( value ); return this;
-    }
-
-    @Override
-    public Builder state(int value) {
-        super.state(value); return this;
-    }
-
-    @Override
-    public Builder timestamp(long value) {
-        super.timestamp( value ); return this;
-    }
-
-    @Override
-    public Builder copy( Asset value ) {
-        super.copy( value ); return this;
-    }
-
-    private static class Entry extends AbstractAsset implements LittleAclEntry {
+    private static class EntryAsset extends AbstractAsset implements LittleAclEntry {
 
         private static final long serialVersionUID = -5342316532664742997L;
         private LittlePrincipal principal;
         private Set<Permission> permissionSet;
 
         /** For serialization */
-        private Entry() {}
+        private EntryAsset() {}
 
-        public Entry(AssetBuilder builder, LittlePrincipal principal,
+        public EntryAsset(AclEntryBuilder builder, LittlePrincipal principal,
                 Set<Permission> permissionSet) {
             super(builder);
             this.principal = principal;
@@ -200,7 +111,7 @@ class AclEntryBuilder extends AbstractAssetBuilder implements LittleAclEntry.Bui
 
         @Override
         public LittleAclEntry.Builder copy() {
-            return new AclEntryBuilder().copy( this );
+            return (new AclEntryBuilder()).copy( this );
         }
 
         /**
@@ -219,8 +130,8 @@ class AclEntryBuilder extends AbstractAssetBuilder implements LittleAclEntry.Bui
             }
             final LittleAclEntry entry = (LittleAclEntry) other;
             return super.equals( entry )
-                || ( Whatever.get().equalsSafe(entry.getFromId(), getFromId() )
-                    && Whatever.get().equalsSafe( entry.getToId(), getToId() )
+                || ( Whatever.get().equalsSafe(entry.getOwningAclId(), getFromId() )
+                    && Whatever.get().equalsSafe( entry.getPrincipalId(), getToId() )
                     && entry.isNegative() == isNegative()
                     );
         }
@@ -236,12 +147,22 @@ class AclEntryBuilder extends AbstractAssetBuilder implements LittleAclEntry.Bui
             return hash;
         }
 
+        @Override
+        public UUID getOwningAclId() {
+            return getFromId();
+        }
 
+        @Override
+        public UUID getPrincipalId() {
+            return getToId();
+        }
     }
+
+    //--------------------------------------------------
 
     /** Do nothing default constructor */
     public AclEntryBuilder() {
-        super(SecurityAssetType.ACL_ENTRY);
+        super(LittleAclEntry.ACL_ENTRY);
         setValue(1);
     }
 
@@ -261,6 +182,8 @@ class AclEntryBuilder extends AbstractAssetBuilder implements LittleAclEntry.Bui
         sb.append("</acl:permlist>\n");
         return sb.toString();
     }
+
+    //-----------------------------------------------------
 
     /**
      * SAX parser handler
@@ -337,6 +260,8 @@ class AclEntryBuilder extends AbstractAssetBuilder implements LittleAclEntry.Bui
         }
 
     }
+
+    //-----------------------------------------------------
 
     /**
      * Assign values to this entry's permission set based

@@ -25,6 +25,7 @@ import littleware.base.*;
 import littleware.db.*;
 import littleware.asset.server.db.*;
 import littleware.security.*;
+import littleware.security.auth.LittleSession;
 
 /**
  * AssetRetriever implementation retrieves assets
@@ -108,8 +109,8 @@ public class LocalAssetRetriever implements AssetRetriever {
             final T a_result = oregistry_special.getService(a_loaded.getAssetType()).narrow(a_loaded);
             // update cycle cache
             v_cycle_cache.put(a_result.getId(), a_result);
-            if (a_result.getAssetType().equals(SecurityAssetType.USER) || a_result.getAssetType().equals(SecurityAssetType.GROUP) || a_result.getAssetType().equals(SecurityAssetType.GROUP_MEMBER) || ( // acl-entry may be protected by its own ACL
-                    a_result.getAssetType().equals(SecurityAssetType.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals( ((LittleAclEntry) a_result).getOwningAclId()) && v_cycle_cache.containsKey(a_result.getAclId()))) {
+            if (a_result.getAssetType().equals(LittleUser.USER_TYPE) || a_result.getAssetType().equals(LittleGroup.GROUP_TYPE) || a_result.getAssetType().equals(LittleGroupMember.GROUP_MEMBER_TYPE) || ( // acl-entry may be protected by its own ACL
+                    a_result.getAssetType().equals(LittleAclEntry.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals( ((LittleAclEntry) a_result).getOwningAclId()) && v_cycle_cache.containsKey(a_result.getAclId()))) {
                 /**
                  * No access limitation on USER, GROUP - 
                  * chicken/egg problem since need these guys to implement security.
@@ -121,7 +122,7 @@ public class LocalAssetRetriever implements AssetRetriever {
 
             if (null == caller) {
 
-                if (a_result.getAssetType().equals(SecurityAssetType.SESSION)) {
+                if (a_result.getAssetType().equals(LittleSession.SESSION_TYPE)) {
                     /**
                      * Loophole to let unauthenticated session get session 
                      * info to simplify session setup

@@ -9,8 +9,6 @@
  */
 package littleware.security;
 
-import littleware.security.internal.QuotaBuilder;
-import com.google.inject.ImplementedBy;
 import java.rmi.RemoteException;
 import java.util.UUID;
 import java.security.GeneralSecurityException;
@@ -20,6 +18,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetException;
+import littleware.asset.AssetType;
 import littleware.base.*;
 
 /**
@@ -47,6 +46,13 @@ public interface Quota extends Asset {
     public UUID getNextInChainId();
 
     /**
+     * A quota sets a limit over a period of time.
+     * The start/end date properties track the current field of time.
+     */
+    public Date getStartDate();
+    public Date getEndDate();
+
+    /**
      * Get the next quota in the quota-chain.
      * Shortcut for getTo()
      */
@@ -63,7 +69,20 @@ public interface Quota extends Asset {
     @Override
     public Builder copy();
 
-    @ImplementedBy(QuotaBuilder.class)
+    
+    public static final AssetType QUOTA_TYPE = new AssetType(
+            UUIDFactory.parseUUID("0897E6CF8A4C4B128ECABD92FEF793AF"),
+            "littleware.QUOTA") {
+
+        @Override
+        public boolean isAdminToCreate() {
+            return true;
+        }
+    };
+
+
+    //-----------------------------------------------------------
+
     public interface Builder extends AssetBuilder {
 
         /**
@@ -79,6 +98,22 @@ public interface Quota extends Asset {
         public Builder quotaCount( int value );
 
         /**
+         * Id of next Quota in quota-chain
+         */
+        public UUID getNextInChainId();
+        public void setNextInChainId( UUID value );
+        public Builder nextInChainId( UUID value );
+
+        public Date getStartDate();
+        public void setStartDate( Date value );
+        public Builder startDate( Date value );
+        
+        public Date getEndDate();
+        public void setEndDate( Date value );
+        public Builder endDate( Date value );
+
+        
+        /**
          * Get the op-count limit associated with the given quota
          */
         public int getQuotaLimit();
@@ -89,6 +124,10 @@ public interface Quota extends Asset {
         public void setQuotaLimit(int i_value);
 
         public Builder quotaLimit( int value );
+
+        public UUID getUserId();
+        public void setUserId( UUID value );
+        public Builder userId( UUID value );
 
         /**
          * Shortcut for setQuotaCount ( getQuotaCount () + 1 )
@@ -117,34 +156,14 @@ public interface Quota extends Asset {
         public Builder lastUpdate(String value);
 
         @Override
-        public Builder data(String value);
-
-        @Override
         public Builder homeId(UUID value);
 
-        @Override
-        public Builder fromId(UUID value);
-
-        @Override
-        public Builder toId(UUID value);
-
-        @Override
-        public Builder startDate(Date value);
-
-        @Override
-        public Builder endDate(Date value);
 
         @Override
         public Builder createDate(Date value);
 
         @Override
         public Builder lastUpdateDate(Date value);
-
-        @Override
-        public Builder value(float value);
-
-        @Override
-        public Builder state(int value);
 
         @Override
         public Builder timestamp(long value);

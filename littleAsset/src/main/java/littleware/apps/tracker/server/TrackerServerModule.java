@@ -15,12 +15,15 @@ import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Map;
+import littleware.apps.tracker.Comment;
 import littleware.apps.tracker.Member;
 import littleware.apps.tracker.MemberAlias;
 import littleware.apps.tracker.Product;
 import littleware.apps.tracker.ProductAlias;
+import littleware.apps.tracker.Queue;
+import littleware.apps.tracker.Task;
 import littleware.apps.tracker.TaskQueryManager;
-import littleware.apps.tracker.TrackerAssetType;
+import littleware.apps.tracker.internal.TrackerGuiceModule;
 import littleware.apps.tracker.Version;
 import littleware.apps.tracker.VersionAlias;
 import littleware.apps.tracker.client.SimpleQueryService;
@@ -79,16 +82,15 @@ public class TrackerServerModule extends AbstractServerModule {
     static {
         final ImmutableMap.Builder<AssetType, Class<? extends AssetSpecializer>> builder =
                 ImmutableMap.builder();
-        builder.put( TrackerAssetType.QUEUE, NullAssetSpecializer.class
-                ).put( TrackerAssetType.COMMENT, NullAssetSpecializer.class
-                ).put( TrackerAssetType.DEPENDENCY, NullAssetSpecializer.class
+        builder.put( Queue.QUEUE_TYPE, NullAssetSpecializer.class
+                ).put( Comment.COMMENT_TYPE, NullAssetSpecializer.class
                 ).put( Product.ProductType, SimpleProductSpecializer.class
                 ).put( ProductAlias.PAType, SimpleProductSpecializer.class
                 ).put( Version.VersionType, SimpleProductSpecializer.class
                 ).put( VersionAlias.VAType, SimpleProductSpecializer.class
                 ).put( Member.MemberType, SimpleProductSpecializer.class
                 ).put( MemberAlias.MAType, SimpleProductSpecializer.class );
-        typeMap = builder.put( TrackerAssetType.TASK, SimpleTaskSpecializer.class ).build();
+        typeMap = builder.put( Task.TASK_TYPE, SimpleTaskSpecializer.class ).build();
 
         /*
                 ).add( Product.ProductType
@@ -120,6 +122,6 @@ public class TrackerServerModule extends AbstractServerModule {
     @Override
     public void configure(Binder binder) {
         binder.bind(TaskQueryManager.class).to(JpaTaskQueryManager.class);
-        (new TrackerAssetType()).configure( binder );
+        (new TrackerGuiceModule()).configure( binder );
     }
 }

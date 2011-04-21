@@ -128,20 +128,20 @@ public class SwingClientTester extends AbstractAssetTest {
 
             AssetModel amodel_everybody =
                     olib_asset.syncAsset(search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP).get());
+                    LittleGroup.GROUP_TYPE).get());
             assertTrue("ModelLibrary getByName inheritance aware 1",
                     olib_asset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.PRINCIPAL) != null);
+                    LittlePrincipal.PRINCIPAL_TYPE) != null);
             assertTrue("ModelLibrary getByName inheritance aware 2",
                     olib_asset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.USER) == null);
+                    LittleUser.USER_TYPE) == null);
             assertTrue("ModelLibrary getByName inheritance aware 3",
                     olib_asset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP) != null);
+                    LittleGroup.GROUP_TYPE) != null);
             olib_asset.remove(amodel_everybody.getAsset().getId());
             assertTrue("ModelLibrary getByName cleared after remove",
                     olib_asset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP) == null);
+                    LittleGroup.GROUP_TYPE) == null);
 
             final AssetEditor edit_bogus = new AbstractAssetEditor(this) {
 
@@ -184,7 +184,7 @@ public class SwingClientTester extends AbstractAssetTest {
 
             log.log(Level.INFO, "GETTING GROUP: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
             final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    SecurityAssetType.GROUP).get().narrow();
+                    LittleGroup.GROUP_TYPE).get().narrow();
             AssetModel model_everybody = olib_asset.syncAsset(group_everybody);
             log.log(Level.INFO, "GROUP SYNCED: " + AccountManager.LITTLEWARE_EVERYBODY_GROUP);
 
@@ -197,7 +197,7 @@ public class SwingClientTester extends AbstractAssetTest {
                     "Hit OK when test successfully done"));
 
             final LittleAcl acl_everybody = search.getByName(LittleAcl.ACL_EVERYBODY_READ,
-                    SecurityAssetType.ACL).get().narrow();
+                    LittleAcl.ACL_TYPE).get().narrow();
             JComponent w_acl = (JComponent) ofactory_view.createView(olib_asset.syncAsset(acl_everybody));
             //w_acl.setPreferredSize ( new Dimension ( 800, 700 ) );  // force big
             assertTrue("User confirmed acl-viewer UI functional",
@@ -266,11 +266,11 @@ public class SwingClientTester extends AbstractAssetTest {
 
             if (true) { // Simple group editor
                 final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                        SecurityAssetType.GROUP).get().narrow();
+                        LittleGroup.GROUP_TYPE).get().narrow();
                 LittleGroup group_test = (LittleGroup) search.getByName("group.littleware.test_user",
-                        SecurityAssetType.GROUP).getOr(null);
+                        LittleGroup.GROUP_TYPE).getOr(null);
                 if (null == group_test) {
-                    group_test = saver.saveAsset(SecurityAssetType.GROUP.create().name("group.littleware.test_user").parent(getTestHome(search)).build(),
+                    group_test = saver.saveAsset(LittleGroup.GROUP_TYPE.create().name("group.littleware.test_user").parent(getTestHome(search)).build(),
                             "Setup test asset").narrow();
                 }
                 group_test = group_test.copy().add(group_everybody).build();
@@ -289,15 +289,15 @@ public class SwingClientTester extends AbstractAssetTest {
             if (true) { // Simple acl editor
                 final String s_acl_name = "SwingClientTester.acl";
                 LittleAcl acl_test = (LittleAcl) search.getByName(s_acl_name,
-                        SecurityAssetType.ACL).getOr(null);
+                        LittleAcl.ACL_TYPE).getOr(null);
                 if (null == acl_test) {
                     final Asset a_testhome = search.getByName("littleware.test_home", LittleHome.HOME_TYPE).get();
-                    final LittleGroup groupEverbody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP, SecurityAssetType.GROUP).get().narrow();
-                    final LittleAcl acl = SecurityAssetType.ACL.create().name(s_acl_name).parent(a_testhome).
+                    final LittleGroup groupEverbody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP, LittleGroup.GROUP_TYPE).get().narrow();
+                    final LittleAcl acl = LittleAcl.ACL_TYPE.create().name(s_acl_name).parent(a_testhome).
                             comment("AclEditor test acl").build().narrow();
 
                     acl_test = saver.saveAsset(acl.copy().addEntry(
-                            SecurityAssetType.ACL_ENTRY.create().
+                            LittleAclEntry.ACL_ENTRY.create().
                             principal(groupEverbody).
                             acl(acl).
                             addPermission(LittlePermission.READ).
@@ -350,7 +350,7 @@ public class SwingClientTester extends AbstractAssetTest {
     final AssetManager m_asset = om_helper.getService(ServiceType.ASSET_MANAGER);
 
     final LittleAcl acl_everybody =  m_search.getByName(LittleAcl.ACL_EVERYBODY_READ,
-    SecurityAssetType.ACL);
+    LittleAcl.ACL_TYPE);
     olib_asset.syncAsset(acl_everybody);
     final Map<String, UUID> v_homeids = m_search.getHomeAssetIds();
     final UUID u_home = v_homeids.get("littleware.test_home");
@@ -359,7 +359,7 @@ public class SwingClientTester extends AbstractAssetTest {
 
     if (null == a_folder) {
     final LittleGroup group_everybody =  m_search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-    SecurityAssetType.GROUP);
+    LittleGroup.GROUP_TYPE);
 
     a_folder = GenericAsset.GENERIC.create();
     a_folder.setHomeId(u_home);
@@ -368,7 +368,7 @@ public class SwingClientTester extends AbstractAssetTest {
     a_folder.setName(s_foldername);
     a_folder = m_asset.saveAsset(a_folder, "Setting up test folder");
 
-    LittleGroup group_copy = SecurityAssetType.GROUP.create();
+    LittleGroup group_copy = LittleGroup.GROUP_TYPE.create();
     group_copy.sync(group_everybody);
     group_copy.setHomeId(u_home);
     group_copy.setName(s_foldername + ".copy1");

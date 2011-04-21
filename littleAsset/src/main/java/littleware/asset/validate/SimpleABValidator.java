@@ -12,7 +12,8 @@ package littleware.asset.validate;
 import com.google.inject.Inject;
 import java.util.Collection;
 import littleware.asset.AssetBuilder;
-import littleware.asset.AssetType;
+import littleware.asset.LittleHome;
+import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.validate.AbstractValidator;
 import littleware.base.validate.CompoundValidator;
 import littleware.base.validate.Validator;
@@ -41,11 +42,12 @@ public class SimpleABValidator implements AssetBuilderValidator {
     }
 
     @Override
-    public Validator build(final AssetBuilder builder) {
+    public Validator build(final AssetBuilder builderIn ) {
+        final AbstractAssetBuilder builder = (AbstractAssetBuilder) builderIn;
         return new CompoundValidator(
-                nameValidator.build(builder),
-                dataValidator.build(builder),
-                attrValidator.build(builder),
+                nameValidator.build(builderIn),
+                dataValidator.build(builderIn),
+                attrValidator.build(builderIn),
                 new AbstractValidator() {
 
                     @Override

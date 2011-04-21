@@ -17,35 +17,21 @@ import java.util.UUID;
 import littleware.apps.tracker.Product;
 import littleware.apps.tracker.Product.ProductBuilder;
 import littleware.apps.tracker.ProductAlias;
-import littleware.apps.tracker.TrackerAssetType;
+import littleware.apps.tracker.Queue;
 import littleware.apps.tracker.Version;
 import littleware.apps.tracker.VersionAlias;
 import littleware.asset.spi.AbstractAsset;
-import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.BaseException;
 
-public class SimpleProductBuilder extends AbstractAssetBuilder implements Product.ProductBuilder {
+public class SimpleProductBuilder extends AbstractAssetBuilder<Product.ProductBuilder> implements Product.ProductBuilder {
 
     public SimpleProductBuilder() {
         super(Product.ProductType);
     }
 
-    @Override
-    public ProductBuilder name(String value) {
-        return (ProductBuilder) super.name(value);
-    }
 
-    @Override
-    public ProductBuilder copy(Asset value) {
-        return (ProductBuilder) super.copy(value);
-    }
-
-    @Override
-    public ProductBuilder parent(Asset value) {
-        return (ProductBuilder) super.parent(value);
-    }
 
     @Override
     public Product build() {
@@ -70,7 +56,7 @@ public class SimpleProductBuilder extends AbstractAssetBuilder implements Produc
 
         @Override
         public UUID getTaskQueue() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), TrackerAssetType.QUEUE).get("TaskQueue");
+            return search.getAssetIdsFrom(getId(), Queue.QUEUE_TYPE).get("TaskQueue");
         }
 
         @Override

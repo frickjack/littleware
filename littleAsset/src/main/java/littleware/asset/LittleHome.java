@@ -14,7 +14,7 @@ import littleware.base.UUIDFactory;
 /**
  * Marker for home-type assets
  */
-public interface LittleHome extends Asset {
+public interface LittleHome extends TreeParent {
 
     /** HOME asset-type - must be admin to create */
     public static final AssetType HOME_TYPE = new AssetType(UUIDFactory.parseUUID("C06CC38C6BD24D48AB5E2D228612C179"),

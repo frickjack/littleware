@@ -30,14 +30,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
+import littleware.asset.spi.AbstractAsset;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
-import littleware.security.SecurityAssetType;
 
 /**
  * Register serializers for core types with GsonBuilder
@@ -111,7 +110,8 @@ public class GsonProvider implements Provider<Gson> {
         }
 
         @Override
-        public JsonObject serialize(Asset asset, Type type, JsonSerializationContext jsc) {
+        public JsonObject serialize(Asset assetIn, Type type, JsonSerializationContext jsc) {
+            final AbstractAsset asset = (AbstractAsset) assetIn;
             final JsonObject result = new JsonObject();
             result.addProperty("name", asset.getName());
             result.addProperty("type", asset.getAssetType().toString());
@@ -143,7 +143,7 @@ public class GsonProvider implements Provider<Gson> {
                 }
                 obj.add( itLabel.next(), obj );
             }
-            if (asset.getAssetType().isA(SecurityAssetType.GROUP)) {
+            if (asset.getAssetType().isA(LittleGroup.GROUP_TYPE)) {
                 final JsonArray members = new JsonArray();
                 for (LittlePrincipal member : ((LittleGroup) asset).getMembers()) {
                     members.add(new JsonPrimitive(member.getName()));

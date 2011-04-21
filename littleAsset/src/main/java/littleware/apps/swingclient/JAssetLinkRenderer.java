@@ -30,7 +30,8 @@ import littleware.apps.image.ThumbManager.Thumb;
 import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleAclEntry;
+import littleware.security.LittleGroupMember;
 
 /**
  * Specialization of a JLabel for rendering a link to an Asset.
@@ -39,7 +40,7 @@ import littleware.security.SecurityAssetType;
  */
 public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, TreeCellRenderer {
 
-    private final static Logger olog_generic = Logger.getLogger(JAssetLinkRenderer.class.getName());
+    private final static Logger log = Logger.getLogger(JAssetLinkRenderer.class.getName());
     private static Clipboard oclip_copy = null;
 
     static {
@@ -47,7 +48,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
             oclip_copy = Toolkit.getDefaultToolkit().getSystemClipboard();
         } catch (SecurityException e) {
             // this will happen when running as an untrusted Applet
-            olog_generic.log(Level.WARNING, "Failed to access system clipboard, caught: " + e +
+            log.log(Level.WARNING, "Failed to access system clipboard, caught: " + e +
                     ", creating local clipboard instead");
             oclip_copy = new Clipboard("Asset link");
         }
@@ -222,13 +223,13 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         } catch (RuntimeException e) {
             throw e;
         } catch (GeneralSecurityException e) {
-            olog_generic.log(Level.FINE, "Eating GeneralSecurityException: " + e + ", " +
+            log.log(Level.FINE, "Eating GeneralSecurityException: " + e + ", " +
                     BaseException.getStackTrace(e));
             jLabelRender.setIcon(olib_icon.lookupIcon("littleware.bomb"));
         } catch (Exception e) {
             // set a tool tip later
             jLabelRender.setIcon(olib_icon.lookupIcon("littleware.screw"));
-            olog_generic.log(Level.WARNING, "Failed to retrieve asset info for " + u_id + ", caught: " + e);
+            log.log(Level.WARNING, "Failed to retrieve asset info for " + u_id + ", caught: " + e);
         }
     }
 
@@ -242,12 +243,21 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
 
         Icon iconType = olib_icon.lookupIcon(a_linkto);
         UUID uThumb = a_linkto.getId();
-
-        if ((a_linkto.getAssetType().isA(AssetType.LINK) || a_linkto.getAssetType().isA(SecurityAssetType.GROUP_MEMBER) || a_linkto.getAssetType().isA(SecurityAssetType.ACL_ENTRY)) && (null != a_linkto.getToId())) {
+        final UUID linkToId;
+        if ( a_linkto.getAssetType().isA(LinkAsset.LINK_TYPE) ) {
+            linkToId = a_linkto.narrow( LinkAsset.class ).getToId();
+        } else if ( a_linkto.getAssetType().isA( LittleGroupMember.GROUP_MEMBER_TYPE ) ) {
+            linkToId = a_linkto.narrow( LittleGroupMember.class ).getMemberId();
+        } else if ( a_linkto.getAssetType().isA( LittleAclEntry.ACL_ENTRY ) ) {
+            linkToId = a_linkto.narrow( LittleAclEntry.class ).getPrincipalId();
+        } else {
+            linkToId = null;
+        }
+        if ( null != linkToId ) {
             try {
                 // Try to incorporate the "to" asset info
                 final Icon iconBase = iconType;
-                final Maybe<Asset> maybeTo = osearch.getAsset(a_linkto.getToId());
+                final Maybe<Asset> maybeTo = osearch.getAsset(linkToId);
                 if (maybeTo.isSet()) {
                     final Icon iconTo = olib_icon.lookupIcon(maybeTo.get());
 
@@ -273,10 +283,10 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
                             }
                         }
                     };
-                    uThumb = a_linkto.getToId();
+                    uThumb = linkToId;
                 }
             } catch (Exception ex) {
-                olog_generic.log(Level.WARNING, "Dangling to asset - failed to retrieve " + a_linkto.getId());
+                log.log(Level.WARNING, "Dangling to asset - failed to retrieve " + a_linkto.getId());
             }
         }
 
@@ -299,7 +309,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
                 }
             } catch (Exception ex) {
                 jLabelRender.setIcon(iconType);
-                olog_generic.log(Level.WARNING, "Failed to load thumbnail for asset " + a_linkto.getId());
+                log.log(Level.WARNING, "Failed to load thumbnail for asset " + a_linkto.getId());
             }
         } else {
             jLabelRender.setIcon(iconType);

@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.pickle;
+package littleware.asset.pickle.internal;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.Map;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
+import littleware.asset.pickle.AssetHumanPickler;
+import littleware.asset.spi.AbstractAsset;
 import littleware.base.BaseException;
 import littleware.base.Whatever;
 import littleware.security.LittleGroup;
@@ -87,16 +89,20 @@ public class SimpleHumanPickler implements AssetHumanPickler {
      * @param sb
      * @param x asset being pickled
      */
-    protected void pickleData( StringBuilder sb, Asset aIn ) {
+    protected void pickleData( StringBuilder sb, AbstractAsset aIn ) {
         if (obShowData) {
-            //appendProperty(sb, "data", aIn.getData());
+            appendProperty(sb, "data", aIn.getData());
         }
     }
 
 
     /** @TODO internationalize this with a ResourceBundle */
     @Override
-    public void pickle(Asset aIn, Writer writer) throws AssetException, BaseException, GeneralSecurityException, IOException {
+    public final void pickle( Asset aIn, Writer writer) throws AssetException, BaseException, GeneralSecurityException, IOException {
+        pickle( (AbstractAsset) aIn, writer );
+    }
+
+    protected void pickle(AbstractAsset aIn, Writer writer) throws AssetException, BaseException, GeneralSecurityException, IOException {
         final StringBuilder sb = new StringBuilder();
         sb.append(Whatever.NEWLINE).append("AssetBegin: ").append(Whatever.NEWLINE);
         appendProperty(sb, "name", aIn.getName());
@@ -104,20 +110,20 @@ public class SimpleHumanPickler implements AssetHumanPickler {
         appendProperty(sb, "id", aIn.getId());
         appendProperty(sb, "home", aIn.getHomeId());
         appendProperty(sb, "acl", aIn.getAclId());
-        //appendProperty(sb, "from", aIn.getFromId());
-        //appendProperty(sb, "to", aIn.getToId());
+        appendProperty(sb, "from", aIn.getFromId());
+        appendProperty(sb, "to", aIn.getToId());
         appendProperty(sb, "owner", aIn.getOwnerId());
         appendProperty(sb, "creator", aIn.getCreatorId());
         appendProperty(sb, "createDate", aIn.getCreateDate());
         appendProperty(sb, "updater", aIn.getLastUpdaterId());
         appendProperty(sb, "updateDate", aIn.getLastUpdateDate());
-        //appendProperty(sb, "startDate", aIn.getStartDate());
-        //appendProperty(sb, "endDate", aIn.getEndDate());
+        appendProperty(sb, "startDate", aIn.getStartDate());
+        appendProperty(sb, "endDate", aIn.getEndDate());
         appendProperty(sb, "transaction", Long.toString(aIn.getTimestamp()));
         appendProperty( sb, "comment", aIn.getComment() );
-        //appendProperty( sb, "value", aIn.getValue() );
-        //appendProperty( sb, "state", aIn.getState() );
-        /*..
+        appendProperty( sb, "value", aIn.getValue() );
+        appendProperty( sb, "state", aIn.getState() );
+        
         final Iterator<String> mapLabel = Arrays.asList( "-attr-", "-link-", "-date-" ).iterator();
         for( Map<String,?> dataMap : Arrays.asList( aIn.getAttributeMap(),
                                                     aIn.getLinkMap(), aIn.getDateMap()
@@ -128,11 +134,10 @@ public class SimpleHumanPickler implements AssetHumanPickler {
                appendProperty( sb, label + entry.getKey(), entry.getValue() );
            }
         }
-         *
-         */
+
         // Go ahead and add some special handling of GROUP type assets here.
         // Can move out to separate registered handler later if we want
-        if ( aIn.getAssetType().isA( SecurityAssetType.GROUP ) ) {
+        if ( aIn.getAssetType().isA( LittleGroup.GROUP_TYPE ) ) {
             final LittleGroup group = aIn.narrow( LittleGroup.class );
             for( LittlePrincipal member : group.getMembers() ) {
                 appendProperty( sb, "groupmember", member.getName() );

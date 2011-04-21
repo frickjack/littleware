@@ -17,9 +17,10 @@ import java.util.*;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
+import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.asset.LittleHome;
-import littleware.asset.TreeNode;
+import littleware.asset.TreeParent;
 
 
 import littleware.asset.validate.AssetBuilderValidator;
@@ -537,7 +538,7 @@ public abstract class AbstractAssetBuilder<B extends AssetBuilder> extends Abstr
         return id;
     }
 
-    private B parentInternal( Asset parent ) {
+    protected B parentInternal( Asset parent ) {
         fromId(parent.getId()).homeId(parent.getHomeId()).aclId(parent.getAclId());
         if (parent.getAssetType().equals(LittleHome.HOME_TYPE)) {
             homeId(parent.getId());
@@ -545,10 +546,7 @@ public abstract class AbstractAssetBuilder<B extends AssetBuilder> extends Abstr
         return (B) this;
     }
 
-    public B parent(TreeNode parent) {
-        return parentInternal( parent );
-    }
-    public B parent( LittleHome parent ) {
+    public B parent(TreeParent parent) {
         return parentInternal( parent );
     }
 }

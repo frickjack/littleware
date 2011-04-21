@@ -34,6 +34,7 @@ import littleware.asset.AssetRetriever;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
+import littleware.asset.spi.AbstractAsset;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.Whatever;
@@ -182,9 +183,9 @@ public class SimpleAssetModelLibrary
                 }
             }
             // a_old is null at initial register time
-            final UUID uToOld = (null == a_old) ? null : a_old.getToId();
-            if (!Whatever.get().equalsSafe(uToOld, a_new.getToId() )) {
-                for (UUID uTo : Arrays.asList(uToOld, a_new.getToId() )) {
+            final UUID uToOld = (null == a_old) ? null : ((AbstractAsset) a_old).getToId();
+            if (!Whatever.get().equalsSafe(uToOld, ((AbstractAsset) a_new).getToId() )) {
+                for (UUID uTo : Arrays.asList(uToOld, ((AbstractAsset) a_new).getToId() )) {
                     if ( null == uTo ) {
                         continue;
                     }
@@ -209,7 +210,7 @@ public class SimpleAssetModelLibrary
          */
         @Override
         public Asset syncAsset(Asset a_new) {
-            log.log(Level.FINE, "Syncing: " + a_new);
+            log.log(Level.FINE, "Syncing: {0}", a_new);
 
             if ((null == a_new) || (oa_data == a_new)) {
                 return oa_data;

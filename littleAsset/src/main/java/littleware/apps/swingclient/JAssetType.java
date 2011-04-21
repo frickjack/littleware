@@ -2,9 +2,9 @@ package littleware.apps.swingclient;
 
 import java.beans.PropertyChangeSupport;
 import javax.swing.*;
-import java.beans.PropertyChangeListener;
 
 import littleware.asset.AssetType;
+import littleware.asset.GenericAsset;
 
 /**
  * JLabel specialization for displaying asset-type name.

@@ -18,7 +18,7 @@ import littleware.asset.spi.AbstractAsset;
 import littleware.asset.Asset;
 import littleware.asset.spi.AbstractAssetBuilder;
 
-public class SimpleVABuilder extends AbstractAssetBuilder implements VersionAlias.VABuilder {
+public class SimpleVABuilder extends AbstractAssetBuilder<VersionAlias.VABuilder> implements VersionAlias.VABuilder {
 
     public SimpleVABuilder() {
         super(VersionAlias.VAType);
@@ -27,14 +27,6 @@ public class SimpleVABuilder extends AbstractAssetBuilder implements VersionAlia
     @Override
     public VABuilder name(String value) {
         return (VABuilder) super.name( value );
-    }
-
-    @Override
-    public VABuilder parent(Asset value) {
-        if (!(value instanceof Product)) {
-            throw new IllegalArgumentException("VersionAlias parent must be a product");
-        }
-        return (VABuilder) super.parent(value);
     }
 
     @Override

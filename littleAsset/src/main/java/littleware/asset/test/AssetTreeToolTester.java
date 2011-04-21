@@ -28,6 +28,9 @@ import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.AssetTreeTool;
 import littleware.asset.AssetType;
+import littleware.asset.LittleHome;
+import littleware.asset.TreeNode;
+import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.base.Maybe;
 
 /**
@@ -41,51 +44,54 @@ public class AssetTreeToolTester extends AbstractAssetTest {
     private final AssetPathFactory pathFactory;
     private final AssetSearchManager search;
     private final Provider<TemplateBuilder> treeBuilder;
+    private final Provider<TreeNodeBuilder> nodeProvider;
 
     @Inject
     public AssetTreeToolTester(AssetManager manager,
             AssetTreeTool treeTool,
             AssetPathFactory pathFactory,
             AssetSearchManager search,
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider,
             Provider<AssetTreeTemplate.TemplateBuilder> treeBuilder) {
         this.treeTool = treeTool;
         this.search = search;
         this.manager = manager;
         this.pathFactory = pathFactory;
         this.treeBuilder = treeBuilder;
+        this.nodeProvider = nodeProvider;
         setName("testTreeTool");
     }
 
     @Override
     public void setUp() {
         try {
-            final Asset home = getTestHome(search);
+            final LittleHome home = getTestHome(search);
             Maybe<Asset> maybeRoot = search.getAssetAtPath(
                     pathFactory.createPath(home.getId(), "TreeToolTester"));
             if (!maybeRoot.isSet()) {
-                maybeRoot = Maybe.something(
+                maybeRoot = Maybe.something( (Asset)
                         manager.saveAsset(
-                        GenericAsset.GENERIC.create().name("TreeToolTester").parent(home).build(),
+                        nodeProvider.get().name("TreeToolTester").parent(home).build(),
                         "Setup test"));
             }
-            final Asset aParent = maybeRoot.get();
-            final Map<String, UUID> mapChildren = search.getAssetIdsFrom(aParent.getId(), null);
+            final TreeNode parentNode = maybeRoot.get().narrow();
+            final Map<String, UUID> mapChildren = search.getAssetIdsFrom(parentNode.getId(), null);
             for (int i = 0; i < 3; ++i) {
                 final String sChild = "Child" + i;
                 final Maybe<UUID> maybeChildId = Maybe.emptyIfNull(mapChildren.get(sChild));
-                final Asset aChild;
+                final TreeNode childNode;
                 final Map<String, UUID> mapBrat;
                 if (!maybeChildId.isSet()) {
-                    aChild = manager.saveAsset(GenericAsset.GENERIC.create().name(sChild).parent(aParent).build(), "Setup test");
+                    childNode = manager.saveAsset( nodeProvider.get().name(sChild).parent(parentNode).build(), "Setup test");
                     mapBrat = Collections.emptyMap();
                 } else {
-                    aChild = search.getAsset(maybeChildId.get()).get();
-                    mapBrat = search.getAssetIdsFrom(aChild.getId(), null);
+                    childNode = search.getAsset(maybeChildId.get()).get().narrow();
+                    mapBrat = search.getAssetIdsFrom(childNode.getId(), null);
                 }
                 for (int j = 0; j <= i; ++j) {
                     final String sBrat = "Brat" + j;
                     if (!mapBrat.containsKey(sBrat)) {
-                        manager.saveAsset(GenericAsset.GENERIC.create().name(sBrat).parent(aChild).build(),
+                        manager.saveAsset(nodeProvider.get().name(sBrat).parent(childNode).build(),
                                 "Setup test");
                     }
                 }
@@ -112,11 +118,11 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             for (int i = 0; i < 3; ++i) {
                 children.add(
                         treeBuilder.get().assetBuilder(
-                        GenericAsset.GENERIC.create().name("Child" + i)).build());
+                        nodeProvider.get().name("Child" + i)).build());
             }
             final Collection<AssetTreeTemplate.AssetInfo> infoList =
                     treeBuilder.get().path(testFolderPath).addChildren(
-                    children).build().visit(search);
+                    children).build().visit( getTestHome( search ), search);
             assertTrue( "Tree template visits 5 nodes: " + infoList.size(),
                     5 == infoList.size()
                     );

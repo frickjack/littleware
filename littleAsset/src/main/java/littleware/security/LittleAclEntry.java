@@ -1,7 +1,5 @@
 package littleware.security;
 
-import com.google.inject.ImplementedBy;
-
 import java.security.acl.Permission;
 import java.util.Collection;
 import java.util.Date;
@@ -9,7 +7,8 @@ import java.util.Enumeration;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
-
+import littleware.asset.AssetType;
+import littleware.base.UUIDFactory;
 
 /**
  * Interface exported by littleware AclEntry Asset.
@@ -25,8 +24,10 @@ public interface LittleAclEntry extends Asset {
      * Covariant return-type: LittlePrincipal
      */
     public LittlePrincipal getPrincipal();
-    public UUID  getOwningAclId();
-    public UUID  getPrincipalId();
+
+    public UUID getOwningAclId();
+
+    public UUID getPrincipalId();
 
     public boolean checkPermission(Permission permission);
 
@@ -39,7 +40,13 @@ public interface LittleAclEntry extends Asset {
     @Override
     public Builder copy();
 
-    @ImplementedBy(AclEntryBuilder.class)
+    
+    /** ACL_ENTRY asset type  */
+    public static final AssetType ACL_ENTRY = new AssetType(
+            UUIDFactory.parseUUID("D23EA8B5A55F4283AEF29DFA50C12C54"),
+            "littleware.ACL_ENTRY");
+
+    //-----------------------------------------------
     public interface Builder extends AssetBuilder {
 
         public Builder addPermission(Permission permission);
@@ -59,10 +66,47 @@ public interface LittleAclEntry extends Asset {
          */
         public Builder acl(LittleAcl acl);
 
-
         @Override
         public LittleAclEntry build();
+
+        @Override
+        public Builder name(String value);
+
+        @Override
+        public Builder creatorId(UUID value);
+
+        @Override
+        public Builder lastUpdaterId(UUID value);
+
+        @Override
+        public Builder aclId(UUID value);
+
+        @Override
+        public Builder ownerId(UUID value);
+
+        @Override
+        public Builder comment(String value);
+
+        @Override
+        public Builder lastUpdate(String value);
+
+        @Override
+        public Builder homeId(UUID value);
+
+
+        @Override
+        public Builder createDate(Date value);
+
+        @Override
+        public Builder lastUpdateDate(Date value);
+
+
+        @Override
+        public Builder timestamp(long value);
+
+        @Override
+        public Builder copy(Asset source);
+
+
     }
 }
-
-

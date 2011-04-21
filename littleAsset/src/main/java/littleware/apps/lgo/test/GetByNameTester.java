@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import littleware.apps.lgo.GetByNameCommand;
 import littleware.asset.Asset;
 import littleware.base.feedback.LoggerFeedback;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleUser;
 import littleware.test.LittleTest;
 
 /**
@@ -42,7 +42,7 @@ public class GetByNameTester extends LittleTest {
                     )
                     ).runCommand( new LoggerFeedback() );
             assertTrue( "Got expected asset: " + aUser.getName(),
-                    aUser.getAssetType().equals( SecurityAssetType.USER )
+                    aUser.getAssetType().equals( LittleUser.USER_TYPE )
                     && aUser.getName().equals( "littleware.test_user" )
                     );
         } catch ( Exception ex ) {

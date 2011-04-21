@@ -16,7 +16,8 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import littleware.apps.client.*;
 import littleware.asset.*;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleAcl;
+import littleware.security.LittleGroup;
 
 /**
  * AssetViewFactory supplies custom editors for different types of asset.
@@ -37,9 +38,9 @@ public class EditorAssetViewFactory extends SimpleAssetViewFactory implements As
             Provider<JAclEditor> provideAclEditor,
             Provider<JGenericAssetEditor> provideGenericEditor
                                     ) {
-        registerProvider( SecurityAssetType.GROUP, provideGroupEditor, JGroupEditor.class );
+        registerProvider( LittleGroup.GROUP_TYPE, provideGroupEditor, JGroupEditor.class );
 
-        registerProvider( SecurityAssetType.ACL, provideAclEditor
+        registerProvider( LittleAcl.ACL_TYPE, provideAclEditor
                                     , JAclEditor.class );
         registerProvider( GenericAsset.GENERIC, provideGenericEditor,
                             JGenericAssetEditor.class );

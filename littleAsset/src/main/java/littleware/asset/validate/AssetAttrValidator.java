@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import littleware.asset.AssetBuilder;
+import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.validate.AbstractValidator;
 import littleware.base.validate.Validator;
 
@@ -23,7 +24,8 @@ import littleware.base.validate.Validator;
  */
 public class AssetAttrValidator {
 
-    public Validator build(final AssetBuilder builder) {
+    public Validator build(final AssetBuilder builderIn) {
+        final AbstractAssetBuilder builder = (AbstractAssetBuilder) builderIn;
         return new AbstractValidator() {
 
             @Override

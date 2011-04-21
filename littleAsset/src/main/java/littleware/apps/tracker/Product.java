@@ -9,21 +9,22 @@
  */
 package littleware.apps.tracker;
 
-import littleware.apps.tracker.internal.SimpleProductBuilder;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
-import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
+import littleware.asset.TreeNode;
+import littleware.asset.TreeParent;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 
 /**
  * Product node
  */
-public interface Product extends Asset {
+public interface Product extends TreeNode {
 
     /**
      * Shortcut for search.getIdsFrom( QueueType )
@@ -51,31 +52,56 @@ public interface Product extends Asset {
     @Override
     public ProductBuilder copy();
 
-    public interface ProductBuilder extends AssetBuilder {
+    public interface ProductBuilder extends TreeNode.TreeNodeBuilder {
+
         @Override
-        public ProductBuilder name( String value );
+        public ProductBuilder name(String value);
+
         @Override
         public ProductBuilder copy(Asset value);
 
         @Override
-        public ProductBuilder parent(Asset value);
+        public ProductBuilder parent(TreeParent value);
 
         @Override
         public Product build();
-    }
-
-    public static class Type extends AssetType {
-
-        private Type() {
-            super(
-                    UUIDFactory.parseUUID("337291A8485742E987BCB225A33FDF2F"),
-                    "littleware.Product");
-        }
 
         @Override
-        public ProductBuilder create() {
-            return new SimpleProductBuilder();
-        }
+        public ProductBuilder creatorId(UUID value);
+
+        @Override
+        public ProductBuilder lastUpdaterId(UUID value);
+
+        @Override
+        public ProductBuilder aclId(UUID value);
+
+        @Override
+        public ProductBuilder ownerId(UUID value);
+
+        @Override
+        public ProductBuilder comment(String value);
+
+        @Override
+        public ProductBuilder lastUpdate(String value);
+
+        @Override
+        public ProductBuilder homeId(UUID value);
+
+        @Override
+        public ProductBuilder parentId(UUID value);
+
+
+        @Override
+        public ProductBuilder createDate(Date value);
+
+        @Override
+        public ProductBuilder lastUpdateDate(Date value);
+
+
+        @Override
+        public ProductBuilder timestamp(long value);
+
     }
-    public static final Type ProductType = new Type();
+    public static final AssetType ProductType = new AssetType(UUIDFactory.parseUUID("337291A8485742E987BCB225A33FDF2F"),
+            "littleware.Product", TreeNode.TREE_NODE_TYPE );
 }

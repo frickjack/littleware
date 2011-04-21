@@ -236,7 +236,7 @@ public class JAssetPathPanel extends JPanel {
             } else {
                 // just start browsing around ACL_EVERYBODY
                 oview_asset.setAssetModel ( olib_asset.syncAsset ( om_search.getByName ( LittleAcl.ACL_EVERYBODY_READ,
-                                                                                           SecurityAssetType.ACL ).get()
+                                                                                           LittleAcl.ACL_TYPE ).get()
                                                                    )
                                             );
             }

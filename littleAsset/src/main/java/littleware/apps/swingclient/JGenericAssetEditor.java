@@ -254,9 +254,12 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             if (!builder.getComment().equals(s_comment)) {
                 builder.setComment(s_comment);
             }
+            /*..
             if( ! builder.getData().equals( s_data ) ) {
                 builder.setData( s_data );
             }
+             * 
+             */
             return true;
         } catch (Exception e) {
             log.log(Level.WARNING, "Failed save, caught: " + e);
@@ -323,10 +326,13 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             public void receiveLittleEvent(LittleEvent event_edit) {
                 if (event_edit instanceof SelectAssetEvent) {
                     final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset();
+                    /*..
                     if (!Whatever.get().equalsSafe(aSelect.getId(), getLocalAsset().getToId())) {
                         changeLocalAsset().setToId(aSelect.getId());
                         owalink_to.setLink(aSelect.getId());
                     }
+                     *
+                     */
                 }
             }
         });
@@ -338,8 +344,12 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
                 if (event_edit instanceof SelectAssetEvent) {
                     final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset();
                     if (!Whatever.get().equalsSafe(aSelect.getId(), getLocalAsset().getFromId())) {
+                        throw new UnsupportedOperationException( "Ugh!" );
+                        /*..
                         changeLocalAsset().setFromId(aSelect.getId());
                         owalink_from.setLink(aSelect.getId());
+                         *
+                         */
                     }
                 }
             }
@@ -356,7 +366,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
         owlink_asset.setLink(a_local);
         owtext_name.setText(a_local.getName());
 
-        owalink_to.setLink(a_local.getToId());
+        //owalink_to.setLink(a_local.getToId());
         owalink_from.setLink(a_local.getFromId());
         owalink_acl.setLink(a_local.getAclId());
         owalink_owner.setLink(a_local.getOwnerId());
@@ -367,7 +377,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
         owalink_owner.setFallbackAsset(getAssetModel());
 
         owtext_comment.setText(a_local.getComment());
-        owtext_data.setText( a_local.getData() );
+        //owtext_data.setText( a_local.getData() );
     }
 
     /**

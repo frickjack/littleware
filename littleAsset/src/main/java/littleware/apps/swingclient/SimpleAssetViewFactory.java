@@ -15,11 +15,11 @@ import com.google.inject.Provider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleAcl;
+import littleware.security.LittleGroup;
 //import littleware.apps.tracker.TrackerAssetType;
 //import littleware.apps.tracker.swing.JQView;
 
@@ -36,7 +36,7 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
             new HashMap<AssetType,Class<? extends AssetView>>();
 
     @Override
-    public void registerProvider( AssetType atype,
+    public final void registerProvider( AssetType atype,
             Provider<? extends AssetView> provider,
             Class<? extends AssetView> classOfEditor
             ) {
@@ -59,9 +59,9 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
             //,Provider<JQView>   provide_queue
             ) {
         registerProvider( GenericAsset.GENERIC, provide_generic, JGenericAssetView.class );
-        registerProvider( SecurityAssetType.GROUP, provide_group, JGroupView.class );
-        registerProvider( SecurityAssetType.ACL, provide_acl, JAclView.class );
-        //registerProvider( TrackerAssetType.QUEUE, provide_queue, JQView.class );
+        registerProvider( LittleGroup.GROUP_TYPE, provide_group, JGroupView.class );
+        registerProvider( LittleAcl.ACL_TYPE, provide_acl, JAclView.class );
+        //registerProvider( Queue.QUEUE_TYPE, provide_queue, JQView.class );
     }
     
     @Override

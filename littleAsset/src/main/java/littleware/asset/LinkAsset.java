@@ -8,17 +8,12 @@
 package littleware.asset;
 
 import java.util.UUID;
+import littleware.base.UUIDFactory;
 
 /**
  * Specialized asset that just links from one asset to another
  */
 public interface LinkAsset extends Asset {
-
-    /**
-     * Source of directed link this asset represents - may only be null
-     * for HOME type assets
-     */
-    public UUID getFromId();
 
     /**
      * Destination of directed link - may be null
@@ -31,11 +26,12 @@ public interface LinkAsset extends Asset {
     @Override
     public LinkBuilder copy();
 
-    /** Cast this to the specified asset type ... little safer than simple cast */
-    public <T extends LinkAsset> T narrow(Class<T> type);
+    /** LINK assset-type */
+    public static final AssetType LINK_TYPE = new AssetType(UUIDFactory.parseUUID("926D122F82FE4F28A8F5C790E6733665"),
+            "littleware.LINK");
 
-    public <T extends LinkAsset> T narrow();
 
+    //------------------------------------------------------
 
     public interface LinkBuilder extends AssetBuilder {
 
@@ -43,15 +39,43 @@ public interface LinkAsset extends Asset {
 
         public void setFromId(UUID value);
 
-        public AssetBuilder fromId(UUID value);
+        public LinkBuilder fromId(UUID value);
 
         public UUID getToId();
 
         public void setToId(UUID value);
 
-        public AssetBuilder toId(UUID value);
+        public LinkBuilder toId(UUID value);
 
         @Override
         public LinkAsset build();
+
+        @Override
+        public LinkBuilder id(UUID value);
+
+        @Override
+        public LinkBuilder name(String value);
+
+        @Override
+        public LinkBuilder creatorId(UUID value);
+
+        @Override
+        public LinkBuilder lastUpdaterId(UUID value);
+
+        @Override
+        public LinkBuilder aclId(UUID value);
+
+        @Override
+        public LinkBuilder ownerId(UUID value);
+
+        @Override
+        public LinkBuilder lastUpdate(String value);
+
+        @Override
+        public LinkBuilder homeId(UUID value);
+
+        @Override
+        public LinkBuilder timestamp(long value);
+
     }
 }

@@ -9,13 +9,12 @@
  */
 package littleware.apps.tracker;
 
-
-import littleware.apps.tracker.internal.SimpleTaskBuilder;
-import com.google.inject.ImplementedBy;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
+import littleware.asset.AssetType;
 import littleware.base.Maybe;
+import littleware.base.UUIDFactory;
 import littleware.security.LittleUser;
 
 /**
@@ -24,39 +23,43 @@ import littleware.security.LittleUser;
 public interface Task extends Asset {
 
     public TaskStatus getTaskStatus();
-    public UUID       getQueueId();
+
+    public UUID getQueueId();
+
     /**
      * Get user this task is currently assigned to if any
      */
-    public Maybe<UUID>  getUserId();
-    
+    public Maybe<UUID> getUserId();
 
     @Override
     public Task.TaskBuilder copy();
+    //------------------------------------------------
+    public static final AssetType TASK_TYPE = new AssetType(UUIDFactory.parseUUID("84F04E04DCE947B2A00294949DC38628"),
+            "littleware.apps.tracker.TASK");
 
-    @ImplementedBy(SimpleTaskBuilder.class)
+    //-------------------------------------------------------
     public interface TaskBuilder extends AssetBuilder {
 
         public TaskStatus getTaskStatus();
-        public void setTaskStatus(TaskStatus value);
-        public TaskBuilder taskStatus( TaskStatus value );
 
-        public UUID  getQueueId();
+        public void setTaskStatus(TaskStatus value);
+
+        public TaskBuilder taskStatus(TaskStatus value);
+
+        public UUID getQueueId();
 
         /**
          * Similar to parent(), but sets from-id null
          */
-        public TaskBuilder queue( Queue value );
+        public TaskBuilder queue(Queue value);
+
         /** Note - does not change task-status, just associates task with user */
-        public TaskBuilder assignTo( LittleUser user );
+        public TaskBuilder assignTo(LittleUser user);
 
         @Override
-        public TaskBuilder parent( Asset value );
-        @Override
-        public TaskBuilder copy( Asset value );
+        public TaskBuilder copy(Asset value);
+
         @Override
         public Task build();
     }
 }
-
-

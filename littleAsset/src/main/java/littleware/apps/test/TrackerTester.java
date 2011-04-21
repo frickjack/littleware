@@ -76,7 +76,7 @@ public class TrackerTester extends LittleTest {
                     a_folder.setFromId(u_home);
                     a_folder.setHomeId(u_home);
                     a_folder.setName(os_test_folder);
-                    final UUID u_acl = om_search.getByName(littleware.security.LittleAcl.ACL_EVERYBODY_READ, SecurityAssetType.ACL).get().getId();
+                    final UUID u_acl = om_search.getByName(littleware.security.LittleAcl.ACL_EVERYBODY_READ, LittleAcl.ACL_TYPE).get().getId();
 
                     a_folder.setAclId(u_acl);
                     oa_test_folder = om_asset.saveAsset(a_folder.build(), "setup folder for test");
@@ -110,7 +110,7 @@ public class TrackerTester extends LittleTest {
      *
     public littleware.apps.tracker.Queue buildQueueAndTest() {
         try {
-            littleware.apps.tracker.Queue q_test = TrackerAssetType.QUEUE.create();
+            littleware.apps.tracker.Queue q_test = Queue.QUEUE_TYPE.create();
             Date t_now = new Date();
 
             {
@@ -124,7 +124,7 @@ public class TrackerTester extends LittleTest {
             q_test.save(om_asset, "setup new test");
             ov_test.add(q_test);
 
-            Task task_1 = TrackerAssetType.TASK.create();
+            Task task_1 = Task.TASK_TYPE.create();
             long l_starting_transaction = task_1.getTimestampCount();
             task_1.setHomeId(oa_test_folder.getHomeId());
             task_1.setName("task_1_" + t_now.getTime());
@@ -148,7 +148,7 @@ public class TrackerTester extends LittleTest {
 
             q_test.sync( om_search.getAsset(q_test.getId()).get() );
 
-            Task task_2 = TrackerAssetType.TASK.create();
+            Task task_2 = Task.TASK_TYPE.create();
             task_2.setName("task_2_" + t_now.getTime());
             task_2.setAclId(task_1.getAclId());
             task_2.setHomeId(task_1.getHomeId());

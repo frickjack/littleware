@@ -22,7 +22,7 @@ import littleware.base.BaseException;
  */
 public interface TaskManager {
     /**
-     * Shortcut for getAssets( getAssetIdsFrom( task, TrackerAssetType.TASK ).values() )
+     * Shortcut for getAssets( getAssetIdsFrom( task, Task.TASK_TYPE ).values() )
      */
     public TaskSet   getSubtask( UUID task ) throws BaseException, GeneralSecurityException,
             RemoteException;

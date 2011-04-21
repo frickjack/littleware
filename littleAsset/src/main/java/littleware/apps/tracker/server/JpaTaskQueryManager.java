@@ -24,12 +24,12 @@ import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import littleware.apps.tracker.Queue;
+import littleware.apps.tracker.Task;
 import littleware.apps.tracker.internal.SimpleQueryBuilder;
 import littleware.apps.tracker.internal.SimpleTaskBuilder;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskQuery;
 import littleware.apps.tracker.TaskStatus;
-import littleware.apps.tracker.TrackerAssetType;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.server.db.jpa.JpaLittleTransaction;
 import littleware.base.BaseException;
@@ -82,7 +82,7 @@ public class JpaTaskQueryManager implements TaskQueryManager {
                     "SELECT x.objectId FROM Asset x JOIN x.linkSet link "
                     ).append( "WHERE x.homeId=:homeId "
                     ).append( "AND x.typeId='"
-                    ).append( UUIDFactory.makeCleanString( TrackerAssetType.TASK.getObjectId() )
+                    ).append( UUIDFactory.makeCleanString( Task.TASK_TYPE.getObjectId() )
                     ).append( "' "
                     ).append( "AND link.key='"
                     ).append( SimpleTaskBuilder.QueueIdKey

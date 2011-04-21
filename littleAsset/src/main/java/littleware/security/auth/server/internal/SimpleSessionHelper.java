@@ -9,22 +9,25 @@
  */
 package littleware.security.auth.server.internal;
 
+import com.google.inject.Provider;
 import java.rmi.RemoteException;
+import java.security.AccessController;
+import java.security.GeneralSecurityException;
 import java.util.UUID;
-import java.security.*;
-import javax.security.auth.*;
+import javax.security.auth.Subject;
 import littleware.asset.Asset;
 
 import littleware.asset.AssetException;
 import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
+import littleware.asset.GenericAsset;
+import littleware.asset.LittleHome;
 import littleware.asset.client.LittleService;
 import littleware.security.auth.*;
 import littleware.security.AccessDeniedException;
-import littleware.security.SecurityAssetType;
 import littleware.security.LittleUser;
 import littleware.base.*;
+import littleware.security.auth.LittleSession.Builder;
 import littleware.security.auth.server.ServiceRegistry;
 
 /**
@@ -34,30 +37,34 @@ import littleware.security.auth.server.ServiceRegistry;
  */
 public class SimpleSessionHelper implements SessionHelper {
 
-    private final UUID ou_session;
-    private final AssetSearchManager om_search;
-    private final AssetManager om_asset;
-    private final SessionManager om_session;
-    private final ServiceRegistry oreg_service;
+    private final UUID sessionId;
+    private final AssetSearchManager search;
+    private final AssetManager assetMgr;
+    private final SessionManager sessionMgr;
+    private final ServiceRegistry serviceRegistry;
+    private final Provider<Builder> sessionProvider;
 
-    public SimpleSessionHelper(UUID u_session,
-            AssetSearchManager m_search,
-            AssetManager m_asset,
-            SessionManager m_session,
-            ServiceRegistry reg_service) {
-        ou_session = u_session;
-        om_search = m_search;
-        om_asset = m_asset;
-        om_session = m_session;
-        oreg_service = reg_service;
+    public SimpleSessionHelper(UUID sessionId,
+            AssetSearchManager search,
+            AssetManager assetMgr,
+            SessionManager sessionMgr,
+            ServiceRegistry serviceRegistry,
+            Provider<LittleSession.Builder> sessionProvider
+            ) {
+        this.sessionId = sessionId;
+        this.search = search;
+        this.assetMgr = assetMgr;
+        this.sessionMgr = sessionMgr;
+        this.serviceRegistry = serviceRegistry;
+        this.sessionProvider = sessionProvider;
     }
 
     @Override
     public LittleSession getSession() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        LittleSession a_session = (LittleSession) om_search.getAsset(ou_session).getOr(null);
+        LittleSession a_session = (LittleSession) search.getAsset(sessionId).getOr(null);
         if (null == a_session) {
-            throw new SessionExpiredException(ou_session.toString());
+            throw new SessionExpiredException(sessionId.toString());
         }
         return a_session;
     }
@@ -65,7 +72,7 @@ public class SimpleSessionHelper implements SessionHelper {
     @Override
     public <T extends LittleService> T getService(ServiceType<T> n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return oreg_service.getService(n_type, this);
+        return serviceRegistry.getService(n_type, this);
     }
 
     @Override
@@ -73,21 +80,21 @@ public class SimpleSessionHelper implements SessionHelper {
             throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         try {
-            LittleSession.Builder sessionBuilder = SecurityAssetType.SESSION.create();
+            final LittleSession.Builder sessionBuilder = sessionProvider.get();
             final LittleUser caller = Subject.getSubject(AccessController.getContext()).
                     getPrincipals(LittleUser.class).iterator().next();
 
-            sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getStartDate().getTime());
+            sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getCreateDate().getTime());
             sessionBuilder.setComment(s_session_comment);
 
             for (int i = 0; i < 20; ++i) {
                 try {
-                    final LittleSession session = om_asset.saveAsset(sessionBuilder.build(), s_session_comment).narrow();
+                    final LittleSession session = assetMgr.saveAsset(sessionBuilder.build(), s_session_comment).narrow();
                     i = 1000;
-                    return om_session.getSessionHelper(session.getId());
+                    return sessionMgr.getSessionHelper(session.getId());
                 } catch (AlreadyExistsException e) {
                     if (i < 10) {
-                        sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getStartDate().getTime() + "," + i);
+                        sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getCreateDate().getTime() + "," + i);
                     } else {
                         throw new AccessDeniedException("Too many simultaneous session setups running for user: " + sessionBuilder.getName());
                     }
@@ -107,10 +114,10 @@ public class SimpleSessionHelper implements SessionHelper {
     public String getServerVersion() throws RemoteException {
         // Create the session asset as the admin user - session has null from-id
         try {
-            final Asset home = om_search.getByName("littleware.home", LittleHome.HOME_TYPE).get();
-            final Maybe<Asset> maybe = om_search.getAssetFrom(home.getId(), SimpleSessionHelper.serverVersionName );
+            final Asset home = search.getByName("littleware.home", LittleHome.HOME_TYPE).get();
+            final Maybe<Asset> maybe = search.getAssetFrom(home.getId(), SimpleSessionHelper.serverVersionName );
             if (maybe.isSet()) {
-                return maybe.get().getData();
+                return maybe.get().narrow( GenericAsset.class ).getData();
             } else {
                 // Note: ServerVersionNode should be initialized in SessionManager if it doesn't exist
                 return "v0.0";

@@ -51,7 +51,7 @@ public class SimplePermissionCache implements PermissionCache {
         if ( null == acl ) {
             Maybe<Asset> maybe = retriever.getAsset(uAcl);
             if ( (! maybe.isSet())
-                    || (! maybe.get().getAssetType().equals( SecurityAssetType.ACL))
+                    || (! maybe.get().getAssetType().equals( LittleAcl.ACL_TYPE))
                     ) {
                 return false;
             }

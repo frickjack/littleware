@@ -241,7 +241,7 @@ public class ClientLoginModule implements LoginModule {
                 for (String aclName : aclNameList) {
                     try {
                         final Maybe<Asset> maybeAcl = search.getByName(aclName,
-                                SecurityAssetType.ACL);
+                                LittleAcl.ACL_TYPE);
                         if (maybeAcl.isSet()) {
                             final LittleAcl acl_check = maybeAcl.get().narrow();
                             for (LittlePermission permissionCheck : permissionSet) {

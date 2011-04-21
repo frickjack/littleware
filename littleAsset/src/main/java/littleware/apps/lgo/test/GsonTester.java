@@ -12,12 +12,15 @@ package littleware.apps.lgo.test;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
+import littleware.asset.GenericAsset;
+import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.asset.test.AbstractAssetTest;
 
 /**
@@ -28,19 +31,21 @@ public class GsonTester extends AbstractAssetTest {
 
     private final Gson gson;
     private final AssetSearchManager search;
+    private final Provider<GenericBuilder> genericProvider;
 
     @Inject
-    public GsonTester( Gson gson, AssetSearchManager search ) {
+    public GsonTester( Gson gson, AssetSearchManager search, Provider<GenericAsset.GenericBuilder> genericProvider ) {
         this.gson = gson;
         this.search = search;
+        this.genericProvider = genericProvider;
         setName( "testGson" );
     }
 
     public void testGson() {
         try {
             log.log( Level.INFO, "Running testGson ..." );
-            final Asset testAsset = getTestHome( search ).copy().
-                    putAttribute( "test", "test" ).
+            final Asset testAsset = genericProvider.get().parent( getTestHome( search )
+                    ).name( "gsonTester" ).putAttribute( "test", "test" ).
                     putLink( "bla", UUID.randomUUID() ).
                     build();
             final String result = gson.toJson( testAsset, Asset.class );

@@ -60,9 +60,9 @@ public abstract class AbstractServiceFactory<T extends LittleService> implements
      * SessionInvocationHandler based dynamic proxy wrapping the
      * given service-provider with a session-aware wrapper.
      *
-     * @param m_helper managing the session asking for a new service manager - checks
+     * @param helper managing the session asking for a new service manager - checks
      *          for session-expired condition
-     * @param b_readonly_service is this service ok for a read-only session ?
+     * @param isReadOnlyService is this service ok for a read-only session ?
      *            Set true if any methods are read-only, and let
      *            the proxy do a per-method check for the @ReadOnly annotation.
      * @throws AccessDeniedException if service exists, but session-principal
@@ -72,18 +72,18 @@ public abstract class AbstractServiceFactory<T extends LittleService> implements
      * @throws SessionExpiredException if a_session has expired
      */
     protected <R extends Remote> R checkAccessMakeProxy(
-            SessionHelper m_helper,
-            boolean b_readonly_service,
-            R x_provider,
-            Class<R> class_interface) throws BaseException, AssetException,
+            SessionHelper helper,
+            boolean isReadOnlyService,
+            R remoteProvider,
+            Class<R> remoteInterface ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        LittleSession a_session = m_helper.getSession();
-        Date t_now = new Date();
+        final LittleSession session = helper.getSession();
+        final Date now = new Date();
 
-        if (a_session.getEndDate().getTime() < t_now.getTime()) {
-            throw new SessionExpiredException("Expired at: " + a_session.getEndDate());
+        if (session.getEndDate().getTime() < now.getTime()) {
+            throw new SessionExpiredException("Expired at: " + session.getEndDate());
         }
-        if (a_session.isReadOnly() && (!b_readonly_service)) {
+        if (session.isReadOnly() && (!isReadOnlyService)) {
             throw new ReadOnlyException();
         }
 
@@ -91,11 +91,11 @@ public abstract class AbstractServiceFactory<T extends LittleService> implements
         om_search.getAsset(on_service.getObjectId());
 
         Subject j_caller = Subject.getSubject(AccessController.getContext());
-        InvocationHandler handler_proxy = new SubjectInvocationHandler(j_caller, x_provider,
+        InvocationHandler handler_proxy = new SubjectInvocationHandler(j_caller, remoteProvider,
                 on_service.getCallSampler());
         //Class<T> class_interface = on_service.getServiceInterface ( T.class );
-        R m_proxy = (R) Proxy.newProxyInstance(class_interface.getClassLoader(),
-                new Class[]{class_interface},
+        R m_proxy = (R) Proxy.newProxyInstance(remoteInterface .getClassLoader(),
+                new Class[]{remoteInterface },
                 handler_proxy);
         return m_proxy;
     }

@@ -19,37 +19,19 @@ import littleware.apps.tracker.MemberIndex;
 import littleware.apps.tracker.ProductManager;
 import littleware.apps.tracker.Version;
 import littleware.asset.spi.AbstractAsset;
-import littleware.asset.Asset;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.BaseException;
 
-public class SimpleMemberBuilder extends AbstractAssetBuilder implements MemberBuilder {
+public class SimpleMemberBuilder extends AbstractAssetBuilder<MemberBuilder> implements MemberBuilder {
 
     public SimpleMemberBuilder() {
         super(Member.MemberType);
     }
 
-    @Override
-    public MemberBuilder name(String value) {
-        return (MemberBuilder) super.name(value);
-    }
-
-    @Override
-    public MemberBuilder copy(Asset value) {
-        return (MemberBuilder) super.copy(value);
-    }
-
-    @Override
-    public MemberBuilder parent(Asset value) {
-        if (!(value instanceof Version)) {
-            throw new IllegalArgumentException("Member parent must be a Version node");
-        }
-        return (MemberBuilder) super.parent(value);
-    }
 
     @Override
     public MemberBuilder version(Version value) {
-        return parent(value);
+        return parentInternal(value);
     }
 
     @Override

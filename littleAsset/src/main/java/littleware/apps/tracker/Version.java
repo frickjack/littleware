@@ -10,7 +10,6 @@
 
 package littleware.apps.tracker;
 
-import littleware.apps.tracker.internal.SimpleVersionBuilder;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Map;
@@ -41,11 +40,6 @@ public interface Version extends Asset {
 
         @Override
         public VersionBuilder copy( Asset value );
-        /**
-         * Throws IllegalArgumentException if parent is not a product
-         */
-        @Override
-        public VersionBuilder parent( Asset value );
         
         /**
          * Alias for parent
@@ -55,18 +49,6 @@ public interface Version extends Asset {
         public Version build();
     }
     
-    public static class Type extends AssetType {
-        private Type() {
-            super( UUIDFactory.parseUUID( "4869CDB1FA514055B0363449431A6278" ),
-                    "littleware.Version"
-                    );
-        }
-        
-        @Override
-        public VersionBuilder create() {
-            return new SimpleVersionBuilder();
-        }
-    }
-    
-    public static final Type VersionType = new Type();
+    public static final AssetType VersionType = new AssetType( UUIDFactory.parseUUID( "4869CDB1FA514055B0363449431A6278" ),
+                    "littleware.Version" );
 }

@@ -54,6 +54,11 @@ public class SimpleVABuilder extends AbstractAssetBuilder<VersionAlias.VABuilder
         return new SimpleAlias(this);
     }
 
+    @Override
+    public VABuilder from(Asset value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     public static class SimpleAlias extends AbstractAsset implements VersionAlias {
 
         private SimpleAlias() {

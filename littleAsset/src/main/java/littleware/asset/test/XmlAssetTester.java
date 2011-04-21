@@ -58,7 +58,7 @@ public class XmlAssetTester extends TestCase {
     /**
      * Little test class
      */
-    public static class TestBuilder extends SimpleXmlAssetBuilder {
+    public static class TestBuilder extends SimpleXmlAssetBuilder<XmlAssetBuilder> {
 
         private String os_foo = "foo";
         private String os_bla = "bla";
@@ -179,13 +179,10 @@ public class XmlAssetTester extends TestCase {
             String s_xml2 = a_xml.copy().data(s_xml).build().getData();
             log.log(Level.INFO, "Data reset getData got: " + s_xml2);
             assertTrue("Data reset matches original data", s_xml2.equals(s_xml));
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Caught: " + e +
-                    ", " + BaseException.getStackTrace(e));
-            assertTrue("Caught: " + e, false);
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Test failed", ex );
+            fail( "Caught exception: " + ex );
         }
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

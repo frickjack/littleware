@@ -10,6 +10,7 @@
 package littleware.apps.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -31,7 +32,9 @@ import littleware.asset.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.AssetTreeTool;
-import littleware.asset.AssetType;
+import littleware.asset.LittleHome;
+import littleware.asset.TreeNode;
+import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.AssertionFailedException;
 import littleware.base.EventBarrier;
@@ -49,18 +52,22 @@ public class JDeleteAssetTester extends AbstractAssetTest {
     private final AssetSearchManager search;
     private final AssetPathFactory pathFactory;
     private final AssetTreeTool treeTool;
+    private final Provider<TreeNodeBuilder> nodeProvider;
 
     @Inject
     public JDeleteAssetTester(JDeleteAssetBuilder builder,
             AssetManager manager,
             AssetSearchManager search,
             AssetPathFactory pathFactory,
-            AssetTreeTool treeTool) {
+            AssetTreeTool treeTool,
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider
+            ) {
         this.builder = builder;
         this.manager = manager;
         this.search = search;
         this.treeTool = treeTool;
         this.pathFactory = pathFactory;
+        this.nodeProvider = nodeProvider;
         setName("testDeleteStrategy");
     }
 
@@ -71,15 +78,15 @@ public class JDeleteAssetTester extends AbstractAssetTest {
     public void setUp() {
         tearDown();
         try {
-            final Asset home = getTestHome(search);
-            final Asset aTest = GenericAsset.GENERIC.create().name( TestFolder ).parent( home).build();
+            final LittleHome home = getTestHome(search);
+            final TreeNode aTest = nodeProvider.get().name( TestFolder ).parent( home).build();
             final List<Asset> vCreate = new ArrayList<Asset>();
             vCreate.add(aTest);
             for (String sName : Arrays.asList("A", "B", "C")) {
-                final Asset aFolder = GenericAsset.GENERIC.create().name( sName ).parent( aTest).build();
+                final TreeNode aFolder = nodeProvider.get().name( sName ).parent( aTest).build();
                 vCreate.add(aFolder);
                 for (String sSuffix : Arrays.asList("A", "B", "C")) {
-                    final Asset aChild = GenericAsset.GENERIC.create().name( sName + sSuffix ).
+                    final TreeNode aChild = nodeProvider.get().name( sName + sSuffix ).
                             parent(aFolder).build();
                     vCreate.add(aChild);
                 }

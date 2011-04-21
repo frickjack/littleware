@@ -10,21 +10,28 @@
 package littleware.apps.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.client.AbstractAssetEditor;
 import littleware.apps.client.AssetEditor;
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
+import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.base.feedback.LittleEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
-import littleware.asset.AssetType;
+import littleware.asset.GenericAsset;
+import littleware.asset.LittleHome;
 import littleware.asset.client.LittleService;
 import littleware.asset.client.SimpleLittleService;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.security.AccountManager;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleGroup;
+import littleware.security.LittlePrincipal;
+import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 
 /**
@@ -34,18 +41,22 @@ import littleware.security.auth.LittleSession;
  */
 public class AssetModelLibTester extends AbstractAssetTest {
 
-    private static final Logger olog = Logger.getLogger(AssetModelLibTester.class.getName());
-    private final AssetModelLibrary olibAsset;
-    private final LittleSession osession;
-    private final AssetSearchManager osearch;
+    private static final Logger log = Logger.getLogger(AssetModelLibTester.class.getName());
+    private final AssetModelLibrary assetLibrary;
+    private final LittleSession session;
+    private final AssetSearchManager search;
+    private final Provider<GenericBuilder> genericProvider;
 
     @Inject
     public AssetModelLibTester(AssetModelLibrary libAsset,
             LittleSession session,
-            AssetSearchManager search) {
-        olibAsset = libAsset;
-        osearch = search;
-        osession = session;
+            AssetSearchManager search,
+            Provider<GenericAsset.GenericBuilder> genericProvider
+            ) {
+        this.assetLibrary = libAsset;
+        this.search = search;
+        this.session = session;
+        this.genericProvider = genericProvider;
         setName("testModelLibrary");
     }
 
@@ -53,37 +64,37 @@ public class AssetModelLibTester extends AbstractAssetTest {
      * Run the injected AssetModelLibrary through a few simple tests
      */
     public void testModelLibrary() {
-        Asset a_bogus1 = null;
-        Asset a_bogus2 = null;
+        final List<Asset>  cleanupList = new ArrayList<Asset>();
         try {
             // couple bogus test assets - donot save to repository
-            final Asset home = getTestHome(osearch);
-            a_bogus1 = GenericAsset.GENERIC.create().name("bogus1").parent(home).build();
-            a_bogus2 = GenericAsset.GENERIC.create().name("bogus2").parent(home).build();
-            final Asset a_test = osession;
+            final LittleHome   home = getTestHome(search);
+            final GenericAsset testAsset1 = genericProvider.get().name("bogus1").parent(home).build();
+            final GenericAsset testAsset2 = genericProvider.get().name("bogus2").parent(home).build();
 
-            olibAsset.remove(a_test.getId());
+            cleanupList.add( testAsset1 );
+            cleanupList.add( testAsset2 );
+            assetLibrary.remove(session.getId());
 
             assertTrue("Simple sync is ok",
-                    olibAsset.syncAsset(a_test).getAsset() == a_test);
+                    assetLibrary.syncAsset(session).getAsset() == session);
             assertTrue("No retrieval if not necessary",
-                    olibAsset.retrieveAssetModel(a_test.getId(), osearch).get().getAsset() == a_test);
+                    assetLibrary.retrieveAssetModel(session.getId(), search).get().getAsset() == session);
 
             final AssetModel amodel_everybody =
-                    olibAsset.syncAsset(osearch.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    assetLibrary.syncAsset(search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE).get());
             assertTrue("ModelLibrary getByName inheritance aware 1",
-                    olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    assetLibrary.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittlePrincipal.PRINCIPAL_TYPE).isSet());
             assertTrue("ModelLibrary getByName inheritance aware 2",
-                    !olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    !assetLibrary.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleUser.USER_TYPE).isSet());
             assertTrue("ModelLibrary getByName inheritance aware 3",
-                    olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    assetLibrary.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE).isSet());
-            olibAsset.remove(amodel_everybody.getAsset().getId());
+            assetLibrary.remove(amodel_everybody.getAsset().getId());
             assertTrue("ModelLibrary getByName cleared after remove",
-                    !olibAsset.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                    !assetLibrary.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE).isSet());
 
             final AssetEditor edit_bogus = new AbstractAssetEditor(this) {
@@ -91,23 +102,24 @@ public class AssetModelLibTester extends AbstractAssetTest {
                 @Override
                 public void eventFromModel(LittleEvent event_property) {
                     // just do something - anything
-                    olog.log(Level.INFO, "Test editor received event from model, setting value to 5");
-                    changeLocalAsset().setValue(5);
+                    log.log(Level.INFO, "Test editor received event from model, setting value to 5");
+                    changeLocalAsset().narrow( GenericAsset.GenericBuilder.class ).setValue(5);
                 }
             };
-            edit_bogus.setAssetModel(olibAsset.syncAsset(a_bogus1)); //addPropertyChangeListener ( listen_assetprop );
+            edit_bogus.setAssetModel(assetLibrary.syncAsset(testAsset1)); //addPropertyChangeListener ( listen_assetprop );
             // Adding a_bogus2 to the asset repository should trigger a Property.assetsLinkingFrom
             // property-change event on listeners to a_bogus1 AssetModel
-            olibAsset.syncAsset(a_bogus2.copy().fromId(a_bogus1.getId()).
-                    timestamp(a_bogus2.getTimestamp() + 1).build());
+            assetLibrary.syncAsset(testAsset2.copy().parentId(testAsset1.getId()).
+                    timestamp(testAsset2.getTimestamp() + 1).build());
             Thread.sleep(4000); // let any asynchrony work itself out
-            assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().getValue());
+            assertTrue("AssetModel cascading properties correctly", 5 == edit_bogus.getLocalAsset().narrow( GenericAsset.class ).getValue());
         } catch (Exception e) {
-            olog.log(Level.WARNING, "Caught unexpected: " + e, e);
+            log.log(Level.WARNING, "Caught unexpected: " + e, e);
             assertTrue("Caught unexpected: " + e, false);
         } finally {
-            olibAsset.remove(a_bogus1.getId());
-            olibAsset.remove(a_bogus2.getId());
+            for( Asset trash : cleanupList ) {
+                assetLibrary.remove( trash.getId() );
+            }
         }
     }
 
@@ -117,19 +129,19 @@ public class AssetModelLibTester extends AbstractAssetTest {
      */
     public void testSessionHookup() {
         try {
-            assertTrue("SearchManager is a service", osearch instanceof LittleService);
-            olibAsset.remove(osession.getId());
+            assertTrue("SearchManager is a service", search instanceof LittleService);
+            assetLibrary.remove(session.getId());
             assertTrue("Session removed from model library",
-                    null == olibAsset.get(osession.getId()));
-            osearch.getAsset(osession.getId());
+                    null == assetLibrary.get(session.getId()));
+            search.getAsset(session.getId());
             assertTrue("Asset automatically added to model library on load",
-                    null != olibAsset.get(osession.getId()));
+                    null != assetLibrary.get(session.getId()));
             // Make sure that our client cache is getting wired up
             assertTrue("Client cache registration looks ok",
                     SimpleLittleService.getCacheCount() > 0
                     );
         } catch (Exception ex) {
-            olog.log(Level.WARNING, "Test failed", ex);
+            log.log(Level.WARNING, "Test failed", ex);
             fail("Caught exception: " + ex);
         }
     }

@@ -25,7 +25,7 @@ import littleware.base.validate.Validator;
 public class AssetAttrValidator {
 
     public Validator build(final AssetBuilder builderIn) {
-        final AbstractAssetBuilder builder = (AbstractAssetBuilder) builderIn;
+        final AbstractAssetBuilder<? extends AssetBuilder> builder = (AbstractAssetBuilder) builderIn;
         return new AbstractValidator() {
 
             @Override

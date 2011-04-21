@@ -82,6 +82,9 @@ public interface MemberAlias extends LinkAsset {
 
         @Override
         public MABuilder fromId( UUID value );
+        @Override
+        public MABuilder from( Asset value );
+
 
     }
 

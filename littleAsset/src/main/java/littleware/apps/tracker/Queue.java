@@ -9,6 +9,8 @@
 package littleware.apps.tracker;
 
 
+import java.util.Date;
+import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.TreeNode;
@@ -48,6 +50,42 @@ public interface Queue extends TreeNode {
         public QueueBuilder nextTaskNumber( int value );
         @Override
         public Queue build();
+
+        @Override
+        public QueueBuilder creatorId(UUID value);
+
+        @Override
+        public QueueBuilder lastUpdaterId(UUID value);
+
+        @Override
+        public QueueBuilder aclId(UUID value);
+
+        @Override
+        public QueueBuilder ownerId(UUID value);
+
+        @Override
+        public QueueBuilder comment(String value);
+
+        @Override
+        public QueueBuilder lastUpdate(String value);
+
+        @Override
+        public QueueBuilder homeId(UUID value);
+
+        @Override
+        public QueueBuilder parentId(UUID value);
+
+
+        @Override
+        public QueueBuilder createDate(Date value);
+
+        @Override
+        public QueueBuilder lastUpdateDate(Date value);
+
+
+        @Override
+        public QueueBuilder timestamp(long value);
+
     }
 }
 

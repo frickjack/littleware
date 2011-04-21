@@ -13,6 +13,7 @@ import java.util.UUID;
 import littleware.apps.tracker.Product;
 import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.ProductAlias.PABuilder;
+import littleware.asset.Asset;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
 

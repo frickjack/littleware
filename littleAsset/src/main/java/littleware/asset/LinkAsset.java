@@ -40,6 +40,10 @@ public interface LinkAsset extends Asset {
         public void setFromId(UUID value);
 
         public LinkBuilder fromId(UUID value);
+        /**
+         * Set home, acl, from properties based on value
+         */
+        public LinkBuilder from(Asset value);
 
         public UUID getToId();
 
@@ -77,5 +81,7 @@ public interface LinkAsset extends Asset {
         @Override
         public LinkBuilder timestamp(long value);
 
+        @Override
+        public LinkBuilder comment( String value );
     }
 }

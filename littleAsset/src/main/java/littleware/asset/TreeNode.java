@@ -65,5 +65,9 @@ public interface TreeNode extends TreeParent {
          * Sets parentId, homeId, and aclId from parent
          */
         public TreeNodeBuilder parent(TreeParent parent);
+
+        @Override
+        public TreeNodeBuilder comment( String value );
+
     }
 }

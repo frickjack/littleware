@@ -18,10 +18,6 @@ import java.util.logging.Level;
 import littleware.asset.*;
 import littleware.apps.filebucket.*;
 //import littleware.apps.tracker.swing.*;
-import littleware.base.*;
-import littleware.security.*;
-import littleware.security.auth.SessionHelper;
-import littleware.security.auth.ServiceType;
 import littleware.test.LittleTest;
 
 
@@ -33,14 +29,12 @@ public class TrackerTester extends LittleTest {
 
     private static final String os_test_data = "Frickjack bla bla " + (new Date()).getTime();
     private static final String os_test_folder = "TrackerTester";
-    private static final Logger olog_generic = Logger.getLogger("littleware.apps.test.TrackerTester");
-    private static Asset oa_test_folder = null;
-    private AssetManager om_asset = null;
-    private AssetSearchManager om_search = null;
-    private BucketManager om_bucket = null;
-    private final SessionHelper om_helper;
+    private static final Logger log = Logger.getLogger("littleware.apps.test.TrackerTester");
+    private final AssetManager assetMgr;
+    private final AssetSearchManager search;
+    private final BucketManager bucketMgr;
     //private final Provider<JQView>  oprovide_view;
-    private Set<Asset> ov_test = new HashSet<Asset>();
+    private final Set<Asset> cleanup = new HashSet<Asset>();
 
     /**
      * Constructor takes test name for superclass
@@ -48,11 +42,15 @@ public class TrackerTester extends LittleTest {
      */
     @Inject
     public TrackerTester(
-            SessionHelper m_helper
+            AssetSearchManager search,
+            AssetManager assetMgr,
+            BucketManager bucketMgr,
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider
             //,Provider<JQView> provide_view
             ) {
-        om_helper = m_helper;
-        //oprovide_view = provide_view;
+        this.assetMgr = assetMgr;
+        this.search = search;
+        this.bucketMgr = bucketMgr;
     }
     
 
@@ -61,33 +59,6 @@ public class TrackerTester extends LittleTest {
      */
     @Override
     public void setUp() {
-        try {
-            om_asset = om_helper.getService(ServiceType.ASSET_MANAGER);
-            om_search = om_helper.getService(ServiceType.ASSET_SEARCH);
-            om_bucket = om_helper.getService(BucketServiceType.BUCKET_MANAGER);
-
-            if (null == oa_test_folder) {
-                UUID u_home = om_search.getHomeAssetIds().get("littleware.test_home");
-                Map<String, UUID> v_children = om_search.getAssetIdsFrom(u_home, GenericAsset.GENERIC);
-                UUID u_test_folder = v_children.get(os_test_folder);
-
-                if (null == u_test_folder) {
-                    AssetBuilder a_folder = GenericAsset.GENERIC.create();
-                    a_folder.setFromId(u_home);
-                    a_folder.setHomeId(u_home);
-                    a_folder.setName(os_test_folder);
-                    final UUID u_acl = om_search.getByName(littleware.security.LittleAcl.ACL_EVERYBODY_READ, LittleAcl.ACL_TYPE).get().getId();
-
-                    a_folder.setAclId(u_acl);
-                    oa_test_folder = om_asset.saveAsset(a_folder.build(), "setup folder for test");
-                } else {
-                    oa_test_folder = om_search.getAsset(u_test_folder).get();
-                }
-            }
-        } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Failed setup, caught: " + e + ", " + BaseException.getStackTrace(e));
-            throw new AssertionFailedException("Failed setup, caught: " + e, e);
-        }
     }
 
     /**
@@ -95,14 +66,14 @@ public class TrackerTester extends LittleTest {
      */
     @Override
     public void tearDown() {
-        for (Asset a_test : ov_test) {
+        for (Asset a_test : cleanup) {
             try {
-                om_asset.deleteAsset(a_test.getId(), "Cleanup after test");
-            } catch (Exception e) {
-                olog_generic.log(Level.WARNING, "Teardown caught: " + e);
+                assetMgr.deleteAsset(a_test.getId(), "Cleanup after test");
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Teardown failed", ex);
             }
         }
-        ov_test.clear();
+        cleanup.clear();
     }
 
     /**

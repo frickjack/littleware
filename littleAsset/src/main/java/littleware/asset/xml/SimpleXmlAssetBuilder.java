@@ -35,7 +35,7 @@ import littleware.base.AssertionFailedException;
  * XmlDataSetter handlers that map XML elements to getter and
  * setter methods on an asset instance object.
  */
-public abstract class SimpleXmlAssetBuilder extends AbstractXmlAssetBuilder {
+public abstract class SimpleXmlAssetBuilder<T extends XmlAssetBuilder> extends AbstractXmlAssetBuilder<T> {
 
     private static final Logger log = Logger.getLogger(SimpleXmlAssetBuilder.class.getName());
     private HashMap<String, XmlDataSetter> ov_element_in = new HashMap<String, XmlDataSetter>();

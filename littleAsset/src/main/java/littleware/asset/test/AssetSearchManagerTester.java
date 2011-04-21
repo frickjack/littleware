@@ -23,7 +23,8 @@ import littleware.base.*;
 import littleware.security.LittlePrincipal;
 import littleware.security.AccountManager;
 import littleware.security.LittleGroup;
-import littleware.security.SecurityAssetType;
+import littleware.security.LittleGroupMember;
+import littleware.security.LittleUser;
 
 /**
  * Tester for implementations of the AssetSearchManager interface.
@@ -68,7 +69,8 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
                     LittleGroup.GROUP_TYPE).get().narrow();
             for (LittlePrincipal member : group_everybody.getMembers() ) {
                 Set<UUID> v_links = search.getAssetIdsTo(member.getId(),
-                        LittleGroup.GROUP_TYPE_MEMBER);
+                        LittleGroupMember.GROUP_MEMBER_TYPE
+                        );
                 assertTrue("Group member as links TO it: " + member,
                         !v_links.isEmpty());
             }

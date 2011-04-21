@@ -76,6 +76,8 @@ public interface ProductAlias extends LinkAsset {
 
         @Override
         public PABuilder fromId( UUID value );
+        @Override
+        public PABuilder from( Asset value );
 
         @Override
         public PABuilder timestamp(long value);

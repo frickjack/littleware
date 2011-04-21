@@ -196,6 +196,9 @@ public interface GenericAsset extends TreeNode {
         @Override
         public GenericBuilder parent(TreeParent parent);
 
+        @Override
+        public GenericBuilder comment( String value );
+
     }
     /** GENERIC asset-type */
     public static final AssetType GENERIC = new AssetType(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),

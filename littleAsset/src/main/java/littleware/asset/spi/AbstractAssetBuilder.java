@@ -306,6 +306,11 @@ public abstract class AbstractAssetBuilder<B extends AssetBuilder> extends Abstr
     }
 
 
+    public B from(Asset value) {
+        return parentInternal( value );
+    }
+
+
     public UUID getParentId() {
         return getFromId();
     }

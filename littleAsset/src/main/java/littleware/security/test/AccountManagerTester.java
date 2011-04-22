@@ -26,7 +26,6 @@ import littleware.asset.test.AbstractAssetTest;
 import littleware.security.*;
 import littleware.base.BaseException;
 import littleware.security.LittleGroup.Builder;
-import littleware.security.server.QuotaUtil;
 
 /**
  * TestFixture runs SecurityMnaager implementations
@@ -36,34 +35,24 @@ public class AccountManagerTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(AccountManagerTester.class.getName());
     private final AssetSearchManager search;
-    private final AccountManager accountMgr;
     private final AssetManager assetMgr;
     private final LittleUser caller;
-    private final QuotaUtil quotaUtil;
     private final Provider<Builder> groupProvider;
 
     /**
      * Constructor registers the AccountManager to test against.
      * Use littleware.security.test.LoginTester as LoginContext application name.
-     *
-     * @param s_name of test case to run
-     * @param m_account to run test against
-     * @param m_asset to do saveAsset/deleteAsset/... calls against
      */
     @Inject
     public AccountManagerTester(
-            AccountManager m_account,
-            AssetManager m_asset,
+            AssetManager assetMgr,
             AssetSearchManager search,
-            QuotaUtil quotaUtil,
             LittleUser caller,
             Provider<LittleGroup.Builder> groupProvider
             ) {
-        this.accountMgr = m_account;
-        this.assetMgr = m_asset;
+        this.assetMgr = assetMgr;
         this.search = search;
         this.caller = caller;
-        this.quotaUtil = quotaUtil;
         this.groupProvider = groupProvider;
         setName("testGetPrincipals");
     }
@@ -91,30 +80,6 @@ public class AccountManagerTester extends AbstractAssetTest {
         }
     }
 
-
-    /**
-     * Just verify that incrementQuota increments the quota asset.
-     * Must be running the test as a user with an active Quota set.
-     */
-    public void testQuota() {
-        try {
-            final Quota a_quota_before = quotaUtil.getQuota(caller, search);
-            assertTrue("Got a quota we can test against",
-                    (null != a_quota_before) && (a_quota_before.getQuotaLimit() > 0) && (a_quota_before.getQuotaCount() >= 0));
-            quotaUtil.incrementQuotaCount( caller, assetMgr, search );
-            final Quota a_quota_after = quotaUtil.getQuota(caller,search);
-            assertTrue("Quota incremented by 1: " + a_quota_before.getQuotaCount() +
-                    " -> " + a_quota_after.getQuotaCount(),
-                    a_quota_before.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
-            // Verify get/setData parsing
-            assertTrue("get/setData consistency",
-                    a_quota_after.getQuotaLimit() == a_quota_after.copy().build().getQuotaLimit()
-                    );
-        } catch (Exception ex) {
-            log.log(Level.WARNING, "Failed test", ex );
-            fail("Caught exception: " + ex );
-        }
-    }
 
     /**
      * Test group update

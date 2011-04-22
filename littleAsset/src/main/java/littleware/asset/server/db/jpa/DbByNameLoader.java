@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import littleware.asset.Asset;
-import littleware.asset.AssetException;
 import littleware.asset.AssetType;
-import littleware.asset.server.AssetSpecializerRegistry;
+import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
@@ -29,14 +30,15 @@ import littleware.db.DbReader;
  * Load name-unique assets with the given name
  */
 class DbByNameLoader implements DbReader<Set<Asset>, String> {
+    private static final Logger log = Logger.getLogger( DbByNameLoader.class.getName() );
 
     private final String osName;
     private final AssetType oatype;
     private final Provider<JpaLittleTransaction> oprovideTrans;
-    private final AssetSpecializerRegistry assetRegistry;
+    private final AssetProviderRegistry assetRegistry;
 
     public DbByNameLoader(Provider<JpaLittleTransaction> provideTrans,
-            AssetSpecializerRegistry assetRegistry,
+            AssetProviderRegistry assetRegistry,
             String sName, AssetType atype) {
         osName = sName;
         oatype = atype;
@@ -68,8 +70,8 @@ class DbByNameLoader implements DbReader<Set<Asset>, String> {
             final Set<Asset> vResult = new HashSet<Asset>();
             for (AssetEntity ent : vInfo) {
                 final AssetType assetType = AssetType.getMember(UUIDFactory.parseUUID(ent.getTypeId()));
-
-                vResult.add(ent.buildAsset(assetRegistry.getService(assetType).create(assetType)));
+                log.log( Level.FINE, "Building asset from entity with type: {0}", assetType);
+                vResult.add(ent.buildAsset(assetRegistry.getService(assetType).get()));
             }
             return vResult;
         } catch (BaseException ex) {

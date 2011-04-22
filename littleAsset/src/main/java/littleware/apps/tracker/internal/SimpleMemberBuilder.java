@@ -25,7 +25,7 @@ import littleware.base.BaseException;
 public class SimpleMemberBuilder extends AbstractAssetBuilder<MemberBuilder> implements MemberBuilder {
 
     public SimpleMemberBuilder() {
-        super(Member.MemberType);
+        super(Member.MEMBER_TYPE);
     }
 
 

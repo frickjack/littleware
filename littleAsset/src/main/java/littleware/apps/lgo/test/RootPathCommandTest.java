@@ -25,7 +25,7 @@ import littleware.base.feedback.LoggerFeedback;
  */
 public class RootPathCommandTest extends AbstractAssetTest {
     private static final Logger  log = Logger.getLogger( RootPathCommandTest.class.getName() );
-    private final GetRootPathCommand.Builder builder;
+    private final GetRootPathCommand.Builder commandBuilder;
     private final AssetSearchManager search;
     private final AssetPathFactory pathFactory;
 
@@ -34,7 +34,7 @@ public class RootPathCommandTest extends AbstractAssetTest {
             AssetPathFactory pathFactory,
             AssetSearchManager search
             ) {
-        this.builder = commandBuilder;
+        this.commandBuilder = commandBuilder;
         setName( "testRootPath" );
         this.search = search;
         this.pathFactory = pathFactory;
@@ -43,7 +43,7 @@ public class RootPathCommandTest extends AbstractAssetTest {
     public void testRootPath() {
         try {
             final AssetPath path = pathFactory.createPath( getTestHome( search ).getId() );
-            final AssetPath pathResult = builder.buildSafe( path ).runCommand( new LoggerFeedback( log ) );
+            final AssetPath pathResult = commandBuilder.buildSafe( path ).runCommand( new LoggerFeedback( log ) );
             log.log( Level.INFO, "Rooted path: " + path + " -- " + pathResult );
             assertTrue( "Path references littleware.test_home: " + pathResult,
                     pathResult.toString().indexOf( getTestHome() ) >= 0

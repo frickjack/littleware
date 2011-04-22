@@ -131,6 +131,7 @@ public class SimpleTemplateBuilder implements AssetTreeTemplate.TemplateBuilder 
             AssetPath dir = path.getParent();
             while( dir.hasParent() ) {
                 result = (new SimpleAssetBuilder( nodeProvider.get().name( dir.getBasename() ))).addChildren( result ).build();
+                dir = dir.getParent();
             }
             return result;
         }

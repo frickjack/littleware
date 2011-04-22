@@ -16,7 +16,7 @@ public interface LittlePrincipal extends java.security.Principal, littleware.ass
      * This asset-type is abstract - just intended for grouping
      * USER and GROUP types together.
      */
-    public static final SecurityAssetType PRINCIPAL_TYPE = new SecurityAssetType(
+    public static final AssetType PRINCIPAL_TYPE = new AssetType(
             UUIDFactory.parseUUID("A7E11221-5469-49FA-AF1E-8FCC52190F1D"),
             "littleware.PRINCIPAL") {
 

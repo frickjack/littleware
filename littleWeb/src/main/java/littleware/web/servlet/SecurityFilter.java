@@ -88,7 +88,7 @@ public class SecurityFilter implements Filter {
             this.user = user;
             this.pathFactory = pathFactory;
             try {
-                this.adminGroup = search.getByName( AccountManager.LITTLEWARE_ADMIN_GROUP, SecurityAssetType.GROUP).get().narrow();
+                this.adminGroup = search.getByName( AccountManager.LITTLEWARE_ADMIN_GROUP, LittleGroup.GROUP_TYPE).get().narrow();
             } catch (RuntimeException ex) {
                 throw ex;
             } catch (Exception ex) {
@@ -118,13 +118,13 @@ public class SecurityFilter implements Filter {
                     return search.getAssetAtPath(path).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.WRITE);
                 } else if (sAccessSpec.startsWith("group:")) {
                     final String group = sAccessSpec.substring("group:".length());
-                    return search.getByName(group, SecurityAssetType.GROUP).get().narrow(LittleGroup.class).isMember(user);
+                    return search.getByName(group, LittleGroup.GROUP_TYPE).get().narrow(LittleGroup.class).isMember(user);
                 } else if (sAccessSpec.startsWith("acl:read:")) {
                     final String acl = sAccessSpec.substring("acl:read:".length());
-                    return search.getByName(acl, SecurityAssetType.ACL).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.READ);
+                    return search.getByName(acl, LittleAcl.ACL_TYPE).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.READ);
                 } else if (sAccessSpec.startsWith("acl:write:")) {
                     final String acl = sAccessSpec.substring("acl:write:".length());
-                    return search.getByName(acl, SecurityAssetType.ACL).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.WRITE);
+                    return search.getByName(acl, LittleAcl.ACL_TYPE).get().narrow(LittleAcl.class).checkPermission(user, LittlePermission.WRITE);
                 } else {
                     log.log(Level.WARNING, "Unknown access spec must be in (group:, acl:read:, acl:write:): " + sAccessSpec);
                     return false;

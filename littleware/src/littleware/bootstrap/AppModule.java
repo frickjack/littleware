@@ -12,7 +12,6 @@
 package littleware.bootstrap;
 
 import littleware.bootstrap.AppBootstrap.AppProfile;
-import littleware.bootstrap.LittleModule;
 
 /**
  * Bootstrap module for application-mode bootstrap.

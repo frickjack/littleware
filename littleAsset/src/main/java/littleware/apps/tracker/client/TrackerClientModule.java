@@ -9,33 +9,18 @@
  */
 package littleware.apps.tracker.client;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Scopes;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.logging.Logger;
-import littleware.apps.tracker.Comment;
-import littleware.apps.tracker.Member;
-import littleware.apps.tracker.MemberAlias;
-import littleware.apps.tracker.Product;
-import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.ProductManager;
-import littleware.apps.tracker.Queue;
-import littleware.apps.tracker.Task;
 import littleware.apps.tracker.internal.SimpleTaskManager;
 import littleware.apps.tracker.TaskManager;
 import littleware.apps.tracker.TaskQueryManager;
-import littleware.apps.tracker.internal.TrackerGuiceModule;
-import littleware.apps.tracker.Version;
-import littleware.apps.tracker.VersionAlias;
-import littleware.asset.AssetType;
 import littleware.asset.client.bootstrap.AbstractClientModule;
 import littleware.asset.client.bootstrap.ClientModule;
 import littleware.asset.client.bootstrap.ClientModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
-import littleware.security.auth.ServiceType;
 
 /**
  * Force load of TaskQueryManager so SERVICE_HANDLE gets registered,
@@ -44,14 +29,6 @@ import littleware.security.auth.ServiceType;
 public class TrackerClientModule extends AbstractClientModule {
 
     private static final Logger log = Logger.getLogger(TrackerClientModule.class.getName());
-    private static final Collection<AssetType> typeSet;
-
-    static {
-        final ImmutableList.Builder<AssetType> builder = ImmutableList.builder();
-        typeSet = builder.add(Comment.COMMENT_TYPE).add(Queue.QUEUE_TYPE).add(Task.TASK_TYPE).add(Product.ProductType).add(ProductAlias.PAType).add(Version.VersionType).add(VersionAlias.VAType).add(Member.MemberType).add(MemberAlias.MAType).build();
-    }
-    private static final Collection<ServiceType> serviceSet =
-            Collections.singleton((ServiceType) TaskQueryManager.SERVICE_HANDLE);
 
     public static class Factory implements ClientModuleFactory {
 
@@ -63,7 +40,7 @@ public class TrackerClientModule extends AbstractClientModule {
 
 
     private TrackerClientModule(AppBootstrap.AppProfile profile) {
-        super(profile, typeSet, serviceSet, emptyServiceListeners);
+        super(profile);
     }
 
     @Override
@@ -71,6 +48,5 @@ public class TrackerClientModule extends AbstractClientModule {
         binder.bind(TaskQueryManager.class).to(TaskQueryManagerService.class);
         binder.bind(TaskManager.class).to(SimpleTaskManager.class).in(Scopes.SINGLETON);
         binder.bind(ProductManager.class).to(SimpleProductManager.class).in(Scopes.SINGLETON);
-        (new TrackerGuiceModule()).configure( binder );
     }
 }

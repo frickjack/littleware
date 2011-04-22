@@ -15,7 +15,6 @@ import java.util.Map;
 import littleware.asset.AssetType;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.LittleServerListener;
-import littleware.base.Maybe;
 import littleware.bootstrap.LittleModule;
 import littleware.security.auth.ServiceType;
 import littleware.security.auth.server.ServiceFactory;

@@ -86,7 +86,7 @@ public class IfAclAccessAction extends ConditionalTagSupport {
                 return false;
             }
         
-            final LittleAcl  acl_check = m_search.getByName ( os_acl, SecurityAssetType.ACL ).get().narrow();
+            final LittleAcl  acl_check = m_search.getByName ( os_acl, LittleAcl.ACL_TYPE ).get().narrow();
             return acl_check.checkPermission ( p_caller, operm_access );
         } catch ( RuntimeException e ) {
             throw e;

@@ -38,7 +38,7 @@ public interface Product extends TreeNode {
     public Map<String, UUID> getDepends() throws BaseException, GeneralSecurityException, RemoteException;
 
     /**
-     * Shortcut for search.getIdsFrom( ProductType )
+     * Shortcut for search.getIdsFrom( PRODUCT_TYPE )
      */
     public Map<String, UUID> getSubProducts() throws BaseException, GeneralSecurityException, RemoteException;
 
@@ -51,6 +51,8 @@ public interface Product extends TreeNode {
 
     @Override
     public ProductBuilder copy();
+
+    //---------------------------------------------------------------
 
     public interface ProductBuilder extends TreeNode.TreeNodeBuilder {
 
@@ -102,6 +104,9 @@ public interface Product extends TreeNode {
         public ProductBuilder timestamp(long value);
 
     }
-    public static final AssetType ProductType = new AssetType(UUIDFactory.parseUUID("337291A8485742E987BCB225A33FDF2F"),
+
+    //---------------------------------------------------------------
+
+    public static final AssetType PRODUCT_TYPE = new AssetType(UUIDFactory.parseUUID("337291A8485742E987BCB225A33FDF2F"),
             "littleware.Product", TreeNode.TREE_NODE_TYPE );
 }

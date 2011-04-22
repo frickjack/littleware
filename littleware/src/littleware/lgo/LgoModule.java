@@ -22,6 +22,8 @@ import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
+import littleware.bootstrap.LittleBootstrap;
+import littleware.bootstrap.LittleModule;
 import littleware.bootstrap.helper.AbstractAppModule;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -91,9 +93,9 @@ public class LgoModule extends AbstractAppModule implements LgoServiceModule {
                 LgoCommandDictionary commandMgr,
                 LgoHelpLoader helpMgr,
                 Injector injector,
-                AppBootstrap bootstrap
+                LittleBootstrap bootstrap
             ) {
-            for( AppModule module : bootstrap.getModuleSet() ) {
+            for( LittleModule module : bootstrap.getModuleSet() ) {
                 if ( module instanceof LgoServiceModule ) {
                     for( Class<? extends LgoCommand.LgoBuilder> commandClass : ((LgoServiceModule) module).getLgoCommands() ) {
                         log.log( Level.FINE, "Register lgo command: {0}", commandClass.getName());

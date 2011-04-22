@@ -109,6 +109,20 @@ public class ServiceType<T extends LittleService> extends DynamicEnum<ServiceTyp
             new ServiceType<AccountManagerService>(UUIDFactory.parseUUID("402DD983DD8C47118232285E430611C2"),
             "littleware.ACCOUNT_MANAGER_SERVICE", AccountManagerService.class );
      * 
+    public static final AssetType SERVICE_STUB = new AssetType(
+            UUIDFactory.parseUUID("6AD504ACBB3A4A2CAB5AECE02D8E6706"),
+            "littleware.SERVICE_STUB", TreeNode.TREE_NODE_TYPE ) {
+        @Override
+        public boolean isAdminToCreate() {
+            return true;
+        }
+        @Override
+        public boolean isNameUnique() {
+            return true;
+        }
+    };
+     * 
      */
+
 }
 

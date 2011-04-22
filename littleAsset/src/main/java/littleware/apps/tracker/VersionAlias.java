@@ -31,7 +31,9 @@ public interface VersionAlias extends LinkAsset {
 
     @Override
     public VABuilder copy();
-    
+
+    //----------------------------------------------------------------
+
     public interface VABuilder extends LinkAsset.LinkBuilder {
         @Override
         public VABuilder name( String value );
@@ -88,8 +90,9 @@ public interface VersionAlias extends LinkAsset {
 
     }
     
-    
-    public static final AssetType VAType = new AssetType(
+    //----------------------------------------------------------------
+
+    public static final AssetType VA_TYPE = new AssetType(
             UUIDFactory.parseUUID("1CD26A5FDBD141D2904AACCEC3D0B3F2"),
             "littleware.VersionAlias", LinkAsset.LINK_TYPE
             );

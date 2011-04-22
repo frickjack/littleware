@@ -23,7 +23,6 @@ import littleware.apps.tracker.ProductAlias;
 import littleware.apps.tracker.Queue;
 import littleware.apps.tracker.Task;
 import littleware.apps.tracker.TaskQueryManager;
-import littleware.apps.tracker.internal.TrackerGuiceModule;
 import littleware.apps.tracker.Version;
 import littleware.apps.tracker.VersionAlias;
 import littleware.apps.tracker.client.SimpleQueryService;
@@ -84,21 +83,21 @@ public class TrackerServerModule extends AbstractServerModule {
                 ImmutableMap.builder();
         builder.put( Queue.QUEUE_TYPE, NullAssetSpecializer.class
                 ).put( Comment.COMMENT_TYPE, NullAssetSpecializer.class
-                ).put( Product.ProductType, SimpleProductSpecializer.class
-                ).put( ProductAlias.PAType, SimpleProductSpecializer.class
-                ).put( Version.VersionType, SimpleProductSpecializer.class
-                ).put( VersionAlias.VAType, SimpleProductSpecializer.class
-                ).put( Member.MemberType, SimpleProductSpecializer.class
-                ).put( MemberAlias.MAType, SimpleProductSpecializer.class );
+                ).put( Product.PRODUCT_TYPE, SimpleProductSpecializer.class
+                ).put( ProductAlias.PA_TYPE, SimpleProductSpecializer.class
+                ).put( Version.VERSION_TYPE, SimpleProductSpecializer.class
+                ).put( VersionAlias.VA_TYPE, SimpleProductSpecializer.class
+                ).put( Member.MEMBER_TYPE, SimpleProductSpecializer.class
+                ).put( MemberAlias.MA_TYPE, SimpleProductSpecializer.class );
         typeMap = builder.put( Task.TASK_TYPE, SimpleTaskSpecializer.class ).build();
 
         /*
-                ).add( Product.ProductType
-                ).add( ProductAlias.PAType
-                ).add( Version.VersionType
-                ).add( VersionAlias.VAType
-                ).add( Member.MemberType
-                ).add( MemberAlias.MAType
+                ).add( Product.PRODUCT_TYPE
+                ).add( ProductAlias.PA_TYPE
+                ).add( Version.VERSION_TYPE
+                ).add( VersionAlias.VA_TYPE
+                ).add( Member.MEMBER_TYPE
+                ).add( MemberAlias.MA_TYPE
          */
     }
 
@@ -122,6 +121,5 @@ public class TrackerServerModule extends AbstractServerModule {
     @Override
     public void configure(Binder binder) {
         binder.bind(TaskQueryManager.class).to(JpaTaskQueryManager.class);
-        (new TrackerGuiceModule()).configure( binder );
     }
 }

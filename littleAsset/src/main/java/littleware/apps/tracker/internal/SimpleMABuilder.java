@@ -21,7 +21,7 @@ import littleware.asset.spi.AbstractAssetBuilder;
 public class SimpleMABuilder extends AbstractAssetBuilder<MemberAlias.MABuilder> implements MemberAlias.MABuilder {
 
     public SimpleMABuilder() {
-        super(MemberAlias.MAType);
+        super(MemberAlias.MA_TYPE);
     }
 
     @Override

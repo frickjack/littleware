@@ -44,6 +44,8 @@ public interface Member extends Asset {
     @Override
     public MemberBuilder copy();
 
+    //----------------------------------------------------------------
+
     public interface MemberBuilder extends AssetBuilder {
 
         @Override
@@ -94,7 +96,9 @@ public interface Member extends Asset {
 
     }
 
-    public static final AssetType MemberType = new AssetType(
+    //----------------------------------------------------------------
+
+    public static final AssetType MEMBER_TYPE = new AssetType(
             UUIDFactory.parseUUID("92081A474DD947CCB02B21AAC5265834"),
             "littleware.Member");
 

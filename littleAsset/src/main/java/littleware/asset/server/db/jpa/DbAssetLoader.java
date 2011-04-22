@@ -7,7 +7,6 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.server.db.jpa;
 
 import com.google.inject.Inject;
@@ -18,20 +17,20 @@ import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
-import littleware.asset.server.AssetSpecializerRegistry;
+import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
 
 public class DbAssetLoader implements DbReader<Asset, UUID> {
-    private static final Logger log = Logger.getLogger( DbAssetLoader.class.getName() );
+
+    private static final Logger log = Logger.getLogger(DbAssetLoader.class.getName());
     private Provider<JpaLittleTransaction> transactionProvider;
-    private final AssetSpecializerRegistry assetRegistry;
+    private final AssetProviderRegistry assetRegistry;
 
     @Inject
-    public DbAssetLoader( Provider<JpaLittleTransaction> provideTrans,
-            AssetSpecializerRegistry assetRegistry
-            ) {
+    public DbAssetLoader(Provider<JpaLittleTransaction> provideTrans,
+            AssetProviderRegistry assetRegistry) {
         transactionProvider = provideTrans;
         this.assetRegistry = assetRegistry;
     }
@@ -39,19 +38,17 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
     @Override
     public Asset loadObject(UUID id) throws SQLException {
         final EntityManager entMgr = transactionProvider.get().getEntityManager();
-        final AssetEntity ent = entMgr.find( AssetEntity.class,
-                UUIDFactory.makeCleanString(id)
-                );
+        final AssetEntity ent = entMgr.find(AssetEntity.class,
+                UUIDFactory.makeCleanString(id));
         try {
-            final AssetType assetType = AssetType.getMember(UUIDFactory.parseUUID( ent.getTypeId()));
-            if ( null != ent ) {
-                return ent.buildAsset( assetRegistry.getService(assetType).create(assetType) );
+            if (null != ent) {
+                final AssetType assetType = AssetType.getMember(UUIDFactory.parseUUID(ent.getTypeId()));
+                return ent.buildAsset(assetRegistry.getService(assetType).get());
             } else {
                 return null;
             }
         } catch (BaseException ex) {
-            throw new SQLException( "Failed data load for " + id, ex );
+            throw new SQLException("Failed data load for " + id, ex);
         }
     }
-
 }

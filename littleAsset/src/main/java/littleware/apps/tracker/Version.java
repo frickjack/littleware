@@ -12,6 +12,7 @@ package littleware.apps.tracker;
 
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
@@ -34,6 +35,8 @@ public interface Version extends Asset {
     @Override
     public VersionBuilder copy();
 
+    //-------------------------------------------------------------
+
     public interface VersionBuilder extends AssetBuilder {
         @Override
         public VersionBuilder name( String value );
@@ -47,8 +50,43 @@ public interface Version extends Asset {
         public VersionBuilder product( Product value );
         @Override
         public Version build();
+
+        @Override
+        public VersionBuilder creatorId(UUID value);
+
+        @Override
+        public VersionBuilder lastUpdaterId(UUID value);
+
+        @Override
+        public VersionBuilder aclId(UUID value);
+
+        @Override
+        public VersionBuilder ownerId(UUID value);
+
+        @Override
+        public VersionBuilder comment(String value);
+
+        @Override
+        public VersionBuilder lastUpdate(String value);
+
+        @Override
+        public VersionBuilder homeId(UUID value);
+
+
+        @Override
+        public VersionBuilder createDate(Date value);
+
+        @Override
+        public VersionBuilder lastUpdateDate(Date value);
+
+
+        @Override
+        public VersionBuilder timestamp(long value);
+
     }
-    
-    public static final AssetType VersionType = new AssetType( UUIDFactory.parseUUID( "4869CDB1FA514055B0363449431A6278" ),
+
+    //-------------------------------------------------------------
+
+    public static final AssetType VERSION_TYPE = new AssetType( UUIDFactory.parseUUID( "4869CDB1FA514055B0363449431A6278" ),
                     "littleware.Version" );
 }

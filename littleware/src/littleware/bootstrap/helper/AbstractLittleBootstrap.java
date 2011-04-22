@@ -10,6 +10,7 @@
 
 package littleware.bootstrap.helper;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -43,7 +44,7 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
     private final Collection<? extends T> moduleSet;
 
     protected AbstractLittleBootstrap( Collection<? extends T> moduleSet ) {
-        this.moduleSet = moduleSet;
+        this.moduleSet = ImmutableList.copyOf( moduleSet );
     }
 
     @Override

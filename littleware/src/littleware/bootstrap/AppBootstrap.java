@@ -12,7 +12,6 @@ package littleware.bootstrap;
 import littleware.bootstrap.internal.SimpleAppBuilder;
 import com.google.inject.Provider;
 import java.util.Collection;
-import littleware.bootstrap.LittleBootstrap;
 
 /**
  * Bootstrap manager for applications that use
@@ -24,14 +23,12 @@ public interface AppBootstrap extends LittleBootstrap {
 
     /**
      * Some standard application profiles.
-     * JNDI is actually sort of a special SwingApp ...
+     * JNLP is actually sort of a special SwingApp ...
      */
     public enum AppProfile {
-        SwingApp, CliApp, WebApp, JNDI;
+        SwingApp, CliApp, WebApp, JNLP;
     }
 
-    @Override
-    public Collection<? extends AppModule> getModuleSet();
     public AppProfile getProfile();
 
     public interface AppBuilder extends LittleBootstrap.Builder {

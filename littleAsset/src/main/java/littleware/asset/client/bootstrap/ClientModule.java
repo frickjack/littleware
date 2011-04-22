@@ -21,14 +21,6 @@ import littleware.security.auth.ServiceType;
  */
 public interface ClientModule extends AppModule {
     /**
-     * Get the collection of asset types this module provides
-     */
-    public Collection<AssetType> getAssetTypes();
-    /**
-     * Get the collection of service types this module provides
-     */
-    public Collection<ServiceType> getServiceTypes();
-    /**
      * Get the collection of listeners to inject and
      * attach to the SessionHelper.
      * Can also register other listeners with the SessionHelperService

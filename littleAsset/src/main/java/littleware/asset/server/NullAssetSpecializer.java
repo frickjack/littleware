@@ -36,10 +36,5 @@ public class NullAssetSpecializer implements AssetSpecializer {
     public void postDeleteCallback(Asset asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
     }
-
-    @Override
-    public AssetBuilder create(AssetType type) {
-        throw new UnsupportedOperationException("Not supported by NullSpecializer.");
-    }
 }
 

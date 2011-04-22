@@ -3,51 +3,32 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.client.bootstrap;
+package littleware.asset.client.bootstrap.internal;
 
-import littleware.bootstrap.AppModule;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Scopes;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetTreeTemplate;
-import littleware.asset.AssetType;
-import littleware.asset.GenericAsset;
-import littleware.asset.LinkAsset;
-import littleware.asset.LittleHome;
-import littleware.asset.internal.SimpleAssetPathFactory;
-import littleware.asset.internal.SimpleTemplateBuilder;
 import littleware.asset.client.AssetLoadEvent;
 import littleware.asset.client.ClientCache;
 import littleware.asset.client.LittleService;
 import littleware.asset.client.LittleServiceEvent;
 import littleware.asset.client.LittleServiceListener;
 import littleware.asset.client.SimpleClientCache;
-import littleware.asset.internal.AssetGuiceModule;
+import littleware.asset.client.bootstrap.AbstractClientModule;
+import littleware.asset.client.bootstrap.ClientBootstrap;
+import littleware.asset.client.bootstrap.ClientModule;
+import littleware.asset.client.bootstrap.ClientModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
-import littleware.security.LittleAcl;
-import littleware.security.LittleAclEntry;
-import littleware.security.LittleGroup;
-import littleware.security.LittleGroupMember;
-import littleware.security.LittlePrincipal;
-import littleware.security.LittleUser;
-import littleware.security.Quota;
-import littleware.security.SecurityAssetType;
-import littleware.security.auth.LittleSession;
-import littleware.security.auth.ServiceType;
+import littleware.bootstrap.LittleModule;
 import littleware.security.auth.SessionHelper;
-import littleware.security.internal.SecurityGuiceModule;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -57,21 +38,11 @@ public class AssetClientModule extends AbstractClientModule {
 
     @Override
     public void configure(Binder binder) {
-        (new AssetGuiceModule()).configure(binder);
-        (new SecurityGuiceModule()).configure( binder );
-        binder.bind(AssetPathFactory.class).to(SimpleAssetPathFactory.class).in(Scopes.SINGLETON);
-        binder.bind(AssetTreeTemplate.TemplateBuilder.class).to(SimpleTemplateBuilder.class).in(Scopes.SINGLETON);
     }
 
     //-------------------------
     public static class Factory implements ClientModuleFactory {
 
-        private final Collection<AssetType> typeSet;
-
-        {
-            final ImmutableList.Builder<AssetType> builder = ImmutableList.builder();
-            typeSet = builder.add(GenericAsset.GENERIC).add(LittleHome.HOME_TYPE).add(LinkAsset.LINK_TYPE).add(LittleAcl.ACL_TYPE).add(LittleAclEntry.ACL_ENTRY).add(LittleGroup.GROUP_TYPE).add(LittleGroupMember.GROUP_MEMBER_TYPE).add(LittlePrincipal.PRINCIPAL_TYPE).add(Quota.QUOTA_TYPE).add(SecurityAssetType.SERVICE_STUB).add(LittleSession.SESSION_TYPE).add(LittleUser.USER_TYPE).build();
-        }
         private final Collection<Class<? extends LittleServiceListener>> listenerSet;
 
         {
@@ -79,16 +50,10 @@ public class AssetClientModule extends AbstractClientModule {
                     ImmutableList.builder();
             listenerSet = builder.add(SimpleClientCache.class).build();
         }
-        private final Collection<ServiceType> serviceSet;
-
-        {
-            final ImmutableList.Builder<ServiceType> builder = ImmutableList.builder();
-            serviceSet = builder.add(ServiceType.ASSET_MANAGER).add(ServiceType.ASSET_SEARCH).build();
-        }
 
         @Override
         public ClientModule build(AppProfile profile) {
-            return new AssetClientModule(profile, typeSet, serviceSet, listenerSet);
+            return new AssetClientModule(profile, listenerSet);
         }
     }
 
@@ -122,7 +87,7 @@ public class AssetClientModule extends AbstractClientModule {
             final LittleService helperService = (LittleService) helper;
             helperService.start(ctx);
             ctx.registerService(ClientCache.class.getName(), clientCache, new Properties());
-            for (AppModule appModule : bootstrap.getModuleSet()) {
+            for (LittleModule appModule : bootstrap.getModuleSet()) {
                 if (appModule instanceof ClientModule) {
                     final ClientModule module = (ClientModule) appModule;
                     for (Class<? extends LittleServiceListener> listenerClass : module.getServiceListeners()) {
@@ -149,10 +114,8 @@ public class AssetClientModule extends AbstractClientModule {
 
     // --------------------------------------
     private AssetClientModule(AppBootstrap.AppProfile profile,
-            Collection<AssetType> assetTypes,
-            Collection<ServiceType> serviceTypes,
             Collection<Class<? extends LittleServiceListener>> serviceListeners) {
-        super(profile, assetTypes, serviceTypes, serviceListeners);
+        super(profile, serviceListeners);
     }
 
     @Override

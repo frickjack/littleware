@@ -59,6 +59,7 @@ public abstract class AbstractServiceFactory<T extends LittleService> implements
      * Once the security checks pass, then this method returns a
      * SessionInvocationHandler based dynamic proxy wrapping the
      * given service-provider with a session-aware wrapper.
+     * NOTE: I just disabled the security check - never use it anyway 2011/04/21
      *
      * @param helper managing the session asking for a new service manager - checks
      *          for session-expired condition
@@ -88,7 +89,7 @@ public abstract class AbstractServiceFactory<T extends LittleService> implements
         }
 
         // Service is accessible
-        om_search.getAsset(on_service.getObjectId());
+        //om_search.getAsset(on_service.getObjectId());
 
         Subject j_caller = Subject.getSubject(AccessController.getContext());
         InvocationHandler handler_proxy = new SubjectInvocationHandler(j_caller, remoteProvider,

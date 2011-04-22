@@ -20,7 +20,7 @@ import littleware.asset.spi.AbstractAssetBuilder;
 public class SimplePABuilder extends AbstractAssetBuilder<ProductAlias.PABuilder> implements ProductAlias.PABuilder {
 
     public SimplePABuilder() {
-        super(ProductAlias.PAType);
+        super(ProductAlias.PA_TYPE);
     }
 
 

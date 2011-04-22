@@ -84,6 +84,6 @@ public interface ProductAlias extends LinkAsset {
 
     }
     
-    public static final AssetType PAType = new AssetType(UUIDFactory.parseUUID("1A827A6E61AE45939DE46B62F69B93B2"),
+    public static final AssetType PA_TYPE = new AssetType(UUIDFactory.parseUUID("1A827A6E61AE45939DE46B62F69B93B2"),
             "littleware.ProductAlias", LinkAsset.LINK_TYPE );
 }

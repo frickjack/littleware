@@ -39,13 +39,17 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetSearchManagerTester> provideSearchTest,
             HumanPicklerProvider  humanPickler,
             XmlPicklerProvider    xmlPickler,
-            Provider<GenericAsset.GenericBuilder> genericProvider
+            Provider<GenericAsset.GenericBuilder> genericProvider,
+            Provider<AssetTypeTester> provideTypeTester
             ) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
 
         if ( runTest ) {
             this.addTest( provideTreeTester.get() );
+        }
+        if( runTest ) {
+            this.addTest( provideTypeTester.get() );
         }
         if (runTest) {
             this.addTest(new PickleTester( humanPickler, genericProvider ));
@@ -54,7 +58,6 @@ public class JenkinsTestSuite extends TestSuite {
 
         if (runTest) {
             this.addTest(provideRetrieverTest.get());
-            this.addTest(provideRetrieverTest.get().putName("testAssetType") );
         }
         if (runTest) {
             this.addTest( provideSearchTest.get() );
@@ -65,7 +68,7 @@ public class JenkinsTestSuite extends TestSuite {
             this.addTest(providePathTester.get().putName( "testBadLookup") );
         }
 
-        if (runTest) {
+        if (false) {
             this.addTest(new XmlAssetTester("testXmlAsset"));
         }
 

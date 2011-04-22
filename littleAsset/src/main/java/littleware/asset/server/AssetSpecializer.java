@@ -9,7 +9,6 @@
  */
 package littleware.asset.server;
 
-import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.asset.*;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -28,10 +27,6 @@ import littleware.base.*;
  * based specializer mechanism.
  */
 public interface AssetSpecializer {
-    /**
-     * Create the AbstractAssetBuilder subtype that corresponds with type.
-     */
-    public AssetBuilder create( AssetType type );
 
     /**
      * Decorate the input asset with whatever supplemental data

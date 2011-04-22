@@ -14,7 +14,6 @@ import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.LinkAsset;
-import littleware.base.Maybe;
 import littleware.base.UUIDFactory;
 
 /**
@@ -30,6 +29,8 @@ public interface MemberAlias extends LinkAsset {
 
     @Override
     public MABuilder copy();
+
+    //----------------------------------------------------------------
 
     public interface MABuilder extends LinkAsset.LinkBuilder {
 
@@ -88,6 +89,8 @@ public interface MemberAlias extends LinkAsset {
 
     }
 
-    public static final AssetType MAType = new AssetType(UUIDFactory.parseUUID("A58AB57363464BB09D31F312E6FE81D5"),
+    //----------------------------------------------------------------
+
+    public static final AssetType MA_TYPE = new AssetType(UUIDFactory.parseUUID("A58AB57363464BB09D31F312E6FE81D5"),
             "littleware.MemberAlias", LinkAsset.LINK_TYPE );
 }

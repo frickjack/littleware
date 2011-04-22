@@ -44,7 +44,8 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetRetrieverTester> provideRetrieverTest,
             Provider<AssetSearchManagerTester> provideSearchTest,
             Provider<LittleUser> provideCaller,
-            Provider<AssetManagerTester>  provideAssetMgrTest
+            Provider<AssetManagerTester>  provideAssetMgrTest,
+            Provider<QuotaUtilTester> provideQuotaTester
             ) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
@@ -70,7 +71,6 @@ public class JenkinsTestSuite extends TestSuite {
         //AssetSearchManager m_search = new SimpleAssetSearchManager ( om_dbasset, om_cache, oregistry_special );
         if (runTest) {
             this.addTest(provideRetrieverTest.get());
-            this.addTest(provideRetrieverTest.get().putName("testAssetType") );
         }
         if (runTest) {
             this.addTest( provideSearchTest.get() );
@@ -99,7 +99,9 @@ public class JenkinsTestSuite extends TestSuite {
              * 
              */
         }
-
+        if ( runTest ) {
+            this.addTest( provideQuotaTester.get() );
+        }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 

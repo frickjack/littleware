@@ -123,8 +123,8 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             final Collection<AssetTreeTemplate.AssetInfo> infoList =
                     treeBuilder.get().path(testFolderPath).addChildren(
                     children).build().visit( getTestHome( search ), search);
-            assertTrue( "Tree template visits 5 nodes: " + infoList.size(),
-                    5 == infoList.size()
+            assertTrue( "Tree template visits 4 nodes: " + infoList.size(),
+                    4 == infoList.size()
                     );
             for( AssetTreeTemplate.AssetInfo info : infoList ) {
                 assertTrue( "Template visit finds already existing nodes: " + info.getAsset().getName(),

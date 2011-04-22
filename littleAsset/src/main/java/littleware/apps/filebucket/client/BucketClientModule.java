@@ -32,8 +32,6 @@ import littleware.security.auth.ServiceType;
 public class BucketClientModule extends AbstractClientModule {
     private static final Logger log = Logger.getLogger( BucketClientModule.class.getName() );
 
-    private static final Collection<ServiceType>  typeSet = Collections.singleton( (ServiceType) BucketServiceType.BUCKET_MANAGER );
-
     public static class Factory implements ClientModuleFactory {
 
         @Override
@@ -44,10 +42,7 @@ public class BucketClientModule extends AbstractClientModule {
     }
 
     private BucketClientModule( AppBootstrap.AppProfile profile ) {
-        super( profile, emptyAssetTypes,
-                typeSet,
-                emptyServiceListeners
-                );
+        super( profile);
     }
 
     @Override

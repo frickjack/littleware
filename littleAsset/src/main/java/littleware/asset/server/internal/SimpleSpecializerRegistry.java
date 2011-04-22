@@ -10,6 +10,7 @@
 
 package littleware.asset.server.internal;
 
+import com.google.inject.Singleton;
 import littleware.asset.AssetType;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.AssetSpecializerRegistry;
@@ -19,6 +20,7 @@ import littleware.base.SimpleLittleRegistry;
 /**
  * SimpleLittleRegistry based implementation of AssetSpecializerRegistry
  */
+@Singleton
 public class SimpleSpecializerRegistry 
         extends SimpleLittleRegistry<AssetType,AssetSpecializer>
         implements AssetSpecializerRegistry {

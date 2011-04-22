@@ -29,6 +29,7 @@ import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
+import littleware.asset.TreeParent;
 
 import littleware.base.BaseException;
 import littleware.base.Maybe;
@@ -194,14 +195,14 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
             RemoteException {
         final AssetPath pathNormal = normalizePath(pathIn);
         final Maybe<Asset> maybeRoot = pathNormal.getRoot(search);
-        if ( (!maybeRoot.isSet()) || (! (maybeRoot.get() instanceof TreeNode)) ) {
+        if ( (!maybeRoot.isSet()) || (! (maybeRoot.get() instanceof TreeParent)) ) {
             return pathNormal;
         }
         final List<Asset> assetTrail = new ArrayList<Asset>();
         assetTrail.add(maybeRoot.get());
-        for (Maybe<Asset> maybeParent = search.getAsset(maybeRoot.get().narrow( TreeNode.class ).getParentId());
+        for (Maybe<Asset> maybeParent = search.getAsset(maybeRoot.get().getFromId());
                 maybeParent.isSet();
-                maybeParent = search.getAsset(maybeParent.get().narrow( TreeNode.class ).getParentId())) {
+                maybeParent = search.getAsset(maybeParent.get().getFromId())) {
             assetTrail.add(maybeParent.get());
         }
         Collections.reverse(assetTrail);

@@ -33,14 +33,14 @@ import littleware.security.LittlePrincipal;
 
 /**
  * Simple implementation of the LittleAclEntry interface.
- * Overrides setData/getData to extract XML permission data.
+ * Overrides setData/getData to extract XML permission data.f
  */
 class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> implements LittleAclEntry.Builder {
 
     private static final Logger log = Logger.getLogger( AclEntryBuilder.class.getName() );
 
 
-    private Set<Permission> permissionSet = Collections.emptySet();
+    private Set<Permission> permissionSet = new HashSet<Permission>();
     private LittlePrincipal principal = null;
 
     @Override
@@ -52,7 +52,13 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
     @Override
     public Builder acl(LittleAcl acl) {
         super.parent( acl );
-        return this;
+        return aclId( acl.getId() );
+    }
+
+    @Override
+    public Builder aclId( UUID id ) {
+        super.aclId( id );
+        return fromId( id );
     }
 
 

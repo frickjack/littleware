@@ -58,9 +58,7 @@ public class ClientSyncModule extends AbstractClientModule {
     }
 
     private ClientSyncModule(AppBootstrap.AppProfile profile) {
-        super(profile, AbstractClientModule.emptyAssetTypes,
-                AbstractClientModule.emptyServiceTypes,
-                serviceListeners);
+        super(profile, serviceListeners);
     }
 
     @Override

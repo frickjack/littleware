@@ -10,7 +10,6 @@ package littleware.security;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
-import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
 import littleware.base.Maybe;
@@ -86,10 +85,9 @@ public interface LittleUser extends LittlePrincipal {
          */
         @Override
         public Builder parent(TreeParent parent);
-
     }
     public static final AssetType USER_TYPE = new AssetType(UUIDFactory.parseUUID("2FAFD5D1074F4BF8A4F01753DBFF4CD5"),
-            "littleware.USER") {
+            "littleware.USER", TreeNode.TREE_NODE_TYPE) {
 
         @Override
         public boolean isAdminToCreate() {
@@ -99,6 +97,12 @@ public interface LittleUser extends LittlePrincipal {
         @Override
         public Maybe<AssetType> getSuperType() {
             return Maybe.something((AssetType) LittlePrincipal.PRINCIPAL_TYPE);
+        }
+
+        /** Always return true */
+        @Override
+        public boolean isNameUnique() {
+            return true;
         }
     };
 }

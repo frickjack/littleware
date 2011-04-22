@@ -28,7 +28,7 @@ import littleware.base.BaseException;
 public class SimpleProductBuilder extends AbstractAssetBuilder<Product.ProductBuilder> implements Product.ProductBuilder {
 
     public SimpleProductBuilder() {
-        super(Product.ProductType);
+        super(Product.PRODUCT_TYPE);
     }
 
 
@@ -61,7 +61,7 @@ public class SimpleProductBuilder extends AbstractAssetBuilder<Product.ProductBu
 
         @Override
         public Map<String, UUID> getDepends() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom( getId(), ProductAlias.PAType );
+            return search.getAssetIdsFrom( getId(), ProductAlias.PA_TYPE );
         }
 
         @Override
@@ -71,12 +71,12 @@ public class SimpleProductBuilder extends AbstractAssetBuilder<Product.ProductBu
 
         @Override
         public Map<String, UUID> getVersions() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), Version.VersionType );
+            return search.getAssetIdsFrom(getId(), Version.VERSION_TYPE );
         }
 
         @Override
         public Map<String, UUID> getVersionAliases() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), VersionAlias.VAType );
+            return search.getAssetIdsFrom(getId(), VersionAlias.VA_TYPE );
         }
 
         @Override

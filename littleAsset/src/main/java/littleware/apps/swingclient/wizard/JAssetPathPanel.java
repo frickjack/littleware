@@ -36,7 +36,6 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.security.LittleAcl;
-import littleware.security.SecurityAssetType;
 
 
 /** 

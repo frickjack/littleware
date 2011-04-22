@@ -226,7 +226,7 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
 
     @Override
     public LittleAcl.Builder addEntry(LittleAclEntry entry) {
-        if ( ! entry.getFromId().equals( getId() ) ) {
+        if ( (null == entry.getFromId()) || (! entry.getFromId().equals( getId() )) ) {
             throw new IllegalArgumentException( "Entry does not link from new ACL" );
         }
         entrySet.add(entry);

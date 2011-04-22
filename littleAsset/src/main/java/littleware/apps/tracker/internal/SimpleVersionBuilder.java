@@ -27,7 +27,7 @@ import littleware.base.BaseException;
 public class SimpleVersionBuilder extends AbstractAssetBuilder<Version.VersionBuilder> implements Version.VersionBuilder {
 
     public SimpleVersionBuilder() {
-        super(Version.VersionType);
+        super(Version.VERSION_TYPE);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class SimpleVersionBuilder extends AbstractAssetBuilder<Version.VersionBu
 
         @Override
         public Map<String, UUID> getMembers() throws BaseException, GeneralSecurityException, RemoteException {
-            return search.getAssetIdsFrom(getId(), Member.MemberType);
+            return search.getAssetIdsFrom(getId(), Member.MEMBER_TYPE);
         }
     }
 }

@@ -91,28 +91,28 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         throw new UnsupportedOperationException();
     }
 
-    public SortedMap<AssetPath, Maybe<Asset>> getAssetsAlongPath(AssetPath path_asset) throws BaseException, AssetException,
+    public SortedMap<AssetPath, Maybe<Asset>> getAssetsAlongPath( final AssetPath assetPath) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         // setup a cycle cache
         final LittleTransaction trans = provideTrans.get();
         final Map<UUID, Asset> v_cycle_cache = trans.startDbAccess();
 
         try {
-            if (path_asset.hasRootBacktrack()) {
-                return getAssetsAlongPath(pathFactory.normalizePath(path_asset));
+            if (assetPath.hasRootBacktrack()) {
+                return getAssetsAlongPath(pathFactory.normalizePath(assetPath));
             }
 
             SortedMap<AssetPath, Maybe<Asset>> mapResult = null;
-            String s_path = path_asset.toString();
+            String s_path = assetPath.toString();
             Maybe<Asset> maybeResult = Maybe.empty();
 
-            if (path_asset.hasParent()) {
+            if (assetPath.hasParent()) {
                 // else get parent
                 // recursion!
-                mapResult = getAssetsAlongPath(path_asset.getParent());
+                mapResult = getAssetsAlongPath(assetPath.getParent());
 
                 if (mapResult.size() > 20) {
-                    throw new PathTraverseException("Path traversal (" + path_asset +
+                    throw new PathTraverseException("Path traversal (" + assetPath +
                             ") exceeds 20 assets at " + s_path);
                 }
 
@@ -122,10 +122,14 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 if (!maybeParent.isSet()) {
                     maybeResult = maybeParent;
                 } else if (s_name.equals("@")) {
-                    if (null == maybeParent.get().narrow( LinkAsset.class ).getToId()) {
+                    final Asset parent = maybeParent.get();
+                    if ( ! (parent instanceof LinkAsset) ) {
+                        throw new IllegalArgumentException( assetPath.toString() + " /@/ traverses non-link" );
+                    }
+                    if (null == parent.narrow( LinkAsset.class ).getToId()) {
                         maybeResult = Maybe.empty("Link parent has null to-id: " + s_path);
                     } else {
-                        maybeResult = getAsset(maybeParent.get().narrow( LinkAsset.class ).getToId());
+                        maybeResult = getAsset(parent.narrow( LinkAsset.class ).getToId());
                     }
                 } else {
                     maybeResult = getAssetFrom(maybeParent.get().getId(), s_name);
@@ -133,7 +137,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
 
             } else {
                 mapResult = new TreeMap();
-                maybeResult = path_asset.getRoot(this);
+                maybeResult = assetPath.getRoot(this);
             }
 
 
@@ -146,7 +150,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 maybeResult = getAsset(maybeResult.get().narrow( LinkAsset.class ).getToId());
             }
 
-            mapResult.put(path_asset, maybeResult);
+            mapResult.put(assetPath, maybeResult);
             return mapResult;
         } finally {
             trans.endDbAccess(v_cycle_cache);

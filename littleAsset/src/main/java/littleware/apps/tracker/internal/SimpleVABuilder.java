@@ -21,7 +21,7 @@ import littleware.asset.spi.AbstractAssetBuilder;
 public class SimpleVABuilder extends AbstractAssetBuilder<VersionAlias.VABuilder> implements VersionAlias.VABuilder {
 
     public SimpleVABuilder() {
-        super(VersionAlias.VAType);
+        super(VersionAlias.VA_TYPE);
     }
 
     @Override

@@ -9,7 +9,6 @@
  */
 package littleware.apps.swingclient.wizard;
 
-import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.logging.Logger;
@@ -33,6 +32,7 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.LittleHome;
 import littleware.base.BaseException;
+import littleware.base.event.LittleEvent;
 import littleware.security.LittleAcl;
 
 /**

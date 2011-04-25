@@ -16,8 +16,6 @@ import littleware.asset.AssetType;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.LittleServerListener;
 import littleware.bootstrap.LittleModule;
-import littleware.security.auth.ServiceType;
-import littleware.security.auth.server.ServiceFactory;
 
 /**
  * Server-side littleware runtime module
@@ -30,12 +28,6 @@ public interface ServerModule extends LittleModule {
      * and the asset-specializer to inject and register with the asset engine.
      */
     public Map<AssetType,Class<? extends AssetSpecializer>> getAssetTypes();
-    /**
-     * Get the collection of service types this module provides,
-     * and the service provider factory to register with the remote
-     * dispatch engine.
-     */
-    public Map<ServiceType,Class<? extends ServiceFactory>> getServiceTypes();
 
     /**
      * Get collection of LittleServerEvent listeners to register with

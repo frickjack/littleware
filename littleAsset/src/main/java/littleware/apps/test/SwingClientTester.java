@@ -11,8 +11,6 @@ package littleware.apps.test;
 
 import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.asset.TreeNode.TreeNodeBuilder;
-import littleware.base.feedback.LittleTool;
-import littleware.base.feedback.LittleEvent;
 import littleware.security.LittleGroup.Builder;
 import littleware.test.JLittleDialog;
 import com.google.inject.Inject;
@@ -33,6 +31,8 @@ import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.*;
 import littleware.apps.swingclient.wizard.CreateAssetWizard;
 import littleware.asset.test.AbstractAssetTest;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleTool;
 import littleware.security.auth.*;
 import littleware.security.*;
 

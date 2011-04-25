@@ -10,7 +10,6 @@
 
 package littleware.apps.swingclient.wizard;
 
-import littleware.base.feedback.LittleTool;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.GridBagLayout;
@@ -35,6 +34,7 @@ import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
 import littleware.base.BaseException;
+import littleware.base.event.LittleTool;
 import littleware.security.LittleAcl;
 
 

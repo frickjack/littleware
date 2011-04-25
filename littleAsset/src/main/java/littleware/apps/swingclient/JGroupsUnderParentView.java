@@ -3,15 +3,11 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.logging.Logger;
@@ -21,6 +17,8 @@ import javax.swing.*;
 
 import littleware.apps.client.*;
 import littleware.asset.*;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
 import littleware.base.feedback.Feedback;
 import littleware.base.swing.ListModelIterator;
 import littleware.security.*;
@@ -33,7 +31,7 @@ import littleware.security.*;
  * property changes.
  */
 public class JGroupsUnderParentView extends JGroupListView implements AssetView {
-    private static final Logger         olog_generic = Logger.getLogger ( "littleware.apps.swingclient.JGroupsUnderParentView" );
+    private static final Logger         log = Logger.getLogger ( "littleware.apps.swingclient.JGroupsUnderParentView" );
     private static final long serialVersionUID = 1251881511039167615L;
     
     private final AssetModelLibrary     olib_asset;
@@ -45,7 +43,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
         /** Events form the data model */
         @Override
         public void eventFromModel ( LittleEvent evt_from_model ) {
-            olog_generic.log ( Level.FINE, "Got PropertyChangeEvent, update scheduled ?: " + ob_update_scheduled );
+            log.log ( Level.FINE, "Got PropertyChangeEvent, update scheduled ?: {0}", ob_update_scheduled);
             if ( ! ob_update_scheduled ) {
                 // Since we update everything anyway - avoid doing it multiple times
                 ob_update_scheduled = true;  
@@ -183,14 +181,14 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
                                );
             
             for ( Asset a_group : v_groups ) {
-                olog_generic.log ( Level.FINE, "Adding group to list model: " + a_group.getName () );
+                log.log ( Level.FINE, "Adding group to list model: " + a_group.getName () );
                 // watch for new group members
                 olib_asset.syncAsset ( a_group ).addLittleListener ( olisten_children );
                 olmodel_groups.addElement ( a_group );
             }
-        } catch ( Exception e ) {
+        } catch ( Exception ex ) {
             // Just log it for now
-            olog_generic.log ( Level.WARNING, "Failed to resolve children under " + a_root + ", caught: " + e );
+            log.log ( Level.WARNING, "Failed to resolve children under " + a_root, ex );
         }
         
     }

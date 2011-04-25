@@ -266,7 +266,7 @@ public class LgoAssetCLI {
             return;
             }
             }
-             */
+             
 
             try {
                 final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get().profile(profile);
@@ -281,6 +281,8 @@ public class LgoAssetCLI {
             } catch (LoginException ex) {
                 log.log(Level.SEVERE, "Failed login", ex);
             }
+             * 
+             */
         } else {
             maybeBoot = Maybe.something((LittleBootstrap) AppBootstrap.appProvider.get().profile(profile).build());
         }

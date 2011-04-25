@@ -10,15 +10,19 @@
 
 package littleware.base.feedback;
 
-import littleware.base.feedback.LittleEvent;
+import littleware.base.event.LittleEvent;
 
 /**
  * Fired to LittleListeners on Feedback.publish
  */
 public class UiPublishEvent extends LittleEvent {
     private static final long serialVersionUID = -4235650543612558331L;
+    private final Object data;
 
-    public UiPublishEvent( Feedback source, Object x_result ) {
-        super( source, "UiPublishEvent", x_result );
+    public UiPublishEvent( Feedback source, Object data ) {
+        super( source );
+        this.data = data;
     }
+
+    public Object getData() { return data; }
 }

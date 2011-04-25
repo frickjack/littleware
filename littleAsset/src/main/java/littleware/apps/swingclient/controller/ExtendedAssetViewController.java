@@ -10,7 +10,6 @@
 package littleware.apps.swingclient.controller;
 
 import littleware.asset.TreeNode.TreeNodeBuilder;
-import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.beans.PropertyChangeEvent;
@@ -37,7 +36,8 @@ import littleware.asset.AssetManager;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
-import littleware.asset.client.ClientCache;
+import littleware.asset.client.spi.ClientCache;
+import littleware.base.event.LittleEvent;
 import littleware.security.auth.LittleSession;
 
 /** 

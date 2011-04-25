@@ -14,8 +14,8 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import littleware.asset.client.LittleServiceListener;
 import littleware.base.BaseException;
+import littleware.base.event.LittleListener;
 
 /**
  * Interface manages client synchronization with server.
@@ -23,7 +23,7 @@ import littleware.base.BaseException;
  * of which assets have loaded, and periodically checks with
  * the server checkTransactionLog() for updates.
  */
-public interface ServerSync extends LittleServiceListener {
+public interface ServerSync extends LittleListener {
 
     /**
      * The library to check against the server

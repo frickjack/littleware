@@ -10,9 +10,6 @@
 
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.SimpleLittleTool;
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleTool;
 import com.google.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -28,7 +25,9 @@ import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetSearchManager;
-import littleware.base.BaseException;
+import littleware.base.event.LittleListener;
+import littleware.base.event.LittleTool;
+import littleware.base.event.helper.SimpleLittleTool;
 
 
 /**
@@ -38,7 +37,7 @@ import littleware.base.BaseException;
  * Includes a GOTO-path text-field, so setFloatable(false) is set by constructor.
  */
 public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListener, LittleTool {
-    private final static Logger         olog_generic = Logger.getLogger ( JSimpleAssetToolbar.class.getName() );
+    private final static Logger         log = Logger.getLogger ( JSimpleAssetToolbar.class.getName() );
     private static final long serialVersionUID = 3427883110446003286L;
 
 
@@ -238,13 +237,11 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                                 AssetModel model_goto = olib_asset.syncAsset ( om_search.getAssetAtPath ( path_goto ).get() );
                                 ou_goto = model_goto.getAsset ().getId ();
                                 oview_component.setAssetModel ( model_goto );
-                            } catch ( Exception e ) {
-                                olog_generic.log ( Level.INFO, "Caught unexpected: " + e + ", " +
-                                                   BaseException.getStackTrace ( e )
-                                                   );
+                            } catch ( Exception ex ) {
+                                log.log ( Level.INFO, "Failed path load: " + s_path, ex );
                                 JOptionPane.showMessageDialog( null,
                                                                "Could not resolve asset at: " + s_path +
-                                                               ", caught: " + e, "alert", 
+                                                               ", caught: " + ex, "alert",
                                                                JOptionPane.ERROR_MESSAGE
                                                                );                                            
                             }
@@ -257,7 +254,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                 } break;
                     
                 default: {
-                    olog_generic.log ( Level.WARNING, "Unhandled ButtonId: " + n_button );
+                    log.log ( Level.WARNING, "Unhandled ButtonId: " + n_button );
                     continue;
                 }
             }
@@ -314,7 +311,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                             try {
                                 path_new = ofactoryPath.toRootedPath( path_new );
                             } catch ( Exception ex ) {
-                                olog_generic.log( Level.WARNING, "Failed to resolve root asset path for " + path_new, ex );
+                                log.log( Level.WARNING, "Failed to resolve root asset path for " + path_new, ex );
                             }
                             owtext_goto_path.setText ( path_new.toString () );
                         }

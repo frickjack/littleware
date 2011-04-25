@@ -15,10 +15,10 @@ import java.security.GeneralSecurityException;
 import java.util.Date;
 
 import littleware.asset.Asset;
+import littleware.asset.AssetBuilder;
 import littleware.asset.AssetRetriever;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
-import littleware.asset.TreeNode;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 
@@ -26,7 +26,7 @@ import littleware.base.UUIDFactory;
  * Specialization of Asset for session-tracking.
  * The user the session is associated with is the session creator.
  */
-public interface LittleSession extends TreeNode {
+public interface LittleSession extends Asset {
 
     /**
      * Is this a read-only user session (0 != getValue()) ?
@@ -55,7 +55,7 @@ public interface LittleSession extends TreeNode {
 
     //----------------------------------------------------------------
 
-    public interface Builder extends TreeNode.TreeNodeBuilder {
+    public interface Builder extends AssetBuilder {
 
         /**
          * Mark this session read-only (setValue(1)) - must save() this

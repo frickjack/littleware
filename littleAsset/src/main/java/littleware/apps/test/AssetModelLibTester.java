@@ -20,14 +20,12 @@ import littleware.apps.client.AssetEditor;
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
 import littleware.asset.GenericAsset.GenericBuilder;
-import littleware.base.feedback.LittleEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.GenericAsset;
 import littleware.asset.LittleHome;
-import littleware.asset.client.LittleService;
-import littleware.asset.client.SimpleLittleService;
 import littleware.asset.test.AbstractAssetTest;
+import littleware.base.event.LittleEvent;
 import littleware.security.AccountManager;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
@@ -129,7 +127,6 @@ public class AssetModelLibTester extends AbstractAssetTest {
      */
     public void testSessionHookup() {
         try {
-            assertTrue("SearchManager is a service", search instanceof LittleService);
             assetLibrary.remove(session.getId());
             assertTrue("Session removed from model library",
                     null == assetLibrary.get(session.getId()));
@@ -137,9 +134,12 @@ public class AssetModelLibTester extends AbstractAssetTest {
             assertTrue("Asset automatically added to model library on load",
                     null != assetLibrary.get(session.getId()));
             // Make sure that our client cache is getting wired up
+            /*
             assertTrue("Client cache registration looks ok",
                     SimpleLittleService.getCacheCount() > 0
                     );
+             * 
+             */
         } catch (Exception ex) {
             log.log(Level.WARNING, "Test failed", ex);
             fail("Caught exception: " + ex);

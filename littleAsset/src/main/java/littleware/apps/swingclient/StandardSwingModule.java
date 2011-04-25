@@ -17,9 +17,9 @@ import com.google.inject.Scopes;
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
 import littleware.apps.client.*;
-import littleware.asset.client.bootstrap.AbstractClientModule;
-import littleware.asset.client.bootstrap.ClientModule;
-import littleware.asset.client.bootstrap.ClientModuleFactory;
+import littleware.asset.client.bootstrap.helper.AbstractClientModule;
+import littleware.asset.client.bootstrap.SessionModule;
+import littleware.asset.client.bootstrap.SessionModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 
@@ -30,10 +30,10 @@ import littleware.bootstrap.AppBootstrap.AppProfile;
  * @author pasquini
  */
 public class StandardSwingModule extends AbstractClientModule {
-    public static class Factory implements ClientModuleFactory {
+    public static class Factory implements SessionModuleFactory {
 
         @Override
-        public ClientModule build(AppProfile profile) {
+        public SessionModule build(AppProfile profile) {
             return new StandardSwingModule( profile );
         }
 

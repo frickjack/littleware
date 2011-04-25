@@ -9,8 +9,8 @@
  */
 package littleware.apps.client.event;
 
-import littleware.base.feedback.LittleEvent;
 import littleware.apps.client.AssetModel;
+import littleware.base.event.LittleEvent;
 
 /**
  * Event triggered by a repository changes affecting assets in the AssetModelLibrary.
@@ -22,6 +22,7 @@ public class AssetModelEvent extends LittleEvent {
     private final AssetModel.Operation on_operation;
     private final AssetModelEvent oevent_cause;
 
+
     /**
      * Setup the AssetModelEvent
      *
@@ -29,32 +30,20 @@ public class AssetModelEvent extends LittleEvent {
      * @param n_operation the user requested
      */
     public AssetModelEvent(AssetModel model_source, AssetModel.Operation n_operation) {
-        this(model_source, n_operation, null, null);
+        this(model_source, n_operation, null );
     }
+
 
     /**
      * Setup the AssetModelEvent
      *
      * @param model_source of the event
      * @param n_operation the user requested
-     * @param x_result result of operation - may be null     
-     */
-    public AssetModelEvent(AssetModel model_source, AssetModel.Operation n_operation,
-            Object x_result) {
-        this(model_source, n_operation, x_result, null);
-    }
-
-    /**
-     * Setup the AssetModelEvent
-     *
-     * @param model_source of the event
-     * @param n_operation the user requested
-     * @param x_result result of operation - may be null
      * @param event_cause parent event that caused this one to fire - may be null
      */
     public AssetModelEvent(AssetModel model_source, AssetModel.Operation n_operation,
-            Object x_result, AssetModelEvent event_cause) {
-        super(model_source, n_operation.toString(), x_result);
+            AssetModelEvent event_cause) {
+        super(model_source );
         on_operation = n_operation;
         oevent_cause = event_cause;
     }

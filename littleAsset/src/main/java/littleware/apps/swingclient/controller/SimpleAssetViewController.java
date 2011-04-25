@@ -10,8 +10,6 @@
 
 package littleware.apps.swingclient.controller;
 
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +23,10 @@ import littleware.apps.client.*;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.apps.swingclient.event.RefreshRequestEvent;
 import littleware.asset.AssetRetriever;
-import littleware.asset.client.ClientCache;
+import littleware.asset.client.spi.ClientCache;
 import littleware.base.Maybe;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
 
@@ -136,10 +136,8 @@ public class SimpleAssetViewController implements LittleListener {
                 }
             } catch ( RuntimeException e ) {
                 throw e;
-            } catch ( final Exception e ) {
-                olog_generic.log ( Level.INFO, "Failure to navigate to " + u_destination + 
-                                       ", caught: " + e 
-                                       );
+            } catch ( final Exception ex ) {
+                olog_generic.log ( Level.INFO, "Failure to navigate to " + u_destination, ex );
                 SwingUtilities.invokeLater ( runPopup );
             }
         } else if ( event_little instanceof RefreshRequestEvent ) {

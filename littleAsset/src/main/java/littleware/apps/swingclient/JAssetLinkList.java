@@ -9,9 +9,6 @@
  */
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.SimpleLittleTool;
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleTool;
 import com.google.inject.Inject;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -23,6 +20,9 @@ import java.util.logging.Logger;
 
 import littleware.asset.*;
 import littleware.apps.swingclient.event.*;
+import littleware.base.event.LittleListener;
+import littleware.base.event.LittleTool;
+import littleware.base.event.helper.SimpleLittleTool;
 
 /** 
  * Component specializes JList with a JListRenderer

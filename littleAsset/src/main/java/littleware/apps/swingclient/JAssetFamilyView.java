@@ -46,14 +46,14 @@ import littleware.apps.client.AbstractAssetView;
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.client.AssetView;
-import littleware.base.feedback.LittleEvent;
-import littleware.base.feedback.LittleListener;
 import littleware.apps.client.event.AssetModelEvent;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
 import littleware.asset.LittleHome;
 import littleware.base.Maybe;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
 import littleware.base.feedback.Feedback;
 import littleware.base.stat.Timer;
 import littleware.base.swing.JUtil;
@@ -63,7 +63,7 @@ import littleware.base.swing.JUtil;
  */
 public class JAssetFamilyView extends JPanel implements AssetView {
 
-    private static final Logger olog = Logger.getLogger(JAssetFamilyView.class.getName());
+    private static final Logger log = Logger.getLogger(JAssetFamilyView.class.getName());
     private static final long serialVersionUID = -923629631052309532L;
     private final AbstractAssetView oview_util = new AbstractAssetView(this) {
 
@@ -88,7 +88,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
 
                                 @Override
                                 public void run() {
-                                    olog.log(Level.FINE, "Updating UI on view-model change");
+                                    log.log(Level.FINE, "Updating UI on view-model change");
                                     updateAssetUI();
                                 }
                             });
@@ -243,7 +243,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
      * the getAssetModel() AssetModel (data model update).
      */
     protected void eventFromModel(LittleEvent evt_prop) {
-        if ((evt_prop instanceof AssetModelEvent) && ((AssetModelEvent) evt_prop).getOperation().equals(AssetModel.Operation.assetDeleted.toString())) {
+        if ((evt_prop instanceof AssetModelEvent) && ((AssetModelEvent) evt_prop).getOp().equals(AssetModel.Operation.assetDeleted)) {
             return;
         }
         if ((activeWorkers < 1) && (! updatePending) ){
@@ -257,7 +257,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                         @Override
                         public void run() {
                             try {
-                                olog.log(Level.FINE, "Updating UI on asset-model update");
+                                log.log(Level.FINE, "Updating UI on asset-model update");
                                 updateAssetUI();
                             } finally {
                                 updatePending = false;
@@ -321,7 +321,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                     assignUserObject( node, model.getAsset() );
                 }
                 */
-                olog.log(Level.FINE, "Adding node " + childName);
+                log.log(Level.FINE, "Adding node {0}", childName);
 
                 nodeParent.add(node);
                 mapBuilder.put(child.getId(), node);
@@ -335,7 +335,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
 
                         @Override
                         public void run() {
-                            olog.log(Level.FINE, "Triggering repaint");
+                            log.log(Level.FINE, "Triggering repaint");
                             ojTree.repaint();
                         }
                     });
@@ -350,7 +350,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                     try {
                         for (String childName : childNames) {
                             if (Thread.interrupted()) {
-                                olog.log(Level.FINE, "Child worker interrupted ...");
+                                log.log(Level.FINE, "Child worker interrupted ...");
                                 return null;
                             }
                             final UUID id = childDictionary.get(childName);
@@ -368,7 +368,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                                     timer.reset();
                                 }
                             } catch (Exception ex) {
-                                olog.log(Level.WARNING, "Failed to load asset " + childName);
+                                log.log(Level.WARNING, "Failed to load asset " + childName, ex);
                             }
                         }
                     } finally {
@@ -409,7 +409,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
             }
             return nodeMap;
         } catch (Exception ex) {
-            olog.log(Level.WARNING, "Failed populated family tree", ex);
+            log.log(Level.WARNING, "Failed populated family tree", ex);
             return Collections.emptyMap();
         }
     }
@@ -433,7 +433,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
             return;
         }
         final Asset aView = getAssetModel().getAsset();
-        olog.log(Level.FINE, "have view ...");
+        log.log(Level.FINE, "have view ...");
         final DefaultMutableTreeNode nodeParent = new DefaultMutableTreeNode(aView.getFromId());
         nodeRoot.add(nodeParent);
         DefaultMutableTreeNode nodeMe = null;

@@ -27,10 +27,7 @@ import javax.security.auth.callback.*;
 import littleware.base.*;
 import littleware.asset.*;
 import littleware.security.*;
-import littleware.security.auth.ServiceType;
-import littleware.security.auth.SessionHelper;
-import littleware.security.auth.SessionManager;
-import littleware.security.auth.internal.SessionUtil;
+
 
 /**
  * Login module for littleware clients.
@@ -82,7 +79,7 @@ public class ClientLoginModule implements LoginModule {
 
         if (null != cacheString) {
             final String cacheClean = cacheString.trim().toLowerCase();
-            log.log(Level.FINE, "Considering cache option string: " + cacheClean);
+            log.log(Level.FINE, "Considering cache option string: {0}", cacheClean);
             if (cacheClean.startsWith("on")
                     || cacheClean.startsWith("yes")
                     || cacheClean.startsWith("true")) {
@@ -90,6 +87,7 @@ public class ClientLoginModule implements LoginModule {
             }
         }
 
+        /*
         try {
             final SessionUtil util = SessionUtil.get();
             if (null != host) {
@@ -104,6 +102,8 @@ public class ClientLoginModule implements LoginModule {
         } catch (Exception ex) {
             throw new IllegalStateException("Failed to setup SessionManager", ex);
         }
+         *
+         */
         try {
             final String aclListString = (String) optionsMap.get(ACL_OPTION);
 
@@ -153,8 +153,8 @@ public class ClientLoginModule implements LoginModule {
 
         } catch (RuntimeException ex) {
             throw ex;
-        } catch ( Exception ex ) {
-            throw (LoginException) (new LoginException("Failure handling callbacks" )).initCause( ex );
+        } catch (Exception ex) {
+            throw (LoginException) (new LoginException("Failure handling callbacks")).initCause(ex);
         }
 
         boolean sessionIdFromUsername = false;
@@ -171,7 +171,7 @@ public class ClientLoginModule implements LoginModule {
         final String loggedInUser = System.getProperty("user.name");
         final File cacheFile = new File(Whatever.Folder.LittleHome.getFolder(), cacheFileName);
 
-        if ((null == sessionId) && loggedInUser.equals(userName) && cacheFile.exists() ) {
+        if ((null == sessionId) && loggedInUser.equals(userName) && cacheFile.exists()) {
             String sessionInCache = null;
             String userInCache = null;
 
@@ -195,31 +195,19 @@ public class ClientLoginModule implements LoginModule {
                 }
             }
         }
-        SessionHelper helper = null;
-        if (null != sessionId) {
+        if (null == sessionId) {
             try {
-                // Then the password is a session-id
-                helper = sessionManager.getSessionHelper(sessionId);
+                sessionId = sessionManager.login(userName, password,
+                        "ClientLoginModule login").getId();
             } catch (Exception ex) {
-                if ( sessionIdFromUsername ) {
-                    throw (LoginException)(new FailedLoginException( "Failed to authenticate to session" ).initCause(ex) );
-                }
-                log.log(Level.FINE, "Failed to login to cached session " + sessionId, ex);
-            }
-        }
-        if (null == helper) {
-            try {
-                helper = sessionManager.login(userName, password,
-                        "ClientLoginModule login");
-            } catch (Exception ex) {
-                throw (LoginException)(new FailedLoginException("Failed " + userName + " login" ).initCause( ex) );
+                throw (LoginException) (new FailedLoginException("Failed " + userName + " login").initCause(ex));
             }
         }
         if (userName.equals(loggedInUser)) {
             try { // Update session cache
                 final Properties props = new Properties();
                 props.setProperty(cacheUserKey, userName);
-                props.setProperty(cacheSessionKey, UUIDFactory.makeCleanString(helper.getSession().getId()));
+                props.setProperty(cacheSessionKey, UUIDFactory.makeCleanString(sessionId));
                 PropertiesLoader.get().safelySave(props, cacheFile);
             } catch (Exception ex) {
                 log.log(Level.WARNING, "Failed to update session cache", ex);
@@ -227,12 +215,12 @@ public class ClientLoginModule implements LoginModule {
         }
         // finaly - decorate the authenticated Subject
         try {
-            final AssetSearchManager search = helper.getService(ServiceType.ASSET_SEARCH);
-            final LittleUser user = search.getAsset(helper.getSession().getOwnerId()).get().narrow();
+            final AssetSearchManager search = null;
+            final LittleUser user = null;
 
             subject.getPrincipals().add(
                     user);
-            subject.getPrivateCredentials().add(helper);
+            //subject.getPrivateCredentials().add(helper);
 
             if (!aclNameList.isEmpty()) {
                 // Check the user's access to ACL's, and add derivative roles to Subject Principal set
@@ -247,31 +235,26 @@ public class ClientLoginModule implements LoginModule {
                             for (LittlePermission permissionCheck : permissionSet) {
                                 if (acl_check.checkPermission(user, permissionCheck)) {
                                     final String roleName = aclName + ":" + permissionCheck.toString();
-                                    log.log(Level.INFO, "For user " + user.getName()
-                                            + " adding role: " + roleName);
+                                    log.log(Level.INFO, "For user {0} adding role: {1}", new Object[]{user.getName(), roleName});
                                     subject.getPrincipals().add(new SimpleRole(roleName));
                                 }
                             }
                         }
                     } catch (RuntimeException e) {
                         throw e;
-                    } catch (Exception e) {
+                    } catch (Exception ex) {
                         log.log(Level.WARNING, "Failure loading acl: " + aclName
-                                + " for user " + user.getName() + " login, caught: "
-                                + e + ", " + BaseException.getStackTrace(e));
+                                + " for user " + user.getName(), ex);
                         // keep going
                     }
                 }
             }
-            log.log(Level.INFO, "User authenticated: "
-                    + user.getName());
+            log.log(Level.INFO, "User authenticated: {0}", user.getName());
         } catch (RuntimeException ex) {
             throw ex;
-        } catch (LoginException ex) {
-            throw ex;
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Authentication of " + userName + "failed", ex );
-            throw (LoginException)(new FailedLoginException("Authentication of " + userName + " failed" ).initCause(ex));
+            log.log(Level.WARNING, "Authentication of " + userName + "failed", ex);
+            throw (LoginException) (new FailedLoginException("Authentication of " + userName + " failed").initCause(ex));
         }
         return true;
     }
@@ -364,6 +347,7 @@ public class ClientLoginModule implements LoginModule {
 
         public Configuration build();
     }
+
     /**
      * Little fatory method to allocate a simple
      * in-app ConfigurationBuilder to setup a LoginContext

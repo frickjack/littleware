@@ -10,12 +10,11 @@
 
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.SimpleLittleTool;
 import java.util.List;
 import java.util.ArrayList;
 
-import littleware.apps.client.*;
 import littleware.asset.AssetType;
+import littleware.base.event.helper.SimpleLittleTool;
 
 
 /**

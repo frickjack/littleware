@@ -17,23 +17,18 @@ import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Level;
 
 import java.util.logging.Logger;
+import javax.imageio.spi.ServiceRegistry;
 
 import littleware.asset.*;
-import littleware.asset.client.AssetManagerService;
-import littleware.asset.client.AssetSearchService;
-import littleware.asset.client.SimpleAssetManagerService;
-import littleware.asset.client.SimpleAssetSearchService;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.asset.server.LittleTransaction;
@@ -41,8 +36,6 @@ import littleware.asset.server.NullAssetSpecializer;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.security.server.QuotaUtil;
-import littleware.asset.server.internal.RmiAssetManager;
-import littleware.asset.server.internal.RmiSearchManager;
 import littleware.asset.server.internal.SimpleAssetManager;
 import littleware.asset.server.internal.SimpleAssetSearchManager;
 import littleware.security.server.internal.SimpleQuotaUtil;
@@ -51,7 +44,6 @@ import littleware.asset.server.db.DbAssetManager;
 import littleware.asset.server.db.jpa.HibernateGuice;
 import littleware.asset.server.db.jpa.J2EEGuice;
 import littleware.base.AssertionFailedException;
-import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
 import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
@@ -67,14 +59,9 @@ import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
-import littleware.security.auth.ServiceType;
-import littleware.security.auth.SessionHelper;
-import littleware.security.auth.SessionManager;
+import littleware.security.auth.client.SessionManager;
 import littleware.security.auth.internal.SessionUtil;
-import littleware.security.auth.server.AbstractServiceFactory;
 import littleware.security.auth.server.internal.AuthServerGuice;
-import littleware.security.auth.server.ServiceFactory;
-import littleware.security.auth.server.ServiceRegistry;
 import littleware.security.server.internal.SimpleAccountManager;
 import littleware.security.server.internal.SimpleAclManager;
 import org.osgi.framework.BundleActivator;
@@ -88,9 +75,9 @@ public class AssetServerModule extends AbstractServerModule {
     private static final Logger log = Logger.getLogger(AssetServerModule.class.getName());
 
     private AssetServerModule(ServerBootstrap.ServerProfile profile,
-            Map<AssetType, Class<? extends AssetSpecializer>> typeMap,
-            Map<ServiceType, Class<? extends ServiceFactory>> serviceMap) {
-        super(profile, typeMap, serviceMap, emptyServerListeners);
+            Map<AssetType, Class<? extends AssetSpecializer>> typeMap
+            ) {
+        super(profile, typeMap, emptyServerListeners);
     }
 
     @Override
@@ -153,9 +140,6 @@ public class AssetServerModule extends AbstractServerModule {
                             assetRegistry.registerService(entry.getKey(), injector.getInstance(entry.getValue()));
                             dbManager.makeTypeChecker().saveObject(entry.getKey());
                         }
-                        for (Map.Entry<ServiceType, Class<? extends ServiceFactory>> entry : module.getServiceTypes().entrySet()) {
-                            serviceRegistry.registerService(entry.getKey(), injector.getInstance(entry.getValue()));
-                        }
                     } 
                 }
                 rollback = false;
@@ -163,10 +147,6 @@ public class AssetServerModule extends AbstractServerModule {
                 throw new IllegalStateException("Failed to auto-register asset types", ex);
             } finally {
                 transaction.endDbUpdate(rollback);
-            }
-            if (null == serviceRegistry.getService(ServiceType.ASSET_SEARCH)) {
-                // little sanity check
-                throw new AssertionFailedException("What the frick ?");
             }
         }
 
@@ -176,17 +156,17 @@ public class AssetServerModule extends AbstractServerModule {
                 // inject local SessionManager for colocated server-client situation
                 SessionUtil.get().injectLocalManager(sessionMgr);
                 Registry rmi_registry = null;
-                final int i_port = registryPort;
-                if (i_port > 0) {
+                final int port = registryPort;
+                if (port > 0) {
                     try {
-                        log.log(Level.INFO, "Looking for RMI registry on port: " + i_port);
-                        rmi_registry = LocateRegistry.createRegistry(i_port);
+                        log.log(Level.INFO, "Looking for RMI registry on port: {0}", port);
+                        rmi_registry = LocateRegistry.createRegistry(port);
                         localRegistry = true;
                     } catch (Exception e) {
-                        log.log(Level.SEVERE, "Failed to start RMI registry on port " + i_port
+                        log.log(Level.SEVERE, "Failed to start RMI registry on port " + port
                                 + " attempting to bind to already running registry", e);
 
-                        rmi_registry = LocateRegistry.getRegistry(i_port);
+                        rmi_registry = LocateRegistry.getRegistry(port);
                     }
                     maybeRegistry = Maybe.something(rmi_registry);
 
@@ -202,7 +182,7 @@ public class AssetServerModule extends AbstractServerModule {
                      */
                     rmi_registry.rebind("littleware/SessionManager", sessionMgr);
                 } else {
-                    log.log(Level.INFO, "Not exporing RMI registry - port set to: " + i_port);
+                    log.log(Level.INFO, "Not exporing RMI registry - port set to: " + port);
                 }
             } catch (Exception e) {
                 //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
@@ -233,37 +213,7 @@ public class AssetServerModule extends AbstractServerModule {
         return Activator.class;
     }
 
-    public static class AssetServiceFactory extends AbstractServiceFactory<AssetManagerService> {
 
-        private final AssetManager saver;
-
-        @Inject
-        public AssetServiceFactory(AssetSearchManager search, AssetManager saver) {
-            super(ServiceType.ASSET_MANAGER, search);
-            this.saver = saver;
-        }
-
-        @Override
-        public AssetManagerService createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-            return new SimpleAssetManagerService(new RmiAssetManager(this.checkAccessMakeProxy(m_helper, false, saver, AssetManager.class)));
-        }
-    }
-
-    public static class SearchServiceFactory extends AbstractServiceFactory<AssetSearchService> {
-
-        private final AssetSearchManager search;
-
-        @Inject
-        public SearchServiceFactory(AssetSearchManager search) {
-            super(ServiceType.ASSET_SEARCH, search);
-            this.search = search;
-        }
-
-        @Override
-        public AssetSearchService createServiceProvider(SessionHelper m_helper) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-            return new SimpleAssetSearchService(new RmiSearchManager(this.checkAccessMakeProxy(m_helper, true, search, AssetSearchManager.class)));
-        }
-    }
 
     public static class Factory implements ServerModuleFactory {
 
@@ -288,17 +238,10 @@ public class AssetServerModule extends AbstractServerModule {
 
             typeMap = builder.build();
         }
-        private final Map<ServiceType, Class<? extends ServiceFactory>> serviceMap;
-
-        {
-            final ImmutableMap.Builder<ServiceType, Class<? extends ServiceFactory>> builder =
-                    ImmutableMap.builder();
-            serviceMap = builder.put(ServiceType.ASSET_SEARCH, SearchServiceFactory.class).put(ServiceType.ASSET_MANAGER, AssetServiceFactory.class).build();
-        }
 
         @Override
         public ServerModule build(ServerProfile profile) {
-            return new AssetServerModule(profile, typeMap, serviceMap);
+            return new AssetServerModule(profile, typeMap);
         }
     }
 }

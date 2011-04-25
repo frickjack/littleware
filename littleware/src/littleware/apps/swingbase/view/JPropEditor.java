@@ -26,7 +26,7 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
-import littleware.base.LittleBean;
+import littleware.base.event.LittleBean;
 
 /**
  * Properties editor component

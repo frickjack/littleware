@@ -11,6 +11,9 @@
 package littleware.base.feedback;
 
 
+import littleware.base.event.helper.SimpleLittleTool;
+import littleware.base.event.LittleListener;
+import littleware.base.event.LittleTool;
 import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
 

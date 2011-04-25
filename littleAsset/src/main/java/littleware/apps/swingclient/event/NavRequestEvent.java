@@ -7,11 +7,10 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.apps.swingclient.event;
 
 import java.util.UUID;
-import littleware.base.feedback.LittleEvent;
+import littleware.base.event.LittleEvent;
 
 /**
  * Event triggered to indicate a user request to navigate
@@ -20,39 +19,43 @@ import littleware.base.feedback.LittleEvent;
  * and getResult returns getDestinationId
  */
 public class NavRequestEvent extends LittleEvent {
-    private static final String   OS_OPERATION = "navigate_to_asset";
-    
+
+    private static final String OS_OPERATION = "navigate_to_asset";
+    private final UUID destinationId;
+
     public enum NavMode {
-        GENERIC,     // whatever the default is
-        NEW_WINDOW,  // user indications nav to new window
-        NEW_TAB,     
+
+        GENERIC, // whatever the default is
+        NEW_WINDOW, // user indications nav to new window
+        NEW_TAB,
         OTHER
     };
-    
-    private NavMode  on_mode = NavMode.GENERIC;
-	
-	/**
-     * Setup the NavRequestEvent
-	 *
-	 * @param x_source of the event
-     * @param u_destination id of the asset the user wants to navigate to
-     * @param n_mode hint on how the user wants to navigation to go
-	 */
-	public NavRequestEvent ( Object x_source, UUID u_destination, NavMode n_mode ) {
-		super ( x_source, OS_OPERATION, u_destination );
-        on_mode = n_mode;
-	}
-	
-	
+    private final NavMode mode;
 
-	/**
+    /**
+     * Setup the NavRequestEvent
+     *
+     * @param source of the event
+     * @param destinationId id of the asset the user wants to navigate to
+     * @param mode hint on how the user wants to navigation to go
+     */
+    public NavRequestEvent(Object source, UUID destinationId, NavMode mode) {
+        super(source);
+        this.mode = mode;
+        this.destinationId = destinationId;
+    }
+
+    /**
      * Get the UUID of the naviagtion-destination
-	 */
-	public UUID getDestination () { return (UUID) getResult (); }
-    
+     */
+    public UUID getDestination() {
+        return destinationId;
+    }
+
     /**
      * Get the NavMode
      */
-    public NavMode getNavMode () { return on_mode; }
+    public NavMode getNavMode() {
+        return mode;
+    }
 }
-

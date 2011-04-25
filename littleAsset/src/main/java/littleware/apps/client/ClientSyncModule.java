@@ -9,6 +9,8 @@
  */
 package littleware.apps.client;
 
+import littleware.apps.client.internal.SimpleServerSync;
+import littleware.apps.client.internal.SimpleAssetModelLibrary;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -21,10 +23,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.asset.client.LittleServiceListener;
-import littleware.asset.client.bootstrap.AbstractClientModule;
-import littleware.asset.client.bootstrap.ClientModule;
-import littleware.asset.client.bootstrap.ClientModuleFactory;
+import littleware.asset.client.bootstrap.helper.AbstractClientModule;
+import littleware.asset.client.bootstrap.SessionModule;
+import littleware.asset.client.bootstrap.SessionModuleFactory;
+import littleware.base.event.LittleListener;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.security.auth.LittleSession;
@@ -38,20 +40,20 @@ import org.osgi.framework.BundleContext;
 public class ClientSyncModule extends AbstractClientModule {
 
     private static final Logger log = Logger.getLogger(ClientSyncModule.class.getName());
-    private static final Collection<Class<? extends LittleServiceListener>> serviceListeners;
+    private static final Collection<Class<? extends LittleListener>> serviceListeners;
 
     static {
-        final ImmutableList.Builder<Class<? extends LittleServiceListener>> builder =
+        final ImmutableList.Builder<Class<? extends LittleListener>> builder =
                 ImmutableList.builder();
         serviceListeners = builder.add(AssetModelServiceListener.class
                 ).add( ServerSync.class
                 ).build();
     }
 
-    public static class Factory implements ClientModuleFactory {
+    public static class Factory implements SessionModuleFactory {
 
         @Override
-        public ClientModule build(AppProfile profile) {
+        public SessionModule build(AppProfile profile) {
             return new ClientSyncModule( profile );
         }
 

@@ -10,7 +10,7 @@
 
 package littleware.apps.client;
 
-import littleware.base.feedback.LittleTool;
+import littleware.base.event.LittleTool;
 import littleware.base.feedback.Feedback;
 
 

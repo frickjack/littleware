@@ -58,7 +58,7 @@ public class HudsonTestSuite extends TestSuite {
      */
     public static Test suite() {
         return (new TestFactory()).build(
-                ClientBootstrap.clientProvider.get().build().test(),
+                ClientBootstrap.clientProvider.get().test(),
                 HudsonTestSuite.class);
     }
 }

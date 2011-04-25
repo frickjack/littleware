@@ -10,12 +10,12 @@
 
 package littleware.base.feedback;
 
+import littleware.base.event.LittleListener;
+import littleware.base.event.LittleEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.feedback.UiMessageEvent;
-import littleware.base.feedback.NullFeedback;
 
 /**
  * Simple logger-based implementation of UiFeedback interface.
@@ -38,9 +38,10 @@ public class LoggerFeedback extends NullFeedback {
 
         this.addLittleListener( new LittleListener() {
             @Override
-            public void receiveLittleEvent(LittleEvent event_little) {
-                if ( event_little instanceof UiMessageEvent ) {
-                    log.log( Level.INFO, event_little.getResult().toString() );
+            public void receiveLittleEvent(LittleEvent event) {
+                if ( event instanceof UiMessageEvent ) {
+                    final UiMessageEvent message = event.narrow();
+                    log.log( message.getLevel(), message.getMessage() );
                 }
             }
         }

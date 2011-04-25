@@ -10,6 +10,7 @@ import littleware.base.*;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.apps.filebucket.*;
+import littleware.net.LittleRemoteObject;
 
 /**
  * RMI remote-ready wrapper around a real implementation.

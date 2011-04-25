@@ -10,9 +10,6 @@
 
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.SimpleLittleTool;
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleTool;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.event.ActionListener;
@@ -30,6 +27,9 @@ import littleware.apps.swingclient.controller.SimpleAssetViewController;
 import littleware.apps.swingclient.event.SelectAssetEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetSearchManager;
+import littleware.base.event.LittleListener;
+import littleware.base.event.LittleTool;
+import littleware.base.event.helper.SimpleLittleTool;
 
 
 /**
@@ -126,7 +126,7 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
                 public void actionPerformed( ActionEvent evt_action ) {
                     try {
                         Asset a_selected = oview_browser.getAssetModel ().getAsset ();
-                        otool_support.fireLittleEvent ( new SelectAssetEvent ( JAssetLinkEditor.this, a_selected ) );
+                        otool_support.fireLittleEvent ( new SelectAssetEvent( JAssetLinkEditor.this, a_selected ) );
                         owdial_browser.setVisible( false );
                     } catch ( Exception e ) {
                         JOptionPane.showMessageDialog( JAssetLinkEditor.this, 

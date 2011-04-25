@@ -9,9 +9,6 @@
  */
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.SimpleLittleTool;
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.*;
@@ -28,7 +25,6 @@ import java.beans.PropertyChangeListener;
 
 import java.util.Arrays;
 import javax.swing.*;
-import javax.swing.event.*;
 
 import littleware.apps.client.*;
 import littleware.apps.client.event.AssetModelEvent;
@@ -36,6 +32,9 @@ import littleware.apps.swingclient.event.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.base.Whatever;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
+import littleware.base.event.helper.SimpleLittleTool;
 import littleware.base.feedback.Feedback;
 import littleware.base.swing.GridBagWrap;
 
@@ -46,6 +45,7 @@ import littleware.base.swing.GridBagWrap;
  * by pressing the save button.
  */
 public class JGenericAssetEditor extends JPanel implements AssetEditor {
+
     private final static Logger log = Logger.getLogger(JGenericAssetEditor.class.getName());
     private static final long serialVersionUID = 2345027233175367562L;
     protected final AbstractAssetEditor oeditor_util = new AbstractAssetEditor(this) {
@@ -256,7 +256,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
             }
             /*..
             if( ! builder.getData().equals( s_data ) ) {
-                builder.setData( s_data );
+            builder.setData( s_data );
             }
              * 
              */
@@ -328,8 +328,8 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
                     final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset();
                     /*..
                     if (!Whatever.get().equalsSafe(aSelect.getId(), getLocalAsset().getToId())) {
-                        changeLocalAsset().setToId(aSelect.getId());
-                        owalink_to.setLink(aSelect.getId());
+                    changeLocalAsset().setToId(aSelect.getId());
+                    owalink_to.setLink(aSelect.getId());
                     }
                      *
                      */
@@ -344,7 +344,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
                 if (event_edit instanceof SelectAssetEvent) {
                     final Asset aSelect = ((SelectAssetEvent) event_edit).getSelectedAsset();
                     if (!Whatever.get().equalsSafe(aSelect.getId(), getLocalAsset().getFromId())) {
-                        throw new UnsupportedOperationException( "Ugh!" );
+                        throw new UnsupportedOperationException("Ugh!");
                         /*..
                         changeLocalAsset().setFromId(aSelect.getId());
                         owalink_from.setLink(aSelect.getId());
@@ -503,5 +503,4 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
     public void setFeedback(Feedback feedback) {
         oeditor_util.setFeedback(feedback);
     }
-}    
-
+}

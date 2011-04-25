@@ -15,11 +15,7 @@ import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import com.google.inject.Provider;
 import java.util.Collection;
-import javax.security.auth.Subject;
-import javax.security.auth.login.Configuration;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import littleware.security.auth.SessionHelper;
+
 
 /**
  * Client mode bootstrap.
@@ -27,68 +23,51 @@ import littleware.security.auth.SessionHelper;
  */
 public interface ClientBootstrap extends AppBootstrap {
 
-    public interface LoginSetup {
-        public static String  TestUserName = "littleware.test_user";
-        
-        public ClientBootstrap helper( SessionHelper value );
-        /**
-         * Attempt to login with given login context
-         */
-        public ClientBootstrap login( LoginContext context ) throws LoginException;
-        /**
-         * Attempt login with given name and password and the
-         * ClientLoginModule login configuration
-         */
-        public ClientBootstrap login( String name, String password
-                ) throws LoginException;
-
-        /**
-         * Authenticate as the test user to run regression tests.
-         * Throws runtime exception on failure to authenticate.
-         */
-        public ClientBootstrap test();
-        public ClientBootstrap test( Configuration loginConfig );
-
-        /**
-         * Attempt login with given login configuration, name, and password
-         */
-        public ClientBootstrap login( Configuration loginConfig, String name, String password
-                ) throws LoginException;
-
-        public ClientBootstrap subject( Subject subject );
-        /**
-         * Auto-retry login with littleware.security.auth.ClientLoginModule login configuration
-         */
-        public ClientBootstrap automatic() throws LoginException;
-        /**
-         * Auto-retry login with user-supplied login configuration
-         */
-        public ClientBootstrap automatic( Configuration loginConfig ) throws LoginException;
-        /**
-         * Auto-retry login with user-supplied login configuration,
-         *
-         * @param name initial username
-         * @param password password guess for first authentication attempt
-         */
-        public ClientBootstrap automatic( Configuration loginConfig,
-                String name, String password ) throws LoginException;
-    }
     
     public interface ClientBuilder {
         /**
          * List of littleware modules registered with this bootstrap.
          */
         public Collection<AppModuleFactory> getModuleSet();
-
         public ClientBuilder addModuleFactory(AppModuleFactory factory);
-
         public ClientBuilder removeModuleFactory(AppModuleFactory factory);
+
+        public Collection<SessionModuleFactory> getSessionModuleSet();
+        public ClientBuilder addModuleFactory(SessionModuleFactory factory);
+        public ClientBuilder removeModuleFactory(SessionModuleFactory factory);
 
         public AppProfile getProfile();
         public ClientBuilder profile( AppProfile config );
 
-        public LoginSetup build();
+        public ClientBootstrap build();
+        
     }
+
+    /**
+     * Read-only view of registered session modules
+     */
+    public Collection<SessionModule> getSessionModuleSet();
+
+
+    /**
+     * Start a new session with access to session-specific services
+     * like SessionManager and LoginManager.
+     * Note that this method configures an unauthenticated session -
+     * many littleware services require an authenticated session.
+     * Register a listener with the LoginManager to authenticate on demand.
+     *
+     * @param clazz the class to instantiate and inject
+     * @param sessionId unique id for the new session
+     * @return session-injected instance of clazz for an unauthenticated session
+     * @exception IllegalStateException if bootstrap has not yet been called
+     */
+    public <T> T  startSession( Class<T> clazz, String sessionId );
+
+    /**
+     * Convenience method authenticates as the test-user with the
+     * littleware client backend.
+     */
+    public <T> T  startTestSession( Class<T> clazz, String sessionId );
 
     public static final Provider<ClientBuilder> clientProvider = new Provider<ClientBuilder>() {
         @Override

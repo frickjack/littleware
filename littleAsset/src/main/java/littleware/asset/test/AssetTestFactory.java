@@ -36,11 +36,13 @@ public class AssetTestFactory extends littleware.test.TestFactory {
      *          embedded server environment is up and running
      */
     public TestSuite build(final ServerBootstrap serverBootstrap,
-            final ClientBootstrap.LoginSetup clientBuilder,
+            final ClientBootstrap clientBuilder,
             final Class<? extends TestSuite> testSuiteClass) {
 
         serverBootstrap.bootstrap();
-        final TestSuite suite = build(clientBuilder.test(), testSuiteClass);
+        throw new UnsupportedOperationException( "... fix this up!" );
+        /*..
+        final TestSuite suite = build(clientBuilder, testSuiteClass);
         suite.addTest(
                 new TestCase("shutdownLittlewareServer") {
                     @Override
@@ -50,5 +52,7 @@ public class AssetTestFactory extends littleware.test.TestFactory {
                 });
         log.log(Level.INFO, "Returning TestSuite");
         return suite;
+         * 
+         */
     }
 }

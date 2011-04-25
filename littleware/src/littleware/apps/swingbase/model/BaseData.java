@@ -15,7 +15,7 @@ import com.google.inject.Singleton;
 import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.Map;
-import littleware.base.LittleBean;
+import littleware.base.event.LittleBean;
 
 /**
  * Application session data

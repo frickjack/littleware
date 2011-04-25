@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 
 import littleware.asset.*;
 import littleware.base.*;
+import littleware.net.LittleRemoteObject;
 
 /**
  * RMI remote-ready wrapper around a real implementation.

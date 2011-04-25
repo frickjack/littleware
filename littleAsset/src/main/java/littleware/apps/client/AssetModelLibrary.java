@@ -10,6 +10,7 @@
 
 package littleware.apps.client;
 
+import littleware.apps.client.internal.SimpleAssetModelLibrary;
 import com.google.inject.ImplementedBy;
 import java.util.UUID;
 import java.util.Collection;

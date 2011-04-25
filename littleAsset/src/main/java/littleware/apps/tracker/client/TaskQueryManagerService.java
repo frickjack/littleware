@@ -11,11 +11,10 @@
 package littleware.apps.tracker.client;
 
 import littleware.apps.tracker.TaskQueryManager;
-import littleware.asset.client.LittleService;
 
 /**
  * Marker interface mixes TaskManagerRemote and LittleService interfaces
  */
-public interface TaskQueryManagerService extends TaskQueryManager, LittleService {
+public interface TaskQueryManagerService extends TaskQueryManager {
 
 }

@@ -10,12 +10,12 @@
 
 package littleware.apps.client;
 
-import littleware.base.feedback.SimpleLittleTool;
-import littleware.base.feedback.LittleListener;
 import littleware.base.feedback.LoggerFeedback;
-import littleware.base.feedback.LittleEvent;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
+import littleware.base.event.helper.SimpleLittleTool;
 import littleware.base.feedback.Feedback;
 
 
@@ -25,17 +25,17 @@ import littleware.base.feedback.Feedback;
  * Intended for delegation by Swing-based AssetView implementors.
  */
 public abstract class AbstractAssetView extends SimpleLittleTool implements AssetView {
-    private final static Logger    olog_generic = Logger.getLogger (AbstractAssetView.class.getName() );
+    private final static Logger    log = Logger.getLogger (AbstractAssetView.class.getName() );
     
     private AssetModel          omodel_asset = null;
     private AssetModelLibrary   olib_asset = null;
-    private Feedback            ofeedback = new LoggerFeedback( olog_generic );
+    private Feedback            ofeedback = new LoggerFeedback( log );
     
     /** Bridge propagate events from AssetModel */
     private final LittleListener olisten_bridge = new LittleListener () {
         @Override
         public void receiveLittleEvent ( LittleEvent evt_model ) {
-            olog_generic.log ( Level.FINE, "Propogating event: " + evt_model.getOperation () );
+            log.log ( Level.FINE, "Propogating event: {0}", evt_model.getClass().getName());
             eventFromModel ( evt_model );
         }
     };

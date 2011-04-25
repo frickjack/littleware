@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.security.auth.server.internal;
@@ -20,8 +18,7 @@ import javax.security.auth.Subject;
 import littleware.base.AssertionFailedException;
 import littleware.base.UUIDFactory;
 import littleware.security.LittleUser;
-import littleware.security.auth.SessionManager;
-import littleware.security.auth.server.ServiceRegistry;
+import littleware.security.auth.client.SessionManager;
 
 /**
  * Bind SessionManager, ServiceProvideRegistery, and LittleUser
@@ -62,7 +59,6 @@ public class AuthServerGuice implements Module {
     public void configure(Binder binder) {
         binder.bind(SessionManager.class).to(SimpleSessionManager.class).in(Scopes.SINGLETON);
         //binder.bind( DbAuthManager.class ).to( PostgresDbAuthManager.class ).in( Scopes.SINGLETON );
-        binder.bind(ServiceRegistry.class).to(SimpleServiceRegistry.class).in(Scopes.SINGLETON);
         binder.bind(LittleUser.class).toProvider(UserProvider.class).in(Scopes.SINGLETON);
         binder.bind(UserProvider.class).in(Scopes.SINGLETON);
     }

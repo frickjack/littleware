@@ -9,14 +9,14 @@
  */
 package littleware.base.swing;
 
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleTool;
-import littleware.base.feedback.LittleEvent;
+import littleware.base.event.LittleListener;
+import littleware.base.event.LittleTool;
+import littleware.base.event.LittleEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import javax.swing.SwingUtilities;
-import littleware.base.LittleBean;
+import littleware.base.event.LittleBean;
 
 /**
  * Provide some SwingUtilities-like functions.

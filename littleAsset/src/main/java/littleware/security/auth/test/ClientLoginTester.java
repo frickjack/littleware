@@ -15,7 +15,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import junit.framework.TestCase;
-import littleware.security.auth.SessionHelper;
+import littleware.security.auth.LittleSession;
 import littleware.security.auth.SimpleCallbackHandler;
 import littleware.security.auth.client.ClientLoginModule;
 
@@ -39,8 +39,8 @@ public class ClientLoginTester extends TestCase {
                     config
                     );
             context.login();
-            assertTrue( "Authenticated subject includes SessionHelper in credentials",
-                    ! context.getSubject().getPrivateCredentials( SessionHelper.class ).isEmpty()
+            assertTrue( "Authenticated subject includes LittleSession in credentials",
+                    ! context.getSubject().getPrivateCredentials( LittleSession.class ).isEmpty()
                     );
         } catch (Exception ex) {
             log.log( Level.WARNING, "Failed test", ex );

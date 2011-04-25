@@ -25,7 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +32,6 @@ import javax.swing.*;
 
 import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
-import littleware.apps.swingbase.SwingBaseModule;
 import littleware.apps.swingbase.view.BaseView;
 import littleware.apps.swingbase.view.BaseView.ViewBuilder;
 import littleware.apps.swingclient.*;
@@ -47,9 +45,7 @@ import littleware.base.EventBarrier;
 import littleware.base.Maybe;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
-import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.lgo.AbstractLgoBuilder;
-import littleware.lgo.LgoCommand;
 import littleware.security.LittleUser;
 import littleware.security.auth.client.ClientLoginModule;
 
@@ -370,9 +366,6 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
 
 
         try {
-            final ClientBootstrap.LoginSetup bootBuilder = ClientBootstrap.clientProvider.get().
-                    addModuleFactory(
-                    new SwingBaseModule.Factory().appName("littleBrowser").version("2.1").helpUrl(new URL("http://code.google.com/p/littleware/")).properties(new Properties())).build();
             final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
             // Currently only support -url argument
             if ((args.length > 1) && args[0].matches("^-+[uU][rR][lL]")) {
@@ -390,7 +383,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
                 @Override
                 public void run() {
                     try {
-                        bootBuilder.automatic(loginBuilder.build()).bootstrap(SwingBaseLauncher.class).run();
+                        //bootBuilder.automatic(loginBuilder.build()).bootstrap(SwingBaseLauncher.class).run();
                     } catch (Exception ex) {
                         log.log(Level.WARNING, "Launch failure", ex);
                         JOptionPane.showMessageDialog(null, "Error: " + ex, "Launch failed", JOptionPane.ERROR_MESSAGE);

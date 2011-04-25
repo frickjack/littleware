@@ -13,13 +13,12 @@ package littleware.apps.client;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.asset.client.AssetDeleteEvent;
-import littleware.asset.client.AssetLoadEvent;
-import littleware.asset.client.LittleService;
-import littleware.asset.client.LittleServiceEvent;
-import littleware.asset.client.LittleServiceListener;
-import littleware.base.AssertionFailedException;
-import littleware.security.auth.SessionHelper;
+import littleware.asset.client.spi.AssetDeleteEvent;
+import littleware.asset.client.spi.AssetLoadEvent;
+import littleware.asset.client.spi.LittleServiceBus;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
+
 
 /**
  * Singleton service listener registers itself at OSGi bootstrap
@@ -29,24 +28,21 @@ import littleware.security.auth.SessionHelper;
  * Launches background thread that attempts to keep local
  * data in sync with remote repository.
  */
-public class AssetModelServiceListener implements LittleServiceListener {
+public class AssetModelServiceListener implements LittleListener {
     private static final Logger     log = Logger.getLogger( AssetModelServiceListener.class.getName() );
 
     private final AssetModelLibrary libAsset;
 
     @Inject
-    public AssetModelServiceListener( SessionHelper helper,
+    public AssetModelServiceListener( LittleServiceBus bus,
             AssetModelLibrary libAsset
             ) {
         this.libAsset = libAsset;
-        if ( ! (helper instanceof LittleService) ) {
-            throw new AssertionFailedException( "SessionHelper does not implement LittleService - this bundle only runs in client mode" );
-        }
-        ((LittleService) helper).addServiceListener(this);
+        bus.addLittleListener(this);
     }
 
     @Override
-    public void receiveServiceEvent(LittleServiceEvent eventBase ) {
+    public void receiveLittleEvent(LittleEvent eventBase ) {
         if ( eventBase instanceof AssetLoadEvent ) {
             final AssetLoadEvent eventLoad = (AssetLoadEvent) eventBase;
             libAsset.syncAsset( eventLoad.getAsset() );

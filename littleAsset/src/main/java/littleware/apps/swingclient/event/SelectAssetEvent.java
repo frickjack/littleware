@@ -1,9 +1,15 @@
+/*
+ * Copyright 2011 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
+
 package littleware.apps.swingclient.event;
 
-import littleware.base.feedback.LittleEvent;
 import littleware.asset.Asset;
-import littleware.apps.client.*;
-
+import littleware.base.event.LittleEvent;
 
 /**
  * Event triggered to indicate the user has selected some
@@ -12,26 +18,25 @@ import littleware.apps.client.*;
  * control is the source.
  */
 public class SelectAssetEvent extends LittleEvent {
-    public static final String   OS_OPERATION = "SelectAssetEvent";
-    
-	/**
+
+    public static final String OS_OPERATION = "SelectAssetEvent";
+    private final Asset selected;
+
+    /**
      * Setup the SelectAssetEvent
-	 *
-	 * @param x_source of the event
-     * @param a_selected Asset selected in UI
-	 */
-	public SelectAssetEvent ( Object x_source, Asset a_selected
-                              ) {
-		super ( x_source, OS_OPERATION, a_selected );
-	}
-	
+     *
+     * @param srouce of the event
+     * @param selected Asset selected in UI
+     */
+    public SelectAssetEvent(Object srouce, Asset selected) {
+        super(srouce);
+        this.selected = selected;
+    }
+
     /**
      * Get the Asset that has been selected
      */
-	public Asset getSelectedAsset () { return (Asset) getResult (); }
-    
+    public Asset getSelectedAsset() {
+        return selected;
+    }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

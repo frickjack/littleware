@@ -10,11 +10,8 @@
 
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleEvent;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
-import javax.swing.event.*;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 import java.util.logging.Logger;
@@ -25,6 +22,8 @@ import littleware.asset.*;
 import littleware.base.BaseException;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.event.*;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
 import littleware.base.feedback.Feedback;
 
 /** 

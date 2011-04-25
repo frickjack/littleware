@@ -9,8 +9,6 @@
  */
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
@@ -26,6 +24,8 @@ import littleware.apps.client.event.AssetModelEvent;
 import littleware.asset.*;
 import littleware.apps.swingclient.event.*;
 import littleware.base.Maybe;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
 import littleware.base.feedback.Feedback;
 
 /**
@@ -37,7 +37,7 @@ import littleware.base.feedback.Feedback;
  */
 public class JAssetBrowser extends JPanel implements AssetView {
 
-    private static final Logger olog_generic = Logger.getLogger(AssetView.class.getName());
+    private static final Logger log = Logger.getLogger(AssetView.class.getName());
     private static final long serialVersionUID = -5561680971560382683L;
     private final AssetViewFactory ofactory_view;
     private final IconLibrary olib_icon;
@@ -56,10 +56,10 @@ public class JAssetBrowser extends JPanel implements AssetView {
 
                         @Override
                         public void run() {
-                            if (AssetModel.Operation.assetsLinkingFrom.toString().equals(event.getOperation())) {
+                            if ( AssetModel.Operation.assetsLinkingFrom.equals(event.getOp())) {
                                 // Need to update children view
                                 updateChildrenWidgetAndValidate();
-                            } else if (event.getOperation().equals(AssetModel.Operation.assetDeleted.toString())) {
+                            } else if (event.getOp().equals(AssetModel.Operation.assetDeleted)) {
                                 final AssetModelLibrary lib = getAssetModel().getLibrary();
                                 final Asset deleted = getAssetModel().getAsset();
                                 final UUID uNew = (deleted.getFromId() != null) ? deleted.getFromId() : deleted.getHomeId();
@@ -73,7 +73,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
                                     }
                                 } catch (Exception ex) {
                                     getFeedback().log(Level.WARNING, "Failed to update view after asset delete: " + ex);
-                                    olog_generic.log(Level.WARNING, "Failed update after asset delete: " + ex);
+                                    log.log(Level.WARNING, "Failed update after asset delete", ex);
                                 }
                             }
                         }
@@ -108,13 +108,13 @@ public class JAssetBrowser extends JPanel implements AssetView {
     protected LittleListener olisten_bridge = new LittleListener() {
 
         @Override
-        public void receiveLittleEvent(LittleEvent event_little) {
-            if (event_little instanceof NavRequestEvent) {
+        public void receiveLittleEvent(LittleEvent event) {
+            if (event instanceof NavRequestEvent) {
                 //event_little.setSource ( JGenericAssetView.this );
-                NavRequestEvent event_nav = (NavRequestEvent) event_little;
+                final NavRequestEvent navEvent = (NavRequestEvent) event;
                 oview_support.fireLittleEvent(new NavRequestEvent(JAssetBrowser.this,
-                        event_nav.getDestination(),
-                        event_nav.getNavMode()));
+                        navEvent.getDestination(),
+                        navEvent.getNavMode()));
             }
         }
     };
@@ -231,7 +231,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
     private void syncAssetUI() {
         if (null == oview_support.getAssetModel()) {
             // what the frick ?
-            olog_generic.log(Level.WARNING, "Assetbrowser has null AssetModel");
+            log.log(Level.WARNING, "Assetbrowser has null AssetModel");
             return;
         }
         if (ob_in_sync) {
@@ -242,10 +242,10 @@ public class JAssetBrowser extends JPanel implements AssetView {
             ob_in_sync = true;
             // update the core view
             if ((null != oview_current) && (null != oview_support.getAssetModel()) && ofactory_view.checkView(oview_current, oview_support.getAssetModel())) {
-                olog_generic.log(Level.FINE, "Updating current view to new model: " + oview_support.getAssetModel().getAsset());
+                log.log(Level.FINE, "Updating current view to new model: {0}", oview_support.getAssetModel().getAsset());
                 oview_current.setAssetModel(oview_support.getAssetModel());
             } else {
-                olog_generic.log(Level.FINE, "Updating new view to new model: " + oview_support.getAssetModel().getAsset());
+                log.log(Level.FINE, "Updating new view to new model: {0}", oview_support.getAssetModel().getAsset());
                 // else
                 AssetView view_new = ofactory_view.createView(oview_support.getAssetModel());
                 if (null != oview_current) {
@@ -304,12 +304,12 @@ public class JAssetBrowser extends JPanel implements AssetView {
             omodel_children.clear();
             try {
                 Map<String, UUID> v_children = om_retriever.getAssetIdsFrom(oview_support.getAssetModel().getAsset().getId(), null);
-                olog_generic.log(Level.FINE, "Syncing child UI: " + v_children.size() + " children");
+                log.log(Level.FINE, "Syncing child UI: {0} children", v_children.size());
                 for (UUID u_value : v_children.values()) {
                     omodel_children.addElement(u_value);
                 }
-            } catch (Exception e) {
-                olog_generic.log(Level.WARNING, "Retrieving children caught unexpected: " + e);
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Failed to load children", ex);
             }
             owlist_children.setHeader("Children of " + oview_support.getAssetModel().getAsset().getName());
             owlist_children.setPreferredSize(

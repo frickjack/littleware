@@ -17,7 +17,7 @@ import java.util.UUID;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskQuery;
 import littleware.base.BaseException;
-import littleware.base.LittleRemoteObject;
+import littleware.net.LittleRemoteObject;
 
 /**
  *

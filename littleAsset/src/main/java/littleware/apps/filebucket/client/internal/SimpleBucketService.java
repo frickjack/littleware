@@ -19,26 +19,24 @@ import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.client.BucketManagerService;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
-import littleware.asset.client.AssetLoadEvent;
-import littleware.asset.client.LittleService;
-import littleware.asset.client.SimpleLittleService;
+import littleware.asset.client.spi.AssetLoadEvent;
+import littleware.asset.client.spi.LittleServiceBus;
 import littleware.base.BaseException;
 
-public class SimpleBucketService extends SimpleLittleService implements BucketManagerService {
+public class SimpleBucketService implements BucketManagerService {
 
     private static final long serialVersionUID = 8109936535192171146L;
-    private BucketManager server;
+    private final BucketManager server;
+    private final LittleServiceBus eventBus;
 
-    /** Just here to support serialization */
-    protected SimpleBucketService() {
-    }
 
     /** Inject remote stub this proxies for */
-    public SimpleBucketService(BucketManager server) {
-        if (server instanceof LittleService) {
+    public SimpleBucketService(BucketManager server, LittleServiceBus eventBus ) {
+        if (server instanceof BucketManagerService) {
             throw new IllegalArgumentException("Attempt to double wrap service");
         }
         this.server = server;
+        this.eventBus = eventBus;
     }
 
     private final Integer maxBuff = 1024*1024;
@@ -56,7 +54,7 @@ public class SimpleBucketService extends SimpleLittleService implements BucketMa
     @Override
     public <T extends Asset> T writeToBucket(T asset, String path, byte[] data, long offset, String updateComment) throws BaseException, GeneralSecurityException, AssetException, RemoteException, BucketException, IOException {
         T result = server.writeToBucket(asset, path, data, offset, updateComment);
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
+        eventBus.fireEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
 
@@ -69,21 +67,21 @@ public class SimpleBucketService extends SimpleLittleService implements BucketMa
     @Override
     public <T extends Asset> T eraseFromBucket(T a_in, String s_path, String s_update_comment) throws BaseException, GeneralSecurityException, AssetException, RemoteException, BucketException, IOException {
         T result = server.eraseFromBucket(a_in, s_path, s_update_comment);
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
+        eventBus.fireEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
 
     @Override
     public <T extends Asset> T renameFile(T a_in, String s_start_path, String s_rename_path, String s_update_comment) throws BaseException, GeneralSecurityException, AssetException, RemoteException, BucketException, IOException {
         T result = server.renameFile(a_in, s_start_path, s_rename_path, s_update_comment);
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
+        eventBus.fireEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
 
     @Override
     public <T extends Asset> T copyFile(UUID u_in, String s_in_path, T a_out, String s_copy_path, String s_update_comment) throws BaseException, GeneralSecurityException, AssetException, RemoteException, BucketException, IOException {
         T result = server.copyFile(u_in, s_in_path, a_out, s_copy_path, s_update_comment);
-        fireServiceEvent( new AssetLoadEvent( this, result ) );
+        eventBus.fireEvent( new AssetLoadEvent( this, result ) );
         return result;
     }
 }

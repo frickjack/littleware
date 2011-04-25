@@ -9,9 +9,6 @@
  */
 package littleware.apps.swingclient;
 
-import littleware.base.feedback.SimpleLittleTool;
-import littleware.base.feedback.LittleListener;
-import littleware.base.feedback.LittleEvent;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.*;
@@ -28,10 +25,14 @@ import java.util.logging.Logger;
 import javax.swing.*;
 
 import littleware.apps.client.*;
+import littleware.apps.client.event.AssetModelEvent;
 import littleware.asset.*;
 import littleware.base.UUIDFactory;
 import littleware.apps.swingclient.event.*;
 import littleware.base.Maybe;
+import littleware.base.event.LittleEvent;
+import littleware.base.event.LittleListener;
+import littleware.base.event.helper.SimpleLittleTool;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.base.swing.GridBagWrap;
@@ -53,9 +54,8 @@ public class JGenericAssetView extends JPanel implements AssetView {
         }
     };
 
-
     {
-        oview_util.setFeedback( new LoggerFeedback( olog ) );
+        oview_util.setFeedback(new LoggerFeedback(olog));
 
         // Should only happen on call to setAssetModel ...
         oview_util.addPropertyChangeListener(new PropertyChangeListener() {
@@ -86,7 +86,6 @@ public class JGenericAssetView extends JPanel implements AssetView {
     // Setup a button to toggle the detals panel visible/invisible
     private final JButton owbutton_details = new JButton("+");
 
-
     {
         owbutton_details.setToolTipText("View/Hide Asset details");
     }
@@ -113,7 +112,6 @@ public class JGenericAssetView extends JPanel implements AssetView {
     private final JTextArea owtext_comment = new JTextArea(5, 40);
     private final JTextArea owtext_update = new JTextArea(5, 40);
     private final JTextArea owtext_data = new JTextArea(5, 40);
-
 
     {
         for (JTextArea jarea : Arrays.asList(owtext_comment, owtext_update, owtext_data)) {
@@ -154,8 +152,8 @@ public class JGenericAssetView extends JPanel implements AssetView {
     }
 
     @Override
-    public void setFeedback( Feedback feedback ) {
-        oview_util.setFeedback( feedback );
+    public void setFeedback(Feedback feedback) {
+        oview_util.setFeedback(feedback);
     }
 
     /** Little pair class */
@@ -302,29 +300,31 @@ public class JGenericAssetView extends JPanel implements AssetView {
      * if the LittleEvent comes from
      * the getAssetModel() AssetModel (data model update).
      */
-    protected void eventFromModel(final LittleEvent event ) {
-        if (event.getSource() == getAssetModel()) {
+    protected void eventFromModel(final LittleEvent eventIn) {
+        if ((eventIn.getSource() == getAssetModel()) && (eventIn instanceof AssetModelEvent)) {
+            final AssetModelEvent event = eventIn.narrow();
             // Model has changed under us
             SwingUtilities.invokeLater(
                     new Runnable() {
+
                         @Override
                         public void run() {
-                            if ( event.getOperation().equals( AssetModel.Operation.assetDeleted.toString() ) ) {
+                            if (event.getOp().equals(AssetModel.Operation.assetDeleted.toString())) {
                                 final AssetModelLibrary lib = getAssetModel().getLibrary();
-                                final Asset    deleted = getAssetModel().getAsset();
-                                final UUID     uNew = (deleted.getFromId() != null) ?
-                                    deleted.getFromId() : deleted.getHomeId();
-                                getFeedback().info( "Asset in view deleted, moving to view " + uNew );
+                                final Asset deleted = getAssetModel().getAsset();
+                                final UUID uNew = (deleted.getFromId() != null)
+                                        ? deleted.getFromId() : deleted.getHomeId();
+                                getFeedback().info("Asset in view deleted, moving to view " + uNew);
                                 try {
                                     final Maybe<AssetModel> maybe = lib.retrieveAssetModel(uNew, om_retriever);
-                                    if ( maybe.isSet() ) {
-                                        setAssetModel( maybe.get() );
+                                    if (maybe.isSet()) {
+                                        setAssetModel(maybe.get());
                                     } else {
-                                        setAssetModel( lib.retrieveAssetModel( deleted.getHomeId(), om_retriever ).get() );
+                                        setAssetModel(lib.retrieveAssetModel(deleted.getHomeId(), om_retriever).get());
                                     }
-                                } catch ( Exception ex ) {
-                                    getFeedback().log( Level.WARNING, "Failed to update view after asset delete: " + ex );
-                                    olog.log( Level.WARNING, "Failed update after asset delete: " + ex );
+                                } catch (Exception ex) {
+                                    getFeedback().log(Level.WARNING, "Failed to update view after asset delete: " + ex);
+                                    olog.log(Level.WARNING, "Failed update after asset delete: " + ex);
                                 }
                             } else {
                                 updateAssetUI();
@@ -486,4 +486,3 @@ public class JGenericAssetView extends JPanel implements AssetView {
         oview_util.fireLittleEvent(event_little);
     }
 }
-

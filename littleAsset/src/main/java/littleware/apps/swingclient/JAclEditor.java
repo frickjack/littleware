@@ -9,6 +9,8 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.GridBagLayout;
@@ -206,7 +208,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
 
             DefaultListModel model_memberlist = owtab_perms.getListModel(perm_selected);
             for (LittlePrincipal p_selected : v_selected) {
-                final Maybe<LittleAclEntry> maybeEntry = acl.getEntry(p_selected, false);
+                final Option<LittleAclEntry> maybeEntry = acl.getEntry(p_selected, false);
                 if (maybeEntry.isSet()) {
                     final LittleAclEntry entry = maybeEntry.get().copy().removePermission(perm_selected).build();
 

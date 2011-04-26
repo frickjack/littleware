@@ -16,7 +16,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPathByRootName;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.LittleHome;
@@ -73,7 +73,7 @@ public class SimpleAssetPathByRootName extends AbstractAssetPath implements Asse
     }
     
     @Override
-    public Maybe<Asset> getRoot ( AssetSearchManager m_search
+    public Option<Asset> getRoot ( AssetSearchManager m_search
                                     ) throws BaseException, AssetException, GeneralSecurityException,
         RemoteException
     {

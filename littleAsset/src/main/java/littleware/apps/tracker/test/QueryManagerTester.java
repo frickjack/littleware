@@ -27,10 +27,10 @@ import littleware.apps.tracker.TaskQuery.BuilderStart;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskStatus;
 import littleware.asset.Asset;
-import littleware.asset.AssetManager;
+import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.AssertionFailedException;
 import littleware.base.Maybe;
@@ -81,7 +81,7 @@ public class QueryManagerTester extends AbstractAssetTest {
     @Override
     public void setUp() {
         try {
-            final Maybe<Asset> maybe = search.getAssetAtPath(queuePath);
+            final Option<Asset> maybe = search.getAssetAtPath(queuePath);
             if ( maybe.isSet() ) {
                 return;
             }

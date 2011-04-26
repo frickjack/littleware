@@ -20,7 +20,7 @@ import littleware.apps.tracker.Version;
 import littleware.apps.tracker.Version.VersionBuilder;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.Asset;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.BaseException;
 

@@ -15,7 +15,7 @@ import java.util.logging.Level;
 
 import littleware.apps.client.*;
 import littleware.asset.Asset;
-import littleware.asset.AssetManager;
+import littleware.asset.client.AssetManager;
 import littleware.base.BaseException;
 import littleware.base.event.LittleEvent;
 

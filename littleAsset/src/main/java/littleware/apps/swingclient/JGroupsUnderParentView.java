@@ -8,6 +8,7 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetSearchManager;
 import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.logging.Logger;

@@ -41,7 +41,7 @@ public class DbAssetManagerTester extends LittleTest {
         testSuperType = new AssetType( superId, "testSuper" + now.getTime() ) {};
         testSubType = new AssetType( subId, "testSub" + now.getTime() ) {
             @Override
-            public Maybe<AssetType> getSuperType() {
+            public Option<AssetType> getSuperType() {
                 return Maybe.something( testSuperType );
         };
         };

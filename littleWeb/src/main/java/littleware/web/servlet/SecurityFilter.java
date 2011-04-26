@@ -41,7 +41,7 @@ public class SecurityFilter implements Filter {
 
     private static Logger log = Logger.getLogger(SecurityFilter.class.getName());
     private String loginFormUri = "/home.jsf";
-    private Maybe<String> accessControl = Maybe.empty();
+    private Option<String> accessControl = Maybe.empty();
 
     /** Do nothing init */
     @Override

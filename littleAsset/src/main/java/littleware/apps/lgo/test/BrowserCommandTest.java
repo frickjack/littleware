@@ -37,7 +37,7 @@ public class BrowserCommandTest extends LittleTest {
 
     public void testBrowserCommand() {
         try {
-            final EventBarrier<Maybe<UUID>> barrier = commandBuilder.buildFromArgs( Arrays.asList( "-path", "/littleware.home") ).runCommand( new LoggerFeedback() );
+            final EventBarrier<Option<UUID>> barrier = commandBuilder.buildFromArgs( Arrays.asList( "-path", "/littleware.home") ).runCommand( new LoggerFeedback() );
             // Browser actually launches into background as of 2010/01/28
             assertTrue( "User selected something to pass test", barrier.waitForEventData().isSet() );
         } catch ( Exception ex ) {

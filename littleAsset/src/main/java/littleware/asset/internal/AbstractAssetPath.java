@@ -17,7 +17,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 
 import littleware.base.BaseException;
 import littleware.base.AssertionFailedException;
@@ -76,7 +76,7 @@ public abstract class AbstractAssetPath implements AssetPath {
 
     /** Subtype needs to override */
     @Override
-    public abstract Maybe<Asset> getRoot(AssetSearchManager m_search) throws BaseException, AssetException, GeneralSecurityException,
+    public abstract Option<Asset> getRoot(AssetSearchManager m_search) throws BaseException, AssetException, GeneralSecurityException,
             RemoteException;
 
     @Override
@@ -85,7 +85,7 @@ public abstract class AbstractAssetPath implements AssetPath {
     }
 
     @Override
-    public Maybe<Asset> getAsset(AssetSearchManager m_search) throws BaseException, AssetException, GeneralSecurityException,
+    public Option<Asset> getAsset(AssetSearchManager m_search) throws BaseException, AssetException, GeneralSecurityException,
             RemoteException {
         return m_search.getAssetAtPath(this);
     }

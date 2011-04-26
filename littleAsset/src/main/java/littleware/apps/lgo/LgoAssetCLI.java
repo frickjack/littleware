@@ -80,7 +80,7 @@ public class LgoAssetCLI {
      * @return command exit-status
      */
     public int processCommand(String sCommand, List<String> processArgs, String sArg, Feedback feedback) {
-        final Maybe<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(sCommand);
+        final Option<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(sCommand);
         try {
             if (maybe.isEmpty() || sCommand.equalsIgnoreCase("help")) {
                 System.out.println("Command use:");
@@ -222,7 +222,7 @@ public class LgoAssetCLI {
             profile = AppBootstrap.AppProfile.SwingApp;
         }
 
-        Maybe<LittleBootstrap> maybeBoot = Maybe.empty();
+        Option<LittleBootstrap> maybeBoot = Maybe.empty();
         if ((!specialOptionMap.containsKey(SpecialOption.mode))
                 || specialOptionMap.get(SpecialOption.mode).toLowerCase().trim().equals("client")) {
             final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
@@ -235,7 +235,7 @@ public class LgoAssetCLI {
                     throw new IllegalArgumentException("Malformed URL: " + sUrl);
                 }
             }
-            final Maybe<String> maybeUser;
+            final Option<String> maybeUser;
             if ( specialOptionMap.containsKey(SpecialOption.user) ) {
                 maybeUser = Maybe.something( specialOptionMap.get( SpecialOption.user ));
             } else {

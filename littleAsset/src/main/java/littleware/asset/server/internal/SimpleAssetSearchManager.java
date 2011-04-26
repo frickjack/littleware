@@ -9,6 +9,7 @@
  */
 package littleware.asset.server.internal;
 
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.internal.SimpleAssetPathFactory;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -53,7 +54,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     }
 
     @Override
-    public Maybe<Asset> getByName(String name, AssetType type) throws BaseException, AssetException,
+    public Option<Asset> getByName(String name, AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (!type.isNameUnique()) {
             throw new InvalidAssetTypeException("getByName requires name-unique type: " + type);
@@ -91,7 +92,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
         throw new UnsupportedOperationException();
     }
 
-    public SortedMap<AssetPath, Maybe<Asset>> getAssetsAlongPath( final AssetPath assetPath) throws BaseException, AssetException,
+    public SortedMap<AssetPath, Option<Asset>> getAssetsAlongPath( final AssetPath assetPath) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         // setup a cycle cache
         final LittleTransaction trans = provideTrans.get();
@@ -102,9 +103,9 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                 return getAssetsAlongPath(pathFactory.normalizePath(assetPath));
             }
 
-            SortedMap<AssetPath, Maybe<Asset>> mapResult = null;
+            SortedMap<AssetPath, Option<Asset>> mapResult = null;
             String s_path = assetPath.toString();
-            Maybe<Asset> maybeResult = Maybe.empty();
+            Option<Asset> maybeResult = Maybe.empty();
 
             if (assetPath.hasParent()) {
                 // else get parent
@@ -116,7 +117,7 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
                             ") exceeds 20 assets at " + s_path);
                 }
 
-                final Maybe<Asset> maybeParent = mapResult.get(mapResult.lastKey());
+                final Option<Asset> maybeParent = mapResult.get(mapResult.lastKey());
                 final String s_name = s_path.substring(s_path.lastIndexOf("/") + 1);
 
                 if (!maybeParent.isSet()) {
@@ -158,14 +159,14 @@ public class SimpleAssetSearchManager extends LocalAssetRetriever implements Ass
     }
 
     @Override
-    public Maybe<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
+    public Option<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        final SortedMap<AssetPath, Maybe<Asset>> v_path = getAssetsAlongPath(path_asset);
+        final SortedMap<AssetPath, Option<Asset>> v_path = getAssetsAlongPath(path_asset);
         return v_path.get(v_path.lastKey());
     }
 
     @Override
-    public Maybe<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
+    public Option<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         UUID u_id = getAssetIdsFrom(u_from, null).get(s_name);
         if (null == u_id) {

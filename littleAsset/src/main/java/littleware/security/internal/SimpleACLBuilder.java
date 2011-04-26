@@ -201,7 +201,7 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
 
         
         @Override
-        public Maybe<LittleAclEntry> getEntry(LittlePrincipal principal, boolean negative) {
+        public Option<LittleAclEntry> getEntry(LittlePrincipal principal, boolean negative) {
             final Map<? extends LittlePrincipal, LittleAclEntry> entryMap = getCacheForEntry(principal, negative);
             return Maybe.emptyIfNull( (LittleAclEntry) entryMap.get(principal) );
         }

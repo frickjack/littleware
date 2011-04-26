@@ -40,10 +40,10 @@ public interface LittleAcl extends TreeNode {
             UUIDFactory.parseUUID("04E11B112526462F91152DFFB51D21C9"),
             "littleware.ACL") {
 
-        private final Maybe<AssetType> superType = Maybe.something( TreeNode.TREE_NODE_TYPE );
+        private final Option<AssetType> superType = Maybe.something( TreeNode.TREE_NODE_TYPE );
 
         @Override
-        public Maybe<AssetType>  getSuperType() {
+        public Option<AssetType>  getSuperType() {
             return superType;
         }
 
@@ -73,7 +73,7 @@ public interface LittleAcl extends TreeNode {
      * @param isNegative do we want the postive or negative entry ?
      * @return entry's entry or null if p_entry entry not in this Acl
      */
-    public Maybe<LittleAclEntry> getEntry(LittlePrincipal entry, boolean isNegative);
+    public Option<LittleAclEntry> getEntry(LittlePrincipal entry, boolean isNegative);
 
     @Override
     public Builder copy();

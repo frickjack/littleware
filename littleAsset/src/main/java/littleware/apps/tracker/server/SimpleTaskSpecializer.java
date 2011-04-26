@@ -23,8 +23,8 @@ import littleware.apps.tracker.TaskQuery.BuilderStart;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
-import littleware.asset.AssetManager;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.AssetInfo;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
@@ -82,7 +82,7 @@ public class SimpleTaskSpecializer extends NullAssetSpecializer {
 
         if (!task.getQueueId().equals(task.getFromId())) {
             // TODO - add subtask logic
-            final Maybe<Asset> maybeFrom = search.getAsset(task.getFromId());
+            final Option<Asset> maybeFrom = search.getAsset(task.getFromId());
             if (maybeFrom.isEmpty() || !(maybeFrom.get() instanceof Task)) {
                 throw new ValidationException("New task does not link from queue or task");
             }

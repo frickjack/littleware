@@ -71,7 +71,7 @@ public class SimpleTaskBuilder extends AbstractAssetBuilder<Task.TaskBuilder> im
         }
 
         @Override
-        public Maybe<UUID> getUserId() {
+        public Option<UUID> getUserId() {
             return Maybe.emptyIfNull(this.getToId());
         }
 

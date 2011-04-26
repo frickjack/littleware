@@ -10,6 +10,7 @@
 
 package littleware.asset;
 
+import littleware.asset.client.AssetSearchManager;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
 
@@ -53,7 +54,7 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
     /**
      * Retrieve the asset at the root of the path if it exists
      */
-    public Maybe<Asset> getRoot ( AssetSearchManager m_search
+    public Option<Asset> getRoot ( AssetSearchManager m_search
                            ) throws BaseException, AssetException, GeneralSecurityException,
         RemoteException;
     
@@ -77,7 +78,7 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
      * @param m_search to traverse the asset tree with
      * @see AssetSearchManager.getAssetAtPath( AssetPath, boolean )
      */
-    public Maybe<Asset> getAsset ( AssetSearchManager m_search
+    public Option<Asset> getAsset ( AssetSearchManager m_search
                             ) throws BaseException, AssetException, GeneralSecurityException,
         RemoteException;
     

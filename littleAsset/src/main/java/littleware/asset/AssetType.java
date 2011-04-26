@@ -38,7 +38,7 @@ import littleware.base.*;
 public class AssetType extends DynamicEnum<AssetType> {
     private static final long serialVersionUID = 1111142L;
     private static final Logger log = Logger.getLogger(AssetType.class.getName());
-    private Maybe<AssetType>  superType = Maybe.empty();
+    private Option<AssetType>  superType = Maybe.empty();
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -99,7 +99,7 @@ public class AssetType extends DynamicEnum<AssetType> {
      *
      * @return super-type, or null if no super-type (this implementation returns null)
      */
-    public Maybe<AssetType> getSuperType() {
+    public Option<AssetType> getSuperType() {
         return superType;
     }
 
@@ -117,7 +117,7 @@ public class AssetType extends DynamicEnum<AssetType> {
         }
 
         // climb this assset's inheritance tree, cache the result
-        for (Maybe<AssetType> maybe = Maybe.something((AssetType) this);
+        for (Option<AssetType> maybe = Maybe.something((AssetType) this);
                 maybe.isSet();
                 maybe = maybe.get().getSuperType()) {
             if (maybe.get().equals(atype_other)) {

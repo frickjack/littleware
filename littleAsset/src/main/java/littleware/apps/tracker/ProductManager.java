@@ -48,6 +48,6 @@ public interface ProductManager {
      * public String nextVersion( String lastVersion, int dotNumber )
      * public String highestVersion( UUID product, String prefix );
      * public Comparator<String> getSimpleVersionSorter();
-     * public Maybe<File> locate( UUID memberId ); -- workspace locate ? ...
+     * public Option<File> locate( UUID memberId ); -- workspace locate ? ...
      */
 }

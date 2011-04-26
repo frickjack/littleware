@@ -27,10 +27,10 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
     
     public static class Query implements TaskQuery, TaskQuery.BuilderSetState,
             TaskQuery.BuilderNarrow, TaskQuery.FinalBuilder, Serializable {
-        private Maybe<Date> maybeMaxCreate = Maybe.empty();
-        private Maybe<Date> maybeMinModify = Maybe.empty();
-        private Maybe<Date> maybeMaxModify = Maybe.empty();
-        private Maybe<String>  maybeTaskName = Maybe.empty();
+        private Option<Date> maybeMaxCreate = Maybe.empty();
+        private Option<Date> maybeMinModify = Maybe.empty();
+        private Option<Date> maybeMaxModify = Maybe.empty();
+        private Option<String>  maybeTaskName = Maybe.empty();
 
         public enum StatusMode {
             Active,
@@ -41,10 +41,10 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
 
         private UUID                    queueId;
         private StatusMode              statusMode = StatusMode.All;
-        private Maybe<TaskStatus>       maybeStatus = Maybe.empty();
-        private Maybe<UUID>             maybeAssignedTo = Maybe.empty();
-        private Maybe<UUID>             maybeSubmittedBy = Maybe.empty();
-        private Maybe<Date>             maybeMinCreate = Maybe.empty();
+        private Option<TaskStatus>       maybeStatus = Maybe.empty();
+        private Option<UUID>             maybeAssignedTo = Maybe.empty();
+        private Option<UUID>             maybeSubmittedBy = Maybe.empty();
+        private Option<Date>             maybeMinCreate = Maybe.empty();
 
         @Override
         public FinalBuilder withTaskName( String value) {
@@ -52,7 +52,7 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
             return this;
         }
 
-        public Maybe<String> getTaskName() {
+        public Option<String> getTaskName() {
             return maybeTaskName;
         }
 
@@ -67,28 +67,28 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
             maybeMinCreate = Maybe.something( value );
             return this;
         }
-        public Maybe<Date> getMinCreateDate() { return maybeMinCreate; }
+        public Option<Date> getMinCreateDate() { return maybeMinCreate; }
 
         @Override
         public BuilderNarrow maxCreateDate(Date value) {
             maybeMaxCreate = Maybe.something( value );
             return this;
         }
-        public Maybe<Date> getMaxCreateDate() { return maybeMaxCreate; }
+        public Option<Date> getMaxCreateDate() { return maybeMaxCreate; }
 
         @Override
         public BuilderNarrow minModifyDate(Date value) {
             maybeMinModify = Maybe.something( value );
             return this;
         }
-        public Maybe<Date> getMinModifyDate() { return maybeMinModify; }
+        public Option<Date> getMinModifyDate() { return maybeMinModify; }
 
         @Override
         public BuilderNarrow maxModifyDate(Date value) {
             maybeMaxModify = Maybe.something( value );
             return this;
         }
-        public Maybe<Date> getMaxModifyDate() { return maybeMaxModify; }
+        public Option<Date> getMaxModifyDate() { return maybeMaxModify; }
         
         public Query() {}
         public Query( Queue queue ) {
@@ -135,9 +135,9 @@ public class SimpleQueryBuilder implements TaskQuery.BuilderStart {
         public StatusMode getStatusMode() {
             return statusMode;
         }
-        public Maybe<UUID> getAssignedTo() { return maybeAssignedTo; }
-        public Maybe<UUID> getSubmittedBy() { return maybeSubmittedBy; }
-        public Maybe<TaskStatus> getStatus() { return maybeStatus; }
+        public Option<UUID> getAssignedTo() { return maybeAssignedTo; }
+        public Option<UUID> getSubmittedBy() { return maybeSubmittedBy; }
+        public Option<TaskStatus> getStatus() { return maybeStatus; }
     }
     
     @Override

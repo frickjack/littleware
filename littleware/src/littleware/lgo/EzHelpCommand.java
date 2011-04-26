@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import java.util.Set;
-import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
 
@@ -104,7 +104,7 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
         @Override
         public LgoHelp runCommand(Feedback feedback) {
             String sTarget = getInput();
-            final Maybe<LgoCommand.LgoBuilder> maybe = om_command.buildCommand(sTarget);
+            final Option<LgoCommand.LgoBuilder> maybe = om_command.buildCommand(sTarget);
             if ( maybe.isEmpty() ) {
                 StringBuilder sbCommands = new StringBuilder();
                 sbCommands.append("No help found for command: ").append(sTarget).append(", available commands:").

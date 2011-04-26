@@ -26,8 +26,8 @@ public interface LittleResponse<T> extends CacheableObject {
 
     public URL getFollowUpServer();
     public State getState();
-    public Maybe<T> getResult();
-    public Maybe<Throwable>  getError();
+    public Option<T> getResult();
+    public Option<Throwable>  getError();
     public int getProgress();
     public Collection<String> getMessageIds();
 }

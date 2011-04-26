@@ -32,7 +32,7 @@ import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.event.LittleTool;
 import littleware.security.LittleAcl;

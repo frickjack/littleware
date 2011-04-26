@@ -10,6 +10,7 @@
 
 package littleware.asset.server.internal;
 
+import littleware.asset.client.AssetManager;
 import java.util.*;
 import java.security.*;
 import java.rmi.RemoteException;

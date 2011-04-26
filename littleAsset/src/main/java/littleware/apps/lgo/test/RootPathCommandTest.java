@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import littleware.apps.lgo.GetRootPathCommand;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.feedback.LoggerFeedback;
 

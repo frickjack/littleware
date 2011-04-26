@@ -1,10 +1,8 @@
 /*
- * Copyright 2010 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.apps.tracker.test;
@@ -18,9 +16,9 @@ import java.util.logging.Logger;
 import littleware.apps.tracker.Comment;
 import littleware.apps.tracker.Comment.CommentBuilder;
 import littleware.asset.Asset;
-import littleware.asset.AssetManager;
+import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.TreeNode;
@@ -53,7 +51,7 @@ public class CommentTester extends AbstractAssetTest {
         this.pathFactory = pathFactory;
         this.commentProvider = commentProvider;
     }
-    Maybe<TreeNode> testFolder = Maybe.empty();
+    Option<TreeNode> testFolder = Maybe.empty();
 
     @Override
     public void setUp() {

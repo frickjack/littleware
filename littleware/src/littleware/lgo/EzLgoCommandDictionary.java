@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.lgo;
@@ -17,6 +15,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.lgo.LgoCommand.LgoBuilder;
 
 /**
@@ -28,7 +27,7 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
 
     @Override
     public Collection<LgoCommand.LgoBuilder> guessCommand(String s_partial) {
-        final Maybe<LgoCommand.LgoBuilder> maybe = buildCommand(s_partial);
+        final Option<LgoCommand.LgoBuilder> maybe = buildCommand(s_partial);
 
         if ( maybe.isEmpty() ) {
             return Collections.EMPTY_LIST;
@@ -38,7 +37,7 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     }
 
     @Override
-    public Maybe<LgoCommand.LgoBuilder> buildCommand(String s_name) {
+    public Option<LgoCommand.LgoBuilder> buildCommand(String s_name) {
         final Provider<LgoCommand.LgoBuilder> provider = commandMap.get(s_name);
         if ( null == provider ) {
             return Maybe.empty();
@@ -79,7 +78,7 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     }
 
     @Override
-    public Maybe<Provider<LgoCommand.LgoBuilder>> getProvider(String s_name) {
+    public Option<Provider<LgoCommand.LgoBuilder>> getProvider(String s_name) {
         return Maybe.emptyIfNull(commandMap.get( s_name ));
     }
 }

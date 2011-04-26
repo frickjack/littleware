@@ -1,6 +1,8 @@
 package littleware.security.server;
 
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import littleware.asset.*;

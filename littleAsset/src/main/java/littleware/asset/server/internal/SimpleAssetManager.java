@@ -9,6 +9,8 @@
  */
 package littleware.asset.server.internal;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.rmi.RemoteException;

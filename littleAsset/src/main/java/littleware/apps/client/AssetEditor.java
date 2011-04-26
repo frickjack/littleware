@@ -6,7 +6,7 @@ import javax.swing.event.*;
 
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
-import littleware.asset.AssetManager;
+import littleware.asset.client.AssetManager;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
 

@@ -28,9 +28,9 @@ import javax.swing.WindowConstants;
 import littleware.apps.swingclient.DeleteAssetStrategy;
 import littleware.apps.swingclient.JDeleteAssetBuilder;
 import littleware.asset.Asset;
-import littleware.asset.AssetManager;
+import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTool;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
@@ -102,7 +102,7 @@ public class JDeleteAssetTester extends AbstractAssetTest {
     public void tearDown() {
         try {
             final Asset home = getTestHome(search);
-            final Maybe<Asset> maybe = search.getAssetAtPath(
+            final Option<Asset> maybe = search.getAssetAtPath(
                     pathFactory.createPath(home.getId(), TestFolder));
             if (maybe.isSet()) {
                 final List<Asset> vDelete = treeTool.loadBreadthFirst(maybe.get().getId());

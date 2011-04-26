@@ -8,7 +8,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.asset;
+package littleware.asset.internal;
 
 import java.util.*;
 import java.security.GeneralSecurityException;
@@ -27,7 +27,7 @@ import littleware.base.ReadOnly;
  * does throw RemoteException so this interface is
  * ready for a Remote mixin.
  */
-public interface AssetSearchManager extends AssetRetriever, Remote {
+public interface RemoteAssetSearchManager extends AssetRetriever, Remote {
 
     /**
      * Convenience method - equivalent to: <br />
@@ -40,7 +40,7 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      * @throws InavlidAssetTypeException if n_type is not name-unique
      */
     @ReadOnly
-    public  Maybe<Asset> getByName(String name, AssetType type) throws BaseException, AssetException,
+    public  Option<Asset> getByName(String name, AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 
@@ -57,7 +57,7 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      */
     public 
     @ReadOnly
-    Maybe<Asset> getAssetAtPath( AssetPath path_asset) throws BaseException, AssetException,
+    Option<Asset> getAssetAtPath( AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -87,7 +87,7 @@ public interface AssetSearchManager extends AssetRetriever, Remote {
      */
     public 
     @ReadOnly
-    Maybe<Asset> getAssetFrom( UUID u_from,  String s_name) throws BaseException, AssetException,
+    Option<Asset> getAssetFrom( UUID u_from,  String s_name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 

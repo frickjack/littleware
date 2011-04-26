@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.apps.tracker.Task;
 import littleware.apps.tracker.TaskSet;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.LazyLoadException;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.FeedbackIterableBuilder;

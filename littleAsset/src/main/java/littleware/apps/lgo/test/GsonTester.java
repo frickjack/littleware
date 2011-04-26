@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import littleware.asset.Asset;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.GenericAsset;
 import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.asset.test.AbstractAssetTest;

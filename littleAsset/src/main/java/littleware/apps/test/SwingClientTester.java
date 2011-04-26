@@ -9,6 +9,8 @@
  */
 package littleware.apps.test;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.security.LittleGroup.Builder;

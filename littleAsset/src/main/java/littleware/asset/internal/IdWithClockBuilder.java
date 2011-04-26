@@ -23,7 +23,7 @@ public class IdWithClockBuilder implements IdWithClock.Builder {
     private static class Data implements IdWithClock, Serializable {
         private UUID   id;
         private long   transaction;
-        private Maybe<UUID> maybeFrom = Maybe.empty();
+        private Option<UUID> maybeFrom = Maybe.empty();
 
 
         /** Empty constructor for serialization */
@@ -42,7 +42,7 @@ public class IdWithClockBuilder implements IdWithClock.Builder {
         }
 
         @Override
-        public Maybe<UUID> getParentId() {
+        public Option<UUID> getParentId() {
             return maybeFrom;
         }
 

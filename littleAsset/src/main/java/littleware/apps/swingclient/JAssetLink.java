@@ -7,6 +7,7 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetSearchManager;
 import com.google.inject.Inject;
 import java.awt.*;
 import java.awt.datatransfer.*;
@@ -285,7 +286,7 @@ public class JAssetLink extends JLabel implements LittleTool {
             return;
         }
         try {
-            final Maybe<AssetModel> maybeModel = olibAsset.retrieveAssetModel(u_id, osearch);
+            final Option<AssetModel> maybeModel = olibAsset.retrieveAssetModel(u_id, osearch);
             if (!maybeModel.isSet()) {
                 setLink((Asset) null);
             } else {

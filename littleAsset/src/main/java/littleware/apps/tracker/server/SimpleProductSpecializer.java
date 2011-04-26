@@ -22,7 +22,7 @@ import littleware.apps.tracker.Version;
 import littleware.apps.tracker.VersionAlias;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.server.NullAssetSpecializer;
 import littleware.base.BaseException;

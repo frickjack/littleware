@@ -63,7 +63,7 @@ public interface DbAssetManager {
     /**
      * Create handler to load the ids of assets linking FROM a given asset id
      */
-    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, Maybe<AssetType> maybeType, Maybe<Integer> maybeState);
+    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, Option<AssetType> maybeType, Option<Integer> maybeState);
 
     /**
      * Create handler to load the ids of assets linking TO a given asset id

@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.base.feedback.Feedback;
 import littleware.lgo.AbstractLgoBuilder;

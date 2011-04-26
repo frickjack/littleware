@@ -20,7 +20,7 @@ import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetType;
 import littleware.asset.LittleHome;
@@ -225,7 +225,7 @@ public class SimpleTemplateBuilder implements AssetTreeTemplate.TemplateBuilder 
 
         public Collection<AssetInfo> visitInternal(Asset parent, AssetSearchManager search) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
 
-            final Maybe<Asset> maybeExists = search.getAssetFrom(parent.getId(), builder.getName());
+            final Option<Asset> maybeExists = search.getAssetFrom(parent.getId(), builder.getName());
 
             final ImmutableList.Builder<AssetInfo> resultBuilder = ImmutableList.builder();
             final TreeNode node;

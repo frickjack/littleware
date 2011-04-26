@@ -9,6 +9,7 @@
  */
 package littleware.security.auth.internal;
 
+import littleware.asset.internal.AssetRetriever;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
 import java.rmi.RemoteException;

@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.security.GeneralSecurityException;

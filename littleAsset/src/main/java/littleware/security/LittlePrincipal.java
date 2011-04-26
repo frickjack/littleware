@@ -20,10 +20,10 @@ public interface LittlePrincipal extends java.security.Principal, littleware.ass
             UUIDFactory.parseUUID("A7E11221-5469-49FA-AF1E-8FCC52190F1D"),
             "littleware.PRINCIPAL") {
 
-        private final Maybe<AssetType> superType = Maybe.something( TreeNode.TREE_NODE_TYPE );
+        private final Option<AssetType> superType = Maybe.something( TreeNode.TREE_NODE_TYPE );
 
         @Override
-        public Maybe<AssetType>  getSuperType() {
+        public Option<AssetType>  getSuperType() {
             return superType;
         }
 

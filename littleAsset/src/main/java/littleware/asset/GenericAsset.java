@@ -62,7 +62,7 @@ public interface GenericAsset extends TreeNode {
     /**
      * Shortcut for Maybe.emtpyIfNull( getLinks().get( name ) )
      */
-    public Maybe<UUID> getLink(String key);
+    public Option<UUID> getLink(String key);
 
     /**
      * Index of supplemental date info associated with this node
@@ -72,7 +72,7 @@ public interface GenericAsset extends TreeNode {
     /**
      * Shortcut for Maybe.emtpyIfNull( getDates().get( name ) )
      */
-    public Maybe<Date> getDate(String key);
+    public Option<Date> getDate(String key);
 
     /**
      * Get user-supplied attributes attached to this node
@@ -82,7 +82,7 @@ public interface GenericAsset extends TreeNode {
     /**
      * Shortcut for Maybe.emptyIfNull( getUserAttributes().get( name ) )
      */
-    public Maybe<String> getAttribute(String key);
+    public Option<String> getAttribute(String key);
 
     /**
      * Shortcut for a.getAssetType().create().copy( a )
@@ -203,10 +203,10 @@ public interface GenericAsset extends TreeNode {
     /** GENERIC asset-type */
     public static final AssetType GENERIC = new AssetType(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),
             "littleware.GENERIC") {
-        private final Maybe<AssetType> mySuper = Maybe.something( TreeNode.TREE_NODE_TYPE );
+        private final Option<AssetType> mySuper = Maybe.something( TreeNode.TREE_NODE_TYPE );
 
         @Override
-        public Maybe<AssetType> getSuperType() {
+        public Option<AssetType> getSuperType() {
             return mySuper;
         }
     };

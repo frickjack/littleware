@@ -23,7 +23,7 @@ import littleware.bootstrap.AppBootstrap;
 public class AppBootstrapListener implements ServletContextListener {
 
     private static final Logger log = Logger.getLogger(AppBootstrapListener.class.getName());
-    private Maybe<AppBootstrap> boot = Maybe.empty();
+    private Option<AppBootstrap> boot = Maybe.empty();
 
     public synchronized void contextInitialized(ServletContextEvent sce) {
         try {

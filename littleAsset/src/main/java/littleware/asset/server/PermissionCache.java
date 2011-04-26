@@ -16,7 +16,7 @@ import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.security.Permission;
 import java.util.UUID;
-import littleware.asset.AssetRetriever;
+import littleware.asset.internal.AssetRetriever;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.security.LittlePermission;

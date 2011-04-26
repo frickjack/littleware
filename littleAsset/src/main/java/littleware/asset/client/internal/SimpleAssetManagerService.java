@@ -1,14 +1,13 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset.client.internal;
 
+import com.google.inject.Inject;
 import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.AssetDeleteEvent;
 import java.rmi.RemoteException;
@@ -17,25 +16,26 @@ import java.util.Collection;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
-import littleware.asset.AssetManager;
-import littleware.asset.client.AssetManagerService;
+import littleware.asset.client.AssetManager;
 import littleware.asset.client.spi.LittleServiceBus;
+import littleware.asset.internal.RemoteAssetManager;
 import littleware.base.BaseException;
 
 /**
  * Simple implementation of AssetManagerService wrapper around AssetManager
  */
-public class SimpleAssetManagerService implements AssetManagerService {
+public class SimpleAssetManagerService implements AssetManager {
 
     private static final long serialVersionUID = 4377427321241771838L;
-    private final AssetManager     server;
+    private final RemoteAssetManager     server;
     private final LittleServiceBus eventBus;
 
 
     /**
      * Inject the server to wrap with LittleService event throwing support
      */
-    public SimpleAssetManagerService(AssetManager server, LittleServiceBus eventBus ) {
+    @Inject
+    public SimpleAssetManagerService(RemoteAssetManager server, LittleServiceBus eventBus ) {
         this.server = server;
         this.eventBus = eventBus;
     }

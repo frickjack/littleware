@@ -25,7 +25,7 @@ import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.client.ServerSync;
 import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.IdWithClock;
 import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.ClientCache;
@@ -133,7 +133,7 @@ public class SimpleServerSync implements ServerSync {
             for (UUID id : idList) {
                 try {
                     cache.getCache().remove(id.toString());
-                    final Maybe<Asset> maybe = search.getAsset(id);
+                    final Option<Asset> maybe = search.getAsset(id);
                     if (maybe.isSet()) {
                         final Asset asset = maybe.get();
                         log.log(Level.FINE, "Syncing asset {0}, {1}, {2}", new Object[]{asset.getId(), asset.getName(), asset.getTimestamp()});

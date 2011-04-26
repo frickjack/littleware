@@ -24,7 +24,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.LittleHome;
@@ -181,7 +181,7 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
                 normalStr.startsWith("/..");
                 normalStr = normalStr.substring(3)) {
             TreeNode treeNode = rootAsset.narrow();
-            final Maybe<Asset> maybeParent = search.getAsset(treeNode.getParentId());
+            final Option<Asset> maybeParent = search.getAsset(treeNode.getParentId());
             if (!maybeParent.isSet()) {
                 throw new IllegalArgumentException("Unable to normalize path for " + pathIn);
             }
@@ -194,13 +194,13 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
     public AssetPath toRootedPath(AssetPath pathIn) throws BaseException, GeneralSecurityException,
             RemoteException {
         final AssetPath pathNormal = normalizePath(pathIn);
-        final Maybe<Asset> maybeRoot = pathNormal.getRoot(search);
+        final Option<Asset> maybeRoot = pathNormal.getRoot(search);
         if ( (!maybeRoot.isSet()) || (! (maybeRoot.get() instanceof TreeParent)) ) {
             return pathNormal;
         }
         final List<Asset> assetTrail = new ArrayList<Asset>();
         assetTrail.add(maybeRoot.get());
-        for (Maybe<Asset> maybeParent = search.getAsset(maybeRoot.get().getFromId());
+        for (Option<Asset> maybeParent = search.getAsset(maybeRoot.get().getFromId());
                 maybeParent.isSet();
                 maybeParent = search.getAsset(maybeParent.get().getFromId())) {
             assetTrail.add(maybeParent.get());

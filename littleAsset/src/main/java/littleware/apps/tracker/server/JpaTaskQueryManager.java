@@ -30,7 +30,7 @@ import littleware.apps.tracker.internal.SimpleTaskBuilder;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskQuery;
 import littleware.apps.tracker.TaskStatus;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.server.db.jpa.JpaLittleTransaction;
 import littleware.base.BaseException;
 import littleware.base.UUIDFactory;

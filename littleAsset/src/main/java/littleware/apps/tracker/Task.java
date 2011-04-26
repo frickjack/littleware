@@ -30,7 +30,7 @@ public interface Task extends Asset {
     /**
      * Get user this task is currently assigned to if any
      */
-    public Maybe<UUID> getUserId();
+    public Option<UUID> getUserId();
 
     @Override
     public Task.TaskBuilder copy();

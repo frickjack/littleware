@@ -94,7 +94,7 @@ public class JpaDbAssetManager implements DbAssetManager {
     }
 
     @Override
-    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, Maybe<AssetType> maybeType, Maybe<Integer> maybeState) {
+    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, Option<AssetType> maybeType, Option<Integer> maybeState) {
         return new DbIdsFromLoader(oprovideTrans, uFrom, maybeType, maybeState );
     }
 

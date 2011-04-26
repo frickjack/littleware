@@ -7,6 +7,7 @@
  */
 package littleware.asset.test;
 
+import littleware.asset.internal.AssetRetriever;
 import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
@@ -56,7 +57,7 @@ public class AssetRetrieverTester extends AbstractAssetTest {
              */
 
             for( Map.Entry<String,UUID> entry : v_home_id.entrySet() ) {
-                final Maybe<Asset> maybe = search.getAsset( entry.getValue() );
+                final Option<Asset> maybe = search.getAsset( entry.getValue() );
                 assertTrue("Able to retrieve home: " + entry.getKey(),
                     maybe.isSet()
                     );

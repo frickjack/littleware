@@ -131,7 +131,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
             }
         }
         // ------------------------------------------------
-        private Maybe<SessionInfo> maybeGuest = Maybe.empty();
+        private Option<SessionInfo> maybeGuest = Maybe.empty();
 
         /**
          * Return a GuiceBean tied to a littleware session for the 'guest' user

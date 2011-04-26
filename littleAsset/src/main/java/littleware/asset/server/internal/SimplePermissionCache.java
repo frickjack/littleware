@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
-import littleware.asset.AssetRetriever;
+import littleware.asset.internal.AssetRetriever;
 import littleware.asset.server.PermissionCache;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
@@ -33,7 +33,7 @@ import littleware.security.LittleUser;
 @Singleton
 public class SimplePermissionCache implements PermissionCache {
     private Map<UUID,LittleAcl> mapAcl = new HashMap<UUID,LittleAcl>();
-    private Maybe<LittleGroup>   maybeAdmin = Maybe.empty();
+    private Option<LittleGroup>   maybeAdmin = Maybe.empty();
 
     @Override
     public boolean checkPermission(LittlePrincipal principal, LittlePermission permission, AssetRetriever retriever, UUID uAcl
@@ -46,7 +46,7 @@ public class SimplePermissionCache implements PermissionCache {
             acl = mapAcl.get( uAcl );
         }
         if ( null == acl ) {
-            Maybe<Asset> maybe = retriever.getAsset(uAcl);
+            Option<Asset> maybe = retriever.getAsset(uAcl);
             if ( (! maybe.isSet())
                     || (! maybe.get().getAssetType().equals( LittleAcl.ACL_TYPE))
                     ) {
@@ -68,7 +68,7 @@ public class SimplePermissionCache implements PermissionCache {
 
     @Override
     public boolean isAdmin(LittleUser user, AssetRetriever search) throws BaseException, RemoteException, GeneralSecurityException {
-        final Maybe<LittleGroup> maybe = maybeAdmin;
+        final Option<LittleGroup> maybe = maybeAdmin;
         final LittleGroup       group;
 
         if ( maybe.isSet() ) {

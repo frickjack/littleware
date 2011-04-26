@@ -34,7 +34,7 @@ public interface ImageCache {
         /**
          * Throws IllegalStateException if isInCache == false
          */
-        public Maybe<BufferedImage>  getImage();
+        public Option<BufferedImage>  getImage();
     }
 
     public CacheEntry cacheGet( UUID assetId, ImageManager.SizeOption size );
@@ -42,14 +42,14 @@ public interface ImageCache {
     /**
      * Return maybe.isEmpty if thumb is not in cache
      */
-    public Maybe<ThumbManager.Thumb>  getThumb( UUID assetId );
+    public Option<ThumbManager.Thumb>  getThumb( UUID assetId );
     /**
      * Add a non-null thumb to the cache
      *
      * @param thumb must be a valid thumbnail
      */
     public void putThumb( UUID assetId, Thumb thumb );
-    public void cachePut( UUID assetId, ImageManager.SizeOption size, Maybe<BufferedImage> maybeImage );
+    public void cachePut( UUID assetId, ImageManager.SizeOption size, Option<BufferedImage> maybeImage );
     public void remove( UUID assetId );
     public void remove( UUID assetId, ImageManager.SizeOption size );
 }

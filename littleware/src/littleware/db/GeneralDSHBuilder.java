@@ -1,10 +1,8 @@
 /*
- * Copyright 2010 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.db;
@@ -16,6 +14,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.validate.ValidationException;
 import littleware.db.DataSourceHandler.DSHBuilder;
 import oracle.jdbc.pool.OracleDataSource;
@@ -93,12 +92,12 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
         }
 
         @Override
-        public Maybe<DataSource> resetIfNecessary(String newJdbcUrl, DSHBuilder builder) {
+        public Option<DataSource> resetIfNecessary(String newJdbcUrl, DSHBuilder builder) {
             final String cleanUrl = newJdbcUrl.trim();
             if( cleanUrl.equalsIgnoreCase( getJdbcUrl() ) ) {
                 return Maybe.empty();
             }
-            final Maybe<DataSource> result = Maybe.something( dsource );
+            final Option<DataSource> result = Maybe.something( dsource );
             setDataSource( builder.url( cleanUrl ).build().getDataSource(), cleanUrl );
             return result;
         }

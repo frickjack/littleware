@@ -8,6 +8,7 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.internal.AssetRetriever;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;

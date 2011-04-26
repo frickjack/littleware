@@ -15,8 +15,8 @@ import java.util.logging.Logger;
 
 
 import java.util.logging.Level;
-import littleware.asset.AssetManager;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.security.*;
 import littleware.security.LittleUser.Builder;

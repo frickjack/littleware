@@ -9,6 +9,8 @@
  */
 package littleware.asset.test;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;

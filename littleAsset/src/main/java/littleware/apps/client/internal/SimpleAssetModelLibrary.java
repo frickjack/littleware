@@ -29,8 +29,8 @@ import littleware.apps.client.AssetModelLibrary;
 import littleware.apps.client.event.AssetModelEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
-import littleware.asset.AssetRetriever;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.internal.AssetRetriever;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.spi.AbstractAsset;
@@ -55,8 +55,8 @@ public class SimpleAssetModelLibrary
     private final Cache<UUID,AssetModel> cache;
 
     @Override
-    public Maybe<Asset> retrieveAsset(UUID u_id, AssetRetriever retriever) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Maybe<AssetModel> maybe = retrieveAssetModel(u_id, retriever);
+    public Option<Asset> retrieveAsset(UUID u_id, AssetRetriever retriever) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        Option<AssetModel> maybe = retrieveAssetModel(u_id, retriever);
         if (!maybe.isSet()) {
             return Maybe.empty();
         }
@@ -283,7 +283,7 @@ public class SimpleAssetModelLibrary
             new TreeMap<AssetType, Map<String, UUID>>();
 
     @Override
-    public synchronized Maybe<AssetModel> getByName(String s_name, AssetType atype) throws InvalidAssetTypeException {
+    public synchronized Option<AssetModel> getByName(String s_name, AssetType atype) throws InvalidAssetTypeException {
         if (!atype.isNameUnique()) {
             throw new InvalidAssetTypeException("Asset type not name-unique: " + atype);
         }
@@ -299,16 +299,16 @@ public class SimpleAssetModelLibrary
     }
 
     @Override
-    public Maybe<AssetModel> getByName(String s_name, AssetType atype,
+    public Option<AssetModel> getByName(String s_name, AssetType atype,
             AssetSearchManager m_search) throws InvalidAssetTypeException,
             BaseException,
             AssetException, GeneralSecurityException, RemoteException {
-        Maybe<AssetModel> maybeModel = getByName(s_name, atype);
+        Option<AssetModel> maybeModel = getByName(s_name, atype);
 
         if (maybeModel.isSet()) {
             return maybeModel;
         }
-        final Maybe<? extends Asset> maybeAsset = m_search.getByName(s_name, atype);
+        final Option<? extends Asset> maybeAsset = m_search.getByName(s_name, atype);
         if (!maybeAsset.isSet()) {
             return Maybe.empty();
         }
@@ -346,14 +346,14 @@ public class SimpleAssetModelLibrary
     }
 
     @Override
-    public synchronized Maybe<AssetModel> retrieveAssetModel(UUID u_id, AssetRetriever m_retriever) throws BaseException,
+    public synchronized Option<AssetModel> retrieveAssetModel(UUID u_id, AssetRetriever m_retriever) throws BaseException,
             AssetException, GeneralSecurityException, RemoteException {
-        Maybe<AssetModel> maybeModel = Maybe.emptyIfNull(get(u_id));
+        Option<AssetModel> maybeModel = Maybe.emptyIfNull(get(u_id));
 
         if (maybeModel.isSet()) {
             return maybeModel;
         }
-        Maybe<Asset> maybeAsset = m_retriever.getAsset(u_id);
+        Option<Asset> maybeAsset = m_retriever.getAsset(u_id);
         if (!maybeAsset.isSet()) {
             return Maybe.empty();
         }
@@ -387,7 +387,7 @@ public class SimpleAssetModelLibrary
     }
 
     @Override
-    public Maybe<AssetModel> assetDeleted(UUID u_deleted) {
+    public Option<AssetModel> assetDeleted(UUID u_deleted) {
         final SimpleAssetModel amodel_deleted = (SimpleAssetModel) remove(u_deleted);
 
         if (null != amodel_deleted) {

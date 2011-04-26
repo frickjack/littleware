@@ -37,7 +37,7 @@ public class SimpleCommentBuilder extends AbstractAssetBuilder<Comment.CommentBu
 
         private transient BucketUtil bucketUtil;
         private transient Feedback feedback = new NullFeedback();
-        private Maybe<String> maybeFullText = Maybe.empty();
+        private Option<String> maybeFullText = Maybe.empty();
 
         public SimpleComment() {
         }

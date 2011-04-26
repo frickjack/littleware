@@ -49,7 +49,7 @@ import littleware.apps.client.AssetView;
 import littleware.apps.client.event.AssetModelEvent;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.Asset;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.LittleHome;
 import littleware.base.Maybe;
 import littleware.base.event.LittleEvent;
@@ -266,7 +266,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                     });
         }
     }
-    Maybe<UUID> littleHomeId = Maybe.empty();
+    Option<UUID> littleHomeId = Maybe.empty();
 
     /**
      * Provide customization hook to subtypes - runs in background thread
@@ -359,7 +359,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                                 continue;  // node already loaded
                             }
                             try {
-                                final Maybe<Asset> maybe = osearch.getAsset(id);
+                                final Option<Asset> maybe = osearch.getAsset(id);
                                 if (maybe.isSet()) {
                                     assignUserObject(node, maybe.get());
                                 }

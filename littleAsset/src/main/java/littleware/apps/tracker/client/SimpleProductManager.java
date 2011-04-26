@@ -29,8 +29,8 @@ import littleware.apps.tracker.MemberIndex;
 import littleware.apps.tracker.ProductManager;
 import littleware.apps.tracker.Version;
 import littleware.apps.tracker.ZipUtil;
-import littleware.asset.AssetManager;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.feedback.Feedback;
 

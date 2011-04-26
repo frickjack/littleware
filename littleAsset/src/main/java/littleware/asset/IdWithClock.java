@@ -35,6 +35,6 @@ public interface IdWithClock {
      * A client that is not tracking id may still chose to load
      * id if the client is tracking id's parent.
      */
-    public Maybe<UUID> getParentId();
+    public Option<UUID> getParentId();
     public long getTimestamp();
 }

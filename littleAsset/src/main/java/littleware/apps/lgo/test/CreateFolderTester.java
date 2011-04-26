@@ -16,8 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.CreateFolderCommand;
 import littleware.asset.Asset;
-import littleware.asset.AssetManager;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.test.AbstractAssetTest;
 import littleware.base.Maybe;
 import littleware.base.feedback.LoggerFeedback;
@@ -39,7 +39,7 @@ public class CreateFolderTester extends AbstractAssetTest {
     public void setUp() {
         try {
             final Asset aHome = getTestHome( search );
-            final Maybe<Asset> maybeDelete = search.getAssetFrom( aHome.getId(),
+            final Option<Asset> maybeDelete = search.getAssetFrom( aHome.getId(),
                     "testCreateFolder"
                     );
             if ( maybeDelete.isSet() ) {

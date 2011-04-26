@@ -9,6 +9,7 @@
  */
 package littleware.asset;
 
+import littleware.asset.client.AssetSearchManager;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;

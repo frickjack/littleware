@@ -9,6 +9,8 @@
  */
 package littleware.security.server.internal;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import littleware.asset.server.NullAssetSpecializer;
 import com.google.inject.Inject;
 import com.google.inject.Provider;

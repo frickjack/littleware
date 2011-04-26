@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.rmi.RemoteException;
 import java.util.logging.Logger;
 import java.security.GeneralSecurityException;
+import javax.security.auth.Subject;
 import littleware.asset.AssetException;
 import littleware.base.BaseException;
 import littleware.net.RemoteRetryHelper;
@@ -38,7 +39,7 @@ public class SessionManagerProxy extends RemoteRetryHelper<RemoteSessionManager>
     }
 
     @Override
-    public LittleSession login(String userName,
+    public Subject login(String userName,
             String password,
             String sessionComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {

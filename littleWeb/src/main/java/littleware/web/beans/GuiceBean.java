@@ -23,7 +23,7 @@ import littleware.base.Maybe;
  */
 @Singleton
 public class GuiceBean {
-    private final Maybe<Injector> maybeInjector;
+    private final Option<Injector> maybeInjector;
 
     /**
      * Inject the injector with which GuiceBean.injectMe

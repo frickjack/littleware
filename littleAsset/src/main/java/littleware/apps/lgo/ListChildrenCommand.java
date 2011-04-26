@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.base.Maybe;
 import littleware.base.Whatever;
@@ -35,7 +35,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<ListChildrenCommand.
     public static class Input {
 
         private final AssetPath path;
-        private final Maybe<AssetType> maybeType;
+        private final Option<AssetType> maybeType;
 
         public Input(AssetPath path, AssetType childType) {
             this.path = path;
@@ -50,7 +50,7 @@ public class ListChildrenCommand extends AbstractLgoCommand<ListChildrenCommand.
             return path;
         }
 
-        public Maybe<AssetType> getChildType() {
+        public Option<AssetType> getChildType() {
             return maybeType;
         }
     }
@@ -82,11 +82,11 @@ public class ListChildrenCommand extends AbstractLgoCommand<ListChildrenCommand.
             mapOpt.put(sTypeOption, null);
             final Map<String, String> mapArgs = processArgs( args, mapOpt );
             final String sPath = mapArgs.get(sPathOption);
-            final Maybe<String> maybeTypeName = Maybe.emptyIfNull(mapArgs.get(sTypeOption));
+            final Option<String> maybeTypeName = Maybe.emptyIfNull(mapArgs.get(sTypeOption));
             if (Whatever.get().empty(sPath)) {
                 throw new IllegalArgumentException("Must specify path to list children under");
             }
-            Maybe<AssetType> maybeType = Maybe.empty();
+            Option<AssetType> maybeType = Maybe.empty();
             if (maybeTypeName.isSet() && (!Whatever.get().empty(maybeTypeName.get()))) {
                 // lookup asset-type
                 final String typeName = maybeTypeName.get().toLowerCase().trim();

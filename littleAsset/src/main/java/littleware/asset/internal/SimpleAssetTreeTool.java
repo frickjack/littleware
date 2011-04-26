@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTool;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;

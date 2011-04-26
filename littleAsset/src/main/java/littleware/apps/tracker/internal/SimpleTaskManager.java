@@ -21,7 +21,7 @@ import littleware.apps.tracker.TaskQuery;
 import littleware.apps.tracker.TaskQueryManager;
 import littleware.apps.tracker.TaskSet;
 import littleware.apps.tracker.TaskSet.IdSetBuilder;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.BaseException;
 
 public class SimpleTaskManager implements TaskManager {

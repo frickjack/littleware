@@ -10,6 +10,7 @@
 
 package littleware.asset.server.internal;
 
+import littleware.asset.client.AssetSearchManager;
 import java.util.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -34,7 +35,7 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
     }
 
     @Override
-    public Maybe<Asset> getByName(String s_name, AssetType n_type) throws BaseException, AssetException,
+    public Option<Asset> getByName(String s_name, AssetType n_type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return search.getByName(s_name, n_type);
     }
@@ -47,7 +48,7 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
     }
 
     @Override
-    public Maybe<Asset> getAsset(UUID u_id) throws BaseException, AssetException,
+    public Option<Asset> getAsset(UUID u_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return search.getAsset(u_id);
     }
@@ -74,13 +75,13 @@ public class RmiSearchManager extends LittleRemoteObject implements AssetSearchM
 
 
     @Override
-    public Maybe<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
+    public Option<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return search.getAssetAtPath(path_asset);
     }
 
     @Override
-    public Maybe<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
+    public Option<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return search.getAssetFrom(u_from, s_name);
     }

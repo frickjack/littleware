@@ -22,7 +22,7 @@ import java.util.logging.Level;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.apps.swingclient.event.RefreshRequestEvent;
-import littleware.asset.AssetRetriever;
+import littleware.asset.internal.AssetRetriever;
 import littleware.asset.client.spi.ClientCache;
 import littleware.base.Maybe;
 import littleware.base.event.LittleEvent;
@@ -124,7 +124,7 @@ public class SimpleAssetViewController implements LittleListener {
                 };
 
             try {
-                final Maybe<AssetModel> maybe = olib_asset.retrieveAssetModel ( u_destination, om_retriever );
+                final Option<AssetModel> maybe = olib_asset.retrieveAssetModel ( u_destination, om_retriever );
                 if ( maybe.isSet() ) {
                     if ( olog_generic.isLoggable(Level.FINE)) {
                         olog_generic.log ( Level.FINE, "Navigationg to " + maybe.get().getAsset () );

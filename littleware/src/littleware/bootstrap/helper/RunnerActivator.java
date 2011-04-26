@@ -1,10 +1,8 @@
 /*
- * Copyright 2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -14,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkEvent;
@@ -28,8 +27,8 @@ import org.osgi.framework.FrameworkListener;
  */
 public abstract class RunnerActivator implements BundleActivator, Runnable {
     private boolean running = false;
-    Maybe<Future<Object>>  maybeFuture = Maybe.empty();
-    Maybe<ExecutorService> maybeExecutor = Maybe.empty();
+    Option<Future<Object>>  maybeFuture = Maybe.empty();
+    Option<ExecutorService> maybeExecutor = Maybe.empty();
 
     /** Launch worker thread once OSGi has started */
     @Override

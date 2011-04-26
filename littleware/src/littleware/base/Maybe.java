@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -20,25 +18,28 @@ import java.util.concurrent.Callable;
  * A little set/not-set object.
  * Facilitates deferred loading and other patterns.
  */
-public class Maybe<T> implements java.io.Serializable, Iterable<T> {
+public class Maybe<T> implements java.io.Serializable, Iterable<T>, Option<T> {
     private static final long serialVersionUID = 10000001L;
 
     private boolean  isSet = false;
     private String errorMessage = null;
 
+    @Override
     public boolean isSet() { return isSet; }
+    @Override
     public boolean isEmpty() { return ! isSet; }
 
     /** Construct an unset Maybe */
-    private Maybe () {}
+    protected Maybe () {}
     /** Construct an isSet Maybe */
-    private Maybe ( T val ) {
+    protected Maybe ( T val ) {
         oval = val;
         isSet = true;
     }
 
     private T  oval;
 
+    @Override
     public T getOr( T alt ) {
         if ( isSet ) {
             return oval;
@@ -47,6 +48,7 @@ public class Maybe<T> implements java.io.Serializable, Iterable<T> {
         }
     }
 
+    @Override
     public T getOrCall( Callable<T> call ) throws Exception {
         if ( isSet ) {
             return oval;
@@ -55,9 +57,7 @@ public class Maybe<T> implements java.io.Serializable, Iterable<T> {
         }
     }
 
-    /**
-     * Get the value if set, otherwise throw NoSuchElementException
-     */
+    @Override
     public T get () {
         if ( ! isSet ) {
             if ( null != errorMessage ) {
@@ -68,10 +68,7 @@ public class Maybe<T> implements java.io.Serializable, Iterable<T> {
         return oval;
     }
 
-    /**
-     * Just calls get() - setup as Property to simplify access
-     * from JSF/JSP expression language, etc.
-     */
+    @Override
     public T getThing() {
         return get();
     }
@@ -79,7 +76,7 @@ public class Maybe<T> implements java.io.Serializable, Iterable<T> {
     @Override
     public boolean equals( final Object other ) {
         if ( other instanceof Maybe ) {
-            final Maybe<?> maybe = (Maybe<?>) other;
+            final Option<?> maybe = (Option<?>) other;
             return (isSet() == maybe.isSet()) &&
                     (isSet() ? get().equals( maybe.get() ) : true);
         } else {
@@ -103,7 +100,7 @@ public class Maybe<T> implements java.io.Serializable, Iterable<T> {
      * @param sError
      * @return this
      */
-    private Maybe<T> putError( String sError ) {
+    private Option<T> putError( String sError ) {
         errorMessage = sError;
         return this;
     }
@@ -114,8 +111,8 @@ public class Maybe<T> implements java.io.Serializable, Iterable<T> {
     }
 
     /** Factory for unset Maybe */
-    public static <T> Maybe<T> empty() { return new Maybe<T>(); }
-    public static <T> Maybe<T> empty( Class<T> type ) { return new Maybe<T>(); }
+    public static <T> Option<T> empty() { return new Maybe<T>(); }
+    public static <T> Option<T> empty( Class<T> type ) { return new Maybe<T>(); }
 
     /**
      * Factory method for unset Maybe
@@ -123,23 +120,40 @@ public class Maybe<T> implements java.io.Serializable, Iterable<T> {
      * @param sError message to attach to the NoSuchElementException if
      *     the client invokes get
      */
-    public static <T> Maybe<T> empty( String sError ) {
+    public static <T> Option<T> empty( String sError ) {
         return new Maybe<T>().putError( sError );
     }
-    public static <T> Maybe<T> empty( Class<T> type, String sError ) {
+    public static <T> Option<T> empty( Class<T> type, String sError ) {
         return new Maybe<T>().putError( sError );
     }
 
     /** Maybe factory set if val is not null */
-    public static <T> Maybe<T> emptyIfNull( T val ) {
+    public static <T> Option<T> emptyIfNull( T val ) {
         if ( null == val ) {
             return new Maybe<T>();
         } else {
             return new Maybe<T>( val );
         }
     }
+
+    public static <T> Option<T> emptyIfNull( Class<T> clazz, T val ) {
+        if ( null == val ) {
+            return new Maybe<T>();
+        } else {
+            return new Maybe<T>( val );
+        }
+    }
+
+    /** emptyIfNull( val ) || val.trim().length == 0 */
+    public static Option<String> emptyString( String val ) {
+        if ( (null == val) || (0 == val.trim().length()) ) {
+            return new Maybe<String>();
+        } else {
+            return new Maybe<String>( val );
+        }
+    }
     /** Factory builds Maybe set with val */
-    public static <T> Maybe<T> something( T val ) {
+    public static <T> Option<T> something( T val ) {
         return new Maybe<T>( val );
     }
 

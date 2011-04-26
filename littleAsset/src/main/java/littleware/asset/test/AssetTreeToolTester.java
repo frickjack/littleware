@@ -20,10 +20,10 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
-import littleware.asset.AssetManager;
+import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.AssetTreeTool;
@@ -66,7 +66,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
     public void setUp() {
         try {
             final LittleHome home = getTestHome(search);
-            Maybe<Asset> maybeRoot = search.getAssetAtPath(
+            Option<Asset> maybeRoot = search.getAssetAtPath(
                     pathFactory.createPath(home.getId(), "TreeToolTester"));
             if (!maybeRoot.isSet()) {
                 maybeRoot = Maybe.something( (Asset)
@@ -78,7 +78,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             final Map<String, UUID> mapChildren = search.getAssetIdsFrom(parentNode.getId(), null);
             for (int i = 0; i < 3; ++i) {
                 final String sChild = "Child" + i;
-                final Maybe<UUID> maybeChildId = Maybe.emptyIfNull(mapChildren.get(sChild));
+                final Option<UUID> maybeChildId = Maybe.emptyIfNull(mapChildren.get(sChild));
                 final TreeNode childNode;
                 final Map<String, UUID> mapBrat;
                 if (!maybeChildId.isSet()) {

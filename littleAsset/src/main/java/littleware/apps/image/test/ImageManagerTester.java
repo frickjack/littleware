@@ -62,7 +62,7 @@ public class ImageManagerTester extends LittleTest {
             BufferedImage img = ImageIO.read(ImageManagerTester.class.getClassLoader().getResource("littleware/apps/image/test/testImage.png"));
             Asset         a_test = osession.copy().timestamp(-1).build();
 
-            final Maybe<BufferedImage> maybe_load1 = omgrImage.loadImage( a_test.getId (), ImageManager.SizeOption.r128x128 );
+            final Option<BufferedImage> maybe_load1 = omgrImage.loadImage( a_test.getId (), ImageManager.SizeOption.r128x128 );
             a_test = omgrImage.saveImage(a_test, img, "saving new reference image" );
             assertTrue( "Able to load image after save",
                     omgrImage.loadImage( a_test.getId(), ImageManager.SizeOption.r128x128 ).isSet()

@@ -7,6 +7,8 @@
  */
 package littleware.security.auth.server.internal;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import littleware.security.auth.client.SessionManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -216,13 +218,13 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         // Who am I running as now ?  What the frick ?
         final LittleUser user;
         {
-            Maybe<? extends Asset> maybeUser = search.getByName(s_name, LittleUser.USER_TYPE);
+            Option<? extends Asset> maybeUser = search.getByName(s_name, LittleUser.USER_TYPE);
             if (!maybeUser.isSet()) {
                 try {
-                    maybeUser = Subject.doAs(adminSubject, new PrivilegedExceptionAction<Maybe<Asset>>() {
+                    maybeUser = Subject.doAs(adminSubject, new PrivilegedExceptionAction<Option<Asset>>() {
 
                         @Override
-                        public Maybe<Asset> run() throws BaseException, GeneralSecurityException, RemoteException {
+                        public Option<Asset> run() throws BaseException, GeneralSecurityException, RemoteException {
                             for (AssetTreeTemplate.AssetInfo treeInfo : userTreeBuilder.get().user(s_name).build().visit(search.getByName("littleware.home", LittleHome.HOME_TYPE).get().narrow(LittleHome.class), search)) {
                                 if (!treeInfo.getAssetExists()) {
                                     assetMgr.saveAsset(treeInfo.getAsset(), "Setup new user: " + s_name);
@@ -279,7 +281,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements SessionM
         // Create the session asset as the admin user - session has null from-id
         try {
             final Asset home = search.getByName("littleware.home", LittleHome.HOME_TYPE).get();
-            final Maybe<Asset> maybe = search.getAssetFrom(home.getId(), serverVersionName);
+            final Option<Asset> maybe = search.getAssetFrom(home.getId(), serverVersionName);
             if (maybe.isSet()) {
                 return maybe.get().narrow(GenericAsset.class).getData();
             } else {

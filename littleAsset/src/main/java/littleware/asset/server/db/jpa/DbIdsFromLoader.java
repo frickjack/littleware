@@ -30,13 +30,13 @@ import littleware.db.DbReader;
 public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
 
     private static final Logger olog = Logger.getLogger(DbIdsFromLoader.class.getName());
-    private final Maybe<AssetType> maybeType;
-    private final Maybe<Integer> maybeState;
+    private final Option<AssetType> maybeType;
+    private final Option<Integer> maybeState;
     private final UUID uFrom;
     private final Provider<JpaLittleTransaction> oprovideTrans;
 
     public DbIdsFromLoader(Provider<JpaLittleTransaction> provideTrans,
-            UUID uFrom, Maybe<AssetType> maybeType, Maybe<Integer> maybeState) {
+            UUID uFrom, Option<AssetType> maybeType, Option<Integer> maybeState) {
         this.maybeType = maybeType;
         this.uFrom = uFrom;
         this.maybeState = maybeState;

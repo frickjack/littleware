@@ -22,7 +22,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import littleware.apps.image.ImageManager;
 import littleware.apps.image.ThumbManager;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
@@ -40,7 +40,7 @@ public class SimpleThumbManager implements ThumbManager {
 
         private final boolean isFallback;
         private final BufferedImage img;
-        private Maybe<ImageIcon> maybeIcon = Maybe.empty();
+        private Option<ImageIcon> maybeIcon = Maybe.empty();
 
         private synchronized ImageIcon renderIcon() {
             if (maybeIcon.isSet()) {
@@ -121,7 +121,7 @@ public class SimpleThumbManager implements ThumbManager {
         this.cache = cache;
 
         try {
-            final Maybe<BufferedImage> maybeDefault = imageManager.loadImage(search.getHomeAssetIds().get("littleware.home"), ImageManager.SizeOption.r64x64);
+            final Option<BufferedImage> maybeDefault = imageManager.loadImage(search.getHomeAssetIds().get("littleware.home"), ImageManager.SizeOption.r64x64);
             if (maybeDefault.isSet()) {
                 setDefault(maybeDefault.get());
             }
@@ -138,13 +138,13 @@ public class SimpleThumbManager implements ThumbManager {
     @Override
     public Thumb loadThumb(UUID assetId) throws BaseException, GeneralSecurityException, IOException {
         {
-            final Maybe<Thumb> maybeThumb = cache.getThumb(assetId);
+            final Option<Thumb> maybeThumb = cache.getThumb(assetId);
             if (maybeThumb.isSet()) {
                 return maybeThumb.get();
             }
         }
 
-        final Maybe<BufferedImage> maybeImage = imageManager.loadImage(assetId, ImageManager.SizeOption.r64x64);
+        final Option<BufferedImage> maybeImage = imageManager.loadImage(assetId, ImageManager.SizeOption.r64x64);
         if (maybeImage.isSet()) {
             final ThumbManager.Thumb thumb = new SimpleThumb(maybeImage.get());
             cache.putThumb(assetId, thumb);

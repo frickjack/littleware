@@ -90,7 +90,7 @@ public class ImageUploadBean extends InjectMeBean {
     public String processImage() {
         final String failed = "imageUploadFailed";
         try {
-            final Maybe<Asset> maybe = search.getAssetAtPath(pathFactory.createPath(path));
+            final Option<Asset> maybe = search.getAssetAtPath(pathFactory.createPath(path));
             if (maybe.isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage("BadPath", "Failed to load asset at " + path));

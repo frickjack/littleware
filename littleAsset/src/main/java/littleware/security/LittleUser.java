@@ -95,7 +95,7 @@ public interface LittleUser extends LittlePrincipal {
         }
 
         @Override
-        public Maybe<AssetType> getSuperType() {
+        public Option<AssetType> getSuperType() {
             return Maybe.something((AssetType) LittlePrincipal.PRINCIPAL_TYPE);
         }
 

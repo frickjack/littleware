@@ -39,7 +39,7 @@ import littleware.apps.swingclient.controller.ExtendedAssetViewController;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.EventBarrier;
 import littleware.base.Maybe;
@@ -52,7 +52,7 @@ import littleware.security.auth.client.ClientLoginModule;
 /**
  * Launch a Swing browser, and return the whatever
  */
-public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrier<Maybe<UUID>>> {
+public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrier<Option<UUID>>> {
 
     private final static Logger log = Logger.getLogger(LgoBrowserCommand.class.getName());
     private final Services services;
@@ -146,7 +146,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
             return buildSafe( path );
         }
     }
-    private final EventBarrier<Maybe<UUID>> barrier = new EventBarrier<Maybe<UUID>>();
+    private final EventBarrier<Option<UUID>> barrier = new EventBarrier<Option<UUID>>();
 
     /**
      * Container for the different Swing components
@@ -202,7 +202,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
      * @return where the user stops browsing
      */
     @Override
-    public EventBarrier<Maybe<UUID>> runCommand(Feedback feedback) throws Exception {
+    public EventBarrier<Option<UUID>> runCommand(Feedback feedback) throws Exception {
         final AssetPath startPath = getInput();
         final Asset startAsset = services.getSearch().getAssetAtPath(startPath).get();
         SwingUtilities.invokeLater(new Runnable() {

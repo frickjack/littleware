@@ -9,6 +9,8 @@
  */
 package littleware.asset.test;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;
@@ -90,7 +92,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
           final TreeNode testNode;
           { // update the test asset
               final String name = "testTransactionLog";
-              final Maybe<Asset> maybeTest = search.getAssetFrom( home.getId(), name);
+              final Option<Asset> maybeTest = search.getAssetFrom( home.getId(), name);
               if ( maybeTest.isSet() ) {
                   testNode = assetMan.saveAsset( maybeTest.get(), "force an update for testing" ).narrow();
               } else {

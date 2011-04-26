@@ -9,6 +9,7 @@
  */
 package littleware.asset.server.internal;
 
+import littleware.asset.internal.AssetRetriever;
 import com.google.inject.Provider;
 import java.rmi.RemoteException;
 import java.sql.*;
@@ -61,7 +62,7 @@ public class LocalAssetRetriever implements AssetRetriever {
     }
 
     @Override
-    public Maybe<Asset> getAsset(UUID u_id) throws BaseException, AssetException,
+    public Option<Asset> getAsset(UUID u_id) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         if (null == u_id) {
             return Maybe.empty("Null id passed to getAsset");
@@ -195,7 +196,7 @@ public class LocalAssetRetriever implements AssetRetriever {
         try {
             final List<Asset> v_result = new ArrayList<Asset>();
             for (UUID u_id : v_id) {
-                final Maybe<Asset> maybe = getAsset(u_id);
+                final Option<Asset> maybe = getAsset(u_id);
                 if (maybe.isSet()) {
                     v_result.add(maybe.get());
                 }

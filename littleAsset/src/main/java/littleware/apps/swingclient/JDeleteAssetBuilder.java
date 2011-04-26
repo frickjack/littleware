@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import littleware.asset.Asset;
-import littleware.asset.AssetManager;
+import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetTreeTool;
@@ -125,8 +125,8 @@ public class JDeleteAssetBuilder implements DeleteAssetStrategy.Builder {
         private static final long serialVersionUID = -6337174636253604664L;
         private final Feedback feedback;
         private final UUID rootId;
-        private Maybe<List<AssetWithPath>> maybeAssetList = Maybe.empty();
-        private Maybe<? extends Future<?>> maybeRunning = Maybe.empty();
+        private Option<List<AssetWithPath>> maybeAssetList = Maybe.empty();
+        private Option<? extends Future<?>> maybeRunning = Maybe.empty();
         private final Action deleteAction = new AbstractAction("Ok") {
 
             @Override
@@ -209,8 +209,8 @@ public class JDeleteAssetBuilder implements DeleteAssetStrategy.Builder {
          * @param maybeProgress
          * @param maybeAppender
          */
-        private void buildUI(Maybe<JProgressBar> maybeProgress,
-                Maybe<JTextAppender> maybeAppender) {
+        private void buildUI(Option<JProgressBar> maybeProgress,
+                Option<JTextAppender> maybeAppender) {
             deleteAction.setEnabled(false);
             cancelAction.setEnabled(false);
             final GridBagWrap grid = GridBagWrap.wrap(this);
@@ -236,8 +236,8 @@ public class JDeleteAssetBuilder implements DeleteAssetStrategy.Builder {
         public JDeleteAssetStrategy(UUID rootId, Feedback feedback) {
             this.rootId = rootId;
             this.feedback = feedback;
-            final Maybe<JProgressBar> maybeProgress = Maybe.empty();
-            final Maybe<JTextAppender> maybeAppender = Maybe.empty();
+            final Option<JProgressBar> maybeProgress = Maybe.empty();
+            final Option<JTextAppender> maybeAppender = Maybe.empty();
             buildUI(maybeProgress, maybeAppender);
         }
 

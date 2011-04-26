@@ -61,7 +61,7 @@ public interface ImageManager {
      * @param id of asset image associated with
      * @param size of image to retrieve
      */
-    public Maybe<BufferedImage>   loadImage( UUID id,
+    public Option<BufferedImage>   loadImage( UUID id,
             SizeOption size
             ) throws BaseException, GeneralSecurityException, RemoteException, IOException;
 

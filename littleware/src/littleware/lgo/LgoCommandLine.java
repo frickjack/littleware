@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.lgo;
@@ -20,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.bootstrap.LittleBootstrap;
@@ -68,7 +66,7 @@ public class LgoCommandLine {
      * @return command exit-status
      */
     public int processCommand(String sCommand, List<String> processArgs, String sArg, Feedback feedback) {
-        final Maybe<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(sCommand);
+        final Option<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(sCommand);
         try {
             if (maybe.isEmpty() || sCommand.equalsIgnoreCase("help")) {
                 System.out.println("Command use:");

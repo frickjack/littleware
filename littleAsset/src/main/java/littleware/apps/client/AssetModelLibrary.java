@@ -19,8 +19,8 @@ import java.security.GeneralSecurityException;
 
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
-import littleware.asset.AssetRetriever;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.internal.AssetRetriever;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.base.BaseException;
@@ -49,7 +49,7 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @return cached asset-model or null
      * @throws InvalidAssetTypeException if atype is not name-unique
      */
-    public Maybe<AssetModel> getByName( String s_name, AssetType atype
+    public Option<AssetModel> getByName( String s_name, AssetType atype
             ) throws InvalidAssetTypeException;
     
     /**
@@ -67,7 +67,7 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @throws java.security.GeneralSecurityException
      * @throws java.rmi.RemoteException
      */
-    public Maybe<AssetModel> getByName( String s_name, AssetType atype,
+    public Option<AssetModel> getByName( String s_name, AssetType atype,
             AssetSearchManager m_search
             ) throws InvalidAssetTypeException,
         BaseException, 
@@ -99,12 +99,12 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @throws AssetException may be thrown by AssetRetriever.getAssetOrNull
      * @throws RemoteException may be thrown by AssetRetriever.getAssetOrNull
      */
-    public Maybe<AssetModel> retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException,
+    public Option<AssetModel> retrieveAssetModel ( UUID u_id, AssetRetriever m_retriever ) throws BaseException,
         AssetException, GeneralSecurityException, RemoteException;
     /**
      * Convenience dereferences model, or returns null if model is null
      */
-    public Maybe<Asset> retrieveAsset( UUID u_id, AssetRetriever retriever ) throws BaseException,
+    public Option<Asset> retrieveAsset( UUID u_id, AssetRetriever retriever ) throws BaseException,
         AssetException, GeneralSecurityException, RemoteException;
     
     /**
@@ -151,7 +151,7 @@ public interface AssetModelLibrary extends Cache<UUID,AssetModel> {
      * @param u_deleted id of asset that has been deleted
      * @return the AssetModel removed from the library or null if not in library
      */
-    public Maybe<AssetModel> assetDeleted ( UUID u_deleted );
+    public Option<AssetModel> assetDeleted ( UUID u_deleted );
 }
 
 

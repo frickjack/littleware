@@ -9,6 +9,7 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.asset.internal.AssetRetriever;
 import com.google.inject.Inject;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
@@ -65,7 +66,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
                                 final UUID uNew = (deleted.getFromId() != null) ? deleted.getFromId() : deleted.getHomeId();
                                 getFeedback().info("Asset in view deleted, moving to view " + uNew);
                                 try {
-                                    final Maybe<AssetModel> maybe = lib.retrieveAssetModel(uNew, om_retriever);
+                                    final Option<AssetModel> maybe = lib.retrieveAssetModel(uNew, om_retriever);
                                     if (maybe.isSet()) {
                                         setAssetModel(maybe.get());
                                     } else {

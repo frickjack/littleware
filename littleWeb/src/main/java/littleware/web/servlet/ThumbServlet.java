@@ -58,7 +58,7 @@ public class ThumbServlet extends LittleServlet {
         ImageManager.SizeOption size = ImageManager.SizeOption.r128x128;
         try {
             if (null != pathString) {
-                final Maybe<Asset> maybe = search.getAssetAtPath(pathFactory.createPath(pathString));
+                final Option<Asset> maybe = search.getAssetAtPath(pathFactory.createPath(pathString));
                 if (maybe.isSet()) {
                     id = maybe.get().getId();
                 }

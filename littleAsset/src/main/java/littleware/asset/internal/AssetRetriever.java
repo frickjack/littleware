@@ -5,7 +5,7 @@
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset;
+package littleware.asset.internal;
 
 
 import java.security.GeneralSecurityException;
@@ -14,6 +14,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import littleware.asset.Asset;
+import littleware.asset.AssetException;
+import littleware.asset.AssetType;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
 import littleware.base.Maybe;
@@ -63,7 +66,7 @@ public interface AssetRetriever extends java.rmi.Remote {
      */
     public
     @ReadOnly
-    Maybe<Asset> getAsset(UUID assetId) throws BaseException,
+    Option<Asset> getAsset(UUID assetId) throws BaseException,
             GeneralSecurityException, RemoteException;
 
     /**

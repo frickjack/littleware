@@ -217,7 +217,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
         return linkMap;
     }
 
-    public Maybe<UUID> getLink(String key) {
+    public Option<UUID> getLink(String key) {
         return Maybe.emptyIfNull(linkMap.get(key));
     }
 
@@ -225,7 +225,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
         return dateMap;
     }
 
-    public Maybe<Date> getDate(String key) {
+    public Option<Date> getDate(String key) {
         return Maybe.emptyIfNull(dateMap.get(key));
     }
 
@@ -233,7 +233,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
         return attributeMap;
     }
 
-    public Maybe<String> getAttribute(String key) {
+    public Option<String> getAttribute(String key) {
         return Maybe.emptyIfNull(attributeMap.get(key));
     }
 

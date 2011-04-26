@@ -21,7 +21,7 @@ import littleware.apps.client.AssetModel;
 import littleware.apps.client.AssetModelLibrary;
 import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.asset.Asset;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.GenericAsset;
 import littleware.asset.LittleHome;
 import littleware.asset.test.AbstractAssetTest;

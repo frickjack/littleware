@@ -16,7 +16,7 @@ import java.util.Date;
 
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
-import littleware.asset.AssetRetriever;
+import littleware.asset.internal.AssetRetriever;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.base.BaseException;

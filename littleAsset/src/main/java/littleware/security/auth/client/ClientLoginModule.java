@@ -9,6 +9,7 @@
  */
 package littleware.security.auth.client;
 
+import littleware.asset.client.AssetSearchManager;
 import littleware.security.internal.SimpleRole;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
@@ -228,7 +229,7 @@ public class ClientLoginModule implements LoginModule {
 
                 for (String aclName : aclNameList) {
                     try {
-                        final Maybe<Asset> maybeAcl = search.getByName(aclName,
+                        final Option<Asset> maybeAcl = search.getByName(aclName,
                                 LittleAcl.ACL_TYPE);
                         if (maybeAcl.isSet()) {
                             final LittleAcl acl_check = maybeAcl.get().narrow();

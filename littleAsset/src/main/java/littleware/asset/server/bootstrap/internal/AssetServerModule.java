@@ -9,6 +9,9 @@
  */
 package littleware.asset.server.bootstrap.internal;
 
+import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetManager;
+import littleware.asset.internal.AssetRetriever;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -112,7 +115,7 @@ public class AssetServerModule extends AbstractServerModule {
 
         private final int registryPort;
         private boolean localRegistry = false;
-        private Maybe<Registry> maybeRegistry;
+        private Option<Registry> maybeRegistry;
         private final SessionManager sessionMgr;
 
         @Inject

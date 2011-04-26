@@ -9,6 +9,7 @@
 
 package littleware.net;
 
+import littleware.base.Maybe;
 import littleware.base.cache.CacheableObject;
 import littleware.base.event.LittleTool;
 

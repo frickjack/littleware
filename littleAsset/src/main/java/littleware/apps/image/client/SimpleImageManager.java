@@ -99,10 +99,10 @@ public class SimpleImageManager implements ImageManager {
                 });
         return result;
     }
-    private static final Maybe<BufferedImage> empty = Maybe.empty();
+    private static final Option<BufferedImage> empty = Maybe.empty();
 
     @Override
-    public Maybe<BufferedImage> loadImage(UUID id, ImageManager.SizeOption size) throws BaseException, GeneralSecurityException, RemoteException, IOException {
+    public Option<BufferedImage> loadImage(UUID id, ImageManager.SizeOption size) throws BaseException, GeneralSecurityException, RemoteException, IOException {
         final ImageCache.CacheEntry entry = cache.cacheGet(id, size);
         if (entry.isInCache()) {
             return entry.getImage();
@@ -116,7 +116,7 @@ public class SimpleImageManager implements ImageManager {
         }
         final byte[] data = bucketUtil.readAll(id, path, feedback );
         final BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
-        final Maybe<BufferedImage> result = Maybe.something(img);
+        final Option<BufferedImage> result = Maybe.something(img);
         cache.cachePut(id, size, result);
         return result;
     }

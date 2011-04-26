@@ -46,12 +46,12 @@ public class PropertiesLoader {
     private static final Map<String, Properties> cache = new HashMap<String, Properties>();
     private static final String LITTLEHOME = "littleware.home";
     
-    private  final Maybe<File> maybeHome;
+    private  final Option<File> maybeHome;
     private final Properties  defaultProperties;
 
 
     {
-        Maybe<File> maybe = Maybe.empty();
+        Option<File> maybe = Maybe.empty();
         try {
             String sHome = System.getProperty( LITTLEHOME );
             if ( null == sHome ) {
@@ -84,7 +84,7 @@ public class PropertiesLoader {
      * @return File referencing littleware home directory, or
      *           null if unable to locate and create
      */
-    public Maybe<File> getLittleHome () {
+    public Option<File> getLittleHome () {
         return maybeHome;
     }
     

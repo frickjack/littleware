@@ -161,7 +161,7 @@ public class Whatever {
         return sb.toString();
     }
 
-    public <T extends Enum<T>> Maybe<T> findEnumIgnoreCase(String lookFor, T[] values) {
+    public <T extends Enum<T>> Option<T> findEnumIgnoreCase(String lookFor, T[] values) {
         for (T scan : values) {
             if (lookFor.equalsIgnoreCase(scan.toString())) {
                 return Maybe.something(scan);

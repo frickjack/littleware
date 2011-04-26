@@ -27,7 +27,7 @@ import littleware.apps.image.ImageManager;
 import littleware.apps.image.ImageManager.SizeOption;
 import littleware.apps.image.ThumbManager;
 import littleware.apps.image.ThumbManager.Thumb;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.Maybe;
 import littleware.base.PropertiesLoader;
 import littleware.base.UUIDFactory;
@@ -88,7 +88,7 @@ public class SimpleImageCache implements ImageCache {
 
     private static class SimpleEntry implements CacheEntry {
 
-        private final Maybe<BufferedImage> maybeImage;
+        private final Option<BufferedImage> maybeImage;
         private final CacheKey key;
         private final boolean isInCache;
 
@@ -98,7 +98,7 @@ public class SimpleImageCache implements ImageCache {
             this.maybeImage = Maybe.empty();
         }
 
-        public SimpleEntry(CacheKey key, Maybe<BufferedImage> maybeImage) {
+        public SimpleEntry(CacheKey key, Option<BufferedImage> maybeImage) {
             this.key = key;
             this.maybeImage = maybeImage;
             this.isInCache = true;
@@ -120,14 +120,14 @@ public class SimpleImageCache implements ImageCache {
         }
 
         @Override
-        public Maybe<BufferedImage> getImage() {
+        public Option<BufferedImage> getImage() {
             if (isInCache) {
                 return maybeImage;
             }
             throw new IllegalStateException("CacheEntry is not in cache");
         }
     }
-    private final Cache<CacheKey, Maybe<BufferedImage>> cache;
+    private final Cache<CacheKey, Option<BufferedImage>> cache;
     private final Cache<UUID, ThumbManager.Thumb> thumbCache;
     private final File dirCache = new File(PropertiesLoader.get().getLittleHome().getOr(new File(System.getProperty("java.io.tmpdir"))), "imageCache");
 
@@ -149,7 +149,7 @@ public class SimpleImageCache implements ImageCache {
     }
 
     @Override
-    public Maybe<ThumbManager.Thumb> getThumb(UUID assetId) {
+    public Option<ThumbManager.Thumb> getThumb(UUID assetId) {
         return Maybe.emptyIfNull(thumbCache.get(assetId));
     }
 
@@ -182,7 +182,7 @@ public class SimpleImageCache implements ImageCache {
     public CacheEntry cacheGet(UUID assetId, SizeOption size) {
         final CacheKey key = new CacheKey(assetId, size, dirCache);
         { // check in-memory cache
-            final Maybe<BufferedImage> maybe = cache.get(key);
+            final Option<BufferedImage> maybe = cache.get(key);
 
             if (null != maybe) {
                 return new SimpleEntry(key, maybe);
@@ -207,7 +207,7 @@ public class SimpleImageCache implements ImageCache {
             }
         }
 
-        Maybe<BufferedImage> maybe = Maybe.empty();
+        Option<BufferedImage> maybe = Maybe.empty();
         if (transaction > 0) {
             // check image-save transaction against asset's current transaction value
             try {
@@ -230,7 +230,7 @@ public class SimpleImageCache implements ImageCache {
     }
 
     @Override
-    public void cachePut(UUID assetId, SizeOption size, Maybe<BufferedImage> maybe) {
+    public void cachePut(UUID assetId, SizeOption size, Option<BufferedImage> maybe) {
         final CacheKey key = new CacheKey(assetId, size, dirCache);
         removeFromCache(key);  // clear memory and disk cache
         if (!dirCache.exists()) { // user may have deleted this

@@ -1,15 +1,14 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.asset.client.internal;
 
+import com.google.inject.Inject;
 import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.ClientCache;
 import java.rmi.RemoteException;
@@ -26,11 +25,11 @@ import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
-import littleware.asset.client.AssetSearchService;
 import littleware.asset.client.spi.LittleServiceBus;
+import littleware.asset.internal.RemoteAssetSearchManager;
 import littleware.base.BaseException;
 import littleware.base.cache.Cache;
 import littleware.base.Maybe;
@@ -38,11 +37,11 @@ import littleware.base.Maybe;
 /**
  * Smart proxy for AssetSearchManager
  */
-public class SimpleAssetSearchService implements AssetSearchService {
+public class SimpleAssetSearchService implements AssetSearchManager {
     private static final long serialVersionUID = 1830540427533232520L;
 
     // Do not use final with Serializable stuff
-    private AssetSearchManager     server;
+    private final RemoteAssetSearchManager     server;
     private final LittleServiceBus eventBus;
     private final ClientCache      clientCache;
 
@@ -51,20 +50,18 @@ public class SimpleAssetSearchService implements AssetSearchService {
      *
      * @param server to wrap with events
      */
-    public SimpleAssetSearchService( AssetSearchManager server,
+    @Inject
+    public SimpleAssetSearchService( RemoteAssetSearchManager server,
             LittleServiceBus eventBus,
             ClientCache cache ) {
         this.server = server;
-        if ( this.server instanceof AssetSearchService ) {
-            throw new IllegalArgumentException( "Attempt to double wrap LittleService smart proxy" );
-        }
         this.eventBus = eventBus;
         this.clientCache = cache;
     }
 
     @Override
-    public Maybe<Asset> getByName(String s_name, AssetType n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final Maybe<Asset> result = server.getByName( s_name, n_type );
+    public Option<Asset> getByName(String s_name, AssetType n_type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final Option<Asset> result = server.getByName( s_name, n_type );
         if ( result.isSet() ) {
             eventBus.fireEvent( new AssetLoadEvent( this, result.get() ) );
         }
@@ -73,10 +70,10 @@ public class SimpleAssetSearchService implements AssetSearchService {
 
 
     @Override
-    public Maybe<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Option<Asset> getAssetAtPath(AssetPath path_asset) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Cache<String,Object> cache = clientCache.getCache();
         final String sKey = "path:" + path_asset;
-        Maybe<Asset> result = Maybe.emptyIfNull( (Asset) cache.get( sKey ) );
+        Option<Asset> result = Maybe.emptyIfNull( (Asset) cache.get( sKey ) );
         if ( ! result.isSet() ) {
             result = server.getAssetAtPath( path_asset );
         }
@@ -94,8 +91,8 @@ public class SimpleAssetSearchService implements AssetSearchService {
     }
 
     @Override
-    public Maybe<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final Maybe<Asset> result = server.getAssetFrom( u_from, s_name );
+    public Option<Asset> getAssetFrom(UUID u_from, String s_name) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final Option<Asset> result = server.getAssetFrom( u_from, s_name );
         if ( result.isSet() ) {
             eventBus.fireEvent( new AssetLoadEvent( this, result.get() ) );
         }
@@ -122,12 +119,12 @@ public class SimpleAssetSearchService implements AssetSearchService {
     }
 
     @Override
-    public Maybe<Asset> getAsset(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Option<Asset> getAsset(UUID u_id) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         if ( null == u_id ) {
             return Maybe.empty();
         }
 
-        Maybe<Asset> result = Maybe.emptyIfNull( clientCache.get( u_id ) );
+        Option<Asset> result = Maybe.emptyIfNull( clientCache.get( u_id ) );
         if ( ! result.isSet() ) {
             result = server.getAsset( u_id );
         }

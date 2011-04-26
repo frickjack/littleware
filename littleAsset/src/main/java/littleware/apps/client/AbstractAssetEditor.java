@@ -18,7 +18,7 @@ import littleware.base.BaseException;
 import littleware.asset.AssetException;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
-import littleware.asset.AssetManager;
+import littleware.asset.client.AssetManager;
 
 
 /** 

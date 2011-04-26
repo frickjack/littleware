@@ -9,6 +9,7 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetSearchManager;
 import com.google.inject.Inject;
 import java.awt.*;
 import java.awt.datatransfer.*;
@@ -215,7 +216,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         jLabelRender.setForeground(Color.BLUE);
         jLabelRender.setText(s_name);
         try {
-            final Maybe<AssetModel> maybe = olibAsset.retrieveAssetModel(u_id, osearch);
+            final Option<AssetModel> maybe = olibAsset.retrieveAssetModel(u_id, osearch);
             if (maybe.isSet()) {
                 final Asset a_linkto = maybe.get().getAsset();
                 configureLabel(a_linkto, jLabelRender);
@@ -257,7 +258,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
             try {
                 // Try to incorporate the "to" asset info
                 final Icon iconBase = iconType;
-                final Maybe<Asset> maybeTo = osearch.getAsset(linkToId);
+                final Option<Asset> maybeTo = osearch.getAsset(linkToId);
                 if (maybeTo.isSet()) {
                     final Icon iconTo = olib_icon.lookupIcon(maybeTo.get());
 

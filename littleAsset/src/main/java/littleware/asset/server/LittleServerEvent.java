@@ -29,7 +29,7 @@ public class LittleServerEvent extends EventObject {
     private final UUID  id = UUID.randomUUID();
     private final Asset assetSource;
     private final Subject subject;
-    private final Maybe<LittleServerEvent> maybeParent;
+    private final Option<LittleServerEvent> maybeParent;
 
     public LittleServerEvent( Asset source ) {
         super( source );
@@ -53,5 +53,5 @@ public class LittleServerEvent extends EventObject {
      * Get event id - helps avoid loops
      */
     public UUID    getId() { return id; }
-    public Maybe<LittleServerEvent>  getParent() { return maybeParent; }
+    public Option<LittleServerEvent>  getParent() { return maybeParent; }
 }

@@ -26,7 +26,7 @@ import littleware.apps.client.*;
 import littleware.apps.swingclient.controller.SimpleAssetViewController;
 import littleware.apps.swingclient.event.SelectAssetEvent;
 import littleware.asset.Asset;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.event.LittleListener;
 import littleware.base.event.LittleTool;
 import littleware.base.event.helper.SimpleLittleTool;

@@ -7,6 +7,7 @@
  */
 package littleware.apps.swingclient.event;
 
+import littleware.asset.client.AssetRef;
 import littleware.apps.client.*;
 import littleware.base.event.LittleEvent;
 
@@ -16,23 +17,23 @@ import littleware.base.event.LittleEvent;
 public class DeleteRequestEvent extends LittleEvent {
 
     private static final String OS_OPERATION = "DeleteRequestEvent";
-    private final AssetModel oamodel_delete;
+    private final AssetRef oamodel_delete;
 
     /**
      * Setup the DeleteRequestEvent
      *
      * @param source of the event
-     * @param amodel_delete AssetModel the client wants to delete
+     * @param amodel_delete AssetRef the client wants to delete
      */
-    public DeleteRequestEvent(Object source, AssetModel amodel_delete) {
+    public DeleteRequestEvent(Object source, AssetRef amodel_delete) {
         super(source);
         oamodel_delete = amodel_delete;
     }
 
     /**
-     * Get the AssetModel that the client wants to delete
+     * Get the AssetRef that the client wants to delete
      */
-    public AssetModel getAssetModel() {
+    public AssetRef getAssetModel() {
         return oamodel_delete;
     }
 }

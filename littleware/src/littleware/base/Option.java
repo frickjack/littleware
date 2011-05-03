@@ -27,5 +27,5 @@ public interface Option<T> extends Iterable<T> {
      * Just calls get() - setup as Property to simplify access
      * from JSF/JSP expression language, etc.
      */
-    public T getThing();
+    public T getRef();
 }

@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.event.ActionListener;
@@ -45,12 +47,12 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
     private final JAssetLink           owalink_edit;
     private final AssetSearchManager   om_search;  
     private final IconLibrary          olib_icon;
-    private final AssetModelLibrary    olib_asset;
+    private final AssetLibrary    olib_asset;
     private final AssetViewFactory     ofactory_view;
     
     private       JAssetBrowser        oview_browser = null;
     private       JDialog              owdial_browser = null;
-    private       AssetModel           oamodel_fallback = null;
+    private       AssetRef           oamodel_fallback = null;
     private final Provider<JAssetBrowser> oprovideBrowser;
     private final Provider<JSimpleAssetToolbar> oprovideToolbar;
     private final SimpleAssetViewController obrowserControl;
@@ -68,9 +70,9 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
      */
     @Inject
     public JAssetLinkEditor ( AssetSearchManager m_search, 
-                              AssetModelLibrary lib_asset,
+                              AssetLibrary lib_asset,
                               IconLibrary lib_icon,
-                              AssetModel amodel_fallback,
+                              AssetRef amodel_fallback,
                               AssetViewFactory factory_view,
                               Provider<JAssetLink> provideLinkView,
                               Provider<JAssetBrowser> provideBrowser,
@@ -250,14 +252,14 @@ public class JAssetLinkEditor extends JPanel implements LittleTool {
     /**
      * Get the current fallback asset to start browsing at if the link is inaccessible
      */
-    public AssetModel getFallbackAsset () {
+    public AssetRef getFallbackAsset () {
         return oamodel_fallback;
     }
     
     /**
      * Set the fallback asset.  NOOP if NULL
      */
-    public void setFallbackAsset ( AssetModel amodel_fallback ) {
+    public void setFallbackAsset ( AssetRef amodel_fallback ) {
         if ( null != amodel_fallback ) {
             oamodel_fallback = amodel_fallback;
         }

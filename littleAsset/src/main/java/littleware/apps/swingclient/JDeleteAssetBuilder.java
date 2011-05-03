@@ -33,7 +33,7 @@ import littleware.asset.Asset;
 import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetTreeTool;
+import littleware.asset.client.AssetTreeTool;
 import littleware.base.Maybe;
 import littleware.base.feedback.Feedback;
 import littleware.base.swing.GridBagWrap;

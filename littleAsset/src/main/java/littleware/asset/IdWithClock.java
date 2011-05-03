@@ -3,16 +3,13 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.asset;
 
-import com.google.inject.ImplementedBy;
 import java.util.UUID;
-import littleware.base.Maybe;
+import littleware.base.Option;
 
 /**
  * Little POJO returned by AssetSearchManager.checkTransactionLog

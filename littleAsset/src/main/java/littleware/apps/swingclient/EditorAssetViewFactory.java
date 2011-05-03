@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
 import com.google.inject.Inject;
 
 import com.google.inject.Provider;
@@ -47,7 +48,7 @@ public class EditorAssetViewFactory extends SimpleAssetViewFactory implements As
     }
     
     @Override
-    public AssetEditor createView ( AssetModel model_asset ) {
+    public AssetEditor createView ( AssetRef model_asset ) {
         return (AssetEditor) super.createView( model_asset );
     }
     

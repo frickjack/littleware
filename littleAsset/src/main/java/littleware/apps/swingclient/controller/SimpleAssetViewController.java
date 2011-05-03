@@ -10,6 +10,9 @@
 
 package littleware.apps.swingclient.controller;
 
+import littleware.apps.swingclient.AssetView;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +25,7 @@ import java.util.logging.Level;
 import littleware.apps.client.*;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.apps.swingclient.event.RefreshRequestEvent;
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.internal.RemoteAssetRetriever;
 import littleware.asset.client.spi.ClientCache;
 import littleware.base.Maybe;
 import littleware.base.event.LittleEvent;
@@ -39,8 +42,8 @@ import littleware.base.feedback.NullFeedback;
 public class SimpleAssetViewController implements LittleListener {
     private static final Logger      olog_generic = Logger.getLogger ( "littleware.apps.swingclient.controller.SimpleAssetViewController" );
     private AssetView          oview_control = null;
-    private final AssetRetriever     om_retriever;
-    private final AssetModelLibrary  olib_asset;
+    private final RemoteAssetRetriever     om_retriever;
+    private final AssetLibrary  olib_asset;
     private final ClientCache oclientCache;
     private Feedback ofeedback = new NullFeedback();
     
@@ -53,8 +56,8 @@ public class SimpleAssetViewController implements LittleListener {
      */
     @Inject
     public SimpleAssetViewController ( 
-                                       AssetRetriever m_retriever,
-                                       AssetModelLibrary  lib_asset,
+                                       RemoteAssetRetriever m_retriever,
+                                       AssetLibrary  lib_asset,
                                        ClientCache        clientCache
                                        ) {      
         om_retriever = m_retriever;
@@ -124,7 +127,7 @@ public class SimpleAssetViewController implements LittleListener {
                 };
 
             try {
-                final Option<AssetModel> maybe = olib_asset.retrieveAssetModel ( u_destination, om_retriever );
+                final Option<AssetRef> maybe = olib_asset.retrieveAssetModel ( u_destination, om_retriever );
                 if ( maybe.isSet() ) {
                     if ( olog_generic.isLoggable(Level.FINE)) {
                         olog_generic.log ( Level.FINE, "Navigationg to " + maybe.get().getAsset () );

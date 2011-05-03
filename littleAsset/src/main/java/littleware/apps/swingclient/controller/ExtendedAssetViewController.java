@@ -9,6 +9,11 @@
  */
 package littleware.apps.swingclient.controller;
 
+import littleware.apps.swingclient.AssetViewFactory;
+import littleware.apps.swingclient.AssetEditorFactory;
+import littleware.apps.swingclient.AssetEditor;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.TreeNode.TreeNodeBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -50,7 +55,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
     private static final Logger log = Logger.getLogger("littleware.apps.swingclient.controller.ExtendedAssetViewController");
     private final AssetManager om_asset;
     private final AssetSearchManager om_search;
-    private final AssetModelLibrary olib_asset;
+    private final AssetLibrary olib_asset;
     private final IconLibrary olib_icon;
     private final LittleSession oa_session;
     private final AssetEditorFactory ofactory_edit;
@@ -74,7 +79,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
     public ExtendedAssetViewController(
             AssetSearchManager m_search,
             AssetManager m_asset,
-            AssetModelLibrary lib_asset,
+            AssetLibrary lib_asset,
             AssetEditorFactory factory_edit,
             AssetViewFactory factory_view,
             IconLibrary lib_icon,
@@ -105,11 +110,11 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
     public void receiveLittleEvent(LittleEvent event_little) {
         if ((event_little instanceof CreateRequestEvent)
                 || (event_little instanceof EditRequestEvent)) {
-            AssetModel amodel_edit = null;
+            AssetRef amodel_edit = null;
 
             if (event_little instanceof CreateRequestEvent) {
                 final CreateRequestEvent event_create = (CreateRequestEvent) event_little;
-                final AssetModel amodel_view = event_create.getAssetModel();
+                final AssetRef amodel_view = event_create.getAssetModel();
                 final TreeNode.TreeNodeBuilder assetBuilder = nodeProvider.get().
                         ownerId(oa_session.getOwnerId()).
                         name("username.new_asset");
@@ -117,7 +122,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
                 int i_create_result = Wizard.ERROR_RETURN_CODE;
                 final CreateAssetWizard wizard_create = oprovideWizard.get();
                 try {
-                    // Give the asset local changes not in the AssetModelLibrary
+                    // Give the asset local changes not in the AssetLibrary
                     if (null != amodel_view) {
                         assetBuilder.parent(amodel_view.getAsset().narrow( TreeParent.class ));
                     }
@@ -162,7 +167,7 @@ public class ExtendedAssetViewController extends SimpleAssetViewController {
             }
         } else if (event_little instanceof DeleteRequestEvent) {
             final DeleteRequestEvent event_delete = (DeleteRequestEvent) event_little;
-            final AssetModel amodel_delete = event_delete.getAssetModel();
+            final AssetRef amodel_delete = event_delete.getAssetModel();
             final Asset a_delete = amodel_delete.getAsset();
             final JDeleteAssetBuilder.JDeletePanel delete = buildDelete.build(a_delete.getId());
             final JDialog dialog = new JDialog();

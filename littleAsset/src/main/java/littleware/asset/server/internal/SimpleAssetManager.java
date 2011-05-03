@@ -1,19 +1,13 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset.server.internal;
 
-import littleware.asset.client.AssetSearchManager;
-import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import java.rmi.RemoteException;
 
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
@@ -23,10 +17,11 @@ import java.util.logging.Level;
 
 //import littleware.apps.filebucket.server.DeleteCBProvider;
 import littleware.asset.*;
-import littleware.asset.server.AbstractLittleTransaction;
 import littleware.asset.server.AssetSpecializerRegistry;
+import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleTransaction;
-import littleware.asset.server.PermissionCache;
+import littleware.asset.server.ServerAssetManager;
+import littleware.asset.server.ServerSearchManager;
 import littleware.security.server.QuotaUtil;
 import littleware.asset.server.db.*;
 import littleware.base.*;
@@ -51,126 +46,82 @@ import littleware.security.*;
  * if set*Manager is not invoked, then method invocation will
  * attempt to initialize those managers from the security ResourceBundle.
  */
-public class SimpleAssetManager implements AssetManager {
-
+public class SimpleAssetManager implements ServerAssetManager {
     private static final Logger log = Logger.getLogger(SimpleAssetManager.class.getName());
+
     private final DbAssetManager dbMgr;
-    private final AssetSearchManager search;
+    private final ServerSearchManager search;
     private final Factory<UUID> uuidFactory = UUIDFactory.getFactory();
     private final QuotaUtil quotaUtil;
-    private final AssetSpecializerRegistry specialRegistry;
-    private final Provider<LittleTransaction> provideTrans;
-    private final Provider<LittleTransaction> provideSaveCycle =
-            new ThreadLocalProvider<LittleTransaction>() {
-
-                @Override
-                protected LittleTransaction build() {
-                    return new AbstractLittleTransaction() {
-
-                        @Override
-                        protected void endDbAccess(int iLevel) {
-                        }
-
-                        @Override
-                        protected void endDbUpdate(boolean b_rollback, int iUpdateLevel) {
-                        }
-
-                        @Override
-                        public long getTimestamp() {
-                            throw new UnsupportedOperationException("Not supported yet.");
-                        }
-                    };
-                }
-            };
-    //private final DeleteCBProvider provideBucketCB;
-    private final PermissionCache permissionCache;
-    private final Provider<LittleUser> provideCaller;
+    private final AssetSpecializerRegistry specializerReg;
 
     /**
-     * Constructor sets up internal data source.
-     * NOTE: the dependency on AccountManager may be injected later
-     *     via setAccountManager to deal with circular dependency.
-     *
-     * @param sql_data_source
-     * @param m_cache asset cache manager
-     * @param m_retriever to delegate asset-retrieval to
-     * @param m_db to obtain database controllers from
-     * @param m_account for Quota ops. - may be null,
-     *              but must inject later via setAccountManager
+     * Constructor injects dependencies.
      */
     @Inject
     public SimpleAssetManager(
-            AssetSearchManager m_search,
-            DbAssetManager m_db,
-            QuotaUtil quota,
-            AssetSpecializerRegistry registry_special,
-            Provider<LittleTransaction> provideTrans,
-            //littleware.apps.filebucket.server.DeleteCBProvider provideBucketCB,
-            PermissionCache cachePermission,
-            Provider<LittleUser> provideCaller) {
-        search = m_search;
-        dbMgr = m_db;
-        quotaUtil = quota;
-        specialRegistry = registry_special;
-        this.provideTrans = provideTrans;
-        //this.provideBucketCB = provideBucketCB;
-        this.permissionCache = cachePermission;
-        this.provideCaller = provideCaller;
+            ServerSearchManager search,
+            DbAssetManager dbMgr,
+            QuotaUtil quotaUtil,
+            AssetSpecializerRegistry specializerReg
+            ) {
+        this.search = search;
+        this.dbMgr = dbMgr;
+        this.quotaUtil = quotaUtil;
+        this.specializerReg = specializerReg;
     }
 
-    /**
-     * Verify that the given string is properly formatted XML
-     */
-    public static boolean isValidXml(String s_xml) {
-        // TODO: fill this in!!
-        return true;
-    }
 
     @Override
-    public void deleteAsset(UUID u_asset,
+    public void deleteAsset( LittleContext ctx, UUID u_asset,
             String s_update_comment) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
+            GeneralSecurityException {
         try {
-            final LittlePrincipal caller = provideCaller.get();
+            final LittlePrincipal caller = ctx.getCaller();
             // Get the asset for ourselves - make sure it's a valid asset
-            Asset asset = search.getAsset(u_asset).get();
+            Asset asset = search.getAsset(ctx,u_asset).get();
             final AssetBuilder builder = asset.copy();
             builder.setLastUpdateDate(new Date());
             builder.setLastUpdaterId(caller.getId());
             builder.setLastUpdate(s_update_comment);
             // make sure caller has write permission too ...
-            asset = saveAsset(builder.build(), s_update_comment);
+            asset = saveAsset(ctx, builder.build(), s_update_comment);
 
-            final LittleTransaction trans_delete = provideTrans.get();
+            final LittleTransaction trans_delete = ctx.getTransaction();
             boolean b_rollback = true;
             trans_delete.startDbUpdate();
             try {
                 DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter();
                 sql_writer.saveObject(asset);
 
-                specialRegistry.getService(asset.getAssetType()).postDeleteCallback(asset);
+                specializerReg.getService(asset.getAssetType()).postDeleteCallback(ctx,asset);
                 b_rollback = false;
                 //trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
                 final AssetType type = builder.getAssetType();
+                /*..
                 if (type.isA(LittleAcl.ACL_TYPE) || type.isA(LittleAclEntry.ACL_ENTRY) || type.isA(LittleGroup.GROUP_TYPE) || type.isA(LittleGroupMember.GROUP_MEMBER_TYPE)) {
                     permissionCache.clear();
                 }
+                 * 
+                 */
             } finally {
                 trans_delete.endDbUpdate(b_rollback);
             }
-        } catch (AssetException e) { // pass through
-            throw e;
-        } catch (SQLException e) {
-            throw new DataAccessException("Unexpected: " + e);
+        } catch (AssetException ex) { // pass through
+            throw ex;
+        } catch (SQLException ex) {
+            // do not chain SQL Exception - remote client may not have the class loaded
+            log.log( Level.INFO, "Failed call", ex );
+            throw new DataAccessException("Unexpected: " + ex);
         }
     }
 
     @Override
-    public <T extends Asset> T saveAsset(T asset,
+    public <T extends Asset> T saveAsset( LittleContext ctx, T asset,
             String s_update_comment) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
+            GeneralSecurityException {
         log.log(Level.FINE, "Check enter");
-        final LittleUser userCaller = provideCaller.get();
+        final LittleUser userCaller = ctx.getCaller();
         // Get the asset for ourselves - make sure it's a valid asset
         Asset oldAsset = null;
         final AssetBuilder builder = asset.copy();
@@ -190,11 +141,10 @@ public class SimpleAssetManager implements AssetManager {
         }
 
         // Don't lookup the same asset more than once in this timestamp
-        final LittleTransaction trans_save = provideTrans.get();
+        final LittleTransaction trans_save = ctx.getTransaction();
         final Map<UUID, Asset> v_cache = trans_save.startDbAccess();
         // Don't save the same asset more than once in this timestamp
-        final Map<UUID, Asset> v_save_cycle = provideSaveCycle.get().startDbAccess();
-        final boolean bCallerIsAdmin = permissionCache.isAdmin(userCaller, search);
+        final boolean bCallerIsAdmin = ctx.isAdmin();
         final boolean cycleSave;  // is this a save via a callback ?  - avoid infinite loops
 
         try {
@@ -205,20 +155,20 @@ public class SimpleAssetManager implements AssetManager {
                     builder.setHomeId(asset.getId());
                 }
                 cycleSave = false;
-            } else if (v_save_cycle.containsKey(asset.getId())) {
+            } else if (ctx.checkIfSaved(asset.getId()).isSet() ) {
                 //log.log(Level.WARNING, "Save cycle detected - not saving " + asset);
                 //return asset;
-                oldAsset = v_save_cycle.get(asset.getId());
+                oldAsset = ctx.checkIfSaved(asset.getId()).get();
                 cycleSave = true;
             } else {
-                oldAsset = search.getAsset(asset.getId()).getOr(null);
+                oldAsset = search.getAsset(ctx,asset.getId()).getOr(null);
                 cycleSave = false;
             }
 
             //olog_generic.log(Level.FINE, "Check pre-save");
             try {
                 if (null == oldAsset) {
-                    if (asset.getAssetType().isNameUnique() && search.getByName(asset.getName(), asset.getAssetType()).isSet()) {
+                    if (asset.getAssetType().isNameUnique() && search.getByName(ctx, asset.getName(), asset.getAssetType()).isSet()) {
                         throw new AlreadyExistsException("Asset of type " + asset.getAssetType() + " with name " + asset.getName() + " already exists");
                     }
                     // Check name-unique asset types
@@ -226,11 +176,14 @@ public class SimpleAssetManager implements AssetManager {
                     if ( (null == builder.getCreatorId()) || (! bCallerIsAdmin) ) {
                         builder.setCreatorId(userCaller.getId());
                     }
+                    /*... disable quota stuff for now ...
                     // Check the caller's quota
                     if (v_save_cycle.isEmpty()) {
                         log.log(Level.FINE, "Incrementing quota before saving: {0}", asset);
                         quotaUtil.incrementQuotaCount(userCaller, this, search);
                     }
+                     *
+                     */
                     // Only allow admins to create new users and homes, etc.
                     if (asset.getAssetType().isAdminToCreate() && (!bCallerIsAdmin)) {
                         throw new AccessDeniedException("Must be in ADMIN group to create asset of type: "
@@ -243,7 +196,7 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     if ((!asset.getName().equals(oldAsset.getName())) && asset.getAssetType().isNameUnique()) {
 
-                        if (search.getByName(asset.getName(), asset.getAssetType()).isSet()) {
+                        if (search.getByName(ctx, asset.getName(), asset.getAssetType()).isSet()) {
                             throw new AlreadyExistsException("Asset of type " + asset.getAssetType() + " with name " + asset.getName() + " already exists");
                         }
                     }
@@ -261,7 +214,7 @@ public class SimpleAssetManager implements AssetManager {
 
                     if ((!bCallerIsAdmin) && (!oldAsset.getOwnerId().equals(userCaller.getId()))) {
                         // Need to have all the permissions to UPDATE an asset
-                        if (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, oldAsset.getAclId())) {
+                        if (!ctx.checkPermission( LittlePermission.WRITE, oldAsset.getAclId())) {
                             throw new AccessDeniedException("Caller " + userCaller + " does not have permission: " + LittlePermission.WRITE + " for asset: " + oldAsset.getId());
                         }
                         if (!oldAsset.getOwnerId().equals(asset.getOwnerId())) {
@@ -280,7 +233,7 @@ public class SimpleAssetManager implements AssetManager {
                     builder.setHomeId(asset.getId());
                 } else {
                     log.log(Level.FINE, "Retrieving HOME");
-                    final Asset a_home = search.getAsset(asset.getHomeId()).get();
+                    final Asset a_home = search.getAsset(ctx, asset.getHomeId()).get();
                     log.log(Level.FINE, "Got HOME");
                     if (!a_home.getAssetType().equals(LittleHome.HOME_TYPE)) {
                         throw new IllegalArgumentException("Home id must link to HOME type asset");
@@ -297,10 +250,10 @@ public class SimpleAssetManager implements AssetManager {
                 if ((null != asset.getFromId()) && ((null == oldAsset) || (! asset.getFromId().equals( oldAsset.getFromId())))) {
                     log.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
-                    final Asset a_from = search.getAsset( asset.getFromId()).get();
+                    final Asset a_from = search.getAsset( ctx, asset.getFromId()).get();
 
-                    if ((!a_from.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search))) {
-                        if (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_from.getAclId())) {
+                    if ((!a_from.getOwnerId().equals(userCaller.getId())) && (!ctx.isAdmin())) {
+                        if (!ctx.checkPermission( LittlePermission.WRITE, a_from.getAclId())) {
                             throw new AccessDeniedException("Caller " + userCaller
                                     + " may not link from asset " + a_from.getId()
                                     + " without permission " + LittlePermission.WRITE);
@@ -326,21 +279,20 @@ public class SimpleAssetManager implements AssetManager {
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver();
                     sql_writer.saveObject(assetSave);
 
-                    v_save_cycle.put(assetSave.getId(), assetSave);
+                    ctx.savedAsset(assetSave);
                     v_cache.put(assetSave.getId(), assetSave);
 
                     if (null == oldAsset) {
-                        specialRegistry.getService(assetSave.getAssetType()).postCreateCallback(assetSave);
+                        specializerReg.getService(assetSave.getAssetType()).postCreateCallback(ctx, assetSave);
                     } else if (!cycleSave) { // do not make multiple callbacks on same asset
-                        specialRegistry.getService(assetSave.getAssetType()).postUpdateCallback(oldAsset, assetSave);
+                        specializerReg.getService(assetSave.getAssetType()).postUpdateCallback(ctx, oldAsset, assetSave);
                     } else {
-                        log.log(Level.FINE, "Bypassing save-callback on cycle-save asset " + assetSave.getId()
-                                + "/" + assetSave.getAssetType() + "/" + assetSave.getName());
+                        log.log(Level.FINE, "Bypassing save-callback on cycle-save asset {0}/{1}/{2}", new Object[]{assetSave.getId(), assetSave.getAssetType(), assetSave.getName()});
                     }
 
                     final AssetType type = assetSave.getAssetType();
                     if (type.isA(LittleAcl.ACL_TYPE) || type.isA(LittleAclEntry.ACL_ENTRY) || type.isA(LittleGroup.GROUP_TYPE) || type.isA(LittleGroupMember.GROUP_MEMBER_TYPE)) {
-                        permissionCache.clear();
+                        //permissionCache.clear();
                     }
 
                     b_rollback = false;
@@ -354,7 +306,7 @@ public class SimpleAssetManager implements AssetManager {
                     }
                     throw ex;
                 }
-                return (T) search.getAsset(assetSave.getId()).get();
+                return (T) search.getAsset(ctx, assetSave.getId()).get();
             } catch (Throwable ex) {
                 // Should check SQLException error-string for specific error translation here ...
                 // Do not propagate database exception to client - may not be serializable
@@ -369,15 +321,14 @@ public class SimpleAssetManager implements AssetManager {
             }
 
         } finally {
-            provideSaveCycle.get().endDbAccess(v_save_cycle);
             trans_save.endDbAccess(v_cache);
         }
     }
 
     @Override
-    public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets, String s_update_comment) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        final LittleTransaction trans_batch = provideTrans.get();
+    public Collection<Asset> saveAssetsInOrder(LittleContext ctx, Collection<Asset> v_assets, String s_update_comment) throws BaseException, AssetException,
+            GeneralSecurityException {
+        final LittleTransaction trans_batch = ctx.getTransaction();
         boolean b_rollback = true;
 
         final List<Asset> result = new ArrayList<Asset>();
@@ -385,7 +336,7 @@ public class SimpleAssetManager implements AssetManager {
         trans_batch.startDbUpdate();
         try {
             for (Asset a_save : v_assets) {
-                result.add(saveAsset(a_save, s_update_comment));
+                result.add(saveAsset(ctx,a_save, s_update_comment));
             }
             b_rollback = false;
         } finally {

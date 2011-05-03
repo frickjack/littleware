@@ -9,6 +9,8 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
@@ -29,7 +31,7 @@ import java.util.Arrays;
 import javax.swing.*;
 
 import littleware.apps.client.*;
-import littleware.apps.client.event.AssetModelEvent;
+import littleware.asset.client.AssetActionEvent;
 import littleware.apps.swingclient.event.*;
 import littleware.asset.*;
 import littleware.base.BaseException;
@@ -60,9 +62,9 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
     private final AssetSearchManager om_search;
     private final AssetManager om_asset;
     private final IconLibrary olib_icon;
-    private final AssetModelLibrary olib_asset;
+    private final AssetLibrary olib_asset;
     private boolean ob_changed = false;
-    private AssetModel omodel_view = null;
+    private AssetRef omodel_view = null;
     private Asset oa_local = null;
     private final JAssetLink owlink_asset;
     private final JTextField owtext_name = new JTextField(60);
@@ -181,7 +183,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
      * Build the UI - initialized to a null asset.  
      * Populates the "Generic" editor tab.
      * Subsequent call to setAssetModel() call updateUI()
-     * to configure the UI to view a particular AssetModel.
+     * to configure the UI to view a particular AssetRef.
      *
      * @param wpanel_build to build into - usually this
      */
@@ -277,7 +279,7 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
      */
     @Inject
     public JGenericAssetEditor(
-            AssetModelLibrary libAsset,
+            AssetLibrary libAsset,
             AssetManager m_asset,
             AssetSearchManager m_search,
             IconLibrary lib_icon,
@@ -392,12 +394,12 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
     }
 
     @Override
-    public AssetModel getAssetModel() {
+    public AssetRef getAssetModel() {
         return oeditor_util.getAssetModel();
     }
 
     @Override
-    public void setAssetModel(AssetModel model_view) {
+    public void setAssetModel(AssetRef model_view) {
         oeditor_util.setAssetModel(model_view);
     }
 
@@ -438,13 +440,13 @@ public class JGenericAssetEditor extends JPanel implements AssetEditor {
     /**
      * Trigger a UI sync call to updateAssetUI
      * if the LittleEvent comes from
-     * the getAssetModel() AssetModel (data model update).
+     * the getAssetModel() AssetRef (data model update).
      */
     protected void eventFromModel(LittleEvent evt_in) {
         if (evt_in.getSource() == getAssetModel()) {
-            if (evt_in instanceof AssetModelEvent) {
-                AssetModelEvent evt_asset = (AssetModelEvent) evt_in;
-                if (evt_asset.getOp().equals(AssetModel.Operation.assetUpdated)) {
+            if (evt_in instanceof AssetActionEvent) {
+                AssetActionEvent evt_asset = (AssetActionEvent) evt_in;
+                if (evt_asset.getOp().equals(AssetRef.Operation.assetUpdated)) {
                     clearLocalChanges();
                 }
             }

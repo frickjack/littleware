@@ -24,7 +24,9 @@
     <available file="${ivy.jar.file}" property="ivyjar.exists"/>
     <condition property="skip.download">
         <and>
+            <!--
             <isset property="settings.exists" />
+            -->
             <isset property="ivyjar.exists" />
         </and>
     </condition>

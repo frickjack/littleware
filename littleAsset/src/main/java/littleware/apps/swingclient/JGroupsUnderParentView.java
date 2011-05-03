@@ -8,6 +8,8 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetSearchManager;
 import java.beans.PropertyChangeListener;
 import java.util.*;
@@ -28,14 +30,14 @@ import littleware.security.*;
 /**
  * Specialization of JGroupListView that implements a
  * view of the Groups and their members linking FROM the AssetView model.
- * The view adds each groups to the AssetModelLibrary, and listens for
+ * The view adds each groups to the AssetLibrary, and listens for
  * property changes.
  */
 public class JGroupsUnderParentView extends JGroupListView implements AssetView {
     private static final Logger         log = Logger.getLogger ( "littleware.apps.swingclient.JGroupsUnderParentView" );
     private static final long serialVersionUID = 1251881511039167615L;
     
-    private final AssetModelLibrary     olib_asset;
+    private final AssetLibrary     olib_asset;
     private final DefaultListModel      olmodel_groups;
     private final AssetSearchManager    om_search;
     
@@ -67,7 +69,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
     private final LittleListener  olisten_children = new LittleListener () {
         @Override
         public void receiveLittleEvent ( LittleEvent event_groupmodel ) {
-            final AssetModel  amodel_source = (AssetModel) event_groupmodel.getSource ();
+            final AssetRef  amodel_source = (AssetRef) event_groupmodel.getSource ();
             final LittleGroup group_source = amodel_source.getAsset ().narrow( LittleGroup.class );
             // find the group in the list model
             final int i_size = olmodel_groups.getSize ();
@@ -91,7 +93,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
      * @param lmodel_groups data model listing visible groups maintained for super class
      * @param m_search asset repository simple search
      */
-    private JGroupsUnderParentView ( AssetModelLibrary  lib_asset,
+    private JGroupsUnderParentView ( AssetLibrary  lib_asset,
                                      IconLibrary        lib_icon,
                                      DefaultListModel   lmodel_groups,
                                      AssetSearchManager m_search,
@@ -110,7 +112,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
      * @param lib_icon icon library
      * @param m_search asset repository simple search
      */    
-    public JGroupsUnderParentView ( AssetModelLibrary lib_asset,
+    public JGroupsUnderParentView ( AssetLibrary lib_asset,
                                     IconLibrary lib_icon,
                                     AssetSearchManager m_search,
                                     JAssetLinkRenderer renderLinkCell
@@ -144,7 +146,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
     }
     
     @Override
-    public AssetModel getAssetModel () {
+    public AssetRef getAssetModel () {
         return oaview_delegate.getAssetModel ();
     }
     
@@ -159,7 +161,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
               r_list.hasNext ();
               )
         {
-            AssetModel  amodel_group = olib_asset.get ( ((Asset) r_list.next ()).getId () );
+            AssetRef  amodel_group = olib_asset.get ( ((Asset) r_list.next ()).getId () );
             if ( null != amodel_group ) {
                 amodel_group.removeLittleListener ( olisten_children );
             }
@@ -199,7 +201,7 @@ public class JGroupsUnderParentView extends JGroupListView implements AssetView 
      * GROUP children of the new model.
      */
     @Override
-    public void setAssetModel ( AssetModel model_asset ) {
+    public void setAssetModel ( AssetRef model_asset ) {
         Asset a_root = model_asset.getAsset ();
         setRoot ( a_root );
         oaview_delegate.setAssetModel ( model_asset );

@@ -7,6 +7,7 @@
  */
 package littleware.apps.swingclient.event;
 
+import littleware.asset.client.AssetRef;
 import littleware.apps.client.*;
 import littleware.base.event.LittleEvent;
 
@@ -16,7 +17,7 @@ import littleware.base.event.LittleEvent;
 public class EditRequestEvent extends LittleEvent {
 
     private static final String OS_OPERATION = "EditRequestEvent";
-    private final AssetModel oamodel_edit;
+    private final AssetRef oamodel_edit;
 
     /**
      * Setup the EditRequestEvent
@@ -24,15 +25,15 @@ public class EditRequestEvent extends LittleEvent {
      * @param x_source of the event
      * @param amodel_edit that the client wants to edit
      */
-    public EditRequestEvent(Object x_source, AssetModel amodel_edit) {
+    public EditRequestEvent(Object x_source, AssetRef amodel_edit) {
         super(x_source);
         oamodel_edit = amodel_edit;
     }
 
     /**
-     * Get the AssetModel that the client wants to edit
+     * Get the AssetRef that the client wants to edit
      */
-    public AssetModel getAssetModel() {
+    public AssetRef getAssetModel() {
         return oamodel_edit;
     }
 }

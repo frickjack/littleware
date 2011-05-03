@@ -7,8 +7,9 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.client;
+package littleware.asset.client.internal;
 
+import littleware.asset.client.AssetLibrary;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.List;
@@ -28,7 +29,7 @@ public interface ServerSync extends LittleListener {
     /**
      * The library to check against the server
      */
-    public AssetModelLibrary getLibrary();
+    public AssetLibrary getLibrary();
 
     /** Get an immutable copy of the set of home ids currently under consideration */
     public Set<UUID> getHomeIdSet();
@@ -43,13 +44,13 @@ public interface ServerSync extends LittleListener {
     /**
      * Just exposed for testing - call checkTransactionLog,
      * then return a list of ids for
-     * assets in the AssetModelLibrary out of sync with
+     * assets in the AssetLibrary out of sync with
      * the log.  Updates minTransaction property as a side effect.
      */
     public List<UUID> findOldAssets() throws BaseException, GeneralSecurityException, RemoteException;
 
     /**
-     * Reload the assets from findOldAssets, and sync them into the AssetModelLibrary.
+     * Reload the assets from findOldAssets, and sync them into the AssetLibrary.
      * Also removes deleted assets from the littleware.asset.client.ClientCache.
      */
     public List<UUID> syncWithServer() throws BaseException, GeneralSecurityException, RemoteException;

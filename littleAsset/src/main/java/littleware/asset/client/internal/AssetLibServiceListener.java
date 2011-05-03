@@ -3,13 +3,12 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.client;
+package littleware.asset.client.internal;
 
+import littleware.asset.client.AssetLibrary;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,19 +22,19 @@ import littleware.base.event.LittleListener;
 /**
  * Singleton service listener registers itself at OSGi bootstrap
  * time as a SessionHelper service listener,
- * then automatically updates the AssetModelLibrary based
+ * then automatically updates the AssetLibrary based
  * on ServiceEvents fired by LittleServices.
  * Launches background thread that attempts to keep local
  * data in sync with remote repository.
  */
-public class AssetModelServiceListener implements LittleListener {
-    private static final Logger     log = Logger.getLogger( AssetModelServiceListener.class.getName() );
+public class AssetLibServiceListener implements LittleListener {
+    private static final Logger     log = Logger.getLogger( AssetLibServiceListener.class.getName() );
 
-    private final AssetModelLibrary libAsset;
+    private final AssetLibrary libAsset;
 
     @Inject
-    public AssetModelServiceListener( LittleServiceBus bus,
-            AssetModelLibrary libAsset
+    public AssetLibServiceListener( LittleServiceBus bus,
+            AssetLibrary libAsset
             ) {
         this.libAsset = libAsset;
         bus.addLittleListener(this);

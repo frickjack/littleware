@@ -3,14 +3,14 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.client;
+package littleware.asset.client.internal;
 
-import littleware.apps.client.internal.SimpleServerSync;
-import littleware.apps.client.internal.SimpleAssetModelLibrary;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
+import littleware.asset.client.internal.SimpleServerSync;
+import littleware.asset.client.internal.SimpleAssetLibrary;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -23,21 +23,22 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.asset.client.bootstrap.helper.AbstractClientModule;
-import littleware.asset.client.bootstrap.SessionModule;
-import littleware.asset.client.bootstrap.SessionModuleFactory;
+import littleware.asset.client.internal.AssetLibServiceListener;
 import littleware.base.event.LittleListener;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
+import littleware.bootstrap.AppModule;
+import littleware.bootstrap.AppModuleFactory;
+import littleware.bootstrap.helper.AbstractAppModule;
 import littleware.security.auth.LittleSession;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
  * Module activates services that attempt to keep client cache
- * and AssetModel library in sync with server state.
+ * and AssetRef library in sync with server state.
  */
-public class ClientSyncModule extends AbstractClientModule {
+public class ClientSyncModule extends AbstractAppModule {
 
     private static final Logger log = Logger.getLogger(ClientSyncModule.class.getName());
     private static final Collection<Class<? extends LittleListener>> serviceListeners;
@@ -45,22 +46,22 @@ public class ClientSyncModule extends AbstractClientModule {
     static {
         final ImmutableList.Builder<Class<? extends LittleListener>> builder =
                 ImmutableList.builder();
-        serviceListeners = builder.add(AssetModelServiceListener.class
+        serviceListeners = builder.add(AssetLibServiceListener.class
                 ).add( ServerSync.class
                 ).build();
     }
 
-    public static class Factory implements SessionModuleFactory {
+    public static class Factory implements AppModuleFactory {
 
         @Override
-        public SessionModule build(AppProfile profile) {
+        public AppModule build(AppProfile profile) {
             return new ClientSyncModule( profile );
         }
 
     }
 
     private ClientSyncModule(AppBootstrap.AppProfile profile) {
-        super(profile, serviceListeners);
+        super(profile);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class ClientSyncModule extends AbstractClientModule {
 
     @Override
     public void configure( Binder binder ) {
-        binder.bind(AssetModelLibrary.class).to(SimpleAssetModelLibrary.class).in(Scopes.SINGLETON);
+        binder.bind(AssetLibrary.class).to(SimpleAssetLibrary.class).in(Scopes.SINGLETON);
         binder.bind( ServerSync.class ).to( SimpleServerSync.class ).in( Scopes.SINGLETON );
     }
 
@@ -86,7 +87,7 @@ public class ClientSyncModule extends AbstractClientModule {
     new littleware.apps.misc.StandardMiscGuice(),
 
 
-    this.getOSGiActivator().add(AssetModelServiceListener.class);
+    this.getOSGiActivator().add(AssetLibServiceListener.class);
     this.getOSGiActivator().add(CacheActivator.class);
     this.getOSGiActivator().add(SyncWithServer.class);
     this.getOSGiActivator().add(LgoActivator.class);
@@ -103,9 +104,9 @@ public class ClientSyncModule extends AbstractClientModule {
      * want an asset-model injected into the constructor
      */
     @Provides
-    public AssetModel getDefaultModel(
+    public AssetRef getDefaultModel(
             LittleSession session,
-            AssetModelLibrary libAsset) {
+            AssetLibrary libAsset) {
         return libAsset.syncAsset(session);
     }
 

@@ -9,7 +9,7 @@
  */
 package littleware.security.auth.internal;
 
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.internal.RemoteAssetRetriever;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
 import java.rmi.RemoteException;
@@ -63,7 +63,7 @@ public class SimpleSessionBuilder extends AbstractAssetBuilder<LittleSession.Bui
         private transient Subject subject;
 
         @Override
-        public Subject getSubject(AssetRetriever m_retriever) throws BaseException, AssetException,
+        public Subject getSubject(RemoteAssetRetriever m_retriever) throws BaseException, AssetException,
                 GeneralSecurityException, RemoteException {
             if (null == subject) {
                 final LittleUser a_user = m_retriever.getAsset(getOwnerId()).get().narrow();

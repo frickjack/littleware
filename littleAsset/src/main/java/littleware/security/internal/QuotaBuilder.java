@@ -9,7 +9,7 @@
  */
 package littleware.security.internal;
 
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.internal.RemoteAssetRetriever;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
 import java.rmi.RemoteException;
@@ -294,7 +294,7 @@ public class QuotaBuilder extends AbstractAssetBuilder<Quota.Builder> implements
         }
 
         @Override
-        public Quota getNextInChain(AssetRetriever retriever) throws BaseException, AssetException,
+        public Quota getNextInChain(RemoteAssetRetriever retriever) throws BaseException, AssetException,
                 GeneralSecurityException, RemoteException {
             return (Quota) retriever.getAsset(getToId()).getOr(null);
         }
@@ -305,7 +305,7 @@ public class QuotaBuilder extends AbstractAssetBuilder<Quota.Builder> implements
         }
 
         @Override
-        public LittleUser getUser(AssetRetriever retriever) throws BaseException, AssetException,
+        public LittleUser getUser(RemoteAssetRetriever retriever) throws BaseException, AssetException,
                 GeneralSecurityException, RemoteException {
             return (LittleUser) retriever.getAsset(getFromId()).getOr(null);
         }

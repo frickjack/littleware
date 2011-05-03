@@ -19,9 +19,8 @@ import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
-import littleware.base.Maybe;
 import littleware.base.NoSuchThingException;
-import littleware.base.ReadOnly;
+import littleware.base.Option;
 import littleware.security.AccessDeniedException;
 
 
@@ -34,14 +33,14 @@ import littleware.security.AccessDeniedException;
  * Intended for internal (between servers and managers) use only - 
  * clients should interact with littleware.asset via 
  * the AssetSearchManager implementation - which may manage multiple
- * AssetRetriever's under the hood.
+ * RemoteAssetRetriever's under the hood.
  *
- * An AssetRetriever uses the AssetSpecializer associated with a loaded
+ * An RemoteAssetRetriever uses the AssetSpecializer associated with a loaded
  * asset's type to fill in the type-specific data for the asset.
- * An AssetRetriever must maintain state to avoid asset-retrieval cycles
+ * An RemoteAssetRetriever must maintain state to avoid asset-retrieval cycles
  * with the AssetSpecializer narrow() callbacks.
  * The cycle-cache
- * also allows the AssetRetriever to avoid data explosion when
+ * also allows the RemoteAssetRetriever to avoid data explosion when
  * loading asset graphs that may access various assets via multiple paths.
  *
  * Does not extends Remote so we have the option of
@@ -49,24 +48,19 @@ import littleware.security.AccessDeniedException;
  * does throw RemoteException so this interface is
  * ready for a Remote mixin.
  */
-public interface AssetRetriever extends java.rmi.Remote {
+public interface RemoteAssetRetriever extends java.rmi.Remote {
 
     /**
      * Get the asset with the specified id.
      *
      * @param assetId of asset to retrieve
      * @return fully initialized asset.
-     *           If the asset is a PRIINCIPAL or ACL AssetType,
-     *           then the returned object will implent the Principal
-     *           and Acl interfaces respectively.
      * @throws AccessDeniedException if caller does not have permission to read
      *                 the specified asset
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException some other failure condition
      */
-    public
-    @ReadOnly
-    Option<Asset> getAsset(UUID assetId) throws BaseException,
+    public Option<Asset> getAsset( UUID sessionId, UUID assetId) throws BaseException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -82,9 +76,7 @@ public interface AssetRetriever extends java.rmi.Remote {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException if some other failure condition
      */
-    public
-    @ReadOnly
-    List<Asset> getAssets(Collection<UUID> idSet) throws BaseException, AssetException,
+    public List<Asset> getAssets( UUID sessionId, Collection<UUID> idSet) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -95,43 +87,17 @@ public interface AssetRetriever extends java.rmi.Remote {
      * @throws DataAccessException on database access/interaction failure
      * @throws AccessDeniedException if caller is not an administrator
      */
-    public
-    @ReadOnly
-    Map<String, UUID> getHomeAssetIds() throws BaseException, AssetException,
+    public Map<String, UUID> getHomeAssetIds( UUID sessionId ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
-    /**
-     * Get the links (assets with a_source as their FROM-asset)
-     * out of the given asset-id of the given type.
-     * Caller must have READ-access to the source asset.
-     *
-     * @param fromId asset - result&apos;s FROM-asset
-     * @param type to limit search to
-     * @param stateto limit search to
-     * @return mapping from child-name to child-id
-     * @throws AccessDeniedException if caller does not have read access
-     *                to a_source
-     * @throws DataAccessException on database access/interaction failure
-     * @throws IllegalArgumentExcetion if limit is out of bounds
-     * @throws AssetException if limit is too large
-     */
-    public
-    @ReadOnly
-    Map<String, UUID> getAssetIdsFrom(UUID fromId,
-            AssetType type, int state) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
 
-    public
-    @ReadOnly
-    Map<String, UUID> getAssetIdsFrom(UUID fromId,
+    public Map<String, UUID> getAssetIdsFrom( UUID sessionId, UUID fromId,
             AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 
 
-    public
-    @ReadOnly
-    Map<String, UUID> getAssetIdsFrom(UUID fromId
+    public Map<String, UUID> getAssetIdsFrom( UUID sessionId, UUID fromId
             ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 

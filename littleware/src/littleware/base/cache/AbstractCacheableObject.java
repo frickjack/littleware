@@ -3,8 +3,6 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.base.cache;
@@ -51,16 +49,6 @@ public abstract class AbstractCacheableObject implements CacheableObject, Serial
         return transaction;
     }
 
-    /**
-     * Comparable interface
-     */
-    @Override
-    public int compareTo(CacheableObject x_other) {
-        if ((null == this.id) || (null == x_other) || (null == x_other.getId())) {
-            throw new NullPointerException("Cannot compare CacheAbleObjects without a valid ObjectId");
-        }
-        return this.id.compareTo(x_other.getId());
-    }
 
     @Override
     public boolean equals(Object x_other) {

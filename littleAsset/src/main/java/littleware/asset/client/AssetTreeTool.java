@@ -3,18 +3,15 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset;
+package littleware.asset.client;
 
-import littleware.asset.internal.SimpleAssetTreeTool;
-import com.google.inject.ImplementedBy;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.UUID;
+import littleware.asset.Asset;
 import littleware.base.BaseException;
 import littleware.base.feedback.Feedback;
 import littleware.base.TooMuchDataException;
@@ -22,7 +19,6 @@ import littleware.base.TooMuchDataException;
 /**
  * Utility methods to help maintain an asset tree
  */
-@ImplementedBy(SimpleAssetTreeTool.class)
 public interface AssetTreeTool {
 
     /**

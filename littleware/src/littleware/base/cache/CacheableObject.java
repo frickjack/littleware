@@ -23,7 +23,7 @@ import java.util.UUID;
  * master copy, or to establish the Lamport-time relationship
  * between sets of objects cached on separate systems.
  */
-public interface CacheableObject extends Comparable<CacheableObject>, Cloneable, java.io.Serializable {
+public interface CacheableObject extends java.io.Serializable {
 	
 	/**
 	 * Get the object id

@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -16,28 +14,28 @@ import java.util.logging.Logger;
 import littleware.apps.filebucket.BucketManager;
 import littleware.apps.filebucket.BucketUtil;
 import littleware.apps.filebucket.SimpleBucketUtil;
-import littleware.asset.client.bootstrap.helper.AbstractClientModule;
-import littleware.asset.client.bootstrap.SessionModule;
-import littleware.asset.client.bootstrap.SessionModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
+import littleware.bootstrap.AppModule;
+import littleware.bootstrap.AppModuleFactory;
+import littleware.bootstrap.helper.AbstractAppModule;
 
 /**
  * Client-side bucket-service module setup
  */
-public class BucketClientModule extends AbstractClientModule {
-    private static final Logger log = Logger.getLogger( BucketClientModule.class.getName() );
+public class BucketModule extends AbstractAppModule {
+    private static final Logger log = Logger.getLogger( BucketModule.class.getName() );
 
-    public static class Factory implements SessionModuleFactory {
+    public static class Factory implements AppModuleFactory {
 
         @Override
-        public SessionModule build(AppProfile profile) {
-            return new BucketClientModule(profile);
+        public AppModule build(AppProfile profile) {
+            return new BucketModule(profile);
         }
         
     }
 
-    private BucketClientModule( AppBootstrap.AppProfile profile ) {
+    private BucketModule( AppBootstrap.AppProfile profile ) {
         super( profile);
     }
 

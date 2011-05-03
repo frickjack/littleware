@@ -9,6 +9,8 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetSearchManager;
 import com.google.inject.Inject;
 import java.awt.*;
@@ -58,7 +60,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
     private final IconLibrary olib_icon;
     private final ThumbManager omgrThumb;
     private final AssetSearchManager osearch;
-    private final AssetModelLibrary olibAsset;
+    private final AssetLibrary olibAsset;
     private final JLabel ojLabel = new JLabel("uninitialized", SwingConstants.LEFT);
 
     {
@@ -88,7 +90,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
      */
     @Inject
     public JAssetLinkRenderer(IconLibrary lib_icon, ThumbManager mgrThumb,
-            AssetModelLibrary libAsset, AssetSearchManager search) {
+            AssetLibrary libAsset, AssetSearchManager search) {
         olib_icon = lib_icon;
         omgrThumb = mgrThumb;
         osearch = search;
@@ -216,7 +218,7 @@ public class JAssetLinkRenderer implements ListCellRenderer, TableCellRenderer, 
         jLabelRender.setForeground(Color.BLUE);
         jLabelRender.setText(s_name);
         try {
-            final Option<AssetModel> maybe = olibAsset.retrieveAssetModel(u_id, osearch);
+            final Option<AssetRef> maybe = olibAsset.retrieveAssetModel(u_id, osearch);
             if (maybe.isSet()) {
                 final Asset a_linkto = maybe.get().getAsset();
                 configureLabel(a_linkto, jLabelRender);

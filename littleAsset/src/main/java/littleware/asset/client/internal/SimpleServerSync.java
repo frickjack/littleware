@@ -3,11 +3,9 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.client.internal;
+package littleware.asset.client.internal;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -20,9 +18,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.AssetModel;
-import littleware.apps.client.AssetModelLibrary;
-import littleware.apps.client.ServerSync;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.client.AssetSearchManager;
@@ -30,7 +27,6 @@ import littleware.asset.IdWithClock;
 import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.ClientCache;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
 import littleware.base.event.LittleEvent;
 
 public class SimpleServerSync implements ServerSync {
@@ -40,13 +36,13 @@ public class SimpleServerSync implements ServerSync {
     private final AssetSearchManager search;
     private long minTransaction = 0;
     private final UUID littleHomeId;
-    private final AssetModelLibrary libAsset;
+    private final AssetLibrary libAsset;
     private final ClientCache cache;
 
     @Inject
     public SimpleServerSync(
             AssetSearchManager search,
-            AssetPathFactory pathFactory, AssetModelLibrary libAsset,
+            AssetPathFactory pathFactory, AssetLibrary libAsset,
             ClientCache cache) {
         this.search = search;
         this.libAsset = libAsset;
@@ -83,14 +79,14 @@ public class SimpleServerSync implements ServerSync {
                 if (data.getTimestamp() > newMin) {
                     newMin = data.getTimestamp();
                 }
-                final AssetModel model = libAsset.get(data.getId());
+                final AssetRef model = libAsset.getById(data.getId());
 
                 if ((null != model)
-                        && (model.getAsset().getTimestamp() < data.getTimestamp())) {
+                        && (model.getRef().getTimestamp() < data.getTimestamp())) {
                     result.add(data.getId());
                 } else if ((null == model)
                         && data.getParentId().isSet()
-                        && (null != libAsset.get(data.getParentId().get()))) {
+                        && (null != libAsset.getById(data.getParentId().get()))) {
                     // tracking parent, so go ahead and add this child
                     // to inform parent listeners of new child
                     result.add(data.getParentId().get());
@@ -133,11 +129,11 @@ public class SimpleServerSync implements ServerSync {
             for (UUID id : idList) {
                 try {
                     cache.getCache().remove(id.toString());
-                    final Option<Asset> maybe = search.getAsset(id);
-                    if (maybe.isSet()) {
-                        final Asset asset = maybe.get();
+                    final AssetRef ref = search.getAsset(id);
+                    if (ref.isSet()) {
+                        final Asset asset = ref.get();
                         log.log(Level.FINE, "Syncing asset {0}, {1}, {2}", new Object[]{asset.getId(), asset.getName(), asset.getTimestamp()});
-                        libAsset.syncAsset(maybe.get());
+                        libAsset.syncAsset(ref.get());
                     }
                 } catch (Exception ex) {
                     log.log(Level.INFO, "Failed to sync asset: {0}", id);
@@ -150,7 +146,7 @@ public class SimpleServerSync implements ServerSync {
     }
 
     @Override
-    public AssetModelLibrary getLibrary() {
+    public AssetLibrary getLibrary() {
         return libAsset;
     }
 }

@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import com.google.inject.Inject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -42,7 +44,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
 
 
     private  AssetView             oview_component = null;
-    private final AssetModelLibrary     olib_asset;
+    private final AssetLibrary     olib_asset;
     private final IconLibrary           olib_icon;
     private final AssetSearchManager    om_search;
     private final SimpleLittleTool      otool_handler = new SimpleLittleTool ( this );
@@ -234,7 +236,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
                             }
                             try {
                                 AssetPath  path_goto = ofactoryPath.createPath ( s_path );
-                                AssetModel model_goto = olib_asset.syncAsset ( om_search.getAssetAtPath ( path_goto ).get() );
+                                AssetRef model_goto = olib_asset.syncAsset ( om_search.getAssetAtPath ( path_goto ).get() );
                                 ou_goto = model_goto.getAsset ().getId ();
                                 oview_component.setAssetModel ( model_goto );
                             } catch ( Exception ex ) {
@@ -378,7 +380,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
      */
     @Inject
     public JSimpleAssetToolbar ( 
-                                 AssetModelLibrary lib_asset,
+                                 AssetLibrary lib_asset,
                                  IconLibrary lib_icon,
                                  AssetSearchManager m_search,
                                  AssetPathFactory factoryPath
@@ -435,7 +437,7 @@ public class JSimpleAssetToolbar extends JToolBar implements PropertyChangeListe
         if ( null != oview_component ) {
             oview_component.addPropertyChangeListener ( this );
 
-            AssetModel model_view = oview_component.getAssetModel ();
+            AssetRef model_view = oview_component.getAssetModel ();
             if ( null != model_view ) {
                 olist_navigation.add ( model_view.getAsset ().getId () );
                 oi_nav_position = olist_navigation.size ();

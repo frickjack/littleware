@@ -11,15 +11,14 @@ package littleware.net;
 
 import java.net.URL;
 import java.util.Collection;
-import java.util.UUID;
-import littleware.base.Maybe;
+import java.util.concurrent.Future;
+import littleware.base.Option;
 import littleware.base.cache.CacheableObject;
 
 /**
- *
- * @author pasquini
+ * Support for asynchronous remote method calls
  */
-public interface LittleResponse<T> extends CacheableObject {
+public interface LittleResponse<T> extends CacheableObject, Future<T> {
     public enum State {
         Redirect, Processing, Complete, Failed;
     }

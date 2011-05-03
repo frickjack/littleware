@@ -9,7 +9,9 @@
  */
 package littleware.apps.swingclient;
 
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
+import littleware.asset.internal.RemoteAssetRetriever;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.*;
@@ -26,7 +28,7 @@ import java.util.logging.Logger;
 import javax.swing.*;
 
 import littleware.apps.client.*;
-import littleware.apps.client.event.AssetModelEvent;
+import littleware.asset.client.AssetActionEvent;
 import littleware.asset.*;
 import littleware.base.UUIDFactory;
 import littleware.apps.swingclient.event.*;
@@ -45,7 +47,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
 
     private final static Logger olog = Logger.getLogger(JGenericAssetView.class.getName());
     private static final long serialVersionUID = -7321436305465982373L;
-    private final AssetRetriever om_retriever;
+    private final RemoteAssetRetriever om_retriever;
     private final AbstractAssetView oview_util = new AbstractAssetView(this) {
 
         /** Events form the data model */
@@ -279,7 +281,7 @@ public class JGenericAssetView extends JPanel implements AssetView {
      */
     @Inject
     protected JGenericAssetView(
-            AssetRetriever m_retriever,
+            RemoteAssetRetriever m_retriever,
             IconLibrary lib_icon,
             Provider<JAssetLink> provideLinkView) {
         owlink_name = provideLinkView.get();
@@ -299,25 +301,25 @@ public class JGenericAssetView extends JPanel implements AssetView {
     /**
      * Trigger a UI sync call to updateAssetUI
      * if the LittleEvent comes from
-     * the getAssetModel() AssetModel (data model update).
+     * the getAssetModel() AssetRef (data model update).
      */
     protected void eventFromModel(final LittleEvent eventIn) {
-        if ((eventIn.getSource() == getAssetModel()) && (eventIn instanceof AssetModelEvent)) {
-            final AssetModelEvent event = eventIn.narrow();
+        if ((eventIn.getSource() == getAssetModel()) && (eventIn instanceof AssetActionEvent)) {
+            final AssetActionEvent event = eventIn.narrow();
             // Model has changed under us
             SwingUtilities.invokeLater(
                     new Runnable() {
 
                         @Override
                         public void run() {
-                            if (event.getOp().equals(AssetModel.Operation.assetDeleted.toString())) {
-                                final AssetModelLibrary lib = getAssetModel().getLibrary();
+                            if (event.getOp().equals(AssetRef.Operation.assetDeleted.toString())) {
+                                final AssetLibrary lib = getAssetModel().getLibrary();
                                 final Asset deleted = getAssetModel().getAsset();
                                 final UUID uNew = (deleted.getFromId() != null)
                                         ? deleted.getFromId() : deleted.getHomeId();
                                 getFeedback().info("Asset in view deleted, moving to view " + uNew);
                                 try {
-                                    final Option<AssetModel> maybe = lib.retrieveAssetModel(uNew, om_retriever);
+                                    final Option<AssetRef> maybe = lib.retrieveAssetModel(uNew, om_retriever);
                                     if (maybe.isSet()) {
                                         setAssetModel(maybe.get());
                                     } else {
@@ -449,12 +451,12 @@ public class JGenericAssetView extends JPanel implements AssetView {
     }
 
     @Override
-    public AssetModel getAssetModel() {
+    public AssetRef getAssetModel() {
         return oview_util.getAssetModel();
     }
 
     @Override
-    public void setAssetModel(AssetModel model_asset) {
+    public void setAssetModel(AssetRef model_asset) {
         oview_util.setAssetModel(model_asset);
     }
 

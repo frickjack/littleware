@@ -16,6 +16,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.cache.AbstractCacheableObject;
 
 public abstract class AbstractAsset extends AbstractCacheableObject implements Serializable {

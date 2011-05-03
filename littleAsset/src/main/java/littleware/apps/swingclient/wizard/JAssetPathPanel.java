@@ -10,6 +10,9 @@
 
 package littleware.apps.swingclient.wizard;
 
+import littleware.apps.swingclient.AssetView;
+import littleware.apps.swingclient.AssetViewFactory;
+import littleware.asset.client.AssetLibrary;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.awt.GridBagLayout;
@@ -52,7 +55,7 @@ public class JAssetPathPanel extends JPanel {
     private final JTextField           owtext_info;
     private final AssetSearchManager   om_search;
     private final IconLibrary          olib_icon;
-    private final AssetModelLibrary    olib_asset;
+    private final AssetLibrary    olib_asset;
     private final JAssetLink           owlink_asset;
     private final JToolBar             owtbar_control = new JToolBar( "Controls", SwingConstants.HORIZONTAL );
     private final AssetViewFactory     ofactory_view;
@@ -276,7 +279,7 @@ public class JAssetPathPanel extends JPanel {
     @Inject
     public JAssetPathPanel ( Provider<JAssetBrowser> provideBrowser,
                              AssetSearchManager m_search,
-                             AssetModelLibrary  lib_asset,                             
+                             AssetLibrary  lib_asset,
                              IconLibrary        lib_icon,
                              AssetViewFactory   factory_view,
                              Provider<JAssetLink>  provideLink,

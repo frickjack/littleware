@@ -9,6 +9,9 @@
  */
 package littleware.apps.swingclient.wizard;
 
+import littleware.apps.swingclient.AssetViewFactory;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.logging.Logger;
@@ -61,7 +64,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
         FinalReview;
     }
     private final IconLibrary olib_icon;
-    private final AssetModelLibrary olib_asset;
+    private final AssetLibrary olib_asset;
     private final AssetManager om_asset;
     private final AssetSearchManager om_search;
     private final AssetPathFactory opathFactory;
@@ -232,7 +235,7 @@ public class CreateAssetWizard extends WizardAssetEditor {
                         if ((null != u_asset) && (!changeLocalAsset().getAssetType().equals(LittleHome.HOME_TYPE))) {
                             // Must have same HOME when linking FROM an asset
                             try {
-                                AssetModel model_from = olib_asset.retrieveAssetModel(u_asset, om_search).get();
+                                AssetRef model_from = olib_asset.retrieveAssetModel(u_asset, om_search).get();
                                 changeLocalAsset().setHomeId(model_from.getAsset().getHomeId());
                             } catch (Exception e) {
                                 JOptionPane.showMessageDialog(null,
@@ -309,18 +312,18 @@ public class CreateAssetWizard extends WizardAssetEditor {
      * Setup a wizard with the various dependencies
      * it needs to setup an asset.
      *
-     * @param amodel_start AssetModel referencing a new asset 
-     *                        placed into the AssetModelLibrary and
+     * @param amodel_start AssetRef referencing a new asset
+     *                        placed into the AssetLibrary and
      *                        initialized to whatever extent possible
      */
     @Inject
     public CreateAssetWizard(
             AssetManager m_asset,
             AssetSearchManager m_search,
-            AssetModelLibrary lib_asset,
+            AssetLibrary lib_asset,
             IconLibrary lib_icon,
             AssetViewFactory factory_view,
-            AssetModel amodel_start,
+            AssetRef amodel_start,
             Provider<JAssetPathPanel> provideAssetPanel,
             AssetPathFactory pathFactory) {
         super(m_asset, m_search, lib_asset, lib_icon);

@@ -3,19 +3,10 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.asset;
-
-import littleware.asset.client.AssetSearchManager;
-import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
-
-import littleware.base.BaseException;
-import littleware.base.Maybe;
 
 
 /**
@@ -50,14 +41,7 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
      */
     public boolean hasRootBacktrack ();
     
-    
-    /**
-     * Retrieve the asset at the root of the path if it exists
-     */
-    public Option<Asset> getRoot ( AssetSearchManager m_search
-                           ) throws BaseException, AssetException, GeneralSecurityException,
-        RemoteException;
-    
+        
     /**
      * Get the portion of the path that comes after the root
      *
@@ -70,18 +54,7 @@ public interface AssetPath extends java.io.Serializable, Comparable<AssetPath>, 
      *
      * @return C if this path is /ROOT/A/B/C, ROOT if this path is /ROOT
      */
-    public String getBasename();
-    
-    /**
-     * Retrieve the asset referenced by this path.
-     * 
-     * @param m_search to traverse the asset tree with
-     * @see AssetSearchManager.getAssetAtPath( AssetPath, boolean )
-     */
-    public Option<Asset> getAsset ( AssetSearchManager m_search
-                            ) throws BaseException, AssetException, GeneralSecurityException,
-        RemoteException;
-    
+    public String getBasename();    
     
         
     

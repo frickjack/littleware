@@ -10,7 +10,8 @@
 
 package littleware.apps.swingclient;
 
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.client.AssetLibrary;
+import littleware.asset.internal.RemoteAssetRetriever;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import javax.swing.*;
@@ -33,7 +34,7 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
 	
     private final IconLibrary                    olib_icon;
     private final JPanel                         owlist_members;
-    private final AssetRetriever                 om_retriever;
+    private final RemoteAssetRetriever                 om_retriever;
     
     // Should replace with a custom list-model later to avoid so many updates
     private final SimpleListModel<Asset>         omodel_children = new SimpleListModel ( new ArrayList<Asset> () );
@@ -107,9 +108,9 @@ public abstract class JAssetWithChildrenView extends JGenericAssetView {
      * @throws IllegalArgumentException if model_asset does not reference a group
      */
     @Inject
-    protected JAssetWithChildrenView( AssetRetriever m_retriever,
+    protected JAssetWithChildrenView( RemoteAssetRetriever m_retriever,
                                       IconLibrary lib_icon, 
-                                      AssetModelLibrary lib_asset,
+                                      AssetLibrary lib_asset,
                                       String s_children_header,
                                       String s_tab_label, Icon icon_tab, 
                                       String s_tab_tooltip,

@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.HashMap;
@@ -65,7 +66,7 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
     }
     
     @Override
-    public AssetView createView ( AssetModel model_asset ) {
+    public AssetView createView ( AssetRef model_asset ) {
         AssetType n_asset = model_asset.getAsset ().getAssetType ();
         final AssetView view;
         if ( omapRegistry.containsKey(n_asset ) ) {
@@ -78,7 +79,7 @@ public class SimpleAssetViewFactory implements AssetViewFactory {
     }
 
     @Override
-    public boolean checkView ( AssetView view_check, AssetModel model_asset ) {
+    public boolean checkView ( AssetView view_check, AssetRef model_asset ) {
         AssetType n_asset = model_asset.getAsset ().getAssetType ();
 
         if ( omapClassCheck.containsKey( n_asset ) ) {

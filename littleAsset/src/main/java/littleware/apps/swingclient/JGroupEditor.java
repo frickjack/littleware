@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
@@ -237,7 +239,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
      * @param view_factory read-only view source for browsers
      */
     @Inject
-    public JGroupEditor (  AssetModelLibrary libAsset,
+    public JGroupEditor (  AssetLibrary libAsset,
                           AssetManager m_asset,
                           AssetSearchManager m_search,
                           IconLibrary lib_icon,
@@ -258,7 +260,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
  
     /**
      * Reset the entire UI to match the data in getLocalAsset().
-     * Disables GROUP tab if underlying AssetModel is not a Group.
+     * Disables GROUP tab if underlying AssetRef is not a Group.
      */
     @Override
     protected void updateAssetUI () {
@@ -276,7 +278,7 @@ public class JGroupEditor extends JGenericAssetEditor  {
         // Model has changed under us
         omodel_memberlist.clear ();
 
-        AssetModel  model_view = getAssetModel ();
+        AssetRef  model_view = getAssetModel ();
 
         if ( (null == model_view) 
              || (! (model_view.getAsset ().getAssetType ().equals ( LittleGroup.GROUP_TYPE ) ))

@@ -18,7 +18,6 @@ import javax.security.auth.Subject;
 import littleware.base.AssertionFailedException;
 import littleware.base.stat.Sampler;
 import littleware.base.stat.Timer;
-import littleware.base.AccessPermission;
 
 /**
  * InvocationHandler to help support dynamic proxies that invoke methods

@@ -3,25 +3,15 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.asset.internal;
 
-import littleware.asset.internal.AbstractAssetPath;
 import java.util.UUID;
-import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
-import littleware.asset.Asset;
-import littleware.asset.AssetException;
 import littleware.asset.AssetPathByRootId;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.client.AssetSearchManager;
 
-import littleware.base.BaseException;
-import littleware.base.Maybe;
 
 
 /**
@@ -29,25 +19,18 @@ import littleware.base.Maybe;
  */
 public class SimpleAssetPathByRootId extends AbstractAssetPath implements AssetPathByRootId {
     private static final long serialVersionUID = -1220806190088603807L;
-    private UUID   ou_root = null;
+    private final UUID   rootId;
     
     
-    public SimpleAssetPathByRootId ( UUID u_root, String s_subroot_path, AssetPathFactory pathFactory ) {
-        super ( "/byid:" + u_root.toString () + "/" + s_subroot_path, pathFactory );
-        ou_root = u_root;
+    public SimpleAssetPathByRootId ( UUID rootId, String subrootPath, AssetPathFactory pathFactory ) {
+        super ( "/byid:" + rootId.toString () + "/" + subrootPath, pathFactory );
+        this.rootId = rootId;
     }
     
     
     @Override
     public UUID getRootId () {
-        return ou_root;
+        return rootId;
     }
             
-    @Override
-    public Option<Asset> getRoot ( AssetSearchManager m_search
-                                    ) throws BaseException, AssetException, GeneralSecurityException,
-        RemoteException
-    {
-        return m_search.getAsset ( ou_root );
-    }
 }

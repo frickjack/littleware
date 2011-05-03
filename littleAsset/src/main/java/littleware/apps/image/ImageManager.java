@@ -17,7 +17,7 @@ import java.security.GeneralSecurityException;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.Option;
 
 /**
  * Save/load an image out of the filebucket associated with some asset.

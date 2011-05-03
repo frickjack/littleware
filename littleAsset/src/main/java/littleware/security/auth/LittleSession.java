@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.security.auth;
@@ -13,10 +11,11 @@ import java.rmi.RemoteException;
 import javax.security.auth.Subject;
 import java.security.GeneralSecurityException;
 import java.util.Date;
+import java.util.UUID;
 
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.internal.RemoteAssetRetriever;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.base.BaseException;
@@ -40,7 +39,7 @@ public interface LittleSession extends Asset {
     /**
      * Convenience method for getAsset ( getCreator () )...
      */
-    public Subject getSubject(AssetRetriever retriever) throws BaseException, AssetException,
+    public Subject getSubject(RemoteAssetRetriever retriever) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     @Override
@@ -75,6 +74,37 @@ public interface LittleSession extends Asset {
 
         @Override
         public LittleSession build();
+
+        @Override
+        public Builder id(UUID value);
+
+        @Override
+        public Builder name(String value);
+
+        @Override
+        public Builder creatorId(UUID value);
+
+        @Override
+        public Builder lastUpdaterId(UUID value);
+
+        @Override
+        public Builder aclId(UUID value);
+
+        @Override
+        public Builder ownerId(UUID value);
+
+        @Override
+        public Builder lastUpdate(String value);
+
+        @Override
+        public Builder homeId(UUID value);
+
+        @Override
+        public Builder timestamp(long value);
+
+        @Override
+        public Builder comment( String value );
+
     }
 }
 

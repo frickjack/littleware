@@ -31,7 +31,7 @@ import littleware.asset.Asset;
 import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.client.AssetSearchManager;
-import littleware.asset.AssetTreeTool;
+import littleware.asset.client.AssetTreeTool;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeNode.TreeNodeBuilder;

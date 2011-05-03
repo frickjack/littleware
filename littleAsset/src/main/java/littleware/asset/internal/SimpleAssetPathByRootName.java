@@ -3,26 +3,17 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.asset.internal;
 
-import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
-import littleware.asset.Asset;
-import littleware.asset.AssetException;
 import littleware.asset.AssetPathByRootName;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.LittleHome;
 
-import littleware.base.BaseException;
-import littleware.base.Maybe;
 
 
 /**
@@ -30,8 +21,8 @@ import littleware.base.Maybe;
  */
 public class SimpleAssetPathByRootName extends AbstractAssetPath implements AssetPathByRootName {
     private static final long serialVersionUID = -1141969192993296586L;
-    private AssetType  on_type = null;
-    private String     os_name = null;
+    private AssetType  rootType = null;
+    private String     rootName = null;
     
     
     /**
@@ -52,8 +43,8 @@ public class SimpleAssetPathByRootName extends AbstractAssetPath implements Asse
                 pathFactory
                 );
 
-        on_type = n_type;
-        os_name = s_root_name;
+        rootType = n_type;
+        rootName = s_root_name;
         if ( ! n_type.isNameUnique () ) {
             throw new InvalidAssetTypeException ( "Asset type not name unique: " + n_type );
         }
@@ -64,25 +55,14 @@ public class SimpleAssetPathByRootName extends AbstractAssetPath implements Asse
      */
     @Override
     public AssetType getRootType () {
-        return on_type;
+        return rootType;
     }
     
     @Override
     public String getRootName () {
-        return os_name;
+        return rootName;
     }
     
-    @Override
-    public Option<Asset> getRoot ( AssetSearchManager m_search
-                                    ) throws BaseException, AssetException, GeneralSecurityException,
-        RemoteException
-    {
-        if ( LittleHome.HOME_TYPE.equals ( on_type ) ) {
-            return m_search.getByName( os_name, on_type );
-        } else {
-            return m_search.getByName( os_name, on_type );
-        }
-    }
     
 }
 

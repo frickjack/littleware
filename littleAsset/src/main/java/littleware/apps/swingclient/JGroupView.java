@@ -8,7 +8,9 @@
 
 package littleware.apps.swingclient;
 
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
+import littleware.asset.internal.RemoteAssetRetriever;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;
@@ -32,7 +34,7 @@ public class JGroupView extends JAssetWithChildrenView {
      */
     @Override
     protected Map<Asset,String> getChildInfo () {
-        AssetModel model_view = getAssetModel ();
+        AssetRef model_view = getAssetModel ();
         Map<Asset,String> v_childinfo = new HashMap<Asset,String> ();
 
         if ( ! model_view.getAsset ().getAssetType ().equals ( LittleGroup.GROUP_TYPE ) ) {
@@ -52,9 +54,9 @@ public class JGroupView extends JAssetWithChildrenView {
      * Constructor sets up the UI to view the given group
      */
     @Inject
-    public JGroupView( AssetRetriever m_retriever,
+    public JGroupView( RemoteAssetRetriever m_retriever,
                        IconLibrary lib_icon,
-                       AssetModelLibrary lib_asset,
+                       AssetLibrary lib_asset,
                        JAssetLinkList    jListChildren,
                        Provider<JAssetLink> provideLinkView
                        ) {

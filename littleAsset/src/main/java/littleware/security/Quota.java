@@ -16,7 +16,7 @@ import java.util.Date;
 
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.internal.RemoteAssetRetriever;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.base.*;
@@ -56,14 +56,14 @@ public interface Quota extends Asset {
      * Get the next quota in the quota-chain.
      * Shortcut for getTo()
      */
-    public Quota getNextInChain(AssetRetriever retriever) throws BaseException, AssetException,
+    public Quota getNextInChain(RemoteAssetRetriever retriever) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
      * Get the user this quota is associated with (note - may be associated
      * with other users via a quota-chain).  Shortcut for getFrom()
      */
-    public LittleUser getUser(AssetRetriever retriever) throws BaseException, AssetException,
+    public LittleUser getUser(RemoteAssetRetriever retriever) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     @Override

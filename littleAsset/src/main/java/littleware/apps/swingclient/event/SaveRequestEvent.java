@@ -7,6 +7,8 @@
  */
 package littleware.apps.swingclient.event;
 
+import littleware.apps.swingclient.AssetEditor;
+import littleware.asset.client.AssetLibrary;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
@@ -28,7 +30,7 @@ import littleware.base.event.LittleEvent;
 public class SaveRequestEvent extends LittleEvent {
 
     private static final String OS_OPERATION = "SaveRequestEvent";
-    private final AssetModelLibrary library;
+    private final AssetLibrary library;
     private final String updateComment;
     private final Asset changedAsset;
 
@@ -41,7 +43,7 @@ public class SaveRequestEvent extends LittleEvent {
      * @param s_update_comment to apply to the save
      */
     public SaveRequestEvent(Object source, Asset a_changed,
-            AssetModelLibrary lib_asset,
+            AssetLibrary lib_asset,
             String s_update_comment) {
         super(source);
         this.library = lib_asset;
@@ -64,9 +66,9 @@ public class SaveRequestEvent extends LittleEvent {
     }
 
     /**
-     * Get the AssetModelLibrary this app is working with
+     * Get the AssetLibrary this app is working with
      */
-    public AssetModelLibrary getModelLibrary() {
+    public AssetLibrary getModelLibrary() {
         return library;
     }
 

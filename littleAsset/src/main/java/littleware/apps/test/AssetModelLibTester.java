@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.AbstractAssetEditor;
-import littleware.apps.client.AssetEditor;
-import littleware.apps.client.AssetModel;
-import littleware.apps.client.AssetModelLibrary;
+import littleware.apps.swingclient.AbstractAssetEditor;
+import littleware.apps.swingclient.AssetEditor;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.asset.Asset;
 import littleware.asset.client.AssetSearchManager;
@@ -33,20 +33,20 @@ import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 
 /**
- * Test the AssetModelLibrary, event propogation on
+ * Test the AssetLibrary, event propogation on
  * asset update, and hookup with
  * the ServiceProviderListener.
  */
 public class AssetModelLibTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(AssetModelLibTester.class.getName());
-    private final AssetModelLibrary assetLibrary;
+    private final AssetLibrary assetLibrary;
     private final LittleSession session;
     private final AssetSearchManager search;
     private final Provider<GenericBuilder> genericProvider;
 
     @Inject
-    public AssetModelLibTester(AssetModelLibrary libAsset,
+    public AssetModelLibTester(AssetLibrary libAsset,
             LittleSession session,
             AssetSearchManager search,
             Provider<GenericAsset.GenericBuilder> genericProvider
@@ -59,7 +59,7 @@ public class AssetModelLibTester extends AbstractAssetTest {
     }
 
     /**
-     * Run the injected AssetModelLibrary through a few simple tests
+     * Run the injected AssetLibrary through a few simple tests
      */
     public void testModelLibrary() {
         final List<Asset>  cleanupList = new ArrayList<Asset>();
@@ -78,7 +78,7 @@ public class AssetModelLibTester extends AbstractAssetTest {
             assertTrue("No retrieval if not necessary",
                     assetLibrary.retrieveAssetModel(session.getId(), search).get().getAsset() == session);
 
-            final AssetModel amodel_everybody =
+            final AssetRef amodel_everybody =
                     assetLibrary.syncAsset(search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE).get());
             assertTrue("ModelLibrary getByName inheritance aware 1",
@@ -106,7 +106,7 @@ public class AssetModelLibTester extends AbstractAssetTest {
             };
             edit_bogus.setAssetModel(assetLibrary.syncAsset(testAsset1)); //addPropertyChangeListener ( listen_assetprop );
             // Adding a_bogus2 to the asset repository should trigger a Property.assetsLinkingFrom
-            // property-change event on listeners to a_bogus1 AssetModel
+            // property-change event on listeners to a_bogus1 AssetRef
             assetLibrary.syncAsset(testAsset2.copy().parentId(testAsset1.getId()).
                     timestamp(testAsset2.getTimestamp() + 1).build());
             Thread.sleep(4000); // let any asynchrony work itself out

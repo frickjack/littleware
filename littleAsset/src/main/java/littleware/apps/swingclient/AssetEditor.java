@@ -1,4 +1,4 @@
-package littleware.apps.client;
+package littleware.apps.swingclient;
 
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;

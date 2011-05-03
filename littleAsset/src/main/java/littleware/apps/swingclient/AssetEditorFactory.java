@@ -8,7 +8,9 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.client;
+package littleware.apps.swingclient;
+
+import littleware.asset.client.AssetRef;
 
 /**
  * Specialization of AssetViewFactory for editors.
@@ -24,7 +26,7 @@ public interface AssetEditorFactory extends AssetViewFactory {
      *              for SWING based apps
      */
     @Override
-    public AssetEditor createView ( AssetModel model_asset );
+    public AssetEditor createView ( AssetRef model_asset );
         
 }
 

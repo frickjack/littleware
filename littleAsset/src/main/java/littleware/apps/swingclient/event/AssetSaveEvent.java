@@ -7,27 +7,28 @@
  */
 package littleware.apps.swingclient.event;
 
+import littleware.asset.client.AssetRef;
 import littleware.apps.client.*;
 import littleware.base.event.LittleEvent;
 
 /**
  * Event lets listeners on some object (probably an AssetModelLibrary)
- * know that that the Asset associated with a given AssetModel
+ * know that that the Asset associated with a given AssetRef
  * has been saved to the Asset repository.
  */
 public class AssetSaveEvent extends LittleEvent {
-    private final AssetModel savedModel;
+    private final AssetRef savedModel;
 
     /**
      * Setup the AssetSaveEvent
      *
      * @param source of the event - the editor or whatever
-     * @param savedModel  AssetModel whose Asset has been saved
+     * @param savedModel  AssetRef whose Asset has been saved
      */
-    public AssetSaveEvent(Object source, AssetModel savedModel ) {
+    public AssetSaveEvent(Object source, AssetRef savedModel ) {
         super(source);
         this.savedModel = savedModel ;
     }
 
-    public AssetModel getSavedModel() { return savedModel; }
+    public AssetRef getSavedModel() { return savedModel; }
 }

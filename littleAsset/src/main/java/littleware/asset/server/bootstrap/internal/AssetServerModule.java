@@ -1,17 +1,14 @@
 /*
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2011 Reuben Pasquini All rights reserved.
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset.server.bootstrap.internal;
 
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetManager;
-import littleware.asset.internal.AssetRetriever;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -40,7 +37,7 @@ import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.security.server.QuotaUtil;
 import littleware.asset.server.internal.SimpleAssetManager;
-import littleware.asset.server.internal.SimpleAssetSearchManager;
+import littleware.asset.server.internal.SimpleSearchManager;
 import littleware.security.server.internal.SimpleQuotaUtil;
 import littleware.asset.server.internal.SimpleSpecializerRegistry;
 import littleware.asset.server.db.DbAssetManager;
@@ -52,6 +49,7 @@ import littleware.base.PropertiesGuice;
 import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
+import littleware.base.Option;
 import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.bootstrap.LittleModule;
@@ -63,7 +61,6 @@ import littleware.security.LittlePrincipal;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
 import littleware.security.auth.client.SessionManager;
-import littleware.security.auth.internal.SessionUtil;
 import littleware.security.auth.server.internal.AuthServerGuice;
 import littleware.security.server.internal.SimpleAccountManager;
 import littleware.security.server.internal.SimpleAclManager;
@@ -87,8 +84,8 @@ public class AssetServerModule extends AbstractServerModule {
     public void configure(Binder binder) {
         binder.bind(Cache.Builder.class).to(InMemoryCacheBuilder.class);
         binder.bind(AssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
-        binder.bind(AssetRetriever.class).to(AssetSearchManager.class).in(Scopes.SINGLETON);
-        binder.bind(AssetSearchManager.class).to(SimpleAssetSearchManager.class).in(Scopes.SINGLETON);
+        //binder.bind(AssetRetriever.class).to(AssetSearchManager.class).in(Scopes.SINGLETON);
+        binder.bind(AssetSearchManager.class).to(SimpleSearchManager.class).in(Scopes.SINGLETON);
         binder.bind(QuotaUtil.class).to(SimpleQuotaUtil.class).in(Scopes.SINGLETON);
         binder.bind(AssetSpecializerRegistry.class).to(SimpleSpecializerRegistry.class).in(Scopes.SINGLETON);
         if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
@@ -157,7 +154,7 @@ public class AssetServerModule extends AbstractServerModule {
         public void start(BundleContext bc) throws Exception {
             try {
                 // inject local SessionManager for colocated server-client situation
-                SessionUtil.get().injectLocalManager(sessionMgr);
+                //SessionUtil.get().injectLocalManager(sessionMgr);
                 Registry rmi_registry = null;
                 final int port = registryPort;
                 if (port > 0) {

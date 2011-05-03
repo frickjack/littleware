@@ -7,7 +7,7 @@
  */
 package littleware.asset.test;
 
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.internal.RemoteAssetRetriever;
 import com.google.inject.Inject;
 import java.util.*;
 import java.util.logging.Logger;
@@ -18,20 +18,20 @@ import littleware.asset.*;
 import littleware.base.*;
 
 /**
- * Tester for implementations of the AssetRetriever interface 
+ * Tester for implementations of the RemoteAssetRetriever interface
  */
 public class AssetRetrieverTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(AssetRetrieverTester.class.getName());
-    private final AssetRetriever search;
+    private final RemoteAssetRetriever search;
 
     /**
-     * Stash AssetRetriever instance to run tests against
+     * Stash RemoteAssetRetriever instance to run tests against
      *
      * @param search to test against
      */
     @Inject
-    public AssetRetrieverTester(AssetRetriever search) {
+    public AssetRetrieverTester(RemoteAssetRetriever search) {
         this.search = search;
         setName("testLoad");
     }

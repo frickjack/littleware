@@ -3,14 +3,11 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset.server;
 
 import littleware.asset.*;
-import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 
 import littleware.base.*;
@@ -36,8 +33,8 @@ public interface AssetSpecializer {
      * @param assetIn instance of class returned by a_in.getAssetType ().create ()
      * @return asset, or a new Asset consistent with the data in assetIn
      */
-    public <T extends Asset> T narrow(T asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+    public <T extends Asset> T narrow( LittleContext ctx, T asset) throws BaseException, AssetException,
+            GeneralSecurityException;
 
     /**
      * Post asset-creation callback made by the AssetManager up to the specializer
@@ -47,8 +44,8 @@ public interface AssetSpecializer {
      * @param asset just created
      * @param m_asset manager making the callback
      */
-    public void postCreateCallback(Asset asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+    public void postCreateCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
+            GeneralSecurityException;
 
     /**
      * Post asset-update callback made by the AssetManager up to the specializer
@@ -59,8 +56,8 @@ public interface AssetSpecializer {
      *                    before applying the update
      * @param currentAsset current state of the asset after update
      */
-    public void postUpdateCallback(Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+    public void postUpdateCallback(LittleContext ctx, Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
+            GeneralSecurityException;
 
     /**
      * Post asset-delete callback made by the AssetManager up to the specializer
@@ -69,6 +66,6 @@ public interface AssetSpecializer {
      *
      * @param asset that just got cleared out
      */
-    public void postDeleteCallback(Asset asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+    public void postDeleteCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
+            GeneralSecurityException;
 }

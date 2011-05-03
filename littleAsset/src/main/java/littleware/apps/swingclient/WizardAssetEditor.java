@@ -10,6 +10,8 @@
 
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetManager;
 import java.awt.*;
@@ -46,7 +48,7 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
     
     private final AssetSearchManager    om_search;
     private final AssetManager          om_asset;
-    private final AssetModelLibrary     olib_asset;
+    private final AssetLibrary     olib_asset;
     private final IconLibrary           olib_icon;
     
     /** Getter for subtypes to get at stashed tool */
@@ -65,7 +67,7 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
     public WizardAssetEditor ( 
                                 AssetManager m_asset,
                                 AssetSearchManager m_search,
-                                AssetModelLibrary lib_asset,
+                                AssetLibrary lib_asset,
                                 IconLibrary lib_icon ) 
     {   
         om_asset = m_asset;
@@ -82,7 +84,7 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
                                Dialog  wdialog_owner,
                                AssetManager m_asset,
                                AssetSearchManager m_search,
-                              AssetModelLibrary lib_asset,
+                              AssetLibrary lib_asset,
                                IconLibrary lib_icon ) 
     {
         super( wdialog_owner );
@@ -93,13 +95,13 @@ public abstract class WizardAssetEditor extends Wizard implements AssetEditor {
     }
     
     @Override
-    public AssetModel getAssetModel () {
+    public AssetRef getAssetModel () {
         return oeditor_internal.getAssetModel ();
     }
     
     
     @Override
-    public void setAssetModel ( AssetModel model_view ) {
+    public void setAssetModel ( AssetRef model_view ) {
         oeditor_internal.setAssetModel ( model_view );
     }
     

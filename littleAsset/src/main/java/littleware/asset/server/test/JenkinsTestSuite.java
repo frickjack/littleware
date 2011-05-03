@@ -19,7 +19,7 @@ import junit.framework.*;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.asset.server.db.test.DbAssetManagerTester;
 import littleware.asset.server.internal.SimpleAssetManager;
-import littleware.asset.server.internal.SimpleAssetSearchManager;
+import littleware.asset.server.internal.SimpleSearchManager;
 import littleware.asset.test.AssetManagerTester;
 import littleware.asset.test.AssetRetrieverTester;
 import littleware.asset.test.AssetSearchManagerTester;
@@ -38,7 +38,7 @@ public class JenkinsTestSuite extends TestSuite {
     @Inject
     public JenkinsTestSuite(
             SimpleAssetManager m_asset,
-            SimpleAssetSearchManager m_search,
+            SimpleSearchManager m_search,
             Provider<TransactionTester> provideTransTester,
             Provider<DbAssetManagerTester> provideDbTester,
             Provider<AssetRetrieverTester> provideRetrieverTest,
@@ -68,7 +68,7 @@ public class JenkinsTestSuite extends TestSuite {
         }
 
         //AssetRetriever     m_retriever = new LocalAssetRetriever ( om_dbasset, om_cache, oregistry_special );
-        //AssetSearchManager m_search = new SimpleAssetSearchManager ( om_dbasset, om_cache, oregistry_special );
+        //AssetSearchManager m_search = new SimpleSearchManager ( om_dbasset, om_cache, oregistry_special );
         if (runTest) {
             this.addTest(provideRetrieverTest.get());
         }

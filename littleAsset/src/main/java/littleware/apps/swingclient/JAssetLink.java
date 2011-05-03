@@ -7,6 +7,8 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetSearchManager;
 import com.google.inject.Inject;
 import java.awt.*;
@@ -38,7 +40,7 @@ import littleware.base.event.helper.SimpleLittleTool;
  * throws a NavRequestEvent with the asset ID when the user clicks on the name.
  * Also includes a popup menu with mnemonic set that allows copying
  * the displayed text to the system clipboard.
- * JAssetLink does not view an AssetModel, since the data viewed is
+ * JAssetLink does not view an AssetRef, since the data viewed is
  * all readonly, and this is actually viewing a link - not an asset.
  */
 public class JAssetLink extends JLabel implements LittleTool {
@@ -112,7 +114,7 @@ public class JAssetLink extends JLabel implements LittleTool {
 
     }
     private final JAssetLinkRenderer orender;
-    private final AssetModelLibrary olibAsset;
+    private final AssetLibrary olibAsset;
     private final AssetSearchManager osearch;
 
     /**
@@ -236,7 +238,7 @@ public class JAssetLink extends JLabel implements LittleTool {
      */
     @Inject
     public JAssetLink(
-            AssetModelLibrary libAsset, AssetSearchManager search,
+            AssetLibrary libAsset, AssetSearchManager search,
             JAssetLinkRenderer render) {
         this.setForeground(Color.BLUE);
         this.addMouseListener(new LabelMouseListener());
@@ -286,7 +288,7 @@ public class JAssetLink extends JLabel implements LittleTool {
             return;
         }
         try {
-            final Option<AssetModel> maybeModel = olibAsset.retrieveAssetModel(u_id, osearch);
+            final Option<AssetRef> maybeModel = olibAsset.retrieveAssetModel(u_id, osearch);
             if (!maybeModel.isSet()) {
                 setLink((Asset) null);
             } else {

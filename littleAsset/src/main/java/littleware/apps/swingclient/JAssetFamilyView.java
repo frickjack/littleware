@@ -42,11 +42,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
-import littleware.apps.client.AbstractAssetView;
-import littleware.apps.client.AssetModel;
-import littleware.apps.client.AssetModelLibrary;
-import littleware.apps.client.AssetView;
-import littleware.apps.client.event.AssetModelEvent;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
+import littleware.asset.client.AssetActionEvent;
 import littleware.apps.swingclient.event.NavRequestEvent;
 import littleware.asset.Asset;
 import littleware.asset.client.AssetSearchManager;
@@ -197,7 +195,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
         ojTree.setExpandsSelectedPaths(true);
     }
     private final AssetSearchManager osearch;
-    private final AssetModelLibrary olibAsset;
+    private final AssetLibrary olibAsset;
     private final ExecutorService workPool;
 
     private void buildUI() {
@@ -210,7 +208,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
 
     @Inject
     public JAssetFamilyView(JAssetLinkRenderer render,
-            AssetModelLibrary libAsset,
+            AssetLibrary libAsset,
             AssetSearchManager search,
             ExecutorService workPool) {
         render.setRenderThumbnail(false);
@@ -240,10 +238,10 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     /**
      * Trigger a UI sync call to updateAssetUI
      * if the LittleEvent comes from
-     * the getAssetModel() AssetModel (data model update).
+     * the getAssetModel() AssetRef (data model update).
      */
     protected void eventFromModel(LittleEvent evt_prop) {
-        if ((evt_prop instanceof AssetModelEvent) && ((AssetModelEvent) evt_prop).getOp().equals(AssetModel.Operation.assetDeleted)) {
+        if ((evt_prop instanceof AssetActionEvent) && ((AssetActionEvent) evt_prop).getOp().equals(AssetRef.Operation.assetDeleted)) {
             return;
         }
         if ((activeWorkers < 1) && (! updatePending) ){
@@ -316,7 +314,7 @@ public class JAssetFamilyView extends JPanel implements AssetView {
                 final AssetNameId child = new AssetNameId(childName, childDictionary.get(childName));                
                 final DefaultMutableTreeNode node = new DefaultMutableTreeNode(child);
                 /*... could do this ...
-                final AssetModel model = olibAsset.get( child.getId() );
+                final AssetRef model = olibAsset.get( child.getId() );
                 if ( null != model ) {
                     assignUserObject( node, model.getAsset() );
                 }
@@ -454,12 +452,12 @@ public class JAssetFamilyView extends JPanel implements AssetView {
     }
 
     @Override
-    public AssetModel getAssetModel() {
+    public AssetRef getAssetModel() {
         return oview_util.getAssetModel();
     }
 
     @Override
-    public void setAssetModel(AssetModel model_asset) {
+    public void setAssetModel(AssetRef model_asset) {
         oview_util.setAssetModel(model_asset);
     }
 

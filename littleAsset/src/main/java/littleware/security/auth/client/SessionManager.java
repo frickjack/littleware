@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -60,6 +60,5 @@ public interface SessionManager extends Remote {
      * Just retrieves data string from /littleware.home/ServerVersion asset.
      */
     public String getServerVersion() throws RemoteException;
-
 }
 

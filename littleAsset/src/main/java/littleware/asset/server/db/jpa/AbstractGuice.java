@@ -64,8 +64,8 @@ public abstract class AbstractGuice implements Module {
         log.log( Level.FINE, "Configuring JPA database access" );
         binder.bind( LittleTransaction.class ).to( JpaLittleTransaction.class );
         binder.bind( JpaLittleTransaction.class ).to( SimpleJpaTransaction.class );
-        binder.bind( SimpleJpaTransaction.class ).toProvider(TransactionProvider.class);
-        binder.bind( TransactionProvider.class ).in( Scopes.SINGLETON );
+        //binder.bind( SimpleJpaTransaction.class ).toProvider(TransactionProvider.class);
+        //binder.bind( TransactionProvider.class ).in( Scopes.SINGLETON );
         binder.bind( EntityManager.class ).toProvider( EntityManagerProvider.class );
         binder.bind( DbAssetManager.class ).to( JpaDbAssetManager.class ).in( Scopes.SINGLETON );
     }

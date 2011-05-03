@@ -8,8 +8,9 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.client;
+package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
 import littleware.base.event.LittleTool;
 import littleware.base.feedback.Feedback;
 
@@ -18,7 +19,7 @@ import littleware.base.feedback.Feedback;
  * An AssetView underlies a UI component viewing 
  * data associated with a single main data asset.
  * An AssetView implementation listens for change-events on
- * the AssetModel it is observing, and fires its own
+ * the AssetRef it is observing, and fires its own
  * LittleEvents (especially NavRequestEvents) based 
  * on user interactions with the view.
  * A View listener is generally a Controller managing
@@ -37,7 +38,7 @@ public interface AssetView extends LittleTool {
     /**
      * Get the model this view is observing
      */
-    public AssetModel getAssetModel ();
+    public AssetRef getAssetModel ();
     
     /**
      * Set the model associated with this view.
@@ -46,9 +47,9 @@ public interface AssetView extends LittleTool {
      *
      * @throws LibraryMismatchException if model_asset does not
      *             belong to the same AssetModelLibrary as the
-     *             current AssetModel assigned to this view.
+     *             current AssetRef assigned to this view.
      */
-    public void setAssetModel ( AssetModel model_asset );
+    public void setAssetModel ( AssetRef model_asset );
 
     /**
      * Property associates a feedback mechanism with a view so that

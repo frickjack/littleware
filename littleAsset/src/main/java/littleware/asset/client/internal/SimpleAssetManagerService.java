@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -20,6 +20,7 @@ import littleware.asset.client.AssetManager;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.internal.RemoteAssetManager;
 import littleware.base.BaseException;
+import littleware.security.auth.client.KeyChain;
 
 /**
  * Simple implementation of AssetManagerService wrapper around AssetManager
@@ -29,33 +30,38 @@ public class SimpleAssetManagerService implements AssetManager {
     private static final long serialVersionUID = 4377427321241771838L;
     private final RemoteAssetManager     server;
     private final LittleServiceBus eventBus;
+    private final KeyChain keychain;
 
 
     /**
      * Inject the server to wrap with LittleService event throwing support
      */
     @Inject
-    public SimpleAssetManagerService(RemoteAssetManager server, LittleServiceBus eventBus ) {
+    public SimpleAssetManagerService(RemoteAssetManager server, LittleServiceBus eventBus, KeyChain keychain ) {
         this.server = server;
         this.eventBus = eventBus;
+        this.keychain = keychain;
     }
 
     @Override
     public void deleteAsset(UUID assetId, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        server.deleteAsset(assetId, updateComment);
+        final UUID sessionId = keychain.getDefaultSessionId().get();
+        server.deleteAsset(sessionId, assetId, updateComment);
         eventBus.fireEvent(new AssetDeleteEvent(this, assetId));
     }
 
     @Override
     public <T extends Asset> T saveAsset(T asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        T result = server.saveAsset(asset, updateComment);
+        final UUID sessionId = keychain.getDefaultSessionId().get();
+        final T result = server.saveAsset(sessionId, asset, updateComment);
         eventBus.fireEvent(new AssetLoadEvent(this, result));
         return result;
     }
 
     @Override
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        Collection<Asset> vResult = server.saveAssetsInOrder(assetList, updateComment);
+        final UUID sessionId = keychain.getDefaultSessionId().get();
+        final Collection<Asset> vResult = server.saveAssetsInOrder(sessionId, assetList, updateComment);
         for (Asset result : vResult) {
             eventBus.fireEvent(new AssetLoadEvent(this, result));
         }

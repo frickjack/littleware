@@ -7,6 +7,7 @@
  */
 package littleware.apps.swingclient.event;
 
+import littleware.asset.client.AssetRef;
 import littleware.apps.client.*;
 import littleware.base.event.LittleEvent;
 
@@ -17,24 +18,24 @@ public class CreateRequestEvent extends LittleEvent {
 
     private static final String OS_OPERATION = "CreateRequestEvent";
     private static final long serialVersionUID = -5621375774508626054L;
-    private final AssetModel viewModel;
+    private final AssetRef viewModel;
 
     /**
      * Setup the CreateRequestEvent
      *
      * @param source of the event
-     * @param viewModel AssetModel the client is viewing at the time of the request - may be null
+     * @param viewModel AssetRef the client is viewing at the time of the request - may be null
      */
-    public CreateRequestEvent(Object source, AssetModel viewModel) {
+    public CreateRequestEvent(Object source, AssetRef viewModel) {
         super(source);
         this.viewModel = viewModel;
     }
 
     /**
-     * Get the AssetModel that the client was looking at when
+     * Get the AssetRef that the client was looking at when
      * the CREATE request was triggered - may be null
      */
-    public AssetModel getAssetModel() {
+    public AssetRef getAssetModel() {
         return viewModel;
     }
 }

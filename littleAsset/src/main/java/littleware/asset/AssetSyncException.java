@@ -1,5 +1,13 @@
-package littleware.asset;
+/*
+ * Copyright 2011 Reuben Pasquini All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the
+ * Lesser GNU General Public License (LGPL) Version 2.1.
+ * http://www.gnu.org/licenses/lgpl-2.1.html.
+ */
 
+
+package littleware.asset;
 
 
 /**
@@ -22,7 +30,4 @@ public class AssetSyncException extends AssetException {
 		super ( s_message, e_cause );
 	}
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

@@ -10,6 +10,7 @@
 
 package littleware.apps.swingclient.wizard;
 
+import littleware.apps.swingclient.AssetEditor;
 import javax.swing.*;
 import java.util.List;
 

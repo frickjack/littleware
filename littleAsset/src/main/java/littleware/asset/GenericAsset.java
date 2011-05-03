@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.UUIDFactory;
 
 /**

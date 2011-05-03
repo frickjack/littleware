@@ -30,8 +30,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 
-import littleware.apps.client.AssetModel;
-import littleware.apps.client.AssetModelLibrary;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.apps.swingbase.view.BaseView;
 import littleware.apps.swingbase.view.BaseView.ViewBuilder;
 import littleware.apps.swingclient.*;
@@ -60,7 +60,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
     public static class Services {
 
         private final AssetSearchManager search;
-        private final AssetModelLibrary assetLib;
+        private final AssetLibrary assetLib;
         private final AssetPathFactory pathFactory;
         private final Provider<JAssetBrowser> browserProvider;
         private final Provider<ExtendedAssetViewController> provideControl;
@@ -73,7 +73,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
                 final Provider<ExtendedAssetViewController> provideControl,
                 final Provider<JSimpleAssetToolbar> provideToolbar,
                 AssetSearchManager search,
-                AssetModelLibrary lib,
+                AssetLibrary lib,
                 AssetPathFactory pathFactory,
                 LittleUser user) {
             this.browserProvider = provideBrowser;
@@ -85,7 +85,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
             this.pathFactory = pathFactory;
         }
 
-        public AssetModelLibrary getAssetLib() {
+        public AssetLibrary getAssetLib() {
             return assetLib;
         }
 
@@ -285,7 +285,7 @@ public class LgoBrowserCommand extends AbstractLgoCommand<AssetPath, EventBarrie
         stuff.toolbar.addLittleListener(control);
 
 
-        final AssetModel model = services.getAssetLib().syncAsset(startAsset);
+        final AssetRef model = services.getAssetLib().syncAsset(startAsset);
         stuff.browser.setAssetModel(model);
 
 

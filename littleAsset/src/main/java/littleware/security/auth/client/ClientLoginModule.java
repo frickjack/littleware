@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.security.auth.client;
@@ -23,12 +21,12 @@ import javax.security.auth.*;
 import javax.security.auth.spi.*;
 import javax.security.auth.login.*;
 import javax.security.auth.callback.*;
+import littleware.asset.client.AssetRef;
 
 
 import littleware.base.*;
-import littleware.asset.*;
 import littleware.security.*;
-
+import littleware.security.auth.LittleSession;
 
 /**
  * Login module for littleware clients.
@@ -90,18 +88,18 @@ public class ClientLoginModule implements LoginModule {
 
         /*
         try {
-            final SessionUtil util = SessionUtil.get();
-            if (null != host) {
-                if (null != port) {
-                    this.sessionManager = util.getSessionManager(host, Integer.parseInt(port));
-                } else {
-                    this.sessionManager = util.getSessionManager(host, util.getRegistryPort());
-                }
-            } else {
-                this.sessionManager = util.getSessionManager();
-            }
+        final SessionUtil util = SessionUtil.get();
+        if (null != host) {
+        if (null != port) {
+        this.sessionManager = util.getSessionManager(host, Integer.parseInt(port));
+        } else {
+        this.sessionManager = util.getSessionManager(host, util.getRegistryPort());
+        }
+        } else {
+        this.sessionManager = util.getSessionManager();
+        }
         } catch (Exception ex) {
-            throw new IllegalStateException("Failed to setup SessionManager", ex);
+        throw new IllegalStateException("Failed to setup SessionManager", ex);
         }
          *
          */
@@ -199,7 +197,7 @@ public class ClientLoginModule implements LoginModule {
         if (null == sessionId) {
             try {
                 sessionId = sessionManager.login(userName, password,
-                        "ClientLoginModule login").getId();
+                        "ClientLoginModule login").getPublicCredentials(LittleSession.class).iterator().next().getId();
             } catch (Exception ex) {
                 throw (LoginException) (new FailedLoginException("Failed " + userName + " login").initCause(ex));
             }
@@ -229,7 +227,7 @@ public class ClientLoginModule implements LoginModule {
 
                 for (String aclName : aclNameList) {
                     try {
-                        final Option<Asset> maybeAcl = search.getByName(aclName,
+                        final AssetRef maybeAcl = search.getByName(aclName,
                                 LittleAcl.ACL_TYPE);
                         if (maybeAcl.isSet()) {
                             final LittleAcl acl_check = maybeAcl.get().narrow();

@@ -10,7 +10,9 @@
 
 package littleware.apps.swingclient;
 
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
+import littleware.asset.internal.RemoteAssetRetriever;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.security.acl.*;
@@ -36,7 +38,7 @@ public class JAclView extends JAssetWithChildrenView {
      */
     @Override
     protected Map<Asset,String> getChildInfo () {
-        AssetModel model_view = getAssetModel ();
+        AssetRef model_view = getAssetModel ();
         Map<Asset,String> v_childinfo = new HashMap<Asset,String> ();
         
         if ( ! model_view.getAsset ().getAssetType ().equals ( LittleAcl.ACL_TYPE ) ) {
@@ -72,9 +74,9 @@ public class JAclView extends JAssetWithChildrenView {
      * Constructor sets up the UI to view the given acl
      */
     @Inject
-    public JAclView( AssetRetriever m_retriever,
+    public JAclView( RemoteAssetRetriever m_retriever,
                        IconLibrary lib_icon ,
-                       AssetModelLibrary lib_asset,
+                       AssetLibrary lib_asset,
                        JAssetLinkList    jListChildren,
                        Provider<JAssetLink> provideLinkView
                        ) {

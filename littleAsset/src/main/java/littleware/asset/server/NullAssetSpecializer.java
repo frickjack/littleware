@@ -2,7 +2,6 @@ package littleware.asset.server;
 
 import com.google.inject.Singleton;
 import littleware.asset.*;
-import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import littleware.base.BaseException;
 
@@ -17,24 +16,24 @@ import littleware.base.BaseException;
 public class NullAssetSpecializer implements AssetSpecializer {
 
     @Override
-    public <T extends Asset> T narrow(T asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
+    public <T extends Asset> T narrow(LittleContext ctx, T asset) throws BaseException, AssetException,
+            GeneralSecurityException {
         return asset;
     }
 
     @Override
-    public void postCreateCallback(Asset asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
+    public void postCreateCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
+            GeneralSecurityException {
     }
 
     @Override
-    public void postUpdateCallback(Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
+    public void postUpdateCallback(LittleContext ctx, Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
+            GeneralSecurityException {
     }
 
     @Override
-    public void postDeleteCallback(Asset asset) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
+    public void postDeleteCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
+            GeneralSecurityException {
     }
 }
 

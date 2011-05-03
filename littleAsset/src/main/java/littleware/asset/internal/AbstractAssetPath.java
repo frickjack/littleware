@@ -3,25 +3,16 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset.internal;
 
-import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-import littleware.asset.Asset;
-import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.client.AssetSearchManager;
 
-import littleware.base.BaseException;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
 
 /**
  * Convenience baseclass for AssetPath implementations 
@@ -74,21 +65,12 @@ public abstract class AbstractAssetPath implements AssetPath {
         }
     }
 
-    /** Subtype needs to override */
-    @Override
-    public abstract Option<Asset> getRoot(AssetSearchManager m_search) throws BaseException, AssetException, GeneralSecurityException,
-            RemoteException;
 
     @Override
     public String getSubRootPath() {
         return os_subroot_path;
     }
 
-    @Override
-    public Option<Asset> getAsset(AssetSearchManager m_search) throws BaseException, AssetException, GeneralSecurityException,
-            RemoteException {
-        return m_search.getAssetAtPath(this);
-    }
 
     @Override
     public boolean hasParent() {

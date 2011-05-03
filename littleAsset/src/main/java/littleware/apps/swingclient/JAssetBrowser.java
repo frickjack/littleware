@@ -9,7 +9,9 @@
  */
 package littleware.apps.swingclient;
 
-import littleware.asset.internal.AssetRetriever;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
+import littleware.asset.internal.RemoteAssetRetriever;
 import com.google.inject.Inject;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
@@ -21,7 +23,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.apps.client.*;
-import littleware.apps.client.event.AssetModelEvent;
+import littleware.asset.client.AssetActionEvent;
 import littleware.asset.*;
 import littleware.apps.swingclient.event.*;
 import littleware.base.Maybe;
@@ -42,31 +44,31 @@ public class JAssetBrowser extends JPanel implements AssetView {
     private static final long serialVersionUID = -5561680971560382683L;
     private final AssetViewFactory ofactory_view;
     private final IconLibrary olib_icon;
-    private final AssetModelLibrary olib_asset;
-    private final AssetRetriever om_retriever;
+    private final AssetLibrary olib_asset;
+    private final RemoteAssetRetriever om_retriever;
     private final AbstractAssetView oview_support = new AbstractAssetView(this) {
 
         @Override
         public void eventFromModel(LittleEvent eventIn) {
-            if (!(eventIn instanceof AssetModelEvent)) {
+            if (!(eventIn instanceof AssetActionEvent)) {
                 return;
             }
-            final AssetModelEvent event = (AssetModelEvent) eventIn;
+            final AssetActionEvent event = (AssetActionEvent) eventIn;
             SwingUtilities.invokeLater(
                     new Runnable() {
 
                         @Override
                         public void run() {
-                            if ( AssetModel.Operation.assetsLinkingFrom.equals(event.getOp())) {
+                            if ( AssetRef.Operation.assetsLinkingFrom.equals(event.getOp())) {
                                 // Need to update children view
                                 updateChildrenWidgetAndValidate();
-                            } else if (event.getOp().equals(AssetModel.Operation.assetDeleted)) {
-                                final AssetModelLibrary lib = getAssetModel().getLibrary();
+                            } else if (event.getOp().equals(AssetRef.Operation.assetDeleted)) {
+                                final AssetLibrary lib = getAssetModel().getLibrary();
                                 final Asset deleted = getAssetModel().getAsset();
                                 final UUID uNew = (deleted.getFromId() != null) ? deleted.getFromId() : deleted.getHomeId();
                                 getFeedback().info("Asset in view deleted, moving to view " + uNew);
                                 try {
-                                    final Option<AssetModel> maybe = lib.retrieveAssetModel(uNew, om_retriever);
+                                    final Option<AssetRef> maybe = lib.retrieveAssetModel(uNew, om_retriever);
                                     if (maybe.isSet()) {
                                         setAssetModel(maybe.get());
                                     } else {
@@ -138,8 +140,8 @@ public class JAssetBrowser extends JPanel implements AssetView {
     @Inject
     public JAssetBrowser(AssetViewFactory factory_view,
             IconLibrary lib_icon,
-            AssetModelLibrary lib_asset,
-            AssetRetriever m_retriever,
+            AssetLibrary lib_asset,
+            RemoteAssetRetriever m_retriever,
             JAssetLinkList jListChildren,
             final JAssetFamilyView jFamilyView) {
         //super( new GridBagLayout () );
@@ -172,7 +174,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
             public void propertyChange(PropertyChangeEvent evt_prop) {
                 if (evt_prop.getPropertyName().equals(AssetView.Property.assetModel.toString())) {
                     // Model has changed under us
-                    jFamilyView.setAssetModel((AssetModel) evt_prop.getNewValue());
+                    jFamilyView.setAssetModel((AssetRef) evt_prop.getNewValue());
                     SwingUtilities.invokeLater(
                             new Runnable() {
 
@@ -220,7 +222,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
     }
 
     @Override
-    public AssetModel getAssetModel() {
+    public AssetRef getAssetModel() {
         return oview_support.getAssetModel();
     }
     private boolean ob_in_sync = false;
@@ -341,7 +343,7 @@ public class JAssetBrowser extends JPanel implements AssetView {
     }
 
     @Override
-    public void setAssetModel(AssetModel model_asset) {
+    public void setAssetModel(AssetRef model_asset) {
         oview_support.setAssetModel(model_asset);
     }
 

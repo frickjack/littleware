@@ -9,6 +9,8 @@
  */
 package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
@@ -170,7 +172,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
             final String s_name = owtext_add.getText();
             final LittlePrincipal principal = om_search.getByName(s_name, LittlePrincipal.PRINCIPAL_TYPE).get().narrow();
             LittleAcl acl_local = this.getLocalAsset().narrow();
-            AssetModelLibrary lib_asset = getAssetModel().getLibrary();
+            AssetLibrary lib_asset = getAssetModel().getLibrary();
             LittlePermission perm_selected = owtab_perms.getSelectedPermission();
 
             final LittleAclEntry.Builder entryBuilder;
@@ -327,7 +329,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
      * @param view_factory read-only view source for browsers     
      */
     @Inject
-    public JAclEditor(AssetModelLibrary libAsset,
+    public JAclEditor(AssetLibrary libAsset,
             AssetManager m_asset,
             AssetSearchManager m_search,
             JAssetLinkRenderer renderLink,
@@ -367,7 +369,7 @@ public class JAclEditor extends JGenericAssetEditor implements AssetEditor {
 
         // Model has changed under us
         owtab_perms.clearAll();
-        AssetModel amodel_view = getAssetModel();
+        AssetRef amodel_view = getAssetModel();
 
         if ((null == amodel_view)
                 || (!(amodel_view.getAsset().getAssetType().equals(LittleAcl.ACL_TYPE)))) {

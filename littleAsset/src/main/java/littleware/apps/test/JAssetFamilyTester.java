@@ -13,8 +13,8 @@ package littleware.apps.test;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.apps.client.AssetModel;
-import littleware.apps.client.AssetModelLibrary;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetLibrary;
 import littleware.apps.swingclient.JAssetFamilyView;
 import littleware.asset.client.AssetSearchManager;
 import littleware.security.AccountManager;
@@ -30,12 +30,12 @@ public class JAssetFamilyTester extends LittleTest {
 
     private final JAssetFamilyView ojViewTest;
     private final AssetSearchManager osearch;
-    private final AssetModelLibrary olibAsset;
+    private final AssetLibrary olibAsset;
 
     @Inject
     public JAssetFamilyTester( JAssetFamilyView  jViewTest,
             AssetSearchManager search,
-            AssetModelLibrary libAsset
+            AssetLibrary libAsset
             ) {
         setName( "testJAssetFamily" );
         ojViewTest = jViewTest;
@@ -45,7 +45,7 @@ public class JAssetFamilyTester extends LittleTest {
 
     public void testJAssetFamily() {
         try {
-            final AssetModel modelEverybody = olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP, LittleGroup.GROUP_TYPE, osearch ).get();
+            final AssetRef modelEverybody = olibAsset.getByName( AccountManager.LITTLEWARE_EVERYBODY_GROUP, LittleGroup.GROUP_TYPE, osearch ).get();
             ojViewTest.setAssetModel( modelEverybody );
             assertTrue("User confirmed family-viewer UI functional",
                     JLittleDialog.showTestDialog(ojViewTest,

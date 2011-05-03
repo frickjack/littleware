@@ -1,21 +1,21 @@
 /*
- * Copyright 2007-2008 Reuben Pasquini All rights reserved.
+ * Copyright 2011 catdogboy@yahoo.com
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.asset.server.internal;
 
-import littleware.asset.client.AssetManager;
 import java.util.*;
 import java.security.*;
 import java.rmi.RemoteException;
 
 import littleware.asset.*;
+import littleware.asset.internal.RemoteAssetManager;
+import littleware.asset.server.LittleContext;
+import littleware.asset.server.ServerAssetManager;
 import littleware.base.*;
 import littleware.net.LittleRemoteObject;
 
@@ -24,33 +24,35 @@ import littleware.net.LittleRemoteObject;
  * Should usually wrap a SubjectInvocationHandler equiped DynamicProxy
  * of a base implementation class.
  */
-public class RmiAssetManager extends LittleRemoteObject implements AssetManager {
+public class RmiAssetManager extends LittleRemoteObject implements RemoteAssetManager {
 
-    private final AssetManager assetMgr;
+    private final ServerAssetManager assetMgr;
+    private final LittleContext.ContextFactory ctxFactory;
 
-    public RmiAssetManager(AssetManager m_proxy) throws RemoteException {
-        assetMgr = m_proxy;
+    public RmiAssetManager(ServerAssetManager proxy, LittleContext.ContextFactory ctxFactory ) throws RemoteException {
+        assetMgr = proxy;
+        this.ctxFactory = ctxFactory;
     }
 
     @Override
-    public void deleteAsset(UUID u_asset,
-            String s_update_comment) throws BaseException, AssetException,
+    public void deleteAsset(UUID sessionId, UUID assetId,
+            String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        assetMgr.deleteAsset(u_asset, s_update_comment);
+        assetMgr.deleteAsset( ctxFactory.build(sessionId), assetId, updateComment);
     }
 
     @Override
-    public <T extends Asset> T saveAsset(T a_asset,
-            String s_update_comment) throws BaseException, AssetException,
+    public <T extends Asset> T saveAsset(UUID sessionId, T asset,
+            String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return assetMgr.saveAsset(a_asset, s_update_comment);
+        return assetMgr.saveAsset( ctxFactory.build(sessionId), asset, updateComment);
     }
 
     @Override
-    public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets,
-            String s_update_comment) throws BaseException, AssetException,
+    public Collection<Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assets,
+            String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return assetMgr.saveAssetsInOrder(v_assets, s_update_comment);
+        return assetMgr.saveAssetsInOrder( ctxFactory.build(sessionId), assets, updateComment);
     }
 }
 

@@ -3,13 +3,12 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.client;
+package littleware.apps.swingclient;
 
+import littleware.asset.client.AssetRef;
 import java.beans.PropertyChangeEvent;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -48,14 +47,14 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
     }
     
     /**
-     * Set the AssetModel being viewed, and reset the local asset.
+     * Set the AssetRef being viewed, and reset the local asset.
      */
     @Override
-    public void setAssetModel ( AssetModel model_edit ) {
+    public void setAssetModel ( AssetRef model_edit ) {
         if ( null == model_edit ) {
             return;
         }
-        localBuilder = model_edit.getAsset ().copy ();
+        localBuilder = model_edit.getRef ().copy ();
         localAsset = null;
         // Do this last - it notifies observers
         super.setAssetModel ( model_edit );
@@ -90,7 +89,7 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
     
     @Override
     public void clearLocalChanges () {
-        final Asset clean = getAssetModel ().getAsset ();
+        final Asset clean = getAssetModel ().getRef ();
         localBuilder = clean.copy ();
         localAsset = null;
         setHasLocalChanges ( false );
@@ -102,7 +101,7 @@ public abstract class AbstractAssetEditor extends AbstractAssetView implements A
         RemoteException, GeneralSecurityException
     {
         getAssetModel ().syncAsset ( assetMgr.saveAsset( localBuilder.build(), message ) );
-        localBuilder = getAssetModel().getAsset().copy();
+        localBuilder = getAssetModel().getRef().copy();
         localAsset = null;
         setHasLocalChanges ( false );
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -30,23 +30,13 @@ import littleware.security.AccessDeniedException;
  * Interface for retrieving assets from various sources -
  * different implementations may enforce security and cacheing
  * to different degrees.
- * Intended for internal (between servers and managers) use only - 
+ * Intended for internal (between servers and managers) use only -
  * clients should interact with littleware.asset via 
  * the AssetSearchManager implementation - which may manage multiple
- * RemoteAssetRetriever's under the hood.
- *
+ * remote services under the hood.
  * An RemoteAssetRetriever uses the AssetSpecializer associated with a loaded
- * asset's type to fill in the type-specific data for the asset.
- * An RemoteAssetRetriever must maintain state to avoid asset-retrieval cycles
- * with the AssetSpecializer narrow() callbacks.
- * The cycle-cache
- * also allows the RemoteAssetRetriever to avoid data explosion when
- * loading asset graphs that may access various assets via multiple paths.
- *
- * Does not extends Remote so we have the option of
- * sending cilents serializable proxies, but every method
- * does throw RemoteException so this interface is
- * ready for a Remote mixin.
+ * asset's type to fill in the type-specific data for the asset,
+ * and enforce type-specific constraints.
  */
 public interface RemoteAssetRetriever extends java.rmi.Remote {
 

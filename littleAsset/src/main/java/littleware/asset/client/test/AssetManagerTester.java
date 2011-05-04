@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.test;
+package littleware.asset.client.test;
 
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetManager;

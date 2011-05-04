@@ -1,11 +1,12 @@
 package littleware.security.server;
 
 
-import littleware.asset.client.AssetSearchManager;
-import littleware.asset.client.AssetManager;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import littleware.asset.*;
+import littleware.asset.server.LittleContext;
+import littleware.asset.server.ServerAssetManager;
+import littleware.asset.server.ServerSearchManager;
 import littleware.base.BaseException;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
@@ -15,8 +16,8 @@ import littleware.security.Quota;
  * with littleware.security.AccountManager implementations.
  */
 public interface QuotaUtil {
-    public Quota getQuota(LittleUser user, AssetSearchManager search ) throws BaseException,
-            GeneralSecurityException, RemoteException;
+    public Quota getQuota( LittleContext ctx, LittleUser user, ServerSearchManager search ) throws BaseException,
+            GeneralSecurityException;
 
     /**
      * Utility to increment quota - needs to run with admin
@@ -31,9 +32,9 @@ public interface QuotaUtil {
      * @throws java.security.GeneralSecurityException
      * @throws java.rmi.RemoteException
      */
-    public int incrementQuotaCount( LittleUser user, AssetManager accountMgr,
-            AssetSearchManager search
+    public int incrementQuotaCount( LittleContext ctx, LittleUser user, ServerAssetManager accountMgr,
+            ServerSearchManager search
             ) throws BaseException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
 }

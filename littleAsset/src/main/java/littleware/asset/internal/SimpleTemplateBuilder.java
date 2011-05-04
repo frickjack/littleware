@@ -18,6 +18,7 @@ import littleware.asset.AssetType;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeNode.TreeNodeBuilder;
+import littleware.asset.TreeParent;
 import littleware.base.validate.ValidationException;
 
 /**
@@ -175,6 +176,17 @@ public class SimpleTemplateBuilder implements AssetTreeTemplate.TemplateBuilder 
         public SimpleTreeTemplate(TreeNodeBuilder builder, Collection<? extends AssetTreeTemplate> children) {
             this.builder = builder;
             this.children = ImmutableList.copyOf(children);
+        }
+
+        @Override
+        public Collection<AssetInfo> scan(TreeParent parent, TreeVisitor visitor) {
+            final ImmutableList.Builder<AssetInfo> resultBuilder = ImmutableList.builder();
+            final AssetInfo info = visitor.visit(parent, this);
+            resultBuilder.add(info);
+            for( AssetTreeTemplate child : this.children ) {
+                resultBuilder.addAll( scan( info.getAsset(), visitor ) );
+            }
+            return resultBuilder.build();
         }
 
 

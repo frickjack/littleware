@@ -9,7 +9,6 @@
 
 package littleware.asset.server;
 
-import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Date;
@@ -59,7 +58,7 @@ public interface ServerSearchManager {
      * @throws AssetException if some other failure condition
      */
     public List<Asset> getAssets( LittleContext context, Collection<UUID> idSet) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
     /**
      * Get the Home assets this server has access to
@@ -70,14 +69,14 @@ public interface ServerSearchManager {
      * @throws AccessDeniedException if caller is not an administrator
      */
     public Map<String, UUID> getHomeAssetIds( LittleContext context ) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
 
     public Map<String, UUID> getAssetIdsFrom( 
             LittleContext context,
             UUID fromId,
             AssetType type) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
 
 
@@ -85,7 +84,7 @@ public interface ServerSearchManager {
             LittleContext context,
             UUID fromId
             ) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
 
 
@@ -100,7 +99,7 @@ public interface ServerSearchManager {
      * @throws InavlidAssetTypeException if n_type is not name-unique
      */
     public  Option<Asset> getByName( LittleContext context, String name, AssetType type) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
 
 
@@ -117,7 +116,7 @@ public interface ServerSearchManager {
      */
     public List<Asset> getAssetHistory( LittleContext context, UUID assetId,  Date start,  Date end)
             throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
     /**
      * Get the asset linking FROM the given parent asset and
@@ -128,7 +127,7 @@ public interface ServerSearchManager {
      * @throws NoSuchThingException if requested asset does not exist
      */
     public Option<Asset> getAssetFrom( LittleContext context, UUID parentId,  String name) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
 
     /**
@@ -140,7 +139,7 @@ public interface ServerSearchManager {
      *              from id to transaction-count, or mapping from id
      *              to null if the specified id has been deleted from the asset repository
      */
-    public Map<UUID, Long> checkTransactionCount( LittleContext context, Map<UUID, Long> checkMap ) throws BaseException, RemoteException;
+    public Map<UUID, Long> checkTransactionCount( LittleContext context, Map<UUID, Long> checkMap ) throws BaseException;
 
 
     /**
@@ -150,7 +149,7 @@ public interface ServerSearchManager {
      * @param minTransaction
      * @return list of (transaction,asset-id) info in transaction order
      */
-    public List<IdWithClock> checkTransactionLog( LittleContext context, UUID homeId, long minTransaction ) throws BaseException, RemoteException;
+    public List<IdWithClock> checkTransactionLog( LittleContext context, UUID homeId, long minTransaction ) throws BaseException;
 
     /**
      * Get the links (assets with a_to as their TO-asset)
@@ -168,6 +167,6 @@ public interface ServerSearchManager {
      */
     public Set<UUID> getAssetIdsTo( LittleContext context, UUID toId,
              AssetType type) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
 }

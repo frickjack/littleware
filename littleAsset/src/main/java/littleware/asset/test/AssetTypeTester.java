@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  * 
  * The contents of this file are available subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -12,6 +12,7 @@ package littleware.asset.test;
 import java.util.logging.Logger;
 import littleware.asset.AssetType;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.security.LittlePrincipal;
 import littleware.test.LittleTest;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -29,7 +29,31 @@ public interface AssetTreeTemplate {
      */
     public AssetType getType();
 
+    /**
+     * Little POJO bucket holds the asset is a node on the tree,
+     * and the exists property states whether or not that
+     * asset already exists in the repository.
+     */
+    public interface AssetInfo {
+        public TreeParent getAsset();
+    }
 
+    /**
+     * Interface for visitors to scan the tree with
+     */
+    public interface TreeVisitor {
+        /**
+         * Visit a node in a tree template
+         *
+         * @param parent asset the template should build under
+         * @param treeTemplate template node being visited
+         * @return the parent for visits to treeTemplate's children
+         */
+        public AssetInfo visit( TreeParent parent, AssetTreeTemplate treeTemplate );
+    }
+
+
+    public Collection<AssetInfo> scan( TreeParent parent, TreeVisitor visitor );
 
     // ----------------------------------------------------------
 

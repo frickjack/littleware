@@ -1,13 +1,11 @@
 /*
- * Copyright 2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.test;
+package littleware.asset.client.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -27,11 +25,15 @@ import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.client.AssetTreeTool;
-import littleware.asset.AssetType;
 import littleware.asset.LittleHome;
+import littleware.asset.TemplateScanner;
+import littleware.asset.TemplateScanner.ExistInfo;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeNode.TreeNodeBuilder;
+import littleware.asset.client.AssetLibrary;
+import littleware.asset.client.AssetRef;
 import littleware.base.Maybe;
+import littleware.base.Option;
 
 /**
  * Simple AssetTreeTool tester
@@ -45,6 +47,8 @@ public class AssetTreeToolTester extends AbstractAssetTest {
     private final AssetSearchManager search;
     private final Provider<TemplateBuilder> treeBuilder;
     private final Provider<TreeNodeBuilder> nodeProvider;
+    private final Provider<TemplateScanner> treeScanFactory;
+    private final AssetLibrary library;
 
     @Inject
     public AssetTreeToolTester(AssetManager manager,
@@ -52,7 +56,9 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             AssetPathFactory pathFactory,
             AssetSearchManager search,
             Provider<TreeNode.TreeNodeBuilder> nodeProvider,
-            Provider<AssetTreeTemplate.TemplateBuilder> treeBuilder) {
+            Provider<AssetTreeTemplate.TemplateBuilder> treeBuilder,
+            Provider<TemplateScanner> treeScanFactory,
+            AssetLibrary library) {
         this.treeTool = treeTool;
         this.search = search;
         this.manager = manager;
@@ -60,16 +66,18 @@ public class AssetTreeToolTester extends AbstractAssetTest {
         this.treeBuilder = treeBuilder;
         this.nodeProvider = nodeProvider;
         setName("testTreeTool");
+        this.treeScanFactory = treeScanFactory;
+        this.library = library;
     }
 
     @Override
     public void setUp() {
         try {
             final LittleHome home = getTestHome(search);
-            Option<Asset> maybeRoot = search.getAssetAtPath(
+            AssetRef maybeRoot = search.getAssetAtPath(
                     pathFactory.createPath(home.getId(), "TreeToolTester"));
             if (!maybeRoot.isSet()) {
-                maybeRoot = Maybe.something( (Asset)
+                maybeRoot = library.syncAsset(
                         manager.saveAsset(
                         nodeProvider.get().name("TreeToolTester").parent(home).build(),
                         "Setup test"));
@@ -82,7 +90,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
                 final TreeNode childNode;
                 final Map<String, UUID> mapBrat;
                 if (!maybeChildId.isSet()) {
-                    childNode = manager.saveAsset( nodeProvider.get().name(sChild).parent(parentNode).build(), "Setup test");
+                    childNode = manager.saveAsset(nodeProvider.get().name(sChild).parent(parentNode).build(), "Setup test");
                     mapBrat = Collections.emptyMap();
                 } else {
                     childNode = search.getAsset(maybeChildId.get()).get().narrow();
@@ -122,14 +130,13 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             }
             final Collection<AssetTreeTemplate.AssetInfo> infoList =
                     treeBuilder.get().path(testFolderPath).addChildren(
-                    children).build().visit( getTestHome( search ), search);
-            assertTrue( "Tree template visits 4 nodes: " + infoList.size(),
-                    4 == infoList.size()
-                    );
-            for( AssetTreeTemplate.AssetInfo info : infoList ) {
-                assertTrue( "Template visit finds already existing nodes: " + info.getAsset().getName(),
-                        info.getAssetExists()
-                        );
+                    children).build().scan(getTestHome(search), treeScanFactory.get() );
+            assertTrue("Tree template visits 4 nodes: " + infoList.size(),
+                    4 == infoList.size());
+            for (AssetTreeTemplate.AssetInfo x : infoList) {
+                final ExistInfo info = (ExistInfo) x;
+                assertTrue("Template visit finds already existing nodes: " + info.getAsset().getName(),
+                        info.getAssetExists());
             }
         } catch (Exception ex) {
             log.log(Level.WARNING, "Test caught exception", ex);

@@ -31,7 +31,7 @@ import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.client.AssetSearchManager;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.AssertionFailedException;
 import littleware.base.Maybe;
 import littleware.security.LittleUser;

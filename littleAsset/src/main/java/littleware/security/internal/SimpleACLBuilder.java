@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.security.internal;
@@ -27,6 +25,7 @@ import java.util.logging.Level;
 
 import littleware.asset.*;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAcl.Builder;
 import littleware.security.LittleAclEntry;
@@ -39,7 +38,7 @@ import littleware.security.LittleUser;
  */
 public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> implements LittleAcl.Builder {
 
-    private static Logger log = Logger.getLogger(SimpleACLBuilder.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleACLBuilder.class.getName());
 
     /**
      * Do nothing constructor - needed for serializable, etc.
@@ -115,15 +114,13 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
                     }
                 }
 
-                log.log(Level.FINE, "Checking " + user.getName() + " permission on ACL " +
-                        this.getName());
+                log.log(Level.FINE, "Checking {0} permission on ACL {1}", new Object[]{user.getName(), this.getName()});
 
                 for (Map.Entry<LittleGroup, LittleAclEntry> entry : positiveGroupEntries.entrySet() ) {
                     final LittleGroup group = entry.getKey().narrow();
                     final boolean isMember = group.isMember(user);
 
-                    log.log(Level.FINE, "Checking " + user.getName() + " membership in group " +
-                            group.getName() + ": " + isMember);
+                    log.log(Level.FINE, "Checking {0} membership in group {1}: {2}", new Object[]{user.getName(), group.getName(), isMember});
 
                     if (isMember &&
                             entry.getValue().checkPermission(permission)) {

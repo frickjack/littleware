@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  * 
  * The contents of this file are available subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -20,7 +20,11 @@ import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 
 /**
- * Context of a remote method call
+ * Context of a remote method call.
+ * Each remote call receives its own context.
+ * LittleContext should only be instantiated in
+ * remote method marshal code, then passed around
+ * through chained calls to local services.
  */
 public interface LittleContext {
     /**
@@ -60,10 +64,23 @@ public interface LittleContext {
      */
     public boolean checkPermission(LittlePermission permission, UUID aclId) throws BaseException, GeneralSecurityException;
 
+    /**
+     * Get a context with the same transaction state,
+     * but with administrator permissions.
+     * TODO: setup adminContext to use its own cache too
+     */
+    public LittleContext getAdminContext();
+
     //--------------------------
 
     public interface ContextFactory {
         public LittleContext  build( UUID sessionId );
-        public LittleContext  getAdminContext();
+        public LittleContext  buildAdminContext();
+        /**
+         * Build context bound to bogus session for littleware.test_user -
+         * intended to simplify server API unit tests.
+         */
+        public LittleContext  buildTestContext();
     }
+    
 }

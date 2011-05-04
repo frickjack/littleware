@@ -21,7 +21,7 @@ import littleware.asset.Asset;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.GenericAsset;
 import littleware.asset.GenericAsset.GenericBuilder;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 
 /**
  * Test the Gson integration

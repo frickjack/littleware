@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -115,5 +113,11 @@ public interface RemoteSearchManager extends RemoteAssetRetriever, Remote {
     public Set<UUID> getAssetIdsTo( UUID sessionId, UUID toId,
              AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
+
+    /**
+     * Position in JNDI or RMI directory to bind/lookup this service
+     */
+    public static String  LOOKUP_PATH = "littleware/SearchManager";
+
 }
 

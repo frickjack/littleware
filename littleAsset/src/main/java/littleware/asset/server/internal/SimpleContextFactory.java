@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  * 
  * The contents of this file are available subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -47,16 +47,17 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
     private final Provider<LittleSession.Builder> sessionBuilder;
     private final Provider<LittleUser.Builder> userBuilder;
     private final Provider<LittleTransaction> transactionProvider;
-    private final LittleContext adminContext;
     private LittleGroup adminGroup = null;
     private DateTime lastUpdate = new DateTime();
+    private final LittleSession adminSession;
+    private final LittleUser adminUser;
 
-    private boolean isAdmin(LittleUser user) {
+    private boolean isAdmin( LittleContext ctx, LittleUser user) {
         final DateTime now = new DateTime();
         if ((null == adminGroup) || lastUpdate.plusSeconds(10).isAfter(now)) {
             synchronized (this) {
                 try {
-                    adminGroup = search.getAsset(adminContext, AccountManager.UUID_ADMIN_GROUP).get().narrow();
+                    adminGroup = search.getAsset(ctx, AccountManager.UUID_ADMIN_GROUP).get().narrow();
                     lastUpdate = now;
                 } catch (Exception ex) {
                     log.log(Level.WARNING, "Failed to load admin group", ex);
@@ -78,17 +79,17 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
         this.userBuilder = userBuilder;
         this.transactionProvider = transactionProvider;
         final UUID homeId = UUID.randomUUID();
-        final LittleSession adminSession = sessionBuilder.get().name("bogusAdminSession").homeId(homeId).build();
-        final LittleUser admin = userBuilder.get().name(AccountManager.LITTLEWARE_ADMIN).parentId(homeId).homeId(homeId).id(AccountManager.UUID_ADMIN).build();
-        adminContext = new SimpleContext(adminSession, admin, transactionProvider.get(), true, search );
+        adminSession = sessionBuilder.get().name("bogusAdminSession").homeId(homeId).build();
+        adminUser = userBuilder.get().name(AccountManager.LITTLEWARE_ADMIN).parentId(homeId).homeId(homeId).id(AccountManager.UUID_ADMIN).build();
     }
 
     @Override
     public LittleContext build(UUID sessionId) {
         try {
+            final LittleContext adminContext = buildAdminContext();
             final LittleSession session = search.getAsset(adminContext, sessionId).get().narrow();
             final LittleUser user = search.getAsset(adminContext, session.getOwnerId()).get().narrow();
-            return new SimpleContext(session, user, transactionProvider.get(), isAdmin(user), search );
+            return new SimpleContext(session, user, adminContext.getTransaction(), isAdmin( adminContext, user), search, adminContext );
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -97,8 +98,13 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
     }
 
     @Override
-    public LittleContext getAdminContext() {
-        return adminContext;
+    public LittleContext buildAdminContext() {
+        return new SimpleContext( adminSession, adminUser, transactionProvider.get(), true, search, null );
+    }
+
+    @Override
+    public LittleContext buildTestContext() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     //----------------------------------------------
@@ -110,14 +116,16 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
         private final Map<UUID, Asset> lookupCache;
         private final Map<UUID, Asset> savedCache = new HashMap<UUID, Asset>();
         private final Subject subject;
-        private final boolean isAdmin;
         private final ServerSearchManager search;
+        private final LittleContext adminCtx;
+        private final boolean isAdmin;
 
         public SimpleContext(LittleSession session,
                 LittleUser caller,
                 LittleTransaction transaction,
                 boolean isAdmin,
-                ServerSearchManager search) {
+                ServerSearchManager search,
+                LittleContext adminCtx ) {
             this.session = session;
             this.caller = caller;
             this.transaction = transaction;
@@ -125,6 +133,16 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
             this.lookupCache = transaction.startDbAccess();
             this.isAdmin = isAdmin;
             this.search = search;
+            this.adminCtx = adminCtx;
+        }
+
+        @Override
+        public LittleContext getAdminContext() {
+            if ( null == adminCtx ) {
+                return this;
+            } else {
+                return adminCtx;
+            }
         }
 
         @Override

@@ -25,7 +25,7 @@ import littleware.apps.tracker.Version.VersionBuilder;
 import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.LittleHome;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
 

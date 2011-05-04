@@ -1,27 +1,16 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2007-2009 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.security.auth.internal;
 
-import littleware.asset.internal.RemoteAssetRetriever;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
-import java.rmi.RemoteException;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Date;
-import java.security.Principal;
-import java.security.GeneralSecurityException;
-import javax.security.auth.*;
 
-import littleware.security.*;
-import littleware.base.*;
 import littleware.asset.*;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.LittleSession.Builder;
@@ -60,19 +49,7 @@ public class SimpleSessionBuilder extends AbstractAssetBuilder<LittleSession.Bui
         public boolean isReadOnly() {
             return (getValue() != 0);
         }
-        private transient Subject subject;
 
-        @Override
-        public Subject getSubject(RemoteAssetRetriever m_retriever) throws BaseException, AssetException,
-                GeneralSecurityException, RemoteException {
-            if (null == subject) {
-                final LittleUser a_user = m_retriever.getAsset(getOwnerId()).get().narrow();
-                Set<Principal> v_principals = new HashSet<Principal>();
-                v_principals.add(a_user);
-                subject = new Subject(true, v_principals, new HashSet<Object>(), new HashSet<Object>());
-            }
-            return subject;
-        }
 
         @Override
         public LittleSession.Builder copy() {

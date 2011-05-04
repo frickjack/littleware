@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -73,13 +73,13 @@ public class SimpleAssetManager implements ServerAssetManager {
 
 
     @Override
-    public void deleteAsset( LittleContext ctx, UUID u_asset,
+    public void deleteAsset( LittleContext ctx, UUID assetId,
             String s_update_comment) throws BaseException, AssetException,
             GeneralSecurityException {
         try {
             final LittlePrincipal caller = ctx.getCaller();
             // Get the asset for ourselves - make sure it's a valid asset
-            Asset asset = search.getAsset(ctx,u_asset).get();
+            Asset asset = search.getAsset(ctx,assetId).get();
             final AssetBuilder builder = asset.copy();
             builder.setLastUpdateDate(new Date());
             builder.setLastUpdaterId(caller.getId());
@@ -118,7 +118,7 @@ public class SimpleAssetManager implements ServerAssetManager {
 
     @Override
     public <T extends Asset> T saveAsset( LittleContext ctx, T asset,
-            String s_update_comment) throws BaseException, AssetException,
+            String updateComment ) throws BaseException, AssetException,
             GeneralSecurityException {
         log.log(Level.FINE, "Check enter");
         final LittleUser userCaller = ctx.getCaller();
@@ -269,7 +269,7 @@ public class SimpleAssetManager implements ServerAssetManager {
 
                 builder.setLastUpdateDate(new Date());
                 builder.setLastUpdaterId(userCaller.getId());
-                builder.setLastUpdate(s_update_comment);
+                builder.setLastUpdate(updateComment );
 
                 boolean b_rollback = true;
                 trans_save.startDbUpdate();

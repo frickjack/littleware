@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import littleware.apps.lgo.ListChildrenCommand;
 import littleware.asset.GenericAsset;
 import littleware.asset.TreeNode;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.feedback.LoggerFeedback;
 
 /**

@@ -7,9 +7,6 @@
  */
 package littleware.security.auth.client;
 
-import littleware.asset.client.AssetSearchManager;
-import littleware.security.internal.SimpleRole;
-import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -21,12 +18,9 @@ import javax.security.auth.*;
 import javax.security.auth.spi.*;
 import javax.security.auth.login.*;
 import javax.security.auth.callback.*;
-import littleware.asset.client.AssetRef;
 
 
 import littleware.base.*;
-import littleware.security.*;
-import littleware.security.auth.LittleSession;
 
 /**
  * Login module for littleware clients.
@@ -50,6 +44,8 @@ public class ClientLoginModule implements LoginModule {
     public final static String HOST_OPTION = "host";
     public final static String PORT_OPTION = "port";
     public final static String CACHE_OPTION = "cache";
+    public final static String MANAGER_OPTION = "sessionManager";
+
     private CallbackHandler handler = null;
     private SessionManager sessionManager = null;
     private Subject subject = null;
@@ -72,6 +68,7 @@ public class ClientLoginModule implements LoginModule {
             Map optionsMap) {
         this.subject = subject;
         this.handler = handler;
+        this.sessionManager = (SessionManager) optionsMap.get( MANAGER_OPTION );
         final String host = (String) optionsMap.get(HOST_OPTION);
         final String port = (String) optionsMap.get(PORT_OPTION);
         final String cacheString = (String) optionsMap.get(CACHE_OPTION);
@@ -156,12 +153,11 @@ public class ClientLoginModule implements LoginModule {
             throw (LoginException) (new LoginException("Failure handling callbacks")).initCause(ex);
         }
 
-        boolean sessionIdFromUsername = false;
         UUID sessionId = null;
-
+        boolean sessionIdFromUserName = false;
         try {
             sessionId = UUIDFactory.parseUUID(userName);
-            sessionIdFromUsername = true;
+            sessionIdFromUserName = true;
         } catch (Exception ex) {
         }
 
@@ -170,7 +166,12 @@ public class ClientLoginModule implements LoginModule {
         final String loggedInUser = System.getProperty("user.name");
         final File cacheFile = new File(Whatever.Folder.LittleHome.getFolder(), cacheFileName);
 
-        if ((null == sessionId) && loggedInUser.equals(userName) && cacheFile.exists()) {
+        if (
+                (null == sessionId)
+                && loggedInUser.equals(userName)
+                && cacheFile.exists()
+                )
+        {
             String sessionInCache = null;
             String userInCache = null;
 
@@ -194,10 +195,24 @@ public class ClientLoginModule implements LoginModule {
                 }
             }
         }
-        if (null == sessionId) {
+
+        SessionManager.Credentials creds = null;
+        if ( null != sessionId ) {
+            // attempt to use an already existing session
             try {
-                sessionId = sessionManager.login(userName, password,
-                        "ClientLoginModule login").getPublicCredentials(LittleSession.class).iterator().next().getId();
+                creds = sessionManager.login( sessionId );
+            } catch ( Exception ex ) {
+                log.log( Level.FINE, "Failed to login with sessionId: {0}", sessionId);
+                if ( sessionIdFromUserName ) {
+                    throw (LoginException) (new FailedLoginException("Failed session " + sessionId + " login").initCause(ex));
+                }
+            }
+        }
+
+        if (null == creds) {
+            try {
+                creds = sessionManager.login(userName, password,
+                        "ClientLoginModule login");
             } catch (Exception ex) {
                 throw (LoginException) (new FailedLoginException("Failed " + userName + " login").initCause(ex));
             }
@@ -206,22 +221,22 @@ public class ClientLoginModule implements LoginModule {
             try { // Update session cache
                 final Properties props = new Properties();
                 props.setProperty(cacheUserKey, userName);
-                props.setProperty(cacheSessionKey, UUIDFactory.makeCleanString(sessionId));
+                props.setProperty(cacheSessionKey, UUIDFactory.makeCleanString( creds.getSession().getId() ));
                 PropertiesLoader.get().safelySave(props, cacheFile);
             } catch (Exception ex) {
                 log.log(Level.WARNING, "Failed to update session cache", ex);
             }
         }
+
         // finaly - decorate the authenticated Subject
         try {
-            final AssetSearchManager search = null;
-            final LittleUser user = null;
-
-            subject.getPrincipals().add(
-                    user);
+            subject.getPrincipals().add( creds.getUser() );
+            subject.getPublicCredentials().add( creds.getSession() );
             //subject.getPrivateCredentials().add(helper);
 
             if (!aclNameList.isEmpty()) {
+                log.log( Level.WARNING, "Ignoring aclNameList for now ..." );
+                /*..
                 // Check the user's access to ACL's, and add derivative roles to Subject Principal set
                 final Set<LittlePermission> permissionSet = LittlePermission.getMembers();
 
@@ -247,8 +262,10 @@ public class ClientLoginModule implements LoginModule {
                         // keep going
                     }
                 }
+                 *
+                 */
             }
-            log.log(Level.INFO, "User authenticated: {0}", user.getName());
+            log.log(Level.INFO, "User authenticated: {0}", creds.getUser().getName());
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -293,45 +310,6 @@ public class ClientLoginModule implements LoginModule {
         return true;
     }
 
-    private static class SimpleBuilder implements ConfigurationBuilder {
-
-        private Map<String, String> optionMap = new HashMap<String, String>();
-
-        @Override
-        public ConfigurationBuilder host(String value) {
-            optionMap.put(HOST_OPTION, value);
-            return this;
-        }
-
-        @Override
-        public ConfigurationBuilder port(int value) {
-            optionMap.put(PORT_OPTION, Integer.toString(value));
-            return this;
-        }
-
-        @Override
-        public ConfigurationBuilder useCache(boolean value) {
-            optionMap.put(CACHE_OPTION, value ? "true" : "false");
-            return this;
-        }
-
-        @Override
-        public Configuration build() {
-            final AppConfigurationEntry[] entry = {
-                new AppConfigurationEntry(ClientLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                ImmutableMap.copyOf(optionMap))
-            };
-            return new Configuration() {
-
-                @Override
-                public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-                    return entry;
-                }
-            };
-        }
-    }
-
     /**
      * Simplify process of setting up a LoginContext Configuration
      * in simple apps.
@@ -347,12 +325,4 @@ public class ClientLoginModule implements LoginModule {
         public Configuration build();
     }
 
-    /**
-     * Little fatory method to allocate a simple
-     * in-app ConfigurationBuilder to setup a LoginContext
-     * configuration that uses the ClientLoginModule.
-     */
-    public static ConfigurationBuilder newBuilder() {
-        return new SimpleBuilder();
-    }
 }

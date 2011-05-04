@@ -24,7 +24,7 @@ import littleware.asset.Asset;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.GenericAsset;
 import littleware.asset.LittleHome;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.event.LittleEvent;
 import littleware.security.AccountManager;
 import littleware.security.LittleGroup;

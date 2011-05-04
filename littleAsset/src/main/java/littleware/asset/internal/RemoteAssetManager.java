@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -82,4 +82,10 @@ public interface RemoteAssetManager extends Remote {
     public Collection<Asset> saveAssetsInOrder( UUID sessionId, Collection<Asset> assetList,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
+
+    /**
+     * Position in JNDI or RMI directory to bind/lookup this service
+     */
+    public static String  LOOKUP_PATH = "littleware/AssetManager";
+
 }

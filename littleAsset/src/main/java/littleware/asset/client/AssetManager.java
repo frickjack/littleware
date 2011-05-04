@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -24,25 +22,21 @@ import littleware.security.AccessDeniedException;
 
 
 /**
- * Interface for manipulating primitive Assets.
- * Does not extends Remote so we have the option of
- * sending cilents serializable proxies, but every method
- * does throw RemoteException so this interface is
- * ready for a Remote mixin.
+ * Interface for saving assets.
  */
 public interface AssetManager extends Remote {
 
     /**
      * Delete the specified asset 
      *
-     * @param u_asset id of asset to delete - must have WRITE permission
-     * @param s_update_comment to attach to asset giving reason for deletion
+     * @param assetId id of asset to delete - must have WRITE permission
+     * @param updateComment to attach to asset giving reason for deletion
      * @throws NoSuchThingException if the given asset does not exist in the database
      * @throws AccessDeniedException if do not have write-permission on the link source
      * @throws DataAccessException on database access/interaction failure
      */
-    public void deleteAsset(UUID u_asset,
-            String s_update_comment) throws BaseException, AssetException,
+    public void deleteAsset(UUID assetId,
+            String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -53,10 +47,10 @@ public interface AssetManager extends Remote {
      * Enforces various rules including every asset must have an owner,
      * security checks, and no assets may link FROM an LinkAsset.LINK_TYPE type asset.
      *
-     * @param a_asset to save - new asset created if object-id is null
+     * @param asset to save - new asset created if object-id is null
      *           or asset with id does not exist, otherwise
      *                     attempt an update
-     * @param s_update_comment to attach to asset giving reason for update -
+     * @param updateComment to attach to asset giving reason for update -
      *                   updates asset's last-change info.
      * @return a_asset with updated transaction count, id, etc. resulting from
      *              save side-effects.  References a_asset on local JVM call,
@@ -69,8 +63,8 @@ public interface AssetManager extends Remote {
      * @throws IllegalArgumentException if supplied asset does not have a valid name
      * @throws AlreadyExistsException if asset save violates some uniqueness constraint
      */
-    public <T extends Asset> T saveAsset(T a_asset,
-            String s_update_comment) throws BaseException, AssetException,
+    public <T extends Asset> T saveAsset(T asset,
+            String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -78,10 +72,10 @@ public interface AssetManager extends Remote {
      * as a single transaction.
      *
      * @param v_assets to save in order
-     * @param s_update_comment applied to all assets
+     * @param updateComment applied to all assets
      * @return updated assets
      */
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets,
-            String s_update_comment) throws BaseException, AssetException,
+            String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 }

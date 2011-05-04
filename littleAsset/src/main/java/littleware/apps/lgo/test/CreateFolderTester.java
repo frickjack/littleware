@@ -18,7 +18,7 @@ import littleware.apps.lgo.CreateFolderCommand;
 import littleware.asset.Asset;
 import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.Maybe;
 import littleware.base.feedback.LoggerFeedback;
 

@@ -36,11 +36,6 @@ public interface LittleSession extends Asset {
      */
     public Date getEndDate();
 
-    /**
-     * Convenience method for getAsset ( getCreator () )...
-     */
-    public Subject getSubject(RemoteAssetRetriever retriever) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
 
     @Override
     public Builder copy();

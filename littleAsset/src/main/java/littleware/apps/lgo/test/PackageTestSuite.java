@@ -15,7 +15,7 @@ import com.google.inject.Provider;
 import junit.framework.Test;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.asset.server.bootstrap.ServerBootstrap;
-import littleware.asset.test.AssetTestFactory;
+import littleware.asset.client.test.AssetTestFactory;
 
 /**
  * littleware.apps.lgo package test suite

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -7,8 +7,6 @@
  */
 package littleware.asset.server.bootstrap.internal;
 
-import littleware.asset.client.AssetSearchManager;
-import littleware.asset.client.AssetManager;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -29,10 +27,15 @@ import java.util.logging.Logger;
 import javax.imageio.spi.ServiceRegistry;
 
 import littleware.asset.*;
+import littleware.asset.internal.RemoteAssetManager;
+import littleware.asset.internal.RemoteSearchManager;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.AssetSpecializerRegistry;
+import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.NullAssetSpecializer;
+import littleware.asset.server.ServerAssetManager;
+import littleware.asset.server.ServerSearchManager;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.security.server.QuotaUtil;
@@ -49,6 +52,9 @@ import littleware.base.PropertiesGuice;
 import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
+import littleware.asset.server.internal.RmiAssetManager;
+import littleware.asset.server.internal.RmiSearchManager;
+import littleware.asset.server.internal.SimpleContextFactory;
 import littleware.base.Option;
 import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
@@ -60,15 +66,15 @@ import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
-import littleware.security.auth.client.SessionManager;
-import littleware.security.auth.server.internal.AuthServerGuice;
+import littleware.security.auth.internal.RemoteSessionManager;
+import littleware.security.auth.server.internal.SimpleSessionManager;
 import littleware.security.server.internal.SimpleAccountManager;
 import littleware.security.server.internal.SimpleAclManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
- * Simple server-side guice module for littleware.asset
+ * Simple server-side bootstrap module for littleware.asset and littleware.security
  */
 public class AssetServerModule extends AbstractServerModule {
 
@@ -83,11 +89,16 @@ public class AssetServerModule extends AbstractServerModule {
     @Override
     public void configure(Binder binder) {
         binder.bind(Cache.Builder.class).to(InMemoryCacheBuilder.class);
-        binder.bind(AssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
+        binder.bind(ServerAssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
         //binder.bind(AssetRetriever.class).to(AssetSearchManager.class).in(Scopes.SINGLETON);
-        binder.bind(AssetSearchManager.class).to(SimpleSearchManager.class).in(Scopes.SINGLETON);
+        binder.bind(ServerSearchManager.class).to(SimpleSearchManager.class).in(Scopes.SINGLETON);
         binder.bind(QuotaUtil.class).to(SimpleQuotaUtil.class).in(Scopes.SINGLETON);
         binder.bind(AssetSpecializerRegistry.class).to(SimpleSpecializerRegistry.class).in(Scopes.SINGLETON);
+        binder.bind( RemoteSessionManager.class).to(SimpleSessionManager.class).in(Scopes.SINGLETON);
+        binder.bind( RemoteSearchManager.class ).to( RmiSearchManager.class ).in( Scopes.SINGLETON );
+        binder.bind( RemoteAssetManager.class ).to( RmiAssetManager.class ).in( Scopes.SINGLETON );
+        binder.bind( LittleContext.ContextFactory.class ).to( SimpleContextFactory.class ).in( Scopes.SINGLETON );
+
         if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
             log.log(Level.INFO, "Configuring JPA in J2EE mode ...");
             (new J2EEGuice()).configure(binder);
@@ -105,7 +116,6 @@ public class AssetServerModule extends AbstractServerModule {
         } catch (IOException ex) {
             throw new AssertionFailedException("Failed to access littleware.properties file", ex);
         }
-        (new AuthServerGuice()).configure(binder);
     }
 
     public static class Activator implements BundleActivator {
@@ -113,7 +123,7 @@ public class AssetServerModule extends AbstractServerModule {
         private final int registryPort;
         private boolean localRegistry = false;
         private Option<Registry> maybeRegistry;
-        private final SessionManager sessionMgr;
+        private final RemoteSessionManager sessionMgr;
 
         @Inject
         public Activator(
@@ -121,18 +131,19 @@ public class AssetServerModule extends AbstractServerModule {
                 @Named("int.lw.rmi_port") int registryPort,
                 AssetSpecializerRegistry assetRegistry,
                 ServiceRegistry serviceRegistry,
-                SessionManager sessionMgr,
-                Provider<LittleTransaction> transactionProvider,
+                RemoteSessionManager sessionMgr,
                 DbAssetManager dbManager,
+                Provider<LittleContext> ctxProvider,
                 Injector injector) {
             this.registryPort = registryPort;
             this.sessionMgr = sessionMgr;
             boolean rollback = true;
             // setup an overall transaction for the asset type auto-register code
-            final LittleTransaction transaction = transactionProvider.get();
+            final LittleContext ctx = ctxProvider.get();
+            final LittleTransaction transaction = ctx.getTransaction();
             transaction.startDbUpdate();
             try {
-
+                // Register asset specializers
                 for (LittleModule scan : bootstrap.getModuleSet()) {
                     if (scan instanceof ServerModule) {
                         final ServerModule module = (ServerModule) scan;
@@ -162,9 +173,9 @@ public class AssetServerModule extends AbstractServerModule {
                         log.log(Level.INFO, "Looking for RMI registry on port: {0}", port);
                         rmi_registry = LocateRegistry.createRegistry(port);
                         localRegistry = true;
-                    } catch (Exception e) {
+                    } catch (Exception ex) {
                         log.log(Level.SEVERE, "Failed to start RMI registry on port " + port
-                                + " attempting to bind to already running registry", e);
+                                + " attempting to bind to already running registry", ex);
 
                         rmi_registry = LocateRegistry.getRegistry(port);
                     }
@@ -180,9 +191,9 @@ public class AssetServerModule extends AbstractServerModule {
                      * Context jndi_context = new InitialContext();
                      * jndi_context.rebind("/littleware/SessionManager", om_session );
                      */
-                    rmi_registry.rebind("littleware/SessionManager", sessionMgr);
+                    rmi_registry.rebind( RemoteSessionManager.LOOKUP_PATH, sessionMgr);
                 } else {
-                    log.log(Level.INFO, "Not exporing RMI registry - port set to: " + port);
+                    log.log(Level.INFO, "Not exporing RMI registry - port set to: {0}", port);
                 }
             } catch (Exception e) {
                 //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);

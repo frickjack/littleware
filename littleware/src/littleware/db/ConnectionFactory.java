@@ -18,6 +18,4 @@ import littleware.base.*;
 public interface ConnectionFactory extends Factory<Connection>, DataSource {	
 }
 
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

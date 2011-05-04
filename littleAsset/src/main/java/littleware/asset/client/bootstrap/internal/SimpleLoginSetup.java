@@ -20,7 +20,6 @@ import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.AssertionFailedException;
 import littleware.security.auth.SimpleCallbackHandler;
 import littleware.security.auth.client.CliCallbackHandler;
-import littleware.security.auth.client.ClientLoginModule;
 import littleware.security.auth.client.JPasswordDialog;
 
 public class SimpleLoginSetup {
@@ -56,9 +55,6 @@ public class SimpleLoginSetup {
     }
 
     
-    public ClientBootstrap test() {
-        return test(ClientLoginModule.newBuilder().build());
-    }
 
     
     public ClientBootstrap test(Configuration loginConfig) {
@@ -70,10 +66,6 @@ public class SimpleLoginSetup {
     }
 
     
-    public ClientBootstrap login(String name, String password) throws LoginException {
-        return login(ClientLoginModule.newBuilder().build(), name, password);
-    }
-
     
     public ClientBootstrap login(Configuration loginConfig, String name, String password) throws LoginException {
         final CallbackHandler callbackHandler = new SimpleCallbackHandler(name, password);
@@ -83,9 +75,6 @@ public class SimpleLoginSetup {
     }
 
     
-    public ClientBootstrap automatic() throws LoginException {
-        return automatic(ClientLoginModule.newBuilder().build());
-    }
 
     
     public ClientBootstrap automatic(Configuration loginConfig) throws LoginException {

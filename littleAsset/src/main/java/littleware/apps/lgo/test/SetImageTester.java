@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.lgo.SetImageCommand;
 import littleware.apps.image.ImageManager;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.feedback.LoggerFeedback;
 
 /**

@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.asset.test;
+package littleware.asset.client.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -16,8 +16,6 @@ import java.util.logging.Level;
 import junit.framework.*;
 import littleware.asset.GenericAsset;
 
-import littleware.asset.pickle.HumanPicklerProvider;
-import littleware.asset.pickle.XmlPicklerProvider;
 
 
 /**
@@ -31,20 +29,27 @@ public class JenkinsTestSuite extends TestSuite {
      */
     @Inject
     public JenkinsTestSuite(
-            HumanPicklerProvider  humanPickler,
-            XmlPicklerProvider    xmlPickler,
+            Provider<AssetPathTester> providePathTester,
+            Provider<AssetTreeToolTester> provideTreeTester,
+            Provider<AssetSearchManagerTester> provideSearchTest,
             Provider<GenericAsset.GenericBuilder> genericProvider,
-            Provider<AssetTypeTester> provideTypeTester
+            littleware.asset.test.JenkinsTestSuite assetTestSuite
             ) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
 
-        if( runTest ) {
-            this.addTest( provideTypeTester.get() );
+        this.addTest( assetTestSuite );
+        if ( runTest ) {
+            this.addTest( provideTreeTester.get() );
         }
         if (runTest) {
-            this.addTest(new PickleTester( humanPickler, genericProvider ));
-            this.addTest(new PickleTester( xmlPickler, genericProvider ) );
+            this.addTest( provideSearchTest.get().putName( "testLoad"));
+            this.addTest( provideSearchTest.get() );
+            this.addTest( provideSearchTest.get().putName( "testTransactionLog"));
+        }
+        if (runTest) {
+            this.addTest(providePathTester.get() );
+            this.addTest(providePathTester.get().putName( "testBadLookup") );
         }
 
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");

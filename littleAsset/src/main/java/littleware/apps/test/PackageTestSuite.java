@@ -19,7 +19,7 @@ import junit.framework.*;
 
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.asset.server.bootstrap.ServerBootstrap;
-import littleware.asset.test.AssetTestFactory;
+import littleware.asset.client.test.AssetTestFactory;
 import littleware.bootstrap.AppModuleFactory;
 
 /**

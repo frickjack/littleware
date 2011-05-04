@@ -30,6 +30,11 @@ public class ProxoolConnectionFactory implements ConnectionFactory {
     private int oi_checkout_count = 0;
     private ThreadLocal<Connection> othread_connection = new ThreadLocal<Connection>();
 
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     /**
      * Little invocation handler that we can use to track
      * when a connection gets closed.
@@ -251,5 +256,3 @@ public class ProxoolConnectionFactory implements ConnectionFactory {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.com

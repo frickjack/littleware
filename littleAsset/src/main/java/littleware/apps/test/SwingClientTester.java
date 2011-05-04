@@ -39,7 +39,7 @@ import littleware.asset.*;
 import littleware.apps.swingclient.*;
 import littleware.apps.swingclient.controller.*;
 import littleware.apps.swingclient.wizard.CreateAssetWizard;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.event.LittleEvent;
 import littleware.base.event.LittleTool;
 import littleware.security.auth.*;

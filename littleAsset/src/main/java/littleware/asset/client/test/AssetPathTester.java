@@ -1,13 +1,11 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.test;
+package littleware.asset.client.test;
 
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetManager;
@@ -38,18 +36,18 @@ public class AssetPathTester extends AbstractAssetTest {
      * Stash AssetSearchManager instance to run tests against
      *
      * @param s_test_name of test to run - pass to super class
-     * @param m_search to test against
-     * @param m_asset to setup test assets with if necessary
+     * @param search to test against
+     * @param assetMgr to setup test assets with if necessary
      */
     @Inject
-    public AssetPathTester(AssetSearchManager m_search,
-            AssetManager m_asset,
+    public AssetPathTester(AssetSearchManager search,
+            AssetManager assetMgr,
             AssetPathFactory pathFactory,
             Provider<TreeNode.TreeNodeBuilder> nodeProvider,
             Provider<LinkAsset.LinkBuilder>  linkProvider
             ) {
-        search = m_search;
-        assetMgr = m_asset;
+        this.search = search;
+        this.assetMgr = assetMgr;
         this.pathFactory = pathFactory;
         this.nodeProvider = nodeProvider;
         this.linkProvider = linkProvider;
@@ -158,6 +156,7 @@ public class AssetPathTester extends AbstractAssetTest {
 
             assertTrue("Got a search manager", null != search);
             int i_count = 0;
+            final LittleHome testHome = getTestHome( search );
             for (AssetPath path : testPaths) {
                 ++i_count;
                 log.log( Level.INFO, "Testing normalized path: " + path );
@@ -165,25 +164,25 @@ public class AssetPathTester extends AbstractAssetTest {
                         path.toString().indexOf("..") < 0);
                 assertTrue("Path has expected basename " + i_count + ": " + path.getBasename(),
                         path.getBasename().equals(Integer.toString(i_count)));
-                AssetPath path_root = pathFactory.createPath(path.getRoot(search).get().getId(),
+                final AssetPath rootPath = pathFactory.createPath( testHome.getId(),
                         path.getSubRootPath());
                 assertTrue("SubRoot paths match: " + path.getSubRootPath() + " == " +
-                        path_root.getSubRootPath(),
-                        path.getSubRootPath().equals(path_root.getSubRootPath()));
+                        rootPath.getSubRootPath(),
+                        path.getSubRootPath().equals(rootPath.getSubRootPath()));
                 final AssetPath path_name_string = pathFactory.createPath(path.toString());
-                final AssetPath path_id_string = pathFactory.createPath(path_root.getRoot(search).get().getId(),
-                        path_root.getSubRootPath());
+                final AssetPath path_id_string = pathFactory.createPath( testHome.getId(),
+                        rootPath.getSubRootPath());
 
                 assertTrue(path_name_string.toString() + " == " + path.toString(),
                         path_name_string.equals(path));
-                assertTrue(path_id_string.toString() + " == " + path_root.toString(),
-                        path_id_string.equals(path_root));
-                final Asset assetAtPath = path.getAsset(search).get();
-                assertTrue("Got the same asset from " + path + " and " + path_root,
-                        assetAtPath.equals(path_root.getAsset(search).get()));
-                final AssetPath pathRoot = pathFactory.toRootedPath(pathFactory.createPath(assetAtPath.getId()));
-                assertTrue("Root path resolver works ok: " + pathRoot,
-                        pathRoot.getAsset(search).equals(assetAtPath) && pathRoot.toString().equals(pathFactory.toRootedPath(pathFactory.createPath(assetAtPath.getId())).toString()));
+                assertTrue(path_id_string.toString() + " == " + rootPath.toString(),
+                        path_id_string.equals(rootPath));
+                final Asset assetAtPath = search.getAssetAtPath( path ).get();
+                assertTrue("Got the same asset from " + path + " and " + rootPath,
+                        assetAtPath.equals( search.getAssetAtPath( rootPath ).get() ));
+                final AssetPath rootedPath = search.toRootedPath(pathFactory.createPath(assetAtPath.getId()));
+                assertTrue("Root path resolver works ok: " + rootedPath,
+                        search.getAssetAtPath(rootedPath).equals(assetAtPath) && rootedPath.toString().equals(search.toRootedPath(pathFactory.createPath(assetAtPath.getId())).toString()));
                 final AssetPath path_parent = path.getParent();
                 assertTrue("Path has parent: " + path,
                         path.hasParent());
@@ -194,15 +193,15 @@ public class AssetPathTester extends AbstractAssetTest {
                         Integer.toString(i_count).equals(assetAtPath.getName()));
 
                 if (1 == i_count) {
-                    final AssetPath path_smallest = pathFactory.createPath(getTestHome() + "/AssetPathTester/A//smallest");
-                    final Asset smallest = path_smallest.getAsset(search).get();
+                    final AssetPath path2Smallest = pathFactory.createPath(getTestHome() + "/AssetPathTester/A//smallest");
+                    final Asset smallest = search.getAssetAtPath( path2Smallest).get();
                     assertTrue("Smallest link resolved to asset 1: " + smallest.getName(),
                             smallest.equals(assetAtPath));
                     assertTrue("Get by id ok",
-                            pathFactory.createPath(smallest.getId().toString()).getAsset(search).equals(smallest));
+                            search.getAssetAtPath( pathFactory.createPath(smallest.getId().toString()) ).equals(smallest));
                 } else if (i_count == testPaths.size()) {
-                    final AssetPath path_biggest = pathFactory.createPath(getTestHome() + "/AssetPathTester/A/biggest");
-                    final Asset biggest = path_biggest.getAsset(search).get();
+                    final AssetPath path2Biggest = pathFactory.createPath(getTestHome() + "/AssetPathTester/A/biggest");
+                    final Asset biggest = search.getAssetAtPath( path2Biggest ).get();
                     assertTrue("Biggest link resolved to asset 1: " + biggest.getName(),
                             biggest.equals(assetAtPath));
                 }

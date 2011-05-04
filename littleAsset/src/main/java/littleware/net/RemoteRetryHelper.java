@@ -12,7 +12,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
-import littleware.base.RemoteExceptionHandler;
 
 /**
  * Retry factory for freakin' resetting remote references

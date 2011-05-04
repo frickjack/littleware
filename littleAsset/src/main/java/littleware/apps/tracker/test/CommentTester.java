@@ -22,7 +22,7 @@ import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.TreeNode;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.Maybe;
 
 /**

@@ -23,7 +23,7 @@ import littleware.asset.client.AssetSearchManager;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeNode.TreeNodeBuilder;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.feedback.Feedback;
 
 /**

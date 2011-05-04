@@ -17,7 +17,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.asset.server.bootstrap.ServerBootstrap;
-import littleware.asset.test.AssetTestFactory;
+import littleware.asset.client.test.AssetTestFactory;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 
 /**
@@ -35,7 +35,7 @@ public class JenkinsTestSuite extends TestSuite {
             littleware.apps.image.test.PackageTestSuite miscSuite,
             littleware.apps.lgo.test.HudsonTestSuite lgoSuite,
             littleware.asset.test.JenkinsTestSuite assetSuite,
-            littleware.security.test.PackageTestSuite securitySuite
+            littleware.security.client.test.PackageTestSuite securitySuite
             ) {
         super(JenkinsTestSuite.class.getName());
 

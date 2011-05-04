@@ -17,7 +17,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.asset.server.bootstrap.ServerBootstrap;
-import littleware.asset.test.AssetTestFactory;
+import littleware.asset.client.test.AssetTestFactory;
 
 /**
  * Test the apps.tracker packages

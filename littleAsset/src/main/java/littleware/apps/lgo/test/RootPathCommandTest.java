@@ -17,7 +17,7 @@ import littleware.apps.lgo.GetRootPathCommand;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.client.AssetSearchManager;
-import littleware.asset.test.AbstractAssetTest;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.base.feedback.LoggerFeedback;
 
 /**

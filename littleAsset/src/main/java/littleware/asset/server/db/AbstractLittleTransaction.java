@@ -1,16 +1,13 @@
 /*
- * Copyright 2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.asset.server;
+package littleware.asset.server.db;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +18,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
+import littleware.asset.server.LittleTransaction;
 import littleware.base.AssertionFailedException;
 import littleware.base.UUIDFactory;
 
@@ -30,42 +28,52 @@ import littleware.base.UUIDFactory;
  * to help subtypes know the transaction state.
  */
 public abstract class AbstractLittleTransaction implements LittleTransaction {
-    private static final Logger    olog_generic = Logger.getLogger ( AbstractLittleTransaction.class.getName () );
-    private final Map<UUID,Asset>  ov_cache = new HashMap<UUID,Asset> ();
-    private final UUID             ou_id = UUIDFactory.getFactory ().create ();
-    private int                    oi_count = 0;
-    private Date                   ot_notzero = null;
+    private static final Logger    log = Logger.getLogger ( AbstractLittleTransaction.class.getName () );
+    private final Map<UUID,Asset>  assetCache = new HashMap<UUID,Asset> ();
+    private final UUID             transactionId = UUIDFactory.getFactory ().create ();
+    private int                    callCounter = 0;
+    private Date                   transactionTimer = null;
 
 
     /** Return the id associated with this transaction */
     @Override
-    public final UUID getId () { return ou_id; }
+    public final UUID getId () { return transactionId; }
 
 
     @Override
     public Map<UUID,Asset> startDbAccess () {
         final Date t_now = new Date ();
 
-        if ( (oi_count > 0)
-             && (t_now.getTime () > ot_notzero.getTime () + 300000)
+        if ( (callCounter > 0)
+             && (t_now.getTime () > transactionTimer.getTime () + 300000)
              ) {
             try {
                 throw new AssertionFailedException();
             } catch ( Exception ex ) {
-                olog_generic.log ( Level.WARNING, "Cyclecache not zeroed for over 5 minutes - probably missing a recycle() call", ex );
+                log.log ( Level.WARNING, "Cyclecache not zeroed for over 5 minutes - probably missing a recycle() call", ex );
             }
             // do not vomit log messages - reset timer back 100 seconds
-            ot_notzero = new Date ( new Date().getTime() - 200000 );
-        } else if ( oi_count == 0 ) {
-            ot_notzero = new Date ();
+            transactionTimer = new Date ( new Date().getTime() - 200000 );
+        } else if ( callCounter == 0 ) {
+            transactionTimer = new Date ();
         }
-        ++oi_count;
+        ++callCounter;
         /*..
         olog_generic.log ( Level.FINE, "Transaction " + getId () + " checkout count: " +
                            oi_count + ", size: " + ov_cache.size () // + ", " + Whatever.getStackTrace ()
                            );
         ..*/
-        return ov_cache;
+        return assetCache;
+    }
+
+    @Override
+    public int getNestingLevel() {
+        return callCounter;
+    }
+
+    @Override
+    public Map<UUID,Asset> getCache() {
+        return assetCache;
     }
 
     /** 
@@ -86,21 +94,21 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
     @Override
     public final void endDbAccess ( Map<UUID,Asset> v_cache ) {
         if ( (null != v_cache)
-             && (v_cache != ov_cache)
+             && (v_cache != assetCache)
              ) {
             throw new AssertionFailedException ( "endDbAccess with wrong cache object" );
         }
-        if ( 0 == oi_count ) {
+        if ( 0 == callCounter ) {
             throw new IllegalStateException ( "start/endDbAccess mismatch" );
         }
-        --oi_count;
-        if ( (0 == oi_count) && (! ostack_savept.isEmpty ()) ) {
+        --callCounter;
+        if ( (0 == callCounter) && (! ostack_savept.isEmpty ()) ) {
             throw new IllegalStateException ( "Non-empty savepoint stack at dbaccess end" );
         }
-        if ( 0 == oi_count ) {
-            ov_cache.clear();
+        if ( 0 == callCounter ) {
+            assetCache.clear();
         }
-        endDbAccess( oi_count );
+        endDbAccess( callCounter );
     }
 
 
@@ -116,7 +124,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
     private final List<Runnable>             ov_deferred_actions = new ArrayList<Runnable> ();
 
     private class MySavePoint {
-        private final int oiLevel = oi_count;
+        private final int oiLevel = callCounter;
         private final int oiDeferSize = ov_deferred_actions.size();
 
         public int getLevel() { return oiLevel; }
@@ -165,15 +173,15 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
         }
         final MySavePoint  savept = ostack_savept.remove( ostack_savept.size() - 1 );
 
-        if ( oi_count != savept.getLevel () ) {
+        if ( callCounter != savept.getLevel () ) {
             throw new IllegalStateException ( "Transaction " + getId () +
-                                              " level mismatch: " + oi_count +
+                                              " level mismatch: " + callCounter +
                                               " != " + savept.getLevel ()
                                               );
         }
 
         if (b_rollback) {
-            olog_generic.log(Level.FINE, "Clearing cycle cache before rollback");
+            log.log(Level.FINE, "Clearing cycle cache before rollback");
             if (0 == savept.getDeferSize()) {
                 ov_deferred_actions.clear();
             } else {
@@ -182,7 +190,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
                     ov_deferred_actions.remove(i);
                 }
             }
-            ov_cache.clear();
+            assetCache.clear();
         }
 
         // Upcall to subtype
@@ -195,7 +203,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
                     try {
                         run_now.run();
                     } catch (Exception e) {
-                        olog_generic.log(Level.SEVERE, "Failed deferred action", e);
+                        log.log(Level.SEVERE, "Failed deferred action", e);
                     }
                 }
                 ob_running_deferred = false;

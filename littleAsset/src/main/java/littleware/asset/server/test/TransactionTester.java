@@ -1,10 +1,8 @@
 /*
- * Copyright 2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset.server.test;
@@ -30,8 +28,8 @@ import littleware.test.LittleTest;
  */
 public class TransactionTester extends LittleTest {
 
-    private static final Logger log = Logger.getLogger("littleware.asset.test.TransactionTester");
-    private final Provider<LittleTransaction> oprovideTrans;
+    private static final Logger log = Logger.getLogger( TransactionTester.class.getName() );
+    private final Provider<LittleTransaction> transactionProvider;
 
 
     /**
@@ -40,7 +38,7 @@ public class TransactionTester extends LittleTest {
     @Inject
     public TransactionTester(Provider<LittleTransaction> provideTrans) {
         setName("testTransactionManager");
-        oprovideTrans = provideTrans;
+        transactionProvider = provideTrans;
     }
 
     /**
@@ -48,7 +46,7 @@ public class TransactionTester extends LittleTest {
      */
     public void testTransactionManager() {
         try {
-            final LittleTransaction trans_test = oprovideTrans.get();
+            final LittleTransaction trans_test = transactionProvider.get();
             final Map<UUID, Asset> v_cache = trans_test.startDbAccess();
             assertTrue("TransactionManager maintains a singleton cache",
                     v_cache == trans_test.startDbAccess());
@@ -73,7 +71,7 @@ public class TransactionTester extends LittleTest {
      * Assumes that TransactionManager.getTheThreadTransaction returns a JdbcTranaction.
      */
     public void testSavepoint() {
-        JdbcTransaction trans_test = (JdbcTransaction) oprovideTrans.get();
+        JdbcTransaction trans_test = (JdbcTransaction) transactionProvider.get();
         try {
             trans_test.startDbUpdate();
             try {

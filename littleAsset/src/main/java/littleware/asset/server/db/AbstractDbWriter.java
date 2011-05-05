@@ -7,10 +7,11 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.server;
+package littleware.asset.server.db;
 
 import com.google.inject.Provider;
 import java.sql.SQLException;
+import littleware.asset.server.JdbcTransaction;
 
 import littleware.db.DbSimpleWriter;
 

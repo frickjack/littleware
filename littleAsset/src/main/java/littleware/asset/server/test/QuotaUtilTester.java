@@ -11,35 +11,37 @@ package littleware.asset.server.test;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.asset.server.LittleContext;
+import littleware.asset.server.LittleContext.ContextFactory;
 import littleware.asset.server.ServerAssetManager;
 import littleware.asset.server.ServerSearchManager;
-import littleware.asset.client.test.AbstractAssetTest;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
+import littleware.security.auth.LittleSession;
 import littleware.security.server.QuotaUtil;
 
 /**
  * Test the goofy QuotaUtil
  */
-public class QuotaUtilTester extends AbstractAssetTest {
+public class QuotaUtilTester extends AbstractServerTest {
     private static final Logger log = Logger.getLogger( QuotaUtilTester.class.getName() );
-    private final QuotaUtil quotaUtil;
-    private final ServerAssetManager assetMgr;
-    private final ServerSearchManager search;
-    private final LittleContext.ContextFactory ctxFactory;
 
+    private final QuotaUtil           quotaUtil;
+    private final ServerAssetManager  assetMgr;
+    private final ServerSearchManager search;
+
+    
     @Inject
     public QuotaUtilTester( QuotaUtil quotaUtil,
             ServerAssetManager assetMgr,
             ServerSearchManager search,
-            LittleContext.ContextFactory ctxFactory
+            LittleSession session,
+            ContextFactory ctxFactory
             ) {
+        super(session, ctxFactory);
         this.quotaUtil = quotaUtil;
         this.assetMgr = assetMgr;
         this.search = search;
         setName( "testQuota" );
-        this.ctxFactory = ctxFactory;
     }
 
     /**
@@ -47,15 +49,13 @@ public class QuotaUtilTester extends AbstractAssetTest {
      * Must be running the test as a user with an active Quota set.
      */
     public void testQuota() {
-        final LittleContext ctx = ctxFactory.buildTestContext();
-        final LittleUser    caller = ctx.getCaller();
-        ctx.getTransaction().startDbAccess();
+        final LittleUser    caller = getContext().getCaller();
         try {
-            final Quota quotaBefore = quotaUtil.getQuota(ctx, caller, search);
+            final Quota quotaBefore = quotaUtil.getQuota(getContext(), caller, search);
             assertTrue("Got a quota we can test against",
                     (null != quotaBefore) && (quotaBefore.getQuotaLimit() > 0) && (quotaBefore.getQuotaCount() >= 0));
-            quotaUtil.incrementQuotaCount( ctx, caller, assetMgr, search );
-            final Quota a_quota_after = quotaUtil.getQuota(ctx, caller,search);
+            quotaUtil.incrementQuotaCount( getContext(), caller, assetMgr, search );
+            final Quota a_quota_after = quotaUtil.getQuota(getContext(), caller,search);
             assertTrue("Quota incremented by 1: " + quotaBefore.getQuotaCount() +
                     " -> " + a_quota_after.getQuotaCount(),
                     quotaBefore.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
@@ -66,9 +66,7 @@ public class QuotaUtilTester extends AbstractAssetTest {
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed test", ex );
             fail("Caught exception: " + ex );
-        } finally {
-            ctx.getTransaction().endDbAccess();
-        }
+        } 
     }
 
 }

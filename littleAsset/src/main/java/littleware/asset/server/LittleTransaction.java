@@ -17,6 +17,9 @@ import littleware.asset.Asset;
  * Interface implemented by db-access managers -
  * provides methods to mark begin/end of db access
  * and updates.
+ *
+ * TODO: might be able to get rid of this interface with
+ * new LittleContext based server-side interfaces.
  */
 public interface LittleTransaction {
 
@@ -30,6 +33,12 @@ public interface LittleTransaction {
      *          have already been looked up earlier in the transaction.
      */
     public Map<UUID,Asset> startDbAccess ();
+
+    /**
+     * Access modifiable transaction cache without incrementing the dbAccess
+     * transaction count.
+     */
+    public Map<UUID,Asset> getCache();
     
     /** 
      * Recycle the cache and decrement the create-call count -
@@ -49,6 +58,13 @@ public interface LittleTransaction {
      */
     public void endDbAccess ();
     
+    /**
+     * How many times has startDbAccess been called
+     * minus endDbAccess calls.  Should start 0 and end 0.
+     */
+    public int getNestingLevel();
+
+
     /**
      * Let the cycle-cache know that a db-updating transaction is about to begin.
      * Sets up a SavePoint on the connection stashed with this TransactionManager.

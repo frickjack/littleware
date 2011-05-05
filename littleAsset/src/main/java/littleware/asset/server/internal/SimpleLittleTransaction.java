@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import javax.sql.DataSource;
 
 import littleware.asset.Asset;
-import littleware.asset.server.AbstractLittleTransaction;
+import littleware.asset.server.db.AbstractLittleTransaction;
 import littleware.asset.server.JdbcTransaction;
 import littleware.base.AssertionFailedException;
 

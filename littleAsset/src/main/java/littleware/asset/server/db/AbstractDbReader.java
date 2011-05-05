@@ -1,7 +1,8 @@
-package littleware.asset.server;
+package littleware.asset.server.db;
 
 import com.google.inject.Provider;
 import java.sql.SQLException;
+import littleware.asset.server.JdbcTransaction;
 
 import littleware.db.DbSimpleReader;
 

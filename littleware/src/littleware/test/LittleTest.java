@@ -1,13 +1,10 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.test;
 
 import junit.framework.TestCase;
@@ -25,8 +22,8 @@ public abstract class LittleTest extends TestCase {
      * @param s_name of test-method to run
      * @return this
      */
-    public LittleTest putName ( String s_name ) {
-        setName( s_name );
+    public LittleTest putName(String s_name) {
+        setName(s_name);
         return this;
     }
 
@@ -38,8 +35,32 @@ public abstract class LittleTest extends TestCase {
      * @param s_name to assign to test.setName( s_name )
      * @return test after setName( s_name ) call
      */
-    public static TestCase putName( TestCase test, String s_name ) {
-        test.setName( s_name );
+    public static TestCase putName(TestCase test, String s_name) {
+        test.setName(s_name);
         return test;
+    }
+
+    /**
+     * Make public to simplify delegation and decoration
+     */
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
+    /**
+     * Make public to simplify delegation and decoration
+     */
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    /**
+     * Make public to simplify delegation and decoration
+     */
+    @Override
+    public void runTest() throws Throwable {
+        super.runTest();
     }
 }

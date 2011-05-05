@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import littleware.asset.Asset;
-import littleware.asset.server.AbstractLittleTransaction;
+import littleware.asset.server.db.AbstractLittleTransaction;
 
 /**
  * JPA supported implementation of LittleTransaction stuff

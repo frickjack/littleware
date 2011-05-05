@@ -73,7 +73,8 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
             ServerSearchManager search,
             Provider<LittleSession.Builder> sessionBuilder,
             Provider<LittleUser.Builder> userBuilder,
-            Provider<LittleTransaction> transactionProvider) {
+            Provider<LittleTransaction> transactionProvider
+            ) {
         this.search = search;
         this.sessionBuilder = sessionBuilder;
         this.userBuilder = userBuilder;
@@ -102,11 +103,6 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
         return new SimpleContext( adminSession, adminUser, transactionProvider.get(), true, search, null );
     }
 
-    @Override
-    public LittleContext buildTestContext() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     //----------------------------------------------
     public static class SimpleContext implements LittleContext {
 
@@ -130,7 +126,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
             this.caller = caller;
             this.transaction = transaction;
             this.subject = new Subject(true, Collections.singleton(caller), Collections.singleton(session), Collections.emptySet());
-            this.lookupCache = transaction.startDbAccess();
+            this.lookupCache = transaction.getCache();
             this.isAdmin = isAdmin;
             this.search = search;
             this.adminCtx = adminCtx;

@@ -76,11 +76,6 @@ public interface LittleContext {
     public interface ContextFactory {
         public LittleContext  build( UUID sessionId );
         public LittleContext  buildAdminContext();
-        /**
-         * Build context bound to bogus session for littleware.test_user -
-         * intended to simplify server API unit tests.
-         */
-        public LittleContext  buildTestContext();
     }
     
 }

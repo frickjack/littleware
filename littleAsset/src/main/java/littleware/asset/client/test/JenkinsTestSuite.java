@@ -32,7 +32,7 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetPathTester> providePathTester,
             Provider<AssetTreeToolTester> provideTreeTester,
             Provider<AssetSearchManagerTester> provideSearchTest,
-            Provider<GenericAsset.GenericBuilder> genericProvider,
+            Provider<AssetManagerTester> provideAMgrTest,
             littleware.asset.test.JenkinsTestSuite assetTestSuite
             ) {
         super(JenkinsTestSuite.class.getName());
@@ -40,12 +40,16 @@ public class JenkinsTestSuite extends TestSuite {
 
         this.addTest( assetTestSuite );
         if ( runTest ) {
-            this.addTest( provideTreeTester.get() );
+            this.addTest( provideAMgrTest.get() );
         }
         if (runTest) {
             this.addTest( provideSearchTest.get().putName( "testLoad"));
             this.addTest( provideSearchTest.get() );
             this.addTest( provideSearchTest.get().putName( "testTransactionLog"));
+        }
+
+        if ( runTest ) {
+            this.addTest( provideTreeTester.get() );
         }
         if (runTest) {
             this.addTest(providePathTester.get() );

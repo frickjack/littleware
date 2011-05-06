@@ -184,7 +184,7 @@ public class SimpleTemplateBuilder implements AssetTreeTemplate.TemplateBuilder 
             final AssetInfo info = visitor.visit(parent, this);
             resultBuilder.add(info);
             for( AssetTreeTemplate child : this.children ) {
-                resultBuilder.addAll( scan( info.getAsset(), visitor ) );
+                resultBuilder.addAll( child.scan( info.getAsset(), visitor ) );
             }
             return resultBuilder.build();
         }

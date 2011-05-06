@@ -54,14 +54,14 @@ public class QuotaUtilTester extends AbstractServerTest {
             final Quota quotaBefore = quotaUtil.getQuota(getContext(), caller, search);
             assertTrue("Got a quota we can test against",
                     (null != quotaBefore) && (quotaBefore.getQuotaLimit() > 0) && (quotaBefore.getQuotaCount() >= 0));
-            quotaUtil.incrementQuotaCount( getContext(), caller, assetMgr, search );
-            final Quota a_quota_after = quotaUtil.getQuota(getContext(), caller,search);
+            quotaUtil.incrementQuotaCount( getContext().getAdminContext(), caller, assetMgr, search );
+            final Quota quotaAfter = quotaUtil.getQuota(getContext(), caller,search);
             assertTrue("Quota incremented by 1: " + quotaBefore.getQuotaCount() +
-                    " -> " + a_quota_after.getQuotaCount(),
-                    quotaBefore.getQuotaCount() + 1 == a_quota_after.getQuotaCount());
+                    " -> " + quotaAfter.getQuotaCount(),
+                    quotaBefore.getQuotaCount() + 1 == quotaAfter.getQuotaCount());
             // Verify get/setData parsing
             assertTrue("get/setData consistency",
-                    a_quota_after.getQuotaLimit() == a_quota_after.copy().build().getQuotaLimit()
+                    quotaAfter.getQuotaLimit() == quotaAfter.copy().build().getQuotaLimit()
                     );
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed test", ex );

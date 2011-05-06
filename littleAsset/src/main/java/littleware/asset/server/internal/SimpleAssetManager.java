@@ -47,8 +47,8 @@ import littleware.security.*;
  * attempt to initialize those managers from the security ResourceBundle.
  */
 public class SimpleAssetManager implements ServerAssetManager {
-    private static final Logger log = Logger.getLogger(SimpleAssetManager.class.getName());
 
+    private static final Logger log = Logger.getLogger(SimpleAssetManager.class.getName());
     private final DbAssetManager dbMgr;
     private final ServerSearchManager search;
     private final Factory<UUID> uuidFactory = UUIDFactory.getFactory();
@@ -63,62 +63,68 @@ public class SimpleAssetManager implements ServerAssetManager {
             ServerSearchManager search,
             DbAssetManager dbMgr,
             QuotaUtil quotaUtil,
-            AssetSpecializerRegistry specializerReg
-            ) {
+            AssetSpecializerRegistry specializerReg) {
         this.search = search;
         this.dbMgr = dbMgr;
         this.quotaUtil = quotaUtil;
         this.specializerReg = specializerReg;
     }
 
-
     @Override
-    public void deleteAsset( LittleContext ctx, UUID assetId,
-            String s_update_comment) throws BaseException, AssetException,
+    public void deleteAsset(LittleContext ctx, UUID assetId,
+            String updateComment) throws BaseException, AssetException,
             GeneralSecurityException {
         try {
             final LittlePrincipal caller = ctx.getCaller();
             // Get the asset for ourselves - make sure it's a valid asset
-            Asset asset = search.getAsset(ctx,assetId).get();
+            Asset asset = search.getAsset(ctx, assetId).get();
             final AssetBuilder builder = asset.copy();
             builder.setLastUpdateDate(new Date());
             builder.setLastUpdaterId(caller.getId());
-            builder.setLastUpdate(s_update_comment);
+            builder.setLastUpdate(updateComment);
             // make sure caller has write permission too ...
-            asset = saveAsset(ctx, builder.build(), s_update_comment);
+            final LittleTransaction trans = ctx.getTransaction();
+            trans.startDbAccess();
 
-            final LittleTransaction trans_delete = ctx.getTransaction();
-            boolean b_rollback = true;
-            trans_delete.startDbUpdate();
             try {
-                DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter();
-                sql_writer.saveObject(asset);
+                asset = saveAsset(ctx, builder.build(), updateComment);
 
-                specializerReg.getService(asset.getAssetType()).postDeleteCallback(ctx,asset);
-                b_rollback = false;
-                //trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
-                final AssetType type = builder.getAssetType();
-                /*..
-                if (type.isA(LittleAcl.ACL_TYPE) || type.isA(LittleAclEntry.ACL_ENTRY) || type.isA(LittleGroup.GROUP_TYPE) || type.isA(LittleGroupMember.GROUP_MEMBER_TYPE)) {
+                boolean b_rollback = true;
+                trans.startDbUpdate();
+                try {
+                    DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter( trans );
+                    sql_writer.saveObject(asset);
+
+                    specializerReg.getService(asset.getAssetType()).postDeleteCallback(ctx, asset);
+                    trans.getCache().remove( asset.getId() );
+                    b_rollback = false;
+                    //trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
+                    /*..
+                    final AssetType type = builder.getAssetType();
+                    
+                    if (type.isA(LittleAcl.ACL_TYPE) || type.isA(LittleAclEntry.ACL_ENTRY) || type.isA(LittleGroup.GROUP_TYPE) || type.isA(LittleGroupMember.GROUP_MEMBER_TYPE)) {
                     permissionCache.clear();
+                    }
+                     *
+                     */
+                } finally {
+                    trans.endDbUpdate(b_rollback);
                 }
-                 * 
-                 */
             } finally {
-                trans_delete.endDbUpdate(b_rollback);
+                trans.endDbAccess();
             }
         } catch (AssetException ex) { // pass through
             throw ex;
         } catch (SQLException ex) {
             // do not chain SQL Exception - remote client may not have the class loaded
-            log.log( Level.INFO, "Failed call", ex );
+            log.log(Level.INFO, "Failed call", ex);
             throw new DataAccessException("Unexpected: " + ex);
         }
     }
 
     @Override
-    public <T extends Asset> T saveAsset( LittleContext ctx, T asset,
-            String updateComment ) throws BaseException, AssetException,
+    public <T extends Asset> T saveAsset(LittleContext ctx, T asset,
+            String updateComment) throws BaseException, AssetException,
             GeneralSecurityException {
         log.log(Level.FINE, "Check enter");
         final LittleUser userCaller = ctx.getCaller();
@@ -141,8 +147,8 @@ public class SimpleAssetManager implements ServerAssetManager {
         }
 
         // Don't lookup the same asset more than once in this timestamp
-        final LittleTransaction trans_save = ctx.getTransaction();
-        final Map<UUID, Asset> v_cache = trans_save.startDbAccess();
+        final LittleTransaction trans = ctx.getTransaction();
+        final Map<UUID, Asset> accessCache = trans.startDbAccess();
         // Don't save the same asset more than once in this timestamp
         final boolean bCallerIsAdmin = ctx.isAdmin();
         final boolean cycleSave;  // is this a save via a callback ?  - avoid infinite loops
@@ -155,13 +161,13 @@ public class SimpleAssetManager implements ServerAssetManager {
                     builder.setHomeId(asset.getId());
                 }
                 cycleSave = false;
-            } else if (ctx.checkIfSaved(asset.getId()).isSet() ) {
+            } else if (ctx.checkIfSaved(asset.getId()).isSet()) {
                 //log.log(Level.WARNING, "Save cycle detected - not saving " + asset);
                 //return asset;
                 oldAsset = ctx.checkIfSaved(asset.getId()).get();
                 cycleSave = true;
             } else {
-                oldAsset = search.getAsset(ctx,asset.getId()).getOr(null);
+                oldAsset = search.getAsset(ctx, asset.getId()).getOr(null);
                 cycleSave = false;
             }
 
@@ -173,14 +179,14 @@ public class SimpleAssetManager implements ServerAssetManager {
                     }
                     // Check name-unique asset types
                     // creating a new asset
-                    if ( (null == builder.getCreatorId()) || (! bCallerIsAdmin) ) {
+                    if ((null == builder.getCreatorId()) || (!bCallerIsAdmin)) {
                         builder.setCreatorId(userCaller.getId());
                     }
                     /*... disable quota stuff for now ...
                     // Check the caller's quota
                     if (v_save_cycle.isEmpty()) {
-                        log.log(Level.FINE, "Incrementing quota before saving: {0}", asset);
-                        quotaUtil.incrementQuotaCount(userCaller, this, search);
+                    log.log(Level.FINE, "Incrementing quota before saving: {0}", asset);
+                    quotaUtil.incrementQuotaCount(userCaller, this, search);
                     }
                      *
                      */
@@ -205,16 +211,15 @@ public class SimpleAssetManager implements ServerAssetManager {
                     }
                     // 0 timestamp count allows client to ignore serialization
                     if ((asset.getTimestamp() > 0) && (oldAsset.getTimestamp() > asset.getTimestamp())) {
-                        throw new AssetSyncException("Attempt to save asset not in sync with database backend: " + oldAsset +
-                                ", " + oldAsset.getTimestamp() + " gt " + asset.getTimestamp()
-                                );
+                        throw new AssetSyncException("Attempt to save asset not in sync with database backend: " + oldAsset
+                                + ", " + oldAsset.getTimestamp() + " gt " + asset.getTimestamp());
                     }
 
                     log.log(Level.FINE, "Checking security");
 
                     if ((!bCallerIsAdmin) && (!oldAsset.getOwnerId().equals(userCaller.getId()))) {
                         // Need to have all the permissions to UPDATE an asset
-                        if (!ctx.checkPermission( LittlePermission.WRITE, oldAsset.getAclId())) {
+                        if (!ctx.checkPermission(LittlePermission.WRITE, oldAsset.getAclId())) {
                             throw new AccessDeniedException("Caller " + userCaller + " does not have permission: " + LittlePermission.WRITE + " for asset: " + oldAsset.getId());
                         }
                         if (!oldAsset.getOwnerId().equals(asset.getOwnerId())) {
@@ -240,20 +245,20 @@ public class SimpleAssetManager implements ServerAssetManager {
                     }
                     // If from-id is null from non-home orphan asset,
                     // then must have home-write permission to write home asset
-                    if ( null == asset.getFromId() ) { //&& (!a_home.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search)) && (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_home.getAclId()))) {
+                    if (null == asset.getFromId()) { //&& (!a_home.getOwnerId().equals(userCaller.getId())) && (!permissionCache.isAdmin(userCaller, search)) && (!permissionCache.checkPermission(userCaller, LittlePermission.WRITE, search, a_home.getAclId()))) {
                         // caller must have WRITE on Home permission to create a rootless
                         // (null from-id) asset
                         throw new AccessDeniedException("Must have home-write permission to create asset with null fromId");
                     }
                 }
 
-                if ((null != asset.getFromId()) && ((null == oldAsset) || (! asset.getFromId().equals( oldAsset.getFromId())))) {
+                if ((null != asset.getFromId()) && ((null == oldAsset) || (!asset.getFromId().equals(oldAsset.getFromId())))) {
                     log.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
-                    final Asset a_from = search.getAsset( ctx, asset.getFromId()).get();
+                    final Asset a_from = search.getAsset(ctx, asset.getFromId()).get();
 
                     if ((!a_from.getOwnerId().equals(userCaller.getId())) && (!ctx.isAdmin())) {
-                        if (!ctx.checkPermission( LittlePermission.WRITE, a_from.getAclId())) {
+                        if (!ctx.checkPermission(LittlePermission.WRITE, a_from.getAclId())) {
                             throw new AccessDeniedException("Caller " + userCaller
                                     + " may not link from asset " + a_from.getId()
                                     + " without permission " + LittlePermission.WRITE);
@@ -269,18 +274,18 @@ public class SimpleAssetManager implements ServerAssetManager {
 
                 builder.setLastUpdateDate(new Date());
                 builder.setLastUpdaterId(userCaller.getId());
-                builder.setLastUpdate(updateComment );
+                builder.setLastUpdate(updateComment);
 
                 boolean b_rollback = true;
-                trans_save.startDbUpdate();
-                builder.setTimestamp(trans_save.getTimestamp());
+                trans.startDbUpdate();
+                builder.setTimestamp(trans.getTimestamp());
                 final Asset assetSave = builder.build();
                 try {
-                    final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver();
+                    final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver( trans );
                     sql_writer.saveObject(assetSave);
 
                     ctx.savedAsset(assetSave);
-                    v_cache.put(assetSave.getId(), assetSave);
+                    accessCache.put(assetSave.getId(), assetSave);
 
                     if (null == oldAsset) {
                         specializerReg.getService(assetSave.getAssetType()).postCreateCallback(ctx, assetSave);
@@ -297,12 +302,12 @@ public class SimpleAssetManager implements ServerAssetManager {
 
                     b_rollback = false;
                     // retrieve clean asset-copy - asset might have been resaved by callback
-                    trans_save.endDbUpdate(b_rollback);
-                } catch ( Throwable ex ) {
+                    trans.endDbUpdate(b_rollback);
+                } catch (Throwable ex) {
                     try {
-                        trans_save.endDbUpdate(b_rollback);
-                    } catch ( Exception ex2 ) {
-                        log.log( Level.INFO, "Eating rollback exception", ex2 );
+                        trans.endDbUpdate(b_rollback);
+                    } catch (Exception ex2) {
+                        log.log(Level.INFO, "Eating rollback exception", ex2);
                     }
                     throw ex;
                 }
@@ -313,15 +318,15 @@ public class SimpleAssetManager implements ServerAssetManager {
                 if (ex.toString().indexOf("littleware(sync)") >= 0) {
                     throw new AssetSyncException("Attempt to save asset not in sync with database backend");
                 }
-                log.log( Level.INFO, "Save failed", ex );
-                if ( ex instanceof RuntimeException ) {
+                log.log(Level.INFO, "Save failed", ex);
+                if (ex instanceof RuntimeException) {
                     throw (RuntimeException) ex;
                 }
                 throw new DataAccessException("Unexpected: " + ex);
             }
 
         } finally {
-            trans_save.endDbAccess(v_cache);
+            trans.endDbAccess(accessCache);
         }
     }
 
@@ -336,7 +341,7 @@ public class SimpleAssetManager implements ServerAssetManager {
         trans_batch.startDbUpdate();
         try {
             for (Asset a_save : v_assets) {
-                result.add(saveAsset(ctx,a_save, s_update_comment));
+                result.add(saveAsset(ctx, a_save, s_update_comment));
             }
             b_rollback = false;
         } finally {

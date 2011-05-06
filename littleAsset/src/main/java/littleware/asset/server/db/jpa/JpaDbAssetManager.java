@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
+import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.db.DbAssetManager;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.Option;
@@ -29,36 +30,18 @@ import littleware.db.DbWriter;
  */
 public class JpaDbAssetManager implements DbAssetManager {
 
-    private static final Logger olog = Logger.getLogger(JpaDbAssetManager.class.getName());
-    private final Provider<DbAssetLoader> oprovideLoader;
-    private final Provider<DbAssetSaver> oprovideSaver;
-    private final Provider<DbAssetDeleter> oprovideDeleter;
-    private final Provider<JpaLittleTransaction> oprovideTrans;
-    private final Provider<DbHomeLoader> oprovideHomeLoader;
-    private final DbLogLoader.Builder dbLogBuilder;
-    private final Provider<DbTypeChecker> oprovideTypeChecker;
+    private static final Logger log = Logger.getLogger(JpaDbAssetManager.class.getName());
     private final AssetProviderRegistry assetRegistry;
+    private final Provider<IdWithClock.Builder> clockBuilder;
 
     @Inject
     public JpaDbAssetManager(
-            Provider<JpaLittleTransaction> provideTrans,
-            Provider<DbAssetLoader> provideLoader,
-            Provider<DbAssetSaver> provideSaver,
-            Provider<DbAssetDeleter> provideDeleter,
-            Provider<DbHomeLoader> provideHomeLoader,
-            Provider<DbTypeChecker> provideTypeChecker,
-            DbLogLoader.Builder dbLogBuilder,
-            AssetProviderRegistry assetRegistry
+            AssetProviderRegistry assetRegistry,
+            Provider<IdWithClock.Builder> clockBuilder
             )
     {
-        oprovideLoader = provideLoader;
-        oprovideSaver = provideSaver;
-        oprovideDeleter = provideDeleter;
-        oprovideTrans = provideTrans;
-        oprovideHomeLoader = provideHomeLoader;
-        oprovideTypeChecker = provideTypeChecker;
-        this.dbLogBuilder = dbLogBuilder;
         this.assetRegistry = assetRegistry;
+        this.clockBuilder = clockBuilder;
     }
 
     @Override
@@ -68,62 +51,52 @@ public class JpaDbAssetManager implements DbAssetManager {
 
     @Override
     public void setClientId(int i_id) {
-        olog.log(Level.INFO, "JpaDbAssetManager ignores clientId property");
+        log.log(Level.INFO, "JpaDbAssetManager ignores clientId property");
     }
 
     @Override
-    public DbWriter<Asset> makeDbAssetSaver() {
-        return oprovideSaver.get();
+    public DbWriter<Asset> makeDbAssetSaver( LittleTransaction trans ) {
+        return new DbAssetSaver( (JpaLittleTransaction) trans );
     }
 
     @Override
-    public DbReader<Asset, UUID> makeDbAssetLoader() {
-        return oprovideLoader.get();
+    public DbReader<Asset, UUID> makeDbAssetLoader( LittleTransaction trans ) {
+        return new DbAssetLoader( (JpaLittleTransaction) trans, assetRegistry );
     }
 
     @Override
-    public DbWriter<Asset> makeDbAssetDeleter() {
-        return oprovideDeleter.get();
+    public DbWriter<Asset> makeDbAssetDeleter( LittleTransaction trans ) {
+        return new DbAssetDeleter( (JpaLittleTransaction) trans );
     }
 
     @Override
-    public DbReader<Map<String, UUID>, String> makeDbHomeIdLoader() {
-        return oprovideHomeLoader.get();
+    public DbReader<Map<String, UUID>, String> makeDbHomeIdLoader( LittleTransaction trans ) {
+        return new DbHomeLoader( (JpaLittleTransaction) trans );
     }
 
     @Override
-    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, Option<AssetType> maybeType, Option<Integer> maybeState) {
-        return new DbIdsFromLoader(oprovideTrans, uFrom, maybeType, maybeState );
+    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader( LittleTransaction trans, UUID fromId, Option<AssetType> maybeType, Option<Integer> maybeState) {
+        return new DbIdsFromLoader( (JpaLittleTransaction) trans, fromId, maybeType, maybeState );
     }
 
     @Override
-    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(UUID uTo, AssetType atype) {
-        return new DbIdsToLoader(oprovideTrans, uTo, atype);
+    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(LittleTransaction trans, UUID toId, AssetType atype) {
+        return new DbIdsToLoader( (JpaLittleTransaction) trans, toId, atype);
     }
 
     @Override
-    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(String sName, AssetType aType) {
-        return new DbByNameLoader(oprovideTrans, assetRegistry, sName, aType);
-    }
-
-    @Override
-    public DbWriter<String> makeDbCacheSyncClearer() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public DbReader<Map<UUID, Asset>, String> makeDbCacheSyncLoader() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(LittleTransaction trans, String name, AssetType aType) {
+        return new DbByNameLoader( (JpaLittleTransaction) trans, assetRegistry, name, aType);
     }
 
 
     @Override
-    public DbReader<List<IdWithClock>, Long> makeLogLoader( UUID homeId ) {
-        return dbLogBuilder.build(homeId);
+    public DbReader<List<IdWithClock>, Long> makeLogLoader( LittleTransaction trans, UUID homeId ) {
+        return new DbLogLoader( (JpaLittleTransaction) trans, clockBuilder.get(), homeId );
     }
 
     @Override
-    public DbWriter<AssetType> makeTypeChecker() {
-        return oprovideTypeChecker.get();
+    public DbWriter<AssetType> makeTypeChecker( LittleTransaction trans ) {
+        return new DbTypeChecker( (JpaLittleTransaction) trans );
     }
 }

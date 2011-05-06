@@ -8,6 +8,7 @@
 
 package littleware.asset.server.internal;
 
+import com.google.inject.Inject;
 import java.util.*;
 import java.security.*;
 import java.rmi.RemoteException;
@@ -29,6 +30,7 @@ public class RmiAssetManager extends LittleRemoteObject implements RemoteAssetMa
     private final ServerAssetManager assetMgr;
     private final LittleContext.ContextFactory ctxFactory;
 
+    @Inject
     public RmiAssetManager(ServerAssetManager proxy, LittleContext.ContextFactory ctxFactory ) throws RemoteException {
         assetMgr = proxy;
         this.ctxFactory = ctxFactory;

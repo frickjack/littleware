@@ -36,7 +36,6 @@ public class SimpleAccountManager extends NullAssetSpecializer {
     private final ServerSearchManager search;
     private final QuotaUtil quotaUtil;
     private final Provider<LittleTransaction> transactionProvider;
-    private final Provider<LittleUser> callerProvider;
     private final Provider<MemberBuilder> memberBuilder;
 
     /**
@@ -51,13 +50,11 @@ public class SimpleAccountManager extends NullAssetSpecializer {
             ServerSearchManager search,
             QuotaUtil quotaUtil,
             Provider<LittleTransaction> transactionProvider,
-            Provider<LittleUser> callerProvider,
             Provider<LittleGroupMember.MemberBuilder> memberBuilder) {
         this.assetMgr = assetMgr;
         this.search = search;
         this.quotaUtil = quotaUtil;
         this.transactionProvider = transactionProvider;
-        this.callerProvider = callerProvider;
         this.memberBuilder = memberBuilder;
     }
 
@@ -150,7 +147,7 @@ public class SimpleAccountManager extends NullAssetSpecializer {
             GeneralSecurityException {
         if (LittleUser.USER_TYPE.equals(asset.getAssetType())) {
             // We need to setup a quota
-            final LittleUser caller = callerProvider.get();
+            final LittleUser caller = ctx.getCaller();
             Quota a_caller_quota = quotaUtil.getQuota( ctx, caller, search);
             if (null != a_caller_quota) {
                 final Quota.Builder quotaBuilder = a_caller_quota.copy();

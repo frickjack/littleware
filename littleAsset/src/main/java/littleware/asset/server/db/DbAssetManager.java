@@ -11,12 +11,12 @@ package littleware.asset.server.db;
 import java.util.*;
 
 import littleware.asset.*;
+import littleware.asset.server.LittleTransaction;
 import littleware.base.Option;
 import littleware.db.*;
 
 /**
- * Interface abstracts away littleware.asset db interactions.
- * TODO: ADD TRANSACTION SUPPORT
+ * Factory interface for data storage CRUD handlers
  */
 public interface DbAssetManager {
 
@@ -36,71 +36,47 @@ public interface DbAssetManager {
     /**
      * Create asset-creator handler
      */
-    public DbWriter<Asset> makeDbAssetSaver();
+    public DbWriter<Asset> makeDbAssetSaver( LittleTransaction trans );
 
     /**
      * Create asset-type saver for the AssetTypeActivator
      */
-    public DbWriter<AssetType> makeTypeChecker();
+    public DbWriter<AssetType> makeTypeChecker( LittleTransaction trans );
 
     /**
      * Create asset-loader handler
      */
-    public DbReader<Asset, UUID> makeDbAssetLoader();
+    public DbReader<Asset, UUID> makeDbAssetLoader( LittleTransaction trans );
 
     /**
      * Create asset-deleter handler
      */
-    public DbWriter<Asset> makeDbAssetDeleter();
+    public DbWriter<Asset> makeDbAssetDeleter( LittleTransaction trans );
 
     /**
      * Create handler to load our home-asset ids
      */
-    public DbReader<Map<String, UUID>, String> makeDbHomeIdLoader();
+    public DbReader<Map<String, UUID>, String> makeDbHomeIdLoader( LittleTransaction trans );
 
     /**
      * Create handler to load the ids of assets linking FROM a given asset id
      */
-    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(UUID uFrom, Option<AssetType> maybeType, Option<Integer> maybeState);
+    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader( LittleTransaction trans, UUID fromId, Option<AssetType> maybeType, Option<Integer> maybeState);
 
     /**
      * Create handler to load the ids of assets linking TO a given asset id
      */
-    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(UUID u_from, AssetType n_child_type);
+    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader( LittleTransaction trans, UUID fromId, AssetType childType);
 
     /**
      * Create assets by name loader handler
      */
-    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(String s_name, AssetType n_type );
+    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader( LittleTransaction trans, String name, AssetType assetType );
+
 
     /**
-     * Create database cache-data clearer.  Want to do this once at boot time.
-     * Expose this mostly for testing - usually just want to invoke
-     * {@link littleware.asset.db.DbAssetManager launchCacheCheckThread}
-     * to sync the local cache with changes from other db clients.
-     *
-     * @return DbWriter that clears the cache for the registered source -
-     *                   String parameter is ignored.
+     * Transaction log loader
      */
-    public DbWriter<String> makeDbCacheSyncClearer();
-
-    /**
-     * Create database cache-sync loader.  
-     * Returns mapping of asset-ids that other clients have changed
-     * since the last time the cache-sync loader was called.
-     * Loading the data also clears out the changes from the db -
-     * code assumes you don't want to load the same changes in
-     * subsequent calls.
-     * Expose this mostly for testing - usually just want to invoke
-     * {@link littleware.asset.db.DbAssetManager launchCacheCheckThread}
-     * to sync the local cache with changes from other db clients.
-     *
-     * @return DbReader that loads and clears the cache-changes for the registered source -
-     *                   String parameter is ignored.
-     */
-    public DbReader<Map<UUID, Asset>, String> makeDbCacheSyncLoader();
-
-    public DbReader<List<IdWithClock>, Long> makeLogLoader( UUID homeId );
-
+    public DbReader<List<IdWithClock>, Long> makeLogLoader( LittleTransaction trans, UUID homeId );
 }
 

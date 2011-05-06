@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import java.io.IOException;
@@ -22,10 +21,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Level;
-
 import java.util.logging.Logger;
-import javax.imageio.spi.ServiceRegistry;
-
 import littleware.asset.*;
 import littleware.asset.internal.RemoteAssetManager;
 import littleware.asset.internal.RemoteSearchManager;
@@ -35,11 +31,13 @@ import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.NullAssetSpecializer;
 import littleware.asset.server.ServerAssetManager;
+import littleware.asset.server.ServerScannerFactory;
 import littleware.asset.server.ServerSearchManager;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.security.server.QuotaUtil;
 import littleware.asset.server.internal.SimpleAssetManager;
+import littleware.asset.server.internal.SimpleScannerFactory;
 import littleware.asset.server.internal.SimpleSearchManager;
 import littleware.security.server.internal.SimpleQuotaUtil;
 import littleware.asset.server.internal.SimpleSpecializerRegistry;
@@ -90,7 +88,7 @@ public class AssetServerModule extends AbstractServerModule {
     public void configure(Binder binder) {
         binder.bind(Cache.Builder.class).to(InMemoryCacheBuilder.class);
         binder.bind(ServerAssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
-        //binder.bind(AssetRetriever.class).to(AssetSearchManager.class).in(Scopes.SINGLETON);
+        binder.bind( ServerScannerFactory.class ).to( SimpleScannerFactory.class ).in( Scopes.SINGLETON );
         binder.bind(ServerSearchManager.class).to(SimpleSearchManager.class).in(Scopes.SINGLETON);
         binder.bind(QuotaUtil.class).to(SimpleQuotaUtil.class).in(Scopes.SINGLETON);
         binder.bind(AssetSpecializerRegistry.class).to(SimpleSpecializerRegistry.class).in(Scopes.SINGLETON);
@@ -130,16 +128,15 @@ public class AssetServerModule extends AbstractServerModule {
                 ServerBootstrap bootstrap,
                 @Named("int.lw.rmi_port") int registryPort,
                 AssetSpecializerRegistry assetRegistry,
-                ServiceRegistry serviceRegistry,
                 RemoteSessionManager sessionMgr,
                 DbAssetManager dbManager,
-                Provider<LittleContext> ctxProvider,
+                LittleContext.ContextFactory ctxProvider,
                 Injector injector) {
             this.registryPort = registryPort;
             this.sessionMgr = sessionMgr;
             boolean rollback = true;
             // setup an overall transaction for the asset type auto-register code
-            final LittleContext ctx = ctxProvider.get();
+            final LittleContext ctx = ctxProvider.buildAdminContext();
             final LittleTransaction transaction = ctx.getTransaction();
             transaction.startDbUpdate();
             try {
@@ -149,7 +146,7 @@ public class AssetServerModule extends AbstractServerModule {
                         final ServerModule module = (ServerModule) scan;
                         for (Map.Entry<AssetType, Class<? extends AssetSpecializer>> entry : module.getAssetTypes().entrySet()) {
                             assetRegistry.registerService(entry.getKey(), injector.getInstance(entry.getValue()));
-                            dbManager.makeTypeChecker().saveObject(entry.getKey());
+                            dbManager.makeTypeChecker( transaction ).saveObject(entry.getKey());
                         }
                     } 
                 }

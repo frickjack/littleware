@@ -1,10 +1,8 @@
 /*
- * Copyright 2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset.server.db.test;
@@ -47,8 +45,8 @@ public class DbAssetManagerTester extends LittleTest {
         };
     }
     private final DbAssetManager dbMgr;
-    private final Provider<LittleTransaction> provideTrans;
     private final Provider<TreeNodeBuilder> nodeProvider;
+    private final LittleTransaction trans;
 
     /**
      * Constructor stashes data to run tests against
@@ -57,22 +55,22 @@ public class DbAssetManagerTester extends LittleTest {
      */
     @Inject
     public DbAssetManagerTester(DbAssetManager mgrDb,
-            Provider<LittleTransaction> provideTrans,
-            Provider<TreeNode.TreeNodeBuilder> nodeProvider ) {
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider,
+            LittleTransaction trans
+            ) {
         setName("testLoad");
         dbMgr = mgrDb;
-        this.provideTrans = provideTrans;
         this.nodeProvider = nodeProvider;
+        this.trans = trans;
     }
 
     /**
      * Test the load of a well-known test asset
      */
     public void testLoad() {
-        final LittleTransaction trans = provideTrans.get();
         trans.startDbAccess();
         try {
-            DbReader<Asset, UUID> db_reader = dbMgr.makeDbAssetLoader();
+            final DbReader<Asset, UUID> db_reader = dbMgr.makeDbAssetLoader( trans );
             Asset a_result = db_reader.loadObject(testHomeId);
             assertTrue("Asset is of proper type",
                     a_result.getAssetType().equals(LittleHome.HOME_TYPE));
@@ -93,7 +91,6 @@ public class DbAssetManagerTester extends LittleTest {
      * Test the load of a well-known test asset
      */
     public void testCreateUpdateDelete() {
-        final LittleTransaction trans = provideTrans.get();
         try {
             trans.startDbUpdate();
         } catch (Exception ex) {
@@ -102,12 +99,12 @@ public class DbAssetManagerTester extends LittleTest {
         }
         boolean bRollback = false;
         try {
-            final DbReader<Asset, UUID> dbReader = dbMgr.makeDbAssetLoader();
+            final DbReader<Asset, UUID> dbReader = dbMgr.makeDbAssetLoader( trans );
             final LittleHome aHome = dbReader.loadObject(testHomeId).narrow();
             {
                 Asset aTest = dbReader.loadObject(testCreateId);
                 if (null != aTest) {
-                    final DbWriter<Asset> dbDelete = dbMgr.makeDbAssetDeleter();
+                    final DbWriter<Asset> dbDelete = dbMgr.makeDbAssetDeleter( trans );
                     dbDelete.saveObject(aTest);
                 }
             }
@@ -120,16 +117,16 @@ public class DbAssetManagerTester extends LittleTest {
                     lastUpdaterId(aHome.getCreatorId()).
                     ownerId(aHome.getOwnerId()).
                     timestamp( trans.getTimestamp() ).build().narrow();
-            final DbWriter<Asset> dbSaver = dbMgr.makeDbAssetSaver();
+            final DbWriter<Asset> dbSaver = dbMgr.makeDbAssetSaver( trans );
             
             dbSaver.saveObject(testSave);
-            final TreeNode aTest = dbMgr.makeDbAssetLoader().loadObject(testSave.getId()).narrow();
+            final TreeNode aTest = dbMgr.makeDbAssetLoader( trans ).loadObject( testSave.getId()).narrow();
             assertTrue("From preserved on load", testSave.getParentId().equals(aHome.getId()));
             // Test from-loader
-            final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader(testHomeId, Maybe.something((AssetType) GenericAsset.GENERIC), Maybe.empty(Integer.class)).loadObject("");
+            final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader( trans, testHomeId, Maybe.something((AssetType) GenericAsset.GENERIC), Maybe.empty(Integer.class)).loadObject("");
             assertTrue("Able to load children: " + mapChildren.size(),
                     !mapChildren.isEmpty());
-            dbMgr.makeDbAssetDeleter().saveObject(aTest);
+            dbMgr.makeDbAssetDeleter( trans ).saveObject(aTest);
         } catch (Exception e) {
             log.log(Level.INFO, "Caught unexpected", e);
             fail("Caught unexpected: " + e);
@@ -144,49 +141,16 @@ public class DbAssetManagerTester extends LittleTest {
         }
     }
 
-    /**
-     * Test cache-sync stuff - load well known asset,
-     * spoof other client modifying that asset, check for update/sync.
-     */
-    public void testCacheSync() {
-        int i_client_id = dbMgr.getClientId();
-        try {
-            int i_client1 = i_client_id + 1;
-            int i_client2 = i_client1 + 1;
-
-            dbMgr.setClientId(i_client1);
-            DbWriter<String> db_clear = dbMgr.makeDbCacheSyncClearer();
-            db_clear.saveObject(null);
-
-            DbReader<Map<UUID, Asset>, String> db_sync = dbMgr.makeDbCacheSyncLoader();
-            Map<UUID, Asset> v_sync = db_sync.loadObject(null);
-            assertTrue("Cache clear seems ok", v_sync.isEmpty());
-
-            DbReader<Asset, UUID> db_reader = dbMgr.makeDbAssetLoader();
-            Asset a_result = db_reader.loadObject(testHomeId);
-            assertTrue("Asset is of proper type", a_result instanceof littleware.security.LittlePrincipal);
-
-            dbMgr.setClientId(i_client2);
-            DbWriter<Asset> db_writer = dbMgr.makeDbAssetSaver();
-            db_writer.saveObject(a_result);
-
-            v_sync = db_sync.loadObject(null);
-            Asset a_sync = v_sync.get(testHomeId);
-            assertTrue("Sync detected cross-client update", a_sync != null);
-        } catch (Exception e) {
-            log.log(Level.INFO, "Caught unexepcted", e );
-            assertTrue("Caught unexpected: " + e, false);
-        } finally {
-            dbMgr.setClientId(i_client_id);
-        }
-    }
 
     public void testAssetTypeCheck() {
+        trans.startDbAccess();
         try {
-            dbMgr.makeTypeChecker().saveObject(testSubType);
+            dbMgr.makeTypeChecker(trans).saveObject(testSubType);
         } catch ( Exception ex ) {
             log.log( Level.WARNING, "Caught exception", ex );
             fail( "Caught exception: "  + ex );
+        } finally {
+            trans.endDbAccess();
         }
     }
 }

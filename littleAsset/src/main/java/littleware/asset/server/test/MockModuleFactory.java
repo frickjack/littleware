@@ -5,8 +5,6 @@
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
-
 package littleware.asset.server.test;
 
 import com.google.inject.Binder;
@@ -27,35 +25,34 @@ import littleware.security.auth.internal.RemoteSessionManager;
  */
 public class MockModuleFactory implements ServerModuleFactory {
 
-    @Provides @Singleton
-    public LittleSession testSessionProvider( RemoteSessionManager sessionMgr ) {
-        try {
-            return sessionMgr.login( "littleware.test_user", "bla", "setup server test" );
-        } catch ( RuntimeException ex ) {
-            throw ex;
-        } catch ( Exception ex ) {
-            throw new AssertionFailedException( "Failed to setup test session", ex );
-        }
-    }
-
-
     public static class MockModule extends AbstractServerModule {
-        public MockModule( ServerProfile profile ) {
-            super( profile );
+
+        public MockModule(ServerProfile profile) {
+            super(profile);
         }
-        
+
+        @Provides
+        @Singleton
+        public LittleSession testSessionProvider(RemoteSessionManager sessionMgr) {
+            try {
+                return sessionMgr.login("littleware.test_user", "bla", "setup server test");
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new AssertionFailedException("Failed to setup test session", ex);
+            }
+        }
+
         @Override
         public void configure(Binder binder) {
             //binder.bind( AssetManager.class ).to( MockAssetManager.class ).in( Scopes.SINGLETON );
             //binder.bind( AssetSearchManager.class ).to( MockSearchManager.class ).in( Scopes.SINGLETON );
-            binder.bind( LittleSession.class ).in( Scopes.SINGLETON );
+            //binder.bind(LittleSession.class).in(Scopes.SINGLETON);
         }
     }
 
-
     @Override
     public ServerModule build(ServerProfile profile) {
-        return new MockModule( profile );
+        return new MockModule(profile);
     }
-
 }

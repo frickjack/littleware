@@ -19,7 +19,6 @@ import javax.security.auth.*;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
 import littleware.asset.*;
 import littleware.asset.AssetTreeTemplate.AssetInfo;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
@@ -121,7 +120,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
     /**
      * Save the given LittleSession to the appropriate location in the repository node graph
      */
-    private LittleSession setupSession( LittleContext adminCtx, LittleSession session, String sessionComment) throws BaseException, GeneralSecurityException {
+    private LittleSession setupSession(LittleContext adminCtx, LittleSession session, String sessionComment) throws BaseException, GeneralSecurityException {
         final LittleHome home = search.getByName(adminCtx, "littleware.home", LittleHome.HOME_TYPE).get().narrow();
 
         // First - verify ServerVersion node exists -
@@ -178,66 +177,69 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
                 log.log(Level.WARNING, "Login failed", ex);
                 throw new FailedLoginException();
             }
-        } else {
-            throw new LoginException("Failed to authenticate");
         }
-
 
         final LittleContext adminCtx = contextFactory.buildAdminContext();
-        final LittleHome littleHome = search.getByName(adminCtx, "littleware.home", LittleHome.HOME_TYPE).get().narrow(LittleHome.class);
-        final LittleUser user;
-        {
-            Option<? extends Asset> maybeUser = search.getByName(adminCtx, name, LittleUser.USER_TYPE);
-            if (!maybeUser.isSet()) {
-                // Create the user
-                for (AssetTreeTemplate.AssetInfo assetInfo : userTreeBuilder.get().user(name).build().scan(littleHome, scannerFactory.build(adminCtx))) {
-                    final ExistInfo treeInfo = (ExistInfo) assetInfo;
-                    if (!treeInfo.getAssetExists()) {
-                        assetMgr.saveAsset(adminCtx, treeInfo.getAsset(), "Setup new user: " + name);
+        adminCtx.getTransaction().startDbAccess();
+        try {
+            final LittleHome littleHome = search.getByName(adminCtx, "littleware.home", LittleHome.HOME_TYPE).get().narrow(LittleHome.class);
+            final LittleUser user;
+            {
+                Option<? extends Asset> maybeUser = search.getByName(adminCtx, name, LittleUser.USER_TYPE);
+                if (!maybeUser.isSet()) {
+                    // Create the user
+                    for (AssetTreeTemplate.AssetInfo assetInfo : userTreeBuilder.get().user(name).build().scan(littleHome, scannerFactory.build(adminCtx))) {
+                        final ExistInfo treeInfo = (ExistInfo) assetInfo;
+                        if (!treeInfo.getAssetExists()) {
+                            assetMgr.saveAsset(adminCtx, treeInfo.getAsset(), "Setup new user: " + name);
+                        }
                     }
+                    user = search.getByName(adminCtx, name, LittleUser.USER_TYPE).get().narrow();
+                } else {
+                    user = maybeUser.get().narrow();
                 }
-                user = search.getByName(adminCtx, name, LittleUser.USER_TYPE).get().narrow();
-            } else {
-                user = maybeUser.get().narrow();
             }
-        }
-        // ok - user authenticated ok by here - setup user session
-        final LittleSession session;
-        {
-            final LittleSession.Builder sessionBuilder = sessionProvider.get();
-            sessionBuilder.setId(UUID.randomUUID());
-            sessionBuilder.setName(name + "_" + UUIDFactory.makeCleanString(sessionBuilder.getId()));
-            sessionBuilder.setOwnerId(user.getId());
-            sessionBuilder.setComment("User login");
-            session = sessionBuilder.build();
+            // ok - user authenticated ok by here - setup user session
+            final LittleSession session;
+            {
+                final LittleSession.Builder sessionBuilder = sessionProvider.get();
+                sessionBuilder.setId(UUID.randomUUID());
+                sessionBuilder.setName(name + "_" + UUIDFactory.makeCleanString(sessionBuilder.getId()));
+                sessionBuilder.setOwnerId(user.getId());
+                sessionBuilder.setComment("User login");
+                session = sessionBuilder.build();
 
-            if (session.getOwnerId() != user.getId()) {
-                throw new AssertionFailedException("Owner mismatch");
+                if (session.getOwnerId() != user.getId()) {
+                    throw new AssertionFailedException("Owner mismatch");
+                }
             }
+            // Create the session asset as the admin user - session has null from-id
+            return setupSession(adminCtx, session, sessionComment);
+        } finally {
+            adminCtx.getTransaction().endDbAccess();
         }
-        // Create the session asset as the admin user - session has null from-id
-        return setupSession( adminCtx, session, sessionComment);
     }
 
     @Override
     public String getServerVersion() throws RemoteException {
         // Create the session asset as the admin user - session has null from-id
+        final LittleContext adminCtx = contextFactory.buildAdminContext();
         try {
-            final LittleContext adminCtx = contextFactory.buildAdminContext();
-            final Asset home = search.getByName( adminCtx, "littleware.home", LittleHome.HOME_TYPE).get();
-            final Option<Asset> maybe = search.getAssetFrom( adminCtx, home.getId(), serverVersionName);
+            final Asset home = search.getByName(adminCtx, "littleware.home", LittleHome.HOME_TYPE).get();
+            final Option<Asset> maybe = search.getAssetFrom(adminCtx, home.getId(), serverVersionName);
 
             if (maybe.isSet()) {
                 return maybe.get().narrow(GenericAsset.class).getData();
             } else {
                 // Note: ServerVersionNode should be initialized in SessionManager if it doesn't exist
                 return "v0.0";
-
-
             }
+        } catch ( RuntimeException ex ) {
+            throw ex;
         } catch (Exception ex) {
             throw new AssertionFailedException("Unexpected exception: " + ex);
-
+        } finally {
+            adminCtx.getTransaction().endDbAccess();
         }
     }
 }

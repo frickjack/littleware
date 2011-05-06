@@ -8,6 +8,7 @@
 package littleware.test;
 
 import junit.framework.TestCase;
+import junit.framework.TestResult;
 
 /**
  * Slight specialization of junit.framework.TestCase
@@ -63,4 +64,12 @@ public abstract class LittleTest extends TestCase {
     public void runTest() throws Throwable {
         super.runTest();
     }
+
+    /**
+     * Make public to simplify delegation and decoration
+     */
+     @Override
+     public TestResult createResult() {
+         return super.createResult();
+     }
 }

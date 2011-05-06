@@ -17,7 +17,7 @@ package littleware.base;
 public final class Maybe<T> {
     private static class SimpleOption<T> extends AbstractReference<T> implements Option<T> {
         public SimpleOption( T value ) {
-            super();
+            super( value );
         }
         public SimpleOption() {}
     }

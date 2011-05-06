@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware/
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -7,7 +7,6 @@
  */
 package littleware.asset.server.db.jpa;
 
-import com.google.inject.Provider;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -27,18 +26,18 @@ import littleware.db.DbReader;
  */
 public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
 
-    private static final Logger olog = Logger.getLogger(DbIdsFromLoader.class.getName());
+    private static final Logger log = Logger.getLogger(DbIdsFromLoader.class.getName());
     private final Option<AssetType> maybeType;
     private final Option<Integer> maybeState;
     private final UUID uFrom;
-    private final Provider<JpaLittleTransaction> oprovideTrans;
+    private final JpaLittleTransaction trans;
 
-    public DbIdsFromLoader(Provider<JpaLittleTransaction> provideTrans,
+    public DbIdsFromLoader(JpaLittleTransaction trans,
             UUID uFrom, Option<AssetType> maybeType, Option<Integer> maybeState) {
         this.maybeType = maybeType;
         this.uFrom = uFrom;
         this.maybeState = maybeState;
-        oprovideTrans = provideTrans;
+        this.trans = trans;
     }
 
     /**
@@ -50,7 +49,7 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
      * @return list of results with type and object state under from
      */
     private List<NameIdType> loadInfo(UUID typeId) {
-        final EntityManager entMgr = oprovideTrans.get().getEntityManager();
+        final EntityManager entMgr = trans.getEntityManager();
 
         if (maybeState.isEmpty()) {
             final String sQuery = "SELECT NEW littleware.asset.server.db.jpa.NameIdType( x.name, x.objectId, x.typeId ) " +
@@ -72,7 +71,7 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
 
     @Override
     public Map<String, UUID> loadObject(String sIgnore) throws SQLException {
-        final EntityManager entMgr = oprovideTrans.get().getEntityManager();
+        final EntityManager entMgr = trans.getEntityManager();
         final String sQuery;
         final List<NameIdType> vInfo;
 

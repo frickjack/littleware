@@ -1,15 +1,12 @@
 /*
- * Copyright 2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset.server.db.jpa;
 
-import com.google.inject.Provider;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,21 +31,21 @@ class DbByNameLoader implements DbReader<Set<Asset>, String> {
 
     private final String osName;
     private final AssetType oatype;
-    private final Provider<JpaLittleTransaction> oprovideTrans;
+    private final JpaLittleTransaction trans;
     private final AssetProviderRegistry assetRegistry;
 
-    public DbByNameLoader(Provider<JpaLittleTransaction> provideTrans,
+    public DbByNameLoader( JpaLittleTransaction trans,
             AssetProviderRegistry assetRegistry,
             String sName, AssetType atype) {
         osName = sName;
         oatype = atype;
-        oprovideTrans = provideTrans;
+        this.trans = trans;
         this.assetRegistry = assetRegistry;
     }
 
     @Override
     public Set<Asset> loadObject(String sIgnore) throws SQLException {
-        final EntityManager entMgr = oprovideTrans.get().getEntityManager();
+        final EntityManager entMgr = trans.getEntityManager();
         final String sQuery = "SELECT x FROM Asset x WHERE x.name=:name AND x.typeId=:typeId";
         final List<AssetEntity> vInfo = new ArrayList<AssetEntity>();
         final Query query = entMgr.createQuery(sQuery).

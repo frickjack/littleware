@@ -9,7 +9,6 @@
 
 package littleware.asset.client.spi;
 
-import com.google.inject.Singleton;
 import littleware.base.event.LittleEventSource;
 
 /**
@@ -18,7 +17,6 @@ import littleware.base.event.LittleEventSource;
  * responsibility for firing the appropriate events onto the bus to
  * notify cache handlers and other client subsystems.
  */
-@Singleton
 public interface LittleServiceBus extends LittleEventSource {
 
     public void fireEvent( LittleServiceEvent ev );

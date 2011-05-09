@@ -25,8 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
 import littleware.base.EventBarrier;
-import littleware.base.Maybe;
-import littleware.base.PropertiesLoader;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.LittleModule;
 import org.apache.felix.framework.Felix;
@@ -99,7 +97,7 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
             throw new IllegalStateException( "Bootstrap can only run once" );
         }
         for( T scan : moduleSet ) {
-            log.log( Level.FINE, "Check bootstrap module: " + scan.getClass().getName() );
+            log.log( Level.FINE, "Check bootstrap module: {0}", scan.getClass().getName());
         }
         final Injector injector = Guice.createInjector(
                 moduleSet

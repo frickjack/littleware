@@ -57,17 +57,16 @@ public interface ClientBootstrap extends AppBootstrap {
      * Register a listener with the LoginManager to authenticate on demand.
      *
      * @param clazz the class to instantiate and inject
-     * @param sessionId unique id for the new session
      * @return session-injected instance of clazz for an unauthenticated session
      * @exception IllegalStateException if bootstrap has not yet been called
      */
-    public <T> T  startSession( Class<T> clazz, String sessionId );
+    public <T> T  startSession( Class<T> clazz );
 
     /**
      * Convenience method authenticates as the test-user with the
      * littleware client backend.
      */
-    public <T> T  startTestSession( Class<T> clazz, String sessionId );
+    public <T> T  startTestSession( Class<T> clazz );
 
     public static final Provider<ClientBuilder> clientProvider = new Provider<ClientBuilder>() {
         @Override

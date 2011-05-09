@@ -114,25 +114,21 @@ public class SimpleClientCache implements LittleListener, ClientCache {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     };
-    private long olTransaction;
+    private long timestamp = -1;
 
     /**
      * Default constructor self-injects a SimpleCache
      * with a SimpleCache.MIN_AGEOUT_SECONDS age-out
      * and 20000 max size.
      *
-     * @param session initializes transaction to session.getTimestampCount,
-     *           and puts the session in the cache.
      * @param helper to register this as a listener with, and to retrieve session from
      */
     @Inject
-    public SimpleClientCache( LittleSession session,
+    public SimpleClientCache( 
             InMemoryCacheBuilder cacheBuilder
             ) {
         cacheLong = cacheBuilder.maxAgeSecs( 900 ).maxSize( 20000 ).build();
         cacheShort = cacheBuilder.maxAgeSecs( 30 ).maxSize( 20000 ).build();
-        olTransaction = session.getTimestamp();
-        ocache.put(session.getId().toString(), session);
     }
 
     /**
@@ -158,7 +154,7 @@ public class SimpleClientCache implements LittleListener, ClientCache {
      */
     @Override
     public long getTimestamp() {
-        return olTransaction;
+        return timestamp;
     }
 
     @Override

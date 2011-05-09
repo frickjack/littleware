@@ -7,37 +7,35 @@
  */
 
 
-package littleware.security.auth.client.internal;
+package littleware.asset.client.internal;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.UUID;
+import littleware.asset.Asset;
+import littleware.asset.AssetException;
+import littleware.asset.internal.RemoteAssetManager;
 import littleware.base.BaseException;
 import littleware.net.RemoteRetryHelper;
-import littleware.security.auth.LittleSession;
-import littleware.security.auth.internal.RemoteSessionManager;
 
 /**
- * RemoteSessionManager implementation with built in retry logic
+ * Client-side RemoteAssetManager over RMI with auto-retry
  */
-@Singleton
-public class RetryRemoteSessionMgr extends RemoteRetryHelper<RemoteSessionManager> implements RemoteSessionManager {
+public class RetryRemoteAstMgr extends RemoteRetryHelper<RemoteAssetManager> implements RemoteAssetManager {
 
     @Inject
-    public RetryRemoteSessionMgr( @Named("littleware.jndi.prefix") String jndiPrefix ) {
-        super(jndiPrefix + RemoteSessionManager.LOOKUP_PATH );
+    public RetryRemoteAstMgr( @Named("littleware.jndi.prefix") String jndiPrefix ) {
+        super(jndiPrefix + RemoteAssetManager.LOOKUP_PATH );
     }
 
     @Override
-    public LittleSession login(String userName, String password, String comment) throws BaseException, GeneralSecurityException, RemoteException {
+    public void deleteAsset(UUID sessionId, UUID assetId, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().login(userName, password,
-                        comment
-                        );
+                getLazy().deleteAsset( sessionId, assetId, updateComment );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
@@ -47,10 +45,10 @@ public class RetryRemoteSessionMgr extends RemoteRetryHelper<RemoteSessionManage
     }
 
     @Override
-    public LittleSession createNewSession(UUID currentSessionId, String sessionComment) throws BaseException, GeneralSecurityException, RemoteException {
+    public <T extends Asset> T saveAsset(UUID sessionId, T asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().createNewSession( currentSessionId, sessionComment );
+                return getLazy().saveAsset( sessionId, asset, updateComment );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
@@ -60,17 +58,16 @@ public class RetryRemoteSessionMgr extends RemoteRetryHelper<RemoteSessionManage
     }
 
     @Override
-    public String getServerVersion() throws RemoteException {
+    public Collection<Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getServerVersion();
+                return getLazy().saveAssetsInOrder( sessionId, assetList, updateComment );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
                 handle(new RemoteException("Unexpected exception", ex));
             }
         }
-
     }
 
 }

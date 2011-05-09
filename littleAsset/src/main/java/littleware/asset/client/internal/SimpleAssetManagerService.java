@@ -39,7 +39,7 @@ public class SimpleAssetManagerService implements AssetManager {
      * Inject the server to wrap with LittleService event throwing support
      */
     @Inject
-    public SimpleAssetManagerService(RemoteAssetManager server, LittleServiceBus eventBus, KeyChain keychain, AssetLibrary library ) {
+    public SimpleAssetManagerService( RetryRemoteAstMgr server, LittleServiceBus eventBus, KeyChain keychain, AssetLibrary library ) {
         this.server = server;
         this.eventBus = eventBus;
         this.keychain = keychain;

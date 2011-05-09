@@ -12,6 +12,7 @@ package littleware.security.internal;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Scopes;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
@@ -24,6 +25,8 @@ import littleware.security.LittleGroupMember;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
 import littleware.security.auth.LittleSession;
+import littleware.security.auth.client.internal.RetryRemoteSessionMgr;
+import littleware.security.auth.internal.RemoteSessionManager;
 import littleware.security.auth.internal.SimpleSessionBuilder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -92,6 +95,9 @@ public class LittleSecurityModule extends AbstractAppModule {
         binder.bind( LittleGroupMember.MemberBuilder.class ).to( GroupMemberBuilder.class );
         binder.bind( LittleSession.Builder.class ).to( SimpleSessionBuilder.class );
         binder.bind( LittleUser.Builder.class ).to( SimpleUserBuilder.class );
+        // Avoid binding RemoteSessionManager - gets bound by server environment too
+        //binder.bind( RemoteSessionManager.class ).
+        binder.bind( RetryRemoteSessionMgr.class ).in( Scopes.SINGLETON );
     }
 
 }

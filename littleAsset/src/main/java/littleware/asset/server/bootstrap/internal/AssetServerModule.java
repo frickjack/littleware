@@ -122,6 +122,8 @@ public class AssetServerModule extends AbstractServerModule {
         private boolean localRegistry = false;
         private Option<Registry> maybeRegistry;
         private final RemoteSessionManager sessionMgr;
+        private final RemoteAssetManager assetMgr;
+        private final RemoteSearchManager searchMgr;
 
         @Inject
         public Activator(
@@ -129,6 +131,8 @@ public class AssetServerModule extends AbstractServerModule {
                 @Named("int.lw.rmi_port") int registryPort,
                 AssetSpecializerRegistry assetRegistry,
                 RemoteSessionManager sessionMgr,
+                RemoteAssetManager   assetMgr,
+                RemoteSearchManager  searchMgr,
                 DbAssetManager dbManager,
                 LittleContext.ContextFactory ctxProvider,
                 Injector injector) {
@@ -156,6 +160,8 @@ public class AssetServerModule extends AbstractServerModule {
             } finally {
                 transaction.endDbUpdate(rollback);
             }
+            this.assetMgr = assetMgr;
+            this.searchMgr = searchMgr;
         }
 
         @Override
@@ -188,7 +194,12 @@ public class AssetServerModule extends AbstractServerModule {
                      * Context jndi_context = new InitialContext();
                      * jndi_context.rebind("/littleware/SessionManager", om_session );
                      */
+                    log.log( Level.INFO, "Binding " + RemoteSessionManager.LOOKUP_PATH );
                     rmi_registry.rebind( RemoteSessionManager.LOOKUP_PATH, sessionMgr);
+                    log.log( Level.INFO, "Binding " + RemoteAssetManager.LOOKUP_PATH );
+                    rmi_registry.rebind( RemoteAssetManager.LOOKUP_PATH, assetMgr );
+                    log.log( Level.INFO, "Binding " + RemoteSearchManager.LOOKUP_PATH );
+                    rmi_registry.rebind( RemoteSearchManager.LOOKUP_PATH, searchMgr );
                 } else {
                     log.log(Level.INFO, "Not exporing RMI registry - port set to: {0}", port);
                 }

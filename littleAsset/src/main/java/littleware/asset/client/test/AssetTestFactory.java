@@ -8,6 +8,7 @@
 package littleware.asset.client.test;
 
 import java.util.logging.Logger;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.asset.server.bootstrap.ServerBootstrap;
@@ -20,6 +21,19 @@ public class AssetTestFactory extends littleware.test.TestFactory {
 
     private static final Logger log = Logger.getLogger(AssetTestFactory.class.getName());
 
+    public TestSuite buildClientTest( final ClientBootstrap clientBoot,
+            Class<? extends TestSuite> clazz
+            ) {
+        clientBoot.bootstrap();
+        final TestSuite suite = clientBoot.startTestSession(clazz);
+        suite.addTest( new TestCase( "shutdownClient" ) {
+            @Override
+            public void runTest() {
+                clientBoot.shutdown();
+            }
+        } );
+        return suite;
+    }
 
     /**
      * Bootstraps a client environment
@@ -31,24 +45,18 @@ public class AssetTestFactory extends littleware.test.TestFactory {
      * @param clientBuilder to invoke test() login on once
      *          embedded server environment is up and running
      */
-    public TestSuite build(final ServerBootstrap serverBootstrap,
+    public TestSuite build(final ServerBootstrap serverBoot,
             final ClientBootstrap clientBuilder,
-            final Class<? extends TestSuite> testSuiteClass) {
+            final Class<? extends TestSuite> clazz) {
 
-        serverBootstrap.bootstrap();
-        throw new UnsupportedOperationException( "... fix this up!" );
-        /*..
-        final TestSuite suite = build(clientBuilder, testSuiteClass);
-        suite.addTest(
-                new TestCase("shutdownLittlewareServer") {
-                    @Override
-                    public void runTest() {
-                        serverBootstrap.shutdown();
-                    }
-                });
-        log.log(Level.INFO, "Returning TestSuite");
+        serverBoot.bootstrap();
+        final TestSuite suite = buildClientTest( clientBuilder, clazz );
+        suite.addTest( new TestCase( "shutdownServer" ) {
+            @Override
+            public void runTest() {
+                serverBoot.shutdown();
+            }
+        } );
         return suite;
-         * 
-         */
     }
 }

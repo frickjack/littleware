@@ -17,6 +17,7 @@ import java.util.Collections;
 import javax.security.auth.Subject;
 import littleware.asset.AssetException;
 import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.internal.RetryRemoteSearchMgr;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
@@ -43,8 +44,8 @@ public class SessionManagerProxy implements SessionManager {
      * Stash the wrapped manager and the URL it came from
      */
     @Inject
-    public SessionManagerProxy(RemoteSessionManager remote,
-            RemoteSearchManager rsearch,
+    public SessionManagerProxy(RetryRemoteSessionMgr remote,
+            RetryRemoteSearchMgr rsearch,
             AssetSearchManager search,
             KeyChain keychain) {
         this.remote = remote;

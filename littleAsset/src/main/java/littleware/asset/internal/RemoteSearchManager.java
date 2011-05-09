@@ -117,7 +117,7 @@ public interface RemoteSearchManager extends RemoteAssetRetriever, Remote {
     /**
      * Position in JNDI or RMI directory to bind/lookup this service
      */
-    public static String  LOOKUP_PATH = "littleware/SearchManager";
+    public static String  LOOKUP_PATH = "/littleware/SearchManager";
 
 }
 

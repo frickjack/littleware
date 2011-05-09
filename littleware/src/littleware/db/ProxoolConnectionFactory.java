@@ -30,7 +30,7 @@ public class ProxoolConnectionFactory implements ConnectionFactory {
     private int oi_checkout_count = 0;
     private ThreadLocal<Connection> othread_connection = new ThreadLocal<Connection>();
 
-    @Override
+
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new UnsupportedOperationException("Not supported yet.");
     }

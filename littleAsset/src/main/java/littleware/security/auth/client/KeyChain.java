@@ -11,13 +11,41 @@ package littleware.security.auth.client;
 
 import java.util.UUID;
 import littleware.base.Option;
+import littleware.base.event.LittleEvent;
 import littleware.base.event.LittleEventSource;
 
 /**
- *
- * @author pasquini
+ * Singleton registry tracks the sessionId associated with
+ * a session.
  */
 public interface KeyChain extends LittleEventSource {
+
+    /**
+     * Event fired by KeyChain on attempt to access an
+     * uninitialized key.
+     */
+    public static class LoginRequestedEvent extends LittleEvent {
+        private final String host;
+        
+        public LoginRequestedEvent( KeyChain source, String host ) {
+            super( source );
+            this.host = host;
+        }
+
+        /**
+         * Get the host of the server the session is trying to access
+         *
+         * @return
+         */
+        public String  getHost() {
+            return host;
+        }
+
+        @Override
+        public KeyChain getSource() {
+            return (KeyChain) super.getSource();
+        }
+    }
 
     /**
      * Return the sessionId active with the default littleware server.
@@ -25,7 +53,8 @@ public interface KeyChain extends LittleEventSource {
      * before returning empty
      */
     public Option<UUID>  getDefaultSessionId();
-    public void  setDefaultSessionId( UUID value );
+    public void          setDefaultSessionId( UUID value );
+    public String        getDefaultHost();
 
     /**
      * Return the sessionId active with the littleware server at the given host.

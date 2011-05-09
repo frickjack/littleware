@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -11,17 +11,21 @@ import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
+import com.google.inject.Provides;
+import com.google.inject.Scopes;
+import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.security.auth.Subject;
+import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.AssetTreeTool;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.AssertionFailedException;
 import littleware.bootstrap.helper.AbstractLittleBootstrap;
@@ -29,12 +33,23 @@ import littleware.bootstrap.LittleBootstrap;
 import littleware.asset.client.bootstrap.ClientBootstrap.ClientBuilder;
 import littleware.asset.client.bootstrap.SessionModule;
 import littleware.asset.client.bootstrap.SessionModuleFactory;
+import littleware.asset.client.internal.SimpleAssetLibrary;
+import littleware.asset.client.internal.SimpleAssetManagerService;
+import littleware.asset.client.internal.SimpleAssetTreeTool;
+import littleware.asset.client.internal.SimpleClientCache;
+import littleware.asset.client.internal.SimpleSearchService;
+import littleware.asset.client.internal.SimpleServiceBus;
+import littleware.asset.client.spi.ClientCache;
+import littleware.asset.client.spi.LittleServiceBus;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.helper.AbstractAppModule;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
+import littleware.security.auth.client.KeyChain;
 import littleware.security.auth.client.SessionManager;
+import littleware.security.auth.client.internal.SessionManagerProxy;
+import littleware.security.auth.client.internal.SimpleKeyChain;
 
 public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
@@ -47,17 +62,17 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
     public AppProfile getProfile() {
         return profile;
     }
-    
+
     {
         for (SessionModuleFactory moduleFactory : ServiceLoader.load(SessionModuleFactory.class)) {
             sessionFactoryList.add(moduleFactory);
         }
-        for ( final AppModuleFactory moduleFactory : ServiceLoader.load(AppModuleFactory.class)) {
+        for (final AppModuleFactory moduleFactory : ServiceLoader.load(AppModuleFactory.class)) {
             factoryList.add(moduleFactory);
         }
 
-        if ( factoryList.isEmpty() ) {
-            throw new AssertionFailedException( "Failed to find base client modules: " + SessionModuleFactory.class  );
+        if (factoryList.isEmpty()) {
+            throw new AssertionFailedException("Failed to find base client modules: " + SessionModuleFactory.class);
         }
     }
 
@@ -84,7 +99,6 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
         return this;
     }
 
-
     @Override
     public Collection<SessionModuleFactory> getSessionModuleSet() {
         return ImmutableList.copyOf(sessionFactoryList);
@@ -92,23 +106,22 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
     @Override
     public ClientBuilder addModuleFactory(SessionModuleFactory factory) {
-        sessionFactoryList.add( factory );
+        sessionFactoryList.add(factory);
         return this;
     }
 
     @Override
     public ClientBuilder removeModuleFactory(SessionModuleFactory factory) {
-        sessionFactoryList.remove( factory );
+        sessionFactoryList.remove(factory);
         return this;
     }
-
 
     private SimpleClientBuilder copy() {
         final SimpleClientBuilder result = new SimpleClientBuilder();
         result.factoryList.clear();
-        result.factoryList.addAll( this.factoryList );
+        result.factoryList.addAll(this.factoryList);
         result.sessionFactoryList.clear();
-        result.sessionFactoryList.addAll( this.sessionFactoryList );
+        result.sessionFactoryList.addAll(this.sessionFactoryList);
         result.profile = this.profile;
         return result;
     }
@@ -120,19 +133,17 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
         for (AppModuleFactory factory : factoryList) {
             appBuilder.add(factory.build(profile));
         }
-        for( SessionModuleFactory factory : sessionFactoryList ) {
-            sessionBuilder.add( factory.build( profile ) );
+        for (SessionModuleFactory factory : sessionFactoryList) {
+            sessionBuilder.add(factory.build(profile));
         }
         return new Bootstrap(appBuilder.build(), sessionBuilder.build(), profile);
     }
 
-
     //---------------------------------------------------
-
     private static class Bootstrap extends AbstractLittleBootstrap<AppModule> implements ClientBootstrap {
 
         private final AppProfile profile;
-        private final Collection<SessionModule>  sessionModuleSet;
+        private final Collection<SessionModule> sessionModuleSet;
         private Injector injector = null;
 
         public Bootstrap(ImmutableList<? extends AppModule> moduleSet,
@@ -144,14 +155,16 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
         }
 
         @Override
-        public AppProfile getProfile() { return profile; }
+        public AppProfile getProfile() {
+            return profile;
+        }
 
         @Override
         protected <T> T bootstrap(Class<T> injectTarget, Collection<? extends AppModule> originalModuleSet) {
             final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
             builder.addAll(originalModuleSet);
-            builder.add(new ClientSetupModule( profile, this));
-            injector = super.bootstrap( Injector.class, builder.build() );
+            builder.add(new ClientSetupModule(profile, this));
+            injector = super.bootstrap(Injector.class, builder.build());
             return injector.getInstance(injectTarget);
         }
 
@@ -161,71 +174,46 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
         }
 
         @Override
-        public <T> T startSession(Class<T> clazz, String sessionId) {
+        public void shutdown() {
+            injector = null;
+            super.shutdown();
+        }
+
+        @Override
+        public <T> T startSession(Class<T> clazz) {
+            if (null == injector) {
+                throw new IllegalStateException("Must bootstrap application before launching a session");
+            }
             final ImmutableList.Builder<SessionModule> builder = ImmutableList.builder();
-            builder.addAll( this.sessionModuleSet );
-            builder.add( new SessionSetupModule( sessionId ) );
-            throw new UnsupportedOperationException("Not supported yet.");
+            builder.addAll(this.sessionModuleSet);
+            builder.add(new SessionSetupModule());
+            return injector.createChildInjector(builder.build()).getInstance(clazz);
         }
 
         @Override
-        public <T> T startTestSession(Class<T> clazz, String sessionId) {
-            throw new UnsupportedOperationException("Not supported yet.");
+        public <T> T startTestSession(Class<T> clazz) {
+            final Injector child = startSession(Injector.class);
+            // login as test user
+            final SessionManager sessionMgr = child.getInstance(SessionManager.class);
+            try {
+                sessionMgr.login("littleware.test_user", "test123", "running test");
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Failed to authenticate as test user", ex);
+                throw new AssertionFailedException("Failed to authenticate as littleware.test_user", ex);
+            }
+            return child.getInstance(clazz);
         }
     }
-
-    //----------------------------------------------------------
-
-    public static class LittleSessionProvider implements Provider<LittleSession> {
-        @Inject
-        public LittleSessionProvider( SessionManager sessionMgr ) {
-
-        }
-
-        @Override
-        public LittleSession get() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-    }
-
-    //---------------------------------------------
-
-    public static class LittleUserProvider implements Provider<LittleUser> {
-        @Inject
-        public LittleUserProvider( Subject subject ) {
-
-        }
-
-        @Override
-        public LittleUser get() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-    }
-
-    //---------------------------------------------
-
-    public static class SubjectProvider implements Provider<Subject> {
-        @Inject
-        public SubjectProvider( SessionManager sessionMgr ) {
-
-        }
-
-        @Override
-        public Subject get() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-    }
-
 
     //----------------------------------------------
-
     /**
      * Internal module injects SessionHelper
      */
     public static class ClientSetupModule extends AbstractAppModule {
-        private final ClientBootstrap bootstrap;
 
+        private final ClientBootstrap bootstrap;
 
         public ClientSetupModule(
                 AppBootstrap.AppProfile profile,
@@ -236,30 +224,52 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
         @Override
         public void configure(Binder binder) {
-            binder.bind( LittleBootstrap.class ).to( AppBootstrap.class );
+            binder.bind(LittleBootstrap.class).to(AppBootstrap.class);
             binder.bind(AppBootstrap.class).to(ClientBootstrap.class);
             binder.bind(ClientBootstrap.class).toInstance(bootstrap);
-            binder.bind( AppBootstrap.AppProfile.class ).toInstance( bootstrap.getProfile() );
+            binder.bind(AppBootstrap.AppProfile.class).toInstance(bootstrap.getProfile());
         }
     }
 
     //-------------------------------------------------------------
-
     public static class SessionSetupModule implements SessionModule {
-        public SessionSetupModule( String sessionId ) {
 
+        @Provides
+        @Singleton
+        public LittleSession provideSession(KeyChain chain, AssetSearchManager search) {
+            try {
+                final UUID id = chain.getDefaultSessionId().get();
+                log.log( Level.FINE, "Loading session: {0}", id);
+                return search.getAsset(chain.getDefaultSessionId().get()).get().narrow();
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new AssertionFailedException("Failed to load default session", ex);
+            }
+        }
+
+        @Provides
+        @Singleton
+        public LittleUser provideUser(LittleSession session, AssetSearchManager search) {
+            try {
+                return search.getAsset(session.getOwnerId()).get().narrow();
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new AssertionFailedException("Failed to load session owner", ex);
+            }
         }
 
         @Override
         public void configure(Binder binder) {
-            binder.bind( AssetSearchManager.class );
-            binder.bind( AssetManager.class );
-            binder.bind( SessionManager.class );
-            binder.bind(LittleSession.class);
-            binder.bind(LittleUser.class);
+            binder.bind(AssetSearchManager.class).to(SimpleSearchService.class).in(Scopes.SINGLETON);
+            binder.bind(AssetManager.class).to(SimpleAssetManagerService.class).in(Scopes.SINGLETON);
+            binder.bind(SessionManager.class).to(SessionManagerProxy.class).in(Scopes.SINGLETON);
+            binder.bind( KeyChain.class ).to( SimpleKeyChain.class ).in( Scopes.SINGLETON );
+            binder.bind( AssetLibrary.class ).to( SimpleAssetLibrary.class ).in( Scopes.SINGLETON );
+            binder.bind( ClientCache.class ).to( SimpleClientCache.class ).in( Scopes.SINGLETON );
+            binder.bind( AssetTreeTool.class ).to( SimpleAssetTreeTool.class ).in( Scopes.SINGLETON );
+            binder.bind( LittleServiceBus.class ).to( SimpleServiceBus.class ).in( Scopes.SINGLETON );
         }
-
     }
-
-
 }

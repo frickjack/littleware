@@ -67,7 +67,7 @@ public class SimpleSearchService implements AssetSearchManager {
      */
     @Inject
     public SimpleSearchService(
-            RemoteSearchManager server,
+            RetryRemoteSearchMgr server,
             LittleServiceBus eventBus,
             ClientCache cache,
             AssetLibrary library,

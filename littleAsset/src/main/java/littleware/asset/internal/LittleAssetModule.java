@@ -20,6 +20,8 @@ import littleware.asset.IdWithClock;
 import littleware.asset.LinkAsset;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
+import littleware.asset.client.internal.RetryRemoteAstMgr;
+import littleware.asset.client.internal.RetryRemoteSearchMgr;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.asset.pickle.XmlPicklerProvider;
 import littleware.asset.pickle.internal.SimpleHumanRegistry;
@@ -94,6 +96,12 @@ public class LittleAssetModule extends AbstractAppModule {
         binder.bind( HumanPicklerProvider.class ).to( SimpleHumanRegistry.class ).in( Scopes.SINGLETON );
         binder.bind( XmlPicklerProvider.class ).to( SimpleXmlRegistry.class ).in( Scopes.SINGLETON );
         binder.bind( AssetProviderRegistry.class ).to( SimpleAssetRegistry.class ).in( Scopes.SINGLETON );
+
+        // Avoid binding RemoteManager - gets bound in the server environment too
+        //binder.bind( RemoteAssetManager.class ).
+        binder.bind( RetryRemoteAstMgr.class ).in( Scopes.SINGLETON );
+        //binder.bind( RemoteSearchManager.class ).
+        binder.bind( RetryRemoteSearchMgr.class ).in( Scopes.SINGLETON );
     }
 
 }

@@ -5,7 +5,6 @@
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.client.test;
 
 import com.google.inject.Inject;
@@ -14,14 +13,14 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import junit.framework.*;
-import littleware.asset.GenericAsset;
-
-
+import littleware.asset.client.bootstrap.ClientBootstrap;
+import littleware.base.BaseException;
 
 /**
  * Test suite for littleware.asset package
  */
 public class JenkinsTestSuite extends TestSuite {
+
     private static final Logger log = Logger.getLogger(JenkinsTestSuite.class.getName());
 
     /**
@@ -32,31 +31,39 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetPathTester> providePathTester,
             Provider<AssetTreeToolTester> provideTreeTester,
             Provider<AssetSearchManagerTester> provideSearchTest,
-            Provider<AssetManagerTester> provideAMgrTest,
-            littleware.asset.test.JenkinsTestSuite assetTestSuite
-            ) {
+            Provider<AssetManagerTester> provideAstMgrTest,
+            littleware.asset.test.JenkinsTestSuite assetTestSuite) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
 
-        this.addTest( assetTestSuite );
-        if ( runTest ) {
-            this.addTest( provideAMgrTest.get() );
+        this.addTest(assetTestSuite);
+        if (runTest) {
+            this.addTest(provideAstMgrTest.get());
         }
         if (runTest) {
-            this.addTest( provideSearchTest.get().putName( "testLoad"));
-            this.addTest( provideSearchTest.get() );
-            this.addTest( provideSearchTest.get().putName( "testTransactionLog"));
+            this.addTest(provideSearchTest.get().putName("testLoad"));
+            this.addTest(provideSearchTest.get());
+            this.addTest(provideSearchTest.get().putName("testTransactionLog"));
         }
 
-        if ( runTest ) {
-            this.addTest( provideTreeTester.get() );
+        if (runTest) {
+            this.addTest(provideTreeTester.get());
         }
         if (runTest) {
-            this.addTest(providePathTester.get() );
-            this.addTest(providePathTester.get().putName( "testBadLookup") );
+            this.addTest(providePathTester.get());
+            this.addTest(providePathTester.get().putName("testBadLookup"));
         }
 
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
-}
 
+    public static TestSuite suite() {
+        try {
+            final ClientBootstrap boot = ClientBootstrap.clientProvider.get().build();
+            return (new AssetTestFactory()).buildClientTest(boot, JenkinsTestSuite.class);
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
+            throw ex;
+        }
+    }
+}

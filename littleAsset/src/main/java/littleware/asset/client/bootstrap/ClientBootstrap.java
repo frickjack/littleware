@@ -10,34 +10,23 @@
 
 package littleware.asset.client.bootstrap;
 
-import littleware.asset.client.bootstrap.internal.SimpleClientBuilder;
-import littleware.bootstrap.AppModuleFactory;
-import littleware.bootstrap.AppBootstrap;
-import com.google.inject.Provider;
 import java.util.Collection;
 
 
 /**
- * Client mode bootstrap.
- * Loads ClientModule and AppModule service listeners.
+ * Bootstrap a littleware cilent/server session.
+ * <ul>
+ * <li> First, launch a standard AppBootstrap application </li>
+ * <li> Next, inject a ClientBootstrap.ClientBuilder to setup one or more sessions </li>
+ * </ul>
  */
-public interface ClientBootstrap extends AppBootstrap {
+public interface ClientBootstrap {
 
     
     public interface ClientBuilder {
-        /**
-         * List of littleware modules registered with this bootstrap.
-         */
-        public Collection<AppModuleFactory> getModuleSet();
-        public ClientBuilder addModuleFactory(AppModuleFactory factory);
-        public ClientBuilder removeModuleFactory(AppModuleFactory factory);
-
         public Collection<SessionModuleFactory> getSessionModuleSet();
         public ClientBuilder addModuleFactory(SessionModuleFactory factory);
         public ClientBuilder removeModuleFactory(SessionModuleFactory factory);
-
-        public AppProfile getProfile();
-        public ClientBuilder profile( AppProfile config );
 
         public ClientBootstrap build();
         
@@ -67,12 +56,5 @@ public interface ClientBootstrap extends AppBootstrap {
      * littleware client backend.
      */
     public <T> T  startTestSession( Class<T> clazz );
-
-    public static final Provider<ClientBuilder> clientProvider = new Provider<ClientBuilder>() {
-        @Override
-        public ClientBuilder get() {
-            return new SimpleClientBuilder();
-        }
-    };
 
 }

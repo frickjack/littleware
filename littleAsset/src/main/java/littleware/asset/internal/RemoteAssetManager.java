@@ -86,6 +86,6 @@ public interface RemoteAssetManager extends Remote {
     /**
      * Position in JNDI or RMI directory to bind/lookup this service
      */
-    public static String  LOOKUP_PATH = "/littleware/AssetManager";
+    public static final String  LOOKUP_PATH = "littleware/AssetManager";
 
 }

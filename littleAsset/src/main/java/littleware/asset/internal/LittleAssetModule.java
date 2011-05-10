@@ -20,6 +20,8 @@ import littleware.asset.IdWithClock;
 import littleware.asset.LinkAsset;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
+import littleware.asset.client.bootstrap.ClientBootstrap;
+import littleware.asset.client.bootstrap.internal.SimpleClientBuilder;
 import littleware.asset.client.internal.RetryRemoteAstMgr;
 import littleware.asset.client.internal.RetryRemoteSearchMgr;
 import littleware.asset.pickle.HumanPicklerProvider;
@@ -102,6 +104,7 @@ public class LittleAssetModule extends AbstractAppModule {
         binder.bind( RetryRemoteAstMgr.class ).in( Scopes.SINGLETON );
         //binder.bind( RemoteSearchManager.class ).
         binder.bind( RetryRemoteSearchMgr.class ).in( Scopes.SINGLETON );
+        binder.bind( ClientBootstrap.ClientBuilder.class ).to( SimpleClientBuilder.class );
     }
 
 }

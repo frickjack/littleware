@@ -7,10 +7,9 @@
  */
 package littleware.asset.client.bootstrap.internal;
 
-import littleware.bootstrap.AppModule;
-import littleware.bootstrap.AppModuleFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
@@ -28,8 +27,6 @@ import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetTreeTool;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.AssertionFailedException;
-import littleware.bootstrap.helper.AbstractLittleBootstrap;
-import littleware.bootstrap.LittleBootstrap;
 import littleware.asset.client.bootstrap.ClientBootstrap.ClientBuilder;
 import littleware.asset.client.bootstrap.SessionModule;
 import littleware.asset.client.bootstrap.SessionModuleFactory;
@@ -42,8 +39,6 @@ import littleware.asset.client.internal.SimpleServiceBus;
 import littleware.asset.client.spi.ClientCache;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.bootstrap.AppBootstrap;
-import littleware.bootstrap.AppBootstrap.AppProfile;
-import littleware.bootstrap.helper.AbstractAppModule;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.client.KeyChain;
@@ -54,50 +49,22 @@ import littleware.security.auth.client.internal.SimpleKeyChain;
 public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
 
     private static final Logger log = Logger.getLogger(SimpleClientBuilder.class.getName());
-    private final List<AppModuleFactory> factoryList = new ArrayList<AppModuleFactory>();
     private final List<SessionModuleFactory> sessionFactoryList = new ArrayList<SessionModuleFactory>();
-    private AppProfile profile = AppProfile.SwingApp;
-
-    @Override
-    public AppProfile getProfile() {
-        return profile;
-    }
 
     {
         for (SessionModuleFactory moduleFactory : ServiceLoader.load(SessionModuleFactory.class)) {
             sessionFactoryList.add(moduleFactory);
         }
-        for (final AppModuleFactory moduleFactory : ServiceLoader.load(AppModuleFactory.class)) {
-            factoryList.add(moduleFactory);
-        }
+    }
+    private final AppBootstrap.AppProfile profile;
+    private final Injector injector;
 
-        if (factoryList.isEmpty()) {
-            throw new AssertionFailedException("Failed to find base client modules: " + SessionModuleFactory.class);
-        }
+    @Inject
+    public SimpleClientBuilder( AppBootstrap.AppProfile profile, Injector injector ) {
+        this.profile = profile;
+        this.injector = injector;
     }
 
-    @Override
-    public Collection<AppModuleFactory> getModuleSet() {
-        return ImmutableList.copyOf(factoryList);
-    }
-
-    @Override
-    public ClientBuilder addModuleFactory(AppModuleFactory factory) {
-        factoryList.add(factory);
-        return this;
-    }
-
-    @Override
-    public ClientBuilder removeModuleFactory(AppModuleFactory factory) {
-        factoryList.remove(factory);
-        return this;
-    }
-
-    @Override
-    public ClientBuilder profile(AppProfile value) {
-        this.profile = value;
-        return this;
-    }
 
     @Override
     public Collection<SessionModuleFactory> getSessionModuleSet() {
@@ -117,76 +84,46 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
     }
 
     private SimpleClientBuilder copy() {
-        final SimpleClientBuilder result = new SimpleClientBuilder();
-        result.factoryList.clear();
-        result.factoryList.addAll(this.factoryList);
+        final SimpleClientBuilder result = new SimpleClientBuilder( profile, injector );
         result.sessionFactoryList.clear();
         result.sessionFactoryList.addAll(this.sessionFactoryList);
-        result.profile = this.profile;
         return result;
     }
 
     @Override
     public ClientBootstrap build() {
-        final ImmutableList.Builder<AppModule> appBuilder = ImmutableList.builder();
         final ImmutableList.Builder<SessionModule> sessionBuilder = ImmutableList.builder();
-        for (AppModuleFactory factory : factoryList) {
-            appBuilder.add(factory.build(profile));
-        }
         for (SessionModuleFactory factory : sessionFactoryList) {
             sessionBuilder.add(factory.build(profile));
         }
-        return new Bootstrap(appBuilder.build(), sessionBuilder.build(), profile);
+        return new Bootstrap( sessionBuilder.build(), injector);
     }
 
     //---------------------------------------------------
-    private static class Bootstrap extends AbstractLittleBootstrap<AppModule> implements ClientBootstrap {
-
-        private final AppProfile profile;
+    private static class Bootstrap implements ClientBootstrap {
         private final Collection<SessionModule> sessionModuleSet;
-        private Injector injector = null;
+        private final Injector injector;
 
-        public Bootstrap(ImmutableList<? extends AppModule> moduleSet,
+        public Bootstrap(
                 ImmutableList<SessionModule> sessionModuleSet,
-                AppProfile profile) {
-            super(moduleSet);
-            this.profile = profile;
+                Injector injector) {
+            this.injector = injector;
             this.sessionModuleSet = sessionModuleSet;
         }
 
-        @Override
-        public AppProfile getProfile() {
-            return profile;
-        }
 
-        @Override
-        protected <T> T bootstrap(Class<T> injectTarget, Collection<? extends AppModule> originalModuleSet) {
-            final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
-            builder.addAll(originalModuleSet);
-            builder.add(new ClientSetupModule(profile, this));
-            injector = super.bootstrap(Injector.class, builder.build());
-            return injector.getInstance(injectTarget);
-        }
 
         @Override
         public Collection<SessionModule> getSessionModuleSet() {
             return sessionModuleSet;
         }
 
-        @Override
-        public void shutdown() {
-            injector = null;
-            super.shutdown();
-        }
 
         @Override
         public <T> T startSession(Class<T> clazz) {
-            if (null == injector) {
-                throw new IllegalStateException("Must bootstrap application before launching a session");
-            }
             final ImmutableList.Builder<SessionModule> builder = ImmutableList.builder();
             builder.addAll(this.sessionModuleSet);
-            builder.add(new SessionSetupModule());
+            builder.add(new SessionSetupModule( this ));
             return injector.createChildInjector(builder.build()).getInstance(clazz);
         }
 
@@ -207,32 +144,12 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
         }
     }
 
-    //----------------------------------------------
-    /**
-     * Internal module injects SessionHelper
-     */
-    public static class ClientSetupModule extends AbstractAppModule {
-
-        private final ClientBootstrap bootstrap;
-
-        public ClientSetupModule(
-                AppBootstrap.AppProfile profile,
-                ClientBootstrap bootstrap) {
-            super(profile);
-            this.bootstrap = bootstrap;
-        }
-
-        @Override
-        public void configure(Binder binder) {
-            binder.bind(LittleBootstrap.class).to(AppBootstrap.class);
-            binder.bind(AppBootstrap.class).to(ClientBootstrap.class);
-            binder.bind(ClientBootstrap.class).toInstance(bootstrap);
-            binder.bind(AppBootstrap.AppProfile.class).toInstance(bootstrap.getProfile());
-        }
-    }
-
     //-------------------------------------------------------------
     public static class SessionSetupModule implements SessionModule {
+        private final ClientBootstrap boot;
+        public SessionSetupModule( ClientBootstrap boot ) {
+            this.boot = boot;
+        }
 
         @Provides
         @Singleton
@@ -270,6 +187,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
             binder.bind( ClientCache.class ).to( SimpleClientCache.class ).in( Scopes.SINGLETON );
             binder.bind( AssetTreeTool.class ).to( SimpleAssetTreeTool.class ).in( Scopes.SINGLETON );
             binder.bind( LittleServiceBus.class ).to( SimpleServiceBus.class ).in( Scopes.SINGLETON );
+            binder.bind( ClientBootstrap.class ).toInstance(boot);
         }
     }
 }

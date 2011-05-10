@@ -13,8 +13,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import junit.framework.*;
-import littleware.asset.client.bootstrap.ClientBootstrap;
-import littleware.base.BaseException;
+import littleware.asset.server.bootstrap.ServerBootstrap;
 
 /**
  * Test suite for littleware.asset package
@@ -59,8 +58,7 @@ public class JenkinsTestSuite extends TestSuite {
 
     public static TestSuite suite() {
         try {
-            final ClientBootstrap boot = ClientBootstrap.clientProvider.get().build();
-            return (new AssetTestFactory()).buildClientTest(boot, JenkinsTestSuite.class);
+            return (new AssetTestFactory()).build( ServerBootstrap.provider.get().build(), JenkinsTestSuite.class);
         } catch (RuntimeException ex) {
             log.log(Level.SEVERE, "Test setup failed", ex);
             throw ex;

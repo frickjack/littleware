@@ -52,6 +52,6 @@ public interface RemoteSessionManager extends Remote {
     /**
      * Position in JNDI or RMI directory to bind/lookup this service
      */
-    public static String  LOOKUP_PATH = "/littleware/SessionManager";
+    public static final String  LOOKUP_PATH = "littleware/SessionManager";
 }
 

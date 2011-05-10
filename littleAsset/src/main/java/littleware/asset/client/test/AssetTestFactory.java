@@ -7,11 +7,12 @@
  */
 package littleware.asset.client.test;
 
+import com.google.inject.Inject;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import littleware.asset.client.bootstrap.ClientBootstrap;
-import littleware.asset.server.bootstrap.ServerBootstrap;
+import littleware.asset.client.bootstrap.ClientBootstrap.ClientBuilder;
+import littleware.bootstrap.LittleBootstrap;
 
 /**
  * Utility to setup TestSuite that can bootstrap
@@ -21,42 +22,35 @@ public class AssetTestFactory extends littleware.test.TestFactory {
 
     private static final Logger log = Logger.getLogger(AssetTestFactory.class.getName());
 
-    public TestSuite buildClientTest( final ClientBootstrap clientBoot,
-            Class<? extends TestSuite> clazz
-            ) {
-        clientBoot.bootstrap();
-        final TestSuite suite = clientBoot.startTestSession(clazz);
-        suite.addTest( new TestCase( "shutdownClient" ) {
-            @Override
-            public void runTest() {
-                clientBoot.shutdown();
-            }
-        } );
-        return suite;
+    public static class NullTestSuite extends TestSuite {
+        private final ClientBootstrap.ClientBuilder clientBuilder;
+
+        @Inject
+        public NullTestSuite( ClientBootstrap.ClientBuilder clientBuilder ) {
+            setName(getClass().getName());
+            this.clientBuilder = clientBuilder;
+        }
+
+        public ClientBuilder getClientBuilder() {
+            return clientBuilder;
+        }
     }
 
+
     /**
-     * Bootstraps a client environment
-     * within a server environment, and
+     * Bootstraps a test session
+     * within a parent server or app environment, and
      * return a test suite that runs the given tests
      * as a client in the client environment, then shuts
      * down both environments.
-     *
-     * @param clientBuilder to invoke test() login on once
-     *          embedded server environment is up and running
      */
-    public TestSuite build(final ServerBootstrap serverBoot,
-            final ClientBootstrap clientBuilder,
-            final Class<? extends TestSuite> clazz) {
-
-        serverBoot.bootstrap();
-        final TestSuite suite = buildClientTest( clientBuilder, clazz );
-        suite.addTest( new TestCase( "shutdownServer" ) {
-            @Override
-            public void runTest() {
-                serverBoot.shutdown();
-            }
-        } );
-        return suite;
+    @Override
+    public <T extends TestSuite> T build(final LittleBootstrap boot,
+            final Class<T> clazz
+            ) {
+        final NullTestSuite shutdown = super.build( boot, NullTestSuite.class );
+        final T             testSuite = shutdown.getClientBuilder().build().startTestSession(clazz);
+        testSuite.addTest( shutdown );
+        return testSuite;
     }
 }

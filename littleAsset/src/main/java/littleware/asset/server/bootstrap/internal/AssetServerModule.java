@@ -56,6 +56,7 @@ import littleware.asset.server.internal.SimpleContextFactory;
 import littleware.base.Option;
 import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
+import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleModule;
 import littleware.db.DbGuice;
 import littleware.security.LittleAcl;
@@ -96,6 +97,13 @@ public class AssetServerModule extends AbstractServerModule {
         binder.bind( RemoteSearchManager.class ).to( RmiSearchManager.class ).in( Scopes.SINGLETON );
         binder.bind( RemoteAssetManager.class ).to( RmiAssetManager.class ).in( Scopes.SINGLETON );
         binder.bind( LittleContext.ContextFactory.class ).to( SimpleContextFactory.class ).in( Scopes.SINGLETON );
+
+        // Whatever - stick this here to simplify running tests with client and server in same process
+        if ( ServerBootstrap.ServerProfile.J2EE.equals( this.getProfile() ) ) {
+            binder.bind( AppBootstrap.AppProfile.class ).toInstance( AppBootstrap.AppProfile.WebApp );
+        } else {
+            binder.bind( AppBootstrap.AppProfile.class ).toInstance( AppBootstrap.AppProfile.CliApp );
+        }
 
         if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
             log.log(Level.INFO, "Configuring JPA in J2EE mode ...");

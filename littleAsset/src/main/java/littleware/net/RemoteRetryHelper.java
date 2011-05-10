@@ -10,6 +10,7 @@ package littleware.net;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
 
@@ -26,6 +27,7 @@ public class RemoteRetryHelper<T> extends RemoteExceptionHandler {
     public RemoteRetryHelper(
             String servicePath) {
         this.servicePath = servicePath;
+        log.log( Level.FINE, "Service lookup path set for: {0}", servicePath );
     }
 
     public String getServicePath() {

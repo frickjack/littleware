@@ -54,7 +54,7 @@ public abstract class AbstractAssetTest extends LittleTest {
             try {
                 mgrAsset.deleteAsset(uDelete, "cleanup test");
             } catch (Exception ex) {
-                log.log(Level.WARNING, "Failed to delete test asset: " + uDelete);
+                log.log(Level.WARNING, "Failed to delete test asset: " + uDelete, ex);
             }
         }
     }

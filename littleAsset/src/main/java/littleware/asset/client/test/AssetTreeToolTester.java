@@ -32,6 +32,7 @@ import littleware.asset.TreeNode;
 import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetRef;
+import littleware.asset.client.ClientScannerFactory;
 import littleware.base.Maybe;
 import littleware.base.Option;
 
@@ -57,7 +58,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             AssetSearchManager search,
             Provider<TreeNode.TreeNodeBuilder> nodeProvider,
             Provider<AssetTreeTemplate.TemplateBuilder> treeBuilder,
-            Provider<TemplateScanner> treeScanFactory,
+            ClientScannerFactory treeScanFactory,
             AssetLibrary library) {
         this.treeTool = treeTool;
         this.search = search;

@@ -3,7 +3,9 @@
     <settings defaultResolver="default"/>
     <caches artifactPattern="[organisation]/[module]/[type]s/[artifact]-[revision](-[classifier]).[ext]" 
         overwriteMode="newer"
+        defaultCacheDir="${ivy.jar.dir}/ivyRepo/cache"
         />
+        
     <!-- disable digest check -->
     <property name="ivy.checksums" value=""/>    
     <resolvers>

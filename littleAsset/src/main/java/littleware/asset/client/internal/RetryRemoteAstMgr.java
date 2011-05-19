@@ -36,6 +36,7 @@ public class RetryRemoteAstMgr extends RemoteRetryHelper<RemoteAssetManager> imp
         while (true) {
             try {
                 getLazy().deleteAsset( sessionId, assetId, updateComment );
+                return;
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {

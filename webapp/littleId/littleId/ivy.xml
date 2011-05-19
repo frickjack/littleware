@@ -24,8 +24,9 @@
                   conf="client_compile->client_compile;client_junit->client_junit;ee_client->ee_client" 
                   />
       <dependency org="littleware" name="littleWeb" rev="2.4.+" conf="client_compile->client_compile;client_junit->client_junit;ee_client->ee_client;client->client" />
-      <dependency org="org.openid4java" name="openid4java-nodeps" rev="0.9.5" conf="*" />
-      <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" conf="ee_client->*" />
+      <dependency org="org.openid4java" name="openid4java-nodeps" rev="0.9.6" conf="*" />
+      <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.1.1" conf="ee_client->*" />
+      <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.1" conf="ee_client->*" />
       <dependency org="commons-codec" name="commons-codec" rev="1.4" conf="ee_client->*" />
       <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="ee_client->*" />
     </dependencies>

@@ -85,9 +85,12 @@ public class SimpleLittleTool extends PropertyChangeSupport implements LittleToo
      * @param event_little to notify the listeners of
      */
     public void fireLittleEvent(LittleEvent event_little) {
+        /*.. disable this assertion - ServiceBus collects events from multiple sources ...
         if (event_little.getSource() != source) {
             throw new IllegalArgumentException("source mismatch");
         }
+         * 
+         */
 
         final Runnable run_dispatch;
         synchronized (this ) {

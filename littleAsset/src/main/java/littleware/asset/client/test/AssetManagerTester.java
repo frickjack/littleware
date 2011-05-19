@@ -18,7 +18,6 @@ import java.util.logging.Level;
 
 import littleware.asset.*;
 import littleware.asset.GenericAsset.GenericBuilder;
-import littleware.base.*;
 import littleware.security.*;
 import littleware.test.LittleTest;
 
@@ -30,7 +29,6 @@ public class AssetManagerTester extends LittleTest {
     private static final Logger log = Logger.getLogger(AssetManagerTester.class.getName());
     private final AssetManager assetMgr;
     private final AssetSearchManager searchMgr;
-    private final List<Asset> cleanupList = new ArrayList<Asset>();
     public final static String MS_TEST_HOME = "littleware.test_home";
     private final Provider<LittleUser> provideCaller;
     private final Provider<GenericBuilder> assetProvider;
@@ -53,21 +51,6 @@ public class AssetManagerTester extends LittleTest {
         setName("testAssetCreation");
     }
 
-    /**
-     * Try to remove the test-assets from the asset-tree
-     */
-    @Override
-    public void tearDown() {
-        try {
-            for (Asset a_cleanup : cleanupList) {
-                assetMgr.deleteAsset(a_cleanup.getId(), "Cleanup after test");
-            }
-        } catch (Exception ex) {
-            log.log(Level.INFO, "Failed to cleanup all test assets", ex);
-        } finally {
-            cleanupList.clear();
-        }
-    }
 
     /**
      * Just do some simple asset creationg/deletion/bla bla bla.
@@ -113,7 +96,9 @@ public class AssetManagerTester extends LittleTest {
 
             final GenericAsset assetClone = testAsset.copy().build();
             assertTrue("Able to clone new asset",
-                    testAsset.equals(assetClone) && assetClone.getName().equals(testAsset.getName())
+                    testAsset.equals(assetClone) 
+                    && assetClone.getId().equals( testAsset.getId() )
+                    && assetClone.getName().equals(testAsset.getName())
                     && assetClone.getAssetType().equals(testAsset.getAssetType())
                     && assetClone.getTimestamp() == testAsset.getTimestamp()
                     && assetClone.getAttributeMap().equals( testAsset.getAttributeMap() )
@@ -143,13 +128,16 @@ public class AssetManagerTester extends LittleTest {
                     );
             final GenericAsset loadedAsset = searchMgr.getAsset(testAsset.getId()).get().narrow();
             assertTrue("Able to load new asset and data matches",
-                    loadedAsset.equals(assetClone) && assetClone.getName().equals(loadedAsset.getName())
+                    loadedAsset.equals(assetClone)
+                    && assetClone.getId().equals(loadedAsset.getId())
+                    && assetClone.getName().equals(loadedAsset.getName())
                     && assetClone.getAssetType().equals(loadedAsset.getAssetType())
                     && assetClone.getEndDate().equals(loadedAsset.getEndDate())
                     && (loadedAsset.getValue() == 55.0) && (loadedAsset.getState() == 3)
                     );
 
             // Delete the asset
+            log.log( Level.INFO, "Deleting test asset: " + assetClone );
             assetMgr.deleteAsset(assetClone.getId(), "Cleanup test case");
 
             assertTrue("No longer able to retrieve deleted asset: " + assetClone.getId(),

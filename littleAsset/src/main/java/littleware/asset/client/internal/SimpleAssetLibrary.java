@@ -25,6 +25,8 @@ import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.spi.AbstractAsset;
+import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.event.LittleEvent;
 import littleware.base.event.LittleListener;
 import littleware.base.event.helper.SimpleLittleTool;
@@ -163,7 +165,7 @@ public class SimpleAssetLibrary
      */
     private static class SimpleAssetRef implements AssetRef {
 
-        private Asset asset = null;
+        private Option<Asset> asset = Maybe.empty();
         private final SimpleLittleTool eventSupport = new SimpleLittleTool(this);
         private final SimpleAssetLibrary library;
 
@@ -171,14 +173,14 @@ public class SimpleAssetLibrary
          * Constructor associates an asset
          */
         public SimpleAssetRef(Asset asset, SimpleAssetLibrary library) {
-            this.asset = asset;
+            this.asset = Maybe.emptyIfNull( asset );
             this.library = library;
             ValidationException.validate( asset != null, "Must reference non-null asset");
         }
 
         @Override
         public Asset get() {
-            return asset;
+            return asset.get();
         }
 
 
@@ -190,16 +192,18 @@ public class SimpleAssetLibrary
         public Asset syncAsset(Asset newAsset) {
             log.log(Level.FINE, "Syncing: {0}", newAsset);
 
-            if ((null == newAsset) || (asset == newAsset)) {
-                return asset;
+            if ((null == newAsset) || (asset.getOr(null) == newAsset)) {
+                return newAsset;
             }
-            if ((null != asset)
-                    && (newAsset.getTimestamp() <= asset.getTimestamp())) {
-                return asset;
+            if ( asset.isEmpty() ) {
+                asset = Maybe.something(newAsset);
+            }
+            if ( newAsset.getTimestamp() <= asset.get().getTimestamp() ) {
+                return asset.get();
             }
             // this call syncs a_new with oa_data
-            final Asset oldAsset = asset;
-            asset = newAsset;
+            final Asset oldAsset = asset.get();
+            asset = Maybe.something(newAsset );
 
             if ( ! oldAsset.getName().equals( newAsset.getName() )) {
                 library.nameMap.remove( library.nameKey( oldAsset ) );
@@ -212,7 +216,7 @@ public class SimpleAssetLibrary
                     );
             eventSupport.fireLittleEvent( event );
             library.notifyNeighbors( (AbstractAsset) newAsset, event, new HashSet<UUID>() );
-            return asset;
+            return asset.get();
         }
 
 
@@ -260,7 +264,11 @@ public class SimpleAssetLibrary
 
         @Override
         public void clear() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            asset = Maybe.empty();
+            final AssetActionEvent event = new AssetActionEvent(
+                    this, AssetRef.Operation.assetDeleted
+                    );
+            eventSupport.fireLittleEvent( event );
         }
 
         @Override
@@ -275,12 +283,12 @@ public class SimpleAssetLibrary
 
         @Override
         public UUID getId() {
-            return asset.getId();
+            return asset.get().getId();
         }
 
         @Override
         public long getTimestamp() {
-            return asset.getTimestamp();
+            return asset.get().getTimestamp();
         }
 
 
@@ -296,18 +304,18 @@ public class SimpleAssetLibrary
 
         @Override
         public Asset getOr(Asset t) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return asset.getOr( t );
         }
 
         @Override
         public Asset getOrCall(Callable<Asset> clbl) throws Exception {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return asset.getOrCall( clbl );
         }
 
 
         @Override
         public Asset getRef() {
-            return asset;
+            return asset.get();
         }
 
     }

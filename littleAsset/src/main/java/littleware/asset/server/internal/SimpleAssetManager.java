@@ -75,28 +75,28 @@ public class SimpleAssetManager implements ServerAssetManager {
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException {
         try {
-            final LittlePrincipal caller = ctx.getCaller();
-            // Get the asset for ourselves - make sure it's a valid asset
-            Asset asset = search.getAsset(ctx, assetId).get();
-            final AssetBuilder builder = asset.copy();
-            builder.setLastUpdateDate(new Date());
-            builder.setLastUpdaterId(caller.getId());
-            builder.setLastUpdate(updateComment);
             // make sure caller has write permission too ...
             final LittleTransaction trans = ctx.getTransaction();
             trans.startDbAccess();
-
             try {
-                asset = saveAsset(ctx, builder.build(), updateComment);
-
+                final LittlePrincipal caller = ctx.getCaller();
+                log.log( Level.FINE, "Deleting asset with id {0}", assetId );
+                // Get the asset for ourselves - make sure it's a valid asset
+                Asset asset = search.getAsset(ctx, assetId).get();
+                final AssetBuilder builder = asset.copy();
+                builder.setLastUpdateDate(new Date());
+                builder.setLastUpdaterId(caller.getId());
+                builder.setLastUpdate(updateComment);
                 boolean b_rollback = true;
                 trans.startDbUpdate();
+
                 try {
-                    DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter( trans );
+                    asset = saveAsset(ctx, builder.build(), updateComment);
+                    DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter(trans);
                     sql_writer.saveObject(asset);
 
                     specializerReg.getService(asset.getAssetType()).postDeleteCallback(ctx, asset);
-                    trans.getCache().remove( asset.getId() );
+                    trans.getCache().remove(asset.getId());
                     b_rollback = false;
                     //trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
                     /*..
@@ -281,7 +281,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                 builder.setTimestamp(trans.getTimestamp());
                 final Asset assetSave = builder.build();
                 try {
-                    final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver( trans );
+                    final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver(trans);
                     sql_writer.saveObject(assetSave);
 
                     ctx.savedAsset(assetSave);

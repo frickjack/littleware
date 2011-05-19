@@ -14,6 +14,9 @@ if( window.littleware == undefined ) {
  * littleYUI module, see http://yuiblog.com/blog/2007/06/12/module-pattern/
  * YUI doc comments: http://developer.yahoo.com/yui/yuidoc/
  * YUI extension mechanism: http://developer.yahoo.com/yui/3/yui/#yuiadd
+ * Provides convenience method for loading YUI with the littleware extension modules,
+ * so client javascript code just invokes:
+ *      littleware.littleYUI.bootstrap()... 
  *
  * @module littleware.littleYUI
  * @namespace auburn.library

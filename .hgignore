@@ -26,4 +26,5 @@ ivy/ivy.jar
 ~$
 .zip$
 .orig$
+.\#$
 latest_session.properties$

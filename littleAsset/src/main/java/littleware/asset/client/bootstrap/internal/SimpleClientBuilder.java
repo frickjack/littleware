@@ -25,6 +25,7 @@ import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetTreeTool;
+import littleware.asset.client.ClientScannerFactory;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.AssertionFailedException;
 import littleware.asset.client.bootstrap.ClientBootstrap.ClientBuilder;
@@ -34,6 +35,7 @@ import littleware.asset.client.internal.SimpleAssetLibrary;
 import littleware.asset.client.internal.SimpleAssetManagerService;
 import littleware.asset.client.internal.SimpleAssetTreeTool;
 import littleware.asset.client.internal.SimpleClientCache;
+import littleware.asset.client.internal.SimpleScannerFactory;
 import littleware.asset.client.internal.SimpleSearchService;
 import littleware.asset.client.internal.SimpleServiceBus;
 import littleware.asset.client.spi.ClientCache;
@@ -187,6 +189,7 @@ public class SimpleClientBuilder implements ClientBootstrap.ClientBuilder {
             binder.bind( ClientCache.class ).to( SimpleClientCache.class ).in( Scopes.SINGLETON );
             binder.bind( AssetTreeTool.class ).to( SimpleAssetTreeTool.class ).in( Scopes.SINGLETON );
             binder.bind( LittleServiceBus.class ).to( SimpleServiceBus.class ).in( Scopes.SINGLETON );
+            binder.bind( ClientScannerFactory.class ).to( SimpleScannerFactory.class ).in( Scopes.SINGLETON );
             binder.bind( ClientBootstrap.class ).toInstance(boot);
         }
     }

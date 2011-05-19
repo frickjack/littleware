@@ -31,7 +31,7 @@
     
     <dependencies>    
         <dependency org="littleware" name="littleIcons" rev="0.0"  />
-        <dependency org="littleware" name="littleware" rev="2.4.+" 
+        <dependency org="littleware" name="littleware" rev="2.5.+" 
            conf="ee_client->ee_client;client->client;client_junit->client_junit;client_compile->client_compile;server->client_derby,client_postgres,client_mysql" />
         <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-Final" conf="compile,server->*" />
         <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-Final" conf="compile,server->*"/>

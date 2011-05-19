@@ -14,8 +14,6 @@ import com.google.inject.Provider;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-
-
 import littleware.asset.*;
 import littleware.asset.LinkAsset.LinkBuilder;
 import littleware.asset.TreeNode.TreeNodeBuilder;
@@ -135,12 +133,6 @@ public class AssetPathTester extends AbstractAssetTest {
         }
     }
 
-    /**
-     * No teardown necessary
-     */
-    @Override
-    public void tearDown() {
-    }
 
     /**
      * Traverse some test assets under 
@@ -182,7 +174,9 @@ public class AssetPathTester extends AbstractAssetTest {
                         assetAtPath.equals( search.getAssetAtPath( rootPath ).get() ));
                 final AssetPath rootedPath = search.toRootedPath(pathFactory.createPath(assetAtPath.getId()));
                 assertTrue("Root path resolver works ok: " + rootedPath,
-                        search.getAssetAtPath(rootedPath).equals(assetAtPath) && rootedPath.toString().equals(search.toRootedPath(pathFactory.createPath(assetAtPath.getId())).toString()));
+                        search.getAssetAtPath(rootedPath).get().equals(assetAtPath)
+                        && rootedPath.toString().equals(search.toRootedPath(pathFactory.createPath(assetAtPath.getId())).toString())
+                        );
                 final AssetPath path_parent = path.getParent();
                 assertTrue("Path has parent: " + path,
                         path.hasParent());
@@ -198,7 +192,7 @@ public class AssetPathTester extends AbstractAssetTest {
                     assertTrue("Smallest link resolved to asset 1: " + smallest.getName(),
                             smallest.equals(assetAtPath));
                     assertTrue("Get by id ok",
-                            search.getAssetAtPath( pathFactory.createPath(smallest.getId().toString()) ).equals(smallest));
+                            search.getAssetAtPath( pathFactory.createPath(smallest.getId().toString()) ).get().equals(smallest));
                 } else if (i_count == testPaths.size()) {
                     final AssetPath path2Biggest = pathFactory.createPath(getTestHome() + "/AssetPathTester/A/biggest");
                     final Asset biggest = search.getAssetAtPath( path2Biggest ).get();

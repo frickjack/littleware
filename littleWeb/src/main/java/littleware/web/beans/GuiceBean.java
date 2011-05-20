@@ -14,8 +14,8 @@ package littleware.web.beans;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import javax.faces.bean.ManagedBean;
 import littleware.base.Maybe;
+import littleware.base.Option;
 
 /**
  * Attempt to marry littleware world with

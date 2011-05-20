@@ -1,31 +1,20 @@
 /*
- * Copyright 2010 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.web.servlet;
 
 import com.google.inject.Inject;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import littleware.apps.image.ImageManager;
-import littleware.apps.image.ThumbManager;
-import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
-import littleware.base.Maybe;
+import littleware.asset.client.AssetSearchManager;
 import littleware.security.LittleUser;
 
 /**
@@ -34,24 +23,21 @@ import littleware.security.LittleUser;
 public class ThumbServlet extends LittleServlet {
 
     private static final Logger log = Logger.getLogger(ThumbServlet.class.getName());
-    private ImageManager imageMgr;
     private AssetSearchManager search;
     private AssetPathFactory pathFactory;
-    private ThumbManager thumbMgr;
     private LittleUser user;
 
     @Inject
-    public void injectMe(ImageManager imageMgr, AssetSearchManager search,
-            AssetPathFactory pathFactory, ThumbManager thumbMgr, LittleUser user) {
-        this.imageMgr = imageMgr;
+    public void injectMe( AssetSearchManager search,
+            AssetPathFactory pathFactory, LittleUser user) {
         this.search = search;
-        this.thumbMgr = thumbMgr;
         this.pathFactory = pathFactory;
         this.user = user;
     }
 
     @Override
     public void doGetOrPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        /*..
         final String pathString = request.getParameter("path");
         final String resString = request.getParameter("res");
         UUID id = user.getId();
@@ -87,5 +73,8 @@ public class ThumbServlet extends LittleServlet {
         } catch (Exception ex) {
             throw new ServletException("Failed to retrieve thumbnail for " + pathString, ex);
         }
+         *
+         */
+        throw new UnsupportedOperationException( "Disabled until ImageManager ported to littleware 2.5 infrastructure" );
     }
 }

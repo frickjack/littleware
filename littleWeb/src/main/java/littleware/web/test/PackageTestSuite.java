@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2010 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -16,11 +14,9 @@ import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import junit.framework.*;
-import littleware.asset.client.bootstrap.ClientBootstrap;
+import littleware.asset.client.test.AssetTestFactory;
 import littleware.asset.server.bootstrap.ServerBootstrap;
-import littleware.asset.test.AssetTestFactory;
 import littleware.base.AssertionFailedException;
-import littleware.bootstrap.AppModuleFactory;
 
 
 
@@ -50,7 +46,8 @@ public class PackageTestSuite extends TestSuite {
         if (runTest) {
             this.addTest( provideBrowserTypeTester.get() );
         }
-        if ( runTest ) {
+        if ( false ) {
+            // disable until ThumbManager is ready for use with littleware 2.5
             this.addTest( provideThumbServTester.get() );
         }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
@@ -62,13 +59,7 @@ public class PackageTestSuite extends TestSuite {
             //final ServerModuleFactory test = ServerModuleFactory.class.cast( Class.forName( "littleware.apps.filebucket.server.BucketServerModule$Factory" ).newInstance() );
             //log.log( Level.INFO, "Instantiated test factory!" );
             final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
-            final ClientBootstrap.ClientBuilder clientBuilder = ClientBootstrap.clientProvider.get(
-                    ); //.addModuleFactory( new LgoServerModule.Factory() );
-            for( AppModuleFactory scan : clientBuilder.getModuleSet() ) {
-                log.log( Level.INFO, "Scanning client module set: {0}", scan.getClass().getName());
-            }
             return (new AssetTestFactory()).build(serverBoot,
-                    clientBuilder.build(),
                     PackageTestSuite.class
                     );
         } catch (RuntimeException ex) {

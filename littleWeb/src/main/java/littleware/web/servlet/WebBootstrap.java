@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -16,7 +14,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.bootstrap.AppBootstrap;
-import littleware.security.auth.SessionHelper;
 import littleware.web.beans.GuiceBean;
 
 /**
@@ -31,19 +28,6 @@ public class WebBootstrap {
     public static String littleGuice = "littleGuice";
     public static String littleBoot = "littleBoot";
 
-    /**
-     * Little helper function to setup a standard client-session environment
-     * with a GuiceBean, and Bootstrap object in session scope.
-     *
-     * @param boot bootstrap instance ready to call .boot( ... )
-     * @param session to annotate with beans
-     */
-    public static ClientBootstrap bootstrap( ClientBootstrap boot, HttpSession session ) {
-        final GuiceBean bean = boot.bootstrap( GuiceBean.class );
-        session.setAttribute(littleGuice, bean );
-        session.setAttribute(littleBoot, boot );
-        return boot;
-    }
 
     /**
      * Setup a littleware environment (guicebean, bootstrap) in application scope.

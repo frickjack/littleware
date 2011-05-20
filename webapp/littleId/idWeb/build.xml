@@ -9,7 +9,7 @@
 <!-- in the project's Project Properties dialog box.-->
 <project name="idWeb" default="default" basedir=".">
     <description>Builds, tests, and runs the project idWeb.</description>
-    <property name="ivy.deliver.revision" value="2.4" />
+    <property name="ivy.deliver.revision" value="2.5" />
     <property name="ydoc.path" value="/Users/pasquini/Documents/Code/yuidoc/bin/ydoc.bat" />
     <import file="../../../ivy/ivy_build_rules.xml"/>         
     <import file="nbproject/build-impl.xml"/>

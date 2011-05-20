@@ -14,12 +14,11 @@ package littleware.web.beans;
 import com.google.inject.Inject;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.AssertionFailedException;
 import littleware.security.AccountManager;
 import littleware.security.LittleGroup;
 import littleware.security.LittleUser;
-import littleware.security.SecurityAssetType;
 
 /**
  * Session scope bean gives access to logged in user

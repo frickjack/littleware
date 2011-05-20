@@ -1,10 +1,8 @@
 /*
- * Copyright 2010 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.web.beans;
@@ -19,11 +17,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.imageio.ImageIO;
-import littleware.apps.image.ImageManager;
-import littleware.asset.Asset;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.AssetSearchManager;
-import littleware.base.Maybe;
+import littleware.asset.client.AssetRef;
+import littleware.asset.client.AssetSearchManager;
 import littleware.security.LittleUser;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -37,7 +33,7 @@ public class ImageUploadBean extends InjectMeBean {
     private static final Logger log = Logger.getLogger( ImageUploadBean.class.getName() );
     private String path;
     private BufferedImage image;
-    private ImageManager imageMgr;
+    //private ImageManager imageMgr;
     private AssetPathFactory pathFactory;
     private AssetSearchManager search;
     private String imageName = "";
@@ -58,9 +54,9 @@ public class ImageUploadBean extends InjectMeBean {
     }
 
     @Inject
-    public void injectMe(ImageManager imageMgr, AssetPathFactory pathFactory,
+    public void injectMe(AssetPathFactory pathFactory,
             AssetSearchManager search, LittleUser user) {
-        this.imageMgr = imageMgr;
+        //this.imageMgr = imageMgr;
         this.pathFactory = pathFactory;
         this.search = search;
         this.path = "/" + user.getId();
@@ -72,7 +68,7 @@ public class ImageUploadBean extends InjectMeBean {
     public void handleUpload(FileUploadEvent event) {
         try {
             final UploadedFile file = event.getFile();
-            log.log( Level.FINE, "Uploaded file: " + file.getFileName() + ", " + path );
+            log.log( Level.FINE, "Uploaded file: {0}, {1}", new Object[]{file.getFileName(), path});
             this.image = ImageIO.read( new ByteArrayInputStream( file.getContents() ) );
             if ( null == image ) {
                 throw new IllegalStateException( "Image is null! ..." );
@@ -90,7 +86,7 @@ public class ImageUploadBean extends InjectMeBean {
     public String processImage() {
         final String failed = "imageUploadFailed";
         try {
-            final Option<Asset> maybe = search.getAssetAtPath(pathFactory.createPath(path));
+            final AssetRef maybe = search.getAssetAtPath(pathFactory.createPath(path));
             if (maybe.isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage("BadPath", "Failed to load asset at " + path));
@@ -101,10 +97,14 @@ public class ImageUploadBean extends InjectMeBean {
                         new FacesMessage("BadImage", "Null image at save time" ));
                 return failed;
             }
+            /*
             imageMgr.saveImage(maybe.get(),
                     image, "Web image upload"
                     );
             return "imageUploadOk";
+             *
+             */
+            throw new UnsupportedOperationException( "ImageManager not yet ported to littleware 2.5 infrastructure" );
         } catch (Exception ex) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage("Error", "failed to associate image with " + path + ": " + ex));

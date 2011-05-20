@@ -1,10 +1,8 @@
 /*
- * Copyright 2009 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.web.servlet;
@@ -31,16 +29,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import littleware.asset.AssetManager;
-import littleware.asset.AssetSearchManager;
+import littleware.asset.client.AssetManager;
+import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.PropertiesLoader;
 import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.AppBootstrap;
 import littleware.security.auth.LittleSession;
-import littleware.security.auth.SessionHelper;
-import littleware.security.auth.SessionManager;
 import littleware.web.beans.GuiceBean;
 import org.joda.time.DateTime;
 
@@ -147,8 +143,8 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                     final String guestPassword = properties.getProperty("web.guest.password");
                     if ((guest != null) && (guestPassword != null)) {
                         log.log(Level.INFO, "Logging in guest user: {0}", guest);
-                        final ClientBootstrap boot = ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(guest, guestPassword);
-                        maybeGuest = Maybe.something(boot.bootstrap(SessionInfo.class));
+                        final ClientBootstrap boot = null; //ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(guest, guestPassword);
+                        maybeGuest = Maybe.something(boot.startSession(SessionInfo.class));
                     } else {
                         log.log(Level.WARNING, "Guest user/password not set in littleware.properties - just using empty GuiceBean instead");
                         return new GuiceBean();
@@ -285,6 +281,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
         if (null != logoutParam) {
             logoutURL = logoutParam;
         }
+        throw new UnsupportedOperationException( "This thing is busted - needs 2b ported to littleware 2.5 session infrastructure" );
     }
 
     @Override
@@ -307,7 +304,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
         }
         if (action.equalsIgnoreCase("login")) {
             try {
-                final ClientBootstrap boot = ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(request.getParameter("user"), request.getParameter("password"));
+                final ClientBootstrap boot = null; //ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(request.getParameter("user"), request.getParameter("password"));
                 // login ok!
                 final HttpSession session = request.getSession();
                 if (null != (GuiceBean) session.getAttribute(WebBootstrap.littleGuice)) {
@@ -317,7 +314,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                     //session = request.getSession( true );
                     //throw new IllegalStateException("Session already logged in");
                 }
-                WebBootstrap.bootstrap(boot, session);
+                // BUSTED!!! WebBootstrap.bootstrap(boot, session);
                 final String forwardURL;
                 {
                     final String param = request.getParameter("okURL");

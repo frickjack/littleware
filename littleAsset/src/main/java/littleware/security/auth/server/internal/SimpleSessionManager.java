@@ -7,6 +7,7 @@
  */
 package littleware.security.auth.server.internal;
 
+import littleware.base.LoginCallbackHandler;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.rmi.*;
@@ -161,7 +162,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             LoginContext tmp = null;
             try {
                 tmp = new LoginContext("littleware.login",
-                        new SimpleCallbackHandler(name, password));
+                        new LoginCallbackHandler(name, password));
             } catch (Exception ex) {
                 log.log(Level.INFO, "Assuming pass-through login - no littleware.login context available", ex);
             }

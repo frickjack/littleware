@@ -14,7 +14,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import junit.framework.TestCase;
 import littleware.security.auth.LittleSession;
-import littleware.security.auth.SimpleCallbackHandler;
+import littleware.base.LoginCallbackHandler;
 import littleware.security.auth.client.ClientLoginModule;
 import littleware.security.auth.client.ClientLoginModule.ConfigurationBuilder;
 
@@ -36,7 +36,7 @@ public class ClientLoginTester extends TestCase {
         try {
             final LoginContext context = new LoginContext( "littleware.login",
                     new Subject(),
-                    new SimpleCallbackHandler( "littleware.test_user", "password" ),
+                    new LoginCallbackHandler( "littleware.test_user", "password" ),
                     configBuilder.build()
                     );
             context.login();

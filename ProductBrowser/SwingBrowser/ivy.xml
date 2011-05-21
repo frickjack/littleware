@@ -29,7 +29,7 @@
                   conf="test->server;compile->server_compile" 
                   />
       <dependency org="littleware" name="littleWeb" rev="2.4.+" conf="client_compile->client_compile;client_junit->client_junit;ee_client->ee_client;client->client" />
-      <dependency org="littleware" name="littleScala" rev="2.4.+" conf="client_compile->client_compile;client_junit->client_junit;ee_client->client" />
+      <dependency org="littleware" name="littleScala" rev="2.4.scala29" conf="client_compile->client_compile;client_junit->client_junit;ee_client->client" />
     </dependencies>
 
 </ivy-module>

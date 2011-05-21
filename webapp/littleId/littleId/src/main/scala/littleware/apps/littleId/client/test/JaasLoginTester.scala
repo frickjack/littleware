@@ -17,15 +17,15 @@ import javax.security.auth.login.LoginException
 import junit.framework.Assert
 import junit.framework.TestCase
 import littleware.apps.littleId.client.controller.JaasLoginModule
+import littleware.base.LoginCallbackHandler
 import littleware.scala.LazyLogger
-import littleware.security.auth.SimpleCallbackHandler
 
 class JaasLoginTester @Inject()( loginConfig:JaasLoginModule.Config ) extends TestCase( "testJaas" ) {
   val log = LazyLogger( getClass )
 
   def testJaas():Unit = try {
     (new LoginContext( "littleId", new Subject(),
-                                          new SimpleCallbackHandler( "email@bogus", "secret" ),
+                                          new LoginCallbackHandler( "email@bogus", "secret" ),
                                           loginConfig)
       ).login()
       Assert.fail( "Validation succeeded with bogus credentials" )

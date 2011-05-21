@@ -42,7 +42,7 @@
       <dependency org="littleware" name="littleWeb" rev="2.4.+" 
                conf="client_compile->client_compile;client_junit->client_junit;client->client;ee_client->ee_client" 
                />
-      <dependency org="littleware" name="littleAsset" rev="latest.integration" conf="compile->server_compile;test->server" />
+      <dependency org="littleware" name="littleAsset" rev="2.4.+" conf="compile->server_compile;test->server" />
     </dependencies>
 
 </ivy-module>

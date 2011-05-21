@@ -30,9 +30,9 @@ import littleware.apps.littleId.client
 import client.controller.VerifyTool
 import client.web.bean
 import littleware.apps.littleId.client.controller.JaasLoginModule
+import littleware.base.LoginCallbackHandler
 import littleware.scala.LazyLogger
 import littleware.scala.LittleHelper
-import littleware.security.auth.SimpleCallbackHandler
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
 import scala.collection.JavaConversions._
@@ -138,7 +138,7 @@ class LoginHandler extends HttpServlet with HttpSessionListener {
           log.log( Level.FINE, "Processing login request {0} - {1}", Array[Object]( email, secret ))
           val subject = new Subject()
           (new LoginContext( "littleId", subject,
-                            new SimpleCallbackHandler( email, secret ),
+                            new LoginCallbackHandler( email, secret ),
                             jaasConfig)
           ).login()
           request.getSession.setAttribute( "idBean", new bean.IdBean( subject.getPrincipals.head ) )

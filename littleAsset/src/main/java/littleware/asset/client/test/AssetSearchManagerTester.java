@@ -64,6 +64,9 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
 
             final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
                     LittleGroup.GROUP_TYPE).get().narrow();
+            /*
+             * New Everybody group does not conform to normal group behavior
+             * 
             for (LittlePrincipal member : group_everybody.getMembers() ) {
                 Set<UUID> v_links = search.getAssetIdsTo(member.getId(),
                         LittleGroupMember.GROUP_MEMBER_TYPE
@@ -71,6 +74,8 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
                 assertTrue("Group member as links TO it: " + member,
                         !v_links.isEmpty());
             }
+             * 
+             */
         } catch (Exception e) {
             log.log(Level.WARNING, "Test failed", e);
             fail("Caught: " + e);

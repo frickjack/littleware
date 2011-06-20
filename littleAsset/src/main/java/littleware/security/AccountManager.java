@@ -9,7 +9,6 @@ package littleware.security;
 
 import java.util.UUID;
 
-
 /**
  * Interface to a central security manager for managing
  * littleware java.security.Principals.
@@ -29,6 +28,6 @@ public interface AccountManager {
     public static final UUID UUID_ADMIN = littleware.base.UUIDFactory.parseUUID("00000000000000000000000000000000");
     /** Admin group id */
     public static final UUID UUID_ADMIN_GROUP = littleware.base.UUIDFactory.parseUUID("89A1CB79B5944447BED9F38D398A7D12");
-
+    /** Everybody group id */
+    public static final UUID UUID_EVERYBODY_GROUP = littleware.base.UUIDFactory.parseUUID("D701C9B3C9B7453299E89A0161DDC242");    
 }
-

@@ -1,18 +1,15 @@
 /*
- * Copyright 2010 Reuben Pasquini All rights reserved.
+ * Copyright 2011 http://code.google.com/p/littleware
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.apps.lgo;
+package littleware.asset.gson;
 
 import littleware.lgo.LgoHelp;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -24,19 +21,14 @@ import com.google.inject.Singleton;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
-import littleware.asset.spi.AbstractAsset;
-import littleware.security.LittleGroup;
-import littleware.security.LittlePrincipal;
 
 /**
  * Register serializers for core types with GsonBuilder
@@ -46,7 +38,7 @@ public class GsonProvider implements Provider<Gson> {
     private static final Logger log = Logger.getLogger( GsonProvider.class.getName() );
     private final GsonBuilder gsonBuilder;
     private final Map<AssetType, JsonSerializer<Asset>> typeMap = new HashMap<AssetType, JsonSerializer<Asset>>();
-    private final JsonSerializer<Asset> defaultSerializer = new AssetSerializer();
+    private final JsonSerializer<Asset> defaultSerializer = null; //new AbstractAssetAdapter();
 
     private synchronized JsonSerializer<Asset> lookupSerializer( final AssetType type) {
         for (AssetType scan = type; scan != null;
@@ -82,78 +74,13 @@ public class GsonProvider implements Provider<Gson> {
 
         @Override
         public JsonElement serialize(Asset asset, Type type, JsonSerializationContext jsc) {
+            final JsonObject json = new JsonObject();
+            json.addProperty("type", asset.getAssetType().toString());
             return lookupSerializer( asset.getAssetType() ).serialize( asset,type, jsc);
         }
     }
 
-    private final static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    public static class AssetSerializer implements JsonSerializer<Asset> {
-
-        public DateFormat getDateFormat() {
-            return dateFormat;
-        }
-
-        public String toStringOrNull(Date in) {
-            return toStringOrNull(in, getDateFormat());
-        }
-
-        /**
-         * Little utility: return (null == in) ? null : in;
-         */
-        public String toStringOrNull(UUID in) {
-            return (null == in) ? null : in.toString();
-        }
-
-        public String toStringOrNull(Date in, DateFormat format) {
-            return (null == in) ? null : format.format(in);
-        }
-
-        @Override
-        public JsonObject serialize(Asset assetIn, Type type, JsonSerializationContext jsc) {
-            final AbstractAsset asset = (AbstractAsset) assetIn;
-            final JsonObject result = new JsonObject();
-            result.addProperty("name", asset.getName());
-            result.addProperty("type", asset.getAssetType().toString());
-            result.addProperty("id", toStringOrNull(asset.getId()));
-            result.addProperty("home", toStringOrNull(asset.getHomeId()));
-            result.addProperty("acl", toStringOrNull(asset.getAclId()));
-            result.addProperty("from", toStringOrNull(asset.getFromId()));
-            result.addProperty("to", toStringOrNull(asset.getToId()));
-            result.addProperty("owner", toStringOrNull(asset.getOwnerId()));
-            result.addProperty("creator", toStringOrNull(asset.getCreatorId()));
-            result.addProperty("createDate", toStringOrNull(asset.getCreateDate()));
-            result.addProperty("updater", toStringOrNull(asset.getLastUpdaterId()));
-            result.addProperty("updateDate", toStringOrNull(asset.getLastUpdateDate()));
-            result.addProperty( "updateComment", asset.getLastUpdate() );
-            result.addProperty("startDate", toStringOrNull(asset.getStartDate()));
-            result.addProperty("endDate", toStringOrNull(asset.getEndDate()));
-            result.addProperty("transaction", Long.toString(asset.getTimestamp()));
-            result.addProperty("comment", asset.getComment());
-            result.addProperty("value", asset.getValue());
-            result.addProperty("state", asset.getState());
-            result.addProperty("data", asset.getData());
-            final Iterator<String>  itLabel = Arrays.asList( "attrMap", "linkMap", "dateMap" ).iterator();
-            for( Map<String,?> dataMap : Arrays.asList( asset.getAttributeMap(),
-                    asset.getLinkMap(), asset.getDateMap())
-                    ) {
-                final JsonObject obj = new JsonObject();
-                for( Map.Entry<String,?> entry : dataMap.entrySet() ) {
-                    obj.add(entry.getKey(), jsc.serialize( entry.getValue() ) );
-                }
-                obj.add( itLabel.next(), obj );
-            }
-            if (asset.getAssetType().isA(LittleGroup.GROUP_TYPE)) {
-                final JsonArray members = new JsonArray();
-                for (LittlePrincipal member : ((LittleGroup) asset).getMembers()) {
-                    members.add(new JsonPrimitive(member.getName()));
-                }
-                result.add("members", members);
-            }
-
-            return result;
-        }
-    }
+    public final static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static class HelpSerializer implements JsonSerializer<LgoHelp> {
 
         @Override

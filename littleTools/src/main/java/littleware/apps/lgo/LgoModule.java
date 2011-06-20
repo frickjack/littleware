@@ -9,6 +9,7 @@
  */
 package littleware.apps.lgo;
 
+import littleware.asset.gson.GsonProvider;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import littleware.lgo.LgoCommand;

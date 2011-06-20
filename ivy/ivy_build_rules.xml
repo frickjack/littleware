@@ -30,6 +30,14 @@
             <isset property="ivyjar.exists" />
         </and>
     </condition>
+    <available file="ivy/test" property="ivy.resolve.test.exists" />
+    <available file="ivy/compile" property="ivy.resolve.compile.exists" />
+    <condition property="ivy.resolve.exists">
+        <and>
+            <isset property="ivy.resolve.test.exists" />
+            <isset property="ivy.resolve.compile.exists" />
+        </and>
+    </condition>    
 </target>
 
 
@@ -96,6 +104,13 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     </sequential>
 </macrodef>
 
+<target name="resolveIfNecessary" 
+    depends="install-ivy" 
+    description="-- same as retrieve, but NOOP if ivy/test|compile already exists"
+    unless="ivy.resolve.exists"
+    >
+    <antcall target="resolve" />
+</target>
 
 <target name="resolve" depends="install-ivy" description="-- retrieve dependencies with ivy">
     <!--
@@ -123,7 +138,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     <property name="run.test.classpath" value="${ivy.test.classpath}:build/classes" />
 </target>
 
-<target name="-pre-init" depends="resolve" />
+<target name="-pre-init" depends="resolveIfNecessary" />
 
 <target name="cli-check">
     <available file="cli" property="cli.exists"/>

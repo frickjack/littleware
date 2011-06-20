@@ -21,8 +21,10 @@
     
     <dependencies>    
       <dependency org="littleware" name="littleware" rev="2.5.+" conf="client_compile->client_compile;client_junit->client_junit;client->client;ee_client->ee_client" />
-      <dependency org="org.scala-lang" name="scala-library" rev="2.9.0" />
+      <dependency org="org.scala-lang" name="scala-library" rev="2.9.0-1" />
+      <!--
       <dependency org="org.scala-lang" name="scala-swing" rev="2.9.0" />
+      -->
     </dependencies>
 
 </ivy-module>

@@ -37,6 +37,7 @@ public class SimpleAccountManager extends NullAssetSpecializer {
     private final QuotaUtil quotaUtil;
     private final Provider<LittleTransaction> transactionProvider;
     private final Provider<MemberBuilder> memberBuilder;
+    private final Everybody everybody;
 
     /**
      * Constructor injects dependencies
@@ -50,12 +51,15 @@ public class SimpleAccountManager extends NullAssetSpecializer {
             ServerSearchManager search,
             QuotaUtil quotaUtil,
             Provider<LittleTransaction> transactionProvider,
-            Provider<LittleGroupMember.MemberBuilder> memberBuilder) {
+            Provider<LittleGroupMember.MemberBuilder> memberBuilder,
+            Everybody everybody 
+            ) {
         this.assetMgr = assetMgr;
         this.search = search;
         this.quotaUtil = quotaUtil;
         this.transactionProvider = transactionProvider;
         this.memberBuilder = memberBuilder;
+        this.everybody = everybody;
     }
 
     /**
@@ -70,6 +74,9 @@ public class SimpleAccountManager extends NullAssetSpecializer {
         if (asset.getAssetType().equals(LittleUser.USER_TYPE) || asset.getAssetType().equals(Quota.QUOTA_TYPE)) {
             return asset;
         }
+        if (asset.getId().equals(AccountManager.UUID_EVERYBODY_GROUP)) {
+            return (T) everybody;
+        }
         Whatever.get().check("AccountManager is not the specializer for: "
                 + asset.getAssetType(),
                 asset.getAssetType().equals(LittleGroup.GROUP_TYPE));
@@ -77,10 +84,10 @@ public class SimpleAccountManager extends NullAssetSpecializer {
 
         // It's a GROUP - need to populate it
         final LittleGroup.Builder groupBuilder = asset.narrow(LittleGroup.class).copy();
-        final Map<String, UUID> groupLinks = search.getAssetIdsFrom( ctx, groupBuilder.getId(),
+        final Map<String, UUID> groupLinks = search.getAssetIdsFrom(ctx, groupBuilder.getId(),
                 LittleGroupMember.GROUP_MEMBER_TYPE);
 
-        final List<Asset> v_link_assets = search.getAssets( ctx, groupLinks.values());
+        final List<Asset> linkAssets = search.getAssets(ctx, groupLinks.values());
 
         /** 
          * This check not true after a member group/user has been deleted.
@@ -90,11 +97,11 @@ public class SimpleAccountManager extends NullAssetSpecializer {
         v_links.size () == v_link_assets.size () 
         );
          */
-        log.log(Level.FINE, "Group: {0} found {1} children under {2} of type {3}", new Object[]{asset.getName(), v_link_assets.size(), asset.getId(), LittleGroupMember.GROUP_MEMBER_TYPE});
+        log.log(Level.FINE, "Group: {0} found {1} children under {2} of type {3}", new Object[]{asset.getName(), linkAssets.size(), asset.getId(), LittleGroupMember.GROUP_MEMBER_TYPE});
 
 
         final Set<UUID> v_members = new HashSet<UUID>();
-        for (Asset link : v_link_assets) {
+        for (Asset link : linkAssets) {
             final LittleGroupMember member = link.narrow();
             log.log(Level.FINE, "Got link UUID {0}", member.getMemberId());
             v_members.add(member.getMemberId());
@@ -148,7 +155,7 @@ public class SimpleAccountManager extends NullAssetSpecializer {
         if (LittleUser.USER_TYPE.equals(asset.getAssetType())) {
             // We need to setup a quota
             final LittleUser caller = ctx.getCaller();
-            Quota a_caller_quota = quotaUtil.getQuota( ctx, caller, search);
+            Quota a_caller_quota = quotaUtil.getQuota(ctx, caller, search);
             if (null != a_caller_quota) {
                 final Quota.Builder quotaBuilder = a_caller_quota.copy();
 
@@ -158,28 +165,9 @@ public class SimpleAccountManager extends NullAssetSpecializer {
                 quotaBuilder.setNextInChainId(a_caller_quota.getId());
                 assetMgr.saveAsset(ctx, quotaBuilder.build(), "New quota");
             }
-            // Add this frickjack to the everybody group
-            {
-                final LittleGroup everybody = search.getByName(ctx, AccountManager.LITTLEWARE_EVERYBODY_GROUP, LittleGroup.GROUP_TYPE).get().narrow();
-                addMemberToGroup(
-                        ctx.getAdminContext(), everybody,
-                        asset.narrow(LittlePrincipal.class),
-                        assetMgr
-                        );
-            }
-            
-            // Give the user a password
-            /*... Disable for now - moving to JPA, and don't want to deal with this now ...
-            try {
-            DbWriter<String> sql_password = om_dbauth.makeDbPasswordSaver(a_new.getId());
-            sql_password.saveObject("default_password");
-            } catch (SQLException e) {
-            throw new DataAccessException("Falure updating password, caught: " + e, e);
-            }
-             */
 
         } else if (LittleGroup.GROUP_TYPE.equals(asset.getAssetType())) {
-            postUpdateCallback( ctx, null, asset);
+            postUpdateCallback(ctx, null, asset);
         }
     }
 
@@ -187,20 +175,23 @@ public class SimpleAccountManager extends NullAssetSpecializer {
      * Delete group-member links to/from when a group or user gets deleted
      */
     @Override
-    public void postDeleteCallback( LittleContext ctx, Asset asset) throws BaseException, AssetException,
+    public void postDeleteCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
             GeneralSecurityException {
+        if (asset.getId().equals(AccountManager.UUID_EVERYBODY_GROUP)) {
+            throw new IllegalArgumentException("May not modify the everybody group");
+        }
         if (LittleGroup.GROUP_TYPE.equals(asset.getAssetType()) || LittleUser.USER_TYPE.equals(asset.getAssetType())) {
             Set<UUID> vChildren = new HashSet<UUID>();
             vChildren.addAll(
-                    search.getAssetIdsFrom( ctx, asset.getId(),
+                    search.getAssetIdsFrom(ctx, asset.getId(),
                     LittleGroupMember.GROUP_MEMBER_TYPE).values());
             vChildren.addAll(
-                    search.getAssetIdsTo( ctx, asset.getId(),
+                    search.getAssetIdsTo(ctx, asset.getId(),
                     LittleGroupMember.GROUP_MEMBER_TYPE));
 
-            final List<Asset> v_member_links = search.getAssets( ctx, vChildren);
+            final List<Asset> v_member_links = search.getAssets(ctx, vChildren);
             for (Asset p_link : v_member_links) {
-                assetMgr.deleteAsset( ctx, p_link.getId(), "cleaning up deleted principal");
+                assetMgr.deleteAsset(ctx, p_link.getId(), "cleaning up deleted principal");
             }
         }
 
@@ -213,10 +204,13 @@ public class SimpleAccountManager extends NullAssetSpecializer {
      *              can leverage this
      */
     @Override
-    public void postUpdateCallback( LittleContext ctx, Asset preUpdate, Asset postUpdate ) throws BaseException, AssetException,
+    public void postUpdateCallback(LittleContext ctx, Asset preUpdate, Asset postUpdate) throws BaseException, AssetException,
             GeneralSecurityException {
-        if (LittleGroup.GROUP_TYPE.equals(postUpdate .getAssetType())) {
-            final LittleGroup group = postUpdate .narrow(LittleGroup.class);
+        if (LittleGroup.GROUP_TYPE.equals(postUpdate.getAssetType())) {
+            final LittleGroup group = postUpdate.narrow(LittleGroup.class);
+            if (group.getId().equals(AccountManager.UUID_EVERYBODY_GROUP)) {
+                throw new IllegalArgumentException("May not modify the everybody group");
+            }
             log.log(Level.FINE, "Update callback running for {0}", group.getName());
             final Set<Principal> v_before = new HashSet<Principal>();
 
@@ -238,13 +232,13 @@ public class SimpleAccountManager extends NullAssetSpecializer {
             {
                 // Get the collection of assets linking the group-asset
                 // to the group-members, and delete the unneeded ones
-                final Map<String, UUID> v_children = search.getAssetIdsFrom( ctx, group.getId(),
+                final Map<String, UUID> v_children = search.getAssetIdsFrom(ctx, group.getId(),
                         LittleGroupMember.GROUP_MEMBER_TYPE);
-                final List<Asset> v_member_links = search.getAssets( ctx, v_children.values());
+                final List<Asset> v_member_links = search.getAssets(ctx, v_children.values());
                 for (Asset link : v_member_links) {
                     final LittleGroupMember member = link.narrow();
                     if (!memberSet.contains(member.getMemberId())) {
-                        assetMgr.deleteAsset( ctx, member.getId(), "member no longer in group");
+                        assetMgr.deleteAsset(ctx, member.getId(), "member no longer in group");
                     }
                 }
             }
@@ -252,7 +246,7 @@ public class SimpleAccountManager extends NullAssetSpecializer {
             // Add the new members to the group
             for (LittlePrincipal member : v_add) {
                 log.log(Level.FINE, "Adding {0} to group {1}", new Object[]{member.getName(), group.getName()});
-                addMemberToGroup( ctx, group, member, assetMgr);
+                addMemberToGroup(ctx, group, member, assetMgr);
             }
         }
     }

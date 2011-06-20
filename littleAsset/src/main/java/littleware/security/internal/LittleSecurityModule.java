@@ -18,6 +18,7 @@ import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.helper.AbstractAppModule;
+import littleware.security.Everybody;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
 import littleware.security.LittleGroup;
@@ -98,6 +99,7 @@ public class LittleSecurityModule extends AbstractAppModule {
         // Avoid binding RemoteSessionManager - gets bound by server environment too
         //binder.bind( RemoteSessionManager.class ).
         binder.bind( RetryRemoteSessionMgr.class ).in( Scopes.SINGLETON );
+        binder.bind( Everybody.class ).to( SimpleEverybody.class ).in( Scopes.SINGLETON );
     }
 
 }

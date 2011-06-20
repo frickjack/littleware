@@ -85,7 +85,7 @@ public class PropertiesGuice implements Module {
     public void bindKeyValue(Binder binder, String sKey, String sValue) {
         binder.bindConstant().annotatedWith(Names.named(sKey)).to(sValue);
         final String clean = sValue.trim();
-        if (clean.startsWith("http://")) {
+        if (clean.startsWith("http://") || clean.startsWith( "https://" ) ) {
             try {
                 final URL url = new URL(clean);
                 binder.bind(URL.class).annotatedWith(Names.named(sKey)).toInstance(url);

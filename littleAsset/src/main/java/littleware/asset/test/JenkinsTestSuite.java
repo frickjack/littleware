@@ -18,6 +18,8 @@ import littleware.asset.GenericAsset;
 
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.asset.pickle.XmlPicklerProvider;
+import littleware.bootstrap.AppBootstrap;
+import littleware.test.TestFactory;
 
 
 /**
@@ -33,12 +35,16 @@ public class JenkinsTestSuite extends TestSuite {
     public JenkinsTestSuite(
             HumanPicklerProvider  humanPickler,
             XmlPicklerProvider    xmlPickler,
+            GsonTester            gsonTester,
             Provider<GenericAsset.GenericBuilder> genericProvider,
             Provider<AssetTypeTester> provideTypeTester
             ) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
 
+        if ( runTest ) {
+            this.addTest( gsonTester );
+        }
         if( runTest ) {
             this.addTest( provideTypeTester.get() );
         }
@@ -49,5 +55,15 @@ public class JenkinsTestSuite extends TestSuite {
 
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
+    
+    public static TestSuite suite() {
+        try {
+            return (new TestFactory()).build( AppBootstrap.appProvider.get().build(), JenkinsTestSuite.class);
+        } catch (RuntimeException ex) {
+            log.log(Level.SEVERE, "Test setup failed", ex);
+            throw ex;
+        }
+    }
+    
 }
 

@@ -7,11 +7,9 @@
  */
 package littleware.security.internal;
 
+
 import com.google.common.collect.ImmutableSet;
-
 import com.google.common.collect.Sets;
-
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -20,6 +18,7 @@ import java.util.UUID;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.Asset;
 import littleware.asset.spi.AbstractAssetBuilder;
+import littleware.security.AccountManager;
 import littleware.security.LittleGroup;
 import littleware.security.LittleGroup.Builder;
 import littleware.security.LittlePrincipal;
@@ -36,7 +35,6 @@ import littleware.security.LittlePrincipal;
  * (see editGroup) are the owners of a group.
  */
 public class GroupBuilder extends AbstractAssetBuilder<LittleGroup.Builder> implements LittleGroup.Builder {
-
     private ImmutableSet.Builder<LittlePrincipal> memberBuilder = ImmutableSet.builder();
 
     /**
@@ -74,7 +72,11 @@ public class GroupBuilder extends AbstractAssetBuilder<LittleGroup.Builder> impl
 
     @Override
     public LittleGroup build() {
-       return new GroupAsset( this, memberBuilder.build() );
+        if ( getId().equals( AccountManager.UUID_EVERYBODY_GROUP ) ) {
+            return SimpleEverybody.singleton;
+        } else {
+            return new GroupAsset( this, memberBuilder.build() );
+        }
     }
 
     @Override

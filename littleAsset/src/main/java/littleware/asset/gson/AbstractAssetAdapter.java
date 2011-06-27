@@ -5,14 +5,13 @@
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.asset.gson;
 
-import com.google.gson.JsonArray;
+import littleware.asset.gson.internal.GsonProvider;
 import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.inject.Provider;
 import java.text.DateFormat;
@@ -28,24 +27,22 @@ import littleware.asset.AssetType;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.AssertionFailedException;
+import littleware.base.Maybe;
 import littleware.base.UUIDFactory;
-import littleware.security.LittleGroup;
-import littleware.security.LittlePrincipal;
-
 
 /**
  * Base class for GSon asset adapters
  */
 public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
+
     private final AssetType assetType;
     private final Provider<? extends AssetBuilder> builderFactory;
 
-    protected AbstractAssetAdapter( AssetType assetType, Provider<? extends AssetBuilder> builderFactory ) {
+    protected AbstractAssetAdapter(AssetType assetType, Provider<? extends AssetBuilder> builderFactory) {
         this.assetType = assetType;
         this.builderFactory = builderFactory;
     }
-    
-    
+
     public DateFormat getDateFormat() {
         return GsonProvider.dateFormat;
     }
@@ -60,25 +57,33 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
     public String toStringOrNull(UUID in) {
         return (null == in) ? null : in.toString();
     }
-    
-    public UUID toIdOrNull( String in ) {
-        return (null == in) ? null : UUIDFactory.parseUUID( in );
-    } 
+
+    public UUID toIdOrNull( JsonElement in) {
+        return ( (null == in) || in.isJsonNull() ) ? null : UUIDFactory.parseUUID(in.getAsString() );
+    }
 
     public String toStringOrNull(Date in, DateFormat format) {
         return (null == in) ? null : format.format(in);
     }
-    
-    public Date toDateOrNull( String in ) {
+
+    public Date toDateOrNull(JsonElement in) {
         try {
-            return (null == in) ? null : getDateFormat().parse(in);
+            return (null == in  || in.isJsonNull()) ? null : getDateFormat().parse(in.getAsString());
         } catch (ParseException ex) {
-            throw new AssertionFailedException( "Failed to parse date: " + in, ex );
+            throw new AssertionFailedException("Failed to parse date: " + in, ex);
         }
+    }
+    
+    public String toStringOrEmpty( JsonElement in ) {
+        return (null == in  || in.isJsonNull()) ? "" : in.getAsString();
     }
 
     @Override
-    public JsonObject serialize(Asset assetIn, JsonObject json, JsonSerializationContext jsc) {
+    public JsonObject serialize(Asset assetIn,   
+        JsonSerializationContext jsc
+            ) {
+        final JsonObject json = new JsonObject();
+        json.addProperty("type", assetIn.getAssetType().toString());
         final AbstractAsset asset = (AbstractAsset) assetIn;
         json.addProperty("name", asset.getName());
         json.addProperty("id", toStringOrNull(asset.getId()));
@@ -107,13 +112,6 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
             }
             obj.add(itLabel.next(), obj);
         }
-        if (asset.getAssetType().isA(LittleGroup.GROUP_TYPE)) {
-            final JsonArray members = new JsonArray();
-            for (LittlePrincipal member : ((LittleGroup) asset).getMembers()) {
-                members.add(new JsonPrimitive(member.getName()));
-            }
-            json.add("members", members);
-        }
         return json;
     }
 
@@ -123,34 +121,54 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
     }
 
     @Override
-    public AssetBuilder deserialize( AssetBuilder assetBuilder, JsonObject json, JsonDeserializationContext jdc) throws JsonParseException {
-        final AbstractAssetBuilder builder = (AbstractAssetBuilder) assetBuilder;
-        builder.setName( json.get("name" ).getAsString() );
-        builder.setId( toIdOrNull( json.get("id" ).getAsString() ) );
-        builder.setHomeId( toIdOrNull( json.get( "home" ).getAsString() ));
-        builder.setAclId( toIdOrNull( json.get( "acl" ).getAsString() ));
-        builder.setFromId( toIdOrNull( json.get( "from" ).getAsString() ));
-        builder.setToId( toIdOrNull( json.get( "to" ).getAsString() ));
-        builder.setOwnerId( toIdOrNull( json.get( "owner" ).getAsString() ));
-        builder.setCreatorId( toIdOrNull( json.get( "creator" ).getAsString() ));
-        builder.setLastUpdaterId( toIdOrNull( json.get( "updater" ).getAsString() ));
-        builder.setCreateDate( toDateOrNull( json.get( "createDate" ).getAsString() ));
-        builder.setLastUpdateDate( toDateOrNull( json.get( "updateDate" ).getAsString() ));
-        builder.setLastUpdate( json.get( "updateComment" ).getAsString() );
-        builder.setStartDate( toDateOrNull( json.get( "startDate" ).toString() ) );
-        builder.setEndDate( toDateOrNull( json.get( "endDate" ).toString() ) );
-        builder.setTimestamp( json.get( "timestamp" ).getAsLong() );
-        json.addProperty("comment", asset.getComment());
-        json.addProperty("value", asset.getValue());
-        json.addProperty("state", asset.getState());
-        json.addProperty("data", asset.getData());
+    public AssetBuilder deserialize( JsonObject json, JsonDeserializationContext jdc, LittleGsonResolver resolver
+          ) throws JsonParseException {
+        final AbstractAssetBuilder builder = (AbstractAssetBuilder) builderFactory.get();
+        builder.setName(json.get("name").getAsString());
+        builder.setId(toIdOrNull(json.get("id")));
+        resolver.markInProcess( builder.getId() );
+        builder.setHomeId(toIdOrNull(json.get("home")));
+        builder.setAclId(toIdOrNull(json.get("acl")));
+        builder.setFromId(toIdOrNull(json.get("from")));
+        builder.setToId(toIdOrNull(json.get("to")));
+        builder.setOwnerId(toIdOrNull(json.get("owner")));
+        builder.setCreatorId(toIdOrNull(json.get("creator")));
+        builder.setLastUpdaterId(toIdOrNull(json.get("updater")));
+        builder.setCreateDate(toDateOrNull(json.get("createDate")));
+        builder.setLastUpdateDate(toDateOrNull(json.get("updateDate")));
+        builder.setLastUpdate( toStringOrEmpty( json.get("updateComment") ) );
+        builder.setStartDate(toDateOrNull(json.get("startDate")));
+        builder.setEndDate(toDateOrNull(json.get("endDate")));
+        builder.setTimestamp(json.get("timestamp").getAsLong());
+        builder.setComment( toStringOrEmpty( json.get("comment") ) );
+        builder.setValue(json.get("value").getAsFloat());
+        builder.setState(json.get("state").getAsInt());
+        builder.setData( toStringOrEmpty( json.get("data") ) );
 
-        return assetBuilder;
+        final JsonObject empty = new JsonObject();
+        
+        for (Map.Entry<String, JsonElement> entry : 
+                Maybe.emptyIfNull( json.getAsJsonObject("attrMap") ).getOr( empty ).entrySet()) {
+            builder.putAttribute(entry.getKey(), entry.getValue().getAsString());
+        }
+        for (Map.Entry<String, JsonElement> entry : 
+                Maybe.emptyIfNull( json.getAsJsonObject("linkMap") ).getOr( empty ).entrySet()) {
+            builder.putLink(entry.getKey(), UUIDFactory.parseUUID( entry.getValue().getAsString()) );
+        }
+        for( Map.Entry<String, JsonElement> entry : 
+                Maybe.emptyIfNull( json.getAsJsonObject("dateMap") ).getOr( empty ).entrySet() ) {
+            try {
+                builder.putDate( entry.getKey(), getDateFormat().parse( entry.getValue().getAsString() ) );
+            } catch ( Exception ex ) {
+                throw new AssertionFailedException( "Failed to parse date attribute: " + entry.getValue().getAsString() );
+            }
+        }
+
+        return (AssetBuilder) builder;
     }
 
     @Override
     public Provider<? extends AssetBuilder> getBuilderFactory() {
         return builderFactory;
     }
-    
 }

@@ -23,9 +23,14 @@ import littleware.asset.AssetType;
  * to a type specific handler.  Interface designed to allow sharing between subtypes/whatever.
  */
 public interface GsonAssetAdapter {
+
     public AssetType getAssetType();
     public Provider<? extends AssetBuilder>  getBuilderFactory();
     
-    public JsonObject serialize(Asset assetIn, JsonObject json, JsonSerializationContext jsc);
-    public AssetBuilder deserialize( AssetBuilder assetBuilder, JsonObject json, JsonDeserializationContext jdc) throws JsonParseException;
+    public JsonObject serialize(Asset assetIn, JsonSerializationContext jsc);
+    public AssetBuilder deserialize( 
+            JsonObject json, 
+            JsonDeserializationContext jdc,
+            LittleGsonResolver resolver
+            ) throws JsonParseException;
 }

@@ -13,6 +13,9 @@ import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+import java.util.Arrays;
+import littleware.asset.gson.GsonAssetAdapter;
+import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
@@ -27,7 +30,6 @@ import littleware.security.LittleUser;
 import littleware.security.Quota;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.client.internal.RetryRemoteSessionMgr;
-import littleware.security.auth.internal.RemoteSessionManager;
 import littleware.security.auth.internal.SimpleSessionBuilder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -61,7 +63,11 @@ public class LittleSecurityModule extends AbstractAppModule {
                  Provider<LittleAcl.Builder> aclProvider,
                  Provider<LittleAclEntry.Builder> aclEntryProvider,
                  Provider<Quota.Builder> quotaProvider,
-                 Provider<LittleSession.Builder> sessionProvider
+                 Provider<LittleSession.Builder> sessionProvider,
+                 LittleGsonFactory gsonFactory,
+                 GroupGsonAdapter gsonGroup,
+                 AclGsonAdapter  gsonAcl,
+                 UserGsonAdapter gsonUser
                 ) {
             assetRegistry.registerService(LittleUser.USER_TYPE, userProvider );
             assetRegistry.registerService(LittleGroup.GROUP_TYPE, groupProvider );
@@ -70,6 +76,9 @@ public class LittleSecurityModule extends AbstractAppModule {
             assetRegistry.registerService( LittleAclEntry.ACL_ENTRY, aclEntryProvider );
             assetRegistry.registerService( Quota.QUOTA_TYPE, quotaProvider );
             assetRegistry.registerService( LittleSession.SESSION_TYPE, sessionProvider );
+            for( GsonAssetAdapter adapter : Arrays.asList( gsonGroup, gsonAcl, gsonUser )) {
+                gsonFactory.registerAdapter(adapter);
+            }
         }
 
         @Override
@@ -99,7 +108,7 @@ public class LittleSecurityModule extends AbstractAppModule {
         // Avoid binding RemoteSessionManager - gets bound by server environment too
         //binder.bind( RemoteSessionManager.class ).
         binder.bind( RetryRemoteSessionMgr.class ).in( Scopes.SINGLETON );
-        binder.bind( Everybody.class ).to( SimpleEverybody.class ).in( Scopes.SINGLETON );
+        binder.bind( Everybody.class ).toInstance( SimpleEverybody.singleton );
     }
 
 }

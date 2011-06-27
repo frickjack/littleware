@@ -88,6 +88,9 @@ public interface LittleAcl extends TreeNode {
         public Builder removeEntry(LittleAclEntry entry);
 
         @Override
+        public Builder id(UUID value);
+        
+        @Override
         public Builder name(String value);
 
         @Override

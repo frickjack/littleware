@@ -24,6 +24,13 @@ import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.asset.client.bootstrap.internal.SimpleClientBuilder;
 import littleware.asset.client.internal.RetryRemoteAstMgr;
 import littleware.asset.client.internal.RetryRemoteSearchMgr;
+import littleware.asset.gson.GsonAssetAdapter;
+import littleware.asset.gson.LittleGsonFactory;
+import littleware.asset.gson.internal.GenericAdapter;
+import littleware.asset.gson.internal.GsonProvider;
+import littleware.asset.gson.internal.HomeAdapter;
+import littleware.asset.gson.internal.LinkAdapter;
+import littleware.asset.gson.internal.TreeNodeAdapter;
 import littleware.asset.pickle.HumanPicklerProvider;
 import littleware.asset.pickle.XmlPicklerProvider;
 import littleware.asset.pickle.internal.SimpleHumanRegistry;
@@ -63,12 +70,22 @@ public class LittleAssetModule extends AbstractAppModule {
                 Provider<TreeNode.TreeNodeBuilder> nodeProvider,
                 Provider<GenericAsset.GenericBuilder> genericProvider,
                 Provider<LinkAsset.LinkBuilder> linkProvider,
-                Provider<LittleHome.HomeBuilder> homeProvider
+                Provider<LittleHome.HomeBuilder> homeProvider,
+                LittleGsonFactory gsonFactory,
+                HomeAdapter gsonHomeAdapter,
+                LinkAdapter gsonLinkAdapter,
+                TreeNodeAdapter gsonTreeNodeAdapter,
+                GenericAdapter gsonGenericAdapter
                 ) {
             assetRegistry.registerService(LittleHome.HOME_TYPE, homeProvider);
             assetRegistry.registerService( TreeNode.TREE_NODE_TYPE, nodeProvider );
             assetRegistry.registerService( GenericAsset.GENERIC, genericProvider );
             assetRegistry.registerService( LinkAsset.LINK_TYPE, linkProvider);
+            for( GsonAssetAdapter adapter : new GsonAssetAdapter[]{ 
+                gsonHomeAdapter, gsonLinkAdapter, gsonTreeNodeAdapter, gsonGenericAdapter
+            } ) {
+                gsonFactory.registerAdapter( adapter );
+            }
         }
 
         @Override
@@ -98,6 +115,7 @@ public class LittleAssetModule extends AbstractAppModule {
         binder.bind( HumanPicklerProvider.class ).to( SimpleHumanRegistry.class ).in( Scopes.SINGLETON );
         binder.bind( XmlPicklerProvider.class ).to( SimpleXmlRegistry.class ).in( Scopes.SINGLETON );
         binder.bind( AssetProviderRegistry.class ).to( SimpleAssetRegistry.class ).in( Scopes.SINGLETON );
+        binder.bind( LittleGsonFactory.class ).to( GsonProvider.class ).in( Scopes.SINGLETON );
 
         // Avoid binding RemoteManager - gets bound in the server environment too
         //binder.bind( RemoteAssetManager.class ).

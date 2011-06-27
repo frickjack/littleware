@@ -26,7 +26,8 @@ import littleware.security.LittlePrincipal;
  */
 @Singleton
 public class SimpleEverybody extends AbstractAsset implements Everybody {
-
+    public static Everybody singleton = new SimpleEverybody();
+    
     private static final Date d1970;
 
     static {

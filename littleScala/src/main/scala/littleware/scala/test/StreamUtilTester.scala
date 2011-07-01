@@ -27,7 +27,7 @@ class StreamUtilTester extends TestCase( "testStreamUtil" ) {
                       100 == StreamUtil.readLineStream( new io.BufferedReader( new io.StringReader( testString )) ).size
     )
     val sWriter = new io.StringWriter
-    StreamUtil.in2Out( new io.StringReader( testString ), sWriter )
+    StreamUtil.in2Out( (new io.StringReader( testString )).read, sWriter.write, new Array[Char](5) )
     Assert.assertTrue( "in2Out preserves content", sWriter.toString == testString )
     val testFile1 = io.File.createTempFile( ".txt",  "StreamUtilTester" )
     val testFile2 = io.File.createTempFile( ".txt",  "StreamUtilTester" )

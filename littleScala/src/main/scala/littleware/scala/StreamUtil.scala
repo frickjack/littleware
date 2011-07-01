@@ -115,12 +115,12 @@ object StreamUtil {
                 streamOut:( Array[T], Int, Int ) => Unit,
                 buffer:Array[T]
   ):Int = {
-    (0 /: bufferStream( streamIn, buffer ))(
-      (counter:Int, data:DataBuffer[T]) => {
+    bufferStream( streamIn, buffer ).map(
+      (data:DataBuffer[T]) => {
         streamOut( data.buffer, 0, data.dataSize )
-        counter + data.dataSize
+        data.dataSize
       }
-    )
+    ).reduce( (a,b) => a+b )
   }
 
   /**
@@ -177,9 +177,9 @@ object StreamUtil {
    * Read everything from the given reader
    */
   def readAll( source:io.Reader ):Closer[String] = new Closer[String]() {
-    val data:String = ((new StringBuilder) /: bufferStream( source.read, new Array[Char](10240) ))(
-      (sb,dataBuffer) => sb.appendAll( dataBuffer.buffer, 0, dataBuffer.dataSize )
-    ).toString
+    val writer:io.StringWriter = new io.StringWriter
+    in2Out( source, writer )
+    val data = writer.toString
     def close():this.type = {
       source.close
       this

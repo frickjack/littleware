@@ -1,0 +1,27 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+		.important {
+			font-weight: bold;
+		}
+	</ui:style>
+	<g:HTMLPanel>
+		Hello,
+		<g:Label styleName="{style.important}" ui:field="hellowLabel" />
+		
+    <table align="center">
+      <tr>
+        <td colspan="2" style="font-weight:bold;">Please enter your name:</td>        
+      </tr>
+      <tr>
+        <td> <g:TextBox ui:field="nameField" /></td>
+        <td> <g:Button ui:field="sendButton" /></td>
+      </tr>
+      <tr>
+        <td colspan="2" style="color:red;"> <g:Label ui:field="errorLabel" /></td>
+      </tr>
+    </table>
+		
+	</g:HTMLPanel>
+</ui:UiBinder> 

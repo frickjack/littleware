@@ -120,7 +120,7 @@ object StreamUtil {
         streamOut( data.buffer, 0, data.dataSize )
         data.dataSize
       }
-    ).reduce( (a,b) => a+b )
+    ).foldLeft(0)( (a,b) => a+b )
   }
 
   /**

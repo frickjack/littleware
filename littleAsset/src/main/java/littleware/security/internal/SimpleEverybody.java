@@ -47,7 +47,7 @@ public class SimpleEverybody extends AbstractAsset implements Everybody {
                 LittleHome.LITTLE_HOME_ID,
                 AccountManager.UUID_ADMIN,
                 LittleHome.LITTLE_HOME_ID, null, null, 0L,
-                AccountManager.LITTLEWARE_EVERYBODY_GROUP,
+                "group.littleware.everybody",
                 0, d1970,
                 AccountManager.UUID_ADMIN, "",
                 d1970,

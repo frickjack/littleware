@@ -100,7 +100,7 @@ GRANT SELECT,UPDATE,INSERT,DELETE ON x_asset_type_tree TO littleware_user_group;
 
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( 'A7E11221546949FAAF1E8FCC52190F1D', 'littleware.principal', 'lw_principal.principal base class', true );
+    VALUES ( 'A7E11221546949FAAF1E8FCC52190F1D', 'littleware.principal', 'lw_principal.principal base class', false );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique,x_parent_type)
     VALUES ( '2FAFD5D1074F4BF8A4F01753DBFF4CD5', 'littleware.user', 'lw_principal.principal user',
@@ -108,10 +108,10 @@ INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique,x_parent_type)
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique, x_parent_type)
     VALUES ( 'FAA894CEC15B49CF8F8EC5C280062776', 'littleware.group', 'lw_principal.principal group',
-              true, 'A7E11221546949FAAF1E8FCC52190F1D'  );
+              false, 'A7E11221546949FAAF1E8FCC52190F1D'  );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
-    VALUES ( '04E11B112526462F91152DFFB51D21C9', 'littleware.acl', 'littleware.acl asset', true );
+    VALUES ( '04E11B112526462F91152DFFB51D21C9', 'littleware.acl', 'littleware.acl asset', false );
 
 INSERT INTO x_asset_type (s_id, s_name, s_comment, b_name_unique)
     VALUES ( '926D122F82FE4F28A8F5C790E6733665', 'littleware.link', 'Just link to some other asset id', false  );

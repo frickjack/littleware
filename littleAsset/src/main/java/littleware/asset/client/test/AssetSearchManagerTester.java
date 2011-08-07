@@ -62,8 +62,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
             assertTrue("Child search did not freak on empty search",
                     (!search.getAssetFrom(a_lookup.getId(), "UgidyUgaUga").isSet()) && (!search.getAssetFrom(UUID.randomUUID(), "whatever").isSet()));
 
-            final LittleGroup group_everybody = search.getByName(AccountManager.LITTLEWARE_EVERYBODY_GROUP,
-                    LittleGroup.GROUP_TYPE).get().narrow();
+            final LittleGroup group_everybody = search.getAsset(AccountManager.UUID_EVERYBODY_GROUP).get().narrow();
             /*
              * New Everybody group does not conform to normal group behavior
              * 

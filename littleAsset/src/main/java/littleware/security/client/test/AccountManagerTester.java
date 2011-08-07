@@ -61,9 +61,8 @@ public class AccountManagerTester extends AbstractAssetTest {
     public void testGetPrincipals() {
         try {
             final LittleUser userAdmin = search.getByName(AccountManager.LITTLEWARE_ADMIN, LittleUser.USER_TYPE).get().narrow();
-            final LittleGroup groupAdmin = search.getByName(
-                    AccountManager.LITTLEWARE_ADMIN_GROUP,
-                    LittleGroup.GROUP_TYPE).get().narrow();
+            final LittleGroup groupAdmin = search.getAsset(
+                    AccountManager.UUID_ADMIN_GROUP).get().narrow();
 
             for (LittlePrincipal member : groupAdmin.getMembers() ) {
                 log.log(Level.INFO, "Got admin group member: " + member.getName() +

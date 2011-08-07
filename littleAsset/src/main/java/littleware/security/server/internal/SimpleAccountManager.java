@@ -115,7 +115,7 @@ public class SimpleAccountManager extends NullAssetSpecializer {
             groupBuilder.add(a_member.narrow(LittlePrincipal.class));
         }
 
-        if (groupBuilder.getName().equals(AccountManager.LITTLEWARE_ADMIN_GROUP)) {
+        if (groupBuilder.getName().equals("group.littleware.everybody")) {
             // then add the admin principal
             groupBuilder.add(search.getAsset(ctx, AccountManager.UUID_ADMIN).get().narrow(LittleUser.class));
         }

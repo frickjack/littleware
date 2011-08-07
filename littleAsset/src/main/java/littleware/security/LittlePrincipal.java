@@ -36,11 +36,6 @@ public interface LittlePrincipal extends java.security.Principal, littleware.ass
             return superType;
         }
 
-        /** USER and GROUP assets share the same namespace */
-        @Override
-        public boolean isNameUnique() {
-            return true;
-        }
     };
 
 }

@@ -55,7 +55,7 @@ public class AclManagerTester extends AbstractAssetTest {
      */
     public void testAclLoad() {
         try {
-            final LittleAcl aclEverybody = search.getByName(LittleAcl.ACL_EVERYBODY_READ, LittleAcl.ACL_TYPE).get().narrow();
+            final LittleAcl aclEverybody = search.getAsset(LittleAcl.UUID_EVERYBODY_READ ).get().narrow();
         } catch (Exception ex) {
             log.log( Level.SEVERE, "Failed test", ex );
             assertTrue("Caught unexpected: " + ex, false);

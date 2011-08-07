@@ -19,11 +19,11 @@ import java.util.UUID;
 public interface AccountManager {
 
     /** group-name of admin group */
-    public static final String LITTLEWARE_ADMIN_GROUP = "group.littleware.administrator";
+    //public static final String LITTLEWARE_ADMIN_GROUP = "group.littleware.administrator";
     /** Admin user name */
     public static final String LITTLEWARE_ADMIN = "littleware.administrator";
     /** group containing everybody */
-    public static final String LITTLEWARE_EVERYBODY_GROUP = "group.littleware.everybody";
+    //public static final String LITTLEWARE_EVERYBODY_GROUP = "group.littleware.everybody";
     /** Admin user id */
     public static final UUID UUID_ADMIN = littleware.base.UUIDFactory.parseUUID("00000000000000000000000000000000");
     /** Admin group id */

@@ -31,8 +31,8 @@ import littleware.base.UUIDFactory;
  */
 public interface LittleAcl extends TreeNode {
 
-    public final static String ACL_EVERYBODY_READ = "acl.littleware.everybody.read";
-    public final static String ACL_EVERYBODY_WRITE = "acl.littleware.everybody.write";
+    public final static UUID UUID_EVERYBODY_READ = UUIDFactory.parseUUID( "F4CEDAA07B574FFFA27E0BA87078DC34" );
+    public final static UUID UUID_EVERYBODY_WRITE = UUIDFactory.parseUUID( "A20FF0A0829A433FBA7CF90B128F4FDF" );
 
     /** ACL asset type - with AclManager asset specializer */
     public static final AssetType ACL_TYPE = new AssetType(
@@ -44,11 +44,6 @@ public interface LittleAcl extends TreeNode {
         @Override
         public Option<AssetType>  getSuperType() {
             return superType;
-        }
-
-        @Override
-        public boolean isNameUnique() {
-            return true;
         }
     };
 

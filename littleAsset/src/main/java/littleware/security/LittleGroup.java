@@ -39,7 +39,7 @@ public interface LittleGroup extends LittlePrincipal {
         @Override
         public Option<AssetType> getSuperType() {
             return Maybe.something((AssetType) LittlePrincipal.PRINCIPAL_TYPE);
-        }
+        }        
     };
 
     //------------------------------------------------

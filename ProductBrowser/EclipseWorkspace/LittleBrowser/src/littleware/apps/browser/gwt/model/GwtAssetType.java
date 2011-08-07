@@ -30,6 +30,17 @@ public class GwtAssetType implements java.io.Serializable {
 	public String getName() {
 		return name;
 	}
+	 
+	@Override
+	public boolean equals( Object other ) {
+		return (null != other) && (other instanceof GwtAssetType) &&
+				(((GwtAssetType) other).id.equals( this.id ) );
+	}
+	
+	@Override
+	public String toString() {
+		return name + "[" + id + "]";
+	}
 	
 	public static GwtAssetType build( String name, GwtUUID id ) {
 		return new GwtAssetType( id, name );

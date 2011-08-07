@@ -26,6 +26,7 @@ public abstract class AbstractAsset implements java.io.Serializable {
 	private String  updateComment = "";
 	private GwtUUID aclId = null;
 	private GwtUUID ownerId = null;
+	private int     state = 0;
 
 	private GwtUUID homeId;
 	
@@ -44,7 +45,8 @@ public abstract class AbstractAsset implements java.io.Serializable {
 			Date        updateDate,
 			String      updateComment,
 			GwtUUID     aclId,
-			GwtUUID     ownerId
+			GwtUUID     ownerId,
+			int         state
 			) 
 	{
 		this.name = name;
@@ -62,6 +64,7 @@ public abstract class AbstractAsset implements java.io.Serializable {
 		this.updateComment = updateComment;
 		this.aclId = aclId;
 		this.ownerId = ownerId;
+		this.state = state;
 	}
 	
 	protected AbstractAsset( AbstractAssetBuilder<?> builder ) {
@@ -79,7 +82,8 @@ public abstract class AbstractAsset implements java.io.Serializable {
 				builder.getUpdateDate(),
 				builder.getUpdateComment(),
 				builder.getAclId(),
-				builder.getOwnerId()
+				builder.getOwnerId(),
+				builder.getState()
 				);
 	}
 	
@@ -99,7 +103,7 @@ public abstract class AbstractAsset implements java.io.Serializable {
 	public String   getUpdateComment() { return updateComment; }
 	public GwtUUID  getAclId() { return aclId; }
 	public GwtUUID  getOwnerId() { return ownerId; }
-	
+	public int      getState() { return state; }
 	
 }
 

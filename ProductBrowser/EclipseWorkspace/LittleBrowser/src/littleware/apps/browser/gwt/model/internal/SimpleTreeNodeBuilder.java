@@ -1,15 +1,15 @@
 package littleware.apps.browser.gwt.model.internal;
 
 import littleware.apps.browser.gwt.model.GwtAsset;
-import littleware.apps.browser.gwt.model.TreeNode;
+import littleware.apps.browser.gwt.model.GwtNode;
 
 
-public class SimpleTreeNodeBuilder extends AbstractAssetBuilder<TreeNode.TreeNodeBuilder> implements TreeNode.TreeNodeBuilder {
+public class SimpleTreeNodeBuilder extends AbstractAssetBuilder<GwtNode.GwtNodeBuilder> implements GwtNode.GwtNodeBuilder {
 	public SimpleTreeNodeBuilder() {
-		super( TreeNode.TREE_NODE_TYPE );
+		super( GwtNode.TREE_NODE_TYPE );
 	}
 	
-	public static class SimpleNode extends AbstractAsset implements TreeNode {
+	public static class SimpleNode extends AbstractAsset implements GwtNode {
 
 		public SimpleNode() {}
 		public SimpleNode( SimpleTreeNodeBuilder builder ) {
@@ -17,7 +17,7 @@ public class SimpleTreeNodeBuilder extends AbstractAssetBuilder<TreeNode.TreeNod
 		}
 		
 		@Override
-		public TreeNodeBuilder copy() {
+		public GwtNode.GwtNodeBuilder copy() {
 			final SimpleTreeNodeBuilder builder = new SimpleTreeNodeBuilder();
 			builder.copy( this );
 			return builder;
@@ -26,7 +26,7 @@ public class SimpleTreeNodeBuilder extends AbstractAssetBuilder<TreeNode.TreeNod
 	}
 
 	@Override
-	public TreeNode build() {
+	public GwtNode build() {
 		return new SimpleNode( this );
 	}
 }

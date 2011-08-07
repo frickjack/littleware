@@ -4,7 +4,7 @@ package littleware.apps.browser.gwt.model.internal;
 import java.util.Date;
 
 import littleware.apps.browser.gwt.model.GwtAsset;
-import littleware.apps.browser.gwt.model.TreeParent;
+import littleware.apps.browser.gwt.model.GwtParent;
 import littleware.apps.browser.gwt.model.GwtAssetType;
 import littleware.apps.browser.gwt.model.GwtUUID;
 import littleware.apps.browser.gwt.model.GwtAsset.GwtAssetBuilder;
@@ -168,6 +168,16 @@ public abstract class AbstractAssetBuilder<B extends GwtAsset.GwtAssetBuilder> i
 		setOwnerId( value );
 		return (B) this;
 	}
+	
+	private int state = 0;
+	public final int getState() { return state; }
+	public final void setState( int value ) {
+		state = value;
+	}
+	public B state( int value ) {
+		setState( value );
+		return (B) this;
+	}
 
 	
     protected B parentInternal( GwtAsset parent ) {
@@ -175,7 +185,7 @@ public abstract class AbstractAssetBuilder<B extends GwtAsset.GwtAssetBuilder> i
         return (B) this;
     }
 
-    public B parent(TreeParent parent) {
+    public B parent(GwtParent parent) {
         return parentInternal( parent );
     }
 	

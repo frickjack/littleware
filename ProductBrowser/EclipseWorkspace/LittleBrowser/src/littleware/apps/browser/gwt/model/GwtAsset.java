@@ -10,11 +10,12 @@ package littleware.apps.browser.gwt.model;
 
 import java.util.Date;
 
-public interface GwtAsset {
+public interface GwtAsset extends java.io.Serializable {
 	public String getName();
 	public GwtAssetType  getAssetType();
 	public GwtUUID       getId();
 	public GwtUUID       getHomeId();
+	public GwtUUID       getFromId();
 	public String        getComment();
 	public long          getTimestamp();
 	public GwtUUID       getCreatorId();

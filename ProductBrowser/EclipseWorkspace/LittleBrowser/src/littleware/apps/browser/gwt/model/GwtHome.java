@@ -6,6 +6,8 @@ import java.util.Date;
 
 public interface GwtHome extends GwtAsset, GwtParent {
 	public static GwtAssetType HomeType = GwtAssetType.build("littleware.home", GwtUUID.fromString("BD46E5588F9D4F41A6310100FE68DCB4") );
+	public static GwtUUID      littleHomeId = GwtUUID.fromString( "BD46E5588F9D4F41A6310100FE68DCB4" );
+	
 	
 	public interface GwtHomeBuilder extends GwtAsset.GwtAssetBuilder {
 		@Override public GwtHome         build();

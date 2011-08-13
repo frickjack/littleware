@@ -27,4 +27,12 @@ ivy/ivy.jar
 .zip$
 .orig$
 .\#$
+.class$
+/manifests/
+EclipseWorkspace/\.metadata/
+EclipseWorkspace/\.project/
+EclipseWorkspace/\.settings/
+EclipseWorkspace/RemoteSystemTempFiles/
+.rpc$
+/GwtDemo/
 latest_session.properties$

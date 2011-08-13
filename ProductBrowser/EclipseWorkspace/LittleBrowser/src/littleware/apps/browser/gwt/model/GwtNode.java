@@ -31,7 +31,7 @@ public interface GwtNode extends GwtChild, GwtParent {
 	}
 	
 	public static class Factory {
-		public GwtNodeBuilder get() {
+		public static GwtNodeBuilder get() {
 			return new littleware.apps.browser.gwt.model.internal.SimpleTreeNodeBuilder();
 		}
 	}

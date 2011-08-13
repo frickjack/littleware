@@ -4,7 +4,7 @@ import java.util.Date;
 
 
 
-public interface GwtUser extends GwtNode {
+public interface GwtUser extends GwtNode, GwtPrincipal {
     public static final GwtAssetType USER_TYPE = GwtAssetType.build(
     		"littleware.USER",
     		GwtUUID.fromString("2FAFD5D1074F4BF8A4F01753DBFF4CD5")

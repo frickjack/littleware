@@ -29,6 +29,11 @@ public class GwtUUID implements java.io.Serializable {
 	@Override
 	public String toString() { return id; }
 	
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+	
 	//----------------------------------------
 	private static final java.util.Random rand = new java.util.Random();
 	private static final long serialVersionUID = 1L;

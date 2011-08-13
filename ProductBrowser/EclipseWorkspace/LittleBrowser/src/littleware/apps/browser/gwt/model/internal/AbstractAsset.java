@@ -105,5 +105,8 @@ public abstract class AbstractAsset implements java.io.Serializable {
 	public GwtUUID  getOwnerId() { return ownerId; }
 	public int      getState() { return state; }
 	
+	@Override
+	public int hashCode() { return id.hashCode(); }
+	
 }
 

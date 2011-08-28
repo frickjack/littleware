@@ -2,7 +2,7 @@ package littleware.apps.browser.gwt.model;
 
 import littleware.apps.browser.gwt.model.internal.SimpleOption;
 
-public interface GwtOption<T> extends java.io.Serializable {
+public interface GwtOption<T> extends java.io.Serializable, Iterable<T> {
 	public boolean isDefined();
 	public boolean isEmpty();
 	public T       get();

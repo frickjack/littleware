@@ -3,8 +3,7 @@ package littleware.apps.browser.gwt.server.internal;
 import java.util.HashMap;
 import java.util.Map;
 
-import littleware.apps.browser.gwt.controller.AssetSearchManager;
-import littleware.apps.browser.gwt.controller.internal.AssetSearchService;
+import littleware.apps.browser.gwt.controller.BrowserService;
 import littleware.apps.browser.gwt.model.GwtAsset;
 import littleware.apps.browser.gwt.model.GwtHome;
 import littleware.apps.browser.gwt.model.GwtNode;
@@ -14,7 +13,7 @@ import littleware.apps.browser.gwt.model.GwtUUID;
 /**
  * Mock implementation of search service
  */
-public class MockSearchService implements AssetSearchService {
+public class MockBrowserService implements BrowserService {
 	private Map<GwtUUID,GwtAsset>  assetCache = new HashMap<GwtUUID,GwtAsset>();
 
 	{ // just setup a bogus little repository
@@ -47,11 +46,6 @@ public class MockSearchService implements AssetSearchService {
 		}
 	}
 	
-	//@Override
-	public GwtOption<AssetSearchManager.AssetWithPath> getAssetAtPath(String path) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException( "Not yet implemented" );
-	}
 
 	@Override
 	public GwtOption<GwtAsset> getAsset(GwtUUID id) {

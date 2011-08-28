@@ -12,7 +12,7 @@
   </servlet>
   <servlet>
     <servlet-name>searchServlet</servlet-name>
-    <servlet-class>littleware.apps.browser.gwt.server.web.servlet.SearchServiceServlet</servlet-class>
+    <servlet-class>littleware.apps.browser.gwt.server.web.servlet.BrowserServiceServlet</servlet-class>
   </servlet>  
   
   <servlet-mapping>

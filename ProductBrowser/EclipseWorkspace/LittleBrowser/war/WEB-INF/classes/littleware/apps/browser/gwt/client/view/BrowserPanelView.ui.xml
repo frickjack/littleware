@@ -17,14 +17,8 @@
     </g:HTMLPanel>
   </g:center>
   <g:west size='10'>
-    <g:Tree ui:field="assetTree" />
-    <g:HTML>
-      <ul>
-        <li>Sidebar</li>
-        <li>Sidebar</li>
-        <li>Sidebar</li>
-      </ul>
-    </g:HTML>
+      <g:VerticalPanel ui:field="sidePanel">
+      </g:VerticalPanel>
   </g:west>
 </g:DockLayoutPanel>
 </ui:UiBinder> 

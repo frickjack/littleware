@@ -2,8 +2,7 @@ package littleware.apps.browser.gwt.client.view;
 
 import java.util.Map;
 
-import littleware.apps.browser.gwt.controller.internal.AssetSearchService;
-import littleware.apps.browser.gwt.controller.internal.AssetSearchServiceAsync;
+import littleware.apps.browser.gwt.controller.BrowserServiceAsync;
 import littleware.apps.browser.gwt.model.GwtUUID;
 
 import com.google.gwt.core.client.GWT;
@@ -19,10 +18,15 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class BrowserPanelView extends Composite  {
 
+	public enum ViewState {
+		Loading, Active;
+	};
+	
 	private static BrowserPanelViewUiBinder uiBinder = GWT
 			.create(BrowserPanelViewUiBinder.class);
 
@@ -44,15 +48,20 @@ public class BrowserPanelView extends Composite  {
 	@UiField
 	public Label bodyLabel;
 	@UiField
-	public Tree assetTree;
+	public VerticalPanel sidePanel;
 
-	private final AssetSearchServiceAsync search;
+	private final BrowserServiceAsync search;
 
 
-	public BrowserPanelView( AssetSearchServiceAsync search ) {
+	public BrowserPanelView( 
+			BrowserServiceAsync search,
+			AssetTreeView           treeView
+			) 
+	{
 		this.search = search;
 		initWidget(uiBinder.createAndBindUi(this));
 		loadButton.setText( "Load" );
+		sidePanel.add(treeView);
 	}
 
 	@UiHandler("loadButton")

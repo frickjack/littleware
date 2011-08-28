@@ -9,12 +9,13 @@
 package littleware.apps.browser.gwt.client;
 
 import littleware.apps.browser.gwt.client.controller.action.GreetingAction;
+import littleware.apps.browser.gwt.client.view.AssetTreeView;
 import littleware.apps.browser.gwt.client.view.BrowserPanelView;
 import littleware.apps.browser.gwt.client.view.DemoPanelView;
 import littleware.apps.browser.gwt.controller.GreetingService;
 import littleware.apps.browser.gwt.controller.GreetingServiceAsync;
-import littleware.apps.browser.gwt.controller.internal.AssetSearchService;
-import littleware.apps.browser.gwt.controller.internal.AssetSearchServiceAsync;
+import littleware.apps.browser.gwt.controller.BrowserService;
+import littleware.apps.browser.gwt.controller.BrowserServiceAsync;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -35,7 +36,7 @@ public class LittleBrowser implements EntryPoint {
 	 */
 	private final GreetingServiceAsync greetingService = GWT
 			.create(GreetingService.class);
-	private final AssetSearchServiceAsync  search = GWT.create( AssetSearchService.class );
+	private final BrowserServiceAsync  search = GWT.create( BrowserService.class );
 
 	/**
 	 * This is the entry point method.
@@ -48,7 +49,7 @@ public class LittleBrowser implements EntryPoint {
 	    dock.addWest(new HTML("Navigation"), 10 );
 	
 		final DemoPanelView    dview = new DemoPanelView( "Reuben" );
-		final BrowserPanelView browser = new BrowserPanelView( search );
+		final BrowserPanelView browser = new BrowserPanelView( search, new AssetTreeView( search ) );
 		
 	    // Create a three-item tab panel, with the tab area 1.5em tall.
 	    final TabLayoutPanel tabPanel = new TabLayoutPanel(1.5, Unit.EM);

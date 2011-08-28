@@ -51,7 +51,7 @@ public class GsonProvider implements LittleGsonFactory {
 
     @Override
     public synchronized Gson get() {
-        return get( LittleGsonResolver.nullResolver );
+        return getBuilder().create();
     }
 
 
@@ -61,7 +61,7 @@ public class GsonProvider implements LittleGsonFactory {
     }
 
     @Override
-    public Gson get(LittleGsonResolver resolver) {
+    public GsonBuilder getBuilder(LittleGsonResolver resolver) {
         final GsonBuilder gsonBuilder = gsonBuilderFactory.get();
         gsonBuilder.registerTypeAdapter(UUID.class,
                 new JsonSerializer<UUID>() {
@@ -98,8 +98,19 @@ public class GsonProvider implements LittleGsonFactory {
         gsonBuilder.registerTypeAdapter(Asset.class,
                 new AssetDelegateSerializer( resolver )
                 );
-        return gsonBuilder.serializeNulls().create();
+        return gsonBuilder.serializeNulls();
     }
+
+    @Override
+    public Gson get(LittleGsonResolver resolver ) {
+        return getBuilder( resolver ).create();
+    }
+    
+    @Override
+    public GsonBuilder getBuilder() {
+        return getBuilder( LittleGsonResolver.nullResolver );
+    }
+    
 
     /**
      * Delegating serializer delegates to different serializers based on asset-type.

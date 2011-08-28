@@ -1,5 +1,8 @@
 package littleware.apps.browser.gwt.model.internal;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import littleware.apps.browser.gwt.model.GwtOption;
 
 public class SimpleOption<T> implements GwtOption<T>, java.io.Serializable {
@@ -40,5 +43,34 @@ public class SimpleOption<T> implements GwtOption<T>, java.io.Serializable {
 	public boolean equals( Object other ) {
 		return (other instanceof SimpleOption) &&
 				((SimpleOption<?>) other).value == this.value;
+	}
+	@Override
+	public Iterator<T> iterator() {
+		// TODO Auto-generated method stub
+		return new Iterator<T>() {
+			private boolean hasNext = true;
+			
+			@Override
+			public boolean hasNext() {
+				// TODO Auto-generated method stub
+				return isDefined() && hasNext;
+			}
+
+			@Override
+			public T next() {
+				if ( hasNext() ) {
+					hasNext = false;
+					return value;
+				}
+				throw new NoSuchElementException();
+			}
+
+			@Override
+			public void remove() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
 	}
 }

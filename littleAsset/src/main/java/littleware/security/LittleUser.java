@@ -26,7 +26,6 @@ public interface LittleUser extends LittlePrincipal {
      * Little principal-status class
      */
     public enum Status {
-
         ACTIVE,
         INACTIVE
     }

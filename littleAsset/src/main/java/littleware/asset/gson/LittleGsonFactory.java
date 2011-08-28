@@ -8,25 +8,34 @@
 package littleware.asset.gson;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Provider;
 import littleware.asset.AssetType;
 
 /**
- * Builds a Gson instance suitable for serializing and deserializing littleware Assets.
+ * Builds a Gson instance suitable for serializing and deserializing littleware Assets
+ * and serialization of supporting types (Date, UUID, AssetPath, ...)
  */
 public interface LittleGsonFactory extends Provider<Gson> {
     /**
-     * Get a Gson instance that uses the given resolver to resolve
+     * Get a GsonBuilder that uses the given resolver to resolve
      * sub-assets referenced from a JSON serialized asset in the
      * process of deserialization.  
      */
-    public Gson get( LittleGsonResolver resolver );
+    public GsonBuilder getBuilder( LittleGsonResolver resolver );
     
     /**
-     * Get a Gson instance with a NullGsonResolver - this instance will fail
+     * Get a GsonBuilder with a NullGsonResolver - this instance will fail
      * to deserialize assets with references to subassets, but will otherwise
      * work fine for serialization and deserialization of standalone assets.
      */
+    public GsonBuilder getBuilder();
+    
+    
+    /** getBuilder( resolver ).create() */
+    public Gson get( LittleGsonResolver resolver );
+    
+    /** getBuilder().create() */
     @Override
     public Gson get();
     

@@ -2,13 +2,12 @@ package littleware.apps.browser.gwt.server.web.servlet;
 
 import java.util.Map;
 
-import littleware.apps.browser.gwt.controller.AssetSearchManager;
-import littleware.apps.browser.gwt.controller.internal.AssetSearchService;
+import littleware.apps.browser.gwt.controller.BrowserService;
 import littleware.apps.browser.gwt.model.GwtAsset;
 import littleware.apps.browser.gwt.model.GwtOption;
 import littleware.apps.browser.gwt.model.GwtUUID;
 import littleware.apps.browser.gwt.model.internal.FieldVerifier;
-import littleware.apps.browser.gwt.server.internal.MockSearchService;
+import littleware.apps.browser.gwt.server.internal.MockBrowserService;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -16,10 +15,10 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class SearchServiceServlet extends RemoteServiceServlet implements
-		AssetSearchService {
+public class BrowserServiceServlet extends RemoteServiceServlet implements
+		BrowserService {
 	
-	private final MockSearchService mock = new MockSearchService();
+	private final MockBrowserService mock = new MockBrowserService();
 
 	private String greetServer(String input) throws IllegalArgumentException {
 		// Verify that the input is valid. 
@@ -56,10 +55,6 @@ public class SearchServiceServlet extends RemoteServiceServlet implements
 				.replaceAll(">", "&gt;");
 	}
 
-	//@Override
-	private GwtOption<AssetSearchManager.AssetWithPath> getAssetAtPath(String path) {
-		return null; //mock.getAssetAtPath(path);
-	}
 
 	@Override
 	public GwtOption<GwtAsset> getAsset(GwtUUID id) {

@@ -79,14 +79,8 @@ public class ExecutorModule extends AbstractAppModule {
     public void configure(Binder binder) {
         final int workPoolSize;
         final int schedPoolSize;
-        if (getProfile().equals(AppProfile.WebApp)) {
-            // Webapp currently boots up a client environment for each session!-
-            workPoolSize = 1;
-            schedPoolSize = 1;
-        } else {
-            workPoolSize = 5;
-            schedPoolSize = 4;
-        }
+        workPoolSize = 5;
+        schedPoolSize = 4;
         binder.bind(ExecutorService.class).toInstance(Executors.newFixedThreadPool(workPoolSize));
         binder.bind(ScheduledExecutorService.class).toInstance(
                 Executors.newScheduledThreadPool(schedPoolSize));

@@ -85,7 +85,7 @@ public class SecurityFilter implements Filter {
             this.user = user;
             this.pathFactory = pathFactory;
             try {
-                this.adminGroup = search.getByName( AccountManager.LITTLEWARE_ADMIN_GROUP, LittleGroup.GROUP_TYPE).get().narrow();
+                this.adminGroup = search.getAsset( AccountManager.UUID_ADMIN_GROUP ).get().narrow();
             } catch (RuntimeException ex) {
                 throw ex;
             } catch (Exception ex) {

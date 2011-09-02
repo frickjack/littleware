@@ -37,6 +37,12 @@
     <packageset dir="../lgoServer/src/main/java" defaultexcludes="yes">
        <include name="littleware/**" />
     </packageset>
+    <!--
+    <packageset dir="../Catalog/CatRequest/src/main/java" defaultexcludes="yes">
+       <include name="edu/auburn/**" />
+    </packageset>
+     -->
+     <!-- need separate Catalog build rules ...
     <packageset dir="../Catalog/AuLibrary/src/main/java" defaultexcludes="yes">
        <include name="edu/auburn/**" />
     </packageset>
@@ -45,18 +51,13 @@
     </packageset>        
     <packageset dir="../Catalog/AuUnicodeFilter/src" defaultexcludes="yes">
        <include name="schema/**" />
-    </packageset>    
-    <!--
-    <packageset dir="../Catalog/CatRequest/src/main/java" defaultexcludes="yes">
-       <include name="edu/auburn/**" />
-    </packageset>
-     -->    
+    </packageset>         
     <packageset dir="../Catalog/ClickCount/src/main/java" defaultexcludes="yes">
        <include name="edu/auburn/**" />
     </packageset>    
-
-    <doctitle><![CDATA[<h1>littleware and auburn</h1>]]></doctitle>
-    <bottom><![CDATA[<i>Copyright &#169; 2011 <a href="http://frickjack.com">http://frickjack.com</a>.  Licensed to public under GPL v2.0.</i>]]></bottom>
+            -->
+    <doctitle><![CDATA[<h1>littleware</h1>]]></doctitle>
+    <bottom><![CDATA[<i>Copyright &#169; 2011 <a href="http://frickjack.com">http://frickjack.com</a>.  Licensed to public under LGPL v2.0.</i>]]></bottom>
           <!--
     <tag name="todo" scope="all" description="To do:"/>
     <group title="Group 1 Packages" packages="com.dummy.test.a*"/>
@@ -69,6 +70,13 @@
 
 
  <path id="scaladoc.src">
+      <!-- disable for now
+      <pathelement location="../Catalog/VufindRegression/src/main/scala" />
+      <pathelement location="../Catalog/FishProject/Minnows/src/main/scala" />
+            <pathelement location="../Catalog/CatRequest/src/main/scala" />
+            <pathelement location="../Catalog/CatRequest/src/main/java" />
+      -->
+      <!--
      <pathelement location="../Catalog/AuLibrary/src/main/scala" />
      <pathelement location="../Catalog/AuLibrary/src/main/java" />
      <pathelement location="../Catalog/Voyager/src/main/scala" />
@@ -76,12 +84,6 @@
       <pathelement location="../Catalog/EbscoX/src/main/scala" />
       <pathelement location="../Catalog/ETD/EtdX/src/main/scala" />
       <pathelement location="../Catalog/Vygr2Vfnd/src/main/scala" />
-      <!-- disable for now
-      <pathelement location="../Catalog/VufindRegression/src/main/scala" />
-      <pathelement location="../Catalog/FishProject/Minnows/src/main/scala" />
-            <pathelement location="../Catalog/CatRequest/src/main/scala" />
-            <pathelement location="../Catalog/CatRequest/src/main/java" />
-      -->
       <pathelement location="../Catalog/RefStat/src/main/scala" />
       <pathelement location="../Catalog/CircRequest/src/main/scala" />
       <pathelement location="../Catalog/ClickCount/src/main/scala" />
@@ -90,6 +92,8 @@
       <pathelement location="../Catalog/MarcDownload/src" />
       <pathelement location="../Catalog/MarcViewer/src" />
       <pathelement location="../ProductBrowser/SwingBrowser/src/main/scala" />
+      -->
+      <pathelement location="../littleScala/src/main/scala" />
       <pathelement location="../webapp/littleId/littleId/src/main/scala" />
     <!--
     <pathelement path="${java.class.path}/"/>

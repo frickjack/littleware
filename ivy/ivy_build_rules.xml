@@ -180,6 +180,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
          <delete dir="${ivy.cache.dir}/${ivy.organisation}" />
     </target>
     
+ <!-- publish with a date-based revision number -->   
 <target name="milestone" depends="publish,-set-buildId" description="deliver MILESTONE build to local repository">
 	<ivy:publish  overwrite="true"
 			           resolver="local"

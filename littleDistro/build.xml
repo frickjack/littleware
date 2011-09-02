@@ -60,6 +60,7 @@
        <mapper type="glob" from="*zSNAPSHOT-jar.jar" to="*b${buildId}-jar.jar"/>
   </copy>
   
+  <!--
   <ant antfile="../Catalog/webapp/build.xml" useNativeBasedir="true" inheritAll="false" target="dist" />
   <copy todir="${dist.dir}/littleware/webapp" includeemptydirs="false">
        <fileset dir="../Catalog/webapp/dist/" />  
@@ -70,13 +71,16 @@
   <copy todir="${dist.dir}/littleware/webapp" includeemptydirs="false">
        <fileset dir="../webapp/littleId/idWeb/dist/" />   
   </copy>
+  -->
   
   <copy todir="${dist.dir}/littleware/api">
       <fileset dir="../javadoc/api" />
   </copy>
+  <!--
   <copy todir="${dist.dir}/littleware/api/ydoc">
      <fileset dir="../webapp/littleId/idWeb/build/web/resources/js/ydoc" />
   </copy>
+  -->
 </target>
 
 </project>

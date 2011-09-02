@@ -38,7 +38,7 @@ public class UserBean extends InjectMeBean {
     public void injectMe( LittleUser user, AssetSearchManager search ) {
         this.user = user;
         try {
-            this.admin = search.getByName( AccountManager.LITTLEWARE_ADMIN_GROUP, LittleGroup.GROUP_TYPE ).get().narrow( LittleGroup.class ).isMember( user );
+            this.admin = search.getAsset( AccountManager.UUID_ADMIN_GROUP ).get().narrow( LittleGroup.class ).isMember( user );
         } catch ( Exception ex ) {
             throw new AssertionFailedException( "Failed to load admin group", ex );
         }

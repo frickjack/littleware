@@ -31,10 +31,10 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
-import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.PropertiesLoader;
+import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.security.auth.LittleSession;
 import littleware.web.beans.GuiceBean;
@@ -143,8 +143,10 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                     final String guestPassword = properties.getProperty("web.guest.password");
                     if ((guest != null) && (guestPassword != null)) {
                         log.log(Level.INFO, "Logging in guest user: {0}", guest);
-                        final ClientBootstrap boot = null; //ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(guest, guestPassword);
-                        maybeGuest = Maybe.something(boot.startSession(SessionInfo.class));
+                        final AppBootstrap boot = AppBootstrap.appProvider.get().build();
+                        // Login as guest, bla bla bla
+                        //ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(guest, guestPassword);
+                        maybeGuest = Maybe.empty(); // Maybe.something(boot.startSession(SessionInfo.class));
                     } else {
                         log.log(Level.WARNING, "Guest user/password not set in littleware.properties - just using empty GuiceBean instead");
                         return new GuiceBean();
@@ -304,7 +306,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
         }
         if (action.equalsIgnoreCase("login")) {
             try {
-                final ClientBootstrap boot = null; //ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(request.getParameter("user"), request.getParameter("password"));
+                //final ClientBootstrap boot = null; //ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(request.getParameter("user"), request.getParameter("password"));
                 // login ok!
                 final HttpSession session = request.getSession();
                 if (null != (GuiceBean) session.getAttribute(WebBootstrap.littleGuice)) {

@@ -45,10 +45,6 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
         this.moduleSet = ImmutableList.copyOf( moduleSet );
     }
 
-    @Override
-    public final void bootstrap() {
-        bootstrap( Injector.class );
-    }
 
     @Override
     public Collection<? extends T> getModuleSet() {
@@ -92,7 +88,7 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
     private Felix   felix = null;
 
 
-    protected <R> R bootstrap( Class<R> bootClass, Collection<? extends T> moduleSet ) {
+    protected <R> R osgiBootstrap( Class<R> bootClass, Collection<? extends T> moduleSet ) {
         if ( bootstrapDone ) {
             throw new IllegalStateException( "Bootstrap can only run once" );
         }
@@ -146,10 +142,6 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
         return injector.getInstance(bootClass);
     }
 
-    @Override
-    public final <R> R bootstrap(Class<R> bootClass) {
-        return bootstrap( bootClass, moduleSet );
-    }
 
     @Override
     public void shutdown() {

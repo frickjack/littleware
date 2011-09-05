@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.asset.client.bootstrap;
+package littleware.bootstrap;
 
 import littleware.bootstrap.AppBootstrap.AppProfile;
 

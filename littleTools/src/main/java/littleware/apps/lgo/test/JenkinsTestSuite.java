@@ -3,8 +3,6 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.apps.lgo.test;
@@ -13,33 +11,31 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import littleware.asset.client.bootstrap.ClientBootstrap;
-import littleware.test.TestFactory;
+import littleware.asset.client.test.AssetTestFactory;
+import littleware.bootstrap.AppBootstrap;
 
 /**
  * littleware.apps.lgo package test suite safe for run in
  * Hudson server environment
  */
-public class HudsonTestSuite extends TestSuite {
+public class JenkinsTestSuite extends TestSuite {
 
     @Inject
-    public HudsonTestSuite(
+    public JenkinsTestSuite(
             Provider<DeleteAssetTester> factoryDeleteTester,
-            Provider<SetImageTester> factoryImageTester,
             Provider<ListChildrenTester> factoryChildrenTester,
             Provider<GetAssetTester> factoryGetTester,
             Provider<CreateFolderTester> factoryCreateTester,
             Provider<GetByNameTester> factoryByNameTester,
             Provider<RootPathCommandTest> factoryRootPathTest,
             Provider<GsonTester> provideGsonTester) {
-        super(HudsonTestSuite.class.getName());
+        super(JenkinsTestSuite.class.getName());
         final boolean go = true;
         if (go) {
             this.addTest(factoryRootPathTest.get());
         }
         if (go) {
             this.addTest(factoryDeleteTester.get());
-            this.addTest(factoryImageTester.get());
             this.addTest(factoryChildrenTester.get());
             this.addTest(factoryGetTester.get());
             this.addTest(factoryCreateTester.get());
@@ -57,8 +53,8 @@ public class HudsonTestSuite extends TestSuite {
      * of the OSGi bootstrap process
      */
     public static Test suite() {
-        return (new TestFactory()).build(
-                ClientBootstrap.clientProvider.get().test(),
-                HudsonTestSuite.class);
+        return (new AssetTestFactory()).build(
+                AppBootstrap.appProvider.get().build(),
+                JenkinsTestSuite.class);
     }
 }

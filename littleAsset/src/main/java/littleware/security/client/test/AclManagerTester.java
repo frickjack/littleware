@@ -122,7 +122,7 @@ public class AclManagerTester extends AbstractAssetTest {
                 // Make sure setData/getData are valid
                 final LittleAclEntry entry = aclEntryProvider.get().addPermission(LittlePermission.READ).acl( acl ).build().narrow();
                 assertTrue("get/setData consistent", 
-                        entry.getPermissions().equals( entry.copy().build().getPermissions() )
+                        entry.getPermissions().equals( entry.copy().narrow( LittleAclEntry.Builder.class ).build().getPermissions() )
                         );
             }
         } catch (Exception e) {

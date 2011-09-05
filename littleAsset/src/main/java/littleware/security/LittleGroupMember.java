@@ -12,6 +12,7 @@ package littleware.security;
 import java.util.Date;
 import java.util.UUID;
 import littleware.asset.Asset;
+import littleware.asset.LinkAsset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
 import littleware.base.UUIDFactory;
@@ -19,12 +20,9 @@ import littleware.base.UUIDFactory;
 /**
  * Asset connects a group with its members
  */
-public interface LittleGroupMember extends Asset {
+public interface LittleGroupMember extends LinkAsset {
     public UUID getGroupId();
     public UUID getMemberId();
-
-    @Override
-    public MemberBuilder copy();
 
 
     /** GROUP asset type - with AccountManager asset specializer */

@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -23,6 +21,8 @@ import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
+import littleware.bootstrap.SessionBootstrap;
+import littleware.bootstrap.internal.SimpleSessionBuilder;
 
 /**
  * Module sets up PropertiesGuice() bindings from littleware.properties
@@ -49,6 +49,7 @@ public class LittlePropsModule extends AbstractAppModule {
             log.log( Level.FINE, "Configuring LittlePropsModule ..." );
             PropertiesGuice.build().configure(binder);
             binder.bind( Cache.Builder.class ).to( InMemoryCacheBuilder.class );
+            binder.bind( SessionBootstrap.SessionBuilder.class ).to( SimpleSessionBuilder.class );
         } catch (IOException ex) {
             throw new AssertionFailedException( "Unexpected failure loading littleware.properties", ex );
         }

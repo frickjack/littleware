@@ -94,7 +94,7 @@ public class AccountManagerTester extends AbstractAssetTest {
                         );
             }
             if ( ! groupTest.isMember( caller ) ) {
-                LittleGroup copy = groupTest.copy().add(caller).build();
+                LittleGroup copy = groupTest.copy().narrow( LittleGroup.Builder.class ).add(caller).build();
                 copy = copy.copy().build().narrow();
                 assertTrue( caller.getName() + " added to " + copy.getName(),
                     copy.isMember( caller )
@@ -108,7 +108,7 @@ public class AccountManagerTester extends AbstractAssetTest {
             assertTrue( caller.getName() + " is member of " + groupTest.getName(),
                     groupTest.isMember( caller )
                     );
-            groupTest = assetMgr.saveAsset(groupTest.copy().remove(caller).build(), "Removed tester " + caller.getName());
+            groupTest = assetMgr.saveAsset(groupTest.copy().narrow( LittleGroup.Builder.class ).remove(caller).build(), "Removed tester " + caller.getName());
             groupTest = search.getByName(name, LittleGroup.GROUP_TYPE).get().narrow();
             assertTrue( caller.getName() + " is not a member of " + groupTest.getName(),
                     !groupTest.isMember(caller)

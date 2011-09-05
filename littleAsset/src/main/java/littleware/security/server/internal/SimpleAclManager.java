@@ -52,12 +52,12 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
             GeneralSecurityException {
         if ( assetIn instanceof LittleAclEntry ) {
             final LittleAclEntry entry = (LittleAclEntry) assetIn;
-            return (T) entry.copy().principal(
+            return (T) entry.copy().narrow( LittleAclEntry.Builder.class ).principal(
                     (LittlePrincipal) search.getAsset( ctx, entry.getPrincipalId() ).get()
                     ).build();
         }
         // LittleAcl
-        final LittleAcl.Builder aclBuilder = assetIn.narrow(LittleAcl.class).copy();
+        final LittleAcl.Builder aclBuilder = assetIn.copy().narrow();
 
         final Map<String, UUID> linkMap = search.getAssetIdsFrom( ctx, aclBuilder.getId(),
                 LittleAclEntry.ACL_ENTRY);
@@ -89,7 +89,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
                     entries.hasMoreElements();) {
                 final LittleAclEntry startEntry = (LittleAclEntry) entries.nextElement();
                 final LittlePrincipal principal = search.getAsset( ctx, startEntry.getPrincipalId() ).get().narrow();
-                final LittleAclEntry.Builder entryBuilder = (LittleAclEntry.Builder) startEntry.copy().
+                final LittleAclEntry.Builder entryBuilder = startEntry.copy().narrow(LittleAclEntry.Builder.class) .
                         principal( principal ).
                         name( principal.getName() + "." + (startEntry.isNegative() ? "negative" : "positive")).
                         acl( acl ).

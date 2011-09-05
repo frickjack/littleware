@@ -83,7 +83,7 @@ public class SimpleAccountManager extends NullAssetSpecializer {
         log.log(Level.FINE, "Narrowing group: {0}", asset.getName());
 
         // It's a GROUP - need to populate it
-        final LittleGroup.Builder groupBuilder = asset.narrow(LittleGroup.class).copy();
+        final LittleGroup.Builder groupBuilder = asset.copy().narrow();
         final Map<String, UUID> groupLinks = search.getAssetIdsFrom(ctx, groupBuilder.getId(),
                 LittleGroupMember.GROUP_MEMBER_TYPE);
 
@@ -155,14 +155,14 @@ public class SimpleAccountManager extends NullAssetSpecializer {
         if (LittleUser.USER_TYPE.equals(asset.getAssetType())) {
             // We need to setup a quota
             final LittleUser caller = ctx.getCaller();
-            Quota a_caller_quota = quotaUtil.getQuota(ctx, caller, search);
-            if (null != a_caller_quota) {
-                final Quota.Builder quotaBuilder = a_caller_quota.copy();
+            final Quota quota = quotaUtil.getQuota(ctx, caller, search);
+            if (null != quota) {
+                final Quota.Builder quotaBuilder = quota.copy().narrow();
 
                 quotaBuilder.setId(UUID.randomUUID());
                 quotaBuilder.setOwnerId(AccountManager.UUID_ADMIN);
                 quotaBuilder.setUserId(asset.getId());
-                quotaBuilder.setNextInChainId(a_caller_quota.getId());
+                quotaBuilder.setNextInChainId(quota.getId());
                 assetMgr.saveAsset(ctx, quotaBuilder.build(), "New quota");
             }
 

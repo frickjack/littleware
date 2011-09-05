@@ -69,9 +69,6 @@ public interface LittleAcl extends TreeNode {
      */
     public Option<LittleAclEntry> getEntry(LittlePrincipal entry, boolean isNegative);
 
-    @Override
-    public Builder copy();
-
 
     public interface Builder extends TreeNode.TreeNodeBuilder {
 

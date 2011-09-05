@@ -16,8 +16,6 @@ import littleware.base.UUIDFactory;
  */
 public interface TreeNode extends TreeParent, TreeChild {
 
-    @Override
-    public TreeNodeBuilder copy();
     public static final AssetType TREE_NODE_TYPE = new AssetType(
             UUIDFactory.parseUUID("3c766457-d7a7-432b-b6db-281053672204"),
             "littleware.TreeNode");

@@ -33,8 +33,6 @@ public interface LittleUser extends LittlePrincipal {
     /** Maps getValue() to a UserStatus */
     public Status getStatus();
 
-    @Override
-    public Builder copy();
 
     public interface Builder extends TreeNode.TreeNodeBuilder {
 

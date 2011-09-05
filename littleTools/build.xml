@@ -10,7 +10,7 @@
 <project name="littleTools" default="default" basedir=".">
     <description>Builds, tests, and runs the project littleTools.</description>
     <property name="ivy.deliver.revision" value="2.5" />
-    <property name="test.classFile" value="littleware/apps/test/JenkinsTestSuite.class" />
+    <property name="test.classFile" value="littleware/apps/lgo/test/JenkinsTestSuite.class" />
     <import file="../ivy/ivy_build_rules.xml"/>     
     <import file="nbproject/build-impl.xml"/>
     <!--

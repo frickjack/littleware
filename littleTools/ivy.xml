@@ -2,7 +2,7 @@
     <info organisation="littleware" module="littleTools"/>
     <configurations>
         <!-- compile may build against jars that only include interfaces -->
-        <conf name="compile" visibility="private" extends="client_compile" 
+        <conf name="compile" visibility="private" extends="server_compile" 
                   description="compile everything"/>
         <conf name="client_compile" extends="ee_client" description="compile against client-side api"/>
         <conf name="server_compile" extends="client_compile" description="extends client_compile with server-side classes"/>

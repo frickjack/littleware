@@ -11,6 +11,7 @@ package littleware.asset.server.bootstrap.internal;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
+import com.google.inject.Injector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -105,7 +106,7 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         public ServerBootstrap.ServerProfile getProfile() { return profile; }
         
         @Override
-        protected <T> T bootstrap( Class<T> bootClass, Collection<? extends LittleModule> moduleSet ) {
+        protected <T> T osgiBootstrap( Class<T> bootClass, Collection<? extends LittleModule> moduleSet ) {
             final ImmutableList.Builder<LittleModule> builder = ImmutableList.builder();
             builder.addAll( moduleSet );
             builder.add(
@@ -118,7 +119,17 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
                 }
                 );
 
-            return super.bootstrap( bootClass, builder.build() );
+            return super.osgiBootstrap( bootClass, builder.build() );
+        }
+
+        @Override
+        public void bootstrap() {
+            bootstrap( Injector.class );
+        }
+
+        @Override
+        public <T> T bootstrap(Class<T> type) {
+            return osgiBootstrap( type, getModuleSet() );
         }
 
     }

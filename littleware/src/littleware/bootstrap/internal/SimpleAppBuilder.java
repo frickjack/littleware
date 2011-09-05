@@ -3,26 +3,27 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.bootstrap.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
+import com.google.inject.Injector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.logging.Logger;
 import littleware.bootstrap.AppBootstrap;
+import littleware.bootstrap.SessionBootstrap.SessionBuilder;
 import littleware.bootstrap.helper.AbstractLittleBootstrap;
 import littleware.bootstrap.AppBootstrap.AppBuilder;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.LittleBootstrap;
+import littleware.bootstrap.SessionBootstrap;
 import littleware.bootstrap.helper.AbstractAppModule;
 
 public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
@@ -66,10 +67,12 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
     private static class Bootstrap extends AbstractLittleBootstrap<AppModule> implements AppBootstrap {
 
         private final AppProfile profile;
+        private final Collection<? extends AppModule> moduleSet;
 
         public Bootstrap(Collection<? extends AppModule> moduleSet, AppBootstrap.AppProfile profile) {
             super(moduleSet);
             this.profile = profile;
+            this.moduleSet = moduleSet;
         }
 
         @Override
@@ -77,12 +80,38 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
             return profile;
         }
 
-        @Override
-        protected <T> T bootstrap(Class<T> injectTarget, Collection<? extends AppModule> originalModuleSet) {
+        private Injector appInjector = null;
+        
+        /**
+         * Application-level bootstrap - initializes app-level injector on first call,
+         * then just returns that cached value
+         * 
+         * @return app-level injector (to create sessions with)
+         */
+        protected Injector bootstrapApp() {
+            if ( null != appInjector ) {
+                return appInjector;
+            }
             final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
-            builder.addAll(originalModuleSet);
+            builder.addAll( this.moduleSet );
             builder.add(new AppSetupModule(profile, this));
-            return super.bootstrap(injectTarget, builder.build());
+            appInjector = super.osgiBootstrap( Injector.class, builder.build());
+            return appInjector;
+        }
+
+        @Override
+        public SessionBuilder newSessionBuilder() {
+            return bootstrapApp().getInstance( SessionBuilder.class );
+        }
+
+        @Override
+        public void bootstrap() {
+            bootstrap( Injector.class );
+        }
+
+        @Override
+        public <T> T bootstrap(Class<T> bootClass) {
+            return newSessionBuilder().build().startSession(bootClass);
         }
 
     }

@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -17,9 +15,9 @@ import java.util.logging.Logger;
 import littleware.apps.lgo.CreateFolderCommand;
 import littleware.asset.Asset;
 import littleware.asset.client.AssetManager;
+import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.test.AbstractAssetTest;
-import littleware.base.Maybe;
 import littleware.base.feedback.LoggerFeedback;
 
 /**
@@ -39,7 +37,7 @@ public class CreateFolderTester extends AbstractAssetTest {
     public void setUp() {
         try {
             final Asset aHome = getTestHome( search );
-            final Option<Asset> maybeDelete = search.getAssetFrom( aHome.getId(),
+            final AssetRef maybeDelete = search.getAssetFrom( aHome.getId(),
                     "testCreateFolder"
                     );
             if ( maybeDelete.isSet() ) {

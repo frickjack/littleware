@@ -61,7 +61,7 @@ public class QuotaUtilTester extends AbstractServerTest {
                     quotaBefore.getQuotaCount() + 1 == quotaAfter.getQuotaCount());
             // Verify get/setData parsing
             assertTrue("get/setData consistency",
-                    quotaAfter.getQuotaLimit() == quotaAfter.copy().build().getQuotaLimit()
+                    quotaAfter.getQuotaLimit() == quotaAfter.copy().build().narrow( Quota.class ).getQuotaLimit()
                     );
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed test", ex );

@@ -9,15 +9,24 @@
 package littleware.security.auth.client.internal;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import littleware.security.auth.client.ClientLoginModule;
+import littleware.security.auth.client.SessionManager;
 
 public class LoginConfigBuilder implements ClientLoginModule.ConfigurationBuilder {
 
-    private Map<String, String> optionMap = new HashMap<String, String>();
+    private final Map<String, Object> optionMap = new HashMap<String, Object>();
+    
+    public LoginConfigBuilder() {}
+    
+    @Inject
+    public LoginConfigBuilder( SessionManager sessionManager ) {
+        optionMap.put( ClientLoginModule.MANAGER_OPTION, sessionManager );
+    }
 
     @Override
     public ClientLoginModule.ConfigurationBuilder host(String value) {

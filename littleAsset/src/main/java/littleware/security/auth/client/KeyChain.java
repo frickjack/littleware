@@ -60,7 +60,10 @@ public interface KeyChain extends LittleEventSource {
      * Return the sessionId active with the littleware server at the given host.
      * Fires LoginRequestedEvent if not yet set, then checks again
      * before returning empty
-     */
+     *
+     * Do not yet implement multi-host support ...
+     * 
     public Option<UUID> getHostSessionId( String host );
     public void setHostSessionId( String host, UUID value );
+     */
 }

@@ -48,7 +48,7 @@ public class SimpleKeyChain implements KeyChain {
 
     final Option<UUID> empty = Maybe.empty();
 
-    @Override
+    
     public Option<UUID> getHostSessionId(String host) {
         UUID id = keyMap.get( host );
         if( null == id ) {
@@ -61,7 +61,7 @@ public class SimpleKeyChain implements KeyChain {
         return Maybe.something( id );
     }
 
-    @Override
+    
     public void setHostSessionId(String host, UUID value) {
         keyMap.put(host, value);
     }

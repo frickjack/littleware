@@ -94,7 +94,7 @@ public class AssetManagerTester extends LittleTest {
                     && testAsset.getLink("test" ).isSet()
                     );
 
-            final GenericAsset assetClone = testAsset.copy().build();
+            final GenericAsset assetClone = testAsset.copy().build().narrow();
             assertTrue("Able to clone new asset",
                     testAsset.equals(assetClone) 
                     && assetClone.getId().equals( testAsset.getId() )
@@ -108,7 +108,7 @@ public class AssetManagerTester extends LittleTest {
 
             // Try to update the asset
             final GenericAsset savedAsset = assetMgr.saveAsset(
-                    testAsset.copy().data("<data> some data </data>").
+                    testAsset.copy().narrow( GenericAsset.GenericBuilder.class ).data("<data> some data </data>").
                     removeAttribute( "test" ).putAttribute( "test2", "test2" ).
                     removeLink( "test" ).putLink( "test2", UUID.randomUUID() ).
                     removeDate( "test" ).putDate( "test2", new Date() ).

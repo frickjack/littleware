@@ -82,7 +82,7 @@ public class AssetPathTester extends AbstractAssetTest {
                         );
 
                 if (null != pointer) {
-                    pointer = assetMgr.saveAsset(pointer.copy().toId(nodeA.getId()).build(), "Update TO pointer for new A asset");
+                    pointer = assetMgr.saveAsset(pointer.copy().narrow( LinkAsset.LinkBuilder.class ).toId(nodeA.getId()).build(), "Update TO pointer for new A asset");
                 }
             }
             if (null == pointer) {

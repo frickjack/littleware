@@ -12,10 +12,12 @@ import com.google.inject.Provider;
 import java.util.Collection;
 
 /**
- * Bootstrap manager for applications that use
- * some littleware utilities but do not access the
- * littleware node database as a client or implement
- * a littleware server service.
+ * Bootstrap manager for littleware applications.
+ * Note that bootstrap actually boots up a new littleware session,
+ * so bootstrap( myclass ) is equivalent to:
+ *     newSessionBuilder().bootstrap( myclass )
+ * Therefore - it's ok to call bootstrap multiple times to start multiple sessions,
+ * but shutdown shuts down the whole application, and should only run once.
  */
 public interface AppBootstrap extends LittleBootstrap {
 
@@ -28,7 +30,12 @@ public interface AppBootstrap extends LittleBootstrap {
     }
 
     public AppProfile getProfile();
+    
+    public SessionBootstrap.SessionBuilder  newSessionBuilder();
 
+    
+    //------------------------------------
+    
     public interface AppBuilder extends LittleBootstrap.Builder {
 
         /**

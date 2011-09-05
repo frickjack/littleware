@@ -5,4 +5,4 @@
 #littleware.apps.lgo.LgoModule$Factory
 #littleware.apps.tracker.client.TrackerClientModule$Factory
 #littleware.apps.swingclient.StandardSwingModule$Factory
-#littleware.asset.client.bootstrap.internal.AssetClientModule$Factory
+littleware.asset.client.bootstrap.AssetSessionModule$Factory

@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.apps.lgo;
@@ -18,7 +16,6 @@ import java.util.logging.Level;
 import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.client.AssetSearchManager;
-import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
 import littleware.asset.pickle.HumanPicklerProvider;
@@ -129,10 +126,10 @@ public class CreateUserCommand extends AbstractAssetCommand<CreateUserCommand.In
                     userProvider.get().parent((TreeNode) folder ).name(input.getName()).build(), "CreateUserCommand").narrow();
         if ( input.isAdmin() ) {
             try {
-                final LittleGroup groupAdmin = search.getByName(
-                        AccountManager.LITTLEWARE_ADMIN_GROUP,
-                        LittleGroup.GROUP_TYPE).get().narrow();
-                assetMgr.saveAsset(groupAdmin.copy().add(userNew).build(), "Added user " + userNew.getName() );
+                final LittleGroup groupAdmin = search.getAsset(
+                        AccountManager.UUID_ADMIN_GROUP
+                        ).get().narrow();
+                assetMgr.saveAsset(groupAdmin.copy().narrow( LittleGroup.Builder.class ).add(userNew).build(), "Added user " + userNew.getName() );
             } catch (Exception ex) {
                 feedback.log(Level.SEVERE,
                         "Failed to add new user " + userNew.getName() + " to admin group");

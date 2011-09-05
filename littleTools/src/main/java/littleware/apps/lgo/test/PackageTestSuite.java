@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -13,39 +11,32 @@ package littleware.apps.lgo.test;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import junit.framework.Test;
-import littleware.asset.client.bootstrap.ClientBootstrap;
-import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.asset.client.test.AssetTestFactory;
+import littleware.asset.server.bootstrap.ServerBootstrap;
 
 /**
  * littleware.apps.lgo package test suite
  */
-public class PackageTestSuite extends HudsonTestSuite {
+public class PackageTestSuite extends JenkinsTestSuite {
 
     @Inject
     public PackageTestSuite( 
             Provider<DeleteAssetTester> factoryDeleteTester,
-            Provider<SetImageTester> factoryImageTester,
             Provider<ListChildrenTester> factoryChildrenTester,
             Provider<GetAssetTester> factoryGetTester,
             Provider<CreateFolderTester> factoryCreateTester,
             Provider<GetByNameTester> factoryByNameTester,
-            Provider<BrowserCommandTest> factoryBrowserTest,
             Provider<RootPathCommandTest> factoryRootPathTest,
             Provider<GsonTester> provideGsonTester
             )
     {
         super( factoryDeleteTester,
-                factoryImageTester,
                 factoryChildrenTester, factoryGetTester,
                 factoryCreateTester, factoryByNameTester,
                 factoryRootPathTest, provideGsonTester
                 );
         setName( PackageTestSuite.class.getName() );
 
-        if ( true ) {
-            this.addTest( factoryBrowserTest.get() );
-        }
     }
 
     /**
@@ -54,8 +45,7 @@ public class PackageTestSuite extends HudsonTestSuite {
      */
     public static Test suite() {
         return (new AssetTestFactory()).build(
-                ServerBootstrap.provider.get().profile(ServerBootstrap.ServerProfile.Standalone).build(),
-                ClientBootstrap.clientProvider.get().build(),
+                ServerBootstrap.provider.get().build(),
                 PackageTestSuite.class
                 );
     }

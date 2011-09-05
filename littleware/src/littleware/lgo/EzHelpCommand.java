@@ -3,8 +3,6 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.lgo;
@@ -31,21 +29,21 @@ import littleware.base.feedback.Feedback;
  */
 public class EzHelpCommand extends AbstractLgoBuilder<String> {
 
-    private final LgoHelpLoader om_help;
-    private final LgoCommandDictionary om_command;
+    private final LgoHelpLoader helpLoader;
+    private final LgoCommandDictionary commandDictionary;
 
     /**
      * Inject sources for help and command data
      *
-     * @param m_help
-     * @param m_command
+     * @param helpLoader
+     * @param commandDictionary
      */
     @Inject
-    public EzHelpCommand(LgoHelpLoader m_help,
-            LgoCommandDictionary m_command) {
+    public EzHelpCommand(LgoHelpLoader helpLoader,
+            LgoCommandDictionary commandDictionary) {
         super( EzHelpCommand.class.getName() );
-        this.om_command = m_command;
-        this.om_help = m_help;
+        this.commandDictionary = commandDictionary;
+        this.helpLoader = helpLoader;
     }
 
     @Override
@@ -104,20 +102,20 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
         @Override
         public LgoHelp runCommand(Feedback feedback) {
             String sTarget = getInput();
-            final Option<LgoCommand.LgoBuilder> maybe = om_command.buildCommand(sTarget);
+            final Option<LgoCommand.LgoBuilder> maybe = commandDictionary.buildCommand(sTarget);
             if ( maybe.isEmpty() ) {
                 StringBuilder sbCommands = new StringBuilder();
                 sbCommands.append("No help found for command: ").append(sTarget).append(", available commands:").
                         append(Whatever.NEWLINE);
                 final Set<String> vAlready = new HashSet<String>();
-                for (Provider<LgoCommand.LgoBuilder> provider : om_command.getCommands()) {
+                for (Provider<LgoCommand.LgoBuilder> provider : commandDictionary.getCommands()) {
                     final LgoCommand.LgoBuilder comIndex = provider.get();
                     if (vAlready.contains(comIndex.getName())) {
                         continue;
                     }
                     vAlready.add(comIndex.getName());
                     sbCommands.append("    ").append(comIndex.getName());
-                    LgoHelp help = om_help.loadHelp(comIndex.getName());
+                    LgoHelp help = helpLoader.loadHelp(comIndex.getName());
                     if (null != help) {
                         sbCommands.append(" [");
                         boolean bFirst = true;
@@ -143,7 +141,7 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
                 return help;
             } else {
                 final String name = maybe.get().getName();
-                final LgoHelp help = om_help.loadHelp(name, olocale);
+                final LgoHelp help = helpLoader.loadHelp(name, olocale);
                 if (null != help) {
                     return help;
                 }

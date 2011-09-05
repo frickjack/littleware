@@ -3,8 +3,6 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.security;
@@ -48,9 +46,6 @@ public interface Quota extends Asset {
     public Date getStartDate();
     public Date getEndDate();
 
-
-    @Override
-    public Builder copy();
 
     
     public static final AssetType QUOTA_TYPE = new AssetType(

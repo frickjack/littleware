@@ -18,7 +18,7 @@ import littleware.base.UUIDFactory;
  * attributes to be consistent with the Acl it belongs to.
  * NOTE: each entry can belong to only one ACL
  */
-public interface LittleAclEntry extends Asset {
+public interface LittleAclEntry extends littleware.asset.LinkAsset {
 
     /**
      * Covariant return-type: LittlePrincipal
@@ -36,9 +36,6 @@ public interface LittleAclEntry extends Asset {
     public Enumeration<Permission> permissions();
 
     public boolean isNegative();
-
-    @Override
-    public Builder copy();
 
     
     /** ACL_ENTRY asset type  */

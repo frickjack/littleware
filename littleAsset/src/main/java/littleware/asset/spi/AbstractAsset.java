@@ -12,15 +12,19 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.cache.AbstractCacheableObject;
+import littleware.base.validate.ValidationException;
 
 public abstract class AbstractAsset extends AbstractCacheableObject implements Serializable {
-
+    private static final Logger log = Logger.getLogger( AbstractAsset.class.getName() );
+    
     private UUID homeId;
     private UUID ownerId;
     private UUID fromId;
@@ -69,6 +73,15 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
         this.dateMap = dateMap;
         this.attributeMap = attributeMap;
         this.linkMap = linkMap;
+        
+        try {
+            ValidationException.validate( null != linkMap, "What's up with the null linkMap?");
+            ValidationException.validate( null != attributeMap, "What's up with the null attribteMap?");
+            ValidationException.validate( null != dateMap, "What's up with the null dateMap?");
+        } catch ( RuntimeException ex ) {
+            log.log( Level.WARNING, "What the frick?", ex );
+            throw ex;
+        }
     }
 
     public AbstractAsset( AbstractAssetBuilder builder) {

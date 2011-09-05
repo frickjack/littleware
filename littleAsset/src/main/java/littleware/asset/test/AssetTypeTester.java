@@ -47,7 +47,7 @@ public class AssetTypeTester extends LittleTest {
         assertTrue("BOGUS != PRINCIPAL",
                 !BOGUS.equals(LittlePrincipal.PRINCIPAL_TYPE));
         assertTrue("BOGUS is name unique",
-                BOGUS.isNameUnique());
+                !BOGUS.isNameUnique());
         assertTrue("BOGUS is not admin-create only",
                 !BOGUS.isAdminToCreate()
                 );

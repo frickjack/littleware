@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.apps.lgo;
@@ -12,11 +10,11 @@ package littleware.apps.lgo;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import littleware.lgo.AbstractLgoCommand;
-import littleware.lgo.LgoCommand;
 import com.google.inject.Inject;
 import java.util.Map;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
+import littleware.asset.client.AssetSearchManager;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
 import littleware.lgo.AbstractLgoBuilder;
@@ -28,16 +26,20 @@ import littleware.lgo.AbstractLgoBuilder;
 public class GetRootPathCommand extends AbstractLgoCommand<AssetPath, AssetPath> {
 
     private final AssetPathFactory pathFactory;
+    private final AssetSearchManager search;
 
     @Inject
     public GetRootPathCommand(
             AssetPathFactory pathFactory,
-            AssetPath input) {
+            AssetPath input,
+            AssetSearchManager search ) {
         super(GetRootPathCommand.class.getName(), input);
         this.pathFactory = pathFactory;
+        this.search = search;
     }
 
     public static class Builder extends AbstractLgoBuilder<AssetPath> {
+        private final AssetSearchManager search;
 
         private enum Option {
             path;
@@ -46,14 +48,15 @@ public class GetRootPathCommand extends AbstractLgoCommand<AssetPath, AssetPath>
         private final AssetPathFactory pathFactory;
 
         @Inject
-        public Builder(AssetPathFactory pathFactory) {
+        public Builder(AssetPathFactory pathFactory, AssetSearchManager search ) {
             super(GetRootPathCommand.class.getName());
             this.pathFactory = pathFactory;
+            this.search = search;
         }
 
         @Override
         public GetRootPathCommand buildSafe(AssetPath input) {
-            return new GetRootPathCommand(pathFactory, input);
+            return new GetRootPathCommand(pathFactory, input, search);
         }
 
         @Override
@@ -75,6 +78,6 @@ public class GetRootPathCommand extends AbstractLgoCommand<AssetPath, AssetPath>
 
     @Override
     public AssetPath runCommand(Feedback feedback) throws Exception {
-        return pathFactory.toRootedPath(getInput());
+        return search.toRootedPath(getInput());
     }
 }

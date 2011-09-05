@@ -3,8 +3,6 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.apps.lgo;
@@ -15,16 +13,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import javax.security.auth.Subject;
+import javax.security.auth.login.Configuration;
+import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import littleware.asset.client.bootstrap.ClientBootstrap;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.bootstrap.LittleBootstrap;
@@ -32,6 +34,7 @@ import littleware.bootstrap.AppBootstrap;
 import littleware.lgo.LgoCommand;
 import littleware.lgo.LgoCommandDictionary;
 import littleware.lgo.LgoHelpLoader;
+import littleware.security.auth.client.CliCallbackHandler;
 import littleware.security.auth.client.ClientLoginModule;
 
 /**
@@ -45,6 +48,7 @@ import littleware.security.auth.client.ClientLoginModule;
 public class LgoAssetCLI {
 
     private static final Logger log = Logger.getLogger(LgoAssetCLI.class.getName());
+    private final Configuration loginConfig;
 
     /**
      * Special options that LgoCommandLine.launch looks for as first
@@ -52,12 +56,17 @@ public class LgoAssetCLI {
      *  +mode [local|client] -- client establishes session with littleware server, default is client
      *  +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time
      *  +user [username] -- user to authenticate as in client mode, defaults to current OS user
-     *  +url  [server-info] -- url specifies host/port information for the littleware server in client mode
+     *  Disabled in 2.5 - need to update littleAsset to 2.6 - +url  [server-info] -- url specifies host/port information for the littleware server in client mode
      */
     private enum SpecialOption {
-        user, url, mode, profile;
+        user, // Disabled ... url, 
+        mode, profile;
     };
-
+    
+    public enum Mode {
+        client, local;
+    }
+    
     private final LgoCommandDictionary commandMgr;
     private final LgoHelpLoader helpMgr;
 
@@ -65,9 +74,12 @@ public class LgoAssetCLI {
     @Inject
     public LgoAssetCLI(
             LgoCommandDictionary commandMgr,
-            LgoHelpLoader helpMgr) {
+            LgoHelpLoader helpMgr,
+            Configuration loginConfig
+             ) {
         this.commandMgr = commandMgr;
         this.helpMgr = helpMgr;
+        this.loginConfig = loginConfig;
     }
 
     /**
@@ -87,8 +99,8 @@ public class LgoAssetCLI {
                 System.out.println("     lgo [+user name] [+mode client|app] [+url http://server:port] [+profile cli|swing] command options");
                 System.out.println("        +mode [local|client] -- client establishes session with littleware server, default is client");
                 System.out.println("        +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time");
-                System.out.println("        +user [username] -- user to authenticate as in client mode, defaults to current OS user");
-                System.out.println("        +url  [server-info] -- url specifies host/port information for the littleware server in client mode\n");
+                //System.out.println("        +url  [server-info] -- url specifies host/port information for the littleware server in client mode");
+                System.out.println("        +user [username] -- user to authenticate as in client mode, defaults to current OS user\n");
             }
             if (maybe.isEmpty()) {
                 final LgoCommand help = commandMgr.buildCommand("help").get().buildWithInput(sCommand);
@@ -118,9 +130,44 @@ public class LgoAssetCLI {
      * @param argsArray lgo command line arguments
      * @return command exit code
      */
-    public int run(String[] argsArray) {
+    public int run(String[] argsArray, Map<SpecialOption, String> specialOptionMap ) {
         int iExitStatus = 0;
 
+        if ((!specialOptionMap.containsKey(SpecialOption.mode))
+                || specialOptionMap.get(SpecialOption.mode).toLowerCase().trim().equals("client")) {
+            
+            // Setup client login session
+            //final Injector injector = 
+            
+            /*
+            if (specialOptionMap.containsKey(SpecialOption.url)) {
+                final String sUrl = specialOptionMap.get(SpecialOption.url);
+                try {
+                    final URL url = new URL(sUrl);
+                    loginBuilder.host(url.getHost());
+                } catch (MalformedURLException ex) {
+                    throw new IllegalArgumentException("Malformed URL: " + sUrl);
+                }
+            }
+            final String user;
+            if ( specialOptionMap.containsKey(SpecialOption.user) ) {
+                user = specialOptionMap.get( SpecialOption.user );
+            } else {
+                user = System.getProperty("user.name");
+            }
+             */
+            try {
+                final LoginContext context = new LoginContext( "littleware.login", new Subject(), new CliCallbackHandler(), loginConfig );
+                context.login();
+            } catch ( LoginException ex ) {
+                System.out.println( "Failed to login: " + ex );
+                return 1;
+            }
+            
+            // Logged in at this point
+
+        }
+        
         try {
             final Feedback feedback = new LoggerFeedback();
 
@@ -221,77 +268,13 @@ public class LgoAssetCLI {
         } else {
             profile = AppBootstrap.AppProfile.SwingApp;
         }
-
-        Option<LittleBootstrap> maybeBoot = Maybe.empty();
-        if ((!specialOptionMap.containsKey(SpecialOption.mode))
-                || specialOptionMap.get(SpecialOption.mode).toLowerCase().trim().equals("client")) {
-            final ClientLoginModule.ConfigurationBuilder loginBuilder = ClientLoginModule.newBuilder();
-            if (specialOptionMap.containsKey(SpecialOption.url)) {
-                final String sUrl = specialOptionMap.get(SpecialOption.url);
-                try {
-                    final URL url = new URL(sUrl);
-                    loginBuilder.host(url.getHost());
-                } catch (MalformedURLException ex) {
-                    throw new IllegalArgumentException("Malformed URL: " + sUrl);
-                }
-            }
-            final Option<String> maybeUser;
-            if ( specialOptionMap.containsKey(SpecialOption.user) ) {
-                maybeUser = Maybe.something( specialOptionMap.get( SpecialOption.user ));
-            } else {
-                maybeUser = Maybe.empty();
-            }
-
-            /*... need to rework this pipe/server stuff ...
-            if ( cleanArgs.length > 0 ) {
-            final String command = cleanArgs[0];
-
-            if (command.equalsIgnoreCase("pipe")) {
-            bootBuilder.getOSGiActivator().add( LgoPipeActivator.class );
-            bootBuilder.bootstrap();
-            //processPipe(feedback);
-            return;
-            }
-
-            if ( command.equalsIgnoreCase( "server" ) ) { // launch lgo server
-            log.log( Level.INFO, "Launching lgo server ..." );
-            bootBuilder.getOSGiActivator().add( LgoServerActivator.class );
-            bootBuilder.bootstrap();
-            return;
-            }
-            if ( command.equals( "jserver" ) ) { // launch lgo server - jnlp environment
-            log.log( Level.INFO, "Launching lgo jnlp server ..." );
-            bootBuilder.getOSGiActivator().add( JLgoServerActivator.class );
-            bootBuilder.bootstrap();
-            return;
-            }
-            }
-             
-
-            try {
-                final ClientBootstrap.ClientBuilder bootBuilder = ClientBootstrap.clientProvider.get().profile(profile);
-                if (maybeUser.isSet()) {
-                    maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().automatic(
-                            loginBuilder.build(), maybeUser.get(), "")
-                            );
-                } else {
-                    maybeBoot = Maybe.something((LittleBootstrap) bootBuilder.build().automatic(loginBuilder.build()));
-                }
-
-            } catch (LoginException ex) {
-                log.log(Level.SEVERE, "Failed login", ex);
-            }
-             * 
-             */
-        } else {
-            maybeBoot = Maybe.something((LittleBootstrap) AppBootstrap.appProvider.get().profile(profile).build());
-        }
+        
         int exitCode = 1;
-        if (maybeBoot.isSet()) {
-            final LittleBootstrap boot = maybeBoot.get();
+        {
+            final LittleBootstrap boot = AppBootstrap.appProvider.get().profile(profile).build();
             final LgoAssetCLI cl = boot.bootstrap(LgoAssetCLI.class);
             try {
-                exitCode = cl.run(cleanArgs);
+                exitCode = cl.run(cleanArgs, specialOptionMap );
             } finally {
                 boot.shutdown();
             }

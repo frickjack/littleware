@@ -33,7 +33,7 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetModelLibTester> provide_model_test,
             Provider<BucketTester> provide_bucket_test,
             littleware.apps.image.test.PackageTestSuite miscSuite,
-            littleware.apps.lgo.test.HudsonTestSuite lgoSuite,
+            littleware.apps.lgo.test.JenkinsTestSuite lgoSuite,
             littleware.asset.test.JenkinsTestSuite assetSuite,
             littleware.security.client.test.PackageTestSuite securitySuite
             ) {

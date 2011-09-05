@@ -1,4 +1,4 @@
 # littleware ServerModule service providers
 #littleware.apps.filebucket.server.BucketServerModule$Factory
 #littleware.apps.tracker.server.TrackerServerModule$Factory
-littleware.asset.server.bootstrap.internal.AssetServerModule$Factory
+#littleware.asset.server.bootstrap.internal.AssetServerModule$Factory

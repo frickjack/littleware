@@ -85,11 +85,6 @@ public interface GenericAsset extends TreeNode {
      */
     public Option<String> getAttribute(String key);
 
-    /**
-     * Shortcut for a.getAssetType().create().copy( a )
-     */
-    @Override
-    public GenericBuilder copy();
 
     public interface GenericBuilder extends TreeNode.TreeNodeBuilder {
         public UUID getToId();

@@ -20,11 +20,6 @@ public interface LinkAsset extends Asset {
      */
     public UUID getToId();
 
-    /**
-     * Shortcut for a.getAssetType().create().copy( a )
-     */
-    @Override
-    public LinkBuilder copy();
 
     /** LINK assset-type */
     public static final AssetType LINK_TYPE = new AssetType(UUIDFactory.parseUUID("926D122F82FE4F28A8F5C790E6733665"),

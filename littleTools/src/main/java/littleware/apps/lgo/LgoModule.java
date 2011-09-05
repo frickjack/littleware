@@ -3,26 +3,22 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.apps.lgo;
 
-import littleware.asset.gson.GsonProvider;
+
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import littleware.lgo.LgoCommand;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
 import com.google.inject.Binder;
 import com.google.inject.Inject;
-import littleware.asset.client.bootstrap.helper.AbstractClientModule;
-import littleware.asset.client.bootstrap.SessionModule;
-import littleware.asset.client.bootstrap.SessionModuleFactory;
+import littleware.asset.gson.internal.GsonProvider;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
-import littleware.lgo.LgoServiceModule;
+import littleware.bootstrap.SessionModule;
+import littleware.bootstrap.SessionModuleFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -30,7 +26,11 @@ import org.osgi.framework.BundleContext;
  * Guice module for bootstrapping the LittleGo 
  * application.  Sets up easy Lgo implementation.
  */
-public class LgoModule extends AbstractClientModule implements LgoServiceModule {
+public class LgoModule implements SessionModule {
+
+    public Class<? extends Runnable> getSessionStarter() {
+        return Activator.class;
+    }
 
     public static class Factory implements SessionModuleFactory {
 
@@ -41,7 +41,6 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
     }
 
     private LgoModule(AppBootstrap.AppProfile profile) {
-        super(profile);
     }
 
     /**
@@ -56,32 +55,22 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
      */
     @Override
     public void configure(Binder binder) {
-        // Use provider - problem with class loader in Tomcat environment
-        binder.bind(GsonBuilder.class).toInstance(new GsonBuilder());
-        binder.bind(Gson.class).toProvider(GsonProvider.class);
     }
 
-    @Override
     public Collection<Class<? extends LgoCommand.LgoBuilder>> getLgoCommands() {
         return lgoCommands;
     }
 
-    @Override
-    public Class<Activator> getActivator() {
-        return Activator.class;
-    }
     private final Collection<Class<? extends LgoCommand.LgoBuilder>> lgoCommands;
     {
         final ImmutableList.Builder<Class<? extends LgoCommand.LgoBuilder>> builder =
                 ImmutableList.builder();
-        builder.add(LgoBrowserCommand.Builder.class);
         builder.add(DeleteAssetCommand.Builder.class);
         builder.add(ListChildrenCommand.Builder.class);
         builder.add(GetAssetCommand.Builder.class);
         builder.add(CreateFolderCommand.Builder.class);
         builder.add(CreateUserCommand.Builder.class);
         builder.add(GetByNameCommand.Builder.class);
-        builder.add(SetImageCommand.Builder.class);
         builder.add(GetRootPathCommand.Builder.class);
         lgoCommands = builder.build();
     }
@@ -90,24 +79,18 @@ public class LgoModule extends AbstractClientModule implements LgoServiceModule 
      * Lgo BundleActivator registers lgo commands with
      * the LgoCommandDictionary
      */
-    public static class Activator implements BundleActivator {
+    public static class Activator implements Runnable {
 
         /** Inject dependencies */
         @Inject
         public Activator(
                 GsonProvider gsonProvider) {
-            gsonProvider.registerSerializer(SimpleAssetListBuilder.AssetList.class,
-                    new SimpleAssetListBuilder.GsonSerializer());
         }
 
         /** NOOP */
         @Override
-        public void start(BundleContext bc) throws Exception {
+        public void run() {
         }
 
-        /** NOOP */
-        @Override
-        public void stop(BundleContext bc) throws Exception {
-        }
     }
 }

@@ -26,8 +26,6 @@ import littleware.security.LittlePrincipal;
  */
 @Singleton
 public class SimpleEverybody extends AbstractAsset implements Everybody {
-    public static Everybody singleton = new SimpleEverybody();
-    
     private static final Date d1970;
 
     static {
@@ -40,7 +38,12 @@ public class SimpleEverybody extends AbstractAsset implements Everybody {
     private static final ImmutableMap<String, String> emptyAttributeMap = ImmutableMap.of();
     private static final ImmutableMap<String, Date> emptyDateMap = ImmutableMap.of();
     private static final ImmutableMap<String, UUID> emptyLinkMap = ImmutableMap.of();
-
+    
+    /**
+     * Be careful about this crazy singleton here ... the constructor requires the other statics!
+     */
+    public static Everybody singleton = new SimpleEverybody();
+    
     public SimpleEverybody() {
         super(LittleGroup.GROUP_TYPE,
                 AccountManager.UUID_EVERYBODY_GROUP,
@@ -54,7 +57,8 @@ public class SimpleEverybody extends AbstractAsset implements Everybody {
                 AccountManager.UUID_ADMIN, "", null, null, 0.0f, "",
                 emptyAttributeMap,
                 emptyDateMap,
-                emptyLinkMap);
+                emptyLinkMap
+                );
     }
 
     @Override

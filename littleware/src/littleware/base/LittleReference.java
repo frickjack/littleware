@@ -22,7 +22,7 @@ import littleware.base.event.LittleBean;
  * when a new version of the thing becomes available firing
  * a PropertyChangeEvent.
  */
-public interface LittleReference<T> extends LittleBean {
+public interface LittleReference<T> extends LittleBean, Iterable<T> {
     public boolean isSet();
     public boolean isEmpty();
     public T getOr( T alt );

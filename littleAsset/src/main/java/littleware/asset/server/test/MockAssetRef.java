@@ -10,6 +10,7 @@
 package littleware.asset.server.test;
 
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import littleware.asset.Asset;
@@ -18,8 +19,7 @@ import littleware.base.Option;
 import littleware.base.event.LittleListener;
 
 /**
- *
- * @author pasquini
+ * Mock reference for testing.
  */
 public class MockAssetRef implements AssetRef {
     private final Option<Asset> ref;
@@ -101,6 +101,11 @@ public class MockAssetRef implements AssetRef {
     @Override
     public void removeLittleListener(LittleListener ll) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Iterator<Asset> iterator() {
+        return ref.iterator();
     }
 
 }

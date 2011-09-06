@@ -12,6 +12,7 @@ package littleware.asset.client;
 
 
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -56,8 +57,27 @@ public interface AssetRef extends CacheableObject, LittleReference<Asset>, Littl
      */
     public Asset syncAsset ( Asset asset );
     
+    
     public static AssetRef EMPTY = new AssetRef() {
+        private Iterator<Asset>  emptyIterator = new Iterator<Asset>() {
 
+            @Override
+            public boolean hasNext() {
+                return false;
+            }
+
+            @Override
+            public Asset next() {
+                throw new NoSuchElementException();
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+            
+        };
+        
         @Override
         public Asset syncAsset(Asset asset) {
             throw new UnsupportedOperationException("Not supported on empty reference.");
@@ -126,6 +146,11 @@ public interface AssetRef extends CacheableObject, LittleReference<Asset>, Littl
         @Override
         public long getTimestamp() {
             return 0L;
+        }
+
+        @Override
+        public Iterator<Asset> iterator() {
+            return emptyIterator;
         }
 
     };

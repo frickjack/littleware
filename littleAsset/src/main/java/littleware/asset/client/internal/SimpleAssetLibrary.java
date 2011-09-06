@@ -10,6 +10,7 @@ package littleware.asset.client.internal;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Singleton;
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.Map;
 import java.util.HashSet;
@@ -316,6 +317,11 @@ public class SimpleAssetLibrary
         @Override
         public Asset getRef() {
             return asset.get();
+        }
+
+        @Override
+        public Iterator<Asset> iterator() {
+            return asset.iterator();
         }
 
     }

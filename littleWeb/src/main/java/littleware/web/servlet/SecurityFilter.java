@@ -163,14 +163,15 @@ public class SecurityFilter implements Filter {
             FilterChain chain) throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) sreq;
         final HttpSession session = request.getSession(true);
-        final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
+        final UserBean userBean = (UserBean) session.getAttribute( "userBean" );
 
-        if ((null == bean) || (!bean.isLoggedIn())) {
+        if ( (null == userBean) ) {
             redirectToLogin(sreq, sres);
             return;
         } else if (accessControl.isSet()) {
+            final GuiceBean guiceBean = (GuiceBean) session.getAttribute( "guiceBean" );
             final AccessControl check = new AccessControl();
-            check.setGuiceBean(bean);
+            check.setGuiceBean(guiceBean);
             if (!check.checkAccess(accessControl.get())) {
                 redirectToLogin(sreq, sres);
                 return;

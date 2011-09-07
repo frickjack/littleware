@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -23,7 +21,7 @@ import javax.faces.bean.ManagedProperty;
  */
 public abstract class InjectMeBean {
     @ManagedProperty(value="#{littleGuice}")
-    private GuiceBean  guiceBean = null;
+    private transient GuiceBean  guiceBean = null;
 
     public GuiceBean  getGuiceBean () { return guiceBean; }
     /**

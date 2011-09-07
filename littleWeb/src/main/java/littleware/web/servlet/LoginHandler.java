@@ -41,9 +41,9 @@ import littleware.web.beans.GuiceBean;
 import org.joda.time.DateTime;
 
 /**
- * Combination servlet and HttpSessionListener.
- * When a session is created injects a SessionMean
- * with an empty SessionHelper or a "guest" session helper
+ * Combination servlet and HttpSessionListener and RequestFilter.
+ * When a session is created injects a SessionBean
+ * with an empty SessionHelper or a "guest" user session helper
  * depending on configuration.
  * If the servlet receives a request, then it looks
  * for:
@@ -69,21 +69,6 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
      */
     public static class GuestManager {
 
-        /**
-         * Specialization of GuiceBean where isLoggedIn == false
-         */
-        public static class GuestGuiceBean extends GuiceBean {
-
-            @Inject
-            public GuestGuiceBean(Injector injector) {
-                super(injector);
-            }
-
-            @Override
-            public boolean isLoggedIn() {
-                return false;
-            }
-        }
 
         /**
          * Little pojo holds a bundle of session data
@@ -97,7 +82,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
             private final LittleBootstrap boot;
 
             @Inject
-            public SessionInfo(GuestGuiceBean guestBean, LittleSession session, AssetManager assetMgr,
+            public SessionInfo(GuiceBean guestBean, LittleSession session, AssetManager assetMgr,
                     AssetSearchManager search, LittleBootstrap boot) {
                 this.bean = guestBean;
                 this.sessionId = session.getId();
@@ -155,7 +140,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                     log.log(Level.WARNING, "Failed to setup guest-user web-session - just using empty GuiceBean instead", ex);
                     return new GuiceBean();
                 }
-                //config.getServletContext().setAttribute( WebBootstrap.littleGuice, maybeGuest.get() );
+                //config.getServletContext().setAttribute( "guiceBean", maybeGuest.get() );
             }
 
             if (!maybeGuest.isSet()) {
@@ -199,10 +184,10 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
     private GuestManager guestManager = new GuestManager();
 
     private void sessionCreated(HttpSession session) {
-        final GuiceBean bean = (GuiceBean) session.getAttribute(WebBootstrap.littleGuice);
+        final GuiceBean bean = (GuiceBean) session.getAttribute("guiceBean");
 
         if (null == bean) {
-            session.setAttribute(WebBootstrap.littleGuice, guestManager.loadGuestBean());
+            session.setAttribute("guiceBean", guestManager.loadGuestBean());
         }
     }
 
@@ -222,7 +207,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
             boot.shutdown();
             session.removeAttribute(WebBootstrap.littleBoot);
         }
-        session.removeAttribute(WebBootstrap.littleGuice);
+        session.removeAttribute("guiceBean");
     }
 
     /**
@@ -309,7 +294,7 @@ public class LoginHandler extends HttpServlet implements HttpSessionListener, Fi
                 //final ClientBootstrap boot = null; //ClientBootstrap.clientProvider.get().profile(AppBootstrap.AppProfile.WebApp).build().login(request.getParameter("user"), request.getParameter("password"));
                 // login ok!
                 final HttpSession session = request.getSession();
-                if (null != (GuiceBean) session.getAttribute(WebBootstrap.littleGuice)) {
+                if (null != (GuiceBean) session.getAttribute("guiceBean")) {
                     // already logged in as another user - clear out that session, and create a new one
                     logout(request);
                     // create a new session

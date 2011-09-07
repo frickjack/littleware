@@ -3,17 +3,13 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 
 package littleware.web.beans;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Singleton;
 import littleware.base.Maybe;
 import littleware.base.Option;
 
@@ -21,10 +17,17 @@ import littleware.base.Option;
  * Attempt to marry littleware world with
  * web jsp/jsf servlet world.
  */
-@Singleton
-public class GuiceBean {
-    private final Option<Injector> maybeInjector;
+public class GuiceBean implements java.io.Serializable {
+    private transient Option<Injector> maybeInjector;
 
+    /**
+     * Just here for deserialization ...
+     */
+    public GuiceBean() {
+        this.maybeInjector = Maybe.empty();
+    }
+    
+    
     /**
      * Inject the injector with which GuiceBean.injectMe
      * injects other beans.
@@ -34,39 +37,36 @@ public class GuiceBean {
         this.maybeInjector = Maybe.something( injector );
     }
 
-    /**
-     * Setup a GuiceBean for a web session that has
-     * not logged into littleware.  The injectMe method
-     * acts as a NOOP, and loggedIn is false.
-     */
-    public GuiceBean () {
-        this.maybeInjector = Maybe.empty();
-    }
 
     /**
-     * Return true if a user session is logged in,
-     * false if no littleware login is active.
+     * setInjector throws IllegalStateException if GuiceBean already has an injector
      */
-    public boolean isLoggedIn() {
-        return maybeInjector.isSet();
+    public void setInjector( Injector value ) {
+        if ( maybeInjector.isSet() ) {
+            throw new IllegalStateException( "Attemp to reset GuiceBean injector" );
+        }
+        maybeInjector = Maybe.something( value );
     }
     
-
+    public Option<Injector> getInjector() {
+        return maybeInjector;
+    }
+    
     /**
      * Inject members into the given object with the
-     * internal Guice injector.
-     * If the Guice injector is not initialized,
-     * then append the object to a list to inject
-     * later if possible.
+     * internal Guice injector if getHasInjector is true, otherwise NOOP.
+     * NOOP should only occur after a session-restore from storage, and
+     * an application filter should go through and restore the active session,
+     * and re-inject the session beans ... bla.
      *
      * @param injectMe needs members injected by Guice
      * @throws IllegalStateException if injector not initialized
      */
-    public void injectMembers( Object injectMe ) {
-        if ( maybeInjector.isEmpty() ) {
-            return;
+    public <T> T injectMembers( T injectMe ) {
+        if ( maybeInjector.isSet() ) {
+            maybeInjector.get().injectMembers(injectMe);
         }
-        maybeInjector.get().injectMembers(injectMe);
+        return injectMe;
     }
-
+    
 }

@@ -31,6 +31,12 @@ public interface AppBootstrap extends LittleBootstrap {
 
     public AppProfile getProfile();
     
+    /**
+     * Startup the application-scope runtime context, and instantiate
+     * a SessionBootstrap.SessionBuilder object
+     * 
+     * @return builder with which to start a user session
+     */
     public SessionBootstrap.SessionBuilder  newSessionBuilder();
 
     

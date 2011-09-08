@@ -14,10 +14,14 @@
     </publications>
     
     <dependencies>
+       <!--
       <dependency org="littleware" name="lgoServer" rev="latest.integration" conf="compile->client_compile" />
       <dependency org="littleware" name="productBrowser" rev="latest.integration" conf="compile->client_compile" />
+          -->
       <dependency org="littleware" name="littleId" rev="latest.integration" conf="compile->client_compile" />
-      <dependency org="littleware" name="littleAsset" rev="latest.integration" conf="compile->server_compile" />
+      <dependency org="littleware" name="littleAsset" rev="latest.integration" conf="compile->client_compile" />
+      <dependency org="littleware" name="littleTools" rev="latest.integration" conf="compile->client_compile" />
+      <dependency org="littleware" name="littleWeb" rev="latest.integration" conf="compile->client_compile" />
       <!-- disable for now ...
       <dependency org="auburn.library" name="vufindRegression" rev="latest.integration" conf="compile->client_compile" />
       <dependency org="auburn.library" name="Minnows" rev="latest.integration" conf="compile->client_compile" />      

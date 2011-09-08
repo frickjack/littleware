@@ -86,14 +86,21 @@
             <param name="param.subproject" value="littleWeb" />
         </antcall>
         <antcall target="buildSubproject">
+            <param name="param.subproject" value="littleTools" />
+        </antcall>
+          <!--
+        <antcall target="buildSubproject">
             <param name="param.subproject" value="lgoServer" />
         </antcall>
+           -->
         <antcall target="buildSubproject">
             <param name="param.subproject" value="littleScala" />
         </antcall>        
+           <!--
         <antcall target="buildSubproject">
             <param name="param.subproject" value="ProductBrowser/SwingBrowser" />
         </antcall>
+            -->
         <antcall target="buildSubproject">
             <param name="param.subproject" value="webapp/littleId/littleId" />
         </antcall>

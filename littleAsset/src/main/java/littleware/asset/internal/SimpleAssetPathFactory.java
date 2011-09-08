@@ -7,34 +7,21 @@
  */
 package littleware.asset.internal;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.UUID;
-import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
-import littleware.asset.AssetPathByRootId;
-import littleware.asset.AssetPathByRootName;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.LittleHome;
-import littleware.asset.TreeNode;
-import littleware.asset.TreeParent;
-import littleware.asset.client.AssetRef;
 
-import littleware.base.BaseException;
 import littleware.base.NoSuchThingException;
-import littleware.base.Option;
 import littleware.base.ParseException;
 import littleware.base.UUIDFactory;
 

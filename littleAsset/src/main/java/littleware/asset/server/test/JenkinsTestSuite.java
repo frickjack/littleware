@@ -39,16 +39,12 @@ public class JenkinsTestSuite extends TestSuite {
     /**
      * Session-level module for setting up test cases around
      * a single LittleContext
-     */
+     *
     public static class SessionModule implements Module {
 
         private final LittleContext ctx;
         private final Class<? extends LittleTest> clazz;
 
-        /**
-         * Construct a Module to
-         * bind TestCase.class to clazz in and LittleContext.class to ctx
-         */
         public SessionModule(LittleContext ctx, Class<? extends LittleTest> clazz) {
             this.ctx = ctx;
             this.clazz = clazz;
@@ -64,6 +60,7 @@ public class JenkinsTestSuite extends TestSuite {
             binder.bind(LittleUser.class).toInstance(ctx.getCaller());
         }
     }
+     */
 
     /**
      * Little utility for properly wrapping a client test in
@@ -85,8 +82,10 @@ public class JenkinsTestSuite extends TestSuite {
             this.factory = factory;
         }
 
-        public DelegateTester buildInContext(Class<? extends LittleTest> clazz) {
-            return injector.createChildInjector(new SessionModule(factory.build(session.getId()), clazz)).getInstance(DelegateTester.class);
+        public LittleTest buildInContext(Class<? extends LittleTest> clazz) {
+            //return injector.createChildInjector(new SessionModule(factory.build(session.getId()), clazz)).getInstance(DelegateTester.class);
+            //throw new UnsupportedOperationException( "Server-client stuff integrated in ServerBootstrap now ..." );
+            return injector.getInstance( clazz );
         }
     }
 
@@ -140,7 +139,8 @@ public class JenkinsTestSuite extends TestSuite {
 
     public static Test suite() {
         try {
-            final ServerBootstrap serverBoot = ServerBootstrap.provider.get().addModuleFactory(new MockModuleFactory()).build();
+            //final ServerBootstrap serverBoot = ServerBootstrap.provider.get().addModuleFactory(new MockModuleFactory()).build();
+            final ServerBootstrap serverBoot = ServerBootstrap.provider.get().build();
             return (new TestFactory()).build(serverBoot, JenkinsTestSuite.class);
         } catch (RuntimeException ex) {
             log.log(Level.SEVERE, "Test setup failed", ex);

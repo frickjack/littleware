@@ -5,7 +5,7 @@
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.bootstrap.internal;
+package littleware.bootstrap.helper;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
@@ -18,6 +18,7 @@ import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.base.AssertionFailedException;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.SessionBootstrap;
 import littleware.bootstrap.SessionBootstrap.SessionBuilder;
@@ -39,12 +40,12 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
         }
     }
     private final AppBootstrap.AppProfile profile;
-    private final Injector injector;
+    private final Injector parentInjector;
 
     @Inject
-    public SimpleSessionBuilder( AppBootstrap.AppProfile profile, Injector injector ) {
+    public SimpleSessionBuilder( AppBootstrap.AppProfile profile, Injector parentInjector ) {
         this.profile = profile;
-        this.injector = injector;
+        this.parentInjector = parentInjector;
     }
 
 
@@ -66,7 +67,7 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
     }
 
     private SimpleSessionBuilder copy() {
-        final SimpleSessionBuilder result = new SimpleSessionBuilder( profile, injector );
+        final SimpleSessionBuilder result = new SimpleSessionBuilder( profile, parentInjector );
         result.sessionFactoryList.clear();
         result.sessionFactoryList.addAll(this.sessionFactoryList);
         return result;
@@ -78,19 +79,19 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
         for (SessionModuleFactory factory : sessionFactoryList) {
             sessionBuilder.add(factory.build(profile));
         }
-        return new Bootstrap( sessionBuilder.build(), injector);
+        return new Bootstrap( sessionBuilder.build(), parentInjector);
     }
 
     //---------------------------------------------------
     private static class Bootstrap implements SessionBootstrap {
         private final Collection<SessionModule> sessionModuleSet;
-        private final Injector injector;
+        private final Injector parentInjector;
         private final String   sessionId = UUID.randomUUID().toString();
 
         public Bootstrap(
                 ImmutableList<SessionModule> sessionModuleSet,
                 Injector injector) {
-            this.injector = injector;
+            this.parentInjector = injector;
             this.sessionModuleSet = sessionModuleSet;
         }
 
@@ -130,9 +131,12 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
             }
 
             
-            final Injector childInjector = injector.createChildInjector( modSetBuilder.build() );
+            final Injector childInjector = parentInjector.createChildInjector( modSetBuilder.build() );
             for( SessionModule module : modSetBuilder.build() ) {
                 childInjector.getInstance( module.getSessionStarter() ).run();
+            }
+            if ( childInjector.getInstance( Injector.class ) != childInjector ) {
+                throw new AssertionFailedException( "What the frick ?" );
             }
             return childInjector.getInstance(clazz);
         }

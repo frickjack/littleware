@@ -6,11 +6,11 @@
                   description="compile everything"/>
         <conf name="client_junit" extends="client" description="extends client with junit dependencies"/>
         <conf name="client_compile" extends="ee_client" description="extends client with javaee interfaces dependencies"/>
-        <conf name="server_compile" extends="client_compile" description="extends client_compile with server-side classes"/>
         <!-- java ee environment provides some runtime jars - so don't have to include them in runtime deployment -->
-        <conf name="ee_server"  extends="ee_client" description="combined server+client running in a java ee 6+ container"/>
         <conf name="client"  extends="ee_client" description="generic app"/>
         <conf name="ee_client"  description="generic app in ee sandbox"/>        
+        
+        <conf name="ee_server"  extends="ee_client" description="combined server+client running in a java ee 6+ container"/>
         <conf name="server"  extends="ee_server" description="combined server+client outside ee container"/>
     	<conf name="test" extends="server,client_junit" visibility="private" description="for testing our framework"/>        
         <!--
@@ -20,9 +20,10 @@
         -->
     </configurations>
     <publications>
-    	<artifact name="littleAsset" ext="jar" type="jar"  conf="server_compile,ee_server" />
+    	<artifact name="littleAsset" ext="jar" type="jar"  conf="*" />
+    	
+    	<!--
     	<artifact name="littleAssetClient" ext="jar" type="jar"  conf="ee_client" />
-        <!--
         <artifact name="littleClient" ext="jar" type="jar"  conf="client" />
     	<artifact name="filter-hmimpl" type="jar"  conf="homemade-impl" ext="jar"/>
     	<artifact name="filter-ccimpl" type="jar"  conf="cc-impl" ext="jar"/>

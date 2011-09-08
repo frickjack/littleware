@@ -37,7 +37,6 @@ public class TestFactory {
      */
     public <T extends TestSuite> T build(final LittleBootstrap bootstrap,
             final Class<T> testSuiteClass) {
-        final SetupBarrier suiteBarrier = new SetupBarrier();
         try {
             final T suite = bootstrap.bootstrap( testSuiteClass );
             suite.addTest(new TestCase( "shutdownTest" ) {
@@ -49,7 +48,7 @@ public class TestFactory {
             log.log(Level.INFO, "Returning TestSuite");
             return suite;
         } catch (Exception ex) {
-            log.log(Level.SEVERE, "Bootstrap failed", ex);
+            log.log(Level.SEVERE, "TestFactory failed", ex);
             throw new IllegalStateException("Test setup interrupted", ex);
         }
     }

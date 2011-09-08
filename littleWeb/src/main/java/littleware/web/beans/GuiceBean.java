@@ -42,9 +42,6 @@ public class GuiceBean implements java.io.Serializable {
      * setInjector throws IllegalStateException if GuiceBean already has an injector
      */
     public void setInjector( Injector value ) {
-        if ( maybeInjector.isSet() ) {
-            throw new IllegalStateException( "Attemp to reset GuiceBean injector" );
-        }
         maybeInjector = Maybe.something( value );
     }
     

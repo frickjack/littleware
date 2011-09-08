@@ -22,7 +22,6 @@ import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.SessionBootstrap;
-import littleware.bootstrap.internal.SimpleSessionBuilder;
 
 /**
  * Module sets up PropertiesGuice() bindings from littleware.properties
@@ -49,7 +48,7 @@ public class LittlePropsModule extends AbstractAppModule {
             log.log( Level.FINE, "Configuring LittlePropsModule ..." );
             PropertiesGuice.build().configure(binder);
             binder.bind( Cache.Builder.class ).to( InMemoryCacheBuilder.class );
-            binder.bind( SessionBootstrap.SessionBuilder.class ).to( SimpleSessionBuilder.class );
+            //binder.bind( SessionBootstrap.SessionBuilder.class ).to( SimpleSessionBuilder.class );
         } catch (IOException ex) {
             throw new AssertionFailedException( "Unexpected failure loading littleware.properties", ex );
         }

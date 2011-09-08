@@ -16,11 +16,8 @@ import java.util.Collection;
  */
 public interface LittleBootstrap {
     /**
-     * Bootstrap a littleware component on the client or server.
-     * Returns after activating the littleware bundles.
-     * The littleware engine might still require some asynchronous
-     * startup time before access upon return depending
-     * on the underlying implementation.
+     * Bootstrap a littleware environment - assumes registered modules
+     * launch processing
      */
     public void bootstrap ();
 
@@ -32,6 +29,15 @@ public interface LittleBootstrap {
      * @return injected object upon system startup
      */
     public <T> T bootstrap( Class<T> bootClass );
+    
+    /**
+     * Startup the application-scope runtime if not already done so, and instantiate
+     * a SessionBootstrap.SessionBuilder object
+     * 
+     * @return builder with which to start a user session
+     */
+    public SessionBootstrap.SessionBuilder  newSessionBuilder();
+    
 
     /**
      * Shutdown the littleware component associated with this object.

@@ -8,12 +8,15 @@
 package littleware.asset.client.bootstrap;
 
 import com.google.inject.Binder;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.security.auth.login.Configuration;
 import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
@@ -35,6 +38,7 @@ import littleware.bootstrap.SessionModuleFactory;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.client.ClientLoginModule;
+import littleware.security.auth.client.ClientLoginModule.ConfigurationBuilder;
 import littleware.security.auth.client.KeyChain;
 import littleware.security.auth.client.SessionManager;
 import littleware.security.auth.client.internal.LoginConfigBuilder;
@@ -73,11 +77,30 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
         }
     }
     
+    /*
     @Provides
     @Singleton
     public javax.security.auth.login.Configuration provideLoginConfig( ClientLoginModule.ConfigurationBuilder loginBuilder ) {
         return loginBuilder.build();
     }
+     * 
+     */
+    
+    
+    public static class ConfigProvider implements Provider<javax.security.auth.login.Configuration> {
+        private final ConfigurationBuilder builder;
+
+        @Inject
+        public ConfigProvider( ClientLoginModule.ConfigurationBuilder builder ) {
+            this.builder = builder;
+        }
+        
+        @Override
+        public Configuration get() {
+            return builder.build();
+        }
+    }
+    
 
     @Override
     public void configure(Binder binder) {
@@ -92,6 +115,7 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
         binder.bind(LittleServiceBus.class).to(SimpleServiceBus.class).in(Scopes.SINGLETON);
         binder.bind(ClientScannerFactory.class).to(SimpleScannerFactory.class).in(Scopes.SINGLETON);
         binder.bind( ClientLoginModule.ConfigurationBuilder.class ).to( LoginConfigBuilder.class );
+        binder.bind( Configuration.class ).toProvider( ConfigProvider.class ).in( Scopes.SINGLETON );
     }
 
     @Override

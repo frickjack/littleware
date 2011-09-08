@@ -16,8 +16,9 @@ import littleware.base.Option;
 import littleware.bootstrap.AppBootstrap;
 
 /**
- * Servlet manages bootup and shutdown of littleware in "application"
- * (non-client) mode.
+ * ServletContextListener manages bootup and shutdown of littleware in "application"
+ * mode (no embedded littleAsset server), and injects a default-session 
+ * GuiceBean into the servlet context attribute map.  See also AssetServerBootListener.
  */
 public class AppBootstrapListener implements ServletContextListener {
 

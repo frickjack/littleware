@@ -25,6 +25,7 @@ import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.SessionBootstrap;
 import littleware.bootstrap.helper.AbstractAppModule;
+import littleware.bootstrap.helper.SimpleSessionBuilder;
 
 public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
 
@@ -100,8 +101,8 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
         }
 
         @Override
-        public SessionBuilder newSessionBuilder() {
-            return bootstrapApp().getInstance( SessionBuilder.class );
+        public SessionBootstrap.SessionBuilder newSessionBuilder() {
+            return new SimpleSessionBuilder( getProfile(), bootstrapApp() );
         }
 
         @Override

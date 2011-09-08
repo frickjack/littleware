@@ -33,8 +33,8 @@ public class WebBootstrap {
      */
     public static AppBootstrap bootstrap( ServletContext context ) {
         final AppBootstrap boot = AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.WebApp).build();
-        final Injector injector = boot.bootstrap( Injector.class );
-        context.setAttribute("guiceBean", new GuiceBean( injector ) );
+        final GuiceBean gbean = boot.bootstrap( GuiceBean.class );
+        context.setAttribute("guiceBean", gbean );
         context.setAttribute(littleBoot, boot );
         return boot;
     }

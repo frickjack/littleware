@@ -15,11 +15,16 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import littleware.asset.server.bootstrap.internal.SimpleServerBuilder;
+import littleware.base.AssertionFailedException;
 import littleware.base.LoginCallbackHandler;
 import littleware.bootstrap.AppBootstrap;
+import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.SessionBootstrap;
+import littleware.bootstrap.helper.SimpleSessionBuilder;
 
 /**
  * Utility to setup TestSuite that can bootstrap
@@ -28,24 +33,6 @@ import littleware.bootstrap.SessionBootstrap;
 public class AssetTestFactory extends littleware.test.TestFactory {
 
     private static final Logger log = Logger.getLogger(AssetTestFactory.class.getName());
-
-    /**
-     * Little internal class for super to add shutdown handler to
-     */
-    public static class NullTestSuite extends TestSuite {
-
-        private final Injector injector;
-
-        @Inject
-        public NullTestSuite(Injector injector) {
-            setName(getClass().getName());
-            this.injector = injector;
-        }
-
-        public Injector getInjector() {
-            return injector;
-        }
-    }
 
     /**
      * Bootstraps a test session
@@ -57,21 +44,14 @@ public class AssetTestFactory extends littleware.test.TestFactory {
     @Override
     public <T extends TestSuite> T build(final LittleBootstrap boot,
             final Class<T> clazz) {
-        
-        final NullTestSuite shutdown = super.build(boot, NullTestSuite.class);
-        final Injector      sessionInjector;
-        if ( boot instanceof AppBootstrap ) {
-            sessionInjector = shutdown.getInjector();
-        } else {
-            log.log( Level.INFO, "Starting test session ..." );
-            sessionInjector = shutdown.getInjector().getInstance( SessionBootstrap.SessionBuilder.class ).build().startSession( Injector.class );
-        }
-        final T result = sessionInjector.getInstance(clazz);
+
+        final Injector sessionInjector = boot.bootstrap(Injector.class);
+        //final Injector      sessionInjector = new SimpleSessionBuilder( AppProfile.CliApp, shutdown.getInjector() ).build().startSession( Injector.class );
 
         // Login as test user - go through SessionManager
         try {
-            final LoginContext context = new LoginContext("littleware.login", new Subject(), 
-                    new LoginCallbackHandler( "littleware.test_user", "test123" ),
+            final LoginContext context = new LoginContext("littleware.login", new Subject(),
+                    new LoginCallbackHandler("littleware.test_user", "test123"),
                     sessionInjector.getInstance(javax.security.auth.login.Configuration.class));
             context.login();
         } catch (LoginException ex) {
@@ -79,7 +59,15 @@ public class AssetTestFactory extends littleware.test.TestFactory {
             throw new IllegalStateException("Failed to setup test-user session", ex);
         }
 
-        result.addTest(shutdown);
+        final T result = sessionInjector.getInstance(clazz);
+        result.addTest(new TestCase("shutdownTest") {
+
+            @Override
+            public void runTest() {
+                boot.shutdown();
+            }
+        });
+
         return result;
     }
 }

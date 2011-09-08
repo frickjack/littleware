@@ -9,7 +9,6 @@ package littleware.asset.server.test;
 
 import com.google.inject.Binder;
 import com.google.inject.Provides;
-import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;

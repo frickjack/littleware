@@ -34,10 +34,10 @@ public abstract class AbstractAssetPath implements AssetPath {
      * Constructor stashes the string path after processing
      * it through AssetFactory.cleanupPath
      *
-     * @param s_path of form /ROOT/A/B/C or whatever
+     * @param path of form /ROOT/A/B/C or whatever
      */
-    protected AbstractAssetPath(String s_path, AssetPathFactory pathFactory) {
-        os_path = pathFactory.cleanupPath(s_path);
+    protected AbstractAssetPath(String path, AssetPathFactory pathFactory) {
+        os_path = pathFactory.cleanupPath(path);
         int i_slash = os_path.indexOf("/", 1);
         if (i_slash < 0) {
             os_subroot_path = "";

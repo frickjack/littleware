@@ -8,6 +8,7 @@
 package littleware.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.logging.*;
 import junit.framework.*;
 import littleware.bootstrap.AppBootstrap;
@@ -24,7 +25,7 @@ public class PackageTestSuite extends TestSuite {
     public PackageTestSuite(
             littleware.base.test.PackageTestSuite baseSuite,
             //littleware.db.test.PackageTestSuite  dbSuite,
-            littleware.bootstrap.test.BootstrapTester bootstrapTester,
+            Provider<littleware.bootstrap.test.BootstrapTester> bootstrapProvider,
             littleware.apps.swingbase.test.PackageTestSuite swingBaseSuite) {
         super(PackageTestSuite.class.getName());
         // disable server tests
@@ -33,7 +34,8 @@ public class PackageTestSuite extends TestSuite {
         log.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
             if (bRun) {
-                this.addTest(bootstrapTester);
+                this.addTest( bootstrapProvider.get() );
+                this.addTest( bootstrapProvider.get().putName( "testSessionSemantics" ) );
             }
             if (bRun) {
                 log.log(Level.INFO, "Trying to setup littleware.base test suite");

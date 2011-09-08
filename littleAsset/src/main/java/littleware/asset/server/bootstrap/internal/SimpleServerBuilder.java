@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.base.AssertionFailedException;
+import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.helper.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.asset.server.bootstrap.ServerBootstrap.ServerBuilder;
@@ -28,6 +29,9 @@ import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.LittleModule;
+import littleware.bootstrap.SessionBootstrap.SessionBuilder;
+import littleware.bootstrap.helper.SimpleSessionBuilder;
+
 
 
 public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
@@ -94,21 +98,34 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         return this;
     }
 
-    private static class Bootstrap extends AbstractLittleBootstrap<LittleModule> implements ServerBootstrap {
+    public static class Bootstrap extends AbstractLittleBootstrap<LittleModule> implements ServerBootstrap {
         private final ServerProfile profile;
+        private final AppProfile appProfile;
 
-        public Bootstrap( Collection<LittleModule> moduleSet, ServerBootstrap.ServerProfile profile ) {
+        public Bootstrap( Collection<LittleModule> moduleSet, ServerBootstrap.ServerProfile profile, AppBootstrap.AppProfile appProfile ) {
             super( moduleSet );
             this.profile = profile;
+            this.appProfile = appProfile;
         }
 
         @Override
         public ServerBootstrap.ServerProfile getProfile() { return profile; }
         
-        @Override
-        protected <T> T osgiBootstrap( Class<T> bootClass, Collection<? extends LittleModule> moduleSet ) {
+
+        public Injector appInjector = null;
+        
+        /**
+         * Application-level bootstrap - initializes app-level injector on first call,
+         * then just returns that cached value
+         * 
+         * @return app-level injector (to create sessions with)
+         */
+        protected Injector bootstrapApp() {
+            if ( null != appInjector ) {
+                return appInjector;
+            }
             final ImmutableList.Builder<LittleModule> builder = ImmutableList.builder();
-            builder.addAll( moduleSet );
+            builder.addAll( getModuleSet() );
             builder.add(
                 new AbstractServerModule( profile ) {
                     @Override
@@ -118,8 +135,15 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
                     }
                 }
                 );
+            
+            appInjector = super.osgiBootstrap( Injector.class, builder.build() );            
+            return appInjector;
+        }
 
-            return super.osgiBootstrap( bootClass, builder.build() );
+        
+        @Override
+        public SessionBuilder newSessionBuilder() {
+            return new SimpleSessionBuilder( appProfile, bootstrapApp() );
         }
 
         @Override
@@ -128,10 +152,17 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         }
 
         @Override
-        public <T> T bootstrap(Class<T> type) {
-            return osgiBootstrap( type, getModuleSet() );
+        public <T> T bootstrap(Class<T> bootClass) {
+            log.log( Level.FINE, "Attempting to bootstrap: {0}", bootClass.getName());
+            final Injector child = newSessionBuilder().build().startSession(Injector.class);
+            if ( child == appInjector ) {
+                throw new AssertionFailedException( "What? " );
+            }
+            log.log( Level.FINE, "... injecting {0}", bootClass.getName());
+            return child.getInstance( bootClass );
+            //return bootstrapApp().getInstance( bootClass );
         }
-
+        
     }
 
     @Override
@@ -146,7 +177,7 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         for( AppModuleFactory factory : appFactoryList ) {
             builder.add( factory.build( appProfile ) );
         }
-        return new Bootstrap( builder.build(), profile );
+        return new Bootstrap( builder.build(), profile, appProfile );
     }
 
     public static void main(String[] v_argv) {

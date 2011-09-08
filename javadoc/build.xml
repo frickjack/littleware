@@ -34,10 +34,13 @@
     <packageset dir="../littleWeb/src/main/java" defaultexcludes="yes">
        <include name="littleware/**" />
     </packageset>    
+    <packageset dir="../littleTools/src/main/java" defaultexcludes="yes">
+       <include name="littleware/**" />
+    </packageset>    
+    <!--
     <packageset dir="../lgoServer/src/main/java" defaultexcludes="yes">
        <include name="littleware/**" />
     </packageset>
-    <!--
     <packageset dir="../Catalog/CatRequest/src/main/java" defaultexcludes="yes">
        <include name="edu/auburn/**" />
     </packageset>

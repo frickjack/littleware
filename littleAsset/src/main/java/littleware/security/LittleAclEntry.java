@@ -8,6 +8,8 @@ import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
+import littleware.asset.LinkAsset;
+import littleware.asset.TreeChild;
 import littleware.base.UUIDFactory;
 
 /**
@@ -18,7 +20,7 @@ import littleware.base.UUIDFactory;
  * attributes to be consistent with the Acl it belongs to.
  * NOTE: each entry can belong to only one ACL
  */
-public interface LittleAclEntry extends littleware.asset.LinkAsset {
+public interface LittleAclEntry extends TreeChild, LinkAsset {
 
     /**
      * Covariant return-type: LittlePrincipal
@@ -41,7 +43,8 @@ public interface LittleAclEntry extends littleware.asset.LinkAsset {
     /** ACL_ENTRY asset type  */
     public static final AssetType ACL_ENTRY = new AssetType(
             UUIDFactory.parseUUID("D23EA8B5A55F4283AEF29DFA50C12C54"),
-            "littleware.ACL_ENTRY");
+            "littleware.ACL_ENTRY") {
+    };
 
     //-----------------------------------------------
     public interface Builder extends AssetBuilder {
@@ -103,7 +106,5 @@ public interface LittleAclEntry extends littleware.asset.LinkAsset {
 
         @Override
         public Builder copy(Asset source);
-
-
     }
 }

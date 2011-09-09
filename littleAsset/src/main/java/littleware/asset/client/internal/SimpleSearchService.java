@@ -32,6 +32,7 @@ import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
 import littleware.asset.LinkAsset;
+import littleware.asset.TreeChild;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
 import littleware.asset.client.AssetLibrary;
@@ -341,7 +342,8 @@ public class SimpleSearchService implements AssetSearchManager {
             RemoteException {
         final AssetPath pathNormal = normalizePath(pathIn);
         final AssetRef maybeRoot = getRoot(pathNormal);
-        if ((!maybeRoot.isSet()) || (!(maybeRoot.get() instanceof TreeParent))) {
+        if ((!maybeRoot.isSet()) || ((!(maybeRoot.get() instanceof TreeParent))
+                && (!(maybeRoot.get() instanceof TreeChild)))) {
             return pathNormal;
         }
         final List<Asset> assetTrail = new ArrayList<Asset>();

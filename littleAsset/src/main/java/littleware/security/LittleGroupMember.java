@@ -15,6 +15,9 @@ import littleware.asset.Asset;
 import littleware.asset.LinkAsset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
+import littleware.asset.TreeNode;
+import littleware.base.Maybe;
+import littleware.base.Option;
 import littleware.base.UUIDFactory;
 
 /**
@@ -28,7 +31,14 @@ public interface LittleGroupMember extends LinkAsset {
     /** GROUP asset type - with AccountManager asset specializer */
     public static final AssetType GROUP_MEMBER_TYPE = new AssetType(
             UUIDFactory.parseUUID("BA50260718204D50BAC6AC711CEE1536"),
-            "littleware.GROUP_MEMBER") {};
+            "littleware.GROUP_MEMBER") {
+        private final Option<AssetType> superType = Maybe.something( LinkAsset.LINK_TYPE );
+
+        @Override
+        public Option<AssetType>  getSuperType() {
+            return superType;
+        }                
+    };
 
     //------------------------------------
     public interface MemberBuilder extends AssetBuilder {

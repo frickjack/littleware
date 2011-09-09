@@ -45,6 +45,7 @@ import littleware.base.cache.Cache;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
+import littleware.security.Everybody;
 import littleware.security.auth.client.KeyChain;
 
 /**
@@ -60,6 +61,7 @@ public class SimpleSearchService implements AssetSearchManager {
     private final AssetLibrary library;
     private final AssetPathFactory pathFactory;
     private final KeyChain keychain;
+    private final Everybody everybody;
 
     /**
      * Inject the server that does not implement LittleService event support
@@ -73,13 +75,16 @@ public class SimpleSearchService implements AssetSearchManager {
             ClientCache cache,
             AssetLibrary library,
             AssetPathFactory pathFactory,
-            KeyChain keychain) {
+            KeyChain keychain,
+            Everybody everybody 
+            ) {
         this.server = server;
         this.eventBus = eventBus;
         this.clientCache = cache;
         this.library = library;
         this.pathFactory = pathFactory;
         this.keychain = keychain;
+        this.everybody = everybody;
     }
 
     @Override
@@ -212,6 +217,10 @@ public class SimpleSearchService implements AssetSearchManager {
             RemoteException {
         if (null == id) {
             return AssetRef.EMPTY;
+        }
+        if ( id.equals( everybody.getId() ) ) {
+            // Shortcut everybody-group access
+            return library.syncAsset( everybody );
         }
 
         Option<Asset> result = Maybe.emptyIfNull(clientCache.get(id));

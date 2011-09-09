@@ -17,10 +17,8 @@ import java.util.logging.Level;
 import littleware.asset.*;
 import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.client.AssetRef;
-import littleware.security.LittlePrincipal;
 import littleware.security.AccountManager;
 import littleware.security.LittleGroup;
-import littleware.security.LittleGroupMember;
 import littleware.security.LittleUser;
 
 /**
@@ -33,6 +31,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
     private final AssetSearchManager search;
     private final AssetManager assetMan;
     private final Provider<TreeNodeBuilder> nodeProvider;
+    private final AssetPathFactory pathFactory;
 
     /**
      * Inject dependencies
@@ -40,11 +39,13 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
     @Inject
     public AssetSearchManagerTester( AssetSearchManager search,
             AssetManager assetMan,
-            Provider<TreeNode.TreeNodeBuilder> nodeProvider
+            Provider<TreeNode.TreeNodeBuilder> nodeProvider,
+            AssetPathFactory pathFactory
             ) {
         this.search = search;
         this.assetMan = assetMan;
         this.nodeProvider = nodeProvider;
+        this.pathFactory = pathFactory;
         setName( "testSearch" );
     }
 
@@ -62,7 +63,9 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
             assertTrue("Child search did not freak on empty search",
                     (!search.getAssetFrom(a_lookup.getId(), "UgidyUgaUga").isSet()) && (!search.getAssetFrom(UUID.randomUUID(), "whatever").isSet()));
 
-            final LittleGroup group_everybody = search.getAsset(AccountManager.UUID_EVERYBODY_GROUP).get().narrow();
+            // Test everybody group - which is a crazy special case
+            final LittleGroup everybody = search.getAssetAtPath( pathFactory.createPath( "/littleware.home/group.littleware.everybody" ) ).get().narrow();
+                    //search.getAsset(AccountManager.UUID_EVERYBODY_GROUP).get().narrow();
             /*
              * New Everybody group does not conform to normal group behavior
              * 

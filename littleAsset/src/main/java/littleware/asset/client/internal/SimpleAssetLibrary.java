@@ -8,7 +8,7 @@
 package littleware.asset.client.internal;
 
 import com.google.common.collect.MapMaker;
-import com.google.inject.Singleton;
+import com.google.inject.Inject;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.UUID;
@@ -25,6 +25,7 @@ import littleware.asset.client.AssetActionEvent;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
+import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.spi.AbstractAsset;
 import littleware.base.Maybe;
 import littleware.base.Option;
@@ -38,7 +39,6 @@ import littleware.base.validate.ValidationException;
  * in-memory asset model cache.
  * Intended to be a singleton PER-USER.
  */
-@Singleton
 public class SimpleAssetLibrary
         implements AssetLibrary {
 
@@ -46,6 +46,11 @@ public class SimpleAssetLibrary
     private final Map<UUID, SimpleAssetRef> cache = (new MapMaker()).softValues().makeMap();
     private final Map<String, UUID> nameMap = (new MapMaker()).softValues().makeMap();
 
+    @Inject
+    public SimpleAssetLibrary( LittleServiceBus eventBus ) {
+        eventBus.addLittleListener( new AssetLibServiceListener( eventBus, this ) );
+    }
+    
     @Override
     public AssetRef getByName(String name, AssetType atype) throws InvalidAssetTypeException {
         if (!atype.isNameUnique()) {

@@ -17,14 +17,16 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
+import littleware.asset.client.spi.LittleServiceBus;
+import littleware.base.AssertionFailedException;
 import littleware.base.cache.Cache;
 import littleware.base.cache.Cache.Policy;
 import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.base.event.LittleEvent;
 import littleware.base.event.LittleListener;
+import littleware.security.Everybody;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
-import littleware.security.auth.LittleSession;
 
 /**
  * OSGi BundleActivator registers itself as a cache service
@@ -36,7 +38,7 @@ public class SimpleClientCache implements LittleListener, ClientCache {
     private final Cache<String, Object> cacheLong;
     private final Cache<String, Object> cacheShort;
     /** Extend cache to add some special asset handling */
-    private final Cache<String, Object> ocache = new Cache<String, Object>() {
+    private final Cache<String, Object> cacheManager = new Cache<String, Object>() {
 
         @Override
         public Policy getPolicy() {
@@ -64,7 +66,9 @@ public class SimpleClientCache implements LittleListener, ClientCache {
                     // not modified in 5 days
                     cacheLong.put(key, value);
                 }
-                if (asset.getAssetType().isA(LittleGroup.GROUP_TYPE)) {
+                if ( asset.getAssetType().isA(LittleGroup.GROUP_TYPE)
+                        && (! (asset instanceof Everybody))
+                        ) {
                     // go ahead and harvest group members
                     final LittleGroup group = asset.narrow();
                     for ( LittlePrincipal member : group.getMembers() ) {
@@ -78,19 +82,19 @@ public class SimpleClientCache implements LittleListener, ClientCache {
         }
 
         @Override
-        public Object get(String x_key) {
-            Object result = cacheShort.get(x_key);
+        public Object get(String key) {
+            Object result = cacheShort.get(key);
             if (null != result) {
                 return result;
             }
             // fall through to long cache
-            return cacheLong.get(x_key);
+            return cacheLong.get(key);
         }
 
         @Override
-        public Object remove(String x_key) {
-            cacheLong.remove(x_key);
-            return cacheShort.remove(x_key);
+        public Object remove(String key) {
+            cacheLong.remove(key);
+            return cacheShort.remove(key);
         }
 
         @Override
@@ -125,10 +129,12 @@ public class SimpleClientCache implements LittleListener, ClientCache {
      */
     @Inject
     public SimpleClientCache( 
-            InMemoryCacheBuilder cacheBuilder
+            InMemoryCacheBuilder cacheBuilder,
+            LittleServiceBus  eventBus
             ) {
         cacheLong = cacheBuilder.maxAgeSecs( 900 ).maxSize( 20000 ).build();
         cacheShort = cacheBuilder.maxAgeSecs( 30 ).maxSize( 20000 ).build();
+        eventBus.addLittleListener(this);
     }
 
     /**
@@ -159,7 +165,7 @@ public class SimpleClientCache implements LittleListener, ClientCache {
 
     @Override
     public Cache<String, Object> getCache() {
-        return ocache;
+        return cacheManager;
     }
 
     @Override
@@ -168,8 +174,8 @@ public class SimpleClientCache implements LittleListener, ClientCache {
     }
 
     @Override
-    public Asset get(UUID uId) {
-        return (Asset) getCache().get(uId.toString());
+    public Asset get(UUID id) {
+        return (Asset) getCache().get(id.toString());
     }
 
     @Override

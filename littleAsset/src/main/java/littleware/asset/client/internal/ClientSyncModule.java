@@ -9,8 +9,6 @@ package littleware.asset.client.internal;
 
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetLibrary;
-import littleware.asset.client.internal.SimpleServerSync;
-import littleware.asset.client.internal.SimpleAssetLibrary;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -23,7 +21,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.asset.client.internal.AssetLibServiceListener;
 import littleware.base.event.LittleListener;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;

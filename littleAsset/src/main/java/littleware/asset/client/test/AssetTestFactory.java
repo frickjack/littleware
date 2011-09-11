@@ -7,24 +7,15 @@
  */
 package littleware.asset.client.test;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.auth.Subject;
-import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import littleware.asset.server.bootstrap.internal.SimpleServerBuilder;
-import littleware.base.AssertionFailedException;
 import littleware.base.LoginCallbackHandler;
-import littleware.bootstrap.AppBootstrap;
-import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.SessionBootstrap;
-import littleware.bootstrap.helper.SimpleSessionBuilder;
 
 /**
  * Utility to setup TestSuite that can bootstrap

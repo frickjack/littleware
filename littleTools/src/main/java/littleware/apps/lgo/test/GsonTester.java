@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -22,6 +20,7 @@ import littleware.asset.client.AssetSearchManager;
 import littleware.asset.GenericAsset;
 import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.asset.client.test.AbstractAssetTest;
+import littleware.asset.gson.LittleGsonFactory;
 
 /**
  * Test the Gson integration
@@ -34,8 +33,8 @@ public class GsonTester extends AbstractAssetTest {
     private final Provider<GenericBuilder> genericProvider;
 
     @Inject
-    public GsonTester( Gson gson, AssetSearchManager search, Provider<GenericAsset.GenericBuilder> genericProvider ) {
-        this.gson = gson;
+    public GsonTester( LittleGsonFactory gsonFactory, AssetSearchManager search, Provider<GenericAsset.GenericBuilder> genericProvider ) {
+        this.gson = gsonFactory.get();
         this.search = search;
         this.genericProvider = genericProvider;
         setName( "testGson" );

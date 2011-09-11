@@ -126,7 +126,7 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
     public static class Factory implements SessionModuleFactory {
 
         @Override
-        public SessionModule build(AppProfile ap) {
+        public SessionModule buildSessionModule(AppProfile ap) {
             return new AssetSessionModule();
         }
         

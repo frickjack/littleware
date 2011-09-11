@@ -51,7 +51,7 @@ public class BootstrapTester extends LittleTest {
         builder.addModuleFactory(new SessionModuleFactory() {
 
             @Override
-            public SessionModule build(AppProfile profile) {
+            public SessionModule buildSessionModule(AppProfile profile) {
                 return new SessionModule() {
 
                     @Override

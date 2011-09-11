@@ -11,5 +11,5 @@ package littleware.bootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 
 public interface SessionModuleFactory {
-    public SessionModule build(AppProfile profile);
+    public SessionModule buildSessionModule(AppProfile profile);
 }

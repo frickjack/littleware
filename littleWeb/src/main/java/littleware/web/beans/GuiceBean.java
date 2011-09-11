@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import littleware.base.Maybe;
 import littleware.base.Option;
+import littleware.bootstrap.SessionInjector;
 
 /**
  * Attempt to marry littleware world with
@@ -33,8 +34,8 @@ public class GuiceBean implements java.io.Serializable {
      * injects other beans.
      */
     @Inject
-    public GuiceBean( Injector injector ) {
-        this.maybeInjector = Maybe.something( injector );
+    public GuiceBean( SessionInjector sessionInjector ) {
+        this.maybeInjector = Maybe.something( sessionInjector.getInjector() );
     }
 
 

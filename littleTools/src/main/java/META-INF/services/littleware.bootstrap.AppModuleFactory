@@ -1,4 +1,0 @@
-# littleware AppModule service providers
-#littleware.apps.tracker.internal.LittleTrackerModule$AppFactory
-#littleware.asset.internal.LittleAssetModule$AppFactory
-#littleware.security.internal.LittleSecurityModule$AppFactory

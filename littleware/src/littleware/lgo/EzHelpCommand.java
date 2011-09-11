@@ -41,7 +41,7 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
     @Inject
     public EzHelpCommand(LgoHelpLoader helpLoader,
             LgoCommandDictionary commandDictionary) {
-        super( EzHelpCommand.class.getName() );
+        super(EzHelpCommand.class.getName());
         this.commandDictionary = commandDictionary;
         this.helpLoader = helpLoader;
     }
@@ -53,10 +53,10 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
 
     @Override
     public LgoCommand buildFromArgs(List<String> args) {
-        if( args.isEmpty() ) {
-            return buildSafe( "" );
+        if (args.isEmpty()) {
+            return buildSafe("");
         } else {
-            return buildSafe( args.get(0) );
+            return buildSafe(args.get(0));
         }
     }
 
@@ -98,57 +98,52 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
         public void setLocale(Locale locale) {
             olocale = locale;
         }
+        
+        private final List<String> emptyAliasList = Collections.emptyList();
+        private final List<LgoExample> emptyExampleList = Collections.emptyList();
 
         @Override
         public LgoHelp runCommand(Feedback feedback) {
-            String sTarget = getInput();
-            final Option<LgoCommand.LgoBuilder> maybe = commandDictionary.buildCommand(sTarget);
-            if ( maybe.isEmpty() ) {
-                StringBuilder sbCommands = new StringBuilder();
-                sbCommands.append("No help found for command: ").append(sTarget).append(", available commands:").
+            final String targetCommand = getInput();
+            final Option<LgoCommand.LgoBuilder> maybe = commandDictionary.buildCommand(targetCommand);
+            if (maybe.isEmpty()) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append("No help found for command: ").append(targetCommand).append(", available commands:").
                         append(Whatever.NEWLINE);
-                final Set<String> vAlready = new HashSet<String>();
+                final Set<String> commandNames = new HashSet<String>();
                 for (Provider<LgoCommand.LgoBuilder> provider : commandDictionary.getCommands()) {
                     final LgoCommand.LgoBuilder comIndex = provider.get();
-                    if (vAlready.contains(comIndex.getName())) {
+                    if (commandNames.contains(comIndex.getName())) {
                         continue;
                     }
-                    vAlready.add(comIndex.getName());
-                    sbCommands.append("    ").append(comIndex.getName());
-                    LgoHelp help = helpLoader.loadHelp(comIndex.getName());
-                    if (null != help) {
-                        sbCommands.append(" [");
+                    commandNames.add(comIndex.getName());
+                    sb.append("    ").append(comIndex.getName());
+                    for( LgoHelp help : helpLoader.loadHelp(comIndex.getName()) ) {
+                        sb.append(" [");
                         boolean bFirst = true;
                         for (String sAlias : help.getShortNames()) {
                             if (!bFirst) {
-                                sbCommands.append(", ");
+                                sb.append(", ");
                             } else {
                                 bFirst = false;
                             }
-                            sbCommands.append(sAlias);
+                            sb.append(sAlias);
                         }
-                        sbCommands.append("] ").append(help.getSynopsis());
+                        sb.append("] ").append(help.getSynopsis());
                     }
-                    sbCommands.append(Whatever.NEWLINE);
+                    sb.append(Whatever.NEWLINE);
                 }
-                final List<String> vNoAlias = Collections.emptyList();
-                final List<LgoExample> vNoExample = Collections.emptyList();
                 LgoHelp help = new EzLgoHelp("command.not.found",
-                        vNoAlias,
-                        sbCommands.toString(),
+                        emptyAliasList,
+                        sb.toString(),
                         "",
-                        vNoExample);
+                        emptyExampleList);
                 return help;
             } else {
                 final String name = maybe.get().getName();
-                final LgoHelp help = helpLoader.loadHelp(name, olocale);
-                if (null != help) {
-                    return help;
-                }
-                final List<String> vNoAlias = Collections.emptyList();
-                final List<LgoExample> vNoExample = Collections.emptyList();
-
-                return new EzLgoHelp(name, vNoAlias, "no help available for command", "", vNoExample);
+                return helpLoader.loadHelp(name, olocale).getOr(
+                        new EzLgoHelp(name, emptyAliasList, "no help available for command", "", emptyExampleList)
+                        );
             }
         }
     }

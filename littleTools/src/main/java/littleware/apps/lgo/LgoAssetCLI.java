@@ -8,13 +8,10 @@
 package littleware.apps.lgo;
 
 import com.google.common.collect.ImmutableMap;
-import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +22,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.LoginCallbackHandler;
 import littleware.base.Option;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
@@ -35,7 +32,6 @@ import littleware.lgo.LgoCommand;
 import littleware.lgo.LgoCommandDictionary;
 import littleware.lgo.LgoHelpLoader;
 import littleware.security.auth.client.CliCallbackHandler;
-import littleware.security.auth.client.ClientLoginModule;
 
 /**
  * Command-line based lgo launcher.
@@ -58,7 +54,7 @@ public class LgoAssetCLI {
      *  +user [username] -- user to authenticate as in client mode, defaults to current OS user
      *  Disabled in 2.5 - need to update littleAsset to 2.6 - +url  [server-info] -- url specifies host/port information for the littleware server in client mode
      */
-    private enum SpecialOption {
+    public enum SpecialOption {
         user, // Disabled ... url, 
         mode, profile;
     };
@@ -96,11 +92,9 @@ public class LgoAssetCLI {
         try {
             if (maybe.isEmpty() || sCommand.equalsIgnoreCase("help")) {
                 System.out.println("Command use:");
-                System.out.println("     lgo [+user name] [+mode client|app] [+url http://server:port] [+profile cli|swing] command options");
-                System.out.println("        +mode [local|client] -- client establishes session with littleware server, default is client");
-                System.out.println("        +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time");
+                System.out.println("     lgo [+user name:password] command options");
+                //System.out.println("        +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time");
                 //System.out.println("        +url  [server-info] -- url specifies host/port information for the littleware server in client mode");
-                System.out.println("        +user [username] -- user to authenticate as in client mode, defaults to current OS user\n");
             }
             if (maybe.isEmpty()) {
                 final LgoCommand help = commandMgr.buildCommand("help").get().buildWithInput(sCommand);
@@ -133,31 +127,24 @@ public class LgoAssetCLI {
     public int run(String[] argsArray, Map<SpecialOption, String> specialOptionMap ) {
         int iExitStatus = 0;
 
-        if ((!specialOptionMap.containsKey(SpecialOption.mode))
-                || specialOptionMap.get(SpecialOption.mode).toLowerCase().trim().equals("client")) {
-            
-            // Setup client login session
-            //final Injector injector = 
-            
-            /*
-            if (specialOptionMap.containsKey(SpecialOption.url)) {
-                final String sUrl = specialOptionMap.get(SpecialOption.url);
-                try {
-                    final URL url = new URL(sUrl);
-                    loginBuilder.host(url.getHost());
-                } catch (MalformedURLException ex) {
-                    throw new IllegalArgumentException("Malformed URL: " + sUrl);
+        if ( specialOptionMap.containsKey(SpecialOption.user) ) {
+            final String userArg = specialOptionMap.get( SpecialOption.user );
+            final String user;
+            final String password;
+            {
+                final int colonIndex = userArg.indexOf( ":" );
+                if ( colonIndex > 0 ) {
+                    user = userArg.substring( 0, colonIndex );
+                    password = userArg.substring( colonIndex + 1 );
+                } else {
+                    user = userArg;
+                    password = "";
                 }
             }
-            final String user;
-            if ( specialOptionMap.containsKey(SpecialOption.user) ) {
-                user = specialOptionMap.get( SpecialOption.user );
-            } else {
-                user = System.getProperty("user.name");
-            }
-             */
             try {
-                final LoginContext context = new LoginContext( "littleware.login", new Subject(), new CliCallbackHandler(), loginConfig );
+                final LoginContext context = new LoginContext( "littleware.login", 
+                        new Subject(), new LoginCallbackHandler( user, password), loginConfig 
+                        );
                 context.login();
             } catch ( LoginException ex ) {
                 System.out.println( "Failed to login: " + ex );

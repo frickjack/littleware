@@ -62,9 +62,9 @@ public interface LgoCommandDictionary {
      * 
      * @param mgrHelp to load help info with
      * @param command to register
-     * @return loaded help - may be null
+     * @return loaded help - may be empty if not found
      */
-    public LgoHelp setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand );
+    public Option<LgoHelp> setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand );
 
     /**
      * Get the collection of all the commands registered with

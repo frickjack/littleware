@@ -1,8 +1,0 @@
-# littleware ClientModule service providers
-#littleware.apps.client.ClientSyncModule$Factory
-#littleware.apps.filebucket.client.BucketClientModule$Factory
-#littleware.apps.image.client.ImageClientModule$Factory
-#littleware.apps.lgo.LgoModule$Factory
-#littleware.apps.tracker.client.TrackerClientModule$Factory
-#littleware.apps.swingclient.StandardSwingModule$Factory
-#littleware.asset.client.bootstrap.internal.AssetClientModule$Factory

@@ -23,9 +23,7 @@ public class PackageTestSuite extends TestSuite {
 
     @Inject
     public PackageTestSuite(
-            littleware.base.test.PackageTestSuite baseSuite,
-            //littleware.db.test.PackageTestSuite  dbSuite,
-            Provider<littleware.bootstrap.test.BootstrapTester> bootstrapProvider,
+            JenkinsTestSuite jenkinsSuite,
             littleware.apps.swingbase.test.PackageTestSuite swingBaseSuite) {
         super(PackageTestSuite.class.getName());
         // disable server tests
@@ -33,25 +31,7 @@ public class PackageTestSuite extends TestSuite {
 
         log.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
-            if (bRun) {
-                this.addTest( bootstrapProvider.get() );
-                this.addTest( bootstrapProvider.get().putName( "testSessionSemantics" ) );
-            }
-            if (bRun) {
-                log.log(Level.INFO, "Trying to setup littleware.base test suite");
-                this.addTest(baseSuite);
-            }
-            if (bRun) {
-                log.log(Level.INFO, "Trying to setup lgo test suite");
-                // lgo is an app-module, not a server module - setup nested OSGi environment
-                this.addTest(littleware.lgo.test.PackageTestSuite.suite());
-            }
-
-            if (false) {
-                // Move this test out to littleAsset sub-project - littleAsset sets up a databse connection
-                log.log(Level.INFO, "Trying to setup littleware.db test suite");
-                //this.addTest( dbSuite );
-            }
+            this.addTest( jenkinsSuite );
 
             if (bRun) {
                 log.log(Level.INFO, "Trying to setup littleware.apps.swingbase test suite");

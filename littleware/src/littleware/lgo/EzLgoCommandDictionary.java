@@ -65,11 +65,11 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     }
 
     @Override
-    public LgoHelp setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand) {
+    public Option<LgoHelp> setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand) {
         final LgoCommand.LgoBuilder command = provideCommand.get();
-        final LgoHelp help = mgrHelp.loadHelp( command.getName());
-        if (null != help) {
-            this.setCommand(help, provideCommand);
+        final Option<LgoHelp> help = mgrHelp.loadHelp( command.getName());
+        if ( help.isSet() ) {
+            this.setCommand(help.get(), provideCommand);
         } else {
             log.log(Level.FINE, "No help available for command: {0}", command.getName());
             this.setCommand(command.getName(), provideCommand);

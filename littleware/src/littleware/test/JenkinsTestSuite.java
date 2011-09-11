@@ -9,6 +9,7 @@
 package littleware.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.TestSuite;
@@ -26,8 +27,8 @@ public class JenkinsTestSuite extends TestSuite {
     @Inject
     public JenkinsTestSuite(
             littleware.base.test.JenkinsTestSuite baseSuite,
-            //littleware.db.test.PackageTestSuite  dbSuite,
-            littleware.bootstrap.test.BootstrapTester bootstrapTester
+            littleware.lgo.test.PackageTestSuite lgoSuite,
+            Provider<littleware.bootstrap.test.BootstrapTester> bootstrapProvider
         ) {
         super(JenkinsTestSuite.class.getName());
         // disable server tests
@@ -35,8 +36,9 @@ public class JenkinsTestSuite extends TestSuite {
 
         log.log(Level.INFO, "Trying to setup littleware.test test suite");
         try {
-            if ( bRun ) {
-                this.addTest( bootstrapTester );
+            if (bRun) {
+                this.addTest( bootstrapProvider.get() );
+                this.addTest( bootstrapProvider.get().putName( "testSessionSemantics" ) );
             }
             if (bRun) {
                 log.log(Level.INFO, "Trying to setup littleware.base test suite");
@@ -44,8 +46,7 @@ public class JenkinsTestSuite extends TestSuite {
             }
             if ( bRun ) {
                 log.log( Level.INFO, "Trying to setup lgo test suite" );
-                // lgo is an app-module, not a server module - setup nested OSGi environment
-                this.addTest( littleware.lgo.test.PackageTestSuite.suite() );
+                this.addTest( lgoSuite );
             }
 
             if (false) {

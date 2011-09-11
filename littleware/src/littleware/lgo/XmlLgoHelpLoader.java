@@ -5,8 +5,6 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -26,6 +24,9 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
+import littleware.base.Maybe;
+import littleware.base.Option;
+import littleware.base.Whatever;
 
 import littleware.base.XmlResourceBundle;
 
@@ -33,7 +34,7 @@ import littleware.base.XmlResourceBundle;
  * Implementation of LgoHelpLoader that loads
  * help info from Locale-specific (language_region,
  * language, non-specific) XML files stored
- * as resources in the classpath.
+ * as resources in the classpath, and caches the result.
  * For example - given class
  *     foo.bar.Command
  * in locale en_US
@@ -57,7 +58,6 @@ import littleware.base.XmlResourceBundle;
  *     &lt;/help:example&gt;
  *     &lt;/help:help&gt;
  *
- * @TODO implement test case
  */
 public class XmlLgoHelpLoader implements LgoHelpLoader {
     private static final Logger log = Logger.getLogger( XmlLgoHelpLoader.class.getName () );
@@ -71,53 +71,48 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
     }
     
     @Override
-    public LgoHelp loadHelp( String s_request, Locale locale) {
-        String        s_basename = s_request.replaceAll( "\\.", "/" ) + "Help";
-        List<String>  v_paths = XmlResourceBundle.getResourcePaths( s_basename, locale );
-        InputStream   istream_help = null;
-        ClassLoader   cloader = XmlLgoHelpLoader.class.getClassLoader();
-        String        s_path = "none found";
-        for( String s_option : v_paths ) {
-            final String s_check = s_option + ".xml";
-            log.log( Level.FINE, "Searching for help file: " + s_check );
-            istream_help = cloader.getResourceAsStream( s_check );
-            if ( null != istream_help ) {
-                log.log( Level.FINE, "Loading help file: " + s_check );
-                s_path = s_check;
+    public Option<LgoHelp> loadHelp( String s_request, Locale locale) {
+        final String        basename = s_request.replaceAll( "\\.", "/" ) + "Help";
+        final List<String>  pathList = XmlResourceBundle.getResourcePaths( basename, locale );
+        final ClassLoader   cloader = XmlLgoHelpLoader.class.getClassLoader();
+        
+        String        helpPath = "none found";
+        InputStream   istream = null;
+        for( String possiblePath : pathList ) {
+            final String fullPath = possiblePath + ".xml";
+            log.log( Level.FINE, "Searching for help file: {0}", fullPath);
+            istream = cloader.getResourceAsStream( fullPath );
+            if ( null != istream ) {
+                log.log( Level.FINE, "Loading help file: {0}", fullPath);
+                helpPath = fullPath;
                 break;
             }
         }
                 
-        if ( null == istream_help ) {
-            return null;
+        if ( null == istream ) {
+            return Maybe.empty();
         }
-        XmlDataHandler sax_handler = new XmlDataHandler ( s_path );
+        final XmlDataHandler saxHandler = new XmlDataHandler ( helpPath );
         try {
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            SAXParser sax_parser = factory.newSAXParser();
+            final SAXParserFactory saxFactory = SAXParserFactory.newInstance();
+            saxFactory.setNamespaceAware(true);
+            final SAXParser saxParser = saxFactory.newSAXParser();
             
-            sax_parser.parse(
-                    new InputSource(
-                        new InputStreamReader( istream_help, 
-                                    Charset.forName( "UTF-8" )
-                                    )
-                        ),
-                    sax_handler
+            saxParser.parse(
+                    new InputSource( new InputStreamReader( istream, Whatever.UTF8 ) ),
+                    saxHandler
                     );
-            return sax_handler.getHelp ();
+            return Maybe.something( saxHandler.getHelp () );
         } catch (RuntimeException e) {
             throw e;
-        } catch (Exception e) {
-            log.log( Level.WARNING, "Failure parsing resource: " + s_path +
-                    ", caught: " + e 
-                    );
+        } catch (Exception ex) {
+            log.log( Level.WARNING, "Failure parsing resource: " + helpPath, ex );
         }
-        return null;
+        return Maybe.empty();
     }
 
     @Override
-    public LgoHelp loadHelp( String s_basename ) {
+    public Option<LgoHelp> loadHelp( String s_basename ) {
         return loadHelp( s_basename, Locale.getDefault () );
     }
     

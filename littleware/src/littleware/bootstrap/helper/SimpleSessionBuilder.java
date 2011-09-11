@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,10 +23,9 @@ import littleware.base.AssertionFailedException;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.SessionBootstrap;
 import littleware.bootstrap.SessionBootstrap.SessionBuilder;
+import littleware.bootstrap.SessionInjector;
 import littleware.bootstrap.SessionModule;
 import littleware.bootstrap.SessionModuleFactory;
-
-
 
 public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
 
@@ -33,9 +33,9 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
     private final List<SessionModuleFactory> sessionFactoryList = new ArrayList<SessionModuleFactory>();
 
     {
-        log.log( Level.FINE, "Scanning for session factories ..." );
+        log.log(Level.FINE, "Scanning for session factories ...");
         for (SessionModuleFactory moduleFactory : ServiceLoader.load(SessionModuleFactory.class)) {
-            log.log( Level.FINE, "Adding session module: {0}", moduleFactory.getClass().getName());
+            log.log(Level.FINE, "Adding session module: {0}", moduleFactory.getClass().getName());
             sessionFactoryList.add(moduleFactory);
         }
     }
@@ -43,11 +43,10 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
     private final Injector parentInjector;
 
     @Inject
-    public SimpleSessionBuilder( AppBootstrap.AppProfile profile, Injector parentInjector ) {
+    public SimpleSessionBuilder(AppBootstrap.AppProfile profile, Injector parentInjector) {
         this.profile = profile;
         this.parentInjector = parentInjector;
     }
-
 
     @Override
     public Collection<SessionModuleFactory> getSessionModuleSet() {
@@ -67,7 +66,7 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
     }
 
     private SimpleSessionBuilder copy() {
-        final SimpleSessionBuilder result = new SimpleSessionBuilder( profile, parentInjector );
+        final SimpleSessionBuilder result = new SimpleSessionBuilder(profile, parentInjector);
         result.sessionFactoryList.clear();
         result.sessionFactoryList.addAll(this.sessionFactoryList);
         return result;
@@ -77,16 +76,17 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
     public SessionBootstrap build() {
         final ImmutableList.Builder<SessionModule> sessionBuilder = ImmutableList.builder();
         for (SessionModuleFactory factory : sessionFactoryList) {
-            sessionBuilder.add(factory.build(profile));
+            sessionBuilder.add(factory.buildSessionModule(profile));
         }
-        return new Bootstrap( sessionBuilder.build(), parentInjector);
+        return new Bootstrap(sessionBuilder.build(), parentInjector);
     }
 
     //---------------------------------------------------
     private static class Bootstrap implements SessionBootstrap {
+
         private final Collection<SessionModule> sessionModuleSet;
         private final Injector parentInjector;
-        private final String   sessionId = UUID.randomUUID().toString();
+        private final String sessionId = UUID.randomUUID().toString();
 
         public Bootstrap(
                 ImmutableList<SessionModule> sessionModuleSet,
@@ -95,48 +95,79 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
             this.sessionModuleSet = sessionModuleSet;
         }
 
-
-
         @Override
         public Collection<SessionModule> getSessionModuleSet() {
             return sessionModuleSet;
         }
-
-
         private boolean startOnce = true;
-        
+
+        /**
+         * Internal SessionInjector implementation - bound at session boot time
+         */
+        public static class SimpleSessionInjector implements SessionInjector {
+            private Injector injector;
+
+            public SimpleSessionInjector() {
+            }
+
+            /**
+             * Explicitly set the session injector at bootstrap time
+             */
+            public void setInjector( Injector value ) {
+                this.injector = value;
+            }
+            
+            @Override
+            public Injector getInjector() {
+                return injector;
+            }
+
+            @Override
+            public <T> T getInstance(Class<T> clazz) {
+                return injector.getInstance( clazz );
+            }
+
+            @Override
+            public <T> T injectMembers(T injectMe) {
+                injector.injectMembers(injectMe);
+                return injectMe;
+            }
+        }
+
         @Override
         public <T> T startSession(Class<T> clazz) {
-            if ( ! startOnce ) {
-                throw new IllegalStateException( "Session already started" );
+            if (!startOnce) {
+                throw new IllegalStateException("Session already started");
             }
             startOnce = false;
-            
+
             final ImmutableList.Builder<SessionModule> modSetBuilder = ImmutableList.builder();
-            modSetBuilder.addAll( this.sessionModuleSet );
+            modSetBuilder.addAll(this.sessionModuleSet);
             {
-                final SessionModule module = new SessionModule(){
+                final SessionModule module = new SessionModule() {
+
                     @Override
-                    public void configure( Binder binder ) {
-                        binder.bind( SessionBootstrap.class ).toInstance( Bootstrap.this );
+                    public void configure(Binder binder) {
+                        binder.bind(SessionBootstrap.class).toInstance(Bootstrap.this);
+                        binder.bind( SessionInjector.class ).to( SimpleSessionInjector.class ).in( Scopes.SINGLETON );
                     }
 
                     @Override
                     public Class<? extends Runnable> getSessionStarter() {
                         return SessionModule.NullStarter.class;
                     }
-
                 };
-                modSetBuilder.add( module );
+                modSetBuilder.add(module);
             }
 
-            
-            final Injector childInjector = parentInjector.createChildInjector( modSetBuilder.build() );
-            for( SessionModule module : modSetBuilder.build() ) {
-                childInjector.getInstance( module.getSessionStarter() ).run();
+
+            final Injector childInjector = parentInjector.createChildInjector(modSetBuilder.build());
+            ((SimpleSessionInjector) childInjector.getInstance( SessionInjector.class )).setInjector( childInjector );
+            for (SessionModule module : modSetBuilder.build()) {
+                childInjector.getInstance(module.getSessionStarter()).run();
             }
-            if ( childInjector.getInstance( Injector.class ) != childInjector ) {
-                throw new AssertionFailedException( "What the frick ?" );
+            if (childInjector.getInstance(Injector.class) != childInjector) {
+                throw new AssertionFailedException("What the frick ?");
             }
             return childInjector.getInstance(clazz);
         }
@@ -145,7 +176,5 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
         public String getSessionId() {
             return sessionId;
         }
-
     }
-
 }

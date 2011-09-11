@@ -20,6 +20,7 @@ import littleware.apps.littleId.client.controller.JaasLoginModule
 import littleware.base.LoginCallbackHandler
 import littleware.scala.LazyLogger
 
+
 class JaasLoginTester @Inject()( loginConfig:JaasLoginModule.Config ) extends TestCase( "testJaas" ) {
   val log = LazyLogger( getClass )
 

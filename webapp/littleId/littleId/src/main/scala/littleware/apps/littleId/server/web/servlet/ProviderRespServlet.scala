@@ -17,6 +17,7 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import littleware.apps.littleId._
 import littleware.apps.littleId.server._
 import littleware.scala.LazyLogger
 import littleware.web.beans.GuiceBean
@@ -109,6 +110,9 @@ class ProviderRespServlet extends HttpServlet {
     val responseBean = response match {
       case success:model.AuthResponse.AuthSuccess => {
           tools.verifyTool.cacheCreds( success.verifySecret, success.userInfo )
+          // Go ahead and update the IdBean in the session for case
+          // where client and server are the same
+          req.getSession.setAttribute( "idBean", new client.web.bean.IdBean( success.userInfo ) )
           ClientResponseBean( true, success.userInfo.email,
                              success.userInfo.openId.toString,
                              success.verifySecret

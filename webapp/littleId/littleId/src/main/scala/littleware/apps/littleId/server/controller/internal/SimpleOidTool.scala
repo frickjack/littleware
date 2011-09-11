@@ -13,6 +13,7 @@ package littleware.apps.littleId.server.controller.internal
 import com.google.inject.Inject
 import java.net.URL
 import java.util.Properties
+import java.util.logging.Level
 import littleware.apps.littleId
 import littleware.apps.littleId.server.controller
 import littleware.base.PropertiesLoader
@@ -22,6 +23,15 @@ import org.openid4java.discovery
 import org.openid4java.message
 import scala.collection.JavaConversions._
 
+object SimpleOidTool {
+  case class SimpleRequestData(
+    override val providerInfo:discovery.DiscoveryInformation,
+    override val providerEndpoint:URL,
+    override val params:Map[String,String]
+  ) extends controller.OpenIdTool.OIdRequestData with java.io.Serializable {}  
+}
+
+import SimpleOidTool._
 
 class SimpleOidTool @Inject() (
   consumerMgr:consumer.ConsumerManager,
@@ -30,13 +40,9 @@ class SimpleOidTool @Inject() (
   private val log = LazyLogger( getClass )
   private val props:Properties = PropertiesLoader.get.loadProperties( classOf[controller.OpenIdTool] )
 
-  private case class SimpleRequestData(
-    override val providerInfo:discovery.DiscoveryInformation,
-    override val providerEndpoint:URL,
-    override val params:Map[String,String]
-  ) extends controller.OpenIdTool.OIdRequestData {}
-  
-  val consumerURL = new URL( props.getProperty( "consumerURL" ) )
+  log.log( Level.INFO, "Registering OpenID consumer URL: " + props.getProperty( "consumerURL" ) )
+  override var consumerURL = new URL( props.getProperty( "consumerURL" ) )
+
 
   def buildRequest( oidProvider:littleId.common.model.OIdProvider.Value ):controller.OpenIdTool.OIdRequestData = {
     val openid:URL = oidProvider match {

@@ -13,8 +13,8 @@ import java.net.URL
 import littleware.apps.littleId
 import littleId.server.model
 
-class AuthRequestBuilder extends model.AuthRequest.Builder {
-  private case class SimpleRequest(
+object AuthRequestBuilder {
+  case class SimpleRequest(
     @scala.reflect.BeanProperty
     openIdProvider:littleId.common.model.OIdProvider.Value,
     @scala.reflect.BeanProperty
@@ -30,6 +30,10 @@ class AuthRequestBuilder extends model.AuthRequest.Builder {
     )
 
   }
+  
+}
 
-  def build():model.AuthRequest = SimpleRequest( openIdProvider, replyTo, replyMethod )
+class AuthRequestBuilder extends model.AuthRequest.Builder {
+
+  def build():model.AuthRequest = AuthRequestBuilder.SimpleRequest( openIdProvider, replyTo, replyMethod )
 }

@@ -35,6 +35,13 @@ import OpenIdTool._
  */
 trait OpenIdTool {
   /**
+   * Property specifies the URL where the server's OpenID consumer
+   * (Provider Response Servlet) is waiting for the OpenID client redirect - ex:
+   *      http://beta.frickjack.com:8080/openId/services/providerResponse/
+   */
+  var consumerURL:java.net.URL
+  
+  /**
    * Assemble the URL and POST parameters to send to the OpenID provider
    * to request user authentication
    *

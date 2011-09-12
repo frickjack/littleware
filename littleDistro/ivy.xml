@@ -13,8 +13,11 @@
       <!--
         <dependency org="auburn.library" name="vygr2vfnd" rev="1.3.+" conf="client->client" />
          -->
+        <dependency org="littleware" name="littleTools" rev="2.5.+" 
+            conf="compile->client_compile;client->client" 
+            />         
         <dependency org="littleware" name="littleAsset" rev="2.5.+" 
-            conf="compile->server_compile;client->client;server->server" 
+            conf="compile->client_compile;client->client;server->server" 
             />
     </dependencies>
 

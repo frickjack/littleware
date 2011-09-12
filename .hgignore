@@ -20,6 +20,7 @@ nbproject/private
 ^ivy/ivyRepo/
 /ydoc/
 /yparser/
+/suitcase/
 \.pyc$
 javadoc/api
 ivy/ivy.jar

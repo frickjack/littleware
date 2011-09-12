@@ -4,12 +4,14 @@
 <help fullname="littleware.apps.lgo.CreateFolderCommand"
    xmlns="http://www.littleware.com/xml/namespace/2008/helpdoc"
   >
-  <synopsis>Create a littleware.GENERIC asset at a given path</synopsis>
+  <synopsis>Create a littleware.TreeNode asset at a given path</synopsis>
   <description>
       Create an asset at a given path.  The new "folder" asset inherits
-   properties (acl, home) from its parent:
+   properties (acl, home) from its parent.  The mkdir accepts an optional "atype" (asset type)
+   argument to specify the type of the new node, the default is TreeNode.
 
-      mkdir --path /path/to/folder [--comment comment]
+      mkdir -path /path/to/folder [-atype folder-asset-type] [-comment comment]
+      
   </description>
   <shortname>mkdir</shortname>
 </help>

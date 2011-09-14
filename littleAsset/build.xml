@@ -12,8 +12,10 @@
     <description>Builds, tests, and runs the project littleApps.</description>
     <property name="ivy.deliver.revision" value="2.5" />
     <property name="test.classFile" value="littleware/apps/test/JenkinsTestSuite.class" />
+    <property name="aws.credentials.file" value="S:/aws/accessKeys.properties" />
     <import file="../ivy/ivy_build_rules.xml"/>    
     <import file="nbproject/build-impl.xml"/>
+    
     <!--
 
     There exist several targets which are by default empty and which can be 
@@ -76,6 +78,10 @@
 
     -->
 
+    <target name="-post-compile">
+      <copy file="${aws.credentials.file}" tofile="build/classes/littleware/asset/server/db/aws/AwsCreds.properties"/>
+    </target>
+    
  <target name="-post-jar" depends="littleAssetClient" />
 
  <target name="littleAssetClient"

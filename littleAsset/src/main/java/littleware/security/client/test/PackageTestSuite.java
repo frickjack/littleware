@@ -15,7 +15,7 @@ import java.util.logging.Level;
 
 import junit.framework.*;
 import littleware.asset.server.bootstrap.ServerBootstrap;
-import littleware.security.client.test.ClientLoginTester;
+import littleware.bootstrap.AppBootstrap;
 import littleware.test.TestFactory;
 
 
@@ -70,7 +70,7 @@ public class PackageTestSuite extends TestSuite {
         try {
             log.log( Level.INFO, "Launching test suite ..."  );
             return (new TestFactory()).build(
-                    ServerBootstrap.provider.get().profile(ServerBootstrap.ServerProfile.Standalone).build(),
+                    ServerBootstrap.provider.get().profile( AppBootstrap.AppProfile.CliApp ).build(),
                     PackageTestSuite.class
                     );
         } catch (RuntimeException ex) {

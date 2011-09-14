@@ -21,19 +21,6 @@ import littleware.db.*;
 public interface DbAssetManager {
 
     /**
-     * Get the client id that this manager is
-     * supplying to the database for 
-     * database backend based cache synchronization.
-     */
-    public int getClientId();
-
-    /**
-     * Set the database client-id.  Intended only for testing -
-     * normally the client-id gets setup at startup time.
-     */
-    public void setClientId(int i_id);
-
-    /**
      * Create asset-creator handler
      */
     public DbWriter<Asset> makeDbAssetSaver( LittleTransaction trans );

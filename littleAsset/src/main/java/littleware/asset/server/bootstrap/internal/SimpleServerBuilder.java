@@ -24,7 +24,6 @@ import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.helper.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.asset.server.bootstrap.ServerBootstrap.ServerBuilder;
-import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppModuleFactory;
@@ -40,7 +39,7 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
     private final List<ServerModuleFactory>  serverFactoryList = new ArrayList<ServerModuleFactory>();
     private final List<AppModuleFactory>  appFactoryList = new ArrayList<AppModuleFactory>();
 
-    private ServerProfile profile = ServerProfile.Standalone;
+    private AppProfile profile = AppProfile.CliApp;
 
     {
         for (ServerModuleFactory moduleFactory : ServiceLoader.load(ServerModuleFactory.class)) {
@@ -57,10 +56,6 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         }
     }
 
-    @Override
-    public Collection<ServerModuleFactory> getServerModuleSet() {
-        return ImmutableList.copyOf( serverFactoryList );
-    }
 
     @Override
     public ServerBuilder addModuleFactory(ServerModuleFactory factory) {
@@ -74,15 +69,16 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         return this;
     }
 
+    
     @Override
-    public ServerBuilder profile(ServerProfile profile) {
+    public ServerBuilder profile(AppBootstrap.AppProfile profile) {
         this.profile = profile;
         return this;
     }
 
 
     @Override
-    public Collection<AppModuleFactory> getAppModuleSet() {
+    public Collection<AppModuleFactory> getModuleSet() {
         return ImmutableList.copyOf( appFactoryList );
     }
 
@@ -98,18 +94,21 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         return this;
     }
 
-    public static class Bootstrap extends AbstractLittleBootstrap<LittleModule> implements ServerBootstrap {
-        private final ServerProfile profile;
-        private final AppProfile appProfile;
+    @Override
+    public Collection<ServerModuleFactory> getServerModuleSet() {
+        return serverFactoryList;
+    }
 
-        public Bootstrap( Collection<LittleModule> moduleSet, ServerBootstrap.ServerProfile profile, AppBootstrap.AppProfile appProfile ) {
+    public static class Bootstrap extends AbstractLittleBootstrap<LittleModule> implements ServerBootstrap {
+        private final AppBootstrap.AppProfile profile;
+
+        public Bootstrap( Collection<LittleModule> moduleSet, AppBootstrap.AppProfile profile ) {
             super( moduleSet );
             this.profile = profile;
-            this.appProfile = appProfile;
         }
 
         @Override
-        public ServerBootstrap.ServerProfile getProfile() { return profile; }
+        public AppBootstrap.AppProfile getProfile() { return profile; }
         
 
         public Injector appInjector = null;
@@ -130,7 +129,9 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
                 new AbstractServerModule( profile ) {
                     @Override
                     public void configure( Binder binder ) {
-                        binder.bind( LittleBootstrap.class ).to( ServerBootstrap.class );
+                        binder.bind( AppBootstrap.AppProfile.class ).toInstance( profile );
+                        binder.bind( LittleBootstrap.class ).to( AppBootstrap.class );
+                        binder.bind( AppBootstrap.class ).to( ServerBootstrap.class );
                         binder.bind( ServerBootstrap.class ).toInstance( Bootstrap.this );
                     }
                 }
@@ -143,7 +144,7 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
         
         @Override
         public SessionBuilder newSessionBuilder() {
-            return new SimpleSessionBuilder( appProfile, bootstrapApp() );
+            return new SimpleSessionBuilder( profile, bootstrapApp() );
         }
 
         @Override
@@ -169,20 +170,18 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
     public ServerBootstrap build() {
         final ImmutableList.Builder<LittleModule> builder = ImmutableList.builder();
         for( ServerModuleFactory factory : serverFactoryList ) {
-            builder.add( factory.build( profile ) );
+            builder.add( factory.buildServerModule( profile ) );
         }
-        final AppBootstrap.AppProfile appProfile = (profile.equals( ServerProfile.J2EE ) ) ?
-            AppBootstrap.AppProfile.WebApp : AppBootstrap.AppProfile.JNLP;
 
         for( AppModuleFactory factory : appFactoryList ) {
-            builder.add( factory.build( appProfile ) );
+            builder.add( factory.build( profile ) );
         }
-        return new Bootstrap( builder.build(), profile, appProfile );
+        return new Bootstrap( builder.build(), profile );
     }
 
     public static void main(String[] v_argv) {
         log.log(Level.INFO, "Testing OSGi bootstrap");
-        final LittleBootstrap boot = ServerBootstrap.provider.get().profile(ServerProfile.Standalone).build();
+        final LittleBootstrap boot = ServerBootstrap.provider.get().profile(AppProfile.CliApp).build();
         boot.bootstrap();
     }
 }

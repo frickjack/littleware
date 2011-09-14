@@ -10,6 +10,7 @@ package littleware.asset.server.bootstrap;
 import littleware.asset.server.bootstrap.internal.SimpleServerBuilder;
 import com.google.inject.Provider;
 import java.util.Collection;
+import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.LittleModule;
@@ -17,35 +18,22 @@ import littleware.bootstrap.LittleModule;
 /**
  * Server-side bootstrap configuration manager
  */
-public interface ServerBootstrap extends LittleBootstrap {
+public interface ServerBootstrap extends AppBootstrap {
 
-    public enum ServerProfile {
-        Standalone, J2EE;
-    }
-
-    public ServerBootstrap.ServerProfile getProfile();
-
-    @Override
-    public Collection<? extends LittleModule> getModuleSet();
-
-    public interface ServerBuilder extends LittleBootstrap.Builder {
-
+    public interface ServerBuilder extends AppBootstrap.AppBuilder {
         /**
-         * List of server modules registered
+         * List of littleware modules registered with this bootstrap.
          */
         public Collection<ServerModuleFactory> getServerModuleSet();
-        public ServerBuilder addModuleFactory(ServerModuleFactory factory);
-        public ServerBuilder removeModuleFactory(ServerModuleFactory factory);
 
-        /**
-         * List of app modules registered
-         */
-        public Collection<AppModuleFactory> getAppModuleSet();
+        public ServerBuilder addModuleFactory( ServerModuleFactory factory);
+        public ServerBuilder removeModuleFactory( ServerModuleFactory factory);        
+        @Override
         public ServerBuilder addModuleFactory(AppModuleFactory factory);
+        @Override
         public ServerBuilder removeModuleFactory(AppModuleFactory factory);
-
-
-        public ServerBuilder profile(ServerProfile profile);
+        @Override
+        public ServerBuilder profile(AppProfile value);
 
         @Override
         public ServerBootstrap build();

@@ -79,22 +79,22 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
     /** 
      * Subtypes hook in here - endDbAccess calls this
      *
-     * @param iLevel
+     * @param levelNumber
      */
-    protected abstract void endDbAccess( int iLevel );
+    protected abstract void endDbAccess( int levelNumber );
 
     /**
      * Implementation checks the cache, decrements the level counter,
      * then call endDbAccess( iLevel )
      *
-     * @param v_cache provide user check to verify that we haven't lost track
+     * @param transCache provide user check to verify that we haven't lost track
      *         of the cycle-cache that goes with this transaction, may be null
      *         to skip check
      */
     @Override
-    public final void endDbAccess ( Map<UUID,Asset> v_cache ) {
-        if ( (null != v_cache)
-             && (v_cache != assetCache)
+    public final void endDbAccess ( Map<UUID,Asset> transCache ) {
+        if ( (null != transCache)
+             && (transCache != assetCache)
              ) {
             throw new AssertionFailedException ( "endDbAccess with wrong cache object" );
         }
@@ -102,7 +102,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
             throw new IllegalStateException ( "start/endDbAccess mismatch" );
         }
         --callCounter;
-        if ( (0 == callCounter) && (! ostack_savept.isEmpty ()) ) {
+        if ( (0 == callCounter) && (! savePointStack.isEmpty ()) ) {
             throw new IllegalStateException ( "Non-empty savepoint stack at dbaccess end" );
         }
         if ( 0 == callCounter ) {
@@ -120,26 +120,26 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
 
 
     // Little flag to set when running deferred actions for sanity check
-    private boolean                    ob_running_deferred = false;
-    private final List<Runnable>             ov_deferred_actions = new ArrayList<Runnable> ();
+    private boolean                    runningDeffered = false;
+    private final List<Runnable>             deferredActions = new ArrayList<Runnable> ();
 
     private class MySavePoint {
-        private final int oiLevel = callCounter;
-        private final int oiDeferSize = ov_deferred_actions.size();
+        private final int updateLevel = callCounter;
+        private final int deferSize = deferredActions.size();
 
-        public int getLevel() { return oiLevel; }
-        public int getDeferSize() { return oiDeferSize; }
+        public int getLevel() { return updateLevel; }
+        public int getDeferSize() { return deferSize; }
     }
-    private final List<MySavePoint>       ostack_savept = new ArrayList<MySavePoint>();
+    private final List<MySavePoint>       savePointStack = new ArrayList<MySavePoint>();
 
     @Override
-    public final void deferTillTransactionEnd ( Runnable run_later ) {
+    public final void deferTillTransactionEnd ( Runnable runLater ) {
         if ( isDbUpdating () ) {
-            ov_deferred_actions.add ( run_later );
-        } else if ( ob_running_deferred ) {
+            deferredActions.add ( runLater );
+        } else if ( runningDeffered ) {
             throw new IllegalStateException ( "Deferred actions may not defer actions" );
         } else {
-            run_later.run ();
+            runLater.run ();
         }
     }
 
@@ -147,31 +147,31 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
     @Override
     public void startDbUpdate () {
         startDbAccess ();
-        ostack_savept.add( new MySavePoint() );
+        savePointStack.add( new MySavePoint() );
     }
 
     @Override
     public final boolean isDbUpdating () {
-        return (! ostack_savept.isEmpty() );
+        return (! savePointStack.isEmpty() );
     }
 
     /** Subtypes hook into endDbUpdate here */
-    protected abstract void endDbUpdate( boolean b_rollback, int iUpdateLevel );
+    protected abstract void endDbUpdate( boolean rollback, int updateLevel );
 
     /**
      * Performs sanity check before calling endDbUpdate with the
      * post-decremented level number.  Executes deferred actions
      * after subtype endDbUpdate( b_rollback, iUpdateLevel) runs.
      *
-     * @param b_rollback
+     * @param rollback
      * @throws java.sql.SQLException
      */
     @Override
-    public final void endDbUpdate ( final boolean b_rollback ) {
+    public final void endDbUpdate ( final boolean rollback ) {
         if ( ! isDbUpdating() ) {
             throw new IllegalStateException( "Not updating" );
         }
-        final MySavePoint  savept = ostack_savept.remove( ostack_savept.size() - 1 );
+        final MySavePoint  savept = savePointStack.remove( savePointStack.size() - 1 );
 
         if ( callCounter != savept.getLevel () ) {
             throw new IllegalStateException ( "Transaction " + getId () +
@@ -180,14 +180,14 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
                                               );
         }
 
-        if (b_rollback) {
+        if (rollback) {
             log.log(Level.FINE, "Clearing cycle cache before rollback");
             if (0 == savept.getDeferSize()) {
-                ov_deferred_actions.clear();
+                deferredActions.clear();
             } else {
-                for (int i = ov_deferred_actions.size() - 1;
+                for (int i = deferredActions.size() - 1;
                         i >= savept.getDeferSize(); --i) {
-                    ov_deferred_actions.remove(i);
+                    deferredActions.remove(i);
                 }
             }
             assetCache.clear();
@@ -195,23 +195,23 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
 
         // Upcall to subtype
         try {
-            endDbUpdate( b_rollback, ostack_savept.size() );
+            endDbUpdate( rollback, savePointStack.size() );
 
-            if ( ostack_savept.isEmpty() && (! b_rollback) ) {
-                ob_running_deferred = true;
-                for (Runnable run_now : ov_deferred_actions) {
+            if ( savePointStack.isEmpty() && (! rollback) ) {
+                runningDeffered = true;
+                for (Runnable run_now : deferredActions) {
                     try {
                         run_now.run();
                     } catch (Exception e) {
                         log.log(Level.SEVERE, "Failed deferred action", e);
                     }
                 }
-                ob_running_deferred = false;
-                ov_deferred_actions.clear();
+                runningDeffered = false;
+                deferredActions.clear();
             }
         } finally {
-            if ( ostack_savept.isEmpty () ) {
-                ov_deferred_actions.clear ();
+            if ( savePointStack.isEmpty () ) {
+                deferredActions.clear ();
             }
 
             endDbAccess ();

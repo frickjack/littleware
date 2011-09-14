@@ -238,9 +238,9 @@ public class SimpleAssetManager implements ServerAssetManager {
                     builder.setHomeId(asset.getId());
                 } else {
                     log.log(Level.FINE, "Retrieving HOME");
-                    final Asset a_home = search.getAsset(ctx, asset.getHomeId()).get();
+                    final Asset home = search.getAsset(ctx, asset.getHomeId()).get();
                     log.log(Level.FINE, "Got HOME");
-                    if (!a_home.getAssetType().equals(LittleHome.HOME_TYPE)) {
+                    if (!home.getAssetType().isA(LittleHome.HOME_TYPE)) {
                         throw new IllegalArgumentException("Home id must link to HOME type asset");
                     }
                     // If from-id is null from non-home orphan asset,
@@ -255,20 +255,23 @@ public class SimpleAssetManager implements ServerAssetManager {
                 if ((null != asset.getFromId()) && ((null == oldAsset) || (!asset.getFromId().equals(oldAsset.getFromId())))) {
                     log.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
-                    final Asset a_from = search.getAsset(ctx, asset.getFromId()).get();
+                    final Asset parent = search.getAsset(ctx, asset.getFromId()).get();
 
-                    if ((!a_from.getOwnerId().equals(userCaller.getId())) && (!ctx.isAdmin())) {
-                        if (!ctx.checkPermission(LittlePermission.WRITE, a_from.getAclId())) {
+                    if ((!parent.getOwnerId().equals(userCaller.getId())) && (!ctx.isAdmin())) {
+                        if (!ctx.checkPermission(LittlePermission.WRITE, parent.getAclId())) {
                             throw new AccessDeniedException("Caller " + userCaller
-                                    + " may not link from asset " + a_from.getId()
+                                    + " may not link from asset " + parent.getId()
                                     + " without permission " + LittlePermission.WRITE);
                         }
                     }
-                    if ((!a_from.getHomeId().equals(asset.getHomeId()))) {
+                    if ((!parent.getHomeId().equals(asset.getHomeId()))) {
                         throw new IllegalArgumentException("May not link FROM an asset with a different HOME");
                     }
-                    if (a_from.getAssetType().equals(LinkAsset.LINK_TYPE)) {
+                    if (parent.getAssetType().equals(LinkAsset.LINK_TYPE)) {
                         throw new IllegalArgumentException("May not link FROM an asset of type LinkAsset.LINK_TYPE");
+                    }
+                    if ( search.getAssetIdsFrom( ctx, parent.getId() ).containsKey( asset.getName() ) ) {
+                        throw new IllegalArgumentException( "Parent already has child with name: " + asset.getName() );
                     }
                 }
 

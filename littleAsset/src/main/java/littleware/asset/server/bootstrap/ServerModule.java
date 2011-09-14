@@ -1,10 +1,8 @@
 /*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
+ * Copyright 2011 http://code.google.com/p/littleware/
+ *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
@@ -15,13 +13,12 @@ import java.util.Map;
 import littleware.asset.AssetType;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.LittleServerListener;
-import littleware.bootstrap.LittleModule;
+import littleware.bootstrap.AppModule;
 
 /**
  * Server-side littleware runtime module
  */
-public interface ServerModule extends LittleModule {
-    public ServerBootstrap.ServerProfile  getProfile();
+public interface ServerModule extends AppModule {
 
     /**
      * Get the collection of asset types this module provides,

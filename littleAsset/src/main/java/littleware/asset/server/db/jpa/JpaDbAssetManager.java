@@ -44,15 +44,6 @@ public class JpaDbAssetManager implements DbAssetManager {
         this.clockBuilder = clockBuilder;
     }
 
-    @Override
-    public int getClientId() {
-        return 0;
-    }
-
-    @Override
-    public void setClientId(int i_id) {
-        log.log(Level.INFO, "JpaDbAssetManager ignores clientId property");
-    }
 
     @Override
     public DbWriter<Asset> makeDbAssetSaver( LittleTransaction trans ) {

@@ -5,6 +5,7 @@
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
+
 package littleware.asset.server.bootstrap.internal;
 
 import com.google.common.collect.ImmutableMap;
@@ -42,12 +43,9 @@ import littleware.asset.server.internal.SimpleSearchManager;
 import littleware.security.server.internal.SimpleQuotaUtil;
 import littleware.asset.server.internal.SimpleSpecializerRegistry;
 import littleware.asset.server.db.DbAssetManager;
-import littleware.asset.server.db.jpa.HibernateGuice;
-import littleware.asset.server.db.jpa.J2EEGuice;
 import littleware.base.AssertionFailedException;
 import littleware.base.Maybe;
 import littleware.base.PropertiesGuice;
-import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.asset.server.internal.RmiAssetManager;
@@ -58,7 +56,6 @@ import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleModule;
-import littleware.db.DbGuice;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
 import littleware.security.LittleGroup;
@@ -79,7 +76,7 @@ public class AssetServerModule extends AbstractServerModule {
 
     private static final Logger log = Logger.getLogger(AssetServerModule.class.getName());
 
-    private AssetServerModule(ServerBootstrap.ServerProfile profile,
+    private AssetServerModule(AppBootstrap.AppProfile profile,
             Map<AssetType, Class<? extends AssetSpecializer>> typeMap
             ) {
         super(profile, typeMap, emptyServerListeners);
@@ -98,13 +95,7 @@ public class AssetServerModule extends AbstractServerModule {
         binder.bind( RemoteAssetManager.class ).to( RmiAssetManager.class ).in( Scopes.SINGLETON );
         binder.bind( LittleContext.ContextFactory.class ).to( SimpleContextFactory.class ).in( Scopes.SINGLETON );
 
-        // Whatever - stick this here to simplify running tests with client and server in same process
-        if ( ServerBootstrap.ServerProfile.J2EE.equals( this.getProfile() ) ) {
-            binder.bind( AppBootstrap.AppProfile.class ).toInstance( AppBootstrap.AppProfile.WebApp );
-        } else {
-            binder.bind( AppBootstrap.AppProfile.class ).toInstance( AppBootstrap.AppProfile.CliApp );
-        }
-
+        /*
         if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
             log.log(Level.INFO, "Configuring JPA in J2EE mode ...");
             (new J2EEGuice()).configure(binder);
@@ -117,6 +108,8 @@ public class AssetServerModule extends AbstractServerModule {
             }
             (new HibernateGuice()).configure(binder);
         }
+         * 
+         */
         try {
             PropertiesGuice.build().configure(binder);
         } catch (IOException ex) {
@@ -143,7 +136,8 @@ public class AssetServerModule extends AbstractServerModule {
                 RemoteSearchManager  searchMgr,
                 DbAssetManager dbManager,
                 LittleContext.ContextFactory ctxProvider,
-                Injector injector) {
+                Injector injector
+                ) {
             this.registryPort = registryPort;
             this.sessionMgr = sessionMgr;
             boolean rollback = true;
@@ -211,11 +205,11 @@ public class AssetServerModule extends AbstractServerModule {
                 } else {
                     log.log(Level.INFO, "Not exporing RMI registry - port set to: {0}", port);
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
                 log.log(Level.SEVERE, "Failed to bind to RMI registry "
                         + " running without exporting root SessionManager object to RMI universe",
-                        e);
+                        ex);
 
             }
             log.log(Level.INFO, "littleware RMI start ok");
@@ -267,7 +261,7 @@ public class AssetServerModule extends AbstractServerModule {
         }
 
         @Override
-        public ServerModule build(ServerProfile profile) {
+        public ServerModule buildServerModule(AppBootstrap.AppProfile profile) {
             return new AssetServerModule(profile, typeMap);
         }
     }

@@ -15,37 +15,33 @@ import java.util.Map;
 import littleware.asset.AssetType;
 import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.LittleServerListener;
+import littleware.bootstrap.AppBootstrap;
+import littleware.bootstrap.helper.AbstractAppModule;
 import littleware.bootstrap.helper.NullActivator;
-import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import org.osgi.framework.BundleActivator;
 
-public abstract class AbstractServerModule implements ServerModule {
-
-    private final ServerProfile profile;
+public abstract class AbstractServerModule extends AbstractAppModule implements ServerModule {
+    
     private final Map<AssetType, Class<? extends AssetSpecializer>> typeMap;
     private final Collection<Class<? extends LittleServerListener>> serverListeners;
 
     protected static final Map<AssetType, Class<? extends AssetSpecializer>> emptyTypeMap = Collections.emptyMap();
     protected static final Collection<Class<? extends LittleServerListener>> emptyServerListeners = Collections.emptyList();
 
-    protected AbstractServerModule(ServerBootstrap.ServerProfile profile,
+    protected AbstractServerModule(AppBootstrap.AppProfile profile,
             Map<AssetType, Class<? extends AssetSpecializer>> typeMap,
             Collection<Class<? extends LittleServerListener>> serverListeners) {
-        this.profile = profile;
+        super( profile );
         this.typeMap = ImmutableMap.copyOf( typeMap );
         this.serverListeners = ImmutableList.copyOf( serverListeners );
     }
 
-    protected AbstractServerModule( ServerBootstrap.ServerProfile profile ) {
-        this.profile = profile;
+    protected AbstractServerModule( AppBootstrap.AppProfile profile ) {
+        super( profile );
         this.typeMap = Collections.emptyMap();
         this.serverListeners = Collections.emptyList();
     }
 
-    @Override
-    public ServerProfile getProfile() {
-        return profile;
-    }
 
     @Override
     public Map<AssetType, Class<? extends AssetSpecializer>> getAssetTypes() {

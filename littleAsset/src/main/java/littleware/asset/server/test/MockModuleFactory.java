@@ -11,10 +11,10 @@ import com.google.inject.Binder;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import littleware.asset.server.bootstrap.AbstractServerModule;
-import littleware.asset.server.bootstrap.ServerBootstrap.ServerProfile;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.base.AssertionFailedException;
+import littleware.bootstrap.AppBootstrap;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.internal.RemoteSessionManager;
 
@@ -26,7 +26,7 @@ public class MockModuleFactory implements ServerModuleFactory {
 
     public static class MockModule extends AbstractServerModule {
 
-        public MockModule(ServerProfile profile) {
+        public MockModule(AppBootstrap.AppProfile profile) {
             super(profile);
         }
 
@@ -51,7 +51,7 @@ public class MockModuleFactory implements ServerModuleFactory {
     }
 
     @Override
-    public ServerModule build(ServerProfile profile) {
+    public ServerModule buildServerModule(AppBootstrap.AppProfile profile) {
         return new MockModule(profile);
     }
 }

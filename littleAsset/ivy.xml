@@ -12,7 +12,7 @@
         
         <conf name="ee_server"  extends="ee_client" description="combined server+client running in a java ee 6+ container"/>
         <conf name="server"  extends="ee_server" description="combined server+client outside ee container"/>
-    	<conf name="test" extends="server,client_junit" visibility="private" description="for testing our framework"/>        
+    	<conf name="test" extends="ee_server,client_junit" visibility="private" description="for testing our framework"/>        
         <!--
     	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
     	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>
@@ -53,12 +53,20 @@
            <exclude module=".+" ext="jar" type="src" matcher="regexp" />
         </dependency>
         <dependency org="antlr" name="antlr" rev="2.7.7" conf="server->*" />
-
         <!--
         <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525"/>
                 -->
         <dependency org="com.google.code.gson" name="gson" rev="1.4" />
         <dependency org="junit" name="junit" rev="3.8.+" conf="compile,test->*" />
+        
+        <!-- AWS and its apache httpclient dependencies ... -->
+        <dependency org="com.amazonaws" name="aws-java-sdk" rev="1.2.7" conf="compile,ee_server->*" />
+        <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.1.1" conf="ee_server->*" />
+        <dependency org="org.apache.httpcomponents" name="httpclient-cache" rev="4.1.1" conf="ee_server->*" />
+        <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.1.3" conf="ee_server->*" />
+        <dependency org="commons-codec" name="commons-codec" rev="1.4" conf="ee_server->*" />
+        <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="ee_server->*" />
+        
     </dependencies>
 
 </ivy-module>

@@ -7,6 +7,8 @@
  */
 package littleware.asset.server.db.aws;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +27,26 @@ import littleware.db.DbWriter;
  * DbAssetManager backed by AWS SimpleDB
  */
 public class AwsDbAssetManager implements DbAssetManager {
+    public static final String littlewareDomain = "littleware";
+    private final Provider<DbAssetSaver> saverProvider;
+    private final Provider<DbAssetLoader> loaderProvider;
+    private final Provider<DbAssetDeleter> deleterProvider;
 
+    
+    @Inject
+    public AwsDbAssetManager(
+            Provider<DbAssetSaver> saverProvider,
+            Provider<DbAssetLoader> loaderProvider,
+            Provider<DbAssetDeleter> deleterProvider
+            ) {
+        this.saverProvider = saverProvider;
+        this.loaderProvider = loaderProvider;
+        this.deleterProvider = deleterProvider;
+    }
+    
     @Override
     public DbWriter<Asset> makeDbAssetSaver(LittleTransaction trans) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return saverProvider.get();
     }
 
     final DbWriter<AssetType>  noopTypeChecker = new DbWriter<AssetType>() {
@@ -47,12 +65,12 @@ public class AwsDbAssetManager implements DbAssetManager {
 
     @Override
     public DbReader<Asset, UUID> makeDbAssetLoader(LittleTransaction trans) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return loaderProvider.get();
     }
 
     @Override
     public DbWriter<Asset> makeDbAssetDeleter(LittleTransaction trans) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return deleterProvider.get();
     }
 
     @Override

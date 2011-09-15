@@ -12,7 +12,7 @@
         
         <conf name="ee_server"  extends="ee_client" description="combined server+client running in a java ee 6+ container"/>
         <conf name="server"  extends="ee_server" description="combined server+client outside ee container"/>
-    	<conf name="test" extends="ee_server,client_junit" visibility="private" description="for testing our framework"/>        
+    	<conf name="test" extends="server,client_junit" visibility="private" description="for testing our framework"/>        
         <!--
     	<conf name="homemade-impl" extends="api" description="provide a home made implementation of our api"/>
     	<conf name="cc-impl" extends="api" description="provide an implementation that use apache common collection framework"/>

@@ -50,8 +50,6 @@ public class DbAssetManagerTester extends LittleTest {
 
     /**
      * Constructor stashes data to run tests against
-     *
-     * @param m_db manager to test against
      */
     @Inject
     public DbAssetManagerTester(DbAssetManager mgrDb,

@@ -14,6 +14,7 @@ import java.util.logging.Level;
 
 import junit.framework.*;
 import littleware.asset.server.bootstrap.ServerBootstrap;
+import littleware.base.AssertionFailedException;
 
 /**
  * Test suite for littleware.asset package
@@ -59,9 +60,9 @@ public class JenkinsTestSuite extends TestSuite {
     public static TestSuite suite() {
         try {
             return (new AssetTestFactory()).build( ServerBootstrap.provider.get().build(), JenkinsTestSuite.class);
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             log.log(Level.SEVERE, "Test setup failed", ex);
-            throw ex;
+            throw new AssertionFailedException( "Failed bootstrap", ex );
         }
     }
 }

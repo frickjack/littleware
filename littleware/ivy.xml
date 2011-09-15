@@ -48,13 +48,12 @@
         <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" conf="compile,client_derby->*" />
         <dependency org="org.apache.derby" name="derbyclient" rev="10.5.3.0_1" conf="compile,client_derby->*" />
         <dependency org="junit" name="junit" rev="3.8.+" conf="client_junit,client_compile->*" />
-        <dependency org="org.logicalcobwebs" name="com.springsource.org.logicalcobwebs.proxool" rev="0.9.1" 
+        <dependency org="proxool" name="proxool" rev="0.9.1" 
                 conf="compile,client_derby,client_postgres->*" 
-                > 
-                <!-- conf="*-*,!sources" -->
-           <exclude module=".+" ext="jar" type="src" matcher="regexp" />
-           <exclude module=".+servlet" matcher="regexp" />
-        </dependency>
+                />         
+        <dependency org="proxool" name="proxool-cglib" rev="0.9.1" 
+                conf="compile,client_derby,client_postgres->*" 
+                /> 
         <dependency org="com.oracle" name="ojdbc6" rev="11gr2" conf="compile,client_oracle->*" />
         <dependency org="postgresql" name="postgresql" rev="8.4-701.jdbc4" conf="compile,client_postgres->*" />
     </dependencies>

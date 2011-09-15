@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.logging.Logger;
 import littleware.bootstrap.AppBootstrap;
-import littleware.bootstrap.SessionBootstrap.SessionBuilder;
 import littleware.bootstrap.helper.AbstractLittleBootstrap;
 import littleware.bootstrap.AppBootstrap.AppBuilder;
 import littleware.bootstrap.AppBootstrap.AppProfile;

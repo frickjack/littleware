@@ -15,12 +15,7 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,12 +37,17 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
     private static final Logger log = Logger.getLogger(DbIdsFromLoader.class.getName());
     private final AmazonSimpleDB db;
     private final AwsConfig config;
-    private final Collection<String> queryList;
+    private final String query;
+    private final Option<Integer> maybeState;
+    private final Option<AssetType> maybeType;
 
-    public DbIdsFromLoader(AmazonSimpleDB db, AwsConfig config, Collection<String> queryList) {
+    public DbIdsFromLoader(AmazonSimpleDB db, AwsConfig config, String query,
+            Option<Integer> maybeState, Option<AssetType> maybeType) {
         this.db = db;
         this.config = config;
-        this.queryList = queryList;
+        this.query = query;
+        this.maybeState = maybeState;
+        this.maybeType = maybeType;
     }
 
     @Override
@@ -55,27 +55,39 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
         final ImmutableMap.Builder<String, UUID> builder = ImmutableMap.builder();
         try {
             // We shouldn't have to worry about multiple pages of results ...
-            for (String query : queryList) {
-                log.log(Level.FINE, "Running query: {0}", query);
-                final SelectResult result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE));
-                Whatever.get().check("Query overflow ...", null == result.getNextToken());
-                for (Item item : result.getItems()) {
-                    String name = null;
-                    UUID id = null;
+            log.log(Level.FINE, "Running query: {0}", query);
+            final SelectResult result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE));
+            Whatever.get().check("Query overflow ...", null == result.getNextToken());
+            for (Item item : result.getItems()) {
+                String name = null;
+                UUID id = null;
+                AssetType type = null;
+                Integer state = null;
 
-                    for (Attribute attr : item.getAttributes()) {
-                        if (attr.getName().equals("id")) {
-                            id = UUIDFactory.parseUUID(attr.getValue());
-                        } else {
-                            name = attr.getValue();
-                        }
+                for (Attribute attr : item.getAttributes()) {
+                    if (attr.getName().equals("id")) {
+                        id = UUIDFactory.parseUUID(attr.getValue());
+                    } else if (attr.getName().equals("typeId")) {
+                        type = AssetType.getMember( UUIDFactory.parseUUID( attr.getValue() ) );
+                    } else if (attr.getName().equals("state")) {
+                        state = Integer.parseInt(attr.getValue());
+                    } else {
+                        name = attr.getValue();
                     }
-                    if ((null == name) || (null == id)) {
-                        throw new AssertionFailedException("Unexpected query result");
-                    }
+                }
+                if ((null == name) || (null == id) || (null == type) || (null == state)) {
+                    throw new AssertionFailedException("Unexpected query result");
+                }
+                
+                // apply type and state filters
+                // Note: cheaper to filter here than to run an intersect query against asset-type and state
+                final boolean typeOk = maybeType.isEmpty() || type.isA(maybeType.get());
+                final boolean stateOk = maybeState.isEmpty() || state.equals(maybeState.get());
+                if (typeOk && stateOk) {
                     builder.put(name, id);
                 }
             }
+
             return builder.build();
         } catch (Exception ex) {
             throw new SQLException("Failed fromId query", ex);
@@ -123,26 +135,10 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
 
         public DbIdsFromLoader build() {
             ValidationException.validate(fromId != null, "Must specify fromId");
-            String query = "Select id, name From " + config.getDbDomain() + " Where `fromId`='"
+            final String query = "Select id, name, typeId, state From " + config.getDbDomain() + " Where `fromId`='"
                     + UUIDFactory.makeCleanString(fromId)
                     + "'";
-            for (Integer state : maybeState) {
-                query += " intersection (`state`='" + DbAssetSaver.encodeState(state) + "')";
-            }
-            final List<String> queryList = new ArrayList<String>();
-            if (maybeType.isEmpty()) {
-                queryList.add(query);
-            } else {
-                final AssetType baseType = maybeType.get();
-                final Set<AssetType> typeSet = new HashSet<AssetType>( AssetType.getSubtypes(baseType) );
-                typeSet.add(baseType);
-                
-                for (AssetType type : typeSet ) {
-                    queryList.add(query + " intersection `typeId`='" + UUIDFactory.makeCleanString(type.getObjectId()) + "'");
-                }
-            }
-
-            return new DbIdsFromLoader(db, config, queryList);
+            return new DbIdsFromLoader(db, config, query, maybeState, maybeType );
         }
     }
 }

@@ -61,11 +61,13 @@ public class GroupMemberBuilder extends AbstractAssetBuilder<LittleGroupMember.M
 
     @Override
     public MemberBuilder group(LittleGroup value) {
+        setOwnerId( value.getId() );
         return parent( value );
     }
 
     @Override
     public MemberBuilder member(LittlePrincipal value) {
+        setName( value.getName() );
         return toId( value.getId() );
     }
 

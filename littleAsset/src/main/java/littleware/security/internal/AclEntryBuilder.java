@@ -34,7 +34,6 @@ import littleware.security.LittlePrincipal;
  * Overrides setData/getData to extract XML permission data.f
  */
 class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> implements LittleAclEntry.Builder {
-
     private static final Logger log = Logger.getLogger( AclEntryBuilder.class.getName() );
 
 
@@ -50,6 +49,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
     @Override
     public Builder acl(LittleAcl acl) {
         super.parent( acl );
+        ownerId( acl.getOwnerId() );
         return aclId( acl.getId() );
     }
 
@@ -326,17 +326,16 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
      * Set the principal this entry tracks permissions for.
      * Also resets setToId to the principal id,
      * and sets name to principal-name.
-     *
-     * @param p_principal to track
      */
     @Override
     public void setPrincipal(LittlePrincipal principal) {
-        this.principal = (LittlePrincipal) principal;
+        this.principal = principal;
         if ( null != principal ) {
             // principal may not be set
             setToId(principal.getId());
         }
     }
+    
     @Override
     public LittleAclEntry.Builder principal( LittlePrincipal principal ) {
         setPrincipal( principal );

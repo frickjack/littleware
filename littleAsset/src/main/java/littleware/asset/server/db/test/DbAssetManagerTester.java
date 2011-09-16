@@ -109,8 +109,8 @@ public class DbAssetManagerTester extends LittleTest {
                     creatorId(aHome.getCreatorId()).
                     lastUpdaterId(aHome.getCreatorId()).
                     ownerId(aHome.getOwnerId()).
-                    timestamp( trans.getTimestamp() 
-                    ).putAttribute( "attr1", "bla").build();
+                    timestamp( trans.getTimestamp() ).
+                    putAttribute( "attr1", "bla").build();
             // Note - in normal operation - saving the same asset multiple times in a single transaction is disallowed
             // at higher API levels
             dbMgr.makeDbAssetSaver( trans ).saveObject(testSave);
@@ -118,14 +118,24 @@ public class DbAssetManagerTester extends LittleTest {
             assertTrue("From preserved on load", testLoad.getParentId().equals(aHome.getId()));
             assertTrue( "attr1 preserved on load", "bla".equals( testLoad.getAttribute( "attr1" ).getOr( "Ugh!") ) );
             final GenericAsset resave = testLoad.copy().narrow( GenericAsset.GenericBuilder.class ).removeAttribute("attr1").build();
+            assertTrue( "Timestamp preserved on copy: " + resave.getTimestamp(), resave.getTimestamp() >= trans.getTimestamp() );
             assertTrue( "Ids are consistent", resave.getId().equals( testSave.getId() ) );
             assertTrue( "resave has no attributes", resave.getAttributeMap().isEmpty() );
             dbMgr.makeDbAssetSaver( trans ).saveObject( resave );
             assertTrue( "attr1 removed on reload", dbMgr.makeDbAssetLoader( trans ).loadObject( testSave.getId()).narrow( GenericAsset.class ).getAttribute("attr1" ).isEmpty() );
+            
             // Test from-loader
             final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader( trans, testHomeId, Maybe.something((AssetType) TreeNode.TREE_NODE_TYPE ), Maybe.empty(Integer.class)).loadObject("");
             assertTrue("Able to load children using a parent asset type", !mapChildren.isEmpty());
+            
+            // Test transaction nonsense
+            assertTrue( "Detected this transaction", 
+                    ! dbMgr.makeLogLoader(trans, testHomeId).loadObject( trans.getTimestamp() - 10 ).isEmpty() 
+                    );
+
+            // Delete the test asset
             dbMgr.makeDbAssetDeleter( trans ).saveObject(testLoad);
+            
         } catch (Exception e) {
             log.log(Level.INFO, "Caught unexpected", e);
             fail("Caught unexpected: " + e);

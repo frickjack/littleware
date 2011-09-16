@@ -98,6 +98,8 @@ public class JenkinsTestSuite extends TestSuite {
         if (runTest) {
             this.addTest(provideDbTester.get());
             this.addTest(provideDbTester.get().putName("testCreateUpdateDelete"));
+            this.addTest( provideDbTester.get().putName( "testHomeIdsQuery" ) );
+            this.addTest( provideDbTester.get().putName( "testByNameQuery" ) );
         }
         if (runTest) {
             this.addTest(assetTestSuite);

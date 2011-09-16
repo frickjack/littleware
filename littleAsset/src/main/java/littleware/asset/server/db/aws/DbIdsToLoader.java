@@ -15,10 +15,6 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -41,12 +37,14 @@ public class DbIdsToLoader implements DbReader<Set<UUID>, String> {
     private static final Logger log = Logger.getLogger(DbIdsToLoader.class.getName());
     private final AmazonSimpleDB db;
     private final AwsConfig config;
-    private final Collection<String> queryList;
+    private final String query;
+    private final Option<AssetType> maybeType;
 
-    public DbIdsToLoader(AmazonSimpleDB db, AwsConfig config, Collection<String> queryList) {
+    public DbIdsToLoader(AmazonSimpleDB db, AwsConfig config, String query, Option<AssetType> maybeType) {
         this.db = db;
         this.config = config;
-        this.queryList = queryList;
+        this.query = query;
+        this.maybeType = maybeType;
     }
 
     @Override
@@ -54,23 +52,27 @@ public class DbIdsToLoader implements DbReader<Set<UUID>, String> {
         final ImmutableSet.Builder<UUID> builder = ImmutableSet.builder();
         try {
             // We shouldn't have to worry about multiple pages of results ...
-            for (String query : queryList) {
-                log.log(Level.FINE, "Running query: {0}", query);
-                final SelectResult result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE));
-                Whatever.get().check("Query overflow ...", null == result.getNextToken());
-                for (Item item : result.getItems()) {
-                    UUID id = null;
+            log.log(Level.FINE, "Running query: {0}", query);
+            final SelectResult result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE));
+            Whatever.get().check("Query overflow ...", null == result.getNextToken());
+            for (Item item : result.getItems()) {
+                UUID id = null;
+                AssetType type = null;
 
-                    for (Attribute attr : item.getAttributes()) {
-                        if (attr.getName().equals("id")) {
-                            id = UUIDFactory.parseUUID(attr.getValue());
-                            break;
-                        } 
+                for (Attribute attr : item.getAttributes()) {
+                    if (attr.getName().equals("id")) {
+                        id = UUIDFactory.parseUUID(attr.getValue());
+                    } else if (attr.getName().equals("typeId")) {
+                        type = AssetType.getMember(UUIDFactory.parseUUID(attr.getValue()));
                     }
-                    if ( null == id ) {
-                        throw new AssertionFailedException("Unexpected query result");
-                    }
-                    builder.add( id);
+                }
+                if ((null == id) || (null == type)) {
+                    throw new AssertionFailedException("Unexpected query result");
+                }
+                // apply type filter
+                // Note: cheaper to filter here than to run an intersect query against asset-type
+                if (maybeType.isEmpty() || type.isA(maybeType.get())) {
+                    builder.add(id);
                 }
             }
             return builder.build();
@@ -102,32 +104,18 @@ public class DbIdsToLoader implements DbReader<Set<UUID>, String> {
             return this;
         }
 
-
         public Builder type(Option<AssetType> value) {
             maybeType = value;
             return this;
         }
 
-
         public DbIdsToLoader build() {
             ValidationException.validate(toId != null, "Must specify toId");
-            String query = "Select id From " + config.getDbDomain() + " Where `toId`='"
+            final String query = "Select id, typeId From " + config.getDbDomain() + " Where `toId`='"
                     + UUIDFactory.makeCleanString(toId)
                     + "'";
-            final List<String> queryList = new ArrayList<String>();
-            if (maybeType.isEmpty()) {
-                queryList.add(query);
-            } else {
-                final AssetType baseType = maybeType.get();
-                final Set<AssetType> typeSet = new HashSet<AssetType>( AssetType.getSubtypes(baseType) );
-                typeSet.add(baseType);
-                
-                for (AssetType type : typeSet ) {
-                    queryList.add(query + " intersection `typeId`='" + UUIDFactory.makeCleanString(type.getObjectId()) + "'");
-                }
-            }
 
-            return new DbIdsToLoader(db, config, queryList);
+            return new DbIdsToLoader(db, config, query, maybeType);
         }
     }
 }

@@ -19,6 +19,7 @@ import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.db.*;
+import littleware.asset.server.db.aws.LogLoader.Builder;
 import littleware.base.Option;
 import littleware.db.DbReader;
 import littleware.db.DbWriter;
@@ -34,6 +35,7 @@ public class AwsDbAssetManager implements DbAssetManager {
     private final Provider<DbIdsFromLoader.Builder> idsFromProvider;
     private final Provider<DbIdsToLoader.Builder> idsToProvider;
     private final Provider<DbByNameLoader.Builder> byNameProvider;
+    private final Provider<Builder> logProvider;
 
     
     @Inject
@@ -44,7 +46,8 @@ public class AwsDbAssetManager implements DbAssetManager {
             Provider<DbHomeIdLoader> homeIdProvider,
             Provider<DbIdsFromLoader.Builder> idsFromProvider,
             Provider<DbIdsToLoader.Builder> idsToProvider,
-            Provider<DbByNameLoader.Builder> byNameProvider
+            Provider<DbByNameLoader.Builder> byNameProvider,
+            Provider<LogLoader.Builder> logProvider
             ) {
         this.saverProvider = saverProvider;
         this.loaderProvider = loaderProvider;
@@ -53,6 +56,7 @@ public class AwsDbAssetManager implements DbAssetManager {
         this.idsFromProvider = idsFromProvider;
         this.idsToProvider = idsToProvider;
         this.byNameProvider = byNameProvider;
+        this.logProvider = logProvider;
     }
     
     @Override
@@ -106,7 +110,7 @@ public class AwsDbAssetManager implements DbAssetManager {
 
     @Override
     public DbReader<List<IdWithClock>, Long> makeLogLoader(LittleTransaction trans, UUID homeId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return logProvider.get().homeId( homeId ).build();
     }
     
 }

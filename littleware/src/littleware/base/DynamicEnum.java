@@ -25,7 +25,7 @@ import java.io.ObjectStreamException;
  */
 public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Serializable, Comparable<T> {
     private static final long serialVersionUID = 1111142L;
-    private static final Logger olog_generic = Logger.getLogger(DynamicEnum.class.getName());
+    private static final Logger log = Logger.getLogger(DynamicEnum.class.getName());
 
     /**
      * Little data-bucket for tracking information for each subtype
@@ -68,27 +68,27 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
         }
     }
     private static final Map<String, SubtypeData<? extends DynamicEnum>> subtypesByName = new HashMap<String, SubtypeData<? extends DynamicEnum>>();
-    private UUID ou_id = null;
-    private String os_name = null;
-    private Class<T> oc_enumtype = null;
+    private UUID id = null;
+    private String name = null;
+    private Class<T> clazz = null;
 
     /**
      * Add the given type-object to the global typemap if another
      * object hasn't already been registered with the given UUID.
      */
-    private void registerMemberIfNecessary(Class<T> c_class) {
-        SubtypeData<T> x_data = null;
+    private void registerMemberIfNecessary(Class<T> clazz) {
+        SubtypeData<T> data;
 
         synchronized (subtypesByName) {
-            x_data = (SubtypeData<T>) subtypesByName.get ( c_class.getName () );
+            data = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
 
-            if (null == x_data) {
-                olog_generic.log(Level.FINE, "Registering new new DynamicEnum type: " + c_class.getName());
-                x_data = new SubtypeData<T>();
-                subtypesByName.put(c_class.getName(), x_data);
+            if (null == data) {
+                log.log(Level.FINE, "Registering new new DynamicEnum type: {0}", clazz.getName());
+                data = new SubtypeData<T>();
+                subtypesByName.put(clazz.getName(), data);
             }
         }
-        x_data.registerMemberIfNecessary((T) this);
+        data.registerMemberIfNecessary((T) this);
     }
 
     /**
@@ -96,20 +96,20 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      *
      * @throws NoSuchThingException if type not registered
      */
-    public static <T extends DynamicEnum> T getMember(UUID u_type_id, Class<T> c_class) throws NoSuchThingException {
+    public static <T extends DynamicEnum> T getMember(UUID id, Class<T> clazz) throws NoSuchThingException {
         SubtypeData<T> x_data = null;
 
         synchronized (subtypesByName) {
-            x_data = (SubtypeData<T>) subtypesByName.get ( c_class.getName () );
+            x_data = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
         }
 
         T n_result = null;
 
         if (null != x_data) {
-            n_result = x_data.getMember(u_type_id);
+            n_result = x_data.getMember(id);
         }
         if (null == n_result) {
-            throw new NoSuchThingException();
+            throw new NoSuchThingException( "No member with id: " + id );
         }
         return n_result;
     }
@@ -162,32 +162,32 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * Constructor for subtypes to register a u_id/s_name
      * for the default implementation of getObjectId() and getName().
      *
-     * @param u_id of the new member
-     * @param s_name of the new member
-     * @param c_type enum-type whose members this object is joining -
+     * @param id of the new member
+     * @param name of the new member
+     * @param clazz enum-type whose members this object is joining -
      *           this must be an instanceof c_type
      */
-    protected DynamicEnum(UUID u_id, String s_name, Class<T> c_type) {
-        ou_id = u_id;
-        os_name = s_name;
-        oc_enumtype = c_type;
+    protected DynamicEnum(UUID id, String name, Class<T> clazz) {
+        this.id = id;
+        this.name = name;
+        this.clazz = clazz;
 
-        Whatever.get().check("Only valid subtypes may join a DynamicEnum set", c_type.isInstance(this));
-        registerMemberIfNecessary(oc_enumtype);
+        Whatever.get().check("Only valid subtypes may join a DynamicEnum set", clazz.isInstance(this));
+        registerMemberIfNecessary(clazz);
     }
 
     /**
      * Each new asset-type should have unique UUID
      */
     public UUID getObjectId() {
-        return ou_id;
+        return id;
     }
 
     /**
      * Each new asset-type should have a unique name
      */
     public String getName() {
-        return os_name;
+        return name;
     }
 
     /**
@@ -233,10 +233,10 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      */
     public Object readResolve() throws ObjectStreamException {
         try {
-            registerMemberIfNecessary(oc_enumtype);
-            return getMember(this.getObjectId(), oc_enumtype);
-        } catch (NoSuchThingException e) {
-            olog_generic.log(Level.WARNING, "Deserialization of asset-type: " + this + ", caught unexpected: " + e);
+            registerMemberIfNecessary(clazz);
+            return getMember(this.getObjectId(), clazz);
+        } catch (NoSuchThingException ex) {
+            log.log(Level.WARNING, "Deserialization of asset-type: " + this, ex);
             return this;
         }
     }

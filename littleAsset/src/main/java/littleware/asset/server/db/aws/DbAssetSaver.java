@@ -18,7 +18,6 @@ import com.amazonaws.services.simpledb.util.SimpleDBUtils;
 import com.google.inject.Inject;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -98,10 +97,14 @@ public class DbAssetSaver implements DbWriter<Asset> {
         }
     }
     
-    public static String encodeState( int state ) {
-        return SimpleDBUtils.encodeZeroPadding(state, 10);
+    public static String encodeState( int value ) {
+        return SimpleDBUtils.encodeZeroPadding(value, 10);
     }
 
+    public static String encodeTimestamp( long value ) {
+        return SimpleDBUtils.encodeZeroPadding(value, 20);
+    }
+    
     public static ReplaceableItem assetToItem(AbstractAsset asset) {
         final ItemBuilder builder = new ItemBuilder();
 
@@ -114,7 +117,7 @@ public class DbAssetSaver implements DbWriter<Asset> {
         builder.add("updaterId", asset.getLastUpdaterId());
         builder.add("aclId", asset.getAclId());
         builder.add("homeId", asset.getHomeId());
-        builder.add(new ReplaceableAttribute("timestamp", SimpleDBUtils.encodeZeroPadding(asset.getTimestamp(), 20), true));
+        builder.add(new ReplaceableAttribute("timestamp", encodeTimestamp(asset.getTimestamp() ), true));
         builder.add(new ReplaceableAttribute("state", encodeState( asset.getState() ), true));
         builder.add("name", asset.getName());
         builder.add(new ReplaceableAttribute("value", asset.getValue().toString(), true));

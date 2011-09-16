@@ -213,44 +213,44 @@ public class SimpleSearchManager implements ServerSearchManager {
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
 
         try {
-            final T a_result = specialRegistry.getService(a_loaded.getAssetType()).narrow(ctx, a_loaded);
+            final T result = specialRegistry.getService(a_loaded.getAssetType()).narrow(ctx, a_loaded);
             // update cycle cache
-            accessCache.put(a_result.getId(), a_result);
-            if (a_result.getAssetType().equals(LittleUser.USER_TYPE) || a_result.getAssetType().equals(LittleGroup.GROUP_TYPE) || a_result.getAssetType().equals(LittleGroupMember.GROUP_MEMBER_TYPE) || ( // acl-entry may be protected by its own ACL
-                    a_result.getAssetType().equals(LittleAclEntry.ACL_ENTRY) && (null != a_result.getAclId()) && a_result.getAclId().equals( ((LittleAclEntry) a_result).getOwningAclId()) && accessCache.containsKey(a_result.getAclId()))) {
+            accessCache.put(result.getId(), result);
+            if (result.getAssetType().equals(LittleUser.USER_TYPE) || result.getAssetType().equals(LittleGroup.GROUP_TYPE) || result.getAssetType().equals(LittleGroupMember.GROUP_MEMBER_TYPE) || ( // acl-entry may be protected by its own ACL
+                    result.getAssetType().equals(LittleAclEntry.ACL_ENTRY) && (null != result.getAclId()) && result.getAclId().equals( ((LittleAclEntry) result).getOwningAclId()) && accessCache.containsKey(result.getAclId()))) {
                 /**
                  * No access limitation on USER, GROUP -
                  * chicken/egg problem since need these guys to implement security.
                  */
-                return a_result;
+                return result;
             }
 
             final LittleUser caller = ctx.getCaller();
 
             if (null == caller) {
 
-                if (a_result.getAssetType().equals(LittleSession.SESSION_TYPE)) {
+                if (result.getAssetType().equals(LittleSession.SESSION_TYPE)) {
                     /**
                      * Loophole to let unauthenticated session get session
                      * info to simplify session setup
                      */
-                    return a_result;
+                    return result;
                 }
 
                 throw new AccessDeniedException("Unauthenticated caller");
             }
 
-            if (caller.getId().equals(a_result.getOwnerId()) || ctx.isAdmin() ) {
+            if (caller.getId().equals(result.getOwnerId()) || ctx.isAdmin() ) {
                 // Owner can read his own freakin' asset
-                return a_result;
+                return result;
             }
             // Need to check ACL
-            if (!ctx.checkPermission( LittlePermission.READ, a_result.getAclId())) {
+            if (!ctx.checkPermission( LittlePermission.READ, result.getAclId())) {
                 throw new AccessDeniedException("Caller " + caller.getName() + " does not have permission to access asset " +
-                        a_result.getName() + "(" + a_result.getAssetType() + ", " + a_result.getId() + ")");
+                        result.getName() + "(" + result.getAssetType() + ", " + result.getId() + ")");
             }
 
-            return a_result;
+            return result;
         } catch (NoSuchThingException e) {
             throw new DataAccessException("Failure to specialize " + a_loaded.getAssetType() + " type asset: " + a_loaded.getName() +
                     ", caught: " + e, e);

@@ -18,12 +18,15 @@ import com.amazonaws.services.simpledb.util.SimpleDBUtils;
 import com.google.inject.Inject;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.spi.AbstractAsset;
 import littleware.base.UUIDFactory;
@@ -33,12 +36,15 @@ import littleware.db.DbWriter;
  * Handler to save a given asset
  */
 public class DbAssetSaver implements DbWriter<Asset> {
-
+    private static final Logger log = Logger.getLogger( DbAssetSaver.class.getName() );
+    
     private final AmazonSimpleDB db;
+    private final AwsConfig config;
 
     @Inject
-    public DbAssetSaver(AmazonSimpleDB db) {
+    public DbAssetSaver(AmazonSimpleDB db, AwsConfig config) {
         this.db = db;
+        this.config = config;
     }
 
     /**
@@ -91,6 +97,10 @@ public class DbAssetSaver implements DbWriter<Asset> {
             return this;
         }
     }
+    
+    public static String encodeState( int state ) {
+        return SimpleDBUtils.encodeZeroPadding(state, 10);
+    }
 
     public static ReplaceableItem assetToItem(AbstractAsset asset) {
         final ItemBuilder builder = new ItemBuilder();
@@ -105,7 +115,7 @@ public class DbAssetSaver implements DbWriter<Asset> {
         builder.add("aclId", asset.getAclId());
         builder.add("homeId", asset.getHomeId());
         builder.add(new ReplaceableAttribute("timestamp", SimpleDBUtils.encodeZeroPadding(asset.getTimestamp(), 20), true));
-        builder.add(new ReplaceableAttribute("state", SimpleDBUtils.encodeZeroPadding(asset.getState(), 10), true));
+        builder.add(new ReplaceableAttribute("state", encodeState( asset.getState() ), true));
         builder.add("name", asset.getName());
         builder.add(new ReplaceableAttribute("value", asset.getValue().toString(), true));
         builder.add("data", asset.getData());
@@ -132,25 +142,30 @@ public class DbAssetSaver implements DbWriter<Asset> {
     public void saveObject(Asset asset) throws SQLException {
         try {
             final ReplaceableItem item = DbAssetSaver.assetToItem((AbstractAsset) asset);
-            final List<Attribute> oldAttrs = db.getAttributes(new GetAttributesRequest(AwsDbAssetManager.littlewareDomain, item.getName())).getAttributes();
+            final List<Attribute> oldAttrs = db.getAttributes(new GetAttributesRequest(config.getDbDomain(), item.getName()).withConsistentRead(Boolean.TRUE)).getAttributes();
 
-            db.putAttributes(new PutAttributesRequest(AwsDbAssetManager.littlewareDomain, item.getName(),
+            //db.deleteAttributes( new DeleteAttributesRequest( config.getDbDomain(), UUIDFactory.makeCleanString( asset.getId() ) ) );
+            db.putAttributes(new PutAttributesRequest(config.getDbDomain(), item.getName(),
                     item.getAttributes()));
+
             if (!oldAttrs.isEmpty()) {
                 final Set<String> newAttrs = new HashSet<String>();
                 for (ReplaceableAttribute attr : item.getAttributes()) {
                     newAttrs.add(attr.getName());
                 }
                 final List<Attribute> deleteList = new ArrayList<Attribute>();
-                for (Attribute attr : oldAttrs) {
-                    if (!newAttrs.contains(attr.getName())) {
-                        deleteList.add(attr);
+                for (Attribute oldAttr : oldAttrs) {
+                    if (!newAttrs.contains(oldAttr.getName())) {
+                        deleteList.add(oldAttr);
                     }
                 }
                 if (!deleteList.isEmpty()) {
-                    db.deleteAttributes(new DeleteAttributesRequest(AwsDbAssetManager.littlewareDomain, item.getName(), deleteList));
+                    log.log( Level.FINE, "Cleaning up old attributes: {0}", deleteList);
+                    db.deleteAttributes(new DeleteAttributesRequest(config.getDbDomain(), item.getName(), deleteList));
+                } else {
+                    log.log( Level.FINE, "No attribute cleanup necessary on save" );
                 }
-            }
+            } 
         } catch (RuntimeException ex) {
             throw new SQLException("Failed to save asset", ex);
         }

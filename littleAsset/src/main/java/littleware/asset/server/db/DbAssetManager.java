@@ -53,12 +53,12 @@ public interface DbAssetManager {
     /**
      * Create handler to load the ids of assets linking TO a given asset id
      */
-    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader( LittleTransaction trans, UUID fromId, AssetType childType);
+    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader( LittleTransaction trans, UUID toId, Option<AssetType> assetType);
 
     /**
      * Create assets by name loader handler
      */
-    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader( LittleTransaction trans, String name, AssetType assetType );
+    public DbReader<Option<Asset>, String> makeDbAssetsByNameLoader( LittleTransaction trans, String name, AssetType assetType );
 
 
     /**

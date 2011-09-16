@@ -71,12 +71,12 @@ public class JpaDbAssetManager implements DbAssetManager {
     }
 
     @Override
-    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(LittleTransaction trans, UUID toId, AssetType atype) {
-        return new DbIdsToLoader( (JpaLittleTransaction) trans, toId, atype);
+    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(LittleTransaction trans, UUID toId, Option<AssetType> atype) {
+        return new DbIdsToLoader( (JpaLittleTransaction) trans, toId, atype.getOr( null ) );
     }
 
     @Override
-    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(LittleTransaction trans, String name, AssetType aType) {
+    public DbReader<Option<Asset>, String> makeDbAssetsByNameLoader(LittleTransaction trans, String name, AssetType aType) {
         return new DbByNameLoader( (JpaLittleTransaction) trans, assetRegistry, name, aType);
     }
 

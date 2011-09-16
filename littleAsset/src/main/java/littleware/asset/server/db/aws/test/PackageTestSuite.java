@@ -8,10 +8,13 @@
 package littleware.asset.server.db.aws.test;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.TestSuite;
 import littleware.asset.server.db.aws.AwsModule;
+import littleware.asset.server.db.test.DbAssetManagerTester;
+import littleware.base.Maybe;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
@@ -26,9 +29,14 @@ public class PackageTestSuite extends TestSuite {
     
     @Inject
     public PackageTestSuite(
-            AwsConnectTester connectTester) {
+            AwsConnectTester connectTester,
+            Provider<DbAssetManagerTester> mgrTestFactory ) {
         setName(getClass().getName());
         this.addTest(connectTester);
+        this.addTest( mgrTestFactory.get() );
+        this.addTest( mgrTestFactory.get().putName( "testCreateUpdateDelete" ) );
+        this.addTest( mgrTestFactory.get().putName( "testHomeIdsQuery" ) );
+        this.addTest( mgrTestFactory.get().putName( "testByNameQuery" ) );
     }
 
     /**
@@ -36,6 +44,7 @@ public class PackageTestSuite extends TestSuite {
      */
     public static TestSuite suite() {
         try {
+            AwsModule.dbDomainOverride = Maybe.something( "littleTestDomain" );
             final AppBootstrap boot = AppBootstrap.appProvider.get().addModuleFactory(
                     new AppModuleFactory() {
 

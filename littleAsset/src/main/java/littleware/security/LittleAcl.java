@@ -17,7 +17,6 @@ import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
-import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 
@@ -37,15 +36,8 @@ public interface LittleAcl extends TreeNode {
     /** ACL asset type - with AclManager asset specializer */
     public static final AssetType ACL_TYPE = new AssetType(
             UUIDFactory.parseUUID("04E11B112526462F91152DFFB51D21C9"),
-            "littleware.ACL") {
+            "littleware.ACL", TreeNode.TREE_NODE_TYPE ) {};
 
-        private final Option<AssetType> superType = Maybe.something( TreeNode.TREE_NODE_TYPE );
-
-        @Override
-        public Option<AssetType>  getSuperType() {
-            return superType;
-        }
-    };
 
     /**
      * Get enumeration view of the ACL entries.

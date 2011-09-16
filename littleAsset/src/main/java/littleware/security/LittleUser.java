@@ -85,17 +85,13 @@ public interface LittleUser extends LittlePrincipal {
         public Builder parent(TreeParent parent);
     }
     public static final AssetType USER_TYPE = new AssetType(UUIDFactory.parseUUID("2FAFD5D1074F4BF8A4F01753DBFF4CD5"),
-            "littleware.USER", TreeNode.TREE_NODE_TYPE) {
+            "littleware.USER", LittlePrincipal.PRINCIPAL_TYPE ) {
 
         @Override
         public boolean isAdminToCreate() {
             return true;
         }
 
-        @Override
-        public Option<AssetType> getSuperType() {
-            return Maybe.something((AssetType) LittlePrincipal.PRINCIPAL_TYPE);
-        }
 
         /** Always return true */
         @Override

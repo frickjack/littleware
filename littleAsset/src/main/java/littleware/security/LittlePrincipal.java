@@ -27,16 +27,7 @@ public interface LittlePrincipal extends java.security.Principal, littleware.ass
      */
     public static final AssetType PRINCIPAL_TYPE = new AssetType(
             UUIDFactory.parseUUID("A7E11221-5469-49FA-AF1E-8FCC52190F1D"),
-            "littleware.PRINCIPAL") {
-
-        private final Option<AssetType> superType = Maybe.something( TreeNode.TREE_NODE_TYPE );
-
-        @Override
-        public Option<AssetType>  getSuperType() {
-            return superType;
-        }
-
-    };
+            "littleware.PRINCIPAL", TreeNode.TREE_NODE_TYPE );
 
 }
 

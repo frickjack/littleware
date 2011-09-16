@@ -1,10 +1,8 @@
 /*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
+ * Copyright 2011 http://code.google.com/p/littleware
+ * 
+ * The contents of this file are available subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.asset;
@@ -36,9 +34,34 @@ import littleware.base.*;
  *     granted AccessPermission "littleware.asset.resource.newtype"
  */
 public class AssetType extends DynamicEnum<AssetType> {
+
     private static final long serialVersionUID = 1111142L;
     private static final Logger log = Logger.getLogger(AssetType.class.getName());
-    private Option<AssetType>  superType = Maybe.empty();
+    private static final Map<AssetType, Set<AssetType>> subtypeIndex = new HashMap<AssetType, Set<AssetType>>();
+
+    private static void updateSubtypes(AssetType newType) {
+        synchronized (subtypeIndex) {
+            subtypeIndex.put(newType, new HashSet<AssetType>());
+            for (AssetType parent = newType.getSuperType().getOr(null); null != parent;
+                    parent = parent.getSuperType().getOr(null)) {
+                subtypeIndex.get(parent).add(newType);
+            }
+        }
+    }
+
+    /**
+     * Little utility returns the subtypes of the given parent type that
+     * have been instantiated (and auto-registered) so far ...
+     * 
+     * @return set of subtypes - may be empty
+     */
+    public static Set<AssetType> getSubtypes(AssetType parent) {
+        synchronized (subtypeIndex) {
+            return Collections.unmodifiableSet(subtypeIndex.get(parent));
+        }
+    }
+    
+    private Option<AssetType> superType = Maybe.empty();
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -46,6 +69,7 @@ public class AssetType extends DynamicEnum<AssetType> {
     protected AssetType() {
         //final Permission permission = new AccessPermission("newtype");
         //AccessController.checkPermission(permission);
+        updateSubtypes( this );
     }
 
     /**
@@ -54,11 +78,13 @@ public class AssetType extends DynamicEnum<AssetType> {
      */
     public AssetType(UUID typeId, String typeName) {
         super(typeId, typeName, AssetType.class);
+        updateSubtypes( this );
     }
-    
-    public AssetType( UUID typeId, String typeName, AssetType superType ) {
+
+    public AssetType(UUID typeId, String typeName, AssetType superType) {
         super(typeId, typeName, AssetType.class);
-        this.superType = Maybe.something( superType );
+        this.superType = Maybe.something(superType);
+        updateSubtypes( this );
     }
 
     /** Shortcut to DynamicEnum.getMembers */
@@ -99,7 +125,7 @@ public class AssetType extends DynamicEnum<AssetType> {
      *
      * @return super-type, or null if no super-type (this implementation returns null)
      */
-    public Option<AssetType> getSuperType() {
+    public final Option<AssetType> getSuperType() {
         return superType;
     }
 
@@ -135,8 +161,6 @@ public class AssetType extends DynamicEnum<AssetType> {
     public boolean isAdminToCreate() {
         return (getSuperType().isEmpty()) ? false : getSuperType().get().isAdminToCreate();
     }
-
-
     /**
      * UNKNOWN asset-type - place holder for asset-types that we don't have a handler for.
      * The engine refuses to save/create/update assets with UNKNOWN type.

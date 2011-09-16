@@ -26,7 +26,7 @@ import littleware.asset.AssetType;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
-import static littleware.asset.server.db.aws.AwsDbAssetManager.littlewareDomain;
+
 
 /**
  * Handler to load an asset with a given id
@@ -34,12 +34,14 @@ import static littleware.asset.server.db.aws.AwsDbAssetManager.littlewareDomain;
 public class DbAssetLoader implements DbReader<Asset, UUID> {
 
     private final AmazonSimpleDB db;
+    private final AwsConfig config;
     private final AssetProviderRegistry assetRegistry;
 
     @Inject
-    public DbAssetLoader(AmazonSimpleDB db,
+    public DbAssetLoader(AmazonSimpleDB db, AwsConfig config,
             AssetProviderRegistry assetRegistry) {
         this.db = db;
+        this.config = config;
         this.assetRegistry = assetRegistry;
     }
 
@@ -101,7 +103,7 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
             final Map<String, Attribute> attrIndex;
             {
                 final ImmutableMap.Builder<String, Attribute> builder = ImmutableMap.builder();
-                for (Attribute attr : db.getAttributes(new GetAttributesRequest(littlewareDomain, UUIDFactory.makeCleanString(id))).getAttributes()) {
+                for (Attribute attr : db.getAttributes(new GetAttributesRequest( config.getDbDomain(), UUIDFactory.makeCleanString(id)).withConsistentRead(Boolean.TRUE)).getAttributes()) {
                     builder.put(attr.getName(), attr);
                 }
                 attrIndex = builder.build();

@@ -11,30 +11,58 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
+import com.amazonaws.services.simpledb.model.CreateDomainRequest;
 import com.google.inject.Binder;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.asset.LittleHome;
+import littleware.asset.TreeNode;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.db.AbstractLittleTransaction;
 import littleware.asset.server.db.DbAssetManager;
+import littleware.base.AssertionFailedException;
+import littleware.base.Maybe;
+import littleware.base.Option;
+import littleware.base.PropertiesLoader;
 import littleware.bootstrap.AppBootstrap;
+import littleware.security.AccountManager;
+import littleware.security.LittleGroup;
+import littleware.security.LittleUser;
 
 /**
- * Configuration module for AWS database backend 
+ * Configuration module for AWS database backend.
+ * The bootstrap code will create and initialize the SimpleDB domain
+ * at guice-configure time if the domain doesn't already exist.
  */
 public class AwsModule extends AbstractServerModule {
 
+    /**
+     * The AWS SimpleDB domain in AwsConfig is normally loaded from
+     * an AwsConfig.properties file, but this property overrides
+     * that value if set.  Mostly useful for testing.  The value is
+     * only checked at boot time - changing dbDomainOverride after
+     * the application has started has no effect.
+     */
+    public static Option<String> dbDomainOverride = Maybe.empty();
     private static final Logger log = Logger.getLogger(AwsModule.class.getName());
 
     public AwsModule(AppBootstrap.AppProfile profile) {
         super(profile);
     }
 
+    /**
+     * AWS implementation of LittleTransaction
+     */
     public static class AwsTransaction extends AbstractLittleTransaction {
+
         private final long timestamp = (new java.util.Date()).getTime();
 
         @Override
@@ -55,11 +83,87 @@ public class AwsModule extends AbstractServerModule {
         }
     }
 
+    /**
+     * Handler for initializing a new AWS SimpleDB domain for littleware use.
+     * Domain is initialized lazily at the first attempt to instantiate an
+     * AwsDbAssetManager.
+     */
+    public static class SetupHandler implements Runnable, Provider<DbAssetManager> {
+
+        private final AmazonSimpleDB db;
+        private final AwsConfig config;
+        private final DbAssetManager mgr;
+        private boolean isDomainInitialized = false;
+        private final Provider<LittleTransaction> transFactory;
+        private final Provider<LittleHome.HomeBuilder> homeFactory;
+        private final Provider<TreeNode.TreeNodeBuilder> treeNodeFactory;
+        private final Provider<LittleUser.Builder> userFactory;
+        private final Provider<LittleGroup.Builder> groupFactory;
+
+        @Inject
+        public SetupHandler(AmazonSimpleDB db, AwsConfig config, AwsDbAssetManager mgr, 
+                Provider<LittleTransaction> transFactory,
+                Provider<LittleHome.HomeBuilder> homeFactory,
+                Provider<TreeNode.TreeNodeBuilder> treeNodeFactory,
+                Provider<LittleUser.Builder> userFactory,
+                Provider<LittleGroup.Builder> groupFactory) {
+            this.db = db;
+            this.config = config;
+            this.mgr = mgr;
+            this.transFactory = transFactory;
+            this.homeFactory = homeFactory;
+            this.treeNodeFactory = treeNodeFactory;
+            this.userFactory = userFactory;
+            this.groupFactory = groupFactory;
+        }
+
+        @Override
+        public void run() {
+            if (!db.listDomains().getDomainNames().contains(config.getDbDomain())) {
+                db.createDomain(new CreateDomainRequest(config.getDbDomain()));
+            }
+            final LittleTransaction trans = transFactory.get();
+            trans.startDbUpdate();
+            try { // Go on to setup initial freakin' repository nodes ...
+                if (null == mgr.makeDbAssetLoader(null).loadObject(AbstractAssetTest.getTestHomeId())) {
+                    // Note: need to initialize everything as we're bypassing a couple layers of API
+                    final LittleHome testHome = homeFactory.get().homeId( AbstractAssetTest.getTestHomeId() 
+                            ).id( AbstractAssetTest.getTestHomeId() 
+                            ).creatorId( AccountManager.UUID_ADMIN
+                            ).lastUpdaterId( AccountManager.UUID_ADMIN
+                            ).ownerId( AbstractAssetTest.getTestUserId()
+                            ).aclId( AccountManager.UUID_EVERYBODY_GROUP
+                            ).name( AbstractAssetTest.getTestHome()
+                            ).comment( "Tree for test-case nodes"
+                            ).lastUpdate( "auto-created by AwsModule domain setup"
+                            ).timestamp( trans.getTimestamp()
+                            ).build().narrow();
+                    mgr.makeDbAssetSaver( trans ).saveObject(testHome);
+                }
+            } catch (SQLException ex) {
+                log.log(Level.WARNING, "Failed to initialize AWS domain", ex);
+                throw new AssertionFailedException("Failed to initialize AWS domain", ex);
+            } finally {
+                trans.endDbUpdate(false);
+            }
+        }
+
+        @Override
+        public DbAssetManager get() {
+            if ( ! isDomainInitialized ) {
+                this.run();
+                isDomainInitialized = true;
+            }
+            return mgr;
+        }
+    }
+
+    
     @Override
     public void configure(Binder binder) {
-        log.log(Level.FINE, "Configuring AWS database access");
         binder.bind(LittleTransaction.class).to(AwsTransaction.class);
-        binder.bind(DbAssetManager.class).to(AwsDbAssetManager.class).in(Scopes.SINGLETON);
+        binder.bind( AwsDbAssetManager.class ).in( Scopes.SINGLETON );
+        binder.bind(DbAssetManager.class).toProvider(SetupHandler.class).in(Scopes.SINGLETON);
         final String credsPath = "littleware/asset/server/db/aws/AwsCreds.properties";
         try {
             final InputStream is = getClass().getClassLoader().getResourceAsStream(credsPath);
@@ -72,10 +176,26 @@ public class AwsModule extends AbstractServerModule {
             } finally {
                 is.close();
             }
-            final AmazonSimpleDB  db = new AmazonSimpleDBClient( creds );
-            binder.bind( AmazonSimpleDB.class ).toInstance( db );
+            final AmazonSimpleDB db = new AmazonSimpleDBClient(creds);
+            binder.bind(AmazonSimpleDB.class).toInstance(db);
+
+            final String domain;
+            if (AwsModule.dbDomainOverride.isSet()) {
+                domain = AwsModule.dbDomainOverride.get();
+            } else {
+                domain = PropertiesLoader.get().loadProperties(AwsConfig.class).getProperty("domain", "littleware");
+            }
+
+            final AwsConfig config = new AwsConfig() {
+
+                @Override
+                public String getDbDomain() {
+                    return domain;
+                }
+            };
+            binder.bind(AwsConfig.class).toInstance(config);
         } catch (IOException ex) {
-            throw new IllegalStateException("Failed to load AWS credentials", ex);
+            throw new IllegalStateException("Failed to load AWS configuration", ex);
         }
     }
 }

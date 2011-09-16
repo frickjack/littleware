@@ -17,16 +17,18 @@ import littleware.db.DbWriter;
 
 public class DbAssetDeleter implements DbWriter<Asset> {
     private final AmazonSimpleDB db;
+    private final AwsConfig config;
 
     @Inject
-    public DbAssetDeleter(AmazonSimpleDB db) {
+    public DbAssetDeleter(AmazonSimpleDB db, AwsConfig config) {
         this.db = db;
+        this.config = config;
     }
 
     @Override
     public void saveObject(Asset asset) throws SQLException {
         try {
-            db.deleteAttributes( new DeleteAttributesRequest( AwsDbAssetManager.littlewareDomain, UUIDFactory.makeCleanString( asset.getId() ) ) );
+            db.deleteAttributes( new DeleteAttributesRequest( config.getDbDomain(), UUIDFactory.makeCleanString( asset.getId() ) ) );
         } catch ( Exception ex ) {
             throw new SQLException( "Failed asset delete", ex );
         }

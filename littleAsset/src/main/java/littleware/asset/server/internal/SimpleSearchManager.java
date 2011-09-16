@@ -60,12 +60,12 @@ public class SimpleSearchManager implements ServerSearchManager {
         }
 
         // cache miss
-        final Set<Asset> loadedAssets;
+        final Option<Asset> loadedAssets;
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
         try {
             try {
-                final DbReader<Set<Asset>, String> reader = dbMgr.makeDbAssetsByNameLoader( trans, name, type);
+                final DbReader<Option<Asset>, String> reader = dbMgr.makeDbAssetsByNameLoader( trans, name, type);
 
                 loadedAssets = reader.loadObject(null);
             } catch (SQLException ex) {
@@ -140,7 +140,7 @@ public class SimpleSearchManager implements ServerSearchManager {
         final LittleTransaction trans = ctx.getTransaction();
         trans.startDbAccess();
         try {
-            final DbReader<Set<UUID>, String> sql_reader = dbMgr.makeDbAssetIdsToLoader( trans, toId, type );
+            final DbReader<Set<UUID>, String> sql_reader = dbMgr.makeDbAssetIdsToLoader( trans, toId, Maybe.emptyIfNull( type ) );
             return sql_reader.loadObject(null);
         } catch (SQLException ex) {
             log.log( Level.INFO, "Failed call", ex );

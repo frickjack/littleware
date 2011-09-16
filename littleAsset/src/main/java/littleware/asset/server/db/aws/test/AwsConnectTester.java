@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import junit.framework.Assert;
+import littleware.asset.server.db.aws.AwsConfig;
 import littleware.test.LittleTest;
 
 /**
@@ -33,16 +35,18 @@ public class AwsConnectTester extends LittleTest {
 
     private static final Logger log = Logger.getLogger(AwsConnectTester.class.getName());
     private final AmazonSimpleDB db;
+    private final AwsConfig config;
 
     @Inject
-    public AwsConnectTester(AmazonSimpleDB db) {
+    public AwsConnectTester(AmazonSimpleDB db, AwsConfig config) {
         setName("testAwsConnect");
         this.db = db;
+        this.config = config;
     }
 
-    private final String testDomain = "littleware.test_domain";
     
     public void testAwsConnect() {
+        final String testDomain = config.getDbDomain();
         final List<String> deleteItemList = new ArrayList<String>();
         try {
             // Just make a call, and make sure an exception isn't thrown
@@ -50,10 +54,7 @@ public class AwsConnectTester extends LittleTest {
             for (String name : domainList) {
                 log.log(Level.INFO, "SimpleDB domain: " + name);
             }
-
-            if (!domainList.contains(testDomain)) {
-                db.createDomain(new CreateDomainRequest(testDomain));
-            }
+            Assert.assertTrue( "Domain list includes test domain: " + testDomain, domainList.contains( testDomain ) ); 
             // Ok - try to create an item with some null values, and see what the frick
             final String itemName = Long.toString((new Date()).getTime());
             this.db.putAttributes(new PutAttributesRequest(testDomain, itemName,

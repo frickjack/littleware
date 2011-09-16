@@ -25,13 +25,7 @@ public class AssetTypeTester extends LittleTest {
 
     final AssetType BOGUS = new AssetType(
             UUIDFactory.parseUUID("7D7B573B-4BF5-4A2F-BDC1-A614935E56AD"),
-            "littleware.BOGUS") {
-
-        @Override
-        public Option<AssetType> getSuperType() {
-            return Maybe.something( (AssetType) LittlePrincipal.PRINCIPAL_TYPE );
-        }
-    };
+            "littleware.BOGUS", LittlePrincipal.PRINCIPAL_TYPE ) {};
 
     public AssetTypeTester() {
         setName( "testAssetType" );
@@ -51,5 +45,6 @@ public class AssetTypeTester extends LittleTest {
         assertTrue("BOGUS is not admin-create only",
                 !BOGUS.isAdminToCreate()
                 );
+        assertTrue( "Principal subtypes include bogus", AssetType.getSubtypes( LittlePrincipal.PRINCIPAL_TYPE ).contains( BOGUS ));
     }
 }

@@ -15,8 +15,6 @@ import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
-import littleware.base.Maybe;
-import littleware.base.Option;
 import littleware.base.UUIDFactory;
 
 /**
@@ -32,13 +30,7 @@ public interface LittleGroup extends LittlePrincipal {
     /** GROUP asset type - with AccountManager asset specializer */
     public static final AssetType GROUP_TYPE = new AssetType(
             UUIDFactory.parseUUID("FAA894CEC15B49CF8F8EC5C280062776"),
-            "littleware.GROUP") {
-
-        @Override
-        public Option<AssetType> getSuperType() {
-            return Maybe.something((AssetType) LittlePrincipal.PRINCIPAL_TYPE);
-        }        
-    };
+            "littleware.GROUP", LittlePrincipal.PRINCIPAL_TYPE );
 
     //------------------------------------------------
     

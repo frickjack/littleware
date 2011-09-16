@@ -198,13 +198,7 @@ public interface GenericAsset extends TreeNode {
     }
     /** GENERIC asset-type */
     public static final AssetType GENERIC = new AssetType(UUIDFactory.parseUUID("E18D1B19D9714F6F8F49CF9B431EBF23"),
-            "littleware.GENERIC") {
-        private final Option<AssetType> mySuper = Maybe.something( TreeNode.TREE_NODE_TYPE );
-
-        @Override
-        public Option<AssetType> getSuperType() {
-            return mySuper;
-        }
+            "littleware.GENERIC", TreeNode.TREE_NODE_TYPE ) {
     };
 
 }

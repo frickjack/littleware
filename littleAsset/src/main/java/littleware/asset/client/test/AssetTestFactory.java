@@ -42,7 +42,7 @@ public class AssetTestFactory extends littleware.test.TestFactory {
         // Login as test user - go through SessionManager
         try {
             final LoginContext context = new LoginContext("littleware.login", new Subject(),
-                    new LoginCallbackHandler("littleware.test_user", "test123"),
+                    new LoginCallbackHandler( AbstractAssetTest.getTestUserName(), "test123"),
                     sessionInjector.getInstance(javax.security.auth.login.Configuration.class));
             context.login();
         } catch (LoginException ex) {

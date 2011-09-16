@@ -10,6 +10,7 @@ package littleware.asset.server.test;
 import com.google.inject.Binder;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import littleware.asset.client.test.AbstractAssetTest;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
@@ -34,7 +35,7 @@ public class MockModuleFactory implements ServerModuleFactory {
         @Singleton
         public LittleSession testSessionProvider(RemoteSessionManager sessionMgr) {
             try {
-                return sessionMgr.login("littleware.test_user", "bla", "setup server test");
+                return sessionMgr.login(AbstractAssetTest.getTestUserName(), "bla", "setup server test");
             } catch (RuntimeException ex) {
                 throw ex;
             } catch (Exception ex) {

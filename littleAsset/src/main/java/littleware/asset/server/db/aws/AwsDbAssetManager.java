@@ -27,21 +27,32 @@ import littleware.db.DbWriter;
  * DbAssetManager backed by AWS SimpleDB
  */
 public class AwsDbAssetManager implements DbAssetManager {
-    public static final String littlewareDomain = "littleware";
     private final Provider<DbAssetSaver> saverProvider;
     private final Provider<DbAssetLoader> loaderProvider;
     private final Provider<DbAssetDeleter> deleterProvider;
+    private final Provider<DbHomeIdLoader> homeIdProvider;
+    private final Provider<DbIdsFromLoader.Builder> idsFromProvider;
+    private final Provider<DbIdsToLoader.Builder> idsToProvider;
+    private final Provider<DbByNameLoader.Builder> byNameProvider;
 
     
     @Inject
     public AwsDbAssetManager(
             Provider<DbAssetSaver> saverProvider,
             Provider<DbAssetLoader> loaderProvider,
-            Provider<DbAssetDeleter> deleterProvider
+            Provider<DbAssetDeleter> deleterProvider,
+            Provider<DbHomeIdLoader> homeIdProvider,
+            Provider<DbIdsFromLoader.Builder> idsFromProvider,
+            Provider<DbIdsToLoader.Builder> idsToProvider,
+            Provider<DbByNameLoader.Builder> byNameProvider
             ) {
         this.saverProvider = saverProvider;
         this.loaderProvider = loaderProvider;
         this.deleterProvider = deleterProvider;
+        this.homeIdProvider = homeIdProvider;
+        this.idsFromProvider = idsFromProvider;
+        this.idsToProvider = idsToProvider;
+        this.byNameProvider = byNameProvider;
     }
     
     @Override
@@ -75,22 +86,22 @@ public class AwsDbAssetManager implements DbAssetManager {
 
     @Override
     public DbReader<Map<String, UUID>, String> makeDbHomeIdLoader(LittleTransaction trans) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return homeIdProvider.get();
     }
 
     @Override
     public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader(LittleTransaction trans, UUID fromId, Option<AssetType> maybeType, Option<Integer> maybeState) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return idsFromProvider.get().fromId( fromId ).type( maybeType ).state( maybeState ).build();
     }
 
     @Override
-    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(LittleTransaction trans, UUID fromId, AssetType childType) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(LittleTransaction trans, UUID toId, Option<AssetType> assetType) {
+        return idsToProvider.get().toId( toId ).type( assetType ).build();
     }
 
     @Override
-    public DbReader<Set<Asset>, String> makeDbAssetsByNameLoader(LittleTransaction trans, String name, AssetType assetType) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public DbReader<Option<Asset>, String> makeDbAssetsByNameLoader(LittleTransaction trans, String name, AssetType assetType) {
+        return byNameProvider.get().name(name).type(assetType).build();
     }
 
     @Override

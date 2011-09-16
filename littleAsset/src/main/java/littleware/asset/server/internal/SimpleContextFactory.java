@@ -197,7 +197,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
                 acl = aclCache.get(aclId);
             }
             if (null == acl) {
-                Option<Asset> maybe = search.getAsset(this, aclId);
+                final Option<Asset> maybe = search.getAsset(this, aclId);
                 if ((!maybe.isSet())
                         || (!maybe.get().getAssetType().equals(LittleAcl.ACL_TYPE))) {
                     return false;

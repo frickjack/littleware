@@ -45,6 +45,7 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
      */
     public SimpleACLBuilder() {
         super(LittleAcl.ACL_TYPE);
+        setAclId( getId() );
     }
 
     private static class AclAsset extends AbstractAsset implements LittleAcl {

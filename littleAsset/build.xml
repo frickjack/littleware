@@ -78,11 +78,29 @@
 
     -->
 
-    <target name="-post-compile">
+   <target name="aws-check">
+       <available file="${aws.credentials.file}" property="aws.exists"/>
+   </target>
+    
+    <target name="copyAwsCreds" depends="aws-check" if="aws.exists">
       <copy file="${aws.credentials.file}" tofile="build/classes/littleware/asset/server/db/aws/AwsCreds.properties"/>
     </target>
     
+    <target name="-post-compile" depends="copyAwsCreds">
+       <!-- copy AWS credentials into classpath via dependency -->
+    </target>
+    <target name="-pre-jar">
+       <!-- remove AWS creds before building jar -->
+       <delete file="build/classes/littleware/asset/server/db/aws/AwsCreds.properties" />
+    </target>
+    <target name="-post-jar">
+       <!-- copy AWS creds back into classpath via dependency -->
+       <copy file="${aws.credentials.file}" tofile="build/classes/littleware/asset/server/db/aws/AwsCreds.properties"/>
+    </target>
+    
+    <!-- deprecated littleAssetClient artifact for now ...
  <target name="-post-jar" depends="littleAssetClient" />
+     -->
 
  <target name="littleAssetClient"
 	 description="build littleAssetClient.jar"

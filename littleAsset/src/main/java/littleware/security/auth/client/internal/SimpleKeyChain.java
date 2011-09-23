@@ -12,6 +12,7 @@ package littleware.security.auth.client.internal;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import java.beans.PropertyChangeListener;
 import java.util.Map;
 import java.util.UUID;
 import littleware.base.Maybe;
@@ -63,7 +64,11 @@ public class SimpleKeyChain implements KeyChain {
 
     
     public void setHostSessionId(String host, UUID value) {
+        final UUID old = keyMap.get( host );
         keyMap.put(host, value);
+        if ( host.equals( defaultHost ) ) {
+            support.firePropertyChange( "defaultSessionId", old, value);
+        }
     }
 
     @Override
@@ -74,6 +79,16 @@ public class SimpleKeyChain implements KeyChain {
     @Override
     public void removeLittleListener(LittleListener ll) {
         support.removeLittleListener(ll);
+    }
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener pl) {
+        support.addPropertyChangeListener( pl );
+    }
+
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener pl) {
+        support.removePropertyChangeListener( pl );
     }
 
 }

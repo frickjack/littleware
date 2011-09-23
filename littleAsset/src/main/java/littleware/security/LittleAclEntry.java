@@ -64,7 +64,8 @@ public interface LittleAclEntry extends TreeChild, LinkAsset {
         /**
          * Synonym for parent()
          */
-        public Builder acl(LittleAcl acl);
+        public Builder owningAcl(LittleAcl acl);
+        public Builder owningAclId(UUID value);
 
         @Override
         public LittleAclEntry build();
@@ -77,9 +78,6 @@ public interface LittleAclEntry extends TreeChild, LinkAsset {
 
         @Override
         public Builder lastUpdaterId(UUID value);
-
-        @Override
-        public Builder aclId(UUID value);
 
         @Override
         public Builder ownerId(UUID value);

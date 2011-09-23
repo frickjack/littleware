@@ -65,9 +65,13 @@ public interface AssetTreeTemplate {
         public ByAssetBuilder assetBuilder(TreeNode.TreeNodeBuilder value);
 
         /**
-         * Shortcut for assetBuilder( GenericAsset.GENERIC.create().name( name ) )
+         * Shortcut for assetBuilder( treeNodeBuilder.name( name ) )
          */
         public ByAssetBuilder assetBuilder(String name);
+        /**
+         * Builds a template with TreeNodes along the given path except for
+         * the path's root (home) node, so template is ready for template.visit( home, scanner )
+         */
         public ByPathBuilder path(AssetPath value);
 
         /**

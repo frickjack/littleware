@@ -35,7 +35,6 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
      *
      * @param assetMgr Asset manager
      * @param search Asset lookup
-     * @param m_account to access acount info through
      */
     @Inject
     public SimpleAclManager(ServerAssetManager assetMgr,
@@ -92,7 +91,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
                 final LittleAclEntry.Builder entryBuilder = startEntry.copy().narrow(LittleAclEntry.Builder.class) .
                         principal( principal ).
                         name( principal.getName() + "." + (startEntry.isNegative() ? "negative" : "positive")).
-                        acl( acl ).
+                        owningAcl( acl ).
                         ownerId(acl.getOwnerId());
                  assetMgr.saveAsset( ctx, entryBuilder.build(), "ACL entry tracker");
             }
@@ -103,21 +102,21 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     public void postUpdateCallback( LittleContext ctx, Asset preUpdate, Asset postUpdate) throws BaseException, AssetException,
             GeneralSecurityException {
         if (LittleAcl.ACL_TYPE.equals(postUpdate.getAssetType())) {
-            Set<UUID> v_now_entries = new HashSet<UUID>();
+            final Set<UUID> postUpdateEntries = new HashSet<UUID>();
 
-            for (Enumeration<LittleAclEntry> v_entries = ((LittleAcl) postUpdate).entries();
-                    v_entries.hasMoreElements();) {
-                LittleAclEntry acl_entry = v_entries.nextElement();
+            for (Enumeration<LittleAclEntry> entries = ((LittleAcl) postUpdate).entries();
+                    entries.hasMoreElements();) {
+                final LittleAclEntry entry = entries.nextElement();
 
-                if (null != acl_entry.getId()) {
-                    v_now_entries.add(acl_entry.getId());
+                if (null != entry.getId()) {
+                    postUpdateEntries.add(entry.getId());
                 }
             }
-            for (Enumeration<LittleAclEntry> v_entries = ((LittleAcl) preUpdate).entries();
-                    v_entries.hasMoreElements();) {
-                LittleAclEntry acl_entry = (LittleAclEntry) v_entries.nextElement();
-                if (!v_now_entries.contains(acl_entry.getId())) {
-                    assetMgr.deleteAsset( ctx, acl_entry.getId(), "ACL update remove entry");
+            for (Enumeration<LittleAclEntry> entries = ((LittleAcl) preUpdate).entries();
+                    entries.hasMoreElements();) {
+                final LittleAclEntry entry = (LittleAclEntry) entries.nextElement();
+                if (!postUpdateEntries.contains(entry.getId())) {
+                    assetMgr.deleteAsset( ctx, entry.getId(), "ACL update remove entry");
                 }
             }
             postCreateCallback( ctx, postUpdate);

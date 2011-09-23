@@ -78,7 +78,7 @@ public class GsonTester extends LittleTest {
         testBuilder.put(group.getId(), group);
         final UUID aclId = UUID.randomUUID();
         final LittleAcl acl = aclFactory.get().homeId( homeId ).parentId( homeId ).id(aclId).name("testAcl").addEntry(
-                aclEFactory.get().aclId(aclId).addPermission(LittlePermission.READ).principal(group).build()).build();
+                aclEFactory.get().owningAclId(aclId).addPermission(LittlePermission.READ).principal(group).build()).build();
 
         testBuilder.put(acl.getId(), acl);
         testAssets = testBuilder.build();

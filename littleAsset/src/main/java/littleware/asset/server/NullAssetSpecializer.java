@@ -4,6 +4,8 @@ import com.google.inject.Singleton;
 import littleware.asset.*;
 import java.security.GeneralSecurityException;
 import littleware.base.BaseException;
+import littleware.base.Maybe;
+import littleware.base.Option;
 
 
 
@@ -34,6 +36,11 @@ public class NullAssetSpecializer implements AssetSpecializer {
     @Override
     public void postDeleteCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
             GeneralSecurityException {
+    }
+
+    @Override
+    public Option<String> validate( LittleContext ctx, Asset asset) throws BaseException, AssetException, GeneralSecurityException {
+        return Maybe.empty();
     }
 }
 

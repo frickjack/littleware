@@ -30,19 +30,29 @@ public interface AssetSpecializer {
      * is necessary to implement the AssetType supported by this
      * specializer.  Throws the same set of exceptions as getAsset().
      *
-     * @param assetIn instance of class returned by a_in.getAssetType ().create ()
-     * @return asset, or a new Asset consistent with the data in assetIn
+     * @return asset, or a new Asset consistent with the data in asset
      */
     public <T extends Asset> T narrow( LittleContext ctx, T asset) throws BaseException, AssetException,
             GeneralSecurityException;
 
+    /**
+     * Pre-save and pre-update callback to check sanity of asset.
+     * Should only perform read-only operations on the repository.
+     * Only type-specific checks are necessary - the AssetManager performs
+     * general checks.
+     * 
+     * @param asset to check
+     * @return empty if the asset is valid, otherwise a message describing the problem
+     */
+    public Option<String> validate( LittleContext ctx, Asset asset ) throws BaseException, AssetException,
+            GeneralSecurityException;
+    
     /**
      * Post asset-creation callback made by the AssetManager up to the specializer
      * responsible for the AssetType of the just created asset.
      * Throws the same set of exceptions as AssetManager.createAsset...
      *
      * @param asset just created
-     * @param m_asset manager making the callback
      */
     public void postCreateCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
             GeneralSecurityException;

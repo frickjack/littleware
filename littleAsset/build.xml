@@ -93,10 +93,7 @@
        <!-- remove AWS creds before building jar -->
        <delete file="build/classes/littleware/asset/server/db/aws/AwsCreds.properties" />
     </target>
-    <target name="-post-jar">
-       <!-- copy AWS creds back into classpath via dependency -->
-       <copy file="${aws.credentials.file}" tofile="build/classes/littleware/asset/server/db/aws/AwsCreds.properties"/>
-    </target>
+    <target name="-post-jar" depends="copyAwsCreds" />
     
     <!-- deprecated littleAssetClient artifact for now ...
  <target name="-post-jar" depends="littleAssetClient" />

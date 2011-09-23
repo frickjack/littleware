@@ -12,13 +12,15 @@ package littleware.security.auth.client;
 import java.util.UUID;
 import littleware.base.Option;
 import littleware.base.event.LittleEvent;
-import littleware.base.event.LittleEventSource;
+import littleware.base.event.LittleTool;
 
 /**
  * Singleton registry tracks the sessionId associated with
- * a session.
+ * a session.  Fires LoginRequestedEvent on getSessionId if session
+ * not yet available.  Fires PropertyChangeEvent on change to 
+ * defaultSessionId property.
  */
-public interface KeyChain extends LittleEventSource {
+public interface KeyChain extends LittleTool {
 
     /**
      * Event fired by KeyChain on attempt to access an

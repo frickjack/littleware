@@ -86,7 +86,7 @@ public class AclManagerTester extends AbstractAssetTest {
 
                 log.log(Level.INFO, "Registering and verifying AclEntry for principal: " + testUser);
                 final LittleAclEntry.Builder entryBuilder = aclEntryProvider.get().principal( testUser ).
-                        aclId( aclBuilder.getId() ).homeId( aclBuilder.getId() );
+                        owningAclId( aclBuilder.getId() ).homeId( aclBuilder.getId() );
 
                 // Assign a couple permissions to the entry
                 for (int j = 0; j < 10; ++j) {
@@ -120,7 +120,7 @@ public class AclManagerTester extends AbstractAssetTest {
             }
             {
                 // Make sure setData/getData are valid
-                final LittleAclEntry entry = aclEntryProvider.get().addPermission(LittlePermission.READ).acl( acl ).build().narrow();
+                final LittleAclEntry entry = aclEntryProvider.get().addPermission(LittlePermission.READ).owningAcl( acl ).build().narrow();
                 assertTrue("get/setData consistent", 
                         entry.getPermissions().equals( entry.copy().narrow( LittleAclEntry.Builder.class ).build().getPermissions() )
                         );

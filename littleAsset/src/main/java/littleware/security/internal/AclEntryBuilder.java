@@ -47,18 +47,17 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
 
 
     @Override
-    public Builder acl(LittleAcl acl) {
+    public Builder owningAcl(LittleAcl acl) {
         super.parent( acl );
         ownerId( acl.getOwnerId() );
-        return aclId( acl.getId() );
+        return this;
     }
-
+    
     @Override
-    public Builder aclId( UUID id ) {
-        super.aclId( id );
-        return fromId( id );
+    public Builder owningAclId( UUID id ) {
+        fromId( id );
+        return this;
     }
-
 
     //------------------------------------------------------
 
@@ -96,7 +95,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
         /**
          * Check if the specified permission is part of this entry
          *
-         * @param x_permission to check
+         * @param permission to check
          * @return true if in entry, false otherwise
          */
         @Override
@@ -294,7 +293,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
     /**
      * Add the specified permission to this Acl entry
      *
-     * @param x_permission to add
+     * @param permission to add
      * @return true if permission added, false if already in entry
      */
     @Override

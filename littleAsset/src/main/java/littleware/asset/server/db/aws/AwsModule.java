@@ -203,14 +203,14 @@ public class AwsModule extends AbstractServerModule {
                     final LittleAcl aclRead = aclFactory.get().id(LittleAcl.UUID_EVERYBODY_READ).aclId(LittleAcl.UUID_EVERYBODY_READ).name("acl.littleware.everybody.read").parent(littleHome).ownerId(AccountManager.UUID_ADMIN).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("littleware everybody read acl").lastUpdate("auto-created by AwsModule domain setup").build();
                     mgr.makeDbAssetSaver(trans).saveObject(aclRead);
 
-                    final LittleAclEntry entry = aclEntryFactory.get().acl(aclRead).principal(everybody).name("group.littleware.everybody.positive").addPermission(LittlePermission.READ).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("everybody group entry").lastUpdate("auto-created by AwsModule domain setup").build();
+                    final LittleAclEntry entry = aclEntryFactory.get().owningAcl(aclRead).principal(everybody).name("group.littleware.everybody.positive").addPermission(LittlePermission.READ).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("everybody group entry").lastUpdate("auto-created by AwsModule domain setup").build();
                     mgr.makeDbAssetSaver(trans).saveObject(entry);
                 }
                 if (null == mgr.makeDbAssetLoader(trans).loadObject(LittleAcl.UUID_EVERYBODY_WRITE)) {
                     final LittleAcl aclWrite = aclFactory.get().id(LittleAcl.UUID_EVERYBODY_WRITE).aclId( LittleAcl.UUID_EVERYBODY_READ ).name("acl.littleware.everybody.write").parent(littleHome).ownerId(AccountManager.UUID_ADMIN).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("littleware everybody read and write acl").lastUpdate("auto-created by AwsModule domain setup").build();
                     mgr.makeDbAssetSaver(trans).saveObject(aclWrite);
 
-                    final LittleAclEntry entry = aclEntryFactory.get().acl(aclWrite).principal(everybody).name("group.littleware.everybody.positive").addPermission(LittlePermission.READ).addPermission(LittlePermission.WRITE).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("everybody group entry").lastUpdate("auto-created by AwsModule domain setup").build();
+                    final LittleAclEntry entry = aclEntryFactory.get().owningAcl(aclWrite).principal(everybody).name("group.littleware.everybody.positive").addPermission(LittlePermission.READ).addPermission(LittlePermission.WRITE).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("everybody group entry").lastUpdate("auto-created by AwsModule domain setup").build();
                     mgr.makeDbAssetSaver(trans).saveObject(entry);
                 }
 

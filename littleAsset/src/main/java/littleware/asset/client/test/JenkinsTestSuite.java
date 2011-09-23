@@ -32,11 +32,14 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetTreeToolTester> provideTreeTester,
             Provider<AssetSearchManagerTester> provideSearchTest,
             Provider<AssetManagerTester> provideAstMgrTest,
-            littleware.asset.test.JenkinsTestSuite assetTestSuite) {
+            littleware.asset.test.JenkinsTestSuite assetTestSuite,
+            littleware.security.client.test.PackageTestSuite securityTestSuite 
+            ) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
 
         this.addTest(assetTestSuite);
+        this.addTest( securityTestSuite );
         if (runTest) {
             this.addTest(provideAstMgrTest.get());
         }

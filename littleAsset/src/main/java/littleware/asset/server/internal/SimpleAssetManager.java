@@ -17,6 +17,7 @@ import java.util.logging.Level;
 
 //import littleware.apps.filebucket.server.DeleteCBProvider;
 import littleware.asset.*;
+import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleTransaction;
@@ -283,17 +284,20 @@ public class SimpleAssetManager implements ServerAssetManager {
                 trans.startDbUpdate();
                 builder.setTimestamp(trans.getTimestamp());
                 final Asset assetSave = builder.build();
+                final AssetSpecializer specializer = specializerReg.getService(assetSave.getAssetType());
+                for( String problem : specializer.validate( ctx, assetSave)) {
+                    throw new IllegalArgumentException( "Failed validation: " + problem );
+                }
                 try {
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver(trans);
                     sql_writer.saveObject(assetSave);
-
                     ctx.savedAsset(assetSave);
                     accessCache.put(assetSave.getId(), assetSave);
-
+                    
                     if (null == oldAsset) {
-                        specializerReg.getService(assetSave.getAssetType()).postCreateCallback(ctx, assetSave);
+                        specializer.postCreateCallback(ctx, assetSave);
                     } else if (!cycleSave) { // do not make multiple callbacks on same asset
-                        specializerReg.getService(assetSave.getAssetType()).postUpdateCallback(ctx, oldAsset, assetSave);
+                        specializer.postUpdateCallback(ctx, oldAsset, assetSave);
                     } else {
                         log.log(Level.FINE, "Bypassing save-callback on cycle-save asset {0}/{1}/{2}", new Object[]{assetSave.getId(), assetSave.getAssetType(), assetSave.getName()});
                     }

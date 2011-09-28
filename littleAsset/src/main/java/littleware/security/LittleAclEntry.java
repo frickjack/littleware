@@ -38,6 +38,9 @@ public interface LittleAclEntry extends TreeChild, LinkAsset {
     public Enumeration<Permission> permissions();
 
     public boolean isNegative();
+    
+    @Override
+    public Builder copy();
 
     
     /** ACL_ENTRY asset type  */

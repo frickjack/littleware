@@ -64,13 +64,13 @@ public class AssetManagerTester extends LittleTest {
 
             final LittleUser user = provideCaller.get();
             assertTrue("Have an authenticated user", null != user);
-            final String s_name = "test_" + (new Date()).getTime();
+            final String name = "test_" + (new Date()).getTime();
 
             final Date t_now = new Date();
             log.log(Level.INFO, "Saving new asset");
             final GenericAsset testAsset = assetMgr.saveAsset(
                     assetProvider.get().
-                    name(s_name).
+                    name(name).
                     data("<data>no data </data>").
                     parent(user).
                     ownerId(user.getId()).
@@ -84,9 +84,9 @@ public class AssetManagerTester extends LittleTest {
                     build(),
                     "new asset");
 
-            log.log(Level.INFO, "Just created asset: " + s_name);
+            log.log(Level.INFO, "Just created asset: " + name);
             assertTrue("Created an asset with some valid data",
-                    (testAsset.getId() != null) && testAsset.getName().equals(s_name) && testAsset.getAssetType().equals(GenericAsset.GENERIC)
+                    (testAsset.getId() != null) && testAsset.getName().equals(name) && testAsset.getAssetType().equals(GenericAsset.GENERIC)
                     && t_now.getTime() < testAsset.getEndDate().getTime()
                     && (testAsset.getTimestamp() > 0)
                     && testAsset.getDate("test").isSet()
@@ -104,6 +104,18 @@ public class AssetManagerTester extends LittleTest {
                     && assetClone.getAttributeMap().equals( testAsset.getAttributeMap() )
                     && assetClone.getDateMap().equals( testAsset.getDateMap() )
                     && assetClone.getLinkMap().equals( testAsset.getLinkMap() )
+                    );
+            
+            final GenericAsset assetLoad = searchMgr.getAsset( testAsset.getId() ).get().narrow();
+            assertTrue("Able to load new asset",
+                    testAsset.equals(assetLoad) 
+                    && assetLoad.getId().equals( testAsset.getId() )
+                    && assetLoad.getName().equals(testAsset.getName())
+                    && assetLoad.getAssetType().equals(testAsset.getAssetType())
+                    && assetLoad.getTimestamp() == testAsset.getTimestamp()
+                    && assetLoad.getAttributeMap().equals( testAsset.getAttributeMap() )
+                    && assetLoad.getDateMap().equals( testAsset.getDateMap() )
+                    && assetLoad.getLinkMap().equals( testAsset.getLinkMap() )
                     );
 
             // Try to update the asset

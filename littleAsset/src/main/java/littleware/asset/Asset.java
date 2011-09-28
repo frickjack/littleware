@@ -79,7 +79,6 @@ public interface Asset extends CacheableObject {
 
 
     /**
-     * Shortcut for a.getAssetType().create().copy( a ).
      * NOTE: avoid overriding this method in subtype interfaces with narrowed
      * result type as that can interfere with implementing mixins with custom builders -
      * ex: GroupMember is a LinkAsset, but GroupMember.Builder does not extend LinkAsset.Builder

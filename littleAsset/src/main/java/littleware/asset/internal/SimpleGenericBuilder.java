@@ -10,7 +10,6 @@
 package littleware.asset.internal;
 
 import java.util.UUID;
-import littleware.asset.LinkAsset;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.asset.GenericAsset;

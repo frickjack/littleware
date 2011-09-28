@@ -26,6 +26,8 @@ public interface LittleGroup extends LittlePrincipal {
     public Collection<LittlePrincipal> getMembers();
     public boolean isMember( LittlePrincipal member);
 
+    @Override
+    public Builder copy();
 
     /** GROUP asset type - with AccountManager asset specializer */
     public static final AssetType GROUP_TYPE = new AssetType(

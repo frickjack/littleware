@@ -60,6 +60,9 @@ public interface LittleAcl extends TreeNode {
      * @return entry's entry or null if p_entry entry not in this Acl
      */
     public Option<LittleAclEntry> getEntry(LittlePrincipal entry, boolean isNegative);
+    
+    @Override
+    public Builder copy();
 
 
     public interface Builder extends TreeNode.TreeNodeBuilder {

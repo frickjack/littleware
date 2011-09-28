@@ -84,6 +84,9 @@ public interface GenericAsset extends TreeNode {
      * Shortcut for Maybe.emptyIfNull( getUserAttributes().get( name ) )
      */
     public Option<String> getAttribute(String key);
+    
+    @Override
+    public GenericBuilder copy();
 
 
     public interface GenericBuilder extends TreeNode.TreeNodeBuilder {

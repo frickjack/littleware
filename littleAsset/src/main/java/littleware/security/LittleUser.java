@@ -21,7 +21,7 @@ import littleware.base.UUIDFactory;
  * more user specific methods not available on groups.
  */
 public interface LittleUser extends LittlePrincipal {
-
+    
     /**
      * Little principal-status class
      */
@@ -29,6 +29,28 @@ public interface LittleUser extends LittlePrincipal {
         ACTIVE,
         INACTIVE
     }
+    
+    /**
+     * Get the hashed password, or "" if unset.
+     */
+    public String getHashedPassword();
+    /**
+     * Hash the guess and test it against the internal password hash:
+     *     applyPasswordHash( guess ).equals( getHashedPassword )
+     * 
+     * @param guess
+     * @return true if match, false otherwise
+     */
+    public boolean testPassword( String guess );
+    
+    /**
+     * Apply the password hash on the given string.  Note that the
+     * id is prepended to value as salt
+     * 
+     * @param value to hash
+     * @return hashed value
+     */
+    public String  applyPasswordHash( String value );
 
     /** Maps getValue() to a UserStatus */
     public Status getStatus();
@@ -42,10 +64,14 @@ public interface LittleUser extends LittlePrincipal {
         LittleUser build();
 
         public void setStatus(Status status);
-
         public Status getStatus();
-
         public Builder status(Status status);
+
+        /**
+         * Password is immediately hashed when set
+         */
+        public void setPassword( String value );
+        public Builder password( String value );
 
         @Override
         public Builder parentId(UUID value);

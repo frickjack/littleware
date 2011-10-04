@@ -34,29 +34,30 @@ public class PackageTestSuite extends TestSuite {
     public PackageTestSuite(
             Provider<AclManagerTester> provideAclTester,
             Provider<AccountManagerTester> provideAccountTester,
-            ClientLoginTester testClientLogin
+            Provider<ClientLoginTester> provideLoginTester
             ) {
         super(PackageTestSuite.class.getName());
 
         log.log(Level.INFO, "Trying to setup littleware.security test suite");
         log.log(Level.INFO, "Registering littleware SimpleDbLoginConfiguration");
-        boolean b_run = true;
+        boolean runTest = true;
 
-        if (b_run) {
+        if (runTest) {
             this.addTest(provideAclTester.get().putName("testAcl"));
         }
 
-        if (b_run) {
+        if (runTest) {
             this.addTest(provideAccountTester.get().putName("testGetPrincipals"));
             //this.addTest(provideAccountTester.get().putName("testPasswordUpdate"));
             this.addTest(provideAccountTester.get().putName("testGroupUpdate"));
         }
-        if (b_run) {
+        if (runTest) {
             this.addTest(provideAclTester.get().putName("testAclLoad"));
             //this.addTest(provideAclTester.get().putName("testAclUpdate"));
         }
-        if ( b_run ) {
-            this.addTest( testClientLogin );
+        if ( runTest ) {
+            this.addTest( provideLoginTester.get() );
+            this.addTest( provideLoginTester.get().putName( "testUserPassword" ) );
         }
 
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");

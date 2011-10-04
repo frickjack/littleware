@@ -7,7 +7,6 @@
  */
 package littleware.security.auth.server.internal;
 
-import littleware.base.LoginCallbackHandler;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.rmi.*;
@@ -17,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.security.*;
 import javax.security.auth.*;
+import javax.security.auth.login.Configuration;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
@@ -38,6 +38,7 @@ import littleware.security.*;
 import littleware.security.auth.*;
 import littleware.security.auth.LittleSession.Builder;
 import littleware.security.auth.internal.RemoteSessionManager;
+import littleware.security.auth.server.ServerConfigFactory;
 import org.joda.time.DateTime;
 
 /**
@@ -63,6 +64,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
     private final Provider<Builder> sessionProvider;
     private final LittleContext.ContextFactory contextFactory;
     private final ServerScannerFactory scannerFactory;
+    private final Provider<Configuration> loginConfigProvider;
 
     @Inject
     public SimpleSessionManager(ServerAssetManager assetMgr,
@@ -73,7 +75,9 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             Provider<AssetPathFactory> pathFactory,
             Provider<LittleSession.Builder> sessionProvider,
             LittleContext.ContextFactory contextFactory,
-            ServerScannerFactory scannerFactory) throws RemoteException {
+            ServerScannerFactory scannerFactory,
+            ServerConfigFactory loginConfigProvider
+            ) throws RemoteException {
         this.assetMgr = assetMgr;
         this.search = search;
         if (isSingletonUp) {
@@ -87,6 +91,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
         this.sessionProvider = sessionProvider;
         this.contextFactory = contextFactory;
         this.scannerFactory = scannerFactory;
+        this.loginConfigProvider = loginConfigProvider;
     }
 
     @Override
@@ -162,7 +167,10 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             LoginContext tmp = null;
             try {
                 tmp = new LoginContext("littleware.login",
-                        new LoginCallbackHandler(name, password));
+                        new Subject(),
+                        new LoginCallbackHandler(name, password),
+                        loginConfigProvider.get()
+                        );
             } catch (Exception ex) {
                 log.log(Level.INFO, "Assuming pass-through login - no littleware.login context available", ex);
             }

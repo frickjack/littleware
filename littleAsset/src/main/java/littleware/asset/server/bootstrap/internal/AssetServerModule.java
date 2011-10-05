@@ -56,6 +56,7 @@ import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleModule;
+import littleware.net.LittleRemoteObject;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
 import littleware.security.LittleGroup;
@@ -176,7 +177,7 @@ public class AssetServerModule extends AbstractServerModule {
                 if (port > 0) {
                     try {
                         log.log(Level.INFO, "Looking for RMI registry on port: {0}", port);
-                        rmi_registry = LocateRegistry.createRegistry(port);
+                        rmi_registry = LocateRegistry.createRegistry(port, LittleRemoteObject.getClientSockFactory(), LittleRemoteObject.getServerSockFactory() );
                         localRegistry = true;
                     } catch (Exception ex) {
                         log.log(Level.SEVERE, "Failed to start RMI registry on port " + port

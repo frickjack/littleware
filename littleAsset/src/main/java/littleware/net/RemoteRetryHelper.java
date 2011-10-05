@@ -7,9 +7,13 @@
  */
 package littleware.net;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
@@ -21,16 +25,20 @@ import littleware.base.AssertionFailedException;
 public class RemoteRetryHelper<T> extends RemoteExceptionHandler {
 
     private static final Logger log = Logger.getLogger(RemoteRetryHelper.class.getName());
-    private final String servicePath;
+    private final URI servicePath;
     private T    service = null;
 
     public RemoteRetryHelper(
-            String servicePath) {
-        this.servicePath = servicePath;
+            String pathIn) {
+        try {
+            this.servicePath = new URI( pathIn );
+        } catch (URISyntaxException ex) {
+            throw new IllegalArgumentException( "Invalid service path: " + pathIn, ex );
+        }
         log.log( Level.FINE, "Service lookup path set for: {0}", servicePath );
     }
 
-    public String getServicePath() {
+    public URI getServicePath() {
         return servicePath;
     }
 
@@ -59,13 +67,13 @@ public class RemoteRetryHelper<T> extends RemoteExceptionHandler {
         while (true) {
             // Retry on RemoteException
             try {
-                service = (T) Naming.lookup(servicePath);  //"//" + s_host + ":" + i_port + "/littleware/SessionManager");
+                final Registry reg = LocateRegistry.getRegistry( servicePath.getHost(), servicePath.getPort(), LittleRemoteObject.getClientSockFactory() );
+                service = (T) reg.lookup( servicePath.getPath().replaceAll( "^/+", "" ) );
+                //service = (T) Naming.lookup(servicePath);  //"//" + s_host + ":" + i_port + "/littleware/SessionManager");
                 return service;
             } catch (RemoteException ex) {
                 handle(ex);
-            } catch (java.net.MalformedURLException ex) {
-                throw new AssertionFailedException("Bad URL: " + servicePath, ex);
-            }
+            } 
         }
     }
 

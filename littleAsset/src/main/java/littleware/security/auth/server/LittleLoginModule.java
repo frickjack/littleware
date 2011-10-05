@@ -75,7 +75,11 @@ public class LittleLoginModule implements LoginModule {
             if ( maybe.isEmpty() ) {
                 return Maybe.empty();
             }
-            return Maybe.something( maybe.get().narrow( LittleUser.class ) );
+            final LittleUser user = maybe.get().narrow();
+            if ( ! user.getStatus().equals( LittleUser.Status.ACTIVE ) ) {
+                return Maybe.empty();
+            }
+            return Maybe.something( user );
         } catch ( Exception ex ) {
             log.log( Level.WARNING, "Failed asset lookup", ex );
             throw new FailedLoginException( "Failed repository lookup" );
@@ -128,18 +132,21 @@ public class LittleLoginModule implements LoginModule {
         }
 
         if ( Whatever.get().empty( password ) || Whatever.get().empty( userName ) || userName.equals( "nobody" ) ) {
-            return false;
+            throw new FailedLoginException();
         }
         
         final LittleUser user;
         {
             final Option<LittleUser> maybe = lookupUser( userName );
             if ( maybe.isEmpty() ) {
-                return false;
+                throw new FailedLoginException();
             }
             user = maybe.get();
         }
-        return user.testPassword(password);
+        if( user.testPassword(password) ) {
+            return true;
+        }
+        throw new FailedLoginException();
     }
 
     @Override

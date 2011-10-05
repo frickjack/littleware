@@ -15,6 +15,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import littleware.base.Whatever;
@@ -86,12 +87,16 @@ public class LocalTrustLoginModule implements LoginModule {
         }
 
         if ( Whatever.get().empty( password ) || Whatever.get().empty( userName ) || userName.equals( "nobody" ) ) {
-            return false;
+            throw new FailedLoginException( "Invalid user name" );
         }
         
         final String secret = secretsMap.remove( userName );
-        return (null != secret) && secret.equals( password ) &&
-                ((! userMustExist) || LittleLoginModule.lookupUser(userName).isSet());
+        if( (null != secret) && secret.equals( password ) &&
+                ((! userMustExist) || LittleLoginModule.lookupUser(userName).isSet())
+                ) {
+            return true;
+        }
+        throw new FailedLoginException();
     }
 
     @Override

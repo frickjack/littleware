@@ -24,6 +24,22 @@ import littleware.bootstrap.LittleBootstrap;
 public class AssetTestFactory extends littleware.test.TestFactory {
 
     private static final Logger log = Logger.getLogger(AssetTestFactory.class.getName());
+    private final String testUserPassword;
+    
+    /**
+     * Inject a password to authenticate the littleware.test_user with 
+     * @param testUserPassword 
+     */
+    public AssetTestFactory( String testUserPassword ) {
+        this.testUserPassword = testUserPassword;
+    }
+    
+    /**
+     * Constructor sets test-user password to "test123"
+     */
+    public AssetTestFactory() {
+        this( "test123" );
+    }
 
     /**
      * Bootstraps a test session
@@ -42,7 +58,7 @@ public class AssetTestFactory extends littleware.test.TestFactory {
         // Login as test user - go through SessionManager
         try {
             final LoginContext context = new LoginContext("littleware.login", new Subject(),
-                    new LoginCallbackHandler( AbstractAssetTest.getTestUserName(), "test123"),
+                    new LoginCallbackHandler( AbstractAssetTest.getTestUserName(), testUserPassword ),
                     sessionInjector.getInstance(javax.security.auth.login.Configuration.class));
             context.login();
         } catch (LoginException ex) {

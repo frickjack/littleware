@@ -7,12 +7,14 @@
  */
 package littleware.asset.client.internal;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.AssetDeleteEvent;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -29,17 +31,16 @@ import littleware.security.auth.client.KeyChain;
 public class SimpleAssetManagerService implements AssetManager {
 
     private static final long serialVersionUID = 4377427321241771838L;
-    private final RemoteAssetManager     server;
+    private final RemoteAssetManager server;
     private final LittleServiceBus eventBus;
     private final KeyChain keychain;
     private final AssetLibrary library;
-
 
     /**
      * Inject the server to wrap with LittleService event throwing support
      */
     @Inject
-    public SimpleAssetManagerService( RetryRemoteAstMgr server, LittleServiceBus eventBus, KeyChain keychain, AssetLibrary library ) {
+    public SimpleAssetManagerService(RetryRemoteAstMgr server, LittleServiceBus eventBus, KeyChain keychain, AssetLibrary library) {
         this.server = server;
         this.eventBus = eventBus;
         this.keychain = keychain;
@@ -56,20 +57,29 @@ public class SimpleAssetManagerService implements AssetManager {
     @Override
     public <T extends Asset> T saveAsset(T asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final UUID sessionId = keychain.getDefaultSessionId().get();
-        final T result = server.saveAsset(sessionId, asset, updateComment);
-        library.syncAsset(asset);
-        eventBus.fireEvent(new AssetLoadEvent(this, result));
-        return result;
+        final Map<UUID, Asset> result = server.saveAsset(sessionId, asset, updateComment);
+        for (Asset scan : result.values()) {
+            library.syncAsset(scan);
+            eventBus.fireEvent(new AssetLoadEvent(this, scan));
+        }
+        return (T) result.get( asset.getId() );
     }
 
     @Override
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final UUID sessionId = keychain.getDefaultSessionId().get();
-        final Collection<Asset> savedAssets = server.saveAssetsInOrder(sessionId, assetList, updateComment);
-        for (Asset result : savedAssets) {
-            library.syncAsset(result);
-            eventBus.fireEvent(new AssetLoadEvent(this, result));
+        final Map<UUID,Asset> savedAssets = server.saveAssetsInOrder(sessionId, assetList, updateComment);
+        for (Asset scan : savedAssets.values() ) {
+            library.syncAsset(scan);
+            eventBus.fireEvent(new AssetLoadEvent(this, scan));
         }
-        return savedAssets;
+        final ImmutableList.Builder<Asset> resultBuilder = ImmutableList.builder();
+        for( Asset scan : assetList ) {
+            final Asset saved = savedAssets.get( scan.getId() );
+            if ( null != saved ) {
+                resultBuilder.add( saved );
+            }
+        }
+        return resultBuilder.build();
     }
 }

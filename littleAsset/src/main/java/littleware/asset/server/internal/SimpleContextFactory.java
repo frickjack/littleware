@@ -57,7 +57,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
         if ((null == adminGroup) || lastUpdate.plusSeconds(10).isAfter(now)) {
             synchronized (this) {
                 try {
-                    adminGroup = search.getAsset(ctx, AccountManager.UUID_ADMIN_GROUP).get().narrow();
+                    adminGroup = search.getAsset(ctx, AccountManager.UUID_ADMIN_GROUP, -1L ).getAsset().get().narrow();
                     lastUpdate = now;
                 } catch (Exception ex) {
                     log.log(Level.WARNING, "Failed to load admin group", ex);
@@ -88,8 +88,8 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
     public LittleContext build(UUID sessionId) {
         try {
             final LittleContext adminContext = buildAdminContext();
-            final LittleSession session = search.getAsset(adminContext, sessionId).get().narrow();
-            final LittleUser user = search.getAsset(adminContext, session.getOwnerId()).get().narrow();
+            final LittleSession session = search.getAsset(adminContext, sessionId, -1L ).getAsset().get().narrow();
+            final LittleUser user = search.getAsset(adminContext, session.getOwnerId(), -1L ).getAsset().get().narrow();
             return new SimpleContext(session, user, adminContext.getTransaction(), isAdmin( adminContext, user), search, adminContext );
         } catch (RuntimeException ex) {
             throw ex;
@@ -197,7 +197,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
                 acl = aclCache.get(aclId);
             }
             if (null == acl) {
-                final Option<Asset> maybe = search.getAsset(this, aclId);
+                final Option<Asset> maybe = search.getAsset(this, aclId, -1L ).getAsset();
                 if ((!maybe.isSet())
                         || (!maybe.get().getAssetType().equals(LittleAcl.ACL_TYPE))) {
                     return false;

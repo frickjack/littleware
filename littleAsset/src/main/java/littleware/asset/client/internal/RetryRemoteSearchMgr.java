@@ -11,7 +11,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -116,10 +115,10 @@ public class RetryRemoteSearchMgr extends RemoteRetryHelper<RemoteSearchManager>
     }
 
     @Override
-    public Option<Asset> getAsset(UUID sessionId, UUID assetId) throws BaseException, GeneralSecurityException, RemoteException {
+    public AssetResult getAsset(UUID sessionId, UUID assetId, long cacheTimeStamp ) throws BaseException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getAsset( sessionId, assetId );
+                return getLazy().getAsset( sessionId, assetId, cacheTimeStamp );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
@@ -130,10 +129,10 @@ public class RetryRemoteSearchMgr extends RemoteRetryHelper<RemoteSearchManager>
     }
 
     @Override
-    public List<Asset> getAssets(UUID sessionId, Collection<UUID> idSet) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<UUID,AssetResult> getAssets(UUID sessionId, Map<UUID,Long> idTStampMap ) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getAssets( sessionId, idSet );
+                return getLazy().getAssets( sessionId, idTStampMap );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {

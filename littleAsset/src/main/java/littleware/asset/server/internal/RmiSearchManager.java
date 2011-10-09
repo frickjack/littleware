@@ -22,6 +22,8 @@ import littleware.asset.server.LittleContext.ContextFactory;
 import littleware.asset.server.ServerSearchManager;
 import littleware.base.*;
 import littleware.net.LittleRemoteObject;
+import static littleware.asset.internal.RemoteSearchManager.AssetResult;
+
 
 /**
  * RMI remote-ready wrapper around a real implementation.
@@ -45,9 +47,9 @@ public class RmiSearchManager extends LittleRemoteObject implements RemoteSearch
     }
 
     @Override
-    public Option<Asset> getByName(UUID sessionId, String s_name, AssetType n_type) throws BaseException, AssetException,
+    public Option<Asset> getByName(UUID sessionId, String name, AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return search.getByName( contextFactory.build( sessionId ), s_name, n_type);
+        return search.getByName( contextFactory.build( sessionId ), name, type);
     }
 
     @Override
@@ -58,16 +60,16 @@ public class RmiSearchManager extends LittleRemoteObject implements RemoteSearch
     }
 
     @Override
-    public Option<Asset> getAsset(UUID sessionId, UUID u_id) throws BaseException, AssetException,
+    public AssetResult getAsset(UUID sessionId, UUID id, long clientCacheTStamp ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return search.getAsset( contextFactory.build( sessionId ), u_id);
+        return search.getAsset( contextFactory.build( sessionId ), id, clientCacheTStamp );
     }
 
 
     @Override
-    public List<Asset> getAssets(UUID sessionId, Collection<UUID> v_id) throws BaseException, AssetException,
+    public Map<UUID,AssetResult> getAssets(UUID sessionId, Map<UUID,Long> id2TStamp) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return search.getAssets( contextFactory.build( sessionId ), v_id);
+        return search.getAssets( contextFactory.build( sessionId ), id2TStamp);
     }
 
     @Override

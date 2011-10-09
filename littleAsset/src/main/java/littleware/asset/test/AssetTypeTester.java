@@ -11,9 +11,10 @@ package littleware.asset.test;
 
 import java.util.logging.Logger;
 import littleware.asset.AssetType;
-import littleware.base.Maybe;
-import littleware.base.Option;
+import littleware.asset.GenericAsset;
 import littleware.base.UUIDFactory;
+import littleware.security.LittleAcl;
+import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
 import littleware.test.LittleTest;
 
@@ -46,5 +47,9 @@ public class AssetTypeTester extends LittleTest {
                 !BOGUS.isAdminToCreate()
                 );
         assertTrue( "Principal subtypes include bogus", AssetType.getSubtypes( LittlePrincipal.PRINCIPAL_TYPE ).contains( BOGUS ));
+        
+        assertTrue( "Generic asset is time-stamp cache friendly", GenericAsset.GENERIC.isTStampCache() );
+        assertTrue( "Group is not time-stamp cache friendly", ! LittleGroup.GROUP_TYPE.isTStampCache() );
+        assertTrue( "ACL is not time-stamp cache friendly", ! LittleAcl.ACL_TYPE.isTStampCache() );
     }
 }

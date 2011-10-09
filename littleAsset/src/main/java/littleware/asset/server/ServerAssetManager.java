@@ -11,6 +11,8 @@ package littleware.asset.server;
 
 import java.security.GeneralSecurityException;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -51,10 +53,11 @@ public interface ServerAssetManager {
      *                     attempt an update
      * @param updateComment to attach to asset giving reason for update -
      *                   updates asset's last-change info.
-     * @return asset with updated transaction count, id, etc. resulting from
+     * @return id to asset map including asset with updated transaction count, id, etc. resulting from
      *              save side-effects.  References asset on local JVM call,
      *              but critical that RMI clients collect the result to
-     *              maintain up-to-date local data.
+     *              maintain up-to-date local data and any other assets added in specializer callbacks
+     *              to notify client of server-side updates
      * @throws NoSuchThingException if the given asset references an
      *                   ACL or owner that does not exist in the database
      * @throws AccessDeniedException if do not have write-permission on the link source
@@ -62,7 +65,7 @@ public interface ServerAssetManager {
      * @throws IllegalArgumentException if supplied asset does not have a valid name
      * @throws AlreadyExistsException if asset save violates some uniqueness constraint
      */
-    public <T extends Asset> T saveAsset( LittleContext ctx, T asset,
+    public Map<UUID,Asset> saveAsset( LittleContext ctx, Asset asset,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException;
 
@@ -74,7 +77,7 @@ public interface ServerAssetManager {
      * @param updateComment applied to all assets
      * @return updated assets
      */
-    public Collection<Asset> saveAssetsInOrder( LittleContext ctx, Collection<Asset> assetList,
+    public Map<UUID,Asset> saveAssetsInOrder( LittleContext ctx, Collection<Asset> assetList,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException;
 

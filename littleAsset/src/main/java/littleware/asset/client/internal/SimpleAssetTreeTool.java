@@ -7,15 +7,18 @@
  */
 package littleware.asset.client.internal;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
+import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetTreeTool;
 import littleware.base.feedback.Feedback;
@@ -41,23 +44,31 @@ public class SimpleAssetTreeTool implements AssetTreeTool {
 
     @Override
     public List<Asset> loadBreadthFirst(UUID uRoot, Feedback feedback, int iMaxDepth) throws BaseException, GeneralSecurityException, RemoteException {
-        final List<UUID> vScan = new ArrayList<UUID>();
+        final List<UUID> scanList = new ArrayList<UUID>();
 
-        vScan.add(uRoot);
+        scanList.add(uRoot);
         feedback.setProgress(0);
         feedback.info("Scanning node tree under " + uRoot);
-        for (int i = 0; i < vScan.size(); ++i) {
-            final UUID uScan = vScan.get(i);
-            vScan.addAll(search.getAssetIdsFrom(uScan, null).values());
-            feedback.setProgress(i, vScan.size());
+        for (int i = 0; i < scanList.size(); ++i) {
+            final UUID uScan = scanList.get(i);
+            scanList.addAll(search.getAssetIdsFrom(uScan, null).values());
+            feedback.setProgress(i, scanList.size());
 
-            if ( vScan.size() > MaxAsset ) {
+            if ( scanList.size() > MaxAsset ) {
                 throw new TooMuchDataException();
             }
         }
-        feedback.info("Loading " + vScan.size() + " assets under tree");
-        // Load assets one at a time to take advantage of cache
-        return search.getAssets(vScan);
+        feedback.info("Loading " + scanList.size() + " assets under tree");
+        
+        final Map<UUID,AssetRef> serverResult =  search.getAssets(scanList);
+        final ImmutableList.Builder<Asset> resultBuilder = ImmutableList.builder();
+        for( UUID id : scanList ) {
+            final AssetRef ref = serverResult.get( id );
+            if ( null != ref && ref.isSet() ) {
+                resultBuilder.add( ref.get() );
+            }
+        }
+        return resultBuilder.build();
     }
 
     @Override

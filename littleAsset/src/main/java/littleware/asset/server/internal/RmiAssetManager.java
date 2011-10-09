@@ -44,14 +44,14 @@ public class RmiAssetManager extends LittleRemoteObject implements RemoteAssetMa
     }
 
     @Override
-    public <T extends Asset> T saveAsset(UUID sessionId, T asset,
+    public Map<UUID,Asset> saveAsset(UUID sessionId, Asset asset,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return assetMgr.saveAsset( ctxFactory.build(sessionId), asset, updateComment);
     }
 
     @Override
-    public Collection<Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assets,
+    public Map<UUID,Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assets,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return assetMgr.saveAssetsInOrder( ctxFactory.build(sessionId), assets, updateComment);

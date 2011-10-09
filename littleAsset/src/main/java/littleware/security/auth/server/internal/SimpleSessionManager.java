@@ -106,7 +106,8 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
 
             for (int i = 0; i < 20; ++i) {
                 try {
-                    return assetMgr.saveAsset(ctx, sessionBuilder.build(), sessionComment).narrow();
+                    final LittleSession session = sessionBuilder.build();
+                    return assetMgr.saveAsset(ctx, session, sessionComment).get( session.getId() ).narrow();
                 } catch (AlreadyExistsException ex) {
                     if (i < 10) {
                         sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getCreateDate().getTime() + "," + i);
@@ -149,12 +150,12 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             final TemplateScanner.ExistInfo info = (TemplateScanner.ExistInfo) x;
             parent = info.getAsset();
             if (!info.getAssetExists()) {
-                parent = assetMgr.saveAsset(adminCtx, info.getAsset(), sessionComment);
+                parent = assetMgr.saveAsset(adminCtx, info.getAsset(), sessionComment).get( info.getAsset().getId() );
             }
         }
 
         return assetMgr.saveAsset(adminCtx, ((AbstractAssetBuilder) session.copy()).parentId(parent.getId()).homeId(parent.getHomeId()).build(),
-                sessionComment).narrow();
+                sessionComment).get( session.getId() ).narrow();
     }
 
     /**

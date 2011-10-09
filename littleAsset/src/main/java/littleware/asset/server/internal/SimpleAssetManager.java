@@ -7,6 +7,7 @@
  */
 package littleware.asset.server.internal;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 
 import java.security.GeneralSecurityException;
@@ -70,6 +71,7 @@ public class SimpleAssetManager implements ServerAssetManager {
         this.quotaUtil = quotaUtil;
         this.specializerReg = specializerReg;
     }
+    
 
     @Override
     public void deleteAsset(LittleContext ctx, UUID assetId,
@@ -83,7 +85,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                 final LittlePrincipal caller = ctx.getCaller();
                 log.log( Level.FINE, "Deleting asset with id {0}", assetId );
                 // Get the asset for ourselves - make sure it's a valid asset
-                Asset asset = search.getAsset(ctx, assetId).get();
+                Asset asset = search.getAsset(ctx, assetId, -1L ).getAsset().get();
                 final AssetBuilder builder = asset.copy();
                 builder.setLastUpdateDate(new Date());
                 builder.setLastUpdaterId(caller.getId());
@@ -92,7 +94,10 @@ public class SimpleAssetManager implements ServerAssetManager {
                 trans.startDbUpdate();
 
                 try {
-                    asset = saveAsset(ctx, builder.build(), updateComment);
+                    asset = saveAsset(ctx, builder.build(), updateComment).get( asset.getId() );
+                    if ( null == asset ) { 
+                        throw new AssertionFailedException( "pre-delete save result map does not include saved asset: " + asset.getId() );
+                    }
                     DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter(trans);
                     sql_writer.saveObject(asset);
 
@@ -124,7 +129,7 @@ public class SimpleAssetManager implements ServerAssetManager {
     }
 
     @Override
-    public <T extends Asset> T saveAsset(LittleContext ctx, T asset,
+    public Map<UUID,Asset> saveAsset(LittleContext ctx, Asset asset,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException {
         log.log(Level.FINE, "Check enter");
@@ -153,7 +158,8 @@ public class SimpleAssetManager implements ServerAssetManager {
         // Don't save the same asset more than once in this timestamp
         final boolean bCallerIsAdmin = ctx.isAdmin();
         final boolean cycleSave;  // is this a save via a callback ?  - avoid infinite loops
-
+        final ImmutableMap.Builder<UUID,Asset>  resultBuilder = ImmutableMap.builder();
+        
         try {
             if (null == asset.getId()) {
                 builder.setId(uuidFactory.create());
@@ -168,7 +174,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                 oldAsset = ctx.checkIfSaved(asset.getId()).get();
                 cycleSave = true;
             } else {
-                oldAsset = search.getAsset(ctx, asset.getId()).getOr(null);
+                oldAsset = search.getAsset(ctx, asset.getId(), -1L).getAsset().getOr(null);
                 cycleSave = false;
             }
 
@@ -239,7 +245,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                     builder.setHomeId(asset.getId());
                 } else {
                     log.log(Level.FINE, "Retrieving HOME");
-                    final Asset home = search.getAsset(ctx, asset.getHomeId()).get();
+                    final Asset home = search.getAsset(ctx, asset.getHomeId(), -1L ).getAsset().get();
                     log.log(Level.FINE, "Got HOME");
                     if (!home.getAssetType().isA(LittleHome.HOME_TYPE)) {
                         throw new IllegalArgumentException("Home id must link to HOME type asset");
@@ -256,7 +262,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                 if ((null != asset.getFromId()) && ((null == oldAsset) || (!asset.getFromId().equals(oldAsset.getFromId())))) {
                     log.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
-                    final Asset parent = search.getAsset(ctx, asset.getFromId()).get();
+                    final Asset parent = search.getAsset(ctx, asset.getFromId(), -1L ).getAsset().get();
 
                     if ((!parent.getOwnerId().equals(userCaller.getId())) && (!ctx.isAdmin())) {
                         if (!ctx.checkPermission(LittlePermission.WRITE, parent.getAclId())) {
@@ -280,7 +286,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                 builder.setLastUpdaterId(userCaller.getId());
                 builder.setLastUpdate(updateComment);
 
-                boolean b_rollback = true;
+                boolean rollback = true;
                 trans.startDbUpdate();
                 builder.setTimestamp(trans.getTimestamp());
                 final Asset assetSave = builder.build();
@@ -295,9 +301,13 @@ public class SimpleAssetManager implements ServerAssetManager {
                     accessCache.put(assetSave.getId(), assetSave);
                     
                     if (null == oldAsset) {
-                        specializer.postCreateCallback(ctx, assetSave);
+                        for( Asset scan : specializer.postCreateCallback(ctx, assetSave) ) {
+                            resultBuilder.put( scan.getId(), scan);
+                        }
                     } else if (!cycleSave) { // do not make multiple callbacks on same asset
-                        specializer.postUpdateCallback(ctx, oldAsset, assetSave);
+                        for( Asset scan : specializer.postUpdateCallback(ctx, oldAsset, assetSave) ) {
+                            resultBuilder.put( scan.getId(), scan);
+                        }
                     } else {
                         log.log(Level.FINE, "Bypassing save-callback on cycle-save asset {0}/{1}/{2}", new Object[]{assetSave.getId(), assetSave.getAssetType(), assetSave.getName()});
                     }
@@ -307,18 +317,21 @@ public class SimpleAssetManager implements ServerAssetManager {
                         //permissionCache.clear();
                     }
 
-                    b_rollback = false;
+                    rollback = false;
                     // retrieve clean asset-copy - asset might have been resaved by callback
-                    trans.endDbUpdate(b_rollback);
+                    trans.endDbUpdate(rollback);
                 } catch (Throwable ex) {
                     try {
-                        trans.endDbUpdate(b_rollback);
+                        trans.endDbUpdate(rollback);
                     } catch (Exception ex2) {
                         log.log(Level.INFO, "Eating rollback exception", ex2);
                     }
                     throw ex;
                 }
-                return (T) search.getAsset(ctx, assetSave.getId()).get();
+                {
+                    final Asset result = search.getAsset(ctx, assetSave.getId(), -1L ).getAsset().get();
+                    return resultBuilder.put( result.getId(), result ).build();
+                }
             } catch (Throwable ex) {
                 // Should check SQLException error-string for specific error translation here ...
                 // Do not propagate database exception to client - may not be serializable
@@ -338,23 +351,23 @@ public class SimpleAssetManager implements ServerAssetManager {
     }
 
     @Override
-    public Collection<Asset> saveAssetsInOrder(LittleContext ctx, Collection<Asset> v_assets, String s_update_comment) throws BaseException, AssetException,
+    public Map<UUID,Asset> saveAssetsInOrder(LittleContext ctx, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException,
             GeneralSecurityException {
-        final LittleTransaction trans_batch = ctx.getTransaction();
-        boolean b_rollback = true;
+        final LittleTransaction trans = ctx.getTransaction();
+        boolean rollback = true;
 
-        final List<Asset> result = new ArrayList<Asset>();
+        final ImmutableMap.Builder<UUID,Asset> resultBuilder = ImmutableMap.builder();
 
-        trans_batch.startDbUpdate();
+        trans.startDbUpdate();
         try {
-            for (Asset a_save : v_assets) {
-                result.add(saveAsset(ctx, a_save, s_update_comment));
+            for (Asset scan : assetList) {
+                resultBuilder.putAll(saveAsset(ctx, scan, updateComment));
             }
-            b_rollback = false;
+            rollback = false;
         } finally {
-            trans_batch.endDbUpdate(b_rollback);
+            trans.endDbUpdate(rollback);
         }
 
-        return result;
+        return resultBuilder.build();
     }
 }

@@ -9,6 +9,7 @@ package littleware.asset.server;
 
 import littleware.asset.*;
 import java.security.GeneralSecurityException;
+import java.util.Set;
 
 import littleware.base.*;
 
@@ -53,8 +54,9 @@ public interface AssetSpecializer {
      * Throws the same set of exceptions as AssetManager.createAsset...
      *
      * @param asset just created
+     * @return set of assets to add to the caller's result set
      */
-    public void postCreateCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
+    public Set<Asset> postCreateCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
             GeneralSecurityException;
 
     /**
@@ -65,8 +67,9 @@ public interface AssetSpecializer {
      * @param oldAsset copy of the asset loaded by the AssetManager
      *                    before applying the update
      * @param currentAsset current state of the asset after update
+     * @return set of assets to add to the caller's result set
      */
-    public void postUpdateCallback(LittleContext ctx, Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
+    public Set<Asset> postUpdateCallback(LittleContext ctx, Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
             GeneralSecurityException;
 
     /**

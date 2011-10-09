@@ -116,6 +116,13 @@ public class AssetType extends DynamicEnum<AssetType> {
     public boolean isNameUnique() {
         return (getSuperType().isEmpty()) ? false : getSuperType().get().isNameUnique();
     }
+    
+    /**
+     * Does the timestamp on the node indicate a consistent client-side cache ?
+     * True for simple assets, but may be false for compound assets like a Group -
+     * where a Group's node may not have changed, but one of its subgroups is changed.
+     */
+    public boolean isTStampCache() { return true; }
 
     /**
      * Allow an asset-type to have one super type.

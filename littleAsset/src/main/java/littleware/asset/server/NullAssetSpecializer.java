@@ -3,6 +3,8 @@ package littleware.asset.server;
 import com.google.inject.Singleton;
 import littleware.asset.*;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.Set;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
 import littleware.base.Option;
@@ -24,13 +26,15 @@ public class NullAssetSpecializer implements AssetSpecializer {
     }
 
     @Override
-    public void postCreateCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
+    public Set<Asset> postCreateCallback(LittleContext ctx, Asset asset) throws BaseException, AssetException,
             GeneralSecurityException {
+        return Collections.emptySet();
     }
 
     @Override
-    public void postUpdateCallback(LittleContext ctx, Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
+    public Set<Asset> postUpdateCallback(LittleContext ctx, Asset oldAsset, Asset currentAsset) throws BaseException, AssetException,
             GeneralSecurityException {
+        return Collections.emptySet();        
     }
 
     @Override

@@ -37,7 +37,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
             return null;
         }
 
-        return (Quota) search.getAsset(ctx, childId).getOr(null);
+        return (Quota) search.getAsset(ctx, childId, -1L).getAsset().getOr(null);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
         try {
             for (Quota quota = getQuota(ctx, user, search);
                     null != quota;
-                    quota = (null != quota.getNextInChainId()) ? ((Quota) search.getAsset(ctx, quota.getNextInChainId()).getOr(null))
+                    quota = (null != quota.getNextInChainId()) ? ((Quota) search.getAsset(ctx, quota.getNextInChainId(), -1L).getAsset().getOr(null))
                             : null) {
                 final Quota.Builder quotaBuilder = quota.copy().narrow();
                 v_chain.add(quotaBuilder);

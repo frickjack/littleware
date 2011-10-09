@@ -36,7 +36,10 @@ public interface LittleAcl extends TreeNode {
     /** ACL asset type - with AclManager asset specializer */
     public static final AssetType ACL_TYPE = new AssetType(
             UUIDFactory.parseUUID("04E11B112526462F91152DFFB51D21C9"),
-            "littleware.ACL", TreeNode.TREE_NODE_TYPE ) {};
+            "littleware.ACL", TreeNode.TREE_NODE_TYPE ) {
+        @Override
+        public boolean isTStampCache() { return false; }                
+    };
 
 
     /**

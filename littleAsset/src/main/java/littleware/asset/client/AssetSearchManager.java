@@ -52,16 +52,14 @@ public interface AssetSearchManager extends Remote {
      * Get as many of the assets in the given collection of ids as possible.
      *
      * @param idSet set of asset ids to retrieve
-     * @return list of assets loaded in order - 2 entries
-     *                with the same id may reference the same object,
-     *                skips ids that do not exist
+     * @return id to asset-ref map for ids client has access to
      * @throws NoSuchThingException if requested asset does not exist in the db
      * @throws AccessDeniedException if caller does not have permission to read
      *                 the specified asset
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException if some other failure condition
      */
-    public List<Asset> getAssets(Collection<UUID> idSet) throws BaseException, AssetException,
+    public Map<UUID,AssetRef> getAssets(Collection<UUID> idSet) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**

@@ -60,7 +60,7 @@ public class SessionManagerProxy implements SessionManager {
             String sessionComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         final LittleSession session = remote.login(userName, password, sessionComment);
-        final LittleUser user = rsearch.getAsset(session.getId(), session.getOwnerId()).get().narrow();
+        final LittleUser user = rsearch.getAsset(session.getId(), session.getOwnerId(), -1L ).getAsset().get().narrow();
         keychain.setDefaultSessionId(session.getId());
         return new Creds(session, user);
     }
@@ -96,8 +96,8 @@ public class SessionManagerProxy implements SessionManager {
 
     @Override
     public Credentials login(UUID sessionId) throws BaseException, GeneralSecurityException, RemoteException {
-        final LittleSession session = rsearch.getAsset( sessionId, sessionId ).get().narrow();
-        final LittleUser user = rsearch.getAsset(session.getId(), session.getOwnerId()).get().narrow();
+        final LittleSession session = rsearch.getAsset( sessionId, sessionId, -1L ).getAsset().get().narrow();
+        final LittleUser user = rsearch.getAsset(session.getId(), session.getOwnerId(), -1L ).getAsset().get().narrow();
         keychain.setDefaultSessionId(session.getId());
         return new Creds(session, user);
     }

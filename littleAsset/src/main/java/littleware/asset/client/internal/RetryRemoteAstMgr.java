@@ -14,6 +14,7 @@ import com.google.inject.name.Named;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -46,7 +47,7 @@ public class RetryRemoteAstMgr extends RemoteRetryHelper<RemoteAssetManager> imp
     }
 
     @Override
-    public <T extends Asset> T saveAsset(UUID sessionId, T asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<UUID,Asset> saveAsset(UUID sessionId, Asset asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
                 return getLazy().saveAsset( sessionId, asset, updateComment );
@@ -59,7 +60,7 @@ public class RetryRemoteAstMgr extends RemoteRetryHelper<RemoteAssetManager> imp
     }
 
     @Override
-    public Collection<Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public Map<UUID,Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
                 return getLazy().saveAssetsInOrder( sessionId, assetList, updateComment );

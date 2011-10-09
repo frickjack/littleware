@@ -20,6 +20,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
+import littleware.asset.internal.RemoteAssetRetriever;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
 import littleware.base.NoSuchThingException;
@@ -41,13 +42,13 @@ public interface ServerSearchManager {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException some other failure condition
      */
-    public Option<Asset> getAsset( LittleContext context, UUID assetId) throws BaseException,
+    public RemoteAssetRetriever.AssetResult getAsset( LittleContext context, UUID assetId, long clientCacheTStamp ) throws BaseException,
             GeneralSecurityException;
 
     /**
      * Get as many of the assets in the given collection of ids as possible.
      *
-     * @param idSet set of asset ids to retrieve
+     * @param id2ClientTStamp set of asset ids to retrieve
      * @return list of assets loaded in order - 2 entries
      *                with the same id may reference the same object,
      *                skips ids that do not exist
@@ -57,9 +58,15 @@ public interface ServerSearchManager {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException if some other failure condition
      */
-    public List<Asset> getAssets( LittleContext context, Collection<UUID> idSet) throws BaseException, AssetException,
+    public Map<UUID,RemoteAssetRetriever.AssetResult> getAssets( LittleContext context, Map<UUID,Long> id2ClientTStamp ) throws BaseException, AssetException,
             GeneralSecurityException;
 
+    /**
+     * Convenience method for clients without a cache
+     */
+    public Map<UUID,RemoteAssetRetriever.AssetResult> getAssets( LittleContext context, Collection<UUID> idSet ) throws BaseException, AssetException,
+            GeneralSecurityException;
+    
     /**
      * Get the Home assets this server has access to
      * for open-ended searches.

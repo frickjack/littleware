@@ -18,7 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.client.spi.LittleServiceBus;
-import littleware.base.AssertionFailedException;
 import littleware.base.cache.Cache;
 import littleware.base.cache.Cache.Policy;
 import littleware.base.cache.InMemoryCacheBuilder;

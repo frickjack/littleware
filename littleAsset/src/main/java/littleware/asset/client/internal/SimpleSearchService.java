@@ -7,6 +7,8 @@
  */
 package littleware.asset.client.internal;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.ClientCache;
@@ -17,7 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,7 @@ import littleware.asset.TreeParent;
 import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.spi.LittleServiceBus;
+import littleware.asset.internal.RemoteAssetRetriever.AssetResult;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.asset.spi.AbstractAsset;
 import littleware.base.BaseException;
@@ -62,6 +64,7 @@ public class SimpleSearchService implements AssetSearchManager {
     private final AssetPathFactory pathFactory;
     private final KeyChain keychain;
     private final Everybody everybody;
+    private final Map<UUID,Asset> personalCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
 
     /**
      * Inject the server that does not implement LittleService event support
@@ -227,8 +230,20 @@ public class SimpleSearchService implements AssetSearchManager {
         if (result.isSet()) {
             return library.syncAsset(result.get());
         }
+        result = Maybe.emptyIfNull( personalCache.get(id));
         final UUID sessionId = keychain.getDefaultSessionId().get();
-        result = server.getAsset(sessionId, id);
+        final long timestamp = (result.isSet()) ? result.get().getTimestamp() : -1L;
+        {
+            final AssetResult serverInfo = server.getAsset( sessionId, id, timestamp );
+            if ( ! serverInfo.getState().equals( AssetResult.State.USE_YOUR_CACHE )) {
+                result = serverInfo.getAsset();
+                if( result.isSet() ) {
+                    personalCache.put(id, result.get() );
+                } else {
+                    personalCache.remove(id);
+                }
+            }
+        } 
 
         if (result.isSet()) {
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
@@ -238,12 +253,12 @@ public class SimpleSearchService implements AssetSearchManager {
     }
 
     @Override
-    public List<Asset> getAssets(Collection<UUID> idList) throws BaseException,
+    public Map<UUID,AssetRef> getAssets(Collection<UUID> idList) throws BaseException,
             AssetException,
             GeneralSecurityException,
             RemoteException {
         final Map<UUID, Asset> assetMap = new HashMap<UUID, Asset>();
-        final Set<UUID> missingIds = new HashSet<UUID>();
+        final Map<UUID,Long> missingIds = new HashMap<UUID,Long>();
 
         // 1st - load as much as possible from cache
         for (UUID id : idList) {
@@ -251,25 +266,42 @@ public class SimpleSearchService implements AssetSearchManager {
             if (null != assetInCache) {
                 assetMap.put(id, assetInCache);
             } else {
-                missingIds.add(id);
+                final Asset cachedAsset = personalCache.get(id);
+                final long timestamp = (null == cachedAsset) ? -1L : cachedAsset.getTimestamp();
+                missingIds.put( id, timestamp);
+                if ( null != cachedAsset ) {
+                    assetMap.put( id, cachedAsset );
+                }
             }
         }
         if (!missingIds.isEmpty()) {
             final UUID sessionId = keychain.getDefaultSessionId().get();
-            final List<Asset> newAssets = server.getAssets(sessionId, missingIds);
-            for (Asset asset : newAssets) {
-                assetMap.put(asset.getId(), asset);
-                eventBus.fireEvent(new AssetLoadEvent(this, asset));
+            final Map<UUID,AssetResult> newAssets = server.getAssets(sessionId, missingIds);
+            for ( Map.Entry<UUID,AssetResult> entry  : newAssets.entrySet() ) {
+                final AssetResult lookupResult = entry.getValue();
+                if ( lookupResult.getAsset().isSet() ) {
+                    final Asset asset = lookupResult.getAsset().get();
+                    assetMap.put(asset.getId(), asset);
+                    personalCache.put( asset.getId(), asset );
+                    eventBus.fireEvent(new AssetLoadEvent(this, asset));
+                } else if ( lookupResult.getState().equals( AssetResult.State.USE_YOUR_CACHE ) ) {
+                    final Asset asset = assetMap.get( entry.getKey() );
+                    eventBus.fireEvent(new AssetLoadEvent(this, asset));
+                } else {
+                    personalCache.remove( entry.getKey() );
+                    assetMap.remove( entry.getKey() );
+                }
             }
         }
-        final List<Asset> result = new ArrayList<Asset>();
+        
+        final ImmutableMap.Builder<UUID,AssetRef> resultBuilder = ImmutableMap.builder();
         for (UUID id : idList) {
             final Asset asset = assetMap.get(id);
             if (null != asset) {
-                result.add(asset);
+                resultBuilder.put(asset.getId(), this.library.syncAsset(asset));
             }
         }
-        return result;
+        return resultBuilder.build();
     }
 
     @Override

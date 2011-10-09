@@ -9,6 +9,7 @@
 
 package littleware.asset.server.test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -25,6 +26,7 @@ import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetSearchManager;
+import littleware.asset.internal.RemoteAssetRetriever.AssetResult;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.ServerSearchManager;
 import littleware.base.BaseException;
@@ -50,12 +52,21 @@ public class MockSearchManager implements AssetSearchManager {
 
     @Override
     public AssetRef getAsset(UUID assetId) throws BaseException, GeneralSecurityException, RemoteException {
-        return new MockAssetRef( search.getAsset(ctx, assetId));
+        return new MockAssetRef( search.getAsset(ctx, assetId, -1L ).getAsset() );
     }
 
     @Override
-    public List<Asset> getAssets(Collection<UUID> idSet) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return search.getAssets(ctx, idSet);
+    public Map<UUID,AssetRef> getAssets(Collection<UUID> idSet) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final ImmutableMap.Builder<UUID,Long> idBuilder = ImmutableMap.builder();
+        for( UUID id : idSet ) {
+            idBuilder.put( id, -1L );
+        }
+        final Map<UUID,AssetResult> serverResult = search.getAssets(ctx, idBuilder.build() );
+        final ImmutableMap.Builder<UUID,AssetRef> resultBuilder = ImmutableMap.builder();
+        for( Map.Entry<UUID,AssetResult> entry : serverResult.entrySet() ) {
+            resultBuilder.put( entry.getKey(), new MockAssetRef( entry.getValue().getAsset() ) );
+        }
+        return resultBuilder.build();
     }
 
     @Override

@@ -107,7 +107,8 @@ public class AssetSearchServlet extends HttpServlet {
             final UUID id = UUIDFactory.parseUUID(arguments);
             final Option<Asset> maybe;
             try {
-                maybe = tools.search.getAsset(sessionId, id);
+                // TODO - update to accept clientTStamp parameter ...
+                maybe = tools.search.getAsset(sessionId, id, -1L ).getAsset();
             } catch ( AccessDeniedException ex ) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;                

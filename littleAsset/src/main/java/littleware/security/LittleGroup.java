@@ -32,7 +32,10 @@ public interface LittleGroup extends LittlePrincipal {
     /** GROUP asset type - with AccountManager asset specializer */
     public static final AssetType GROUP_TYPE = new AssetType(
             UUIDFactory.parseUUID("FAA894CEC15B49CF8F8EC5C280062776"),
-            "littleware.GROUP", LittlePrincipal.PRINCIPAL_TYPE );
+            "littleware.GROUP", LittlePrincipal.PRINCIPAL_TYPE ) {
+        @Override
+        public boolean isTStampCache() { return false; }                
+    };
 
     //------------------------------------------------
     

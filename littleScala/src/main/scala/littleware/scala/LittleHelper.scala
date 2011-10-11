@@ -3,14 +3,14 @@
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
 package littleware.scala
 
 import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Future
 import java.util.{ArrayList,Collection,List}
 import java.util.concurrent.Callable
 
@@ -96,6 +96,94 @@ object LittleHelper {
       }
     }
   }
+  
+  /**
+   * Simple 2-step pipeline overlaps stage-1 computation with stage-2 computation
+   */
+  class Pipeline[A]( input:Seq[A] ) {
+    
+    /**
+     * Shared method - either processes stage2 in parallel or sequentially
+     */
+    private def plumber[B,C]( exec:ExecutorService, 
+                      chunkSize:Int, stage1: (A) => B, 
+                      stage2: (B) => C,
+                      fb:littleware.base.feedback.Feedback,
+                      parallelStage2:Boolean
+    ):Seq[C] = {
+      val chunks = input.grouped( chunkSize ).toSeq
+      // prime the pipeline
+      if ( chunks.isEmpty ) {
+        fb.setProgress(100)
+        Nil
+      } else {
+        class Stage1 (
+          val chunkNumber:Int,
+          val inProgress:Seq[Future[B]]
+        ){
+          def this( ready:Seq[A], chunkNumber:Int ) = this( chunkNumber, ready.map( (a) => exec.submit( () => stage1(a) ) ) )
+          
+          def launchStage2():Seq[Future[C]] = inProgress.map( 
+            (future) => {
+              val nextStage:Future[C] = exec.submit( () => stage2( future.get ) )
+              if ( ! parallelStage2 ) {
+                nextStage.get
+              }
+              nextStage
+            } 
+          )
+        }
 
+        val resultBuilder = Seq.newBuilder[C]
+        // prime the pipeline
+        fb.setProgress(0)
+        val firstChunk = new Stage1( chunks.head, 0 )
+        firstChunk.inProgress.foreach( (x) => x.get )  
+        chunks.tail.foldLeft( firstChunk )(
+          (lastStage1:Stage1,nextChunk:Seq[A]) => {
+            // launch stage1 on next chunk
+            val nextStage1 = new Stage1( nextChunk, lastStage1.chunkNumber + 1 )
+            // process last chunk through stage2 - stage1 and stage2 should be running concurrently now
+            lastStage1.launchStage2.foreach( (future) => resultBuilder += future.get )
+            fb.setProgress( nextStage1.chunkNumber, chunks.size )
+            nextStage1
+          }
+        ).launchStage2.foreach( (future) => resultBuilder += future.get )
+        fb.setProgress( 100 )
+        resultBuilder.result
+      }
+    }
+
+    /**
+     * Pipeline tasks off to the given ExecutorService so that chunkSize stage1 threads
+     * overlap with chunkSize stage2 threads.
+     * This works by forking off stage1 tasks, then forking off stage2 tasks to
+     * execute already completed stage1 tasks
+     * 
+     * @param chunkSize number of concurrent threads to fork to execute each stage - 
+     *            2 * chunkSize threads running once pipeline is primed
+     * @param feedback to setProgress on as processing proceeds
+     */
+    def pipeline[B,C]( exec:ExecutorService, 
+                      chunkSize:Int, stage1: (A) => B, 
+                      stage2: (B) => C,
+                      fb:littleware.base.feedback.Feedback = new littleware.base.feedback.NullFeedback
+    ):Seq[C] = plumber( exec, chunkSize, stage1, stage2, fb, true )
+
+    
+    /**
+     * Same as pipeline, but stage 2 is processed sequentially on a single thread
+     */
+    def forkJoin[B,C]( exec:ExecutorService, 
+                 chunkSize:Int, stage1: (A) => B, 
+                 stage2: (B) => C,
+                 fb:littleware.base.feedback.Feedback = new littleware.base.feedback.NullFeedback
+    ):Seq[C] = plumber( exec, chunkSize, stage1, stage2, fb, false )
+  }
+
+  /**
+   * Implicit Seq to Pipeline converter
+   */
+  implicit def toPipeline[A]( seq:Seq[A] ):Pipeline[A] = new Pipeline( seq )
 }
 

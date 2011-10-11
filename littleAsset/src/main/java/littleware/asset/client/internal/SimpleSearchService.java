@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
@@ -54,7 +56,7 @@ import littleware.security.auth.client.KeyChain;
  * Smart proxy for AssetSearchManager
  */
 public class SimpleSearchService implements AssetSearchManager {
-
+    private static final Logger log = Logger.getLogger( SimpleSearchService.class.getName() );
     private static final long serialVersionUID = 1830540427533232520L;
     // Do not use final with Serializable stuff
     private final RemoteSearchManager server;
@@ -242,6 +244,8 @@ public class SimpleSearchService implements AssetSearchManager {
                 } else {
                     personalCache.remove(id);
                 }
+            } else {
+                //log.log( Level.FINE, "server-cache hit ..." );
             }
         } 
 

@@ -3,8 +3,6 @@
  * 
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 package littleware.bootstrap.helper;
@@ -28,7 +26,7 @@ import org.osgi.framework.BundleContext;
  * thread pool.
  */
 public class ExecutorModule extends AbstractAppModule {
-
+    
     public static class Factory implements AppModuleFactory {
 
         @Override
@@ -77,13 +75,10 @@ public class ExecutorModule extends AbstractAppModule {
 
     @Override
     public void configure(Binder binder) {
-        final int workPoolSize;
-        final int schedPoolSize;
-        workPoolSize = 5;
-        schedPoolSize = 4;
-        binder.bind(ExecutorService.class).toInstance(Executors.newFixedThreadPool(workPoolSize));
-        binder.bind(ScheduledExecutorService.class).toInstance(
-                Executors.newScheduledThreadPool(schedPoolSize));
+        final ScheduledExecutorService schedExec = Executors.newScheduledThreadPool(2);
+        final ExecutorService exec = Executors.newFixedThreadPool(10);
+        binder.bind(ExecutorService.class).toInstance( exec );
+        binder.bind(ScheduledExecutorService.class).toInstance( schedExec );
     }
 
     @Override

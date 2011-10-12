@@ -24,7 +24,6 @@ import littleware.base.AssertionFailedException;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
-import littleware.base.Whatever;
 import littleware.base.validate.ValidationException;
 import littleware.db.DbReader;
 
@@ -56,38 +55,43 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
         try {
             // We shouldn't have to worry about multiple pages of results ...
             log.log(Level.FINE, "Running query: {0}", query);
-            final SelectResult result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE));
-            Whatever.get().check("Query overflow ...", null == result.getNextToken());
-            for (Item item : result.getItems()) {
-                String name = null;
-                UUID id = null;
-                AssetType type = null;
-                Integer state = null;
+            SelectResult result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE));
+            while( true ) {                
+                for (Item item : result.getItems()) {
+                    String name = null;
+                    UUID id = null;
+                    AssetType type = null;
+                    Integer state = null;
 
-                for (Attribute attr : item.getAttributes()) {
-                    if (attr.getName().equals("id")) {
-                        id = UUIDFactory.parseUUID(attr.getValue());
-                    } else if (attr.getName().equals("typeId")) {
-                        type = AssetType.getMember( UUIDFactory.parseUUID( attr.getValue() ) );
-                    } else if (attr.getName().equals("state")) {
-                        state = Integer.parseInt(attr.getValue());
-                    } else {
-                        name = attr.getValue();
+                    for (Attribute attr : item.getAttributes()) {
+                        if (attr.getName().equals("id")) {
+                            id = UUIDFactory.parseUUID(attr.getValue());
+                        } else if (attr.getName().equals("typeId")) {
+                            type = AssetType.getMember(UUIDFactory.parseUUID(attr.getValue()));
+                        } else if (attr.getName().equals("state")) {
+                            state = Integer.parseInt(attr.getValue());
+                        } else {
+                            name = attr.getValue();
+                        }
+                    }
+                    if ((null == name) || (null == id) || (null == type) || (null == state)) {
+                        throw new AssertionFailedException("Unexpected query result");
+                    }
+
+                    // apply type and state filters
+                    // Note: cheaper to filter here than to run an intersect query against asset-type and state
+                    final boolean typeOk = maybeType.isEmpty() || type.isA(maybeType.get());
+                    final boolean stateOk = maybeState.isEmpty() || state.equals(maybeState.get());
+                    if (typeOk && stateOk) {
+                        builder.put(name, id);
                     }
                 }
-                if ((null == name) || (null == id) || (null == type) || (null == state)) {
-                    throw new AssertionFailedException("Unexpected query result");
-                }
-                
-                // apply type and state filters
-                // Note: cheaper to filter here than to run an intersect query against asset-type and state
-                final boolean typeOk = maybeType.isEmpty() || type.isA(maybeType.get());
-                final boolean stateOk = maybeState.isEmpty() || state.equals(maybeState.get());
-                if (typeOk && stateOk) {
-                    builder.put(name, id);
-                }
+                if( null == result.getNextToken()) {
+                    break;
+                } else {
+                    result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE).withNextToken(result.getNextToken()));
+                }                
             }
-
             return builder.build();
         } catch (Exception ex) {
             throw new SQLException("Failed fromId query", ex);
@@ -138,7 +142,7 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
             final String query = "Select id, name, typeId, state From " + config.getDbDomain() + " Where `fromId`='"
                     + UUIDFactory.makeCleanString(fromId)
                     + "'";
-            return new DbIdsFromLoader(db, config, query, maybeState, maybeType );
+            return new DbIdsFromLoader(db, config, query, maybeState, maybeType);
         }
     }
 }

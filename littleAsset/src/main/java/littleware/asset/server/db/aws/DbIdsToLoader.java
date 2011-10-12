@@ -24,7 +24,6 @@ import littleware.base.AssertionFailedException;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
-import littleware.base.Whatever;
 import littleware.base.validate.ValidationException;
 import littleware.db.DbReader;
 
@@ -53,26 +52,32 @@ public class DbIdsToLoader implements DbReader<Set<UUID>, String> {
         try {
             // We shouldn't have to worry about multiple pages of results ...
             log.log(Level.FINE, "Running query: {0}", query);
-            final SelectResult result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE));
-            Whatever.get().check("Query overflow ...", null == result.getNextToken());
-            for (Item item : result.getItems()) {
-                UUID id = null;
-                AssetType type = null;
+            SelectResult result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE));
+            while (true) {
+                for (Item item : result.getItems()) {
+                    UUID id = null;
+                    AssetType type = null;
 
-                for (Attribute attr : item.getAttributes()) {
-                    if (attr.getName().equals("id")) {
-                        id = UUIDFactory.parseUUID(attr.getValue());
-                    } else if (attr.getName().equals("typeId")) {
-                        type = AssetType.getMember(UUIDFactory.parseUUID(attr.getValue()));
+                    for (Attribute attr : item.getAttributes()) {
+                        if (attr.getName().equals("id")) {
+                            id = UUIDFactory.parseUUID(attr.getValue());
+                        } else if (attr.getName().equals("typeId")) {
+                            type = AssetType.getMember(UUIDFactory.parseUUID(attr.getValue()));
+                        }
+                    }
+                    if ((null == id) || (null == type)) {
+                        throw new AssertionFailedException("Unexpected query result");
+                    }
+                    // apply type filter
+                    // Note: cheaper to filter here than to run an intersect query against asset-type
+                    if (maybeType.isEmpty() || type.isA(maybeType.get())) {
+                        builder.add(id);
                     }
                 }
-                if ((null == id) || (null == type)) {
-                    throw new AssertionFailedException("Unexpected query result");
-                }
-                // apply type filter
-                // Note: cheaper to filter here than to run an intersect query against asset-type
-                if (maybeType.isEmpty() || type.isA(maybeType.get())) {
-                    builder.add(id);
+                if (null == result.getNextToken()) {
+                    break;
+                } else {
+                    result = db.select(new SelectRequest(query).withConsistentRead(Boolean.TRUE).withNextToken(result.getNextToken()));
                 }
             }
             return builder.build();

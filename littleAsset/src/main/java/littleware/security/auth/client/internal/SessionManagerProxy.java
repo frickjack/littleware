@@ -18,6 +18,8 @@ import javax.security.auth.Subject;
 import littleware.asset.AssetException;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.internal.RetryRemoteSearchMgr;
+import littleware.asset.client.spi.AssetLoadEvent;
+import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
 import littleware.base.Maybe;
@@ -39,6 +41,7 @@ public class SessionManagerProxy implements SessionManager {
     private final RemoteSearchManager rsearch;
     private final AssetSearchManager search;
     private final KeyChain keychain;
+    private final LittleServiceBus eventBus;
 
     /**
      * Stash the wrapped manager and the URL it came from
@@ -47,11 +50,13 @@ public class SessionManagerProxy implements SessionManager {
     public SessionManagerProxy(RetryRemoteSessionMgr remote,
             RetryRemoteSearchMgr rsearch,
             AssetSearchManager search,
-            KeyChain keychain) {
+            KeyChain keychain,
+            LittleServiceBus eventBus ) {
         this.remote = remote;
         this.rsearch = rsearch;
         this.search = search;
         this.keychain = keychain;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -62,12 +67,16 @@ public class SessionManagerProxy implements SessionManager {
         final LittleSession session = remote.login(userName, password, sessionComment);
         final LittleUser user = rsearch.getAsset(session.getId(), session.getOwnerId(), -1L ).getAsset().get().narrow();
         keychain.setDefaultSessionId(session.getId());
+        eventBus.fireEvent( new AssetLoadEvent( this, session ) );
+        eventBus.fireEvent( new AssetLoadEvent( this, user ) );
         return new Creds(session, user);
     }
 
     @Override
     public LittleSession createNewSession(String sessionComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return remote.createNewSession(keychain.getDefaultSessionId().get(), sessionComment);
+        final LittleSession result = remote.createNewSession(keychain.getDefaultSessionId().get(), sessionComment);
+        eventBus.fireEvent( new AssetLoadEvent( this, result ) );
+        return result;
     }
 
     @Override
@@ -99,6 +108,8 @@ public class SessionManagerProxy implements SessionManager {
         final LittleSession session = rsearch.getAsset( sessionId, sessionId, -1L ).getAsset().get().narrow();
         final LittleUser user = rsearch.getAsset(session.getId(), session.getOwnerId(), -1L ).getAsset().get().narrow();
         keychain.setDefaultSessionId(session.getId());
+        eventBus.fireEvent( new AssetLoadEvent( this, session ) );
+        eventBus.fireEvent( new AssetLoadEvent( this, user ) );        
         return new Creds(session, user);
     }
 

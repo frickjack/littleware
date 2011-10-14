@@ -183,7 +183,9 @@ public class SimpleClientCache implements LittleListener, ClientCache {
             final AssetLoadEvent eventLoad = (AssetLoadEvent) eventLittle;
             if (eventLoad.getAsset().getTimestamp() > getTimestamp()) {
                 log.log( Level.FINE, "Clearing cache on transaction advance" );
+                // very paranoid cache-flush policy
                 getCache().clear();
+                timestamp = getTimestamp();
             }
             put(eventLoad.getAsset());
         } else {

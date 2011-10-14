@@ -66,8 +66,10 @@ public class SimpleSearchService implements AssetSearchManager {
     private final AssetPathFactory pathFactory;
     private final KeyChain keychain;
     private final Everybody everybody;
-    private final Map<UUID,Asset> personalCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
-
+    // personal asset cache
+    private final Map<UUID,Asset>   personalCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
+    private final Map<String,UUID>  nameIdCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
+    
     /**
      * Inject the server that does not implement LittleService event support
      *
@@ -94,9 +96,24 @@ public class SimpleSearchService implements AssetSearchManager {
 
     @Override
     public AssetRef getByName(String name, AssetType assetType) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final String cacheKey = assetType.toString() + "/" + name;
+        { // check cache
+          final UUID cacheId = nameIdCache.get( cacheKey );
+          if ( null != cacheId ) {
+              final AssetRef ref = getAsset( cacheId );
+              if ( ref.isSet() && ref.get().getName().equals( name ) && ref.get().getAssetType().isA( assetType ) ) {
+                  return ref;
+              } else {
+                  nameIdCache.remove(cacheKey);
+              }
+          }
+        }
+        
         final UUID sessionId = keychain.getDefaultSessionId().get();
         final Option<Asset> result = server.getByName(sessionId, name, assetType);
         if (result.isSet()) {
+            personalCache.put( result.get().getId(), result.get() );
+            nameIdCache.put( cacheKey, result.get().getId() );
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             return library.syncAsset(result.get());
         }
@@ -181,11 +198,26 @@ public class SimpleSearchService implements AssetSearchManager {
         if (result.isSet()) {
             return library.syncAsset(result.get());
         }
+        
+        { // Try the nameIdCache - it doesn't get flushed, and leverages the server-timestamp stuff
+            final UUID id = nameIdCache.get(key);
+            if ( null != id ) {
+                final AssetRef ref = getAsset( id );
+                if ( ref.isSet() && parentId.equals( ref.get().getFromId() ) && name.equals( ref.get().getName() ) ) {
+                    return ref;
+                } else {
+                    nameIdCache.remove( key );
+                }
+            }
+        }
         final UUID sessionId = keychain.getDefaultSessionId().get();
         result = server.getAssetFrom(sessionId, parentId, name);
         if (result.isSet()) {
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
+            // result gets indexed multiple ways - ugh!
             cache.put(key, result.get());
+            nameIdCache.put( key, result.get().getId() );
+            personalCache.put( result.get().getId(), result.get() );
             return library.syncAsset(result.get());
         }
         return AssetRef.EMPTY;

@@ -1,5 +1,4 @@
 # littleware ClientModule service providers
-#littleware.apps.client.ClientSyncModule$Factory
 #littleware.apps.filebucket.client.BucketClientModule$Factory
 #littleware.apps.image.client.ImageClientModule$Factory
 #littleware.apps.lgo.LgoModule$Factory

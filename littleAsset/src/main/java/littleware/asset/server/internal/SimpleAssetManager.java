@@ -158,7 +158,7 @@ public class SimpleAssetManager implements ServerAssetManager {
         // Don't save the same asset more than once in this timestamp
         final boolean bCallerIsAdmin = ctx.isAdmin();
         final boolean cycleSave;  // is this a save via a callback ?  - avoid infinite loops
-        final ImmutableMap.Builder<UUID,Asset>  resultBuilder = ImmutableMap.builder();
+        final Map<UUID,Asset>  resultBuilder = new HashMap<UUID,Asset>();
         
         try {
             if (null == asset.getId()) {
@@ -328,9 +328,10 @@ public class SimpleAssetManager implements ServerAssetManager {
                     }
                     throw ex;
                 }
-                {
+                { // this should hit the transaction access-cache
                     final Asset result = search.getAsset(ctx, assetSave.getId(), -1L ).getAsset().get();
-                    return resultBuilder.put( result.getId(), result ).build();
+                    resultBuilder.put( result.getId(), result );
+                    return ImmutableMap.copyOf(resultBuilder);
                 }
             } catch (Throwable ex) {
                 // Should check SQLException error-string for specific error translation here ...

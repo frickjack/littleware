@@ -66,7 +66,7 @@ class DbByNameLoader implements DbReader<Option<Asset>, String> {
             }
         }
         try {
-            final Set<Asset> vResult = new HashSet<Asset>();
+            final Set<Asset> result = new HashSet<Asset>();
             for (AssetEntity ent : vInfo) {
                 final AssetType assetType = AssetType.getMember(UUIDFactory.parseUUID(ent.getTypeId()));
                 log.log( Level.FINE, "Building asset from entity with type: {0}", assetType);

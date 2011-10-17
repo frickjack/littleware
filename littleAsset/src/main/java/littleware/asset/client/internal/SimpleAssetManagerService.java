@@ -35,16 +35,22 @@ public class SimpleAssetManagerService implements AssetManager {
     private final LittleServiceBus eventBus;
     private final KeyChain keychain;
     private final AssetLibrary library;
+    // hacky plugin here from SearchService - need to work this into the ClientCache
+    private final SimpleSearchService.PersonalCache personalCache;
 
     /**
      * Inject the server to wrap with LittleService event throwing support
      */
     @Inject
-    public SimpleAssetManagerService(RetryRemoteAstMgr server, LittleServiceBus eventBus, KeyChain keychain, AssetLibrary library) {
+    public SimpleAssetManagerService(RetryRemoteAstMgr server, 
+        LittleServiceBus eventBus, KeyChain keychain, AssetLibrary library,
+        SimpleSearchService.PersonalCache personalCache
+            ) {
         this.server = server;
         this.eventBus = eventBus;
         this.keychain = keychain;
         this.library = library;
+        this.personalCache = personalCache;
     }
 
     @Override
@@ -61,6 +67,7 @@ public class SimpleAssetManagerService implements AssetManager {
         for (Asset scan : result.values()) {
             library.syncAsset(scan);
             eventBus.fireEvent(new AssetLoadEvent(this, scan));
+            personalCache.put( scan );
         }
         return (T) result.get( asset.getId() );
     }

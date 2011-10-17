@@ -10,6 +10,7 @@ package littleware.asset.client.internal;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.ClientCache;
 import java.rmi.RemoteException;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -35,6 +35,7 @@ import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
 import littleware.asset.LinkAsset;
+import littleware.asset.LittleHome;
 import littleware.asset.TreeChild;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
@@ -66,9 +67,51 @@ public class SimpleSearchService implements AssetSearchManager {
     private final AssetPathFactory pathFactory;
     private final KeyChain keychain;
     private final Everybody everybody;
+    private final PersonalCache personalCache;
+    
     // personal asset cache
-    private final Map<UUID,Asset>   personalCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
-    private final Map<String,UUID>  nameIdCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
+    @Singleton
+    public static class PersonalCache {
+        private final Map<UUID,Asset>   personalCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
+        private final Map<String,UUID>  nameIdCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
+        
+        private String key( AssetType type, String name ) {
+            return type.toString() + "/" + name;            
+        }
+        
+        private String key( UUID parentId, String childName ) {
+            return UUIDFactory.makeCleanString(parentId) + "/" + childName;
+        }
+        
+        public Asset get( UUID id ) { return personalCache.get( id ); }
+        public UUID get( AssetType type, String name ) {
+            return nameIdCache.get( key( type, name ) );
+        }
+        public void remove( AssetType type, String name ) {
+            nameIdCache.remove( key( type, name ) );
+        }
+        
+        public UUID get( UUID parentId, String childName ) {
+            return nameIdCache.get( key( parentId, childName ) );
+        }
+        public void remove( UUID parentId, String childName ) {
+            nameIdCache.remove( key( parentId, childName ) );
+        }
+        
+        public void put( Asset node ) {
+            personalCache.put(node.getId(), node);
+            if ( (! node.getAssetType().isA( LittleHome.HOME_TYPE )) && (null != node.getFromId() ) ) {
+                nameIdCache.put( key( node.getFromId(), node.getName() ), node.getId() );
+            }
+            if ( node.getAssetType().isNameUnique() ) {
+                nameIdCache.put( key( node.getAssetType(), node.getName() ), node.getId() );
+            }
+        }
+        public void remove( UUID node ) {
+            personalCache.remove( node );
+        }
+    }
+    
     
     /**
      * Inject the server that does not implement LittleService event support
@@ -83,7 +126,8 @@ public class SimpleSearchService implements AssetSearchManager {
             AssetLibrary library,
             AssetPathFactory pathFactory,
             KeyChain keychain,
-            Everybody everybody 
+            Everybody everybody,
+            PersonalCache personalCache
             ) {
         this.server = server;
         this.eventBus = eventBus;
@@ -92,19 +136,19 @@ public class SimpleSearchService implements AssetSearchManager {
         this.pathFactory = pathFactory;
         this.keychain = keychain;
         this.everybody = everybody;
+        this.personalCache = personalCache;
     }
 
     @Override
     public AssetRef getByName(String name, AssetType assetType) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final String cacheKey = assetType.toString() + "/" + name;
         { // check cache
-          final UUID cacheId = nameIdCache.get( cacheKey );
+          final UUID cacheId = personalCache.get( assetType, name );
           if ( null != cacheId ) {
               final AssetRef ref = getAsset( cacheId );
               if ( ref.isSet() && ref.get().getName().equals( name ) && ref.get().getAssetType().isA( assetType ) ) {
                   return ref;
               } else {
-                  nameIdCache.remove(cacheKey);
+                  personalCache.remove( assetType, name );
               }
           }
         }
@@ -112,8 +156,7 @@ public class SimpleSearchService implements AssetSearchManager {
         final UUID sessionId = keychain.getDefaultSessionId().get();
         final Option<Asset> result = server.getByName(sessionId, name, assetType);
         if (result.isSet()) {
-            personalCache.put( result.get().getId(), result.get() );
-            nameIdCache.put( cacheKey, result.get().getId() );
+            personalCache.put( result.get() );
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             return library.syncAsset(result.get());
         }
@@ -200,13 +243,13 @@ public class SimpleSearchService implements AssetSearchManager {
         }
         
         { // Try the nameIdCache - it doesn't get flushed, and leverages the server-timestamp stuff
-            final UUID id = nameIdCache.get(key);
+            final UUID id = personalCache.get( parentId, name);
             if ( null != id ) {
                 final AssetRef ref = getAsset( id );
                 if ( ref.isSet() && parentId.equals( ref.get().getFromId() ) && name.equals( ref.get().getName() ) ) {
                     return ref;
                 } else {
-                    nameIdCache.remove( key );
+                    personalCache.remove( parentId, name );
                 }
             }
         }
@@ -216,8 +259,7 @@ public class SimpleSearchService implements AssetSearchManager {
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             // result gets indexed multiple ways - ugh!
             cache.put(key, result.get());
-            nameIdCache.put( key, result.get().getId() );
-            personalCache.put( result.get().getId(), result.get() );
+            personalCache.put( result.get() );
             return library.syncAsset(result.get());
         }
         return AssetRef.EMPTY;
@@ -272,7 +314,7 @@ public class SimpleSearchService implements AssetSearchManager {
             if ( ! serverInfo.getState().equals( AssetResult.State.USE_YOUR_CACHE )) {
                 result = serverInfo.getAsset();
                 if( result.isSet() ) {
-                    personalCache.put(id, result.get() );
+                    personalCache.put(result.get() );
                 } else {
                     personalCache.remove(id);
                 }
@@ -318,7 +360,7 @@ public class SimpleSearchService implements AssetSearchManager {
                 if ( lookupResult.getAsset().isSet() ) {
                     final Asset asset = lookupResult.getAsset().get();
                     assetMap.put(asset.getId(), asset);
-                    personalCache.put( asset.getId(), asset );
+                    personalCache.put( asset );
                     eventBus.fireEvent(new AssetLoadEvent(this, asset));
                 } else if ( lookupResult.getState().equals( AssetResult.State.USE_YOUR_CACHE ) ) {
                     final Asset asset = assetMap.get( entry.getKey() );

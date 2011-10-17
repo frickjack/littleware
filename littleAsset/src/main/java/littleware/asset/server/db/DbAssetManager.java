@@ -59,7 +59,11 @@ public interface DbAssetManager {
      * Create assets by name loader handler
      */
     public DbReader<Option<Asset>, String> makeDbAssetsByNameLoader( LittleTransaction trans, String name, AssetType assetType );
-
+    
+    /**
+     * Asset loader given parent id and asset name
+     */
+    public DbReader<Option<Asset>, String> makeDbAssetByParentLoader(LittleTransaction trans, String name, UUID parentId);
 
     /**
      * Transaction log loader

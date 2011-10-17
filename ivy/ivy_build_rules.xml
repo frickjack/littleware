@@ -128,14 +128,14 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     </propertyfile>
         
     <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="run.classpath" value="${ivy.test.classpath}:${build.classes.dir}"/>
-            <entry operation="=" key="run.test.classpath" value="${ivy.test.classpath}:${build.classes.dir}"/>
+            <entry operation="=" key="run.classpath" value="${build.classes.dir}:${ivy.test.classpath}"/>
+            <entry operation="=" key="run.test.classpath" value="${build.classes.dir}:${ivy.test.classpath}"/>
     </propertyfile>
     
     <property name="javac.classpath" value="${ivy.compile.classpath}" />
     <property name="javac.test.classpath" value="${ivy.compile.classpath}" />
-    <property name="run.classpath" value="${ivy.test.classpath}:build/classes" />
-    <property name="run.test.classpath" value="${ivy.test.classpath}:build/classes" />
+    <property name="run.classpath" value="build/classes:${ivy.test.classpath}" />
+    <property name="run.test.classpath" value="build/classes:${ivy.test.classpath}" />
 </target>
 
 <target name="-pre-init" depends="resolveIfNecessary" />

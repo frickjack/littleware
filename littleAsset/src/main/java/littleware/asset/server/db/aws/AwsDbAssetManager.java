@@ -35,6 +35,7 @@ public class AwsDbAssetManager implements DbAssetManager {
     private final Provider<DbIdsFromLoader.Builder> idsFromProvider;
     private final Provider<DbIdsToLoader.Builder> idsToProvider;
     private final Provider<DbByNameLoader.Builder> byNameProvider;
+    private final Provider<DbByParentLoader.Builder> byParentProvider;
     private final Provider<Builder> logProvider;
 
     
@@ -47,6 +48,7 @@ public class AwsDbAssetManager implements DbAssetManager {
             Provider<DbIdsFromLoader.Builder> idsFromProvider,
             Provider<DbIdsToLoader.Builder> idsToProvider,
             Provider<DbByNameLoader.Builder> byNameProvider,
+            Provider<DbByParentLoader.Builder> byParentProvider,
             Provider<LogLoader.Builder> logProvider
             ) {
         this.saverProvider = saverProvider;
@@ -56,6 +58,7 @@ public class AwsDbAssetManager implements DbAssetManager {
         this.idsFromProvider = idsFromProvider;
         this.idsToProvider = idsToProvider;
         this.byNameProvider = byNameProvider;
+        this.byParentProvider = byParentProvider;
         this.logProvider = logProvider;
     }
     
@@ -107,6 +110,12 @@ public class AwsDbAssetManager implements DbAssetManager {
     public DbReader<Option<Asset>, String> makeDbAssetsByNameLoader(LittleTransaction trans, String name, AssetType assetType) {
         return byNameProvider.get().name(name).type(assetType).build();
     }
+    
+    @Override
+    public DbReader<Option<Asset>, String> makeDbAssetByParentLoader(LittleTransaction trans, String name, UUID parentId) {
+        return byParentProvider.get().name(name).parentId(parentId).build();
+    }
+    
 
     @Override
     public DbReader<List<IdWithClock>, Long> makeLogLoader(LittleTransaction trans, UUID homeId) {

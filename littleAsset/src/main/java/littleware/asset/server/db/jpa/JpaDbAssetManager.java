@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
@@ -89,5 +88,10 @@ public class JpaDbAssetManager implements DbAssetManager {
     @Override
     public DbWriter<AssetType> makeTypeChecker( LittleTransaction trans ) {
         return new DbTypeChecker( (JpaLittleTransaction) trans );
+    }
+
+    @Override
+    public DbReader<Option<Asset>, String> makeDbAssetByParentLoader(LittleTransaction trans, String name, UUID parentId) {
+        return new DbByParentLoader( (JpaLittleTransaction) trans, assetRegistry, name, parentId );
     }
 }

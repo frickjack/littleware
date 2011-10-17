@@ -27,7 +27,6 @@ import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
 
-
 /**
  * Handler to load an asset with a given id
  */
@@ -36,6 +35,7 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
     private final AmazonSimpleDB db;
     private final AwsConfig config;
     private final AssetProviderRegistry assetRegistry;
+    //private boolean consistentRead = true;
 
     @Inject
     public DbAssetLoader(AmazonSimpleDB db, AwsConfig config,
@@ -44,6 +44,17 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
         this.config = config;
         this.assetRegistry = assetRegistry;
     }
+
+    /**
+     * Set whether or not to query SimpleDB with consistent read - default is true
+     * 
+     * @return this
+     *
+    public DbAssetLoader withConsistentRead(boolean value) {
+        this.consistentRead = value;
+        return this;
+    }
+     */
 
     public UUID toUUID(Attribute attr) {
         return (null != attr) ? UUIDFactory.parseUUID(attr.getValue()) : null;
@@ -74,7 +85,7 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
         builder.id(UUIDFactory.parseUUID(attrIndex.get("id").getValue())).name(attrIndex.get("name").getValue());
         builder.value(Float.parseFloat(attrIndex.get("value").getValue())).timestamp(Long.parseLong(attrIndex.get("timestamp").getValue()));
         builder.state(Integer.parseInt(attrIndex.get("state").getValue())).comment(toString(attrIndex.get("comment"))).lastUpdate(toString(attrIndex.get("updateComment")));
-        builder.setData(toString(attrIndex.get("comment")) );
+        builder.setData(toString(attrIndex.get("comment")));
         builder.createDate(toDate(attrIndex.get("createDate"))).lastUpdateDate(toDate(attrIndex.get("updateDate")));
         builder.startDate(toDate(attrIndex.get("startDate")));
         builder.endDate(toDate(attrIndex.get("endDate")));
@@ -85,7 +96,7 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
         builder.setCreatorId(toUUID(attrIndex.get("creatorId")));
         builder.setLastUpdaterId(toUUID(attrIndex.get("updaterId")));
         builder.setAclId(toUUID(attrIndex.get("aclId")));
-        
+
         for (Attribute attr : attrIndex.values()) {
             final String key = attr.getName();
             if (key.startsWith("attr:")) {
@@ -102,20 +113,24 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
     @Override
     public Asset loadObject(UUID id) throws SQLException {
         try {
-            final Map<String, Attribute> attrIndex;
-            {
+
+            for (int attempt = 0; attempt < 2; ++attempt) {
+                // 
+                // Try an inconsistent read, then try a consistent read if no data found
+                //
                 final ImmutableMap.Builder<String, Attribute> builder = ImmutableMap.builder();
-                for (Attribute attr : db.getAttributes(new GetAttributesRequest( config.getDbDomain(), UUIDFactory.makeCleanString(id)).withConsistentRead(Boolean.TRUE)).getAttributes()) {
+                for (Attribute attr : db.getAttributes(new GetAttributesRequest(config.getDbDomain(), UUIDFactory.makeCleanString(id)).withConsistentRead( attempt > 0)).getAttributes()) {
                     builder.put(attr.getName(), attr);
                 }
-                attrIndex = builder.build();
+                final Map<String, Attribute> attrIndex = builder.build();
+
+                if (!attrIndex.isEmpty()) {
+                    return itemToAsset(attrIndex);
+                }
             }
-            if ( attrIndex.isEmpty() ) {
-                return null;
-            }
-            return itemToAsset( attrIndex );
-        } catch ( Exception ex) {
-            throw new SQLException( "Failed asset load", ex );
+            return null;
+        } catch (Exception ex) {
+            throw new SQLException("Failed asset load", ex);
         }
     }
 }

@@ -7,6 +7,7 @@
  */
 package littleware.asset.server.db.aws;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
@@ -35,8 +36,8 @@ import littleware.db.DbWriter;
  * Handler to save a given asset
  */
 public class DbAssetSaver implements DbWriter<Asset> {
-    private static final Logger log = Logger.getLogger( DbAssetSaver.class.getName() );
-    
+
+    private static final Logger log = Logger.getLogger(DbAssetSaver.class.getName());
     private final AmazonSimpleDB db;
     private final AwsConfig config;
 
@@ -96,15 +97,49 @@ public class DbAssetSaver implements DbWriter<Asset> {
             return this;
         }
     }
-    
-    public static String encodeState( int value ) {
+
+    public static String encodeState(int value) {
         return SimpleDBUtils.encodeZeroPadding(value, 10);
     }
 
-    public static String encodeTimestamp( long value ) {
+    public static String encodeTimestamp(long value) {
         return SimpleDBUtils.encodeZeroPadding(value, 20);
     }
-    
+    public static final int maxRetries = 2;
+
+    /**
+     * Either sleep before retry, or rethrow exception depending on ex.errorCode 
+     * (500 and 503) and retry count.  See http://aws.amazon.com/articles/1394?_encoding=UTF8&jiveRedirect=1
+     * 
+     * @param ex caught exception
+     */
+    public static void handleAwsException(AmazonServiceException ex, int retry) {
+        if ((retry < maxRetries)
+                && ((ex.getErrorCode().indexOf("500") >= 0)
+                || (ex.getErrorCode().indexOf("503") >= 0))) {
+            try {
+                log.log(Level.WARNING, "Retry SimpleDB call on exception", ex);
+                switch (retry) {
+                    case 0:
+                        Thread.sleep(500);
+                        break;
+                    case 1:
+                        Thread.sleep(1000);
+                        break;
+                    case 2:
+                        Thread.sleep(2000);
+                        break;
+                    default:
+                        throw ex;
+                }
+            } catch (InterruptedException ex1) {
+                log.log(Level.WARNING, "Retry sleep interrupted", ex1);
+            }
+        } else {
+            throw ex;
+        }
+    }
+
     public static ReplaceableItem assetToItem(AbstractAsset asset) {
         final ItemBuilder builder = new ItemBuilder();
 
@@ -117,8 +152,8 @@ public class DbAssetSaver implements DbWriter<Asset> {
         builder.add("updaterId", asset.getLastUpdaterId());
         builder.add("aclId", asset.getAclId());
         builder.add("homeId", asset.getHomeId());
-        builder.add(new ReplaceableAttribute("timestamp", encodeTimestamp(asset.getTimestamp() ), true));
-        builder.add(new ReplaceableAttribute("state", encodeState( asset.getState() ), true));
+        builder.add(new ReplaceableAttribute("timestamp", encodeTimestamp(asset.getTimestamp()), true));
+        builder.add(new ReplaceableAttribute("state", encodeState(asset.getState()), true));
         builder.add("name", asset.getName());
         builder.add(new ReplaceableAttribute("value", asset.getValue().toString(), true));
         builder.add("data", asset.getData());
@@ -147,9 +182,15 @@ public class DbAssetSaver implements DbWriter<Asset> {
             final ReplaceableItem item = DbAssetSaver.assetToItem((AbstractAsset) asset);
             final List<Attribute> oldAttrs = db.getAttributes(new GetAttributesRequest(config.getDbDomain(), item.getName()).withConsistentRead(Boolean.TRUE)).getAttributes();
 
-            //db.deleteAttributes( new DeleteAttributesRequest( config.getDbDomain(), UUIDFactory.makeCleanString( asset.getId() ) ) );
-            db.putAttributes(new PutAttributesRequest(config.getDbDomain(), item.getName(),
-                    item.getAttributes()));
+            for (int retry = 0; retry <= maxRetries; ++retry) {
+                try {
+                    db.putAttributes(new PutAttributesRequest(config.getDbDomain(), item.getName(),
+                            item.getAttributes()));
+                    break;
+                } catch (AmazonServiceException ex) {
+                    handleAwsException(ex, retry);
+                }
+            }
 
             if (!oldAttrs.isEmpty()) {
                 final Set<String> newAttrs = new HashSet<String>();
@@ -163,73 +204,21 @@ public class DbAssetSaver implements DbWriter<Asset> {
                     }
                 }
                 if (!deleteList.isEmpty()) {
-                    log.log( Level.FINE, "Cleaning up old attributes: {0}", deleteList);
-                    db.deleteAttributes(new DeleteAttributesRequest(config.getDbDomain(), item.getName(), deleteList));
+                    log.log(Level.FINE, "Cleaning up old attributes: {0}", deleteList);
+                    for (int retry = 0; retry <= maxRetries; ++retry) {
+                        try {
+                            db.deleteAttributes(new DeleteAttributesRequest(config.getDbDomain(), item.getName(), deleteList));
+                            break;
+                        } catch (AmazonServiceException ex) {
+                            handleAwsException(ex, retry);
+                        }
+                    }
                 } else {
-                    log.log( Level.FINE, "No attribute cleanup necessary on save" );
+                    log.log(Level.FINE, "No attribute cleanup necessary on save");
                 }
-            } 
+            }
         } catch (RuntimeException ex) {
             throw new SQLException("Failed to save asset", ex);
         }
     }
-
-    /*
-    {
-    final Map<String,AssetAttribute> oldMap = new HashMap<String,AssetAttribute>();
-    for ( AssetAttribute scan : this.getAttributeSet() ) {
-    oldMap.put( scan.getKey(), scan);
-    }
-    final Set<AssetAttribute> clean = new HashSet<AssetAttribute>();
-    for ( final Map.Entry<String,String> scan : asset.getAttributeMap().entrySet() ) {
-    final AssetAttribute old = oldMap.get(scan.getKey() );
-    if ( null == old ) {
-    clean.add( AssetAttribute.build( this, scan.getKey(), scan.getValue() ));
-    } else {
-    old.setValue( scan.getValue() );
-    clean.add( old );
-    }
-    }
-    this.setAttributeSet( clean );
-    }
-    {
-    final Map<String,AssetLink> oldMap = new HashMap<String,AssetLink>();
-    for ( AssetLink scan : this.getLinkSet() ) {
-    oldMap.put( scan.getKey(), scan);
-    }
-    
-    final Set<AssetLink> clean = new HashSet<AssetLink>();
-    for ( final Map.Entry<String,UUID> scan : asset.getLinkMap().entrySet() ) {
-    final AssetLink old = oldMap.get( scan.getKey() );
-    if ( null == old ) {
-    clean.add( AssetLink.build( this, scan.getKey(), UUIDFactory.makeCleanString(scan.getValue() )));
-    } else {
-    old.setValue( UUIDFactory.makeCleanString( scan.getValue() ) );
-    clean.add( old );
-    }
-    }
-    this.setLinkSet(clean);
-    }
-    {
-    final Map<String,AssetDate> oldMap = new HashMap<String,AssetDate>();
-    for ( AssetDate scan : this.getDateSet() ) {
-    oldMap.put( scan.getKey(), scan);
-    }
-    
-    final Set<AssetDate> clean = new HashSet<AssetDate>();
-    for ( final Map.Entry<String,Date> scan : asset.getDateMap().entrySet() ) {
-    final AssetDate old = oldMap.get( scan.getKey () );
-    if ( null == old ) {
-    clean.add( AssetDate.build( this, scan.getKey(), scan.getValue() ) );
-    } else {
-    old.setValue( scan.getValue() );
-    clean.add( old );
-    }
-    }
-    this.setDateSet( clean );
-    }
-    
-    }
-    
-     */
 }

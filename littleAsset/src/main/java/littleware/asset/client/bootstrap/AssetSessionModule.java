@@ -65,11 +65,12 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
         }
     }
 
+    /** Note - late/lazy binding of LittleSession - wait till the user authenticates! */
     @Provides
     @Singleton
-    public LittleUser provideUser(LittleSession session, AssetSearchManager search) {
+    public LittleUser provideUser( Provider<LittleSession> sessionProvider, AssetSearchManager search) {
         try {
-            return search.getAsset(session.getOwnerId()).get().narrow();
+            return search.getAsset(sessionProvider.get().getOwnerId()).get().narrow();
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {

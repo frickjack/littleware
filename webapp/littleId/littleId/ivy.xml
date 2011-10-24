@@ -29,7 +29,7 @@
       </dependency>
       <dependency org="org.openid4java" name="openid4java-nodeps" rev="0.9.6" conf="*" />
       <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.1.1" conf="ee_client->*" />
-      <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.1" conf="ee_client->*" />
+      <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.1.3" conf="ee_client->*" />
       <dependency org="commons-codec" name="commons-codec" rev="1.4" conf="ee_client->*" />
       <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="ee_client->*" />
     </dependencies>

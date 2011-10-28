@@ -85,7 +85,7 @@ public class DbAssetLoader implements DbReader<Asset, UUID> {
         builder.id(UUIDFactory.parseUUID(attrIndex.get("id").getValue())).name(attrIndex.get("name").getValue());
         builder.value(Float.parseFloat(attrIndex.get("value").getValue())).timestamp(Long.parseLong(attrIndex.get("timestamp").getValue()));
         builder.state(Integer.parseInt(attrIndex.get("state").getValue())).comment(toString(attrIndex.get("comment"))).lastUpdate(toString(attrIndex.get("updateComment")));
-        builder.setData(toString(attrIndex.get("comment")));
+        builder.setData(toString(attrIndex.get("data")));
         builder.createDate(toDate(attrIndex.get("createDate"))).lastUpdateDate(toDate(attrIndex.get("updateDate")));
         builder.startDate(toDate(attrIndex.get("startDate")));
         builder.endDate(toDate(attrIndex.get("endDate")));

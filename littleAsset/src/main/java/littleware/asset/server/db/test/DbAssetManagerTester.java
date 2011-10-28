@@ -101,9 +101,10 @@ public class DbAssetManagerTester extends LittleTest {
                     dbDelete.saveObject(aTest);
                 }
             }
-            final TreeNode testSave = nodeProvider.get().name("DbAssetTester").parent(aHome).
+            final GenericAsset testSave = nodeProvider.get().name("DbAssetTester").parent(aHome).
                     id(testCreateId).
                     parent(aHome).
+                    data( "some data" ).
                     comment("Just a test").
                     lastUpdate("Testing asset setup").
                     creatorId(aHome.getCreatorId()).
@@ -117,6 +118,8 @@ public class DbAssetManagerTester extends LittleTest {
             final GenericAsset testLoad = dbMgr.makeDbAssetLoader( trans ).loadObject( testSave.getId()).narrow();
             assertTrue("From preserved on load", testLoad.getParentId().equals(aHome.getId()));
             assertTrue( "attr1 preserved on load", "bla".equals( testLoad.getAttribute( "attr1" ).getOr( "Ugh!") ) );
+            assertTrue( "comment preserved on load", testLoad.getComment().equals( testSave.getComment() ) );
+            assertTrue( "data preserved on load", testLoad.getData().equals( testSave.getData() ) );
             final GenericAsset resave = testLoad.copy().narrow( GenericAsset.GenericBuilder.class ).removeAttribute("attr1").build();
             assertTrue( "Timestamp preserved on copy: " + resave.getTimestamp(), resave.getTimestamp() >= trans.getTimestamp() );
             assertTrue( "Ids are consistent", resave.getId().equals( testSave.getId() ) );

@@ -157,7 +157,7 @@ public class DbAssetSaver implements DbWriter<Asset> {
         builder.add("name", asset.getName());
         builder.add(new ReplaceableAttribute("value", asset.getValue().toString(), true));
         builder.add("data", asset.getData());
-        builder.add("comment", asset.getData());
+        builder.add("comment", asset.getComment());
         builder.add("updateComment", asset.getLastUpdate());
         builder.add("createDate", asset.getCreateDate());
         builder.add("updateDate", asset.getLastUpdateDate());

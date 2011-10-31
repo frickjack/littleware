@@ -56,7 +56,7 @@
         <!--
         <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525"/>
                 -->
-        <dependency org="com.google.code.gson" name="gson" rev="1.4" />
+        <dependency org="com.google.code.gson" name="gson" rev="1.7.2" />
         <dependency org="junit" name="junit" rev="3.8.+" conf="compile,test->*" />
         
         <dependency org="biz.source_code" name="base64coder" rev="2010-12-19" >

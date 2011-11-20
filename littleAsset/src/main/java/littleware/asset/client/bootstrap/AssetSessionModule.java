@@ -49,7 +49,11 @@ import littleware.security.auth.client.internal.SimpleKeyChain;
  * Setup session-scoped bindings for asset-client code
  */
 public class AssetSessionModule implements littleware.bootstrap.SessionModule {
-    private final static Logger log = Logger.getLogger( AssetSessionModule.class.getName() );
+
+    private final static Logger log = Logger.getLogger(AssetSessionModule.class.getName());
+
+    private AssetSessionModule() {
+    }
 
     @Provides
     @Singleton
@@ -68,7 +72,7 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
     /** Note - late/lazy binding of LittleSession - wait till the user authenticates! */
     @Provides
     @Singleton
-    public LittleUser provideUser( Provider<LittleSession> sessionProvider, AssetSearchManager search) {
+    public LittleUser provideUser(Provider<LittleSession> sessionProvider, AssetSearchManager search) {
         try {
             return search.getAsset(sessionProvider.get().getOwnerId()).get().narrow();
         } catch (RuntimeException ex) {
@@ -77,59 +81,62 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
             throw new AssertionFailedException("Failed to load session owner", ex);
         }
     }
-    
+
     /*
     @Provides
     @Singleton
     public javax.security.auth.login.Configuration provideLoginConfig( ClientLoginModule.ConfigurationBuilder loginBuilder ) {
-        return loginBuilder.build();
+    return loginBuilder.build();
     }
      * 
      */
-    
-    
     public static class ConfigProvider implements Provider<javax.security.auth.login.Configuration> {
+
         private final ConfigurationBuilder builder;
 
         @Inject
-        public ConfigProvider( ClientLoginModule.ConfigurationBuilder builder ) {
+        public ConfigProvider(ClientLoginModule.ConfigurationBuilder builder) {
             this.builder = builder;
         }
-        
+
         @Override
         public Configuration get() {
             return builder.build();
         }
     }
-    
 
     @Override
     public void configure(Binder binder) {
-        log.log( Level.FINE, "Asset session configuration running ..." );
+        log.log(Level.FINE, "Asset session configuration running ...");
         binder.bind(AssetSearchManager.class).to(SimpleSearchService.class).in(Scopes.SINGLETON);
         binder.bind(AssetManager.class).to(SimpleAssetManagerService.class).in(Scopes.SINGLETON);
         binder.bind(SessionManager.class).to(SessionManagerProxy.class).in(Scopes.SINGLETON);
+
         binder.bind(KeyChain.class).to(SimpleKeyChain.class).in(Scopes.SINGLETON);
         binder.bind(AssetLibrary.class).to(SimpleAssetLibrary.class).in(Scopes.SINGLETON);
         binder.bind(ClientCache.class).to(SimpleClientCache.class).in(Scopes.SINGLETON);
         binder.bind(AssetTreeTool.class).to(SimpleAssetTreeTool.class).in(Scopes.SINGLETON);
         binder.bind(LittleServiceBus.class).to(SimpleServiceBus.class).in(Scopes.SINGLETON);
         binder.bind(ClientScannerFactory.class).to(SimpleScannerFactory.class).in(Scopes.SINGLETON);
-        binder.bind( ClientLoginModule.ConfigurationBuilder.class ).to( LoginConfigBuilder.class );
-        binder.bind( Configuration.class ).toProvider( ConfigProvider.class ).in( Scopes.SINGLETON );
+        binder.bind(ClientLoginModule.ConfigurationBuilder.class).to(LoginConfigBuilder.class);
+        binder.bind(Configuration.class).toProvider(ConfigProvider.class).in(Scopes.SINGLETON);
     }
 
     @Override
     public Class<? extends Runnable> getSessionStarter() {
         return SessionModule.NullStarter.class;
     }
-    
+    private static AssetSessionModule _singleton = new AssetSessionModule();
+
+    public static AssetSessionModule get() {
+        return _singleton;
+    }
+
     public static class Factory implements SessionModuleFactory {
 
         @Override
         public SessionModule buildSessionModule(AppProfile ap) {
-            return new AssetSessionModule();
+            return AssetSessionModule.get();
         }
-        
     }
 }

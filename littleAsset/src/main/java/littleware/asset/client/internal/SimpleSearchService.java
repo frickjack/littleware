@@ -33,7 +33,6 @@ import littleware.asset.AssetPathByRootName;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetType;
-import littleware.asset.IdWithClock;
 import littleware.asset.LinkAsset;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeChild;
@@ -42,8 +41,8 @@ import littleware.asset.TreeParent;
 import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.spi.LittleServiceBus;
-import littleware.asset.internal.RemoteAssetRetriever.AssetResult;
 import littleware.asset.internal.RemoteSearchManager;
+import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.spi.AbstractAsset;
 import littleware.base.BaseException;
 import littleware.base.cache.Cache;
@@ -68,6 +67,7 @@ public class SimpleSearchService implements AssetSearchManager {
     private final KeyChain keychain;
     private final Everybody everybody;
     private final PersonalCache personalCache;
+
     
     // personal asset cache
     @Singleton
@@ -120,7 +120,7 @@ public class SimpleSearchService implements AssetSearchManager {
      */
     @Inject
     public SimpleSearchService(
-            RetryRemoteSearchMgr server,
+            RemoteSearchMgrProxy server,
             LittleServiceBus eventBus,
             ClientCache cache,
             AssetLibrary library,
@@ -265,12 +265,6 @@ public class SimpleSearchService implements AssetSearchManager {
         return AssetRef.EMPTY;
     }
 
-    @Override
-    public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> checkMap) throws BaseException,
-            RemoteException {
-        final UUID sessionId = keychain.getDefaultSessionId().get();
-        return server.checkTransactionCount(sessionId, checkMap);
-    }
 
     @Override
     public Set<UUID> getAssetIdsTo(UUID toId, AssetType assetType)
@@ -416,12 +410,6 @@ public class SimpleSearchService implements AssetSearchManager {
         return getAssetIdsFrom(parentId, null);
     }
 
-    @Override
-    public List<IdWithClock> checkTransactionLog(UUID homeId, long minTransaction) throws BaseException,
-            RemoteException {
-        final UUID sessionId = keychain.getDefaultSessionId().get();
-        return server.checkTransactionLog(sessionId, homeId, minTransaction);
-    }
 
     public AssetRef getRoot(AssetPath pathIn) throws BaseException, GeneralSecurityException, RemoteException {
         if (pathIn instanceof AssetPathByRootId) {

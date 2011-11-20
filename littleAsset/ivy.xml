@@ -53,9 +53,8 @@
            <exclude module=".+" ext="jar" type="src" matcher="regexp" />
         </dependency>
         <dependency org="antlr" name="antlr" rev="2.7.7" conf="server->*" />
-        <!--
-        <dependency org="org.mortbay.jetty" name="servlet-api" rev="3.0.PFD20090525"/>
-                -->
+
+        <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" conf="server->*" />
         <dependency org="com.google.code.gson" name="gson" rev="1.7.2" />
         <dependency org="junit" name="junit" rev="3.8.+" conf="compile,test->*" />
         
@@ -70,6 +69,15 @@
         <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.1.3" conf="ee_server->*" />
         <dependency org="commons-codec" name="commons-codec" rev="1.4" conf="ee_server->*" />
         <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="ee_server->*" />
+        
+        <!-- Jetty -->
+     <dependency org="org.eclipse.jetty" name="jetty-continuation" rev="8.0.4.v20111024" conf="compile,server->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-http" rev="8.0.4.v20111024" conf="compile,server->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-io" rev="8.0.4.v20111024" conf="compile,server->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.0.4.v20111024" conf="compile,server->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.0.4.v20111024" conf="compile,server->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-util" rev="8.0.4.v20111024" conf="compile,server->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-security" rev="8.0.4.v20111024" conf="compile,server->*" />        
     </dependencies>
 
 </ivy-module>

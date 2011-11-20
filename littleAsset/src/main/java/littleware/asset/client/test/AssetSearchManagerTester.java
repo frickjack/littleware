@@ -17,7 +17,6 @@ import java.util.logging.Level;
 import littleware.asset.*;
 import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.client.AssetRef;
-import littleware.security.AccountManager;
 import littleware.security.LittleGroup;
 import littleware.security.LittleUser;
 
@@ -102,26 +101,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
                                "setup test asset");
               }
           }
-          final List<IdWithClock> data = search.checkTransactionLog( home.getId(), 0L );
-          assertTrue( "Some transaction in the log", ! data.isEmpty() );
-          // AWS has a different timestample scheme ... assertTrue( "Data not too old", data.get(0).getTimestamp() > testNode.getTimestamp() - 1000 );
-          long lastTransaction = 0;
-          boolean bFoundTest = false;
-          final Set<UUID>  idSet = new HashSet<UUID>();
-          for( IdWithClock scan : data ) {
-              assertTrue( "no duplicate ids in data", ! idSet.contains( scan.getId() ) );
-              assertTrue( "data is in transaction order",
-                      scan.getTimestamp() >= lastTransaction );
-              lastTransaction = scan.getTimestamp ();
-              if ( scan.getId().equals( testNode.getId() ) ) {
-                  bFoundTest = true;
-                  assertTrue( "Test transaction count matches expected value " + scan.getTimestamp () +
-                          " == " + testNode.getTimestamp(),
-                          scan.getTimestamp() == testNode.getTimestamp()
-                          );
-              }
-          }
-          assertTrue( "Log scan includes test asset", bFoundTest );
+
         } catch (Exception e) {
             log.log(Level.WARNING, "Test failed", e);
             fail("Caught: " + e);
@@ -133,13 +113,13 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
      */
     public void testLoad() {
         try {
-            final Map<String, UUID> v_home_id = search.getHomeAssetIds();
-            assertTrue("Home-asset set is not empty", !v_home_id.isEmpty());
-            for (String s_home : v_home_id.keySet()) {
-                log.log(Level.INFO, "getHomeAssetIds found home: " + s_home);
+            final Map<String, UUID> homeIds = search.getHomeAssetIds();
+            assertTrue("Home-asset set is not empty", !homeIds.isEmpty());
+            for (String homeName : homeIds.keySet()) {
+                log.log(Level.INFO, "getHomeAssetIds found home: " + homeName);
             }
             assertTrue("Test-home is in home set: " + getTestHome(),
-                    v_home_id.containsKey(getTestHome())
+                    homeIds.containsKey(getTestHome())
                     );
             /*...
             final Map<String,UUID> children = search.getAssetIdsFrom( v_home_id.get( getTestHome() ));
@@ -148,7 +128,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
             assertTrue()
              */
 
-            for( Map.Entry<String,UUID> entry : v_home_id.entrySet() ) {
+            for( Map.Entry<String,UUID> entry : homeIds.entrySet() ) {
                 final AssetRef maybe = search.getAsset( entry.getValue() );
                 assertTrue("Able to retrieve home: " + entry.getKey(),
                     maybe.isSet()

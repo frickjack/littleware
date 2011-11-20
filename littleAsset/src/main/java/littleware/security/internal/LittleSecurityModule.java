@@ -29,6 +29,7 @@ import littleware.security.LittleGroupMember;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
 import littleware.security.auth.LittleSession;
+import littleware.security.auth.client.internal.RemoteSessionMgrProxy;
 import littleware.security.auth.client.internal.RetryRemoteSessionMgr;
 import littleware.security.auth.internal.SimpleSessionBuilder;
 import org.osgi.framework.BundleActivator;
@@ -105,8 +106,6 @@ public class LittleSecurityModule extends AbstractAppModule {
         binder.bind( LittleGroupMember.MemberBuilder.class ).to( GroupMemberBuilder.class );
         binder.bind( LittleSession.Builder.class ).to( SimpleSessionBuilder.class );
         binder.bind( LittleUser.Builder.class ).to( SimpleUserBuilder.class );
-        // Avoid binding RemoteSessionManager - gets bound by server environment too
-        //binder.bind( RemoteSessionManager.class ).
         binder.bind( RetryRemoteSessionMgr.class ).in( Scopes.SINGLETON );
         binder.bind( Everybody.class ).toInstance( SimpleEverybody.singleton );
     }

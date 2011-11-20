@@ -19,7 +19,6 @@ import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
-import littleware.asset.IdWithClock;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
 import littleware.base.Option;
@@ -28,10 +27,10 @@ import littleware.net.RemoteRetryHelper;
 /**
  * Client-side RemoteSearchManager over RMI with auto-retry
  */
-public class RetryRemoteSearchMgr extends RemoteRetryHelper<RemoteSearchManager> implements RemoteSearchManager {
+public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> implements RemoteSearchMgrProxy {
 
     @Inject
-    public RetryRemoteSearchMgr( @Named("littleware.jndi.prefix") String jndiPrefix ) {
+    public RmiSearchMgrProxy( @Named("littleware.jndi.prefix") String jndiPrefix ) {
         super(jndiPrefix + RemoteSearchManager.LOOKUP_PATH );
     }
 
@@ -74,31 +73,6 @@ public class RetryRemoteSearchMgr extends RemoteRetryHelper<RemoteSearchManager>
         }
     }
 
-    @Override
-    public Map<UUID, Long> checkTransactionCount(UUID sessionId, Map<UUID, Long> checkMap) throws BaseException, RemoteException {
-        while (true) {
-            try {
-                return getLazy().checkTransactionCount( sessionId, checkMap );
-            } catch (RemoteException ex) {
-                handle(ex);
-            } catch (NullPointerException ex) {
-                handle(new RemoteException("Unexpected exception", ex));
-            }
-        }
-    }
-
-    @Override
-    public List<IdWithClock> checkTransactionLog(UUID sessionId, UUID homeId, long minTransaction) throws BaseException, RemoteException {
-        while (true) {
-            try {
-                return getLazy().checkTransactionLog( sessionId, homeId, minTransaction );
-            } catch (RemoteException ex) {
-                handle(ex);
-            } catch (NullPointerException ex) {
-                handle(new RemoteException("Unexpected exception", ex));
-            }
-        }
-    }
 
     @Override
     public Set<UUID> getAssetIdsTo(UUID sessionId, UUID toId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {

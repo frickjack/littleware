@@ -24,7 +24,7 @@ import littleware.security.auth.internal.RemoteSessionManager;
  * RemoteSessionManager implementation with built in retry logic
  */
 @Singleton
-public class RetryRemoteSessionMgr extends RemoteRetryHelper<RemoteSessionManager> implements RemoteSessionManager {
+public class RetryRemoteSessionMgr extends RemoteRetryHelper<RemoteSessionManager> implements RemoteSessionMgrProxy {
 
     @Inject
     public RetryRemoteSessionMgr( @Named("littleware.jndi.prefix") String jndiPrefix ) {

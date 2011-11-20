@@ -18,7 +18,7 @@ import java.util.logging.Level;
 
 import littleware.base.*;
 import littleware.asset.*;
-import littleware.asset.internal.RemoteAssetRetriever.AssetResult;
+import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.server.LittleContext;
 import littleware.security.LittleGroupMember.MemberBuilder;
 import littleware.security.server.QuotaUtil;

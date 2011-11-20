@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.*;
+import littleware.asset.internal.LittleAssetModule.ClientConfig.RemoteMethod;
 import littleware.asset.internal.RemoteAssetManager;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.asset.server.AssetSpecializer;
@@ -51,6 +52,7 @@ import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.asset.server.internal.RmiAssetManager;
 import littleware.asset.server.internal.RmiSearchManager;
 import littleware.asset.server.internal.SimpleContextFactory;
+import littleware.asset.server.web.servlet.AssetSearchServlet;
 import littleware.base.Option;
 import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
@@ -67,6 +69,11 @@ import littleware.security.auth.internal.RemoteSessionManager;
 import littleware.security.auth.server.internal.SimpleSessionManager;
 import littleware.security.server.internal.SimpleAccountManager;
 import littleware.security.server.internal.SimpleAclManager;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.nio.BlockingChannelConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -96,21 +103,6 @@ public class AssetServerModule extends AbstractServerModule {
         binder.bind( RemoteAssetManager.class ).to( RmiAssetManager.class ).in( Scopes.SINGLETON );
         binder.bind( LittleContext.ContextFactory.class ).to( SimpleContextFactory.class ).in( Scopes.SINGLETON );
 
-        /*
-        if (getProfile().equals(ServerBootstrap.ServerProfile.J2EE)) {
-            log.log(Level.INFO, "Configuring JPA in J2EE mode ...");
-            (new J2EEGuice()).configure(binder);
-        } else {
-            log.log(Level.INFO, "Configuring JPA in standalone (hibernate) mode ...");
-            try {
-                DbGuice.build("littleware_jdbc.properties").configure(binder);
-            } catch (IOException ex) {
-                throw new AssertionFailedException("Failed to load littleware_jdbc.properties", ex);
-            }
-            (new HibernateGuice()).configure(binder);
-        }
-         * 
-         */
         try {
             PropertiesGuice.build().configure(binder);
         } catch (IOException ex) {
@@ -126,6 +118,8 @@ public class AssetServerModule extends AbstractServerModule {
         private final RemoteSessionManager sessionMgr;
         private final RemoteAssetManager assetMgr;
         private final RemoteSearchManager searchMgr;
+        private final Server server;
+        private final AssetSearchServlet searchServlet;
 
         @Inject
         public Activator(
@@ -137,10 +131,14 @@ public class AssetServerModule extends AbstractServerModule {
                 RemoteSearchManager  searchMgr,
                 DbAssetManager dbManager,
                 LittleContext.ContextFactory ctxProvider,
+                Server server,
+                AssetSearchServlet searchServlet,
                 Injector injector
                 ) {
+            this.server = server;
             this.registryPort = registryPort;
             this.sessionMgr = sessionMgr;
+            this.searchServlet = searchServlet;
             boolean rollback = true;
             // setup an overall transaction for the asset type auto-register code
             final LittleContext ctx = ctxProvider.buildAdminContext();
@@ -206,6 +204,20 @@ public class AssetServerModule extends AbstractServerModule {
                 } else {
                     log.log(Level.INFO, "Not exporing RMI registry - port set to: {0}", port);
                 }
+                {
+                    // Startup Jetty
+                   final Connector connector = new BlockingChannelConnector();
+                   connector.setPort( 1238 );
+                   connector.setHost( "127.0.0.1" );
+                   server.addConnector(connector);
+                   final ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+                   context.setContextPath("/littleware");
+                   server.setHandler(context);
+
+                   context.addServlet(new ServletHolder(searchServlet),"/services/search/*");
+                   //context.addServlet(new ServletHolder(thumbServlet),"/thumb/*");
+                   server.start();  
+                }
             } catch (Exception ex) {
                 //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
                 log.log(Level.SEVERE, "Failed to bind to RMI registry "
@@ -213,7 +225,7 @@ public class AssetServerModule extends AbstractServerModule {
                         ex);
 
             }
-            log.log(Level.INFO, "littleware RMI start ok");
+            log.log(Level.INFO, "littleware RMI and REST start ok");
         }
 
         @Override
@@ -225,6 +237,7 @@ public class AssetServerModule extends AbstractServerModule {
                     UnicastRemoteObject.unexportObject(maybeRegistry.get(), true);
                 }
             }
+            server.stop();
             log.log(Level.INFO, "littleware shutdown ok");
 
         }
@@ -263,6 +276,8 @@ public class AssetServerModule extends AbstractServerModule {
 
         @Override
         public ServerModule buildServerModule(AppBootstrap.AppProfile profile) {
+            log.log( Level.FINE, "Flipping LittleAssetModule over to InMemory RemoteMethod" );
+            littleware.asset.internal.LittleAssetModule.getClientConfig().setRemoteMethod(RemoteMethod.InMemory);
             return new AssetServerModule(profile, typeMap);
         }
     }

@@ -278,13 +278,15 @@ public class SimpleSearchManager implements ServerSearchManager {
             final LittleUser caller = ctx.getCaller();
 
             if (null == caller) {
+                /** ... I don't think this is necessary any more ... ?
                 if (result.getAssetType().equals(LittleSession.SESSION_TYPE)) {
-                    /**
+                    
                      * Loophole to let unauthenticated session get session
                      * info to simplify session setup
-                     */
+                   
                     return result;
                 }
+                 *   */
                 throw new AccessDeniedException("Unauthenticated caller");
             }
 

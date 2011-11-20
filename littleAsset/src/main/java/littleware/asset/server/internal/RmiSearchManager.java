@@ -94,10 +94,6 @@ public class RmiSearchManager extends LittleRemoteObject implements RemoteSearch
     }
 
 
-    @Override
-    public Map<UUID, Long> checkTransactionCount(UUID sessionId, Map<UUID, Long> v_check) throws BaseException, RemoteException {
-        return search.checkTransactionCount( contextFactory.build( sessionId ), v_check);
-    }
 
     @Override
     public Set<UUID> getAssetIdsTo(UUID sessionId, UUID u_to,
@@ -112,8 +108,4 @@ public class RmiSearchManager extends LittleRemoteObject implements RemoteSearch
         return search.getAssetIdsFrom( contextFactory.build( sessionId ), u_from );
     }
 
-    @Override
-    public List<IdWithClock> checkTransactionLog(UUID sessionId, UUID homeId, long minTransaction) throws BaseException, RemoteException {
-        return search.checkTransactionLog( contextFactory.build( sessionId ), homeId, minTransaction);
-    }
 }

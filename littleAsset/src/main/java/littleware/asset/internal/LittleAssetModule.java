@@ -5,10 +5,10 @@
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
-
 package littleware.asset.internal;
 
+import littleware.asset.client.internal.InMemorySearchMgrProxy;
+import littleware.asset.client.internal.InMemoryAssetMgrProxy;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -20,8 +20,10 @@ import littleware.asset.IdWithClock;
 import littleware.asset.LinkAsset;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
-import littleware.asset.client.internal.RetryRemoteAstMgr;
-import littleware.asset.client.internal.RetryRemoteSearchMgr;
+import littleware.asset.client.internal.RemoteAssetMgrProxy;
+import littleware.asset.client.internal.RemoteSearchMgrProxy;
+import littleware.asset.client.internal.RmiAssetMgrProxy;
+import littleware.asset.client.internal.RmiSearchMgrProxy;
 import littleware.asset.gson.GsonAssetAdapter;
 import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.gson.internal.GenericAdapter;
@@ -39,6 +41,9 @@ import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.helper.AbstractAppModule;
+import littleware.security.auth.client.internal.InMemorySessionMgrProxy;
+import littleware.security.auth.client.internal.RemoteSessionMgrProxy;
+import littleware.security.auth.client.internal.RetryRemoteSessionMgr;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -46,6 +51,7 @@ import org.osgi.framework.BundleContext;
  * Module binds and registers littleware.asset asset types
  */
 public class LittleAssetModule extends AbstractAppModule {
+
     public static class AppFactory implements AppModuleFactory {
 
         @Override
@@ -54,17 +60,48 @@ public class LittleAssetModule extends AbstractAppModule {
         }
     }
 
-    //-------------------------------------
+    //---------------------------------------
+    /**
+     * Client-side configuration
+     */
+    public static class ClientConfig {
 
-    public LittleAssetModule( AppProfile profile ) {
-        super( profile );
+        /**
+         * Remoting method - default is InMemory if an in-process server
+         * is running, otherwise RMI.  REST is not yet fully implemented.
+         */
+        public enum RemoteMethod {
+
+            InMemory, RMI, REST
+        }
+        private RemoteMethod mode = RemoteMethod.RMI;
+
+        public RemoteMethod getRemoteMethod() {
+            return mode;
+        }
+
+        public void setRemoteMethod(RemoteMethod value) {
+            mode = value;
+            if (value.equals(RemoteMethod.REST)) {
+                throw new UnsupportedOperationException("REST mode not yet available");
+            }
+        }
+    }
+    private static ClientConfig clientConfig = new ClientConfig();
+
+    public static ClientConfig getClientConfig() {
+        return clientConfig;
     }
 
+    //-------------------------------------
+    public LittleAssetModule(AppProfile profile) {
+        super(profile);
+    }
 
     public static class Activator implements BundleActivator {
 
         @Inject
-        public Activator( AssetProviderRegistry assetRegistry,
+        public Activator(AssetProviderRegistry assetRegistry,
                 Provider<TreeNode.TreeNodeBuilder> nodeProvider,
                 Provider<GenericAsset.GenericBuilder> genericProvider,
                 Provider<LinkAsset.LinkBuilder> linkProvider,
@@ -73,16 +110,15 @@ public class LittleAssetModule extends AbstractAppModule {
                 HomeAdapter gsonHomeAdapter,
                 LinkAdapter gsonLinkAdapter,
                 TreeNodeAdapter gsonTreeNodeAdapter,
-                GenericAdapter gsonGenericAdapter
-                ) {
+                GenericAdapter gsonGenericAdapter) {
             assetRegistry.registerService(LittleHome.HOME_TYPE, homeProvider);
-            assetRegistry.registerService( TreeNode.TREE_NODE_TYPE, nodeProvider );
-            assetRegistry.registerService( GenericAsset.GENERIC, genericProvider );
-            assetRegistry.registerService( LinkAsset.LINK_TYPE, linkProvider);
-            for( GsonAssetAdapter adapter : new GsonAssetAdapter[]{ 
-                gsonHomeAdapter, gsonLinkAdapter, gsonTreeNodeAdapter, gsonGenericAdapter
-            } ) {
-                gsonFactory.registerAdapter( adapter );
+            assetRegistry.registerService(TreeNode.TREE_NODE_TYPE, nodeProvider);
+            assetRegistry.registerService(GenericAsset.GENERIC, genericProvider);
+            assetRegistry.registerService(LinkAsset.LINK_TYPE, linkProvider);
+            for (GsonAssetAdapter adapter : new GsonAssetAdapter[]{
+                        gsonHomeAdapter, gsonLinkAdapter, gsonTreeNodeAdapter, gsonGenericAdapter
+                    }) {
+                gsonFactory.registerAdapter(adapter);
             }
         }
 
@@ -93,33 +129,41 @@ public class LittleAssetModule extends AbstractAppModule {
         @Override
         public void stop(BundleContext bc) throws Exception {
         }
-
     }
 
     @Override
     public Class<? extends BundleActivator> getActivator() {
         return Activator.class;
     }
-
+    
     @Override
     public void configure(Binder binder) {
-        binder.bind( LittleHome.HomeBuilder.class ).to( LittleHomeBuilder.class );
-        binder.bind( GenericAsset.GenericBuilder.class ).to( SimpleGenericBuilder.class );
-        binder.bind( TreeNode.TreeNodeBuilder.class ).to( SimpleTreeNodeBuilder.class );
-        binder.bind( LinkAsset.LinkBuilder.class ).to( SimpleLinkBuilder.class );
-        binder.bind( IdWithClock.Builder.class ).to( IdWithClockBuilder.class );
+        binder.bind(LittleHome.HomeBuilder.class).to(LittleHomeBuilder.class);
+        binder.bind(GenericAsset.GenericBuilder.class).to(SimpleGenericBuilder.class);
+        binder.bind(TreeNode.TreeNodeBuilder.class).to(SimpleTreeNodeBuilder.class);
+        binder.bind(LinkAsset.LinkBuilder.class).to(SimpleLinkBuilder.class);
+        binder.bind(IdWithClock.Builder.class).to(IdWithClockBuilder.class);
         binder.bind(AssetPathFactory.class).to(SimpleAssetPathFactory.class);
-        binder.bind( AssetTreeTemplate.TemplateBuilder.class ).to( SimpleTemplateBuilder.class ).in( Scopes.SINGLETON );
-        binder.bind( HumanPicklerProvider.class ).to( SimpleHumanRegistry.class ).in( Scopes.SINGLETON );
-        binder.bind( XmlPicklerProvider.class ).to( SimpleXmlRegistry.class ).in( Scopes.SINGLETON );
-        binder.bind( AssetProviderRegistry.class ).to( SimpleAssetRegistry.class ).in( Scopes.SINGLETON );
-        binder.bind( LittleGsonFactory.class ).to( GsonProvider.class ).in( Scopes.SINGLETON );
-
-        // Avoid binding RemoteManager - gets bound in the server environment too
-        //binder.bind( RemoteAssetManager.class ).
-        binder.bind( RetryRemoteAstMgr.class ).in( Scopes.SINGLETON );
-        //binder.bind( RemoteSearchManager.class ).
-        binder.bind( RetryRemoteSearchMgr.class ).in( Scopes.SINGLETON );
+        binder.bind(AssetTreeTemplate.TemplateBuilder.class).to(SimpleTemplateBuilder.class).in(Scopes.SINGLETON);
+        binder.bind(HumanPicklerProvider.class).to(SimpleHumanRegistry.class).in(Scopes.SINGLETON);
+        binder.bind(XmlPicklerProvider.class).to(SimpleXmlRegistry.class).in(Scopes.SINGLETON);
+        binder.bind(AssetProviderRegistry.class).to(SimpleAssetRegistry.class).in(Scopes.SINGLETON);
+        binder.bind(LittleGsonFactory.class).to(GsonProvider.class).in(Scopes.SINGLETON);
+        binder.bind(RmiSearchMgrProxy.class).in(Scopes.SINGLETON);
+        binder.bind(RmiAssetMgrProxy.class).in(Scopes.SINGLETON);
+        
+        // Bind client method of connecting with server
+        switch (getClientConfig().getRemoteMethod()) {
+            case RMI: {
+                binder.bind(RemoteAssetMgrProxy.class).to(RmiAssetMgrProxy.class).in(Scopes.SINGLETON);
+                binder.bind(RemoteSearchMgrProxy.class).to(RmiSearchMgrProxy.class).in(Scopes.SINGLETON);
+                binder.bind( RemoteSessionMgrProxy.class ).to( RetryRemoteSessionMgr.class ).in( Scopes.SINGLETON );
+            } break;
+            case InMemory: {
+                binder.bind(RemoteAssetMgrProxy.class).to(InMemoryAssetMgrProxy.class).in(Scopes.SINGLETON);
+                binder.bind(RemoteSearchMgrProxy.class).to(InMemorySearchMgrProxy.class).in(Scopes.SINGLETON);
+                binder.bind( RemoteSessionMgrProxy.class ).to( InMemorySessionMgrProxy.class ).in( Scopes.SINGLETON );
+            } break;
+        }
     }
-
 }

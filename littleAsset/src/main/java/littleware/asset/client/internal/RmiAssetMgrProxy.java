@@ -25,10 +25,10 @@ import littleware.net.RemoteRetryHelper;
 /**
  * Client-side RemoteAssetManager over RMI with auto-retry
  */
-public class RetryRemoteAstMgr extends RemoteRetryHelper<RemoteAssetManager> implements RemoteAssetManager {
+public class RmiAssetMgrProxy extends RemoteRetryHelper<RemoteAssetManager> implements RemoteAssetMgrProxy {
 
     @Inject
-    public RetryRemoteAstMgr( @Named("littleware.jndi.prefix") String jndiPrefix ) {
+    public RmiAssetMgrProxy( @Named("littleware.jndi.prefix") String jndiPrefix ) {
         super(jndiPrefix + RemoteAssetManager.LOOKUP_PATH );
     }
 

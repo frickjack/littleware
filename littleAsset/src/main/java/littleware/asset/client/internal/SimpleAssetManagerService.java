@@ -42,7 +42,7 @@ public class SimpleAssetManagerService implements AssetManager {
      * Inject the server to wrap with LittleService event throwing support
      */
     @Inject
-    public SimpleAssetManagerService(RetryRemoteAstMgr server, 
+    public SimpleAssetManagerService( RemoteAssetMgrProxy server, 
         LittleServiceBus eventBus, KeyChain keychain, AssetLibrary library,
         SimpleSearchService.PersonalCache personalCache
             ) {

@@ -20,7 +20,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
-import littleware.asset.internal.RemoteAssetRetriever;
+import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
 import littleware.base.NoSuchThingException;
@@ -42,7 +42,7 @@ public interface ServerSearchManager {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException some other failure condition
      */
-    public RemoteAssetRetriever.AssetResult getAsset( LittleContext context, UUID assetId, long clientCacheTStamp ) throws BaseException,
+    public RemoteSearchManager.AssetResult getAsset( LittleContext context, UUID assetId, long clientCacheTStamp ) throws BaseException,
             GeneralSecurityException;
 
     /**
@@ -58,13 +58,13 @@ public interface ServerSearchManager {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException if some other failure condition
      */
-    public Map<UUID,RemoteAssetRetriever.AssetResult> getAssets( LittleContext context, Map<UUID,Long> id2ClientTStamp ) throws BaseException, AssetException,
+    public Map<UUID,RemoteSearchManager.AssetResult> getAssets( LittleContext context, Map<UUID,Long> id2ClientTStamp ) throws BaseException, AssetException,
             GeneralSecurityException;
 
     /**
      * Convenience method for clients without a cache
      */
-    public Map<UUID,RemoteAssetRetriever.AssetResult> getAssets( LittleContext context, Collection<UUID> idSet ) throws BaseException, AssetException,
+    public Map<UUID,RemoteSearchManager.AssetResult> getAssets( LittleContext context, Collection<UUID> idSet ) throws BaseException, AssetException,
             GeneralSecurityException;
     
     /**

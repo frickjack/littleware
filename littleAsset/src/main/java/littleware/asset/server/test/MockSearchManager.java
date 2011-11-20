@@ -23,10 +23,9 @@ import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
-import littleware.asset.IdWithClock;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetSearchManager;
-import littleware.asset.internal.RemoteAssetRetriever.AssetResult;
+import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.ServerSearchManager;
 import littleware.base.BaseException;
@@ -119,15 +118,6 @@ public class MockSearchManager implements AssetSearchManager {
         return new MockAssetRef( search.getAssetFrom( ctx, from, name ) );
     }
 
-    @Override
-    public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> checkMap) throws BaseException, RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public List<IdWithClock> checkTransactionLog(UUID homeId, long minTransaction) throws BaseException, RemoteException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
     @Override
     public Set<UUID> getAssetIdsTo(UUID toId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {

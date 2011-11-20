@@ -7,13 +7,10 @@
  */
 package littleware.security.internal;
 
-import littleware.asset.internal.RemoteAssetRetriever;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
-import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.UUID;
-import java.security.GeneralSecurityException;
 import littleware.security.Quota.Builder;
 
 import org.xml.sax.*;
@@ -23,8 +20,6 @@ import javax.xml.parsers.SAXParser;
 import java.io.StringReader;
 
 import littleware.asset.*;
-import littleware.base.*;
-import littleware.security.LittleUser;
 import littleware.security.Quota;
 
 /**

@@ -16,7 +16,6 @@ import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
-import littleware.asset.IdWithClock;
 
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
@@ -162,25 +161,6 @@ public interface AssetSearchManager extends Remote {
     public AssetRef getAssetFrom(UUID from, String name) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
-    /**
-     * Method for a client to verify the transaction-counts
-     * the client has in cache for a set of assets
-     *
-     * @param checkMap mapping from asset id to transaction count to verify
-     * @return subset of v_check that is incorrect with correct mapping
-     *              from id to transaction-count, or mapping from id
-     *              to null if the specified id has been deleted from the asset repository
-     */
-    public Map<UUID, Long> checkTransactionCount(Map<UUID, Long> checkMap) throws BaseException, RemoteException;
-
-    /**
-     * Return the assets modified by the 100 most recent transaction after lMin
-     *
-     * @param homeId to restrict to
-     * @param minTransaction
-     * @return list of (transaction,asset-id) info in transaction order
-     */
-    public List<IdWithClock> checkTransactionLog(UUID homeId, long minTransaction) throws BaseException, RemoteException;
 
     /**
      * Get the links (assets with a_to as their TO-asset)

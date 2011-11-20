@@ -7,18 +7,12 @@
  */
 package littleware.security.auth;
 
-import java.rmi.RemoteException;
-import javax.security.auth.Subject;
-import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.UUID;
 
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
-import littleware.asset.internal.RemoteAssetRetriever;
-import littleware.asset.AssetException;
 import littleware.asset.AssetType;
-import littleware.base.BaseException;
 import littleware.base.UUIDFactory;
 
 /**

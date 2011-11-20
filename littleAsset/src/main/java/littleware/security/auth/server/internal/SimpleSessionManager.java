@@ -76,8 +76,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             Provider<LittleSession.Builder> sessionProvider,
             LittleContext.ContextFactory contextFactory,
             ServerScannerFactory scannerFactory,
-            ServerConfigFactory loginConfigProvider
-            ) throws RemoteException {
+            ServerConfigFactory loginConfigProvider) throws RemoteException {
         this.assetMgr = assetMgr;
         this.search = search;
         if (isSingletonUp) {
@@ -94,36 +93,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
         this.loginConfigProvider = loginConfigProvider;
     }
 
-    @Override
-    public LittleSession createNewSession(UUID currentSessionId, String sessionComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        try {
-            final LittleContext ctx = contextFactory.build(currentSessionId);
-            final LittleSession.Builder sessionBuilder = sessionProvider.get();
-            final LittleUser caller = ctx.getCaller();
-
-            sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getCreateDate().getTime());
-            sessionBuilder.setComment(sessionComment);
-
-            for (int i = 0; i < 20; ++i) {
-                try {
-                    final LittleSession session = sessionBuilder.build();
-                    return assetMgr.saveAsset(ctx, session, sessionComment).get( session.getId() ).narrow();
-                } catch (AlreadyExistsException ex) {
-                    if (i < 10) {
-                        sessionBuilder.setName(caller.getName() + ", " + sessionBuilder.getCreateDate().getTime() + "," + i);
-                    } else {
-                        throw new AccessDeniedException("Too many simultaneous session setups running for user: " + sessionBuilder.getName());
-                    }
-                }
-            }
-            throw new AssertionFailedException("Failed to derive an unused session name");
-        } catch (FactoryException e) {
-            throw new AssertionFailedException("Caught: " + e, e);
-        } catch (NoSuchThingException e) {
-            throw new AssertionFailedException("Caught: " + e, e);
-        }
-    }
-
     /**
      * Save the given LittleSession to the appropriate location in the repository node graph
      */
@@ -138,7 +107,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
                     provideGenerics.get().parent(home).name(serverVersionName).data("v0.0").build(),
                     "Setup v0.0 ServerVersion node");
         }
-        // Let's create a hierarchy
+        // Let's create a date-hierarchy to store the user session under
         final DateTime now = new DateTime();
         final AssetPath path = pathFactory.get().createPath("/" + home.getName() + "/"
                 + Integer.toString(now.getYear()) + "/"
@@ -150,12 +119,16 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             final TemplateScanner.ExistInfo info = (TemplateScanner.ExistInfo) x;
             parent = info.getAsset();
             if (!info.getAssetExists()) {
-                parent = assetMgr.saveAsset(adminCtx, info.getAsset(), sessionComment).get( info.getAsset().getId() );
+                // be sure to null out aclId, so random users cannot steal session ids
+                parent = assetMgr.saveAsset(adminCtx,
+                        info.getAsset().copy().aclId(null).build(),
+                        sessionComment).get(info.getAsset().getId());
             }
         }
 
-        return assetMgr.saveAsset(adminCtx, ((AbstractAssetBuilder) session.copy()).parentId(parent.getId()).homeId(parent.getHomeId()).build(),
-                sessionComment).get( session.getId() ).narrow();
+        return assetMgr.saveAsset(adminCtx,
+                ((AbstractAssetBuilder) session.copy()).parentId(parent.getId()).homeId(parent.getHomeId()).build(),
+                sessionComment).get(session.getId()).narrow();
     }
 
     /**
@@ -170,8 +143,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
                 tmp = new LoginContext("littleware.login",
                         new Subject(),
                         new LoginCallbackHandler(name, password),
-                        loginConfigProvider.get()
-                        );
+                        loginConfigProvider.get());
             } catch (Exception ex) {
                 log.log(Level.INFO, "Assuming pass-through login - no littleware.login context available", ex);
             }
@@ -244,10 +216,36 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
                 // Note: ServerVersionNode should be initialized in SessionManager if it doesn't exist
                 return "v0.0";
             }
-        } catch ( RuntimeException ex ) {
+        } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new AssertionFailedException("Unexpected exception: " + ex);
+        } finally {
+            adminCtx.getTransaction().endDbAccess();
+        }
+    }
+
+    @Override
+    public LittleSession createNewSession(UUID currentSessionId, String sessionComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        final LittleContext adminCtx = contextFactory.buildAdminContext();
+        adminCtx.getTransaction().startDbAccess();
+        
+        try {
+            final LittleContext ctx = contextFactory.build(currentSessionId);
+            final LittleSession.Builder sessionBuilder = sessionProvider.get();
+            final LittleUser caller = ctx.getCaller();
+            final UUID id = UUID.randomUUID();
+            sessionBuilder.id( id
+                    ).name(caller.getName() + "_" + UUIDFactory.makeCleanString( id )
+                    ).comment( sessionComment
+                    ).ownerId( caller.getId() );
+
+            // Create the session asset as the admin user - session has null from-id
+            return setupSession(adminCtx, sessionBuilder.build(), sessionComment);
+        } catch (FactoryException e) {
+            throw new AssertionFailedException("Caught: " + e, e);
+        } catch (NoSuchThingException e) {
+            throw new AssertionFailedException("Caught: " + e, e);
         } finally {
             adminCtx.getTransaction().endDbAccess();
         }

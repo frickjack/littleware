@@ -15,6 +15,7 @@
 
 <target name="-post-clean">
     <delete dir="${basedir}/ivy" />
+    <property name="ivy.clean" value="true" />
 </target>
 
 <target name="config-check">
@@ -108,9 +109,18 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     depends="install-ivy" 
     description="-- same as retrieve, but NOOP if ivy/test|compile already exists"
     unless="ivy.resolve.exists"
-    >
+    >    
     <antcall target="resolve" />
 </target>
+
+<target name="resolveIfClean" 
+    depends="install-ivy" 
+    description="-- same as retrieve if 'clean' was executed in a previous task: ant clean compile"
+    if="ivy.clean"
+    >   
+    <antcall target="resolve" />
+</target>
+
 
 <target name="resolve" depends="install-ivy" description="-- retrieve dependencies with ivy">
     <!--
@@ -139,6 +149,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
 </target>
 
 <target name="-pre-init" depends="resolveIfNecessary" />
+<target name="-pre-compile" depends="resolveIfClean" />
 
 <target name="cli-check">
     <available file="cli" property="cli.exists"/>

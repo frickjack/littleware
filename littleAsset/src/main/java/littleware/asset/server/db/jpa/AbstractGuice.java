@@ -19,6 +19,7 @@ import javax.persistence.EntityManagerFactory;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.db.DbAssetManager;
+import littleware.asset.server.db.DbInitializer;
 import littleware.base.ThreadLocalProvider;
 import littleware.bootstrap.AppBootstrap;
 
@@ -32,31 +33,65 @@ public abstract class AbstractGuice extends AbstractServerModule {
     
     /** Guice provider calls through to injected EntityManagerFactory */
     public static class EntityManagerProvider implements Provider<EntityManager> {
-        private final EntityManagerFactory ofactory;
+        private final EntityManagerFactory factory;
         @Inject
         public EntityManagerProvider( EntityManagerFactory factory ) {
-            ofactory = factory;
+            this.factory = factory;
         }
         @Override
         public EntityManager get() {
-            return ofactory.createEntityManager();
+            return factory.createEntityManager();
         }
 
     }
 
     public static class TransactionProvider extends ThreadLocalProvider<SimpleJpaTransaction> {
-        private Provider<EntityManager> oprovideEntMgr;
+        private Provider<EntityManager> entMgrFactory;
         @Inject
         public TransactionProvider( Provider<EntityManager> provideEntMgr ) {
-            oprovideEntMgr = provideEntMgr;
+            this.entMgrFactory = provideEntMgr;
         }
 
         @Override
         protected SimpleJpaTransaction build() {
-            return new SimpleJpaTransaction( oprovideEntMgr );
+            return new SimpleJpaTransaction( entMgrFactory );
         }
     }
 
+    /**
+     * Handler for initializing a new AWS SimpleDB domain for littleware use.
+     * Domain is initialized lazily at the first attempt to instantiate an
+     * AwsDbAssetManager.
+     */
+    public static class SetupHandler implements Runnable, Provider<DbAssetManager> {
+
+        private boolean isDomainInitialized = false;
+        private final DbAssetManager mgr;
+        private final DbInitializer dbInit;
+
+        @Inject
+        public SetupHandler( JpaDbAssetManager mgr,
+                DbInitializer dbInit
+                ) {
+            this.mgr = mgr;
+            this.dbInit = dbInit;
+        }
+
+        @Override
+        public void run() {
+            dbInit.initDB( mgr );
+        }
+
+        @Override
+        public DbAssetManager get() {
+            if (!isDomainInitialized) {
+                this.run();
+                isDomainInitialized = true;
+            }
+            return mgr;
+        }
+    }
+    
 
     public AbstractGuice( AppBootstrap.AppProfile profile ) {
         super( profile );
@@ -71,6 +106,6 @@ public abstract class AbstractGuice extends AbstractServerModule {
         //binder.bind( SimpleJpaTransaction.class ).toProvider(TransactionProvider.class);
         //binder.bind( TransactionProvider.class ).in( Scopes.SINGLETON );
         binder.bind( EntityManager.class ).toProvider( EntityManagerProvider.class );
-        binder.bind( DbAssetManager.class ).to( JpaDbAssetManager.class ).in( Scopes.SINGLETON );
+        binder.bind(DbAssetManager.class).toProvider(SetupHandler.class).in(Scopes.SINGLETON);
     }
 }

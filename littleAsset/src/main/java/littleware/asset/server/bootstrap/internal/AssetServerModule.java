@@ -52,7 +52,6 @@ import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.asset.server.internal.RmiAssetManager;
 import littleware.asset.server.internal.RmiSearchManager;
 import littleware.asset.server.internal.SimpleContextFactory;
-import littleware.asset.server.web.servlet.AssetSearchServlet;
 import littleware.base.Option;
 import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
@@ -69,11 +68,6 @@ import littleware.security.auth.internal.RemoteSessionManager;
 import littleware.security.auth.server.internal.SimpleSessionManager;
 import littleware.security.server.internal.SimpleAccountManager;
 import littleware.security.server.internal.SimpleAclManager;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.BlockingChannelConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -118,8 +112,6 @@ public class AssetServerModule extends AbstractServerModule {
         private final RemoteSessionManager sessionMgr;
         private final RemoteAssetManager assetMgr;
         private final RemoteSearchManager searchMgr;
-        private final Server server;
-        private final AssetSearchServlet searchServlet;
 
         @Inject
         public Activator(
@@ -131,14 +123,10 @@ public class AssetServerModule extends AbstractServerModule {
                 RemoteSearchManager  searchMgr,
                 DbAssetManager dbManager,
                 LittleContext.ContextFactory ctxProvider,
-                Server server,
-                AssetSearchServlet searchServlet,
                 Injector injector
                 ) {
-            this.server = server;
             this.registryPort = registryPort;
             this.sessionMgr = sessionMgr;
-            this.searchServlet = searchServlet;
             boolean rollback = true;
             // setup an overall transaction for the asset type auto-register code
             final LittleContext ctx = ctxProvider.buildAdminContext();
@@ -204,20 +192,6 @@ public class AssetServerModule extends AbstractServerModule {
                 } else {
                     log.log(Level.INFO, "Not exporing RMI registry - port set to: {0}", port);
                 }
-                {
-                    // Startup Jetty
-                   final Connector connector = new BlockingChannelConnector();
-                   connector.setPort( 1238 );
-                   connector.setHost( "127.0.0.1" );
-                   server.addConnector(connector);
-                   final ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-                   context.setContextPath("/littleware");
-                   server.setHandler(context);
-
-                   context.addServlet(new ServletHolder(searchServlet),"/services/search/*");
-                   //context.addServlet(new ServletHolder(thumbServlet),"/thumb/*");
-                   server.start();  
-                }
             } catch (Exception ex) {
                 //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
                 log.log(Level.SEVERE, "Failed to bind to RMI registry "
@@ -237,9 +211,7 @@ public class AssetServerModule extends AbstractServerModule {
                     UnicastRemoteObject.unexportObject(maybeRegistry.get(), true);
                 }
             }
-            server.stop();
             log.log(Level.INFO, "littleware shutdown ok");
-
         }
     }
 

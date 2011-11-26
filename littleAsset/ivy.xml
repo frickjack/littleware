@@ -71,13 +71,13 @@
         <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="ee_server->*" />
         
         <!-- Jetty -->
-     <dependency org="org.eclipse.jetty" name="jetty-continuation" rev="8.0.4.v20111024" conf="compile,server->*" />
-     <dependency org="org.eclipse.jetty" name="jetty-http" rev="8.0.4.v20111024" conf="compile,server->*" />
-     <dependency org="org.eclipse.jetty" name="jetty-io" rev="8.0.4.v20111024" conf="compile,server->*" />
-     <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.0.4.v20111024" conf="compile,server->*" />
-     <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.0.4.v20111024" conf="compile,server->*" />
-     <dependency org="org.eclipse.jetty" name="jetty-util" rev="8.0.4.v20111024" conf="compile,server->*" />
-     <dependency org="org.eclipse.jetty" name="jetty-security" rev="8.0.4.v20111024" conf="compile,server->*" />        
+     <dependency org="org.eclipse.jetty" name="jetty-continuation" rev="8.0.4.v20111024" conf="compile->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-http" rev="8.0.4.v20111024" conf="compile->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-io" rev="8.0.4.v20111024" conf="compile->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.0.4.v20111024" conf="compile->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.0.4.v20111024" conf="compile->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-util" rev="8.0.4.v20111024" conf="compile->*" />
+     <dependency org="org.eclipse.jetty" name="jetty-security" rev="8.0.4.v20111024" conf="compile->*" />        
     </dependencies>
 
 </ivy-module>

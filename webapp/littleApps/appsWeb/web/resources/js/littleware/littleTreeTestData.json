@@ -1,0 +1,38 @@
+/* 
+ * littleTree.js test data
+ */
+
+{
+    "A": {
+        "label" : "A",
+        "userdata": {},
+        "children": {
+            "AA" : {
+                "label" : "AA",
+                "userdata": {},
+                "children" : {}
+            },
+            "AB" : {
+                "label" : "AB",
+                "userdata": {},
+                "children" : {}
+            }
+        }
+    },
+    "B": {
+        "label" : "B",
+        "userdata": {},
+        "children": {
+            "BA" : {
+                "label" : "BA",
+                "userdata": {},
+                "children" : {}
+            },
+            "BB" : {
+                "label" : "BB",
+                "userdata": {},
+                "children" : {}
+            }
+        }
+    }    
+}

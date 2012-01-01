@@ -6,6 +6,7 @@ import littleware.apps.browser.gwt.controller.BrowserService;
 import littleware.apps.browser.gwt.model.GwtAsset;
 import littleware.apps.browser.gwt.model.GwtOption;
 import littleware.apps.browser.gwt.model.GwtUUID;
+import littleware.apps.browser.gwt.model.SimpleBrowserModel;
 import littleware.apps.browser.gwt.model.internal.FieldVerifier;
 import littleware.apps.browser.gwt.server.internal.MockBrowserService;
 
@@ -69,5 +70,11 @@ public class BrowserServiceServlet extends RemoteServiceServlet implements
 	@Override
 	public Map<String, GwtUUID> getAssetsUnder(GwtUUID parentId) {
 		return mock.getAssetsUnder(parentId);
+	}
+
+	@Override
+	public SimpleBrowserModel loadBrowserModel(GwtUUID assetId) {
+		// TODO Auto-generated method stub
+		return mock.loadBrowserModel( assetId );
 	}
 }

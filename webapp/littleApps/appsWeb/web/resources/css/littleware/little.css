@@ -1,0 +1,134 @@
+/* 
+    Document   : browser
+    Created on : Sep 10, 2010, 4:09:59 PM
+    Author     : pasquini
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+
+root { 
+    display: block;
+}
+
+body, html {
+    /* background-color: #aaaaff; */
+    background-color: #ffffff;
+    /* color: #ffffff; */
+    /* border: 2px red solid; */
+    padding: 0px;
+    margin: 0px;
+}
+
+body {
+    width: 960px;
+    margin: auto;
+}
+
+em {
+    font-style:italic;
+}
+
+h1,h2,h3,h4 {
+    font-weight: bold;
+}
+h4 {
+    padding: 3px;
+    color: #5E740B;
+}
+
+table, tr, td, th {
+    border-style:none;
+}
+
+
+div#hd, div#ft {
+    background-color: #aaaaaa;
+    color: #ffffff;
+    height: 30px;
+    text-align: left;
+    padding: 10px 0px 0px 20px;
+    margin: 0px;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    width: 100%;
+    clear: both;
+}
+
+
+div#hd a {
+    color: #ffffff;
+}
+div#hd h2 {
+    font-size: 150%;
+    padding: 0px;
+    clear: none;
+    display: inline;
+    padding-right: 20px;
+}
+
+div#bd {
+    /* width:1200px; */
+    width: 100%;
+    clear:both;
+}
+
+div#contentArea, div#toolbar {
+    float:left;
+    /* border: 2px black solid; */
+    padding: 10px;
+    min-height: 500px;
+}
+
+
+ul.inline li {
+    display: inline;
+    list-style-type: none;
+}
+
+ul.clean li {
+    list-style-type: none;
+}
+
+table.deftable tr th {
+    border-style: none;
+    text-align: right;
+    font-weight: bold;
+    padding: 2px 5px 0px 0px;
+}
+table.deftable tr td {
+    border-style: none;
+    text-align: left;
+}
+
+ul.tree li {
+    margin-top: 5px;
+    padding: 5px;
+    color: #000000;
+    text-align: left;
+}
+
+span.button {
+    background-color: #ccccff;
+}
+
+div#sidenav {
+    width: 200px;
+}
+
+div.sidenav {
+    padding-top: 10px;
+}
+
+div.sidenav ul, div.sidenav ul li {
+    padding-left: 2px;
+    margin-left: 2px;
+}
+
+.oblique {
+    font-style:oblique;
+}
+
+.padded {
+    padding: 10px;
+}

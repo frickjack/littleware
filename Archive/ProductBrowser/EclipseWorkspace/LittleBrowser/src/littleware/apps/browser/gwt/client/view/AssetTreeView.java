@@ -23,7 +23,7 @@ import com.google.gwt.view.client.TreeViewModel;
 import java.util.HashMap;
 import java.util.Map;
 
-import littleware.apps.browser.gwt.client.model.SimpleBrowseModel;
+import littleware.apps.browser.gwt.model.SimpleBrowserModel;
 import littleware.apps.browser.gwt.controller.BrowserServiceAsync;
 import littleware.apps.browser.gwt.model.GwtAsset;
 import littleware.apps.browser.gwt.model.GwtUUID;
@@ -38,7 +38,7 @@ public class AssetTreeView extends Composite {
 	Tree    assetTree;
 	private final BrowserServiceAsync search;
 	
-	private SimpleBrowseModel  browseModel = new SimpleBrowseModel();
+	private SimpleBrowserModel  browseModel = new SimpleBrowserModel();
 
     /*
      * Create the tree using the model. We specify the default value of the
@@ -57,7 +57,7 @@ public class AssetTreeView extends Composite {
 	}
 
 
-	public SimpleBrowseModel  getBrowseModel() {
+	public SimpleBrowserModel  getBrowseModel() {
 		return browseModel;
 	}
 	
@@ -65,7 +65,7 @@ public class AssetTreeView extends Composite {
 		return new TreeItem( asset.getName() + " [" + asset.getAssetType() + "]" );
 	}
 	
-	public void setBrowseModel( SimpleBrowseModel value ) {
+	public void setBrowseModel( SimpleBrowserModel value ) {
 		this.browseModel = value;
 		final TreeItem root = assetTree.getItem(0);
 		root.removeItems();

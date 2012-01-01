@@ -1,0 +1,12 @@
+/* 
+        CSS associated with littleware.littleId javascript module
+*/
+
+
+ul.littleTree, ul.littleTree li {
+    list-style: none;
+}
+
+ul.littleTree.littleTreeClosed {
+    display: none;
+}

@@ -14,4 +14,6 @@ public interface BrowserService extends RemoteService {
 	public GwtOption<GwtAsset>         getAsset( GwtUUID id );
 	public Map<String,GwtUUID>         getHomeIds(); 
 	public Map<String,GwtUUID>         getAssetsUnder( GwtUUID parentId );
+	
+	public SimpleBrowserModel          loadBrowserModel( GwtUUID assetId );
 }

@@ -9,6 +9,7 @@ import littleware.apps.browser.gwt.model.GwtHome;
 import littleware.apps.browser.gwt.model.GwtNode;
 import littleware.apps.browser.gwt.model.GwtOption;
 import littleware.apps.browser.gwt.model.GwtUUID;
+import littleware.apps.browser.gwt.model.SimpleBrowserModel;
 
 /**
  * Mock implementation of search service
@@ -71,6 +72,14 @@ public class MockBrowserService implements BrowserService {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public SimpleBrowserModel loadBrowserModel(GwtUUID assetId) {
+		for( GwtAsset asset : getAsset( assetId ) ) {
+			
+		}
+		return null;
 	}
 
 }

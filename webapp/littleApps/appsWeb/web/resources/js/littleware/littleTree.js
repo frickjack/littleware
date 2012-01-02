@@ -80,7 +80,9 @@ YUI.add( 'littleware-littleTree', function(Y) {
         function TreeController( sDivSelector ) {
             this.sDivSelector = sDivSelector;
             this.treeModel = new TreeNode( "/", "<b>/</b>", 
-                    [ new TreeNode( "A" ), new TreeNode( "B" ), new TreeNode( "C" ) ] 
+                [ new TreeNode( "A", "<b>A</b>", [ new TreeNode( "AAA") ] ), 
+                    new TreeNode( "B" ), new TreeNode( "C" ) 
+                ] 
                 );
             
             this.selectedPaths = [];
@@ -96,6 +98,103 @@ YUI.add( 'littleware-littleTree', function(Y) {
         TreeController.prototype.close = function(path) {
             
         };
+        
+        var TreeControllerInternal = function( tree ) {
+            /**
+             * Internal render helper - builds and appends child
+             * nodes to the given parent node - recursively depth first
+             * 
+             * @method renderChildren
+             * @private
+             * @param tree {TreeController} to render
+             * @param parent {TreeNode} to scan for children
+             * @param parentNode {YUI.Node} UL or OL node to append children to
+             */
+            function renderChildren( parent, parentNode ) {
+                var children = parent.children;
+                var ul = parentNode.one( "ul.nodeChildren" );
+                for ( var i=0; i < children.length; ++i ) {
+                    var li = Y.Node.create( "<li></li>" );
+                    var kid = children[i];
+                    var kidNode = uiNodeFactory( kid );
+                    li.appendChild( kidNode );
+                    ul.appendChild( li );
+                    renderChildren( kid, kidNode );
+                }
+                parentNode.one( ".treeToggle" ).on( "click",
+                        openCloseListener, tree
+                     );
+            };
+            
+            
+            /**
+             * Internal utility to toggle the display state of the given
+             * littleTree subtree list
+             * 
+             * @method openCloseSubtree
+             * @private
+             * @param parentNode YUI node with ul.nodeChildren and -.treeToggle children
+             */
+            function openCloseSubtree( parentNode ) {
+                var link = parentNode.one( ".treeToggle" );
+                var ul = parentNode.one( "ul.nodeChildren" );
+                ul.toggleClass( "littleTreeClosed" );
+                if ( ul.hasClass( "littleTreeClosed" )) {
+                    link.setContent( "[+]&nbsp;");
+                } else {
+                    link.setContent( "[-]&nbsp;");
+                }
+            };
+            
+            /**
+             * Internal listener for subtree open-close onClick event
+             * 
+             * @method openCloseListener
+             * @private
+             * @param event
+             */
+            function openCloseListener( event ) {
+                event.preventDefault();
+                var link = event.target;
+                var parent = link.ancestor( ".treeNode" );
+                openCloseSubtree( parent );
+            };
+            
+            
+        
+            /**
+             * Internal factory allocates a YUI.Node conforming to the tree's template,
+             * and with label from the treeNode
+             * 
+             * @method uiNodeFactory
+             * @private
+             * @param tree TreeController to extract template from
+             * @param treeNode to extract label from
+             * @return Yui.Node
+             */
+            function uiNodeFactory( treeNode ) {
+                var node = Y.Node.create( tree.nodeTemplate );
+                node.one( ".nodeLabel" ).setContent( treeNode.labelHTML );
+                return node;
+            };
+            
+            return {
+                uiNodeFactory: uiNodeFactory,
+                renderChildren: renderChildren
+            }
+        };
+        
+        /**
+         * Render the current tree model element selected by sDivSelector
+         * supplied to constructor.  Typical control flow: 
+         *  <pre>
+         *     var tree = Y.littleware.littleTree.TreeFactory.build( "#myTreeDiv" );
+         *     tree.setModel( ... );
+         *     tree.render();
+         *  </pre>
+         * 
+         * @method render
+         */
         TreeController.prototype.render = function() {
             if ( this.state != "new" ) {
                 log.log( "Tree not in 'new' state ..." );
@@ -107,10 +206,10 @@ YUI.add( 'littleware-littleTree', function(Y) {
             //wrapper.set( "id", this.sDivSelector + this.magic );
             this.state = "rendered";
             this.wrapper = wrapper;
-
+            var internal = TreeControllerInternal( this );
+            var node = internal.uiNodeFactory( this.treeModel );
+            internal.renderChildren( this.treeModel, node );
             // setup root tree node
-            var node = Y.Node.create( this.nodeTemplate );
-            node.one( ".nodeLabel" ).setContent( this.treeModel.labelHTML );
             log.log( "Setting up root with label: " + this.treeModel.labelHTML );
             this.wrapper.appendChild( node );
             div.appendChild( this.wrapper );
@@ -120,7 +219,7 @@ YUI.add( 'littleware-littleTree', function(Y) {
             
         };
         TreeController.prototype.setTreeModel = function( value ) {
-          this.treeModel = value;  
+            this.treeModel = value;  
         };
         
         //----------------------------------
@@ -166,7 +265,9 @@ YUI.add( 'littleware-littleTree', function(Y) {
                 name: "LittleTree Test Case",
                 testTemplates: function() {
                     var template = new Y.littleware.littleTree.LittleTemplate( "<b>Test!</b><br /><p>$testVar</p>" );
-                    var result = template.apply( {testVar:"Super Bad!"});
+                    var result = template.apply( {
+                        testVar:"Super Bad!"
+                    });
                     Y.Assert.isTrue( result == "<b>Test!</b><br /><p>Super Bad!</p>", "Got expected template result: " + result  );
                 },
                 testSimpleTree: function() {
@@ -183,10 +284,10 @@ YUI.add( 'littleware-littleTree', function(Y) {
         //---------------------------------------
         
         return {
-          TreeFactory: new TreeFactory(),
-          buildTestSuite: buildTestSuite,
-          TreeNode: TreeNode,
-          LittleTemplate: LittleTemplate
+            TreeFactory: new TreeFactory(),
+            buildTestSuite: buildTestSuite,
+            TreeNode: TreeNode,
+            LittleTemplate: LittleTemplate
         };
     })();
 }, '0.1.1' /* module version */, {

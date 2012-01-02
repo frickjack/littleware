@@ -10,3 +10,7 @@ ul.littleTree, ul.littleTree li {
 ul.littleTree.littleTreeClosed {
     display: none;
 }
+
+a.treeToggle {
+    text-decoration: none;
+}

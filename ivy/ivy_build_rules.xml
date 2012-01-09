@@ -9,7 +9,8 @@
     <description>Some build rules with IVY.</description>
 
 <property name="ivy.install.version" value="2.2.0" /> 
-<dirname property="ivy.jar.dir" file="${ant.file.ivy-template}" /> 
+<dirname property="ivy.jar.dir" file="${ant.file.ivy-template}" />
+<property name="ivy.settings.file" value="${ivy.jar.dir}/littlesettings.xml" />
 <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" /> 
 <property name="libs.CopyLibs.classpath" value="${ivy.jar.dir}/netbeans_ant/org-netbeans-modules-java-j2seproject-copylibstask.jar" />
 
@@ -75,7 +76,7 @@
     	          <ivy:settings file="${user.home}/Documents/Code/repository/littlesettings.xml" />
     	<ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
     	-->
-    	<ivy:settings file="${ivy.jar.dir}/littlesettings.xml" />
+    	<ivy:settings />
 </target>    
 
     

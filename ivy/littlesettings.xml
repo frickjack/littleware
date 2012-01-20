@@ -69,25 +69,35 @@
         <url name="littleware.ivy2">
            <ivy pattern="http://ivy2maven2.littleware.googlecode.com/hg/ivy2/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
            <artifact pattern="http://ivy2maven2.littleware.googlecode.com/hg/ivy2/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-        </url>            
+        </url>  
+        
         <ibiblio name="littleware.maven2" m2compatible="true" usepoms="false" 
                 root="http://ivy2maven2.littleware.googlecode.com/hg/maven2/" />
-        	pattern="[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"/>
+
             
         <chain name="default" returnFirst="true">
             <resolver ref="local"/>
             <resolver ref="localMaven"/>
             <resolver ref="central"/>
+            
+            <!-- ... these artifacts now in central ...
             <resolver ref="java.net"/>
             <resolver ref="jboss"/>
+            
+            
             <resolver ref="gson"/>
             <resolver ref="google"/>
-            <resolver ref="fuse"/>
+            -->
+            
+                        
+            <resolver ref="fuse"/>  <!-- has proxool 0.9.1 -->
             <!--
             <resolver ref="com.springsource.repository.bundles.external"/>
             -->
+            
+            <resolver ref="littleware.maven2"/>  <!-- has oracle jdbc driver -->
             <resolver ref="littleware.ivy2"/>
-            <resolver ref="littleware.maven2"/>
+            
             <!--
             <resolver ref="primefaces"/>
             -->

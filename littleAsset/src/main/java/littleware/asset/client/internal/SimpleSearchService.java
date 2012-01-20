@@ -72,8 +72,8 @@ public class SimpleSearchService implements AssetSearchManager {
     // personal asset cache
     @Singleton
     public static class PersonalCache {
-        private final Map<UUID,Asset>   personalCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
-        private final Map<String,UUID>  nameIdCache = (new MapMaker()).softValues().maximumSize( 10000 ).concurrencyLevel(4).makeMap();  
+        private final Map<UUID,Asset>   personalCache = (new MapMaker()).softValues().concurrencyLevel(4).makeMap();  
+        private final Map<String,UUID>  nameIdCache = (new MapMaker()).softValues().concurrencyLevel(4).makeMap();  
         
         private String key( AssetType type, String name ) {
             return type.toString() + "/" + name;            

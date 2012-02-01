@@ -18,12 +18,6 @@
       <doResolve param.ivy.config="server" />
 </target>
 
-
-
-<target name="-init-project">
-   <mkdir dir="nbproject" />
-</target>
-
 <target name="jar"  />      
 
 <target name="clean" depends="-post-clean" description="clean out the dist/ directory">

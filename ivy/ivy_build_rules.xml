@@ -100,9 +100,15 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
             <map from="${basedir}@{file.separator}" to=""/>
     </pathconvert>
     
-    <propertyfile file="nbproject/project.properties">
+    <mkdir dir="nbproject/private" />
+    <propertyfile file="nbproject/private/private.properties">
             <entry operation="=" key="ivy.@{param.ivy.config}.classpath" value="${ivy.@{param.ivy.config}.classpath}"/>
     </propertyfile>
+    <propertyfile file="nbproject/project.properties">
+            <!-- clean up project.properties -->
+            <entry operation="del" key="ivy.@{param.ivy.config}.classpath" />
+    </propertyfile>
+        
     </sequential>
 </macrodef>
 
@@ -134,13 +140,13 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     <doResolve param.ivy.config="test" />
     
     <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="javac.classpath" value="${ivy.compile.classpath}"/>
-            <entry operation="=" key="javac.test.classpath" value="${ivy.compile.classpath}:${build.classes.dir}"/>
+            <entry operation="=" key="javac.classpath" value="$${ivy.compile.classpath}"/>
+            <entry operation="=" key="javac.test.classpath" value="$${ivy.compile.classpath}:$${build.classes.dir}"/>
     </propertyfile>
         
     <propertyfile file="nbproject/project.properties">
-            <entry operation="=" key="run.classpath" value="${build.classes.dir}:${ivy.test.classpath}"/>
-            <entry operation="=" key="run.test.classpath" value="${build.classes.dir}:${ivy.test.classpath}"/>
+            <entry operation="=" key="run.classpath" value="$${build.classes.dir}:$${ivy.test.classpath}"/>
+            <entry operation="=" key="run.test.classpath" value="$${build.classes.dir}:$${ivy.test.classpath}"/>
     </propertyfile>
     
     <property name="javac.classpath" value="${ivy.compile.classpath}" />

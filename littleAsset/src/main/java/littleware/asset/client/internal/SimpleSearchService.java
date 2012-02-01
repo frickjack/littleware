@@ -67,7 +67,6 @@ public class SimpleSearchService implements AssetSearchManager {
     private final KeyChain keychain;
     private final Everybody everybody;
     private final PersonalCache personalCache;
-
     
     // personal asset cache
     @Singleton

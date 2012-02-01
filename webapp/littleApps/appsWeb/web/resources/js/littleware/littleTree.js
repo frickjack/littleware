@@ -28,13 +28,13 @@ YUI.add( 'littleware-littleTree', function(Y) {
          * 
          * @class LittleTemplate
          * @constructor
-         * @param templateString
+         * @param templateString is the template contents
          */
         function LittleTemplate( templateString ) {
             this.templateString = templateString;
         }
         
-        LittleTemplate.prototype.apply = function( varMap ) {
+        LittleTemplate.prototype.applyFilter = function( varMap ) {
             var template = this.templateString
             for( var key in varMap ) {
                 var value = varMap[key];
@@ -76,15 +76,13 @@ YUI.add( 'littleware-littleTree', function(Y) {
          * @class TreeController
          * @constructor
          * @param sDivSelector {String} in which to construct the tree
+         * @extends Base
          */
         function TreeController( sDivSelector ) {
+            // Invoke Base constructor, passing through arguments
+            TreeController.superclass.constructor.apply(this );
+
             this.sDivSelector = sDivSelector;
-            this.treeModel = new TreeNode( "/", "<b>/</b>", 
-                [ new TreeNode( "A", "<b>A</b>", [ new TreeNode( "AAA") ] ), 
-                    new TreeNode( "B" ), new TreeNode( "C" ) 
-                ] 
-                );
-            
             this.selectedPaths = [];
             this.openPaths = [];
             this.state = "new";
@@ -92,13 +90,29 @@ YUI.add( 'littleware-littleTree', function(Y) {
             this.nodeTemplate = Y.one("#treeNodeTemplate").get( 'text' );
         }
         
-        TreeController.prototype.open = function(path) {
-            
+        /**
+         * YUI.Base property mechanism with setter psuedo-event
+         */
+        TreeController.ATTRS = {
+            treeModel: {
+                value:new TreeNode( "/", "<b>/</b>", //[] ),
+                    [ new TreeNode( "A", "<b>A</b>", [ new TreeNode( "AAA") ] ), 
+                    new TreeNode( "B" ), new TreeNode( "C" ) 
+                    ]
+                    ),
+                readOnly:false        
+            }
         };
-        TreeController.prototype.close = function(path) {
-            
-        };
-        
+
+        /*
+            treeModel = new TreeNode( "/", "<b>/</b>", 
+                [ new TreeNode( "A", "<b>A</b>", [ new TreeNode( "AAA") ] ), 
+                    new TreeNode( "B" ), new TreeNode( "C" ) 
+                ] 
+                );
+
+ *            */
+
         var TreeControllerInternal = function( tree ) {
             /**
              * Internal render helper - builds and appends child
@@ -122,8 +136,8 @@ YUI.add( 'littleware-littleTree', function(Y) {
                     renderChildren( kid, kidNode );
                 }
                 parentNode.one( ".treeToggle" ).on( "click",
-                        openCloseListener, tree
-                     );
+                    openCloseListener, tree
+                    );
             };
             
             
@@ -183,44 +197,71 @@ YUI.add( 'littleware-littleTree', function(Y) {
                 renderChildren: renderChildren
             }
         };
-        
-        /**
-         * Render the current tree model element selected by sDivSelector
-         * supplied to constructor.  Typical control flow: 
-         *  <pre>
-         *     var tree = Y.littleware.littleTree.TreeFactory.build( "#myTreeDiv" );
-         *     tree.setModel( ... );
-         *     tree.render();
-         *  </pre>
-         * 
-         * @method render
-         */
-        TreeController.prototype.render = function() {
-            if ( this.state != "new" ) {
-                log.log( "Tree not in 'new' state ..." );
-                return;
-            }
-            var div = Y.one( this.sDivSelector );
-            var wrapper = Y.Node.create( "<div></div>" );
-            wrapper.generateID();
-            //wrapper.set( "id", this.sDivSelector + this.magic );
-            this.state = "rendered";
-            this.wrapper = wrapper;
-            var internal = TreeControllerInternal( this );
-            var node = internal.uiNodeFactory( this.treeModel );
-            internal.renderChildren( this.treeModel, node );
-            // setup root tree node
-            log.log( "Setting up root with label: " + this.treeModel.labelHTML );
-            this.wrapper.appendChild( node );
-            div.appendChild( this.wrapper );
-        };
-        
-        TreeController.prototype.reRender = function() {
+
+        var TCMethods = {
+            open : function(path) {
             
+            },
+            close : function(path) {
+            
+            },
+        
+        
+            /**
+             * Render the current tree model element selected by sDivSelector
+             * supplied to constructor.  Typical control flow: 
+             *  <pre>
+             *     var tree = Y.littleware.littleTree.TreeFactory.build( "#myTreeDiv" );
+             *     tree.setModel( ... );
+             *     tree.render();
+             *  </pre>
+             * 
+             * @method render
+             */
+            render : function() {
+                if ( this.state != "new" ) {
+                    log.log( "Tree not in 'new' state ..." );
+                    return;
+                }
+                var div = Y.one( this.sDivSelector );
+                var wrapper = Y.Node.create( "<div></div>" );
+                wrapper.generateID();
+                //wrapper.set( "id", this.sDivSelector + this.magic );
+                this.wrapper = wrapper;
+                div.appendChild( this.wrapper );
+                this.state = "rendered";                
+                this.reRender();
+                this.after( "treeModelChange", function(event) {
+                    log.log( "Processing treeModelChange event ..." );
+                    this.reRender();
+                } );
+            },
+        
+            reRender : function() {
+                Y.Assert.isFalse( this.state == "new",
+                    "reRender should not be called while in 'new' state ..." 
+                    );
+                var internal = TreeControllerInternal( this );
+                var model = this.get( "treeModel" );
+                var node = internal.uiNodeFactory( model );
+                internal.renderChildren( model, node );
+                // setup root tree node
+                log.log( "Setting up root with label: " + model.labelHTML );
+                this.wrapper.setContent( node );
+            },
+            
+            /**
+             * Shortcut for set( "treeModel", value )
+             * 
+             * @method setTreeModel
+             */
+            setTreeModel : function( value ) {
+                this.set( "treeModel", value );  
+            }
         };
-        TreeController.prototype.setTreeModel = function( value ) {
-            this.treeModel = value;  
-        };
+        
+        // YUI inheritance mechanism
+        Y.extend(TreeController, Y.Base, TCMethods );
         
         //----------------------------------
         
@@ -234,6 +275,7 @@ YUI.add( 'littleware-littleTree', function(Y) {
          */
         function TreeFactory() {            
         };
+        
         /**
          * Build a new TreeController
          * 
@@ -265,15 +307,31 @@ YUI.add( 'littleware-littleTree', function(Y) {
                 name: "LittleTree Test Case",
                 testTemplates: function() {
                     var template = new Y.littleware.littleTree.LittleTemplate( "<b>Test!</b><br /><p>$testVar</p>" );
-                    var result = template.apply( {
+                    var result = template.applyFilter( {
                         testVar:"Super Bad!"
                     });
                     Y.Assert.isTrue( result == "<b>Test!</b><br /><p>Super Bad!</p>", "Got expected template result: " + result  );
                 },
                 testSimpleTree: function() {
-                    Y.one( "#testSuiteTree" ).setContent( "" );
+                    var treeDiv = Y.one( "#testSuiteTree" );
+                    treeDiv.setContent( "" );
                     var tree = Y.littleware.littleTree.TreeFactory.build( "#testSuiteTree" );
                     tree.render();
+                    var testButton = Y.Node.create( "<div><a class=\"treeToggle\" href=\"#\">click</a> to toggle tree model</div>" );
+                    var toggleModel = new TreeNode( "/", "<b>/</b>", //[] ),
+                        [ new TreeNode( "D" ), new TreeNode( "E", "<b>E</b>", [ new TreeNode( "EEE") ] ), 
+                             new TreeNode( "F" ) 
+                        ]
+                        );
+                    testButton.delegate( 'click', 
+                        function(ev) { 
+                            ev.preventDefault();
+                            tree.set( "treeModel", toggleModel ); 
+                            testButton.hide();
+                        },
+                        "a.treeToggle" 
+                        );
+                    treeDiv.appendChild( testButton );
                 }
             }
             ));
@@ -291,6 +349,6 @@ YUI.add( 'littleware-littleTree', function(Y) {
         };
     })();
 }, '0.1.1' /* module version */, {
-    requires: [ 'node', 'littleware-littleUtil']
+    requires: [ 'base', 'node', 'littleware-littleUtil']
 });
 

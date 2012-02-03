@@ -118,7 +118,7 @@ public class LittleAssetModule extends AbstractAppModule {
             for (GsonAssetAdapter adapter : new GsonAssetAdapter[]{
                         gsonHomeAdapter, gsonLinkAdapter, gsonTreeNodeAdapter, gsonGenericAdapter
                     }) {
-                gsonFactory.registerAdapter(adapter);
+                gsonFactory.registerAssetAdapter(adapter);
             }
         }
 

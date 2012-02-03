@@ -78,7 +78,7 @@ public class LittleSecurityModule extends AbstractAppModule {
             assetRegistry.registerService( Quota.QUOTA_TYPE, quotaProvider );
             assetRegistry.registerService( LittleSession.SESSION_TYPE, sessionProvider );
             for( GsonAssetAdapter adapter : Arrays.asList( gsonGroup, gsonAcl, gsonUser )) {
-                gsonFactory.registerAdapter(adapter);
+                gsonFactory.registerAssetAdapter(adapter);
             }
         }
 

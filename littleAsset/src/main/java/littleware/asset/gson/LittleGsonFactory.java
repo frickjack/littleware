@@ -10,6 +10,7 @@ package littleware.asset.gson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Provider;
+import java.lang.reflect.Type;
 import littleware.asset.AssetType;
 
 /**
@@ -39,5 +40,17 @@ public interface LittleGsonFactory extends Provider<Gson> {
     @Override
     public Gson get();
     
-    public void registerAdapter(GsonAssetAdapter adapter );
+    /**
+     * Register an extension to the Asset.class Gson TypeAdapter to
+     * handle some particular AssetType ...
+     * 
+     * @return this so calls can be chained
+     */
+    public LittleGsonFactory registerAssetAdapter(GsonAssetAdapter adapter );
+    
+    /**
+     * Register a custom type adapter to be passed to each new GsonBuilder and Gson object.
+     * Note that LittleGsonFactory already registers internal adapters for UUID and Date.
+     */
+    public LittleGsonFactory registerTypeAdapter( Type clazz, Object adapter );
 }

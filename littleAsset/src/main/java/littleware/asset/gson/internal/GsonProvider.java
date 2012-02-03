@@ -25,8 +25,10 @@ import com.google.inject.Singleton;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -56,8 +58,9 @@ public class GsonProvider implements LittleGsonFactory {
 
 
     @Override
-    public synchronized void registerAdapter(GsonAssetAdapter adapter ) {
+    public synchronized LittleGsonFactory registerAssetAdapter(GsonAssetAdapter adapter ) {
         typeMap.put( adapter.getAssetType().getName(), adapter );
+        return this;
     }
 
     @Override
@@ -98,6 +101,9 @@ public class GsonProvider implements LittleGsonFactory {
         gsonBuilder.registerTypeAdapter(Asset.class,
                 new AssetDelegateSerializer( resolver )
                 );
+        for( AdapterPair adapter : this.customAdapterList ) {
+            gsonBuilder.registerTypeAdapter( adapter.clazz, adapter.adapter);
+        }
         return gsonBuilder.serializeNulls();
     }
 
@@ -109,6 +115,24 @@ public class GsonProvider implements LittleGsonFactory {
     @Override
     public GsonBuilder getBuilder() {
         return getBuilder( LittleGsonResolver.nullResolver );
+    }
+
+    private static class AdapterPair {
+        public final Type clazz;
+        public final Object adapter;
+        
+        public AdapterPair( Type clazz, Object adapter ) {
+            this.clazz = clazz;
+            this.adapter = adapter;
+        }
+    }
+    
+    private final List<AdapterPair> customAdapterList = new ArrayList<AdapterPair>();
+    
+    @Override
+    public LittleGsonFactory registerTypeAdapter(Type clazz, Object adapter) {
+        customAdapterList.add( new AdapterPair( clazz, adapter ));
+        return this;
     }
     
 

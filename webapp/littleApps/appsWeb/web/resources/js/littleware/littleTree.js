@@ -12,6 +12,8 @@
  * see http://yuiblog.com/blog/2007/06/12/module-pattern/
  * YUI doc comments: http://developer.yahoo.com/yui/yuidoc/
  * YUI extension mechanism: http://developer.yahoo.com/yui/3/yui/#yuiadd
+ * 
+ * TODO: add/remove children, dynamic load, node selection
  *
  * @module littleware.littleTree
  * @namespace littleware.littleTree
@@ -47,6 +49,8 @@ YUI.add( 'littleware-littleTree', function(Y) {
         
         //------------------------------------------------
         
+        var nodeIdCounter = 0;
+        
         /**
          * TreeNode - little helper class for building up a tree model
          * 
@@ -55,18 +59,61 @@ YUI.add( 'littleware-littleTree', function(Y) {
          * @param name by which to build up the path to the node in the tree
          * @param labelHTML inner html to label node with
          * @param children array of child nodes - defaults to empty
+         * @param config app-specific info to attach to object
+         * @param listener function( event, TreeNode ) { ... } called on open/close subtree event
+         *                   on this node
          */
-        function TreeNode( name, labelHTML, children ) {
-            this.name = name;
+        function TreeNode( name, labelHTML, children, config, listener ) {
             if ( ! Y.Lang.isArray( children ) ) {
                 children = [];
             }
             if ( Y.Lang.isUndefined( labelHTML ) ) {
                 labelHTML = name;
             }
+            TreeNode.superclass.constructor.apply( this, [ { children: children } ] );
+            this.name = name;
             this.labelHTML = labelHTML;
-            this.children = children;
+            this.appConfig = config;
+            this.listener = listener;
+            this.id = nodeIdCounter;
+            nodeIdCounter += 1;
         }
+        
+        TreeNode.NAME = "TreeNode";
+        
+        TreeNode.ATTRS = {
+            children: {
+                value:[],
+                readOnly:false,
+                lazyAdd:false
+            }, 
+            parent: {
+                value:null,
+                readOnly:true
+            }
+        };
+
+        Y.extend(TreeNode, Y.Base, { 
+                /**
+                * Set the child attribute.
+                * Fires a "treeChange" event on this node and its ancestors
+                * 
+                * @method setChildren
+                */
+                setChildren: function(val) {
+                    this._set( "children", val );
+                    for( var i=0; i < val.length; i++ ) {
+                        val[i]._set( "parent", this );
+                    }
+                    //alert( "Firing tree change on node: " + this.id );
+                    this.fire( "treeChange", {node:this} );
+                    for( var parent = this.get( "parent" ); null != parent; parent = parent.get( "parent" ) ) {
+                        parent.fire( "treeChange", { node: this } );
+                    }
+                    //return val;
+                }
+
+            } );
         
         //-----------------------------------------------
         
@@ -75,12 +122,13 @@ YUI.add( 'littleware-littleTree', function(Y) {
          * 
          * @class TreeController
          * @constructor
-         * @param sDivSelector {String} in which to construct the tree
+         * @param sDivSelector
+         * @param config Base config 
          * @extends Base
          */
-        function TreeController( sDivSelector ) {
+        function TreeController( sDivSelector, config ) {
             // Invoke Base constructor, passing through arguments
-            TreeController.superclass.constructor.apply(this );
+            TreeController.superclass.constructor.apply(this, [ config ] );
 
             this.sDivSelector = sDivSelector;
             this.selectedPaths = [];
@@ -88,7 +136,11 @@ YUI.add( 'littleware-littleTree', function(Y) {
             this.state = "new";
             this.wrapper = null;
             this.nodeTemplate = Y.one("#treeNodeTemplate").get( 'text' );
+            // Node by id cache
+            this.renderedNodes = {};
         }
+        
+        TreeController.NAME = "TreeController";
         
         /**
          * YUI.Base property mechanism with setter psuedo-event
@@ -100,7 +152,12 @@ YUI.add( 'littleware-littleTree', function(Y) {
                     new TreeNode( "B" ), new TreeNode( "C" ) 
                     ]
                     ),
-                readOnly:false        
+                readOnly:false,
+                lazyAdd:false
+            }, 
+            selectedNodes: {
+                value:[],
+                lazyAdd:false
             }
         };
 
@@ -125,8 +182,13 @@ YUI.add( 'littleware-littleTree', function(Y) {
              * @param parentNode {YUI.Node} UL or OL node to append children to
              */
             function renderChildren( parent, parentNode ) {
-                var children = parent.children;
+                var children = parent.get( "children" );
+                if( Y.Lang.isUndefined( parentNode ) ) {
+                    parentNode = Y.one( "#TreeNode" + parent.id );
+                }
                 var ul = parentNode.one( "ul.nodeChildren" );
+                // First zero out the DOM parent 
+                ul.setContent( "" );
                 for ( var i=0; i < children.length; ++i ) {
                     var li = Y.Node.create( "<li></li>" );
                     var kid = children[i];
@@ -135,9 +197,10 @@ YUI.add( 'littleware-littleTree', function(Y) {
                     ul.appendChild( li );
                     renderChildren( kid, kidNode );
                 }
+                /* delegate handler registered in render() ...
                 parentNode.one( ".treeToggle" ).on( "click",
                     openCloseListener, tree
-                    );
+                    ); */
             };
             
             
@@ -171,6 +234,11 @@ YUI.add( 'littleware-littleTree', function(Y) {
                 event.preventDefault();
                 var link = event.target;
                 var parent = link.ancestor( ".treeNode" );
+                var treeNode = parent.getData( "littleTreeNode" );
+                    //tree.renderedNodes[ parent.get( "id" ) ];
+                if ( Y.Lang.isFunction( treeNode.listener ) ) {
+                    treeNode.listener( event, treeNode );
+                }                
                 openCloseSubtree( parent );
             };
             
@@ -188,13 +256,17 @@ YUI.add( 'littleware-littleTree', function(Y) {
              */
             function uiNodeFactory( treeNode ) {
                 var node = Y.Node.create( tree.nodeTemplate );
-                node.one( ".nodeLabel" ).setContent( treeNode.labelHTML );
+                node.set( "id", "TreeNode" + treeNode.id );
+                node.one( ".nodeLabel" ).setContent( treeNode.labelHTML ); //+ " " + node.get( "id" ) );
+                node.setData( "littleTreeNode", treeNode );
+                //tree.renderedNodes[ node.get( "id" ) ] = treeNode;
                 return node;
             };
             
             return {
                 uiNodeFactory: uiNodeFactory,
-                renderChildren: renderChildren
+                renderChildren: renderChildren,
+                openCloseListener: openCloseListener
             }
         };
 
@@ -229,15 +301,33 @@ YUI.add( 'littleware-littleTree', function(Y) {
                 //wrapper.set( "id", this.sDivSelector + this.magic );
                 this.wrapper = wrapper;
                 div.appendChild( this.wrapper );
-                this.state = "rendered";                
+                
+                this.state = "rendered";
                 this.reRender();
+                var internal = TreeControllerInternal( this );
+                this.wrapper.delegate( "click",
+                    internal.openCloseListener,
+                    //function(ev) { ev.preventDefault(); alert( "Click!" ); },
+                    "a.treeToggle", this
+                    );
+
+                var thisTree = this;
+                var root = this.get( "treeModel" );
+                var changeHandler = function(e) {
+                  internal.renderChildren( e.node );
+                };
+                this.rootSubscription = root.after( "treeChange", changeHandler );
+
                 this.after( "treeModelChange", function(event) {
                     log.log( "Processing treeModelChange event ..." );
+                    this.rootSubscription.detach();
+                    this.rootSubscription = event.newVal.after( "treeChange", changeHandler );
                     this.reRender();
                 } );
             },
         
             reRender : function() {
+                this.renderedNodes = {};
                 Y.Assert.isFalse( this.state == "new",
                     "reRender should not be called while in 'new' state ..." 
                     );
@@ -318,16 +408,22 @@ YUI.add( 'littleware-littleTree', function(Y) {
                     var tree = Y.littleware.littleTree.TreeFactory.build( "#testSuiteTree" );
                     tree.render();
                     var testButton = Y.Node.create( "<div><a class=\"treeToggle\" href=\"#\">click</a> to toggle tree model</div>" );
-                    var toggleModel = new TreeNode( "/", "<b>/</b>", //[] ),
+                    var toggleModel = new TreeNode( 
+                        "/", "<b>/</b>", //[] ),
                         [ new TreeNode( "D" ), new TreeNode( "E", "<b>E</b>", [ new TreeNode( "EEE") ] ), 
                              new TreeNode( "F" ) 
-                        ]
+                        ], {}, 
+                        function(ev,node) { 
+                            alert( "Event on node " + node.id ); 
+                            node.listener = null;
+                            node.setChildren( [ new TreeNode( "X" ), new TreeNode( "Y" ) ] );
+                        }
                         );
                     testButton.delegate( 'click', 
                         function(ev) { 
                             ev.preventDefault();
                             tree.set( "treeModel", toggleModel ); 
-                            testButton.hide();
+                            testButton.setContent( "<div>Toggle root / node to test toggle listener.</div>");
                         },
                         "a.treeToggle" 
                         );
@@ -349,6 +445,6 @@ YUI.add( 'littleware-littleTree', function(Y) {
         };
     })();
 }, '0.1.1' /* module version */, {
-    requires: [ 'base', 'node', 'littleware-littleUtil']
+    requires: [ 'base', 'node', 'node-base', 'littleware-littleUtil']
 });
 

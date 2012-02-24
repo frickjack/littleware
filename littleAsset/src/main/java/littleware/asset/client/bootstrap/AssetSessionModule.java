@@ -112,7 +112,7 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
         binder.bind(AssetManager.class).to(SimpleAssetManagerService.class).in(Scopes.SINGLETON);
         binder.bind(SessionManager.class).to(SessionManagerProxy.class).in(Scopes.SINGLETON);
 
-        binder.bind(KeyChain.class).to(SimpleKeyChain.class).in(Scopes.SINGLETON);
+        binder.bind(KeyChain.class).to( SimpleKeyChain.class ).in( Scopes.SINGLETON );
         binder.bind(AssetLibrary.class).to(SimpleAssetLibrary.class).in(Scopes.SINGLETON);
         binder.bind(ClientCache.class).to(SimpleClientCache.class).in(Scopes.SINGLETON);
         binder.bind(AssetTreeTool.class).to(SimpleAssetTreeTool.class).in(Scopes.SINGLETON);

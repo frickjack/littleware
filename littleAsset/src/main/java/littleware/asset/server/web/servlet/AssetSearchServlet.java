@@ -12,6 +12,7 @@ import com.google.inject.Inject;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,16 +71,16 @@ public class AssetSearchServlet extends HttpServlet {
             return ctxFactory;
         }
     }
-    
     private Tools tools = null;
-    
+
     /**
-     * In-container constructor 
+     * In-container constructor
      */
-    public AssetSearchServlet() {}
-    
+    public AssetSearchServlet() {
+    }
+
     @Inject
-    public AssetSearchServlet( Tools tools ) {
+    public AssetSearchServlet(Tools tools) {
         this.tools = tools;
     }
 
@@ -87,9 +88,14 @@ public class AssetSearchServlet extends HttpServlet {
     public void init() {
         final ServletConfig config = getServletConfig();
         uriPrefix = Maybe.emptyIfNull(config.getInitParameter("uriPrefix")).getOr(uriPrefix);
-        // TODO - work out bootstrap/injection mechanism
-        if ( null == tools ) {
-            tools = ((SessionInjector) config.getServletContext().getAttribute( "injector" )).getInstance( Tools.class );
+
+        if (null == tools) {
+            /**
+             * Look for the "littleInjector" attribute in the servlet context.
+             * See the littleWeb artifact for filters/etc. to assist with webapp
+             * bootstrap.
+             */
+            tools = ((SessionInjector) config.getServletContext().getAttribute("littleInjector")).getInstance(Tools.class);
         }
     }
     final Pattern uriPattern = Pattern.compile(".*/asset/(\\w+)/([^/]+).*");
@@ -121,46 +127,61 @@ public class AssetSearchServlet extends HttpServlet {
                 vtInClientCache = -1L;
             }
         }
-        if (method.equals("withId")) {
-            final UUID id = UUIDFactory.parseUUID(arguments);
-            final AssetResult result;
-            try {
-                // TODO - update to accept clientTStamp parameter ...
-                result = tools.search.getAsset(sessionId, id, vtInClientCache);
-            } catch (AccessDeniedException ex) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN);
-                return;
-            } catch (GeneralSecurityException ex) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN);
-                return;
-            } catch (Exception ex) {
-                // TODO!!!
-                log.log(Level.WARNING, "Unexpected exception", ex);
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                return;
-            }
-            switch (result.getState()) {
-                case NO_SUCH_ASSET: {
-                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                } break;
-                case ACCESS_DENIED: {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
-                } break;
-                case USE_YOUR_CACHE: {
-                    response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-                    if (!response.containsHeader("Date")) {
-                        response.setDateHeader("Date", (new Date()).getTime());
+        try {
+            if (method.equals("withId")) {
+                final UUID id = UUIDFactory.parseUUID(arguments);
+                final AssetResult result = tools.search.getAsset(sessionId, id, vtInClientCache);
+                switch (result.getState()) {
+                    case NO_SUCH_ASSET: {
+                        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     }
-                } break;
-                default: {
-                    final Gson gson = tools.gsonFactory.getBuilder().setPrettyPrinting().create();
-                    response.setContentType("application/json");
-                    response.getWriter().write( gson.toJson( result.getAsset().get(), Asset.class ) );
-                } break;
+                    break;
+                    case ACCESS_DENIED: {
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                    }
+                    break;
+                    case USE_YOUR_CACHE: {
+                        response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                        if (!response.containsHeader("Date")) {
+                            response.setDateHeader("Date", (new Date()).getTime());
+                        }
+                    }
+                    break;
+                    default: {
+                        final Gson gson = tools.gsonFactory.getBuilder().setPrettyPrinting().create();
+                        response.setContentType("application/json");
+                        response.getWriter().write(gson.toJson(result.getAsset().get(), Asset.class));
+                    }
+                    break;
+                }
+                return;
+            } else if (method.equals("homeIds")) {
+                final Map<String, UUID> homeIndex = tools.search.getHomeAssetIds(sessionId);
+                final Gson gson = tools.gsonFactory.getBuilder().setPrettyPrinting().create();
+                response.setContentType("application/json");
+                response.getWriter().write(gson.toJson(homeIndex, Asset.class));
+                return;
+            } else if (method.equals("childrenOf")) {
+                final UUID id = UUIDFactory.parseUUID(arguments);
+                final Map<String, UUID> childIndex = tools.search.getAssetIdsFrom(sessionId,id);
+                final Gson gson = tools.gsonFactory.getBuilder().setPrettyPrinting().create();
+                response.setContentType("application/json");
+                response.getWriter().write(gson.toJson(childIndex, Asset.class));
+                return;                
+            } else {
+                response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
             }
-            return;            
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
+        } catch (AccessDeniedException ex) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        } catch (GeneralSecurityException ex) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Unexpected exception", ex);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+            return;
         }
+
     }
 }

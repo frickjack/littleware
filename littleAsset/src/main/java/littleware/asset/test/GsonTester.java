@@ -9,6 +9,7 @@ package littleware.asset.test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.rmi.RemoteException;
@@ -37,14 +38,14 @@ import littleware.test.LittleTest;
  * @author pasquini
  */
 public class GsonTester extends LittleTest {
-    private static final Logger log = Logger.getLogger( GsonTester.class.getName() );
-    
+
+    private static final Logger log = Logger.getLogger(GsonTester.class.getName());
     private final Map<UUID, Asset> testAssets;
     private final LittleGsonResolver mockResolver = new LittleGsonResolver() {
 
         @Override
         public Option<Asset> getAsset(UUID id) throws BaseException, GeneralSecurityException, RemoteException {
-            return Maybe.emptyIfNull( testAssets.get( id) );
+            return Maybe.emptyIfNull(testAssets.get(id));
         }
 
         @Override
@@ -68,16 +69,16 @@ public class GsonTester extends LittleTest {
         this.gsonFactory = gsonFactory;
         final UUID homeId = UUID.randomUUID();
         final ImmutableMap.Builder<UUID, Asset> testBuilder = ImmutableMap.builder();
-        final LittleGroup.Builder groupBuilder = groupFactory.get().homeId( homeId ).parentId( homeId ).name("testAsset");
+        final LittleGroup.Builder groupBuilder = groupFactory.get().homeId(homeId).parentId(homeId).name("testAsset");
         for (String name : new String[]{"fred", "barney", "murray"}) {
-            final LittleUser user = userFactory.get().homeId( homeId ).parentId( homeId ).name(name).build();
+            final LittleUser user = userFactory.get().homeId(homeId).parentId(homeId).name(name).build();
             groupBuilder.add(user);
             testBuilder.put(user.getId(), user);
         }
         final LittleGroup group = groupBuilder.build();
         testBuilder.put(group.getId(), group);
         final UUID aclId = UUID.randomUUID();
-        final LittleAcl acl = aclFactory.get().homeId( homeId ).parentId( homeId ).id(aclId).name("testAcl").addEntry(
+        final LittleAcl acl = aclFactory.get().homeId(homeId).parentId(homeId).id(aclId).name("testAcl").addEntry(
                 aclEFactory.get().owningAclId(aclId).addPermission(LittlePermission.READ).principal(group).build()).build();
 
         testBuilder.put(acl.getId(), acl);
@@ -86,18 +87,21 @@ public class GsonTester extends LittleTest {
 
     public void testGson() {
         try {
-        final Gson gson = gsonFactory.get(mockResolver);
-        for (Asset assetIn : testAssets.values()) {
-            final Asset assetOut = gson.fromJson( gson.toJson(assetIn, Asset.class ), Asset.class);
-            assertTrue("Gson conversion preserves asset type: " + assetOut.getAssetType() + ", " + assetIn.getAssetType(),
-                    assetOut.getAssetType().equals(assetIn.getAssetType()));
-            assertTrue("Gson conversion preserves id and name",
-                    assetOut.getName().equals(assetIn.getName())
-                    && assetOut.getId().equals(assetIn.getId()));
-        }
-        } catch( Exception ex ) {
-            log.log( Level.WARNING, "Failed test", ex );
-            fail( "Caught ex: " + ex );
+            final Gson gson = gsonFactory.get(mockResolver);
+            for (Asset assetIn : testAssets.values()) {
+                final Asset assetOut = gson.fromJson(gson.toJson(assetIn, Asset.class), Asset.class);
+                assertTrue("Gson conversion preserves asset type: " + assetOut.getAssetType() + ", " + assetIn.getAssetType(),
+                        assetOut.getAssetType().equals(assetIn.getAssetType()));
+                assertTrue("Gson conversion preserves id and name",
+                        assetOut.getName().equals(assetIn.getName())
+                        && assetOut.getId().equals(assetIn.getId()));
+            }
+
+            // Test GSON handling of name-id maps
+            final TypeToken<Map<String,UUID>> nameIdType = new TypeToken<Map<String,UUID>>() {};
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Failed test", ex);
+            fail("Caught ex: " + ex);
         }
     }
 }

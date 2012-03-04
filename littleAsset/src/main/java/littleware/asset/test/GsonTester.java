@@ -99,6 +99,24 @@ public class GsonTester extends LittleTest {
 
             // Test GSON handling of name-id maps
             final TypeToken<Map<String,UUID>> nameIdType = new TypeToken<Map<String,UUID>>() {};
+            final Map<String,UUID> testIn;
+            final Map<String,UUID> testOut;
+            {
+                final ImmutableMap.Builder<String,UUID> builder = ImmutableMap.builder();
+                for( int i=0; i < 10; ++i ) {
+                    builder.put( "a" + i, UUID.randomUUID() );
+                }
+                testIn = builder.build();
+            }
+            testOut = gson.fromJson( gson.toJson( testIn, nameIdType.getType() ), nameIdType.getType() );
+            assertTrue( "Gson map in/out got expected size: " + testOut.size(),
+                   testOut.size() == testIn.size()
+                    );
+            for( Map.Entry<String,UUID> scan : testIn.entrySet() ) {
+                assertTrue( scan.getKey() + " got expected gson out value: " + testOut.get( scan.getKey() ),
+                        scan.getValue().equals( testOut.get( scan.getKey() ))
+                        );
+            }
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed test", ex);
             fail("Caught ex: " + ex);

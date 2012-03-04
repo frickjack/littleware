@@ -1,21 +1,19 @@
 /*
- * Copyright 2011 http://code.google.com/p/littleware
+ * Copyright 2012 http://code.google.com/p/littleware
  * 
  * The contents of this file are available subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.server.bootstrap.internal;
+package littleware.asset.webproxy;
 
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.asset.server.bootstrap.AbstractServerModule;
-import littleware.asset.server.bootstrap.ServerModule;
-import littleware.asset.server.bootstrap.ServerModuleFactory;
-import littleware.asset.server.web.servlet.AssetSearchServlet;
-import littleware.bootstrap.AppBootstrap;
+import littleware.bootstrap.AppBootstrap.AppProfile;
+import littleware.bootstrap.AppModule;
+import littleware.bootstrap.AppModuleFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -29,45 +27,61 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
- * Setup embedded jetty server - this still needs work ....
+ * Optional module starts Jetty server, binds Server and /littleware/ ServletContext,
+ * and registers asset.webproxy servlets
  */
-public class JettyServerModule extends AbstractServerModule {
+public class JettyModule implements littleware.bootstrap.AppModule {
 
-    private static final Logger log = Logger.getLogger(AssetServerModule.class.getName());
+    private final AppProfile profile;
 
-    private JettyServerModule(AppBootstrap.AppProfile profile) {
-        super(profile);
+    public JettyModule(AppProfile profile) {
+        this.profile = profile;
+    }
+
+    @Override
+    public AppProfile getProfile() {
+        return profile;
+    }
+
+    @Override
+    public Class<? extends BundleActivator> getActivator() {
+        return JettyActivator.class;
     }
 
     @Override
     public void configure(Binder binder) {
+        final Server server = new Server();
+        final ServletContextHandler servletHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        servletHandler.setContextPath("/littleware");
+        binder.bind( Server.class ).toInstance( server );
+        binder.bind( ServletContextHandler.class ).toInstance( servletHandler );
     }
-
-    public static class Activator implements BundleActivator {
-
+    
+    public static class JettyActivator implements BundleActivator {
+        private static final Logger log = Logger.getLogger( JettyActivator.class.getName() );
         private final Server server;
+        private final ServletContextHandler servletHandler;
         private final AssetSearchServlet searchServlet;
 
         @Inject
-        public Activator(
+        public JettyActivator(
                 Server server,
+                ServletContextHandler servletHandler,
                 AssetSearchServlet searchServlet) {
             this.server = server;
+            this.servletHandler = servletHandler;
             this.searchServlet = searchServlet;
         }
 
         @Override
         public void start(BundleContext bc) throws Exception {
             try {
-
                 // Startup Jetty
                 final Connector connector = new BlockingChannelConnector();
                 connector.setPort(1238);
                 connector.setHost("127.0.0.1");
+                //connector.setHost( "localhost" );
                 server.addConnector(connector);
-
-                final ServletContextHandler servletHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-                servletHandler.setContextPath("/littleware");
                 //server.setHandler(context);
                 servletHandler.addServlet(new ServletHolder(searchServlet), "/services/search/*");
 
@@ -96,20 +110,16 @@ public class JettyServerModule extends AbstractServerModule {
         @Override
         public void stop(BundleContext bc) throws Exception {
             server.stop();
-            log.log(Level.INFO, "littleware shutdown ok");
+            log.log(Level.INFO, "Jetty shutdown ok");
         }
     }
-
-    @Override
-    public Class<Activator> getActivator() {
-        return Activator.class;
-    }
-
-    public static class Factory implements ServerModuleFactory {
+    
+    public static class AppFactory implements AppModuleFactory {
 
         @Override
-        public ServerModule buildServerModule(AppBootstrap.AppProfile profile) {
-            return new JettyServerModule(profile);
+        public AppModule build(AppProfile profile) {
+            return new JettyModule(profile);
         }
     }
+    
 }

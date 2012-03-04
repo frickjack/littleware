@@ -33,13 +33,15 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<AssetSearchManagerTester> provideSearchTest,
             Provider<AssetManagerTester> provideAstMgrTest,
             littleware.asset.test.JenkinsTestSuite assetTestSuite,
-            littleware.security.client.test.PackageTestSuite securityTestSuite 
-            ) {
+            littleware.security.client.test.PackageTestSuite securityTestSuite,
+            Provider<RestClientTester> restTestFactory) {
         super(JenkinsTestSuite.class.getName());
         boolean runTest = true;
 
-        this.addTest(assetTestSuite);
-        this.addTest( securityTestSuite );
+        if (runTest) {
+            this.addTest(assetTestSuite);
+            this.addTest(securityTestSuite);
+        }
         if (runTest) {
             this.addTest(provideAstMgrTest.get());
         }
@@ -56,16 +58,18 @@ public class JenkinsTestSuite extends TestSuite {
             this.addTest(providePathTester.get());
             this.addTest(providePathTester.get().putName("testBadLookup"));
         }
-
+        if (runTest) {
+            this.addTest(restTestFactory.get());
+        }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 
     public static TestSuite suite() {
         try {
-            return (new AssetTestFactory()).build( ServerBootstrap.provider.get().build(), JenkinsTestSuite.class);
+            return (new AssetTestFactory()).build(ServerBootstrap.provider.get().build(), JenkinsTestSuite.class);
         } catch (Throwable ex) {
             log.log(Level.SEVERE, "Test setup failed", ex);
-            throw new AssertionFailedException( "Failed bootstrap", ex );
+            throw new AssertionFailedException("Failed bootstrap", ex);
         }
     }
 }

@@ -5,9 +5,10 @@
  * Lesser GNU General Public License (LGPL) Version 2.1.
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.asset.server.web.servlet;
+package littleware.asset.webproxy;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -39,24 +40,21 @@ import littleware.security.AccessDeniedException;
 public class AssetSearchServlet extends HttpServlet {
 
     private static final Logger log = Logger.getLogger(AssetSearchServlet.class.getName());
-    private String uriPrefix = "/asset/services";
+    private String uriPrefix = "/littleware/services/search";
 
     public static class Tools {
 
         private final LittleGsonFactory gsonFactory;
         private final RemoteSearchManager search;
-        private final LittleContext.ContextFactory ctxFactory;
 
         /**
          * Injectable tools
          */
         @Inject
         public Tools(LittleGsonFactory gsonFactory,
-                RemoteSearchManager search,
-                LittleContext.ContextFactory ctxFactory) {
+                RemoteSearchManager search) {
             this.gsonFactory = gsonFactory;
             this.search = search;
-            this.ctxFactory = ctxFactory;
         }
 
         public LittleGsonFactory getGsonFactory() {
@@ -65,10 +63,6 @@ public class AssetSearchServlet extends HttpServlet {
 
         public RemoteSearchManager getSearchMgr() {
             return search;
-        }
-
-        public LittleContext.ContextFactory getCtxFactory() {
-            return ctxFactory;
         }
     }
     private Tools tools = null;
@@ -88,23 +82,21 @@ public class AssetSearchServlet extends HttpServlet {
     public void init() {
         final ServletConfig config = getServletConfig();
         uriPrefix = Maybe.emptyIfNull(config.getInitParameter("uriPrefix")).getOr(uriPrefix);
-
+        // TODO - work out bootstrap/injection mechanism
         if (null == tools) {
-            /**
-             * Look for the "littleInjector" attribute in the servlet context.
-             * See the littleWeb artifact for filters/etc. to assist with webapp
-             * bootstrap.
-             */
-            tools = ((SessionInjector) config.getServletContext().getAttribute("littleInjector")).getInstance(Tools.class);
+            tools = ((SessionInjector) config.getServletContext().getAttribute("injector")).getInstance(Tools.class);
         }
     }
-    final Pattern uriPattern = Pattern.compile(".*/asset/(\\w+)/([^/]+).*");
+    private final Pattern uriPattern = Pattern.compile("/(\\w+)/([^/]+).*");
+    private final TypeToken<Map<String, UUID>> name2IdToken = new TypeToken<Map<String, UUID>>() {
+    };
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        final Gson gson = tools.gsonFactory.getBuilder().setPrettyPrinting().create();
         final Matcher matcher = uriPattern.matcher(request.getRequestURI().substring(uriPrefix.length()));
         if (!matcher.matches()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Unexpected URI: " + request.getRequestURI() );
             return;
         }
         final String method = matcher.group(1).toLowerCase();
@@ -119,7 +111,7 @@ public class AssetSearchServlet extends HttpServlet {
             }
             sessionId = UUIDFactory.parseUUID(sessionIdStr);
         }
-        {
+        { // should maybe move this to a header ... ?
             final String vtStr = request.getParameter("cacheTimeStamp");
             if (null != vtStr) {
                 vtInClientCache = Long.parseLong(vtStr);
@@ -127,61 +119,60 @@ public class AssetSearchServlet extends HttpServlet {
                 vtInClientCache = -1L;
             }
         }
-        try {
-            if (method.equals("withId")) {
-                final UUID id = UUIDFactory.parseUUID(arguments);
-                final AssetResult result = tools.search.getAsset(sessionId, id, vtInClientCache);
-                switch (result.getState()) {
-                    case NO_SUCH_ASSET: {
-                        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    }
-                    break;
-                    case ACCESS_DENIED: {
-                        response.sendError(HttpServletResponse.SC_FORBIDDEN);
-                    }
-                    break;
-                    case USE_YOUR_CACHE: {
-                        response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-                        if (!response.containsHeader("Date")) {
-                            response.setDateHeader("Date", (new Date()).getTime());
-                        }
-                    }
-                    break;
-                    default: {
-                        final Gson gson = tools.gsonFactory.getBuilder().setPrettyPrinting().create();
-                        response.setContentType("application/json");
-                        response.getWriter().write(gson.toJson(result.getAsset().get(), Asset.class));
-                    }
-                    break;
-                }
+        if (method.equals("withId")) {
+            final UUID id = UUIDFactory.parseUUID(arguments);
+            final AssetResult result;
+            try {
+                // TODO - update to accept clientTStamp parameter ...
+                result = tools.search.getAsset(sessionId, id, vtInClientCache);
+            } catch (AccessDeniedException ex) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
-            } else if (method.equals("homeIds")) {
-                final Map<String, UUID> homeIndex = tools.search.getHomeAssetIds(sessionId);
-                final Gson gson = tools.gsonFactory.getBuilder().setPrettyPrinting().create();
-                response.setContentType("application/json");
-                response.getWriter().write(gson.toJson(homeIndex, Asset.class));
+            } catch (GeneralSecurityException ex) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
-            } else if (method.equals("childrenOf")) {
-                final UUID id = UUIDFactory.parseUUID(arguments);
-                final Map<String, UUID> childIndex = tools.search.getAssetIdsFrom(sessionId,id);
-                final Gson gson = tools.gsonFactory.getBuilder().setPrettyPrinting().create();
-                response.setContentType("application/json");
-                response.getWriter().write(gson.toJson(childIndex, Asset.class));
-                return;                
-            } else {
-                response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
+            } catch (Exception ex) {
+                // TODO!!!
+                log.log(Level.WARNING, "Unexpected exception", ex);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.toString());
+                return;
             }
-        } catch (AccessDeniedException ex) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            switch (result.getState()) {
+                case NO_SUCH_ASSET: {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                }
+                break;
+                case ACCESS_DENIED: {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                }
+                break;
+                case USE_YOUR_CACHE: {
+                    response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                    if (!response.containsHeader("Date")) {
+                        response.setDateHeader("Date", (new Date()).getTime());
+                    }
+                }
+                break;
+                default: {
+                    response.setContentType("application/json");
+                    response.getWriter().write(gson.toJson(result.getAsset().get(), Asset.class));
+                }
+                break;
+            }
             return;
-        } catch (GeneralSecurityException ex) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        } catch (Exception ex) {
-            log.log(Level.WARNING, "Unexpected exception", ex);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-            return;
+        } else if (method.equals("roots")) {
+            try {
+                final Map<String, UUID> name2IdMap = tools.search.getHomeAssetIds(sessionId);
+                response.setContentType("application/json");
+                response.getWriter().write(gson.toJson(name2IdMap, name2IdToken.getType()));
+            } catch (Exception ex) {
+                // TODO!!!
+                log.log(Level.WARNING, "Unexpected exception", ex);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.toString());
+                return;
+            }
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
         }
-
     }
 }

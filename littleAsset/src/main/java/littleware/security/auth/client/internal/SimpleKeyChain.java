@@ -27,26 +27,12 @@ public class SimpleKeyChain implements KeyChain {
     private final SimpleLittleTool support = new SimpleLittleTool( this );
     private final Map<String,UUID> keyMap = new MapMaker().makeMap();
 
-    private static  final String defaultRemoteHost;
-    static {
-        try {
-            defaultRemoteHost = littleware.base.PropertiesLoader.get().loadProperties().getProperty( "littleware.rmi_host", "localhost" );
-        } catch ( java.io.IOException ex ) {
-            throw new littleware.base.AssertionFailedException( "Failed accessing littleware.properties", ex );
-        }
-    }
-    
-    public SimpleKeyChain( String defaultHost ) {
+
+    @Inject
+    public SimpleKeyChain( @Named( "littleware.rmi_host" ) String defaultHost ) {
         this.defaultHost = defaultHost;
     }
     
-    /**
-     * Sets default remote host to littleware.rmi_host property in littleware.properties
-     */
-    public SimpleKeyChain() {
-        this( defaultRemoteHost );
-    }
-
     @Override
     public Option<UUID> getDefaultSessionId() {
         return getHostSessionId( defaultHost );

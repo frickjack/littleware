@@ -13,6 +13,8 @@ import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
+import com.google.inject.name.Names;
+import java.util.Properties;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.GenericAsset;
@@ -44,6 +46,11 @@ import littleware.bootstrap.helper.AbstractAppModule;
 import littleware.security.auth.client.internal.InMemorySessionMgrProxy;
 import littleware.security.auth.client.internal.RemoteSessionMgrProxy;
 import littleware.security.auth.client.internal.RetryRemoteSessionMgr;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.impl.client.ContentEncodingHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -67,8 +74,8 @@ public class LittleAssetModule extends AbstractAppModule {
     public static class ClientConfig {
 
         /**
-         * Remoting method - default is InMemory if an in-process server
-         * is running, otherwise RMI.  REST is not yet fully implemented.
+         * Remoting method - default is InMemory if an in-process server is
+         * running, otherwise RMI. REST is not yet fully implemented.
          */
         public enum RemoteMethod {
 
@@ -135,7 +142,7 @@ public class LittleAssetModule extends AbstractAppModule {
     public Class<? extends BundleActivator> getActivator() {
         return Activator.class;
     }
-    
+
     @Override
     public void configure(Binder binder) {
         binder.bind(LittleHome.HomeBuilder.class).to(LittleHomeBuilder.class);
@@ -151,19 +158,48 @@ public class LittleAssetModule extends AbstractAppModule {
         binder.bind(LittleGsonFactory.class).to(GsonProvider.class).in(Scopes.SINGLETON);
         binder.bind(RmiSearchMgrProxy.class).in(Scopes.SINGLETON);
         binder.bind(RmiAssetMgrProxy.class).in(Scopes.SINGLETON);
+
+        try {  // Make sure all needed properties are set
+            final Properties props = littleware.base.PropertiesLoader.get().loadProperties();
+            if( null == props.getProperty( "littleware.rmi_host", null ) ) {
+                binder.bindConstant().annotatedWith( Names.named( "littleware.rmi_host" ) ).to( "localhost" );
+            }
+            if( null == props.getProperty( "int.lw.rmi_port", null ) ) {
+                binder.bindConstant().annotatedWith( Names.named( "int.lw.rmi_port" ) ).to( "1239" );
+            }
+            if( null == props.getProperty( "littleware.jndi.prefix", null ) ) {
+                binder.bindConstant().annotatedWith( Names.named( "littleware.jndi.prefix" ) ).to( "//localhost:1239/" );
+            }            
+        } catch ( java.io.IOException ex ) {
+            throw new littleware.base.AssertionFailedException( "Failed accessing littleware.properties", ex );
+        }
+
         
+        final ClientConnectionManager connectionMgr = new org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager();      
+        final ContentEncodingHttpClient httpclient = new ContentEncodingHttpClient(connectionMgr, new org.apache.http.params.SyncBasicHttpParams());
+        //httpclient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        //httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, java.lang.Boolean.FALSE);
+        httpclient.getParams().setParameter(org.apache.http.client.params.ClientPNames.ALLOW_CIRCULAR_REDIRECTS, java.lang.Boolean.TRUE);
+        
+        binder.bind(ClientConnectionManager.class).toInstance(connectionMgr);
+        binder.bind(DefaultHttpClient.class).toInstance(httpclient);
+        binder.bind(CredentialsProvider.class).toInstance(httpclient.getCredentialsProvider() );
+        binder.bind(HttpClient.class).toInstance(httpclient);
+
         // Bind client method of connecting with server
         switch (getClientConfig().getRemoteMethod()) {
             case RMI: {
                 binder.bind(RemoteAssetMgrProxy.class).to(RmiAssetMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSearchMgrProxy.class).to(RmiSearchMgrProxy.class).in(Scopes.SINGLETON);
-                binder.bind( RemoteSessionMgrProxy.class ).to( RetryRemoteSessionMgr.class ).in( Scopes.SINGLETON );
-            } break;
+                binder.bind(RemoteSessionMgrProxy.class).to(RetryRemoteSessionMgr.class).in(Scopes.SINGLETON);
+            }
+            break;
             case InMemory: {
                 binder.bind(RemoteAssetMgrProxy.class).to(InMemoryAssetMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSearchMgrProxy.class).to(InMemorySearchMgrProxy.class).in(Scopes.SINGLETON);
-                binder.bind( RemoteSessionMgrProxy.class ).to( InMemorySessionMgrProxy.class ).in( Scopes.SINGLETON );
-            } break;
+                binder.bind(RemoteSessionMgrProxy.class).to(InMemorySessionMgrProxy.class).in(Scopes.SINGLETON);
+            }
+            break;
         }
     }
 }

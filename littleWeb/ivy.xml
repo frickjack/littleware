@@ -21,7 +21,7 @@
     </publications>
     
     <dependencies>    
-      <dependency org="littleware" name="littleAsset" rev="2.5.+" conf="client_compile->client_compile;client_junit->client_junit;ee_client->ee_client;client->client;test->server" />
+      <dependency org="littleware" name="littleAsset" rev="2.5.+" conf="client_compile->client_compile;client_junit->client_junit;ee_client->ee_client;client->client,client_junit;test->server" />
       <dependency org="org.easymock" name="easymock" rev="2.5.2" conf="client_junit,compile->*"/>
       <!--
       <dependency org="org.primefaces" name="primefaces" rev="2.2.RC1" conf="compile,ee_client->*" />

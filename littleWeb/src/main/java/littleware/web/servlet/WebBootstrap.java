@@ -25,6 +25,7 @@ public class WebBootstrap {
     /** Bean names in session */
     public static String littleBoot = "littleBoot";
     public static String littleGuice = "guiceBean";
+    public static String littleInjector = "injector";
     
     /**
      * Setup a littleware environment (guicebean, bootstrap) in application scope.
@@ -34,8 +35,9 @@ public class WebBootstrap {
     public static AppBootstrap bootstrap( ServletContext context ) {
         final AppBootstrap boot = AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.WebApp).build();
         final GuiceBean gbean = boot.bootstrap( GuiceBean.class );
-        context.setAttribute("guiceBean", gbean );
+        context.setAttribute( littleGuice, gbean );
         context.setAttribute(littleBoot, boot );
+        context.setAttribute( littleInjector, gbean.getInjector().get().getInjector() );
         return boot;
     }
 }

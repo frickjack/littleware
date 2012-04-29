@@ -13,7 +13,13 @@
            glassfish is not happy if we leave littleAsset out due to JSF annotations etc. in littleWeb ..., 
            jetty doesn't care ...
            -->                
-      <dependency org="littleware" name="littleWeb" rev="2.5.+" conf="compile->client_compile;ee_client->ee_client" />
+      <dependency org="littleware" name="littleWeb" rev="2.5.+" 
+                conf="compile->client_compile;ee_client->ee_client" 
+                />
+      <dependency org="littleware" name="littleId" rev="latest.integration"
+                conf="compile->client_compile;ee_client->ee_client"
+                />      
+                
       <!-- Jetty does not include CDI by default 
       <dependency org="javax.inject" name="javax.inject" rev="1" conf="ee_client->*" />
       -->

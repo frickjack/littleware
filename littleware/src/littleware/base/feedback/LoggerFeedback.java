@@ -54,4 +54,35 @@ public class LoggerFeedback extends NullFeedback {
     public LoggerFeedback( Logger logger ) {
         log = logger;
     }
+    
+    public static class Builder implements Feedback.Builder {
+        private LoggerFeedback ready = new LoggerFeedback();
+        
+        @Override
+        public Feedback build() {
+            final Feedback result = ready;
+            ready = new LoggerFeedback();
+            return result;
+        }
+
+        @Override
+        public void addPropertyChangeListener(PropertyChangeListener listen_props) {
+            ready.addPropertyChangeListener( listen_props );
+        }
+
+        @Override
+        public void removePropertyChangeListener(PropertyChangeListener listen_props) {
+            ready.removePropertyChangeListener( listen_props );
+        }
+
+        @Override
+        public void addLittleListener(LittleListener listener) {
+            ready.addLittleListener( listener );
+        }
+
+        @Override
+        public void removeLittleListener(LittleListener listener) {
+            ready.removeLittleListener( listener );
+        }
+    }
 }

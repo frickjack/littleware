@@ -7,12 +7,18 @@
  */
 package littleware.bootstrap.helper;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
+import com.google.inject.Scopes;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import littleware.base.feedback.TaskFactory;
+import littleware.base.feedback.internal.SimpleTaskFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
@@ -79,6 +85,9 @@ public class ExecutorModule extends AbstractAppModule {
         final ExecutorService exec = Executors.newFixedThreadPool(10);
         binder.bind(ExecutorService.class).toInstance( exec );
         binder.bind(ScheduledExecutorService.class).toInstance( schedExec );
+        binder.bind( ListeningExecutorService.class ).toInstance( MoreExecutors.listeningDecorator(exec));
+        binder.bind( ListeningScheduledExecutorService.class ).toInstance( MoreExecutors.listeningDecorator(schedExec)); 
+        binder.bind( TaskFactory.class ).to( SimpleTaskFactory.class ).in( Scopes.SINGLETON );
     }
 
     @Override

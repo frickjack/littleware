@@ -19,7 +19,7 @@ import littleware.bootstrap.SessionInjector;
  * web jsp/jsf servlet world.
  */
 public class GuiceBean implements java.io.Serializable {
-    private transient Option<Injector> maybeInjector;
+    private transient Option<SessionInjector> maybeInjector;
 
     /**
      * Just here for deserialization ...
@@ -35,18 +35,18 @@ public class GuiceBean implements java.io.Serializable {
      */
     @Inject
     public GuiceBean( SessionInjector sessionInjector ) {
-        this.maybeInjector = Maybe.something( sessionInjector.getInjector() );
+        this.maybeInjector = Maybe.something( sessionInjector );
     }
 
 
     /**
      * setInjector throws IllegalStateException if GuiceBean already has an injector
      */
-    public void setInjector( Injector value ) {
+    public void setInjector( SessionInjector value ) {
         maybeInjector = Maybe.something( value );
     }
     
-    public Option<Injector> getInjector() {
+    public Option<SessionInjector> getInjector() {
         return maybeInjector;
     }
     

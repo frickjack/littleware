@@ -12,6 +12,7 @@ package littleware.base.feedback;
 
 import com.google.inject.ImplementedBy;
 import java.util.logging.Level;
+import littleware.base.event.LittleTool;
 
 
 /**
@@ -55,9 +56,9 @@ public interface Feedback {
       * the listener expects as a feedback object might get
       * passed around between different worker methods.
       * 
-      * @param x_result partial result 
+      * @param result partial result 
       */
-     public void publish( Object x_result );
+     public void publish( Object result );
 
      /**
       * Log a message to the UI.
@@ -69,9 +70,18 @@ public interface Feedback {
       * @param level of message - may assist the UI
       *                in filtering messages of
       *                varying importance.
-      * @param s_info message
+      * @param info message
       */
-     public void log( Level level, String s_info );
+     public void log( Level level, String info );
      /** Shortcut for log( Level.INFO, s_info ) */
-     public void info( String s_info );
+     public void info( String info );
+     
+     /**
+      * Builder provides mechanisms to register listeners
+      * with built feedback instance
+      */
+     @ImplementedBy(LoggerFeedback.Builder.class)
+     public static interface Builder extends LittleTool {
+         public Feedback build();
+     }
 }

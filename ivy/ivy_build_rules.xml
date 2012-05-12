@@ -105,11 +105,6 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     <propertyfile file="nbproject/private/private.properties">
             <entry operation="=" key="ivy.@{param.ivy.config}.classpath" value="${ivy.@{param.ivy.config}.classpath}"/>
     </propertyfile>
-    <propertyfile file="nbproject/project.properties">
-            <!-- clean up project.properties -->
-            <entry operation="del" key="ivy.@{param.ivy.config}.classpath" />
-    </propertyfile>
-        
     </sequential>
 </macrodef>
 
@@ -143,13 +138,13 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     <propertyfile file="nbproject/project.properties">
             <entry operation="=" key="javac.classpath" value="$${ivy.compile.classpath}"/>
             <entry operation="=" key="javac.test.classpath" value="$${ivy.compile.classpath}:$${build.classes.dir}"/>
-    </propertyfile>
-        
-    <propertyfile file="nbproject/project.properties">
             <entry operation="=" key="run.classpath" value="$${build.classes.dir}:$${ivy.test.classpath}"/>
-            <entry operation="=" key="run.test.classpath" value="$${build.classes.dir}:$${ivy.test.classpath}"/>
+            <entry operation="=" key="run.test.classpath" value="$${build.classes.dir}:$${ivy.test.classpath}"/>            
     </propertyfile>
     
+    <!-- f'ing propertyfile task adds a comment -->
+    <replaceregexp file="nbproject/project.properties" match="^#[^\r\n]+" replace="#" />
+            
     <property name="javac.classpath" value="${ivy.compile.classpath}" />
     <property name="javac.test.classpath" value="${ivy.compile.classpath}" />
     <property name="run.classpath" value="build/classes:${ivy.test.classpath}" />
@@ -213,7 +208,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
          <delete dir="${ivy.cache.dir}/${ivy.organisation}" />
 </target>
 
-<target name="jenkins-prep" depends="jar">
+<target name="jenkins-prep" depends="-init-project">
     <!--
       Setup reports directory, etc.
       -->

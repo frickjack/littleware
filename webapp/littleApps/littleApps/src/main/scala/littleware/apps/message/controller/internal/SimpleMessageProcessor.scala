@@ -45,15 +45,75 @@ class SimpleMessageProcessor @inject.Inject()(
   //private[internal] val id2Listener:java.util.concurrent.ConcurrentMap[UUID,MessageListener] = new gcollect.MapMaker().makeMap[UUID,MessageListener]()
   
   def getListeners( typeSpec:String ):Seq[MessageListener] = Option( type2Listener.get( typeSpec ) ).toSeq
-    //(type2Listener.get( WILDCARD ) ++ type2Listener.get( typeSpec )).flatMap( (id) => Option( id2Listener.get(id) ) ).toSeq
+  //(type2Listener.get( WILDCARD ) ++ type2Listener.get( typeSpec )).flatMap( (id) => Option( id2Listener.get(id) ) ).toSeq
 
   
   /**
    * Event bus on which to push client messages for eventual processing
    */
   val eventBus:gbus.AsyncEventBus = new gbus.AsyncEventBus( "SimpleMessageProcessor", exec )
-
   
+  /**
+   * Cache maps client login session to set of message-handle ids associated
+   * with that handle
+   */
+  val messageBySession:gcache.LoadingCache[UUID,java.util.Map[UUID,model.MessageEvent]] =
+    gcache.CacheBuilder.newBuilder(
+    ).expireAfterAccess( 5, java.util.concurrent.TimeUnit.MINUTES 
+    ).build(
+      new gcache.CacheLoader[UUID,java.util.Map[UUID,model.MessageEvent]] {
+        override def load( sessionKey:UUID ):java.util.Map[UUID,model.MessageEvent] = 
+          new gcollect.MapMaker().concurrencyLevel(4).makeMap()
+      }
+    )
+  
+
+  def postClientMessage( event:model.MessageEvent ):Unit = {
+    val listeners:Seq[MessageListener] = getListeners( event.message.messageType )
+    require( ! listeners.isEmpty, "Listeners registers for posted message type: " + event.message.messageType )
+    val sessionId = event.session.sessionId
+    val minAge = jtime.DateTime.now.minusMinutes(6)
+    val sessionMap:java.util.Map[UUID,model.MessageEvent] = messageBySession.get( sessionId )
+    sessionMap.values().toList.foreach( (scan) => if ( scan.dateCreated.isBefore( minAge ) ) {
+        sessionMap.remove( scan.handle.id )
+      }
+    )
+    sessionMap.put( event.handle.id, event )
+    listeners.foreach(
+      (listener) => {
+        exec.submit( new Runnable(){
+            override def run():Unit = try {
+              log.log( Level.FINE, ">>>> Event bus handler processing event: " + event.handle )
+              val fbBuilder = fbFactory.get
+              val fbListener = new FeedbackListener( 
+                SimpleMessageProcessor.this, event.handle,
+                responseFactory 
+              )
+              fbBuilder.addLittleListener( fbListener )
+              fbBuilder.addPropertyChangeListener( fbListener )
+              listener.messageArrival( event, fbBuilder.build )
+              postResponse( event.handle, 
+                           responseFactory.get.state( model.Response.State.COMPLETE ).progress( 100 ).build 
+              )     
+            } catch {
+              case ex => {
+                  log.log( Level.WARNING, "Event dispatch failed", ex )
+                  postResponse( event.handle, 
+                               responseFactory.get.state( model.Response.State.FAILED 
+                    ).progress( 100 
+                    ).addFeedback( ex.toString
+                    ).build 
+                  )
+                }
+            } 
+          }
+        )
+      } //processor.eventBus.post( EventListenerPair( event, listener ) )
+    )
+    
+  }
+
+  // dead code ...
   eventBus.register(
     /**
      * Event bus listener dispatches events to registered listeners
@@ -63,6 +123,7 @@ class SimpleMessageProcessor @inject.Inject()(
     new java.lang.Object() {
       @gbus.Subscribe()
       def handler( elPair:SimpleMessageProcessor.EventListenerPair ):Unit = try {
+        log.log( Level.FINE, ">>>> Event bus handler processing event: " + elPair.event.handle )
         val fbBuilder = fbFactory.get
         val fbListener = new FeedbackListener( 
           SimpleMessageProcessor.this, elPair.event.handle,
@@ -78,59 +139,78 @@ class SimpleMessageProcessor @inject.Inject()(
         case ex => {
             log.log( Level.WARNING, "Event dispatch failed", ex )
             postResponse( elPair.event.handle, 
-                       responseFactory.get.state( model.Response.State.FAILED 
-                          ).progress( 100 
-                          ).addFeedback( ex.toString
-                          ).build 
+                         responseFactory.get.state( model.Response.State.FAILED 
+              ).progress( 100 
+              ).addFeedback( ex.toString
+              ).build 
             )
-        }
+          }
       } 
     }
   )
   
   override def setListener( typeSpec:String, listener:MessageListener ):Unit = {
-    require( typeSpec.matches( "^\\w+" ), "Valid listener type spec: " + typeSpec )
+    require( typeSpec.matches( "^[\\w\\.-]+" ), 
+            "Valid listener type spec: " + typeSpec 
+    )
     type2Listener.put( typeSpec, listener )
     //id2Listener.put( listener.id, listener )
   }
   
   /*
-  override def addListener( listener:MessageListener ):Unit = {
-    type2Listener.put( WILDCARD, listener.id )
-    id2Listener.put( listener.id, listener )
-  }
+   override def addListener( listener:MessageListener ):Unit = {
+   type2Listener.put( WILDCARD, listener.id )
+   id2Listener.put( listener.id, listener )
+   }
   
-  override def removeListener( typeSpec:String, id:UUID ):Unit = {
-    require( typeSpec.matches( "^\\w+" ), "Valid listener type spec: " + typeSpec )
-    type2Listener.remove( typeSpec, id )
-    if ( ! type2Listener.containsKey( id ) ) {
-      id2Listener.remove( id )
-    }
-  }
+   override def removeListener( typeSpec:String, id:UUID ):Unit = {
+   require( typeSpec.matches( "^\\w+" ), "Valid listener type spec: " + typeSpec )
+   type2Listener.remove( typeSpec, id )
+   if ( ! type2Listener.containsKey( id ) ) {
+   id2Listener.remove( id )
+   }
+   }
   
-  override def removeListener( id:UUID ):Unit = {
-    type2Listener.keySet.foreach( (k) => type2Listener.remove( k, id ) )
-    id2Listener.remove( id )
-  }
-    */
-  val responseByMessage:gcache.Cache[UUID,Seq[model.ResponseEnvelope]] =
+   override def removeListener( id:UUID ):Unit = {
+   type2Listener.keySet.foreach( (k) => type2Listener.remove( k, id ) )
+   id2Listener.remove( id )
+   }
+   */
+   
+  val responseByMessage:gcache.LoadingCache[UUID,SimpleMessageProcessor.ResponseQueue] =
     gcache.CacheBuilder.newBuilder(
     ).expireAfterWrite( 3, java.util.concurrent.TimeUnit.MINUTES 
-    ).build()
+    ).build(
+      new gcache.CacheLoader[UUID,SimpleMessageProcessor.ResponseQueue] {
+        override def load( key:UUID ):SimpleMessageProcessor.ResponseQueue = new SimpleMessageProcessor.ResponseQueue
+      }
+    )
   
   override def postResponse( handle:model.MessageHandle, response:model.Response ):Unit = {
     val envelope = model.ResponseEnvelope( 0L, jtime.DateTime.now, handle, response )
-    responseByMessage.synchronized {
-      val responseSeq:Seq[model.ResponseEnvelope] = 
-        Option( responseByMessage.getIfPresent( handle.id ) ).toSeq.flatten :+ envelope
-    
-      responseByMessage.put( handle.id, responseSeq )
-    }
+    responseByMessage.get( handle.id ).push( envelope )
   }
 
 }
 
 object SimpleMessageProcessor {
+  /**
+   * Internal utility class to manage concurrent queue of response messages
+   */
+  class ResponseQueue {
+    private var qBuilder = Seq.newBuilder[model.ResponseEnvelope]
+    
+    def push( envelope:model.ResponseEnvelope ):ResponseQueue = this.synchronized {
+      qBuilder += envelope
+      this
+    }
+    
+    def popAll():Seq[model.ResponseEnvelope] = this.synchronized {
+      val result = qBuilder.result
+      qBuilder = Seq.newBuilder[model.ResponseEnvelope]
+      result
+    }
+  }
   class SMPClient @inject.Inject() ( processor:SimpleMessageProcessor ) extends MessageClient {
     /**
      * Just a simple pass-through login
@@ -140,43 +220,47 @@ object SimpleMessageProcessor {
       model.internal.NullClientSession( java.util.UUID.randomUUID, now, now.plusDays(100) )
     }
 
-    val messageBySession:gcache.Cache[UUID,Seq[model.MessageHandle]] =
-      gcache.CacheBuilder.newBuilder(
-      ).expireAfterAccess( 5, java.util.concurrent.TimeUnit.MINUTES 
-      ).build()
     
     def postMessage( client:model.ClientSession, msg:model.Message ):model.MessageHandle = {
       require( client.dateExpires.isAfter( jtime.DateTime.now ), "session expired: " + client )
+      val now = jtime.DateTime.now
       val event = model.MessageEvent( msg, 
                                      new model.internal.SimpleMessageHandle( java.util.UUID.randomUUID ),
-                                     client
+                                     client,
+                                     now
       )
-      processor.getListeners( msg.messageType ).foreach(
+      processor.postClientMessage(event)
+      /*
+      val listeners:Seq[MessageListener] = processor.getListeners( msg.messageType )
+      require( ! listeners.isEmpty, "Listeners registers for posted message type: " + msg.messageType )
+      listeners.foreach(
         (listener) => processor.eventBus.post( EventListenerPair( event, listener ) )
       )
       val sessionId = event.session.sessionId
+      val minAge = now.minusMinutes(6)
       messageBySession.synchronized {
         messageBySession.put( sessionId, 
-                             Option( messageBySession.getIfPresent( sessionId ) ).toSeq.flatten :+ event.handle
+                             Option( messageBySession.getIfPresent( sessionId ) ).toSeq.flatten.filter( _.dateCreated.isAfter( minAge )) :+ event
         )
       }
-      
+      */
       event.handle
     }
     
-    private lazy val responseByMessage:java.util.concurrent.ConcurrentMap[UUID,Seq[model.ResponseEnvelope]] = 
-      processor.responseByMessage.asMap
     
     def checkResponse( client:model.ClientSession, handle:model.MessageHandle ):Seq[model.ResponseEnvelope] = 
-      Option( responseByMessage.remove( handle.id ) ).toSeq.flatten
+      processor.responseByMessage.get( handle.id ).popAll
     
-    def checkResponse( client:model.ClientSession ):Seq[model.ResponseEnvelope] = throw new UnsupportedOperationException( "Not yet implemented" )
+    def checkResponse( client:model.ClientSession ):Seq[model.ResponseEnvelope] = {
+      val eventSeq:Seq[model.MessageEvent] = processor.messageBySession.get( client.sessionId ).values.toList
+      eventSeq.map( (ev) => checkResponse( client, ev.handle ) ).flatten
+    }
   }
   
   object SMPClient {
     /** Guice provider */
     class Provider @inject.Inject() ( processor:SimpleMessageProcessor ) extends inject.Provider[MessageClient] {
-      private lazy val singleton = new SMPClient( processor )
+      private lazy val singleton = processor.client
       override def get():MessageClient = singleton
     }
   }

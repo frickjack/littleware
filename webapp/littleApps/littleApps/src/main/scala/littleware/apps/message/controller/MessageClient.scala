@@ -16,3 +16,4 @@ trait MessageClient {
   def checkResponse( client:model.ClientSession, handle:model.MessageHandle ):Seq[model.ResponseEnvelope]
   def checkResponse( client:model.ClientSession ):Seq[model.ResponseEnvelope]
 }
+

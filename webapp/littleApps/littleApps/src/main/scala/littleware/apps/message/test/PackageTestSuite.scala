@@ -11,23 +11,23 @@ package littleware.apps.message.test
 
 import com.google.inject
 import java.io
-import java.util.logging.Level
+import java.util.logging.{Level,Logger}
 import junit.framework.TestSuite
 import littleware.base.AssertionFailedException
 import littleware.bootstrap.AppBootstrap
-import littleware.scala.LazyLogger
 import littleware.test.TestFactory
 
 
 class PackageTestSuite @inject.Inject()(
+  processTestFactory:inject.Provider[MessageProcessTester]
 ) extends TestSuite {
   setName( getClass.getName )
 
-
+  addTest( processTestFactory.get.putName( "testMessageProcess" ) )
 }
 
 object PackageTestSuite {
-  val log = LazyLogger( getClass )
+  val log = Logger.getLogger( getClass.getName )
 
   def suite():TestSuite = try {
     log.log( Level.INFO, "Launching test suite ..." )

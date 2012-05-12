@@ -9,6 +9,8 @@
 
 package littleware.apps.message.model
 
+import org.joda.{time => jtime}
+
 /**
  * Event bundles together a message instance
  * with its runtime handle and client session
@@ -16,6 +18,7 @@ package littleware.apps.message.model
 case class MessageEvent( 
   message:Message, 
   handle:MessageHandle, 
-  session:ClientSession 
+  session:ClientSession,
+  dateCreated:jtime.DateTime
 ) {
 }

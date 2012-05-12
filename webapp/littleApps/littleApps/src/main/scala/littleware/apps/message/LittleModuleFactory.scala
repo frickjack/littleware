@@ -23,8 +23,14 @@ object LittleModuleFactory {
    * with registry
    */
   class Activator @inject.Inject()( 
+    msgProcessor:controller.MessageProcessor
   ) extends osgi.framework.BundleActivator {
-    
+    // register listener for test-messages
+    msgProcessor.setListener( 
+      test.MessageProcessTester.TestMessage.messageType,
+      test.MessageProcessTester.TestListener
+      )
+      
     override def start( bc:osgi.framework.BundleContext ):Unit = {
     }
     
@@ -40,10 +46,14 @@ object LittleModuleFactory {
     
     override def configure( binder:inject.Binder ):Unit = {
       binder.bind( classOf[model.Response.Builder] ).to( classOf[model.internal.ResponseBuilder])
+      binder.bind( classOf[model.Credentials.Factory] 
+                  ).to( classOf[model.internal.NamePasswordCreds.Factory] 
+                  ).in( inject.Scopes.SINGLETON )
       binder.bind( classOf[controller.MessageProcessor]
         ).to( classOf[controller.internal.SimpleMessageProcessor]
         ).in( inject.Scopes.SINGLETON
         )
+      binder.bind( classOf[controller.internal.SimpleMessageProcessor] ).in( inject.Scopes.SINGLETON )
       binder.bind( classOf[controller.MessageClient]
         ).toProvider( classOf[controller.internal.SimpleMessageProcessor.SMPClient.Provider]
         ).in( inject.Scopes.SINGLETON

@@ -143,7 +143,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     </propertyfile>
     
     <!-- f'ing propertyfile task adds a comment -->
-    <replaceregexp file="nbproject/project.properties" match="^#[^\r\n]+" replace="#" />
+    <replaceregexp file="nbproject/project.properties" match="^(#[^\r\n]*[\r\n\s]+)+" replace="" />
             
     <property name="javac.classpath" value="${ivy.compile.classpath}" />
     <property name="javac.test.classpath" value="${ivy.compile.classpath}" />

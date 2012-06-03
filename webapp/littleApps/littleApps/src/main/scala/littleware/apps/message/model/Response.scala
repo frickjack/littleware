@@ -9,11 +9,14 @@
 
 package littleware.apps.message.model
 
+import com.google.gson
+
+
 trait Response {
   val progress:Int
   val feedback:Seq[String]
   val state:Response.State.Value
-  val results:Seq[Object]
+  val results:Seq[Payload]
   
   def copy():Response.Builder
 }
@@ -33,9 +36,10 @@ object Response {
     }
     
     def addFeedback( value:String ):this.type    
-    def addResult( value:Object ):this.type
+    def addResult( value:Payload ):this.type
     def build():Response
   }
+  
   
   object State extends Enumeration {
     val PENDING, RUNNING, COMPLETE, FAILED = Value

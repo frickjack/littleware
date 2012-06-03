@@ -23,12 +23,12 @@ class ResponseBuilder () extends Response.Builder {
   }
   
     
-  private val rsBuilder = Seq.newBuilder[java.lang.Object]
-  def addResult( value:java.lang.Object ):this.type = {
+  private val rsBuilder = Seq.newBuilder[Payload]
+  def addResult( value:Payload ):this.type = {
     rsBuilder += value
     this
   }
-  def addResults( value:Iterable[java.lang.Object] ):this.type = {
+  def addResults( value:Iterable[Payload] ):this.type = {
     rsBuilder ++= value
     this
   }
@@ -44,7 +44,7 @@ object ResponseBuilder {
     progress:Int,
     feedback:Seq[String],
     state:Response.State.Value,
-    results:Seq[Object]
+    results:Seq[Payload]
   ) extends Response {
     
     def copy():Response.Builder = new ResponseBuilder().progress( progress

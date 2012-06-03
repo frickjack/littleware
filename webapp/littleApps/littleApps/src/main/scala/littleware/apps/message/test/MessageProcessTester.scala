@@ -11,7 +11,6 @@ package littleware.apps.message
 package test
 
 import com.google.common.{base => gbase}
-import com.google.gson
 import com.google.inject
 import java.util.logging.{Level,Logger}
 import org.joda.{time => jtime}
@@ -67,8 +66,7 @@ object MessageProcessTester {
   
   object TestMessage extends model.Message {
     val messageType = "littleware.TestMessage"
-    val payload:gson.JsonObject = new gson.JsonObject
-    payload.addProperty( "message", "Hello, World!" )
+    val payload:TestPayload = new TestPayload( "Hello, World!" )
   }
   
   object TestListener extends controller.MessageListener {

@@ -31,7 +31,8 @@ import scala.collection.JavaConversions._
 class SimpleMessageProcessor @inject.Inject()(
   exec:ListeningExecutorService,
   fbFactory:inject.Provider[feedback.Feedback.Builder],
-  responseFactory:inject.Provider[model.Response.Builder]
+  responseFactory:inject.Provider[model.Response.Builder],
+  fbListenerFactory:inject.Provider[FeedbackListener.Builder]
 ) extends MessageProcessor {
   private val log = Logger.getLogger( getClass.getName )
   
@@ -85,10 +86,10 @@ class SimpleMessageProcessor @inject.Inject()(
             override def run():Unit = try {
               log.log( Level.FINE, ">>>> Event bus handler processing event: " + event.handle )
               val fbBuilder = fbFactory.get
-              val fbListener = new FeedbackListener( 
-                SimpleMessageProcessor.this, event.handle,
-                responseFactory 
-              )
+              val fbListener = fbListenerFactory.get.processor(
+                SimpleMessageProcessor.this 
+              ).handle( event.handle 
+              ).build
               fbBuilder.addLittleListener( fbListener )
               fbBuilder.addPropertyChangeListener( fbListener )
               listener.messageArrival( event, fbBuilder.build )
@@ -125,10 +126,7 @@ class SimpleMessageProcessor @inject.Inject()(
       def handler( elPair:SimpleMessageProcessor.EventListenerPair ):Unit = try {
         log.log( Level.FINE, ">>>> Event bus handler processing event: " + elPair.event.handle )
         val fbBuilder = fbFactory.get
-        val fbListener = new FeedbackListener( 
-          SimpleMessageProcessor.this, elPair.event.handle,
-          responseFactory 
-        )
+        val fbListener = fbListenerFactory.get.processor( SimpleMessageProcessor.this ).handle( elPair.event.handle ).build
         fbBuilder.addLittleListener( fbListener )
         fbBuilder.addPropertyChangeListener( fbListener )
         elPair.listener.messageArrival( elPair.event, fbBuilder.build )

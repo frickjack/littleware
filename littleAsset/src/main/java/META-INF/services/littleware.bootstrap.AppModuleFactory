@@ -2,4 +2,4 @@
 #littleware.apps.tracker.internal.LittleTrackerModule$AppFactory
 littleware.asset.internal.LittleAssetModule$AppFactory
 littleware.security.internal.LittleSecurityModule$AppFactory
-littleware.asset.webproxy.JettyModule$AppFactory
+#littleware.asset.webproxy.JettyModule$AppFactory

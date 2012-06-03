@@ -9,6 +9,7 @@
         <!-- java ee environment provides some runtime jars - so don't have to include them in runtime deployment -->
         <conf name="ee_client"  description="non-server running in a java ee 6+ container"/>
         <conf name="client"  extends="ee_client" description="non-server app outside ee container"/>
+        <conf name="with-jetty" description="with jetty runtime configuration" />
     </configurations>    
     <publications>
     	<artifact name="littleApps" ext="jar" type="jar"  conf="*" />
@@ -24,8 +25,14 @@
                   conf="client_compile->client_compile;client_junit->client_junit;ee_client->ee_client" 
                   />
       <dependency org="littleware" name="littleWeb" rev="2.5.+" 
-        conf="client_compile->client_compile;client_junit->client_junit;ee_client->ee_client;client->client">
+        conf="client_compile->client_compile;client_junit->client_junit;ee_client->ee_client;client->client"
+        >
       </dependency>
+      <dependency org="littleware" name="littleAsset" rev="2.5.+" 
+        conf="compile,test,with-jetty->with-jetty"
+        >
+      </dependency>
+      
     </dependencies>
 
 </ivy-module>

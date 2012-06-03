@@ -61,16 +61,17 @@ public class JettyModule implements littleware.bootstrap.AppModule {
         private static final Logger log = Logger.getLogger( JettyActivator.class.getName() );
         private final Server server;
         private final ServletContextHandler servletHandler;
-        private final AssetSearchServlet searchServlet;
+        // private final AssetSearchServlet searchServlet;
 
         @Inject
         public JettyActivator(
                 Server server,
-                ServletContextHandler servletHandler,
-                AssetSearchServlet searchServlet) {
+                ServletContextHandler servletHandler
+                //AssetSearchServlet searchServlet
+                ) {
             this.server = server;
             this.servletHandler = servletHandler;
-            this.searchServlet = searchServlet;
+            // this.searchServlet = searchServlet;
         }
 
         @Override
@@ -83,7 +84,7 @@ public class JettyModule implements littleware.bootstrap.AppModule {
                 //connector.setHost( "localhost" );
                 server.addConnector(connector);
                 //server.setHandler(context);
-                servletHandler.addServlet(new ServletHolder(searchServlet), "/services/search/*");
+                // servletHandler.addServlet(new ServletHolder(searchServlet), "/services/search/*");
 
                 final ResourceHandler resourceHandler = new ResourceHandler();
                 resourceHandler.setDirectoriesListed(true);

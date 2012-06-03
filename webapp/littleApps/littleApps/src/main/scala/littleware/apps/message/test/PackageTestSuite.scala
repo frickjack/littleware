@@ -6,7 +6,8 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.message.test
+package littleware.apps.message
+package test
 
 
 import com.google.inject
@@ -32,7 +33,10 @@ object PackageTestSuite {
   def suite():TestSuite = try {
     log.log( Level.INFO, "Launching test suite ..." )
     val suite = (new TestFactory()).build(
-      AppBootstrap.appProvider.get().build(),
+      AppBootstrap.appProvider.get(
+      ).addModuleFactory( new littleware.asset.webproxy.JettyModule.AppFactory 
+      ).addModuleFactory( new JettyModuleFactory
+      ).build(),
       classOf[PackageTestSuite]
     )
     log.log( Level.INFO, "Returning test suite to test runner ..." )

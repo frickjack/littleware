@@ -23,13 +23,16 @@ object LittleModuleFactory {
    * with registry
    */
   class Activator @inject.Inject()( 
-    msgProcessor:controller.MessageProcessor
+    msgProcessor:controller.MessageProcessor,
+    pickleRegistery:model.Payload.PickleRegistry
   ) extends osgi.framework.BundleActivator {
     // register listener for test-messages
     msgProcessor.setListener( 
       test.MessageProcessTester.TestMessage.messageType,
       test.MessageProcessTester.TestListener
       )
+    // register pickle handler for test payload
+    pickleRegistery.register( test.TestPayload.payloadType, test.TestPayload.GsonAdapter )
       
     override def start( bc:osgi.framework.BundleContext ):Unit = {
     }
@@ -58,6 +61,11 @@ object LittleModuleFactory {
         ).toProvider( classOf[controller.internal.SimpleMessageProcessor.SMPClient.Provider]
         ).in( inject.Scopes.SINGLETON
         )
+      binder.bind( classOf[model.Message.Builder] ).to( classOf[model.internal.SimpleMessageBuilder] )
+      binder.bind( classOf[model.Payload.PickleRegistry] 
+        ).toInstance( 
+          model.internal.SimplePayloadPickleRegistry 
+        )
     }
     
     override def getActivator = classOf[Activator]
@@ -76,16 +84,6 @@ object LittleModuleFactory {
     override def  getSessionStarter():Class[_ <: Runnable] = classOf[littleware.bootstrap.SessionModule.NullStarter]
   }
   
-  //----------------
-  
-  /*
-   * This thing runs at session startup time, and just adds a login listener to
-   * littleware's login keychain.  
-   *
-   class SessionStarter @inject.Inject() ( keychain:KeyChain, loginListener:controller.internal.LoginListener ) extends Runnable {
-   override def run():Unit = keychain.addPropertyChangeListener( loginListener )
-   }
-   */
 
 }
 

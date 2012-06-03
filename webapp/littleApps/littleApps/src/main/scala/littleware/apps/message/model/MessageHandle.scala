@@ -12,3 +12,8 @@ package littleware.apps.message.model
 trait MessageHandle {
   val id:java.util.UUID
 }
+
+object MessageHandle {
+  def apply( id:java.util.UUID ):MessageHandle = internal.SimpleMessageHandle( id )
+}
+

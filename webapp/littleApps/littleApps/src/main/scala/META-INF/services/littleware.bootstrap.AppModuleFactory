@@ -1,2 +1,3 @@
 # littleware AppModule service providers
 littleware.apps.message.LittleModuleFactory
+#littleware.apps.message.JettyModuleFactory

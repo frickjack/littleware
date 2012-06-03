@@ -57,7 +57,7 @@
         </dependency>
         <dependency org="antlr" name="antlr" rev="2.7.7" conf="server->*" />
 
-        <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" conf="server->*" />
+        <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" conf="server,with-jetty->*" />
         <dependency org="com.google.code.gson" name="gson" rev="2.1" />
         <dependency org="junit" name="junit" rev="3.8.+" conf="compile,test->*" />
         

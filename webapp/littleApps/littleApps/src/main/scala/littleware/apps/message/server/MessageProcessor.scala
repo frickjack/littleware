@@ -8,13 +8,13 @@
 
 
 package littleware.apps.message
-package controller
+package server
 
 trait MessageProcessor {
   /**
    * A client that posts messages to this processor
    */
-  def client:MessageClient
+  def client:remote.MessageRemote
   
   /**
    * Set the listener for messages of the given type

@@ -17,7 +17,7 @@ import org.joda.{time => jtime}
 import junit.{framework => jtest}
 
 class MessageProcessTester @inject.Inject()(
-  processor:controller.MessageProcessor,
+  processor:server.MessageProcessor,
   credsFactory:model.Credentials.Factory
 ) extends littleware.test.LittleTest {
   setName( "testMessageProcess" )
@@ -26,11 +26,11 @@ class MessageProcessTester @inject.Inject()(
   
   def responseIterator( session:model.ClientSession ):Iterator[model.ResponseEnvelope] = 
     new Iterator[model.ResponseEnvelope]() {
-      var it:Iterator[model.ResponseEnvelope] = processor.client.checkResponse( session ).iterator
+      var it:Iterator[model.ResponseEnvelope] = processor.client.checkResponse( session ).values.flatten.iterator
       override def hasNext():Boolean = {
         val timer = new gbase.Stopwatch().start()
         while( (! it.hasNext) && timer.elapsedMillis < 10000 ) {
-          it = processor.client.checkResponse( session ).iterator
+          it = processor.client.checkResponse( session ).values.flatten.iterator
         }
         it.hasNext
       }
@@ -69,7 +69,7 @@ object MessageProcessTester {
     val payload:TestPayload = new TestPayload( "Hello, World!" )
   }
   
-  object TestListener extends controller.MessageListener {
+  object TestListener extends server.MessageListener {
     val id:java.util.UUID = java.util.UUID.randomUUID
 
     def messageArrival( event:model.MessageEvent, fb:littleware.base.feedback.Feedback ):Unit = {

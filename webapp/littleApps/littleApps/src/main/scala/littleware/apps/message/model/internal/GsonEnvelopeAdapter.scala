@@ -16,7 +16,7 @@ import littleware.base.UUIDFactory
 import org.joda.{time => jtime}
 import scala.collection.JavaConversions._
 
-class GsonEnvelopeAdapter ( responseFactory:inject.Provider[Response.Builder]) (
+class GsonEnvelopeAdapter @inject.Inject() ( responseFactory:inject.Provider[Response.Builder]) (
 ) extends gson.JsonSerializer[ResponseEnvelope] with gson.JsonDeserializer[ResponseEnvelope] {
 
   override def serialize( src:ResponseEnvelope,

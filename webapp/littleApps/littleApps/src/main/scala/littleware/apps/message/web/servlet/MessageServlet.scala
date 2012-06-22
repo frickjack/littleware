@@ -25,21 +25,23 @@ import littleware.base.Whatever.UTF8
  * Simple servlet for testing the message client.
  * TODO: integrate with session and credentials system
  */
-class MessageClientServlet extends hservlet.HttpServlet {
+class MessageServlet extends hservlet.HttpServlet {
   private val log = Logger.getLogger( getClass.getName ) 
-  private var tools:MessageClientServlet.Tools = null
+  private var tools:MessageServlet.Tools = null
   val jsonMimeType:String = "application/json"
   
   @inject.Inject()
-  def injectMe( tools:MessageClientServlet.Tools ):Unit = {
+  def injectMe( tools:MessageServlet.Tools ):Unit = {
     this.tools = tools
   }
   
   @throws(classOf[servlet.ServletException])
   override def init():Unit = try {
-    //Option( getServletConfig.getInitParameter( "viewPath" ) ).map( (value) => { verifyResponsePage = value })
-    val gbean:littleweb.beans.GuiceBean = getServletContext.getAttribute( littleweb.servlet.WebBootstrap.littleGuice ).asInstanceOf[littleweb.beans.GuiceBean]
-    gbean.injectMembers(this)
+    if ( null == tools ) {
+      //Option( getServletConfig.getInitParameter( "viewPath" ) ).map( (value) => { verifyResponsePage = value })
+      val gbean:littleweb.beans.GuiceBean = getServletContext.getAttribute( littleweb.servlet.WebBootstrap.littleGuice ).asInstanceOf[littleweb.beans.GuiceBean]
+      gbean.injectMembers(this)
+    }
   } catch {
     case ex:Exception => {
         log.log( Level.WARNING, "Initialization failed", ex )
@@ -51,7 +53,6 @@ class MessageClientServlet extends hservlet.HttpServlet {
   }  
 
   
-  
   @throws(classOf[servlet.ServletException])
   override def doPut( req:hservlet.HttpServletRequest, resp:hservlet.HttpServletResponse ):Unit = {
     assert( null != tools, "Servlet tools properly initialized" )
@@ -62,20 +63,20 @@ class MessageClientServlet extends hservlet.HttpServlet {
       } finally reader.close
     }
 
-    val response = new gson.JsonObject
+    val jsResponse = new gson.JsonObject
     try {
       val handle = tools.messClient.postMessage( tools.session, message )
-      response.addProperty( "status", "ok" )
-      response.addProperty( "handle", handle.id.toString )
+      jsResponse.addProperty( "status", "ok" )
+      jsResponse.addProperty( "handle", handle.id.toString )
     } catch {
       case ex => {
           log.log( Level.WARNING, "Failed put", ex )
-          response.addProperty( "status", "failed" )
-          response.addProperty( "details", ex.getMessage )
+          jsResponse.addProperty( "status", "failed" )
+          jsResponse.addProperty( "details", ex.getMessage )
       }
     }
     resp.setContentType( jsonMimeType )
-    resp.getWriter.append( response.toString )
+    resp.getWriter.append( jsResponse.toString )
   }
   
   @throws(classOf[servlet.ServletException])
@@ -85,14 +86,20 @@ class MessageClientServlet extends hservlet.HttpServlet {
       model.MessageHandle( UUIDFactory.parseUUID( handleStr ))
     }
     val responseSeq = tools.messClient.checkResponse( tools.session, handle )
-    throw new UnsupportedOperationException( "not yet implemented" )
+    val jsResponse = new gson.JsonObject
+    jsResponse.addProperty( "status", "ok" )
+    val jsEnvelope = new gson.JsonArray
+    responseSeq.foreach( (envelope) => jsEnvelope.add( tools.gsonTool.toJsonTree( envelope )) )
+    jsResponse.add( "envelopes", jsEnvelope )
+    resp.setContentType( jsonMimeType )
+    resp.getWriter.append( jsResponse.toString )
   }
 }
 
-object MessageClientServlet {
+object MessageServlet {
   
   class Tools @inject.Inject() (
-    val messClient:controller.MessageClient,
+    val messClient:remote.MessageRemote,
     val messFactory:inject.Provider[model.Message.Builder],
     credsFactory:model.Credentials.Factory,
     gsonFactory:inject.Provider[gson.Gson]

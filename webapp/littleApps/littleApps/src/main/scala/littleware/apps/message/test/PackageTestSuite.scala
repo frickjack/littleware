@@ -20,11 +20,13 @@ import littleware.test.TestFactory
 
 
 class PackageTestSuite @inject.Inject()(
-  processTestFactory:inject.Provider[MessageProcessTester]
+  processTestFactory:inject.Provider[MessageProcessTester],
+  httpTestFactory:inject.Provider[HttpMessageTester]
 ) extends TestSuite {
   setName( getClass.getName )
 
   addTest( processTestFactory.get.putName( "testMessageProcess" ) )
+  addTest( httpTestFactory.get.putName( "testWebRemote" ) )
 }
 
 object PackageTestSuite {
@@ -32,13 +34,27 @@ object PackageTestSuite {
 
   def suite():TestSuite = try {
     log.log( Level.INFO, "Launching test suite ..." )
-    val suite = (new TestFactory()).build(
-      AppBootstrap.appProvider.get(
-      ).addModuleFactory( new littleware.asset.webproxy.JettyModule.AppFactory 
-      ).addModuleFactory( new JettyModuleFactory
-      ).build(),
-      classOf[PackageTestSuite]
-    )
+    val suite = {
+      if ( false ) {
+        // TestFactory adds a shutdown method at end of test suite
+        (new TestFactory()).build(
+          AppBootstrap.appProvider.get(
+          ).addModuleFactory( new littleware.asset.webproxy.JettyModule.AppFactory 
+          ).addModuleFactory( new JettyModuleFactory
+          ).build(),
+          classOf[PackageTestSuite]
+        )
+      } else {
+        // leave the littleware backend running after the test, so
+        // we can try connecting through a browser or whatever
+        AppBootstrap.appProvider.get(
+        ).addModuleFactory( new littleware.asset.webproxy.JettyModule.AppFactory 
+        ).addModuleFactory( new JettyModuleFactory
+        ).build().bootstrap(
+          classOf[PackageTestSuite]
+        )
+      }
+    }
     log.log( Level.INFO, "Returning test suite to test runner ..." )
     suite
   } catch {

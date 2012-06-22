@@ -8,7 +8,7 @@
 
 
 package littleware.apps.message
-package controller
+package server
 package internal
 
 import com.google.common.{cache => gcache}
@@ -36,8 +36,8 @@ class SimpleMessageProcessor @inject.Inject()(
 ) extends MessageProcessor {
   private val log = Logger.getLogger( getClass.getName )
   
-  private lazy val _client:MessageClient = new SimpleMessageProcessor.SMPClient( this )
-  override def client:MessageClient = _client
+  private lazy val _client:remote.MessageRemote = new SimpleMessageProcessor.SMPClient( this )
+  override def client:remote.MessageRemote = _client
   
   //val WILDCARD:String = "*"
   private[internal] val type2Listener:java.util.concurrent.ConcurrentMap[String,MessageListener] = 
@@ -114,7 +114,7 @@ class SimpleMessageProcessor @inject.Inject()(
     
   }
 
-  // dead code ...
+  // dead code ... doesn't work - WTF ?
   eventBus.register(
     /**
      * Event bus listener dispatches events to registered listeners
@@ -209,7 +209,8 @@ object SimpleMessageProcessor {
       result
     }
   }
-  class SMPClient @inject.Inject() ( processor:SimpleMessageProcessor ) extends MessageClient {
+  
+  class SMPClient @inject.Inject() ( processor:SimpleMessageProcessor ) extends remote.MessageRemote {
     /**
      * Just a simple pass-through login
      */
@@ -249,17 +250,17 @@ object SimpleMessageProcessor {
     def checkResponse( client:model.ClientSession, handle:model.MessageHandle ):Seq[model.ResponseEnvelope] = 
       processor.responseByMessage.get( handle.id ).popAll
     
-    def checkResponse( client:model.ClientSession ):Seq[model.ResponseEnvelope] = {
+    def checkResponse( client:model.ClientSession ):Map[UUID,Seq[model.ResponseEnvelope]] = {
       val eventSeq:Seq[model.MessageEvent] = processor.messageBySession.get( client.sessionId ).values.toList
-      eventSeq.map( (ev) => checkResponse( client, ev.handle ) ).flatten
+      eventSeq.map( _.handle ).distinct.map( (handle) => handle.id -> checkResponse( client, handle ) ).toMap
     }
   }
   
   object SMPClient {
     /** Guice provider */
-    class Provider @inject.Inject() ( processor:SimpleMessageProcessor ) extends inject.Provider[MessageClient] {
+    class Provider @inject.Inject() ( processor:SimpleMessageProcessor ) extends inject.Provider[remote.MessageRemote] {
       private lazy val singleton = processor.client
-      override def get():MessageClient = singleton
+      override def get():remote.MessageRemote = singleton
     }
   }
   //-------------------------------------------

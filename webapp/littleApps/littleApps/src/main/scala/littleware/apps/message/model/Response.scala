@@ -11,7 +11,9 @@ package littleware.apps.message.model
 
 import com.google.gson
 
-
+/**
+ * Response instance created by server-side message handler
+ */
 trait Response {
   val progress:Int
   val feedback:Seq[String]

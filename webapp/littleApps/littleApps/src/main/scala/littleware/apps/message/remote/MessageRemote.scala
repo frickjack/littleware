@@ -8,12 +8,23 @@
 
 
 package littleware.apps.message
-package controller
+package remote
 
-trait MessageClient {
+import java.util.UUID
+
+trait MessageRemote {
   def login( creds:model.Credentials ):model.ClientSession
   def postMessage( client:model.ClientSession, msg:model.Message ):model.MessageHandle
+  
+  /**
+   * Check for responses to the message with the given handle
+   */
   def checkResponse( client:model.ClientSession, handle:model.MessageHandle ):Seq[model.ResponseEnvelope]
-  def checkResponse( client:model.ClientSession ):Seq[model.ResponseEnvelope]
+  /**
+   * Check for outstanding responses to any message sent by this client
+   * 
+   * @return map from message-handle id to response sequence
+   */
+  def checkResponse( client:model.ClientSession ):Map[UUID,Seq[model.ResponseEnvelope]]
 }
 

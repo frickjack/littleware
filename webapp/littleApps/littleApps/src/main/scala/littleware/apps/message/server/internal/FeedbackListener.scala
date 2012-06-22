@@ -8,7 +8,7 @@
 
 
 package littleware.apps.message
-package controller
+package server
 package internal
 
 import com.google.gson

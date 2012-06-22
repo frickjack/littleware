@@ -7,6 +7,8 @@
  */
 package littleware.asset.internal;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import littleware.asset.client.internal.InMemorySearchMgrProxy;
 import littleware.asset.client.internal.InMemoryAssetMgrProxy;
 import com.google.inject.Binder;
@@ -143,6 +145,19 @@ public class LittleAssetModule extends AbstractAppModule {
         return Activator.class;
     }
 
+    public static class GsonBuilderFactory implements Provider<GsonBuilder> {
+        private final LittleGsonFactory factory;
+        @Inject
+        public GsonBuilderFactory( LittleGsonFactory factory ) {
+            this.factory = factory;
+        }
+        
+        @Override
+        public GsonBuilder get() {
+            return factory.getBuilder();
+        }
+    }
+    
     @Override
     public void configure(Binder binder) {
         binder.bind(LittleHome.HomeBuilder.class).to(LittleHomeBuilder.class);
@@ -156,6 +171,9 @@ public class LittleAssetModule extends AbstractAppModule {
         binder.bind(XmlPicklerProvider.class).to(SimpleXmlRegistry.class).in(Scopes.SINGLETON);
         binder.bind(AssetProviderRegistry.class).to(SimpleAssetRegistry.class).in(Scopes.SINGLETON);
         binder.bind(LittleGsonFactory.class).to(GsonProvider.class).in(Scopes.SINGLETON);
+        binder.bind( Gson.class ).toProvider( LittleGsonFactory.class );
+        binder.bind( GsonBuilder.class ).toProvider( GsonBuilderFactory.class );
+        binder.bind( GsonBuilderFactory.class ).in( Scopes.SINGLETON );
         binder.bind(RmiSearchMgrProxy.class).in(Scopes.SINGLETON);
         binder.bind(RmiAssetMgrProxy.class).in(Scopes.SINGLETON);
 

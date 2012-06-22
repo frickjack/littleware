@@ -8,17 +8,19 @@
 
 
 package littleware.apps.message
-package controller
+package client
 
 /**
  * MessageClient decorator manages ClientSession,
  * so code doesn't have to pass that around
  */
+import java.util.UUID
+
 trait SessionMessageClient {
   val session:model.ClientSession
   
   def postMessage( msg:model.Message ):model.MessageHandle
   def checkResponse( handle:model.MessageHandle ):Seq[model.ResponseEnvelope]
-  def checkResponse():Seq[model.ResponseEnvelope]
+  def checkResponse():Map[UUID,Seq[model.ResponseEnvelope]]
   
 }

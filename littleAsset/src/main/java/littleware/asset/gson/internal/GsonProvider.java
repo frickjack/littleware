@@ -177,10 +177,11 @@ public class GsonProvider implements LittleGsonFactory {
     }
 
 
-    @Inject
-    public GsonProvider( 
-            Provider<GsonBuilder> gsonBuilderFactory
-            ) {
-        this.gsonBuilderFactory = gsonBuilderFactory;
+    public GsonProvider() {
+        this.gsonBuilderFactory = new Provider<GsonBuilder>() {
+            @Override
+            public GsonBuilder get() { return new GsonBuilder(); }
+        };
     }
+    
 }

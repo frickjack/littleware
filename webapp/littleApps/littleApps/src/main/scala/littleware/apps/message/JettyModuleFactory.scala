@@ -34,10 +34,11 @@ object JettyModuleFactory {
    */
   class Activator @inject.Inject()( 
     servletHandler:jservlet.ServletContextHandler,
-    clientServlet:web.servlet.MessageClientServlet
+    clientServlet:web.servlet.MessageServlet
   ) extends osgi.framework.BundleActivator {
     // register listener for test-messages
-      
+    servletHandler.addServlet( new jservlet.ServletHolder(clientServlet), "/services/message/*" )
+    
     override def start( bc:osgi.framework.BundleContext ):Unit = {
     }
     

@@ -25,27 +25,35 @@ class HttpMessageTester @inject.Inject()(
   
   def testWebRemote():Unit = try {
     val session = client.login( credsFactory.namePasswordCreds("test", "password" ))
-    val handle = client.postMessage( session, MessageProcessTester.TestMessage )
-    log.log( Level.INFO, "Waiting for test message response" )
-    var progress = 0
-    // Try at most 10 times to collect response
-    (0 until 10).iterator.filter( (_) => progress < 100 ).foreach( (i) => {
-        Thread.sleep( 1000 )
-        log.log( Level.INFO, "Checking for response" )
-        client.checkResponse( session, handle ).foreach( 
-          (envelope) => {
-            jtest.Assert.assertTrue( 
-              "Progress advances: " + envelope.response.progress,
-              envelope.response.progress >= progress
+    (0 to 1).foreach( (j) => {
+        val handle = client.postMessage( session, MessageProcessTester.TestMessage )
+        log.log( Level.INFO, "-" + j + " Waiting for test message response" )
+        var progress = 0
+        // Try at most 10 times to collect response
+        (0 until 10).iterator.filter( (_) => progress < 100 ).foreach( (i) => {
+            Thread.sleep( 1000 )
+            log.log( Level.INFO, "-" + j + " Checking for response" )
+            val responseSeq = if ( j == 0 ) {
+              client.checkResponse( session, handle )
+            } else {
+              client.checkResponse( session ).get( handle.id ).flatten
+            }
+            responseSeq.foreach( 
+              (envelope) => {
+                jtest.Assert.assertTrue( 
+                  "-" + j + " Progress advances: " + envelope.response.progress,
+                  envelope.response.progress >= progress
+                )
+                log.log( Level.INFO, "-" + j + " Got response: " + envelope )
+                progress = envelope.response.progress
+              }
             )
-            log.log( Level.INFO, "Got response: " + envelope )
-            progress = envelope.response.progress
           }
         )
+        jtest.Assert.assertTrue( "-" + j + " progress 100 after processing responses: " + progress,
+                                progress == 100
+        )
       }
-    )
-    jtest.Assert.assertTrue( "progress 100 after processing responses: " + progress,
-                            progress == 100
     )
   } catch { 
     case ex:Exception => {

@@ -81,11 +81,19 @@ class MessageServlet extends hservlet.HttpServlet {
   
   @throws(classOf[servlet.ServletException])
   override def doGet( req:hservlet.HttpServletRequest, resp:hservlet.HttpServletResponse ):Unit = {
-    val handle:model.MessageHandle = {
-      val handleStr:String = req.getRequestURI.replaceAll( "/+$", "" ).replaceAll( "^.+/", "" )
-      model.MessageHandle( UUIDFactory.parseUUID( handleStr ))
+    val handleOpt:Option[model.MessageHandle] = {
+      val handleStr:String = req.getRequestURI.replaceAll( "/+$", "" ).replaceAll( "^.+/handle/?", "" )
+      if( handleStr.isEmpty ) {
+        None
+      } else {
+        Some( model.MessageHandle( UUIDFactory.parseUUID( handleStr )) )
+      }
     }
-    val responseSeq = tools.messClient.checkResponse( tools.session, handle )
+    val responseSeq = handleOpt.map( 
+        (handle) => tools.messClient.checkResponse( tools.session, handle )
+      ).getOrElse(
+        tools.messClient.checkResponse( tools.session ).values.flatten
+      )
     val jsResponse = new gson.JsonObject
     jsResponse.addProperty( "status", "ok" )
     val jsEnvelope = new gson.JsonArray

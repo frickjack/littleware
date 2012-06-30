@@ -51,10 +51,18 @@ public class JettyModule implements littleware.bootstrap.AppModule {
     @Override
     public void configure(Binder binder) {
         final Server server = new Server();
-        final ServletContextHandler servletHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        final ServletContextHandler servletHandler = new ServletContextHandler( ServletContextHandler.SESSIONS );
         servletHandler.setContextPath("/littleware");
+        
+        // default resource handler configuration
+        final ResourceHandler resourceHandler = new ResourceHandler();
+        resourceHandler.setDirectoriesListed(true);
+        resourceHandler.setWelcomeFiles(new String[]{"index.html"});
+        resourceHandler.setResourceBase(".");
+        
         binder.bind( Server.class ).toInstance( server );
         binder.bind( ServletContextHandler.class ).toInstance( servletHandler );
+        binder.bind( ResourceHandler.class ).toInstance( resourceHandler );
     }
     
     public static class JettyActivator implements BundleActivator {
@@ -62,16 +70,19 @@ public class JettyModule implements littleware.bootstrap.AppModule {
         private final Server server;
         private final ServletContextHandler servletHandler;
         // private final AssetSearchServlet searchServlet;
+        private final ResourceHandler resourceHandler;
 
         @Inject
         public JettyActivator(
                 Server server,
-                ServletContextHandler servletHandler
+                ServletContextHandler servletHandler,
+                ResourceHandler resourceHandler
                 //AssetSearchServlet searchServlet
                 ) {
             this.server = server;
             this.servletHandler = servletHandler;
             // this.searchServlet = searchServlet;
+            this.resourceHandler = resourceHandler;
         }
 
         @Override
@@ -85,11 +96,6 @@ public class JettyModule implements littleware.bootstrap.AppModule {
                 server.addConnector(connector);
                 //server.setHandler(context);
                 // servletHandler.addServlet(new ServletHolder(searchServlet), "/services/search/*");
-
-                final ResourceHandler resourceHandler = new ResourceHandler();
-                resourceHandler.setDirectoriesListed(true);
-                resourceHandler.setWelcomeFiles(new String[]{"index.html"});
-                resourceHandler.setResourceBase(".");
 
                 final HandlerList handlers = new HandlerList();
                 handlers.setHandlers(new Handler[]{resourceHandler, servletHandler, new DefaultHandler()});

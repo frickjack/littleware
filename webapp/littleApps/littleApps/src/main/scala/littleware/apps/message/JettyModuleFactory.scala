@@ -13,6 +13,7 @@ import java.io
 import java.sql
 import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,helper}
 import org.eclipse.jetty.{servlet => jservlet}
+import org.eclipse.jetty.server.handler.ResourceHandler
 import org.osgi
 import scala.collection.JavaConversions._
 
@@ -34,10 +35,13 @@ object JettyModuleFactory {
    */
   class Activator @inject.Inject()( 
     servletHandler:jservlet.ServletContextHandler,
+    resourceHandler:ResourceHandler,
     clientServlet:web.servlet.MessageServlet
   ) extends osgi.framework.BundleActivator {
     // register listener for test-messages
     servletHandler.addServlet( new jservlet.ServletHolder(clientServlet), "/services/message/*" )
+    // just hard-code to src/main/web for now
+    resourceHandler.setResourceBase( "../appsWeb/web/" )
     
     override def start( bc:osgi.framework.BundleContext ):Unit = {
     }

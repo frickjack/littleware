@@ -35,24 +35,18 @@ object PackageTestSuite {
   def suite():TestSuite = try {
     log.log( Level.INFO, "Launching test suite ..." )
     val suite = {
-      if ( false ) {
-        // TestFactory adds a shutdown method at end of test suite
-        (new TestFactory()).build(
-          AppBootstrap.appProvider.get(
+      val boot = AppBootstrap.appProvider.get(
           ).addModuleFactory( new littleware.asset.webproxy.JettyModule.AppFactory 
           ).addModuleFactory( new JettyModuleFactory
-          ).build(),
-          classOf[PackageTestSuite]
-        )
+          ).build()
+          
+      if ( false ) {
+        // TestFactory adds a shutdown method at end of test suite
+        (new TestFactory()).build( boot, classOf[PackageTestSuite] )
       } else {
         // leave the littleware backend running after the test, so
         // we can try connecting through a browser or whatever
-        AppBootstrap.appProvider.get(
-        ).addModuleFactory( new littleware.asset.webproxy.JettyModule.AppFactory 
-        ).addModuleFactory( new JettyModuleFactory
-        ).build().bootstrap(
-          classOf[PackageTestSuite]
-        )
+        boot.bootstrap( classOf[PackageTestSuite] )
       }
     }
     log.log( Level.INFO, "Returning test suite to test runner ..." )

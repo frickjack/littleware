@@ -46,7 +46,11 @@ littleware.littleYUI = (function() {
                 'littleware-littleTree': {
                     path: "littleTree.js",
                     requires: ['anim', 'base', 'node', 'node-base', 'test']
-                }                
+                },
+                'littleware-littleMessage': {
+                    path: "littleMessage.js",
+                    requires: [ 'io-base', 'node', 'node-base', 'littleware-littleUtil', 'test']
+                }                                
             }
         }    ;
     };

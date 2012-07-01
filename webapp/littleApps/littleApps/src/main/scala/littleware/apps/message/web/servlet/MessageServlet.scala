@@ -58,9 +58,11 @@ class MessageServlet extends hservlet.HttpServlet {
     assert( null != tools, "Servlet tools properly initialized" )
     val message:model.Message = {
       val reader = new io.InputStreamReader( req.getInputStream, UTF8 )
-      try {
-        tools.gsonTool.fromJson( reader, classOf[model.Message] )
+      val jsonStr = try {
+        com.google.common.io.CharStreams.toString( reader )
       } finally reader.close
+      log.log( Level.FINE, "Message posted: " + jsonStr )
+      tools.gsonTool.fromJson( jsonStr, classOf[model.Message] )
     }
 
     val jsResponse = new gson.JsonObject

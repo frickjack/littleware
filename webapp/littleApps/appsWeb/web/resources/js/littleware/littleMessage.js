@@ -20,9 +20,32 @@ YUI.add( 'littleware-littleMessage', function(Y) {
     Y.namespace('littleware');
     Y.littleware.littleMessage = (function() {
         var log = new Y.littleware.littleUtil.Logger( "littleMessage" ); 
-
+        
         var uriBase = "/littleware/services/message"
         var creds = ""
+        
+        /**
+         * Class tracks the state of a message posted to the server,
+         * and the responses collected so far.
+         * Has properties originalMessage, responseQ, and state.
+         *
+         * @class MessageSession
+         * @constructor
+         */
+        function MessageSession( originalMessage ) {
+            this.id = MessageSession.counter;
+            MessageSession.counter += 1;
+            this.originalMessage = originalMessage;
+            this.state = "New";
+            this.handle = "";
+            this.responseQ = [];
+            this.lastEvent = null;
+            return this;
+        }
+        
+        MessageSession.counter = 0;
+        
+
         
        /**
         * Post a message to the message queue
@@ -33,8 +56,9 @@ YUI.add( 'littleware-littleMessage', function(Y) {
         * @param messageType {String} of content
         * @param payloadType {String} of content
         * @param content message payload content
-        * @param callback passed list of responses - maybe be invoked
-        *          multiple times as partial responses are retrieved from the server
+        * @param callback invoked multiple times as responses arrive,
+        *       passed list of new responses, and the MessageSession tracking
+        *       state so far
         */
         function postMessage( messageType, payloadType, content, callback ) {
             var now = new Date().getTime()
@@ -45,19 +69,101 @@ YUI.add( 'littleware-littleMessage', function(Y) {
                     content: content
                 }                
             };
+            var session = new MessageSession( message );
             Y.io( uriBase + "/handle/" + now, {
                 method: "PUT",
                 data: JSON.stringify( message ),
                 on: {
                     complete: function(id, ev) {
-                        log.log( "response: " + ev.responseText );
-                        var json = JSON.parse(ev.responseText);
-                        callback( json );
+                        log.log( "postMessage response: " + JSON.stringify( ev ) );
+                        session.lastEvent = ev;
+                        if( ev.status == 200 ) {
+                            var json = JSON.parse(ev.responseText);
+                            if ( json.status == "ok" ) {
+                                session.state = "RUNNING";
+                                session.handle = json.handle;
+                                //activeSessions[ session.id.toString() ] = session;
+                                pollForResponse( session, callback );
+                                callback( session, [] );
+                            } else {
+                                session.state = "EXCEPTION";
+                                session.responseQ.push( json );
+                                callback( session, [ json ] );
+                            }
+                        } else {
+                            session.state = "ERROR";
+                            callback( session, [] );
+                        }
                     }
                 }
             });
         }
+        
+        
+        /**
+         * Internal method polls for server response to previoiusly
+         * submitted session.  Polls repeatedly until message enters
+         * complete state.
+         */
+        function pollForResponse( session, callback ) {
+            Y.io( uriBase + "/handle/" + session.handle, {
+                method: "GET",
+                on: {
+                    complete: function(id, ev) {
+                        log.log( "pollForResponse response: " + JSON.stringify( ev ) );
+                        session.lastEvent = ev;
+                        if( ev.status == 200 ) {
+                            var json = JSON.parse(ev.responseText);
+                            if ( json.status == "ok" ) {
+                                var lastIndex = json.envelopes.length - 1;
+                                if( lastIndex >= 0 ) {
+                                    session.state = json.envelopes[ lastIndex ].response.state;
+                                }  
+                                //session.handle = json.handle;
+                                //activeSessions[ session.id.toString() ] = session;
+                                if( (session.state != "COMPLETE") && (session.state != "FAILED") ) {
+                                    // poll for next response
+                                    pollForResponse( session, callback );    
+                                } else {
+                                    log.log( "Last response - not polling for another" );
+                                }
+                                callback( session, json.envelopes );
+                            } else {
+                                session.state = "AppException";
+                                session.responseQ.push( json );
+                                callback( session, [ json ] );
+                            }
+                        } else {
+                            session.state = "Error";
+                            callback( session, [] );
+                        }                        
+                    } 
+                }
+            } );
+        }
 
+        //-----------------------------------------------
+        
+        /**
+         * TaskBar widget manages progress displays for messages 
+         * submitted to the server.
+         * 
+         * @class TaskBar
+         * @param config includes .div property with CSS selector for div to build task bar into
+         */
+        function TaskBar( config ) {
+            this.config = config;
+            return this;
+        }
+        
+        /**
+         * Wrapper arround littleMessage.postMessage that inserts code to 
+         * create and update a task bar widget showing the progress of this
+         * message session.
+         */
+        TaskBar.prototype.postMessage = function( messageType, payloadType, content, callback ) {
+            
+        }
         
         //-----------------------------------------------
         
@@ -82,7 +188,7 @@ YUI.add( 'littleware-littleMessage', function(Y) {
                     postMessage( "littleware.TestMessage", "littleware.apps.message.test.TestPayload", {
                                 message : "javascript test case!"
                             },
-                            function( response ) {
+                            function( session, vResponse ) {
                                 gotResponse = true;
                             }
                         );

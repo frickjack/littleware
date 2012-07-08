@@ -98,8 +98,15 @@ class MessageServlet extends hservlet.HttpServlet {
       )
     val jsResponse = new gson.JsonObject
     jsResponse.addProperty( "status", "ok" )
+    
     val jsEnvelope = new gson.JsonArray
-    responseSeq.foreach( (envelope) => jsEnvelope.add( tools.gsonTool.toJsonTree( envelope )) )
+    
+    responseSeq.foreach( 
+      (envelope) => jsEnvelope.add( 
+        tools.gsonTool.toJsonTree( envelope, classOf[model.ResponseEnvelope] )
+      ) 
+    )
+    
     jsResponse.add( "envelopes", jsEnvelope )
     resp.setContentType( jsonMimeType )
     resp.getWriter.append( jsResponse.toString )

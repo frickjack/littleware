@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 catdogboy at yahoo.com
+ * Copyright 2012 catdogboy at yahoo.com
  *
  * The contents of this file are subject to the terms of the
  * Lesser GNU General Public License (LGPL) Version 2.1.
@@ -8,7 +8,6 @@
 
 
 /**
- * littleware.littleId module,
  * see http://yuiblog.com/blog/2007/06/12/module-pattern/
  * YUI doc comments: http://developer.yahoo.com/yui/yuidoc/
  * YUI extension mechanism: http://developer.yahoo.com/yui/3/yui/#yuiadd
@@ -142,28 +141,6 @@ YUI.add( 'littleware-littleMessage', function(Y) {
             } );
         }
 
-        //-----------------------------------------------
-        
-        /**
-         * TaskBar widget manages progress displays for messages 
-         * submitted to the server.
-         * 
-         * @class TaskBar
-         * @param config includes .div property with CSS selector for div to build task bar into
-         */
-        function TaskBar( config ) {
-            this.config = config;
-            return this;
-        }
-        
-        /**
-         * Wrapper arround littleMessage.postMessage that inserts code to 
-         * create and update a task bar widget showing the progress of this
-         * message session.
-         */
-        TaskBar.prototype.postMessage = function( messageType, payloadType, content, callback ) {
-            
-        }
         
         //-----------------------------------------------
         

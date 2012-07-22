@@ -12,6 +12,17 @@
 
         <link rel="stylesheet" type="text/css" href="../../css/littleware/little.css" />
         <link rel="stylesheet" type="text/css" href="../../css/littleware/littleTree.css" />
+        
+        <style>
+            /* Avoid resource latency for these, since they hide unenhanced content */
+            .yui3-js-enabled .yui3-scrollview-loading {
+                visibility:hidden;
+            }
+
+            #additional-content {
+                display:none;
+            }
+        </style>        
 
         <style id="yuiInsertBeforeMe" type="text/css">
             body {
@@ -20,12 +31,55 @@
             }   
         </style>
     </head>
-    <body>
+    <body class="yui3-skin-sam">
 
         <div class="yui3-g">
             <div class="yui3-u-5-24">
                 <div id="leftColumn" >
                     <h3>Left Column</h3>
+                    
+                    <div id="feedback" class="yui3-scrollview-loading">
+
+                            <ul class="clean">
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>                            
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>
+                                <li>AC/DC</li>
+                                <li>Aerosmith</li>
+                                <li>Bob Dylan</li>
+                                <li>Bob Seger</li>                                                            
+                            </ul>
+
+                    </div>                    
 
                 </div>
             </div>
@@ -33,7 +87,7 @@
                 <h1>Hello World!</h1>
 
                 <div id="content">
-
+                       Bla
                 </div>
             </div>
         </div>
@@ -54,15 +108,26 @@
             // Create a YUI sandbox on your page.
             //YUI().use(
             littleware.littleYUI.bootstrap().use( 
-                'node', 'node-base', 'event', 'test', 'littleware-littleMessage', 'littleware-littleUtil',
+                'node', 'node-base', 'event', 'test', 
+                'littleware-littleMessage', 'littleware-littleUtil',
+                'scrollview',
                 function (Y) {
                     // The modules are loaded and ready to use.
                     // Your code goes here!
                     var log = new Y.littleware.littleUtil.Logger( "littleTreeTestSuite.html" );
+                    var scrollview = new Y.ScrollView({
+                        srcNode:"#feedback",
+                        height:"40em"
+                      }); 
+                    scrollview.render();
+                    //scrollview.scrollbars.show();
+                    log.log( "Whare are the scroll bars ?" );
+                    /*
                     var suite = Y.littleware.littleMessage.buildTestSuite();
 
                     Y.Test.Runner.add( suite );
                     Y.Test.Runner.run();                
+                    */
             });
 
         </script>

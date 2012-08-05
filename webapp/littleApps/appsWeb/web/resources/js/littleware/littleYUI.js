@@ -50,7 +50,12 @@ littleware.littleYUI = (function() {
                 'littleware-littleMessage': {
                     path: "littleMessage.js",
                     requires: [ 'io-base', 'node', 'node-base', 'littleware-littleUtil', 'test']
+                },
+                'littleware-feedback-model': {
+                    path: "feedback/littleFeedback.js",
+                    requires: [ 'node', 'base', 'littleware-littleUtil', 'test']
                 }                                
+                
             }
         }    ;
     };

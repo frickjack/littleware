@@ -8,8 +8,9 @@
 
 
 /**
- * littleware.littleFeedback module manages a strip of
- * UI feedback boxes.  Typical use:  
+ * littleware.feedback.model implements models for tracking
+ * tasks and feedback from task execution.
+ * Typical use:  
  * <ul>
  *   <li>var taskBar = new TaskBar();
  *   <li>var task = taskBar.newTask( {}, "run test" );
@@ -19,13 +20,13 @@
  * YUI doc comments: http://developer.yahoo.com/yui/yuidoc/
  * YUI extension mechanism: http://developer.yahoo.com/yui/3/yui/#yuiadd
  *
- * @module littleware.littleFeedback
- * @namespace littleware.littleFeedback
+ * @module littleware.feedback.model
+ * @namespace littleware.feedback.model
  */
-YUI.add( 'littleware-littleFeedback', function(Y) {
-    Y.namespace('littleware');
-    Y.littleware.littleFeedback = (function() {
-        var log = new Y.littleware.littleUtil.Logger( "littleFeedback" ); 
+YUI.add( 'littleware-feedback-model', function(Y) {
+    Y.namespace('littleware.feedback');
+    Y.littleware.feedback.model = (function() {
+        var log = new Y.littleware.littleUtil.Logger( "littleFeedbackModel" ); 
         
         /**
          * Class tracks the state of a task, and updates
@@ -87,7 +88,7 @@ YUI.add( 'littleware-littleFeedback', function(Y) {
                 */
                 progress: function(val) {
                     if( val < 0 ) { val = 0; } else if ( val > 100 ) { val = 100; }
-                    this.set( "progress", val );
+                    this._set( "progress", val );
                     return this;
                 },
                 
@@ -101,7 +102,7 @@ YUI.add( 'littleware-littleFeedback', function(Y) {
                     if ( q.length > 10 ) {
                         q = q.slice( q.length - 10 );
                     }
-                    this.set( "messageQueue", q );
+                    this._set( "messageQueue", q );
                     return this;
                 }
                 
@@ -117,15 +118,14 @@ YUI.add( 'littleware-littleFeedback', function(Y) {
          * task-lambda via TaskFactory.
          * 
          * @class Task
-         * @param context user context
          * @param feedback [FeedbackModel]
+         * @param context user context
          * @constructor
          */
-        function Task( context, feedback ) {
+        function Task( feedback, context ) {
             Task.superclass.constructor.apply( this, [] );
             this.context = context;
             this.feedback = feedback;
-            this.result = undefined;
             return this;
         }
         
@@ -170,16 +170,56 @@ YUI.add( 'littleware-littleFeedback', function(Y) {
                    // throw new IllegalArgumentException bla bla
                } 
                try {
-                   this.set( "state", "RUNNING" );
+                   this._set( "state", "RUNNING" );
                    var result = lambda( this.feedback, this.context );
-                   this.set( "result", result );
-                   this.set( "state", "COMPLETE" );
+                   this._set( "result", result );
+                   this._set( "state", "COMPLETE" );
                    return result;
                } catch(ex) {
-                   this.set( "result", ex );
-                   this.set( "state", "EXCEPTION" );
+                   log.log( "Task run() Caught exception: " + ex + ", " + ex.stack );
+                   //console.trace();  // might be chrome specific ...
+                   this._set( "result", ex );
+                   this._set( "state", "EXCEPTION" );
                    throw ex;
                }
+            },
+            
+            /**
+             * Set the task to the RUNNING state.
+             * Throws an Error if the task is not in the Pending or Running state.
+             * Prefer run(lambda) for tasks that run synchronously.
+             * 
+             * @method setRunning
+             */
+            setRunning: function() {
+               var state = this.get( "state" );
+               if( state != "PENDING" && state != "RUNNING" ) {
+                   throw new Error( "Task not in PENDING or RUNNING state: " + state );
+               } 
+               this._set( "state", "RUNNING" );
+            },
+            
+            /**
+             * Set the task to the COMPLETE state.
+             * Prefer run(lambda) for tasks that run synchronously.
+             * 
+             * @method setComplete
+             * @param result to associate with the completed task
+             */
+            setComplete:function( result ) {
+                this._set( "result", result );
+                this._set( "state", "COMPLETE" );
+            },
+            
+            /**
+             * Set the task to the EXCEPTION state
+             * 
+             * @method setException
+             * @param ex exception result to associate with result
+             */
+            setException:function( result ) {
+                this._set( "result", ex );
+                this._set( "state", "EXCEPTION" );
             }
                 }
             );
@@ -233,8 +273,9 @@ YUI.add( 'littleware-littleFeedback', function(Y) {
                 *              that the caller can pass to the task-lambda
                 */
                 pushTask: function( userContext, description ) {
-                    var task = new Task( new FeedbackModel( { description: description } ), userContext )
-                    var taskStack = this.get( "activeTasks" )
+                    var task = 
+                        new Task( new FeedbackModel( { description: description } ), userContext );
+                    var taskStack = this.get( "activeTasks" );
                     taskStack.push( task );
                     this._set( "activeTasks", taskStack );
                     
@@ -253,7 +294,7 @@ YUI.add( 'littleware-littleFeedback', function(Y) {
                             }
                             this._set( "recentlyCompletedTasks", recentStack );
                         }
-                    });
+                    }, this );
                     
                     return task;
                 }
@@ -278,31 +319,44 @@ YUI.add( 'littleware-littleFeedback', function(Y) {
          * @return Y.Test.Suite
          */
         var buildTestSuite = function() {
-            var suite = new Y.Test.Suite( "littleware-littleFeedback Test Suite");
+            //alert( "Foo!" );
+            var suite = new Y.Test.Suite( "littleware-feedback-model Test Suite");
             suite.add( new Y.Test.Case( {
-                name: "littleFeedback Test Case",
-                testRunTask: function() {
-                    var gotResponse = false
+                name: "littleware-feedback-model Test Case",
+                testFeedbackModels: function() {
+                    //alert( "Frick!" );
+                    log.log( "Running testFeedbackModels" );
                     var taskFactoryEventCount = 0;
                     var taskFactory = TaskFactory.singleton;
                     taskFactory.after( "activeTasksChange", function(ev) {
                        taskFactoryEventCount += 1; 
                     });
+                    log.log( "Pushing test task" );
                     var task = taskFactory.pushTask( {}, "test task" );
-                    postMessage( "littleware.TestMessage", "littleware.apps.message.test.TestPayload", {
-                                message : "javascript test case!"
-                            },
-                            function( session, vResponse ) {
-                                gotResponse = true;
-                            }
-                        );
-                    this.wait(function(){
-                            Y.Assert.isTrue(gotResponse, "Got response from server");
-                        }, 1000
-                    );
+                    Y.Assert.isTrue( taskFactoryEventCount == 1, "Task push updated active tasks" );
+                    log.log( "Got task ..." );
+                    task.feedback.message( "test message" );
+                    var messQ = task.feedback.get( "messageQueue" );
+                    Y.Assert.isTrue( messQ.length == 1, "Feedback posts single message: " + messQ.length );
+                    task.run( function(fb) {
+                        log.log( "Running test task" );
+                        fb.message( "Running task!" );
+                        log.log( "Run1" );
+                        fb.progress(100);
+                        log.log( "Run2" );
+                        fb.message( "Task complete!" );
+                        log.log( "Run3" );
+                    });
+                    log.log( "Check 1" );
+                    Y.Assert.isTrue( messQ.length == 3, "Feedback posts 2 more messages: " + messQ.length );
+                    log.log( "Check 2" );
+                    Y.Assert.isTrue( task.feedback.get( "progress" ) == 100, "Feedback progress is 100: " + task.feedback.get( "progress" ) );
+                    log.log( "Check 3" );
+                    Y.Assert.isTrue( taskFactoryEventCount == 2, "Task execution updated active tasks: " + taskFactoryEventCount );
                 }
             }
             ));
+            //alert( "Bla!" );
             return suite;
         };
 
@@ -310,10 +364,10 @@ YUI.add( 'littleware-littleFeedback', function(Y) {
         
         return {
             buildTestSuite: buildTestSuite,
-            postMessage: postMessage
+            taskFactory: TaskFactory.singleton
         };
     })();
 }, '0.1.1' /* module version */, {
-    requires: [ 'io-base', 'node', 'node-base', 'littleware-littleUtil', 'test']
+    requires: [ 'node', 'base', 'littleware-littleUtil', 'test']
 });
 

@@ -43,6 +43,15 @@ YUI.add('littleware-littleUtil', function(Y) {
                 }
                 Y.log( msg, level, this.loggerName );
             };
+            
+        /**
+         * Return the keys of the given object
+         */
+        function keys( o ) {
+            var keys = [];
+            for( var k in o ) keys.push( k );
+            return keys;
+        }
         
         /**
          * Return a test suite to test this submodule
@@ -64,7 +73,8 @@ YUI.add('littleware-littleUtil', function(Y) {
         // expose an api
         return {
             buildTestSuite: buildTestSuite,
-            Logger:Logger
+            Logger:Logger,
+            keys:keys
         };
     })();
 }, '0.1.1' /* module version */, {

@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>littleware js Test Page</title>
+
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssreset/cssreset.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssbase/cssbase.css"  type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssfonts/cssfonts.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssgrids/cssgrids.css" type="text/css" /> 
+
+        <link rel="stylesheet" type="text/css" href="../../../css/littleware/little.css" />
+        <link rel="stylesheet" type="text/css" href="../../../css/littleware/littleTree.css" />
+
+        <style id="yuiInsertBeforeMe" type="text/css">
+            body {
+                margin: auto; /* center in viewport */
+                width: 960px;
+            }   
+        </style>
+    </head>
+    <body>
+
+        <div class="yui3-g">
+            <div class="yui3-u-5-24">
+                <div id="navTree" class="littleTree">
+                    <h3>Tree</h3>
+
+                    <p>bla</p>
+                </div>
+
+            </div>
+            <div class="yui3-u-19-24">
+                <h1>Hello World!</h1>
+
+                <div id="content">
+                       Bla
+                </div>
+            </div>
+        </div>
+
+        <script type="text/x-template" id="treeNodeTemplate">
+        </script>  
+
+        <script src="http://yui.yahooapis.com/3.5.1/build/yui/yui-debug.js"></script>
+        <script type="text/javascript" src="../littleYUI.js" charset="utf-8"></script>
+
+        <script>
+    
+            // Create a YUI sandbox on your page.
+            //YUI().use(
+            littleware.littleYUI.bootstrap().use( 
+                'node', 'node-base', 'event', 'test', 'littleware-feedback-model', 'littleware-littleUtil',
+                function (Y) {
+                    // The modules are loaded and ready to use.
+                    // Your code goes here!
+                    var log = new Y.littleware.littleUtil.Logger( "littleFbTestSuite.html" );
+                    //alert( "Ugh" );
+                    log.log( "Ugh" );
+                    var suite = Y.littleware.feedback.model.buildTestSuite();
+                    //alert( "Ugh2" );
+                    log.log( "Ugh3: " + JSON.stringify( Y.littleware.littleUtil.keys( Y.littleware.feedback.model ) ) );
+                    Y.Test.Runner.add( suite );
+                    Y.Test.Runner.run();                
+            });
+
+        </script>
+
+    </body>
+</html>

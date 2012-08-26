@@ -126,10 +126,13 @@ YUI.add( 'littleware-feedback-model', function(Y) {
             Task.superclass.constructor.apply( this, [] );
             this.context = context;
             this.feedback = feedback;
+            this.id = Task.idCounter;
+            Task.idCounter += 1;
             return this;
         }
         
         Task.NAME = "Task";
+        Task.idCounter = 0;
         
         Task.ATTRS = {
             /**
@@ -235,8 +238,6 @@ YUI.add( 'littleware-feedback-model', function(Y) {
          */
         function TaskFactory() {
             TaskFactory.superclass.constructor.apply( this, [] );
-            this.activeTasks = [];
-            this.recentlyCompletedTasks = [];
             return this;
         }
         

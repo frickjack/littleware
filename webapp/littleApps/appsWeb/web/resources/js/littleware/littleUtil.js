@@ -19,6 +19,9 @@
 YUI.add('littleware-littleUtil', function(Y) {
     Y.namespace('littleware');
     Y.littleware.littleUtil = (function() {
+        
+        //------------------------------------
+        
         /**
          * The Logger class just calls through to Y.log with the
          * constructor-supplied logger-name
@@ -46,11 +49,28 @@ YUI.add('littleware-littleUtil', function(Y) {
             
         /**
          * Return the keys of the given object
+         * @method keys
+         * @param o object to scan for keys
+         * @return {Array} of key-names
+         * @for
+         * @static
          */
         function keys( o ) {
             var keys = [];
             for( var k in o ) keys.push( k );
             return keys;
+        }
+        
+        /**
+         * Throws new Error( message ) if predicate evaluates false
+         * @method assert
+         * @param {Boolean} predicate
+         * @param {String} message
+         */
+        function assert( predicate, message ) {
+            if( ! predicate ) {
+                throw new Error( message );
+            }
         }
         
         /**
@@ -74,7 +94,8 @@ YUI.add('littleware-littleUtil', function(Y) {
         return {
             buildTestSuite: buildTestSuite,
             Logger:Logger,
-            keys:keys
+            keys:keys,
+            assert:assert
         };
     })();
 }, '0.1.1' /* module version */, {

@@ -54,8 +54,11 @@ littleware.littleYUI = (function() {
                 'littleware-feedback-model': {
                     path: "feedback/littleFeedback.js",
                     requires: [ 'node', 'base', 'littleware-littleUtil', 'test']
-                }                                
-                
+                },
+                'littleware-feedback-view': {
+                    path: "feedback/FbWidget.js",
+                    requires: [ 'node', 'base', 'littleware-littleUtil', 'littleware-feedback-model', 'test']
+                }                                                
             }
         }    ;
     };

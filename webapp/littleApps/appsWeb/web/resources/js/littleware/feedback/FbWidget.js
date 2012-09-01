@@ -46,17 +46,19 @@ YUI.add( 'littleware-feedback-view', function(Y) {
         }
 
         /**
-         * Internal method - append new feedback widget to task bar
-         * @method drawTaskView
+         * Internal method - append new feedback widget to task bar,
+         * and add a listener
+         * 
+         * @method _renderTaskView
          * @param {Task} task
-         * @return {Node} take node already added to DOM
+         * @return {FeedbackListener} where result.node is the node already added to DOM
          * @private
          */
-        TaskBar.prototype.drawTaskView = function( task ) {
+        TaskBar.prototype._renderTaskView = function( task ) {
             var taskBar = Y.one( this.config.srcNode );
             var taskNode = Y.Node.create( this.taskTemplate );
             taskBar.appendChild( taskNode );
-            return taskNode;
+            return new FeedbackListener( task, taskNode );
         }
         
         /**
@@ -73,13 +75,14 @@ YUI.add( 'littleware-feedback-view', function(Y) {
             var activeTasks = taskFactory.get( "activeTasks" );
             for( var i=0; i < activeTasks.length; ++i ) {
                 var task = activeTasks[i];
-                var node = this.drawTaskView( task );
-                var listener = new FeedbackListener( task, node );
+                var listener = this._renderTaskview( task );
             }
             taskFactory.after( "activeTasksChange", function(ev) {
+                // add code to listen on the new task, detach when task complete
                }, this
             );
         }
+        
         
         //-----------------------------
         
@@ -94,14 +97,20 @@ YUI.add( 'littleware-feedback-view', function(Y) {
             util.assert( ! Y.Lang.isUndefined( task.feedback ), "Task must have feedback property to listen on" );
             this.task = task;
             this.view = view;
-            this.model.after( "stateChange", this.updateView, this );
+            this.subscription = this.task.after( "stateChange", this.updateView, this );
         }
         
         FeedbackListener.prototype.updateView = function() {
-            var progressNode = this.model.one( "div.fbBar" );
-            var progress = this.task.get( "progress" );
+            var progressNode = this.view.one( "div.fbBar" );
+            var progress = this.task.feedback.get( "progress" );
             progressNode.setContent( progress.toString() );
             progressNode.setStyle( "width", "" + progress + "%" );
+            if( this.task.get( "state" ) == "COMPLETE" || this.task.get( "state" ) == "EXCEPTION" ) {
+                // detach listener ... UI gets cleaned up in TaskBar listener
+                if( ! Y.Lang.isUndefined( this.subscription ) ) {
+                    this.subscription.detach();
+                }
+            }
         }
         
         
@@ -121,11 +130,35 @@ YUI.add( 'littleware-feedback-view', function(Y) {
          */
         var buildTestSuite = function() {
             var suite = new Y.Test.Suite( "littleware-FbWidget Test Suite");
+            var taskBar = new TaskBar( { srcNode: "#testTaskBar"});
+            taskBar.render();
+            
             suite.add( new Y.Test.Case( {
                 name: "littleware-feedback-view Test Case",
                 testFeedbackAnimation: function() {
                     var result = "ugh";
-                    Y.Assert.isTrue( result == "<b>Test!</b><br /><p>Super Bad!</p>", "Got expected template result: " + result  );
+                    var task = Y.littleware.feedback.model.taskFactory.pushTask( {}, "FbWidget test task" );
+                    var fbListener = taskBar._renderTaskView( task );
+                    Y.Assert.isNotUndefined( fbListener.view, "Listener has view property" );
+                    setTimeout( function() { 
+                                    task.run( function(fb) {
+                                        log.log( "Running test task" );
+                                        fb.message( "Running task!" );
+                                        log.log( "Run1" );
+                                        fb.progress(100);
+                                        log.log( "Run2" );
+                                        fb.message( "Task complete!" );
+                                        log.log( "Run3" );
+                                    });                        
+                        }, 100 );
+                        
+                    this.wait(function(){
+                        alert( "Bingo!" );
+                            //Y.Assert.isTrue(gotResponse, "Got response from server");
+                        }, 1000
+                    );
+
+                    //Y.Assert.isTrue( result == "<b>Test!</b><br /><p>Super Bad!</p>", "Got expected template result: " + result  );
                 },
                 testTaskBarUI: function() {
                 }
@@ -144,7 +177,9 @@ YUI.add( 'littleware-feedback-view', function(Y) {
         };
     })();
 }, '0.1.1' /* module version */, {
-    requires: [ 'io-base', 'node', 'node-base', 'littleware-littleUtil', 'littleware-feedback-model', 'test']
+    requires: [ 'io-base', 'node', 'node-base', 
+        'littleware-littleUtil', 'littleware-feedback-model', 
+                'test']
 });
 
 

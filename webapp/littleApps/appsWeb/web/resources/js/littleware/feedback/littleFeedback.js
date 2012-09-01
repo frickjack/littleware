@@ -279,8 +279,8 @@ YUI.add( 'littleware-feedback-model', function(Y) {
                     var taskStack = this.get( "activeTasks" );
                     taskStack.push( task );
                     this._set( "activeTasks", taskStack );
-                    
-                    task.after( "stateChange", function( ev) {
+                    var sub = null;
+                    sub = task.after( "stateChange", function( ev) {
                         if ( (ev.newVal == "COMPLETE") || (ev.newVal == "EXCEPTION") ) {
                             var taskStack = this.get( "activeTasks" )
                             var index = taskStack.indexOf( task );
@@ -294,6 +294,7 @@ YUI.add( 'littleware-feedback-model', function(Y) {
                                 recentStack.splice( 0, 10 - recentStack.length );
                             }
                             this._set( "recentlyCompletedTasks", recentStack );
+                            sub.detach();
                         }
                     }, this );
                     

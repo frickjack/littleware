@@ -41,7 +41,6 @@ YUI.add( 'littleware-feedback-model', function(Y) {
         function FeedbackModel( config ) {
             FeedbackModel.superclass.constructor.apply( this, [config] );
             this.isRendered = false;
-            this.description = "";
             
             return this;
         }
@@ -51,7 +50,7 @@ YUI.add( 'littleware-feedback-model', function(Y) {
         FeedbackModel.ATTRS = {
             description: {
                 value: "",
-                readOnly:true
+                initOnly:true
             },
             
             /**
@@ -336,6 +335,7 @@ YUI.add( 'littleware-feedback-model', function(Y) {
                     log.log( "Pushing test task" );
                     var task = taskFactory.pushTask( {}, "test task" );
                     Y.Assert.isTrue( taskFactoryEventCount == 1, "Task push updated active tasks" );
+                    Y.Assert.isTrue( task.feedback.get( "description" ) == "test task", "Task description set correctly" );
                     log.log( "Got task ..." );
                     task.feedback.message( "test message" );
                     var messQ = task.feedback.get( "messageQueue" );

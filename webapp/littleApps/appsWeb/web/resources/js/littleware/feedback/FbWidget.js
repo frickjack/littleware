@@ -75,10 +75,20 @@ YUI.add( 'littleware-feedback-view', function(Y) {
             var activeTasks = taskFactory.get( "activeTasks" );
             for( var i=0; i < activeTasks.length; ++i ) {
                 var task = activeTasks[i];
-                var listener = this._renderTaskview( task );
+                var listener = this._renderTaskView( task );
+                this.knownTasks[ task.id ] = listener;
             }
             taskFactory.after( "activeTasksChange", function(ev) {
                 // add code to listen on the new task, detach when task complete
+                var activeTasks = ev.newVal;
+                log.log( "activeTasksChange event - total tasks: " + activeTasks.length );
+                for( var i=0; i < activeTasks.length; ++i ) {
+                    var task = activeTasks[i];
+                    if( Y.Lang.isUndefined( this.knownTasks[ task.id ] ) ) {
+                        var listener = this._renderTaskView( task );
+                        this.knownTasks[ task.id ] = listener;
+                    }
+                }
                }, this
             );
         }
@@ -97,18 +107,36 @@ YUI.add( 'littleware-feedback-view', function(Y) {
             util.assert( ! Y.Lang.isUndefined( task.feedback ), "Task must have feedback property to listen on" );
             this.task = task;
             this.view = view;
-            this.subscription = this.task.after( "stateChange", this.updateView, this );
+            this.subscription = [
+                this.task.after( "stateChange", this.updateView, this ),
+                this.task.feedback.after( "progressChange", this.updateView, this ),
+                this.task.feedback.after( "messageQueueChange", this.updateView, this )
+            ];
         }
         
         FeedbackListener.prototype.updateView = function() {
             var progressNode = this.view.one( "div.fbBar" );
             var progress = this.task.feedback.get( "progress" );
-            progressNode.setContent( progress.toString() );
+            progressNode.setContent( "(task" + this.task.id + ")" + progress + "%" );
             progressNode.setStyle( "width", "" + progress + "%" );
+            
+            var message = this.task.feedback.get( "description" ) + "\n----------------\n";
+            var messageNode = this.view.one( "div.fbContent" );
+            var mq = this.task.feedback.get( "messageQueue" );
+            if ( mq.length > 1 ) {
+                message += mq[mq.length - 2] + "\n";
+            } 
+            if ( mq.length > 0 ) {
+                message += mq[mq.length - 1];
+            }
+            message = message.replace( /</g, "&lt;" );
+            messageNode.setContent( "<pre>" + message + "</pre>" );
             if( this.task.get( "state" ) == "COMPLETE" || this.task.get( "state" ) == "EXCEPTION" ) {
                 // detach listener ... UI gets cleaned up in TaskBar listener
                 if( ! Y.Lang.isUndefined( this.subscription ) ) {
-                    this.subscription.detach();
+                    for( var i=0; i < this.subscription.length; ++i ) {
+                        this.subscription[i].detach();    
+                    }
                 }
             }
         }
@@ -138,8 +166,8 @@ YUI.add( 'littleware-feedback-view', function(Y) {
                 testFeedbackAnimation: function() {
                     var result = "ugh";
                     var task = Y.littleware.feedback.model.taskFactory.pushTask( {}, "FbWidget test task" );
-                    var fbListener = taskBar._renderTaskView( task );
-                    Y.Assert.isNotUndefined( fbListener.view, "Listener has view property" );
+                    //var fbListener = taskBar._renderTaskView( task );
+                    //Y.Assert.isNotUndefined( fbListener.view, "Listener has view property" );
                     setTimeout( function() { 
                                     task.run( function(fb) {
                                         log.log( "Running test task" );
@@ -153,8 +181,9 @@ YUI.add( 'littleware-feedback-view', function(Y) {
                         }, 100 );
                         
                     this.wait(function(){
-                        alert( "Bingo!" );
-                            //Y.Assert.isTrue(gotResponse, "Got response from server");
+                        //alert( "Hopefully the test suite taskBar updated for you ?" );
+                        var children = Y.one( taskBar.config.srcNode ).get( "children" ); // NodeList
+                        Y.Assert.isTrue( children.size() > 0, "Test taskBar has some children");
                         }, 1000
                     );
 

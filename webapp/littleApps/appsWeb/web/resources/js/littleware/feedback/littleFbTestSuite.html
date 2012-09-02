@@ -111,7 +111,7 @@
                 <div id="content">
                     Bla
                     
-                    <div id="testTaskBar" class="fbArea">
+                    <div id="testTaskBar" class="yui3-scrollview-loading fbArea">
                         
                     </div>
                        
@@ -162,7 +162,14 @@
                             height:"30em",
                             width: "11em"
                           }); 
-                        scrollview.render();                        
+                        scrollview.render(); 
+                        
+                        var scrollTaskBar = new Y.ScrollView({
+                            srcNode:"#testTaskBar",
+                            height:"30em",
+                            width: "11em"
+                          }); 
+                        scrollTaskBar.render();
                     };
                     
                     setupScrolling();

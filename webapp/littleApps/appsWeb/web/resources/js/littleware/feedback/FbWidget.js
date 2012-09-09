@@ -26,7 +26,7 @@ YUI.add( 'littleware-feedback-view', function(Y) {
     Y.namespace('littleware.feedback');
     Y.littleware.feedback.view = (function() {
         var util = Y.littleware.littleUtil;
-        var log = new util.Logger( "littleTree" );
+        var log = new util.Logger( "littleFeedbackView" );
         
         //---------------------------------------
         /**
@@ -35,10 +35,13 @@ YUI.add( 'littleware-feedback-view', function(Y) {
          * to instantiate task-views with.
          * @class TaskBar
          * @constructor
-         * @param config properties object
+         * @param config properties object - includes displayLimit property, default 10
          */
         function TaskBar( config ) {
             this.config = config;
+            if ( Y.Lang.isUndefined( this.config.displayLimit ) ) {
+                this.config.displayLimit = 10;
+            }
             this.knownTasks = {};
             this.taskOrder = [];
             this.taskTemplate = Y.one("#taskViewTemplate").get( 'text' );
@@ -57,8 +60,11 @@ YUI.add( 'littleware-feedback-view', function(Y) {
         TaskBar.prototype._renderTaskView = function( task ) {
             var taskBar = Y.one( this.config.srcNode );
             var taskNode = Y.Node.create( this.taskTemplate );
+            taskNode.generateID();
             taskBar.appendChild( taskNode );
-            return new FeedbackListener( task, taskNode );
+            var listener = new FeedbackListener( task, taskNode );
+            listener.updateView();
+            return listener;
         }
         
         /**
@@ -80,8 +86,20 @@ YUI.add( 'littleware-feedback-view', function(Y) {
             }
             taskFactory.after( "activeTasksChange", function(ev) {
                 // add code to listen on the new task, detach when task complete
+                var taskBarNode = Y.one( this.config.srcNode );
                 var activeTasks = ev.newVal;
                 log.log( "activeTasksChange event - total tasks: " + activeTasks.length );
+                var visibleTasks = Y.Object.size( this.knownTasks );
+                for( var i in this.knownTasks ) {
+                    if ( visibleTasks < this.config.displayLimit ) {break;}
+                    var listener = this.knownTasks[i];
+                    var task = listener.task;
+                    if( task.get( "state" ) == "COMPLETE" || task.get( "state" ) == "EXCEPTION" ) {
+                        taskBarNode.removeChild( listener.view );
+                        delete( this.knownTasks[i] );
+                        visibleTasks--;
+                    }
+                }
                 for( var i=0; i < activeTasks.length; ++i ) {
                     var task = activeTasks[i];
                     if( Y.Lang.isUndefined( this.knownTasks[ task.id ] ) ) {
@@ -120,17 +138,13 @@ YUI.add( 'littleware-feedback-view', function(Y) {
             progressNode.setContent( "(task" + this.task.id + ")" + progress + "%" );
             progressNode.setStyle( "width", "" + progress + "%" );
             
-            var message = this.task.feedback.get( "description" ) + "\n----------------\n";
+            var message = this.task.feedback.get( "description" ).replace( /</g, "&lt;" ) + "<br/> ----------------";
             var messageNode = this.view.one( "div.fbContent" );
             var mq = this.task.feedback.get( "messageQueue" );
-            if ( mq.length > 1 ) {
-                message += mq[mq.length - 2] + "\n";
+            for( var i = mq.length > 2 ? mq.length - 2 : 0; i < mq.length; i++ ) {
+                message += "<br/>" +  mq[i].replace( /</g, "&lt;" ); 
             } 
-            if ( mq.length > 0 ) {
-                message += mq[mq.length - 1];
-            }
-            message = message.replace( /</g, "&lt;" );
-            messageNode.setContent( "<pre>" + message + "</pre>" );
+            messageNode.setContent( message  );
             if( this.task.get( "state" ) == "COMPLETE" || this.task.get( "state" ) == "EXCEPTION" ) {
                 // detach listener ... UI gets cleaned up in TaskBar listener
                 if( ! Y.Lang.isUndefined( this.subscription ) ) {
@@ -158,18 +172,27 @@ YUI.add( 'littleware-feedback-view', function(Y) {
          */
         var buildTestSuite = function() {
             var suite = new Y.Test.Suite( "littleware-FbWidget Test Suite");
-            var taskBar = new TaskBar( { srcNode: "#testTaskBar"});
+            var taskBar = new TaskBar( {srcNode: "#testTaskBar"});
             taskBar.render();
             
             suite.add( new Y.Test.Case( {
                 name: "littleware-feedback-view Test Case",
                 testFeedbackAnimation: function() {
                     var result = "ugh";
-                    var task = Y.littleware.feedback.model.taskFactory.pushTask( {}, "FbWidget test task" );
+                    var counter = 0;
+                    var stopCount = taskBar.config.displayLimit + 5;
+                    var task = Y.littleware.feedback.model.taskFactory.pushTask( {}, "FbWidget test task: " + counter );
+                    
                     //var fbListener = taskBar._renderTaskView( task );
                     //Y.Assert.isNotUndefined( fbListener.view, "Listener has view property" );
-                    setTimeout( function() { 
-                                    task.run( function(fb) {
+                    var taskLambda = function() { 
+                        var myTask = task;
+                        if ( counter < stopCount - 1 ) {
+                            task = Y.littleware.feedback.model.taskFactory.pushTask( {}, "FbWidget test task: " + counter );
+                        } else {
+                            task = null;
+                        }
+                        myTask.run( function(fb) {
                                         log.log( "Running test task" );
                                         fb.message( "Running task!" );
                                         log.log( "Run1" );
@@ -177,15 +200,25 @@ YUI.add( 'littleware-feedback-view', function(Y) {
                                         log.log( "Run2" );
                                         fb.message( "Task complete!" );
                                         log.log( "Run3" );
-                                    });                        
-                        }, 100 );
-                        
-                    this.wait(function(){
+                                    });
+                    };
+                    
+                    var waitLambda = null;
+                    lambda = function(){
                         //alert( "Hopefully the test suite taskBar updated for you ?" );
+                        log.log( "Checking task run: " + counter );
                         var children = Y.one( taskBar.config.srcNode ).get( "children" ); // NodeList
-                        Y.Assert.isTrue( children.size() > 0, "Test taskBar has some children");
-                        }, 1000
-                    );
+                        Y.Assert.isTrue( children.size() > 0, "Test taskBar has some children, count: " + counter );
+                        Y.Assert.isTrue( children.size() < taskBar.config.displayLimit, "Test taskBar respects displayLimit: " + taskBar.config.displayLimit );
+                        counter++;
+                        if ( counter < stopCount ) {
+                            setTimeout( taskLambda, 100 );
+                            this.wait( lambda, 1000 );
+                        }
+                    };
+                    
+                    setTimeout( taskLambda, 100 );
+                    this.wait( lambda, 1000 );
 
                     //Y.Assert.isTrue( result == "<b>Test!</b><br /><p>Super Bad!</p>", "Got expected template result: " + result  );
                 },

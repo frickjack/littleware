@@ -121,9 +121,9 @@
 
         <script type="text/x-template" id="taskViewTemplate">
             <div class="fbTask">
-                <div class="fbBar" style="width:20%;">20%</div>
+                <div class="fbBar" style="width:0%;">0%</div>
                 <div class="fbContent">
-                bla
+                (Running ...)
                 </div>
             </div>            
         </script>  
@@ -142,6 +142,7 @@
                 function (Y) {
                     // The modules are loaded and ready to use.
                     var util = Y.littleware.littleUtil;
+                    var fb = Y.littleware.feedback;
                     var log = new util.Logger( "littleFbTestSuite.html" );
                     
                     function runTestSuite() {
@@ -170,6 +171,9 @@
                             width: "11em"
                           }); 
                         scrollTaskBar.render();
+                        fb.model.taskFactory.after( "activeTasksChange", function(ev) {
+                           scrollTaskBar.syncUI(); 
+                        });
                     };
                     
                     setupScrolling();

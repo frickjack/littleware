@@ -10,10 +10,8 @@ package littleware.base.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-
-
+import java.util.logging.Logger;
 import littleware.base.stat.test.SamplerTester;
 
 /**
@@ -33,10 +31,11 @@ public class PackageTestSuite extends JenkinsTestSuite {
             Provider<CacheTester> provideCacheTester,
             NullFeedbackTester nullFbTester,
             SamplerTester samplerTester,
+            ZipUtilTester zipTester,
             Provider<SwingTester> swingTesterProvider,
             Provider<SwingFeedbackTester> swingFeedbackTestProvider
             ) {
-        super( provideWhatever, provideFbTester, providePropTester, provideCacheTester, nullFbTester, samplerTester );
+        super( provideWhatever, provideFbTester, providePropTester, provideCacheTester, nullFbTester, samplerTester, zipTester );
         setName( getClass().getName() );
         boolean runTest = true;
 

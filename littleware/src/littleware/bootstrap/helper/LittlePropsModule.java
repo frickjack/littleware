@@ -10,18 +10,20 @@
 package littleware.bootstrap.helper;
 
 import com.google.inject.Binder;
+import com.google.inject.Scopes;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesGuice;
+import littleware.base.ZipUtil;
 import littleware.base.cache.Cache;
 import littleware.base.cache.InMemoryCacheBuilder;
+import littleware.base.internal.SimpleZipUtil;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
-import littleware.bootstrap.SessionBootstrap;
 
 /**
  * Module sets up PropertiesGuice() bindings from littleware.properties
@@ -48,6 +50,7 @@ public class LittlePropsModule extends AbstractAppModule {
             log.log( Level.FINE, "Configuring LittlePropsModule ..." );
             PropertiesGuice.build().configure(binder);
             binder.bind( Cache.Builder.class ).to( InMemoryCacheBuilder.class );
+            binder.bind( ZipUtil.class ).to( SimpleZipUtil.class ).in( Scopes.SINGLETON );
             //binder.bind( SessionBootstrap.SessionBuilder.class ).to( SimpleSessionBuilder.class );
         } catch (IOException ex) {
             throw new AssertionFailedException( "Unexpected failure loading littleware.properties", ex );

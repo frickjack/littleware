@@ -23,7 +23,6 @@ import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 

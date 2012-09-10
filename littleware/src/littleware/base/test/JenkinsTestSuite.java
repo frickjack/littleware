@@ -10,12 +10,10 @@ package littleware.base.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.util.logging.Logger;
 import java.util.logging.Level;
-
-import junit.framework.*;
-
-import littleware.base.*;
+import java.util.logging.Logger;
+import junit.framework.TestSuite;
+import littleware.base.UUIDFactory;
 import littleware.base.stat.test.SamplerTester;
 
 /**
@@ -34,37 +32,41 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<PropLoaderTester> providePropTester,
             Provider<CacheTester> provideCacheTester,
             NullFeedbackTester nullFbTester,
-            SamplerTester samplerTester
+            SamplerTester samplerTester,
+            ZipUtilTester zipTester
             ) {
         super( PackageTestSuite.class.getName() );
 
-        boolean b_run = true;
+        boolean runTests = true;
 
-        if ( b_run ) {
+        if ( runTests ) {
             this.addTest( nullFbTester );
         }
-        if ( b_run ) {
+        if ( runTests ) {
             this.addTest( providePropTester.get() );
         }
-        if ( b_run ) {
+        if ( runTests ) {
             this.addTest( provideWhatever.get() );
         }
-        if ( b_run ) {
+        if ( runTests ) {
             this.addTest( new XmlResourceBundleTester( "testBasicXmlBundle" ) );
         }
-        if (b_run) {
+        if (runTests) {
             this.addTest( provideCacheTester.get().putName("testGeneric") );
             this.addTest( provideCacheTester.get().putName("testAgeOut") );
             this.addTest( provideCacheTester.get().putName("testSizeLimit") );
         }
-        if (b_run) {
+        if (runTests) {
             this.addTest(new UUIDFactoryTester("testFactory", UUIDFactory.getFactory()));
             this.addTest(new DynamicEnumTester("testEnum"));
             this.addTest(new XmlSpecialTester("testEncodeDecode"));
             this.addTest(samplerTester);
         }
-        if ( b_run ) {
+        if ( runTests ) {
             this.addTest( provideFbTester.get() );
+        }
+        if ( runTests ) {
+            this.addTest( zipTester );
         }
         log.log(Level.INFO, "JenkinsTestSuite.suite () returning ok ...");
     }

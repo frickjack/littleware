@@ -35,7 +35,7 @@ YUI.add( 'littleware-littleMessage', function(Y) {
             this.id = MessageSession.counter;
             MessageSession.counter += 1;
             this.originalMessage = originalMessage;
-            this.state = "New";
+            this.state = "NEW";
             this.handle = "";
             this.responseQ = [];
             this.lastEvent = null;
@@ -74,7 +74,7 @@ YUI.add( 'littleware-littleMessage', function(Y) {
                 data: JSON.stringify( message ),
                 on: {
                     complete: function(id, ev) {
-                        log.log( "postMessage response: " + JSON.stringify( ev ) );
+                        log.log( "postMessage response: " + ev ); // JSON.stringify( ev ) );
                         session.lastEvent = ev;
                         if( ev.status == 200 ) {
                             var json = JSON.parse(ev.responseText);
@@ -109,7 +109,7 @@ YUI.add( 'littleware-littleMessage', function(Y) {
                 method: "GET",
                 on: {
                     complete: function(id, ev) {
-                        log.log( "pollForResponse response: " + JSON.stringify( ev ) );
+                        log.log( "pollForResponse response: " + ev ); //JSON.stringify( ev ) );
                         session.lastEvent = ev;
                         if( ev.status == 200 ) {
                             var json = JSON.parse(ev.responseText);
@@ -166,6 +166,7 @@ YUI.add( 'littleware-littleMessage', function(Y) {
                                 message : "javascript test case!"
                             },
                             function( session, vResponse ) {
+                                log.log( "Got response: " + JSON.stringify( vResponse, null, '  ' ) );
                                 gotResponse = true;
                             }
                         );

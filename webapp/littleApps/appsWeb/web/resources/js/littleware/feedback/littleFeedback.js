@@ -219,7 +219,7 @@ YUI.add( 'littleware-feedback-model', function(Y) {
              * @method setException
              * @param ex exception result to associate with result
              */
-            setException:function( result ) {
+            setException:function( ex ) {
                 this._set( "result", ex );
                 this._set( "state", "EXCEPTION" );
             }

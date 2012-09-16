@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Combo Test</title>
+
+        <link rel="stylesheet" href="/resources/yui_3.6.0/yui/build/cssreset/cssreset.css" type="text/css" />
+        <link rel="stylesheet" href="/resources/yui_3.6.0/yui/build/cssbase/cssbase.css"  type="text/css" />
+        <link rel="stylesheet" href="/resources/yui_3.6.0/yui/build/cssfonts/cssfonts.css" type="text/css" />
+        <link rel="stylesheet" href="/resources/yui_3.6.0/yui/build/cssgrids/cssgrids.css" type="text/css" /> 
+<link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />
+        
+
+        <link rel="stylesheet" type="text/css" href="/resources/css/littleware/little.css" />
+        <link rel="stylesheet" type="text/css" href="/resources/css/littleware/littleTree.css" />
+
+        <style>
+            /* Avoid resource latency for these, since they hide unenhanced content */
+            .yui3-js-enabled .yui3-scrollview-loading {
+                visibility:hidden;
+            }
+
+            #additional-content {
+                display:none;
+            }
+            
+            body {
+                font-family: verdana,"Lucida Grande","Arial Unicode MS",helvetica,arial,clean,sans-serif;
+            }
+            div#content {
+                font-family: 'EB Garamond', serif;
+                font-size: 125%;
+            }
+            
+        </style>
+        
+        <style id="yuiInsertBeforeMe" type="text/css">
+            body {
+                margin: auto; /* center in viewport */
+                width: 960px;
+                padding: 0.5em;
+            }   
+            
+            div#leftColumn {
+                margin-top: 50px;
+            }
+            
+            div.fbArea {
+               width:10em; 
+            }
+            
+            div.fbTask {
+               clear:both; 
+               border:1px solid black;
+               background-color:#ddddaa;
+            }
+            div.fbBar {
+                clear:both;
+                font-size:90%;
+                font-weight: bold;
+                background-color:#00ff00;
+            }
+            div.fbContent {
+                clear:both;
+                font-size:80%;
+                border: 2px inset #aaaaaa;
+                height:10em;
+            }
+          
+        </style>
+        
+    </head>
+    <body class="yui3-skin-sam">
+
+        <div class="yui3-g">
+            <div class="yui3-u-5-24">
+                <div id="leftColumn">
+                    <div style="width:70%; height:40px; background-color:#ccee00; margin: 10px;"></div>
+                    <div>
+                      <b>Task bar</b>
+                      <div id="taskBar" class="yui3-scrollview-loading fbArea">
+                        
+                      </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div id="content" class="yui3-u-19-24">
+                <div style="width:100%; height:5px; background-color:#00eeee"> </div>
+                <h3>littleware Combo Test</h3>
+
+                <p>
+                    This little app tests the interaction of a few different
+                    littleware javascript modules:
+                </p>
+                <ul class="clean">
+                    <li>littleFeedback</li>
+                    <li>littleMessage</li>
+                    <li>littleId</li>
+                </ul>
+                       
+            </div>
+        </div>
+
+        <script type="text/x-template" id="taskViewTemplate">
+            <div class="fbTask">
+                <div class="fbBar" style="width:0%;">0%</div>
+                <div class="fbContent">
+                (Running ...)
+                </div>
+            </div>            
+        </script>  
+
+        <script src="/resources/yui_3.6.0/yui/build/yui/yui-debug.js"></script>
+        <script type="text/javascript" src="littleYUI.js" charset="utf-8"></script>
+
+        <script>
+            // Create a YUI sandbox on your page.
+            //YUI().use(
+            littleware.littleYUI.bootstrap().use( 
+                'node', 'node-base', 'event', 'test', 
+                'littleware-feedback-model', 'littleware-feedback-view', 
+                'littleware-littleMessage', 'littleware-littleUtil',
+                'scrollview',
+                function (Y) {
+                    // The modules are loaded and ready to use.
+                    // Setup aliases for some packages ...
+                    var util = Y.littleware.littleUtil;
+                    var littleFeedback = Y.littleware.feedback;
+                    var littleMess = Y.littleware.littleMessage;
+                    var log = new util.Logger( "ComboTest.html" );
+                    
+                    var taskBar = new littleFeedback.view.TaskBar( {srcNode: "#taskBar"});
+                    taskBar.render();
+                    
+                    (function setupScrolling() {                        
+                        var scrollTaskBar = new Y.ScrollView({
+                            srcNode:"#taskBar",
+                            height:"30em",
+                            width: "11em"
+                          }); 
+                        scrollTaskBar.render();
+                        littleFeedback.model.taskFactory.after( "activeTasksChange", function(ev) {
+                           scrollTaskBar.syncUI(); 
+                        });
+                    })();
+                    
+                    /** Post a test message to the server */
+                    function postMessage() {
+                        var task = littleFeedback.model.taskFactory.pushTask( {}, "post test message" );
+                        var fb = task.feedback;
+                        littleMess.postMessage( "littleware.TestMessage", 
+                                "littleware.apps.message.test.TestPayload", {
+                                    message : "ComboTest test case!"
+                                },
+                                // callback is invoked multiple times until Message session is COMPLETE
+                                function( session, vResponse ) {
+                                    log.log( "Callback invoked ..., response size: " + vResponse.length );
+                                    fb.message( "Got response: " + session.state );
+                                    for ( var i=0; i < vResponse.length; ++i ) {
+                                        var info = vResponse[i].response;
+                                        fb.progress( info.progress );
+                                        for( var j=0; j < info.feedback.length; ++j ) {
+                                            fb.message( info.feedback[j] );
+                                        }
+                                    }
+                                    if ( session.state == "COMPLETE" ) {
+                                        task.setComplete();
+                                    } else if ( session.state != "RUNNING" ) {
+                                        task.setException( "Error: " + session.state );
+                                    }
+                                }
+                            );                        
+                        task.setRunning();
+                        fb.message( "posted test message" );
+                    };
+                    
+                    postMessage();
+            });
+
+        </script>
+
+    </body>
+</html>

@@ -75,7 +75,9 @@ class SimpleMessageProcessor @inject.Inject()(
     val sessionId = event.session.sessionId
     val minAge = jtime.DateTime.now.minusMinutes(6)
     val sessionMap:java.util.Map[UUID,model.MessageEvent] = messageBySession.get( sessionId )
-    sessionMap.values().toList.foreach( (scan) => if ( scan.dateCreated.isBefore( minAge ) ) {
+    sessionMap.values().toIndexedSeq[model.MessageEvent].foreach( 
+      // clean out old data
+      (scan) => if ( scan.dateCreated.isBefore( minAge ) ) {
         sessionMap.remove( scan.handle.id )
       }
     )

@@ -18,13 +18,11 @@ import littleware.scala.LazyLogger
 import littleware.test.TestFactory
 
 class PackageTestSuite @Inject() (
-  helperTesterFactory:Provider[LittleHelperTester],
-  streamTester:StreamUtilTester
+  helperTesterFactory:Provider[LittleHelperTester]
 ) extends TestSuite {
   setName( getClass.getName )
   addTest( helperTesterFactory.get )
   addTest( helperTesterFactory.get.putName( "testPipeline") )
-  addTest( streamTester )
 }
 
 object PackageTestSuite {

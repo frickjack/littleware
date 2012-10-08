@@ -9,11 +9,11 @@
         <link rel="stylesheet" href="/resources/yui_3.6.0/yui/build/cssbase/cssbase.css"  type="text/css" />
         <link rel="stylesheet" href="/resources/yui_3.6.0/yui/build/cssfonts/cssfonts.css" type="text/css" />
         <link rel="stylesheet" href="/resources/yui_3.6.0/yui/build/cssgrids/cssgrids.css" type="text/css" /> 
-<link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />
+        <link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />
         
 
         <link rel="stylesheet" type="text/css" href="/resources/css/littleware/little.css" />
-        <link rel="stylesheet" type="text/css" href="/resources/css/littleware/littleTree.css" />
+        <link rel="stylesheet" type="text/css" href="/resources/css/littleware/littleId.css" />
 
         <style>
             /* Avoid resource latency for these, since they hide unenhanced content */
@@ -78,6 +78,10 @@
                 <div id="leftColumn">
                     <div style="width:70%; height:40px; background-color:#ccee00; margin: 10px;"></div>
                     <div>
+                        <p id="userEmail">Not logged in</p>
+                        <p id="userSecret"></p>
+                    </div>
+                    <div>
                       <b>Task bar</b>
                       <div id="taskBar" class="yui3-scrollview-loading fbArea">
                         
@@ -100,7 +104,10 @@
                     <li>littleMessage</li>
                     <li>littleId</li>
                 </ul>
-                       
+
+                <div id="loginParent">
+                    <div id="littleIdUI" class="littleId_popup"></div>
+                </div>
             </div>
         </div>
 
@@ -122,6 +129,7 @@
             littleware.littleYUI.bootstrap().use( 
                 'node', 'node-base', 'event', 'test', 
                 'littleware-feedback-model', 'littleware-feedback-view', 
+                'littleware-littleId',
                 'littleware-littleMessage', 'littleware-littleUtil',
                 'scrollview',
                 function (Y) {
@@ -145,6 +153,36 @@
                         littleFeedback.model.taskFactory.after( "activeTasksChange", function(ev) {
                            scrollTaskBar.syncUI(); 
                         });
+                    })();
+                    
+                    (function enableLittleIdLogin() {
+                        littleware.littleId = Y.littleware.littleId;
+                        littleware.littleId.LoginProcess.set( 'replyMethod', 'GET' );
+
+                        // ex: http://localhost:8080/openId/resources/js/littleware/testSuite.html?authSuccess=true&openId=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3DAItOawm-Y4hQri5D3YqT9SZvewbiawLVcBf-X5o&email=reuben.pasquini512%40gmail.com&verifySecret=9bcf160b-cfe6-4833-8adc-13ffd7117a8d
+                        var login = Y.littleware.littleId.LoginProcess;
+                        var urlBase = /(.+)\/\w+\.\w+/.exec( window.location.href )[1];
+                        // open-id popup should redirect back to our popupReturn page with a GET HTTP request
+                        login.set( 'replyToURL', urlBase + "/littleIdPopupReturn.html" );
+                        login.set( 'replyMethod', 'GET' );
+                        /*
+                        Y.on( 'click', function(ev) {
+                            ev.preventDefault();
+                            login.promptUserForProvider();
+                        }, "#aOpenId" );
+                          */
+                        login.after( 'loginStateChange', function(ev) {
+                            var state = login.get( 'loginState' );
+                            log.log( "Login state changed! : " + state );
+                            if ( state == 'CredsReady' ) {
+                                var creds = login.get( 'userCreds' );
+                                log.log( "Setting user creds ..." );
+                                Y.one( '#userEmail' ).setContent( creds.email + " (<a href=\"./ComboTest.html\">logout</a>)");
+                                Y.one( '#userSecret' ).setContent( creds.secret );
+                                Y.one( '#loginParent' ).hide();
+                            }
+                        }); 
+                        login.promptUserForProvider();
                     })();
                     
                     /** Post a test message to the server */

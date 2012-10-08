@@ -10,16 +10,10 @@
 package littleware.apps.message.model
 
 trait Credentials {
-
 }
 
 object Credentials {
-  /**
-   * Factory for building different types of credentials.
-   * A particular MessageClient may only accept some particular
-   * types of credential
-   */
-  trait Factory {
-    def namePasswordCreds( name:String, password:String ):Credentials
-  }
+  case class NamePassword( name:String, password:String ) extends Credentials {}
+  case class LittleId ( secret:String ) extends Credentials {}
+  case class SessionId ( sessionId:java.util.UUID ) extends Credentials {}
 }

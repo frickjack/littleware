@@ -61,9 +61,6 @@ object LittleModuleFactory {
     
     override def configure( binder:inject.Binder ):Unit = {
       binder.bind( classOf[model.Response.Builder] ).to( classOf[model.internal.ResponseBuilder])
-      binder.bind( classOf[model.Credentials.Factory] 
-                  ).to( classOf[model.internal.NamePasswordCreds.Factory] 
-                  ).in( inject.Scopes.SINGLETON )
       binder.bind( classOf[server.MessageProcessor]
         ).to( classOf[server.internal.SimpleMessageProcessor]
         ).in( inject.Scopes.SINGLETON

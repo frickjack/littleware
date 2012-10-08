@@ -16,15 +16,14 @@ import junit.{framework => jtest}
 
 
 class HttpMessageTester @inject.Inject()(
-  client:remote.WebMessageRemote,
-  credsFactory:model.Credentials.Factory
+  client:remote.WebMessageRemote
 ) extends littleware.test.LittleTest {
   putName( "testWebRemote" )
   val log = Logger.getLogger( getClass.getName )
   
   
   def testWebRemote():Unit = try {
-    val session = client.login( credsFactory.namePasswordCreds("test", "password" ))
+    val session = client.login( model.Credentials.NamePassword("test", "password" ))
     (0 to 1).foreach( (j) => {
         val handle = client.postMessage( session, MessageProcessTester.TestMessage )
         log.log( Level.INFO, "-" + j + " Waiting for test message response" )

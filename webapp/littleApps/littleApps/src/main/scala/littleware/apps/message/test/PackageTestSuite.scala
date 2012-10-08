@@ -14,6 +14,7 @@ import com.google.inject
 import java.io
 import java.util.logging.{Level,Logger}
 import junit.framework.TestSuite
+import littleware.asset.server.bootstrap.ServerBootstrap
 import littleware.base.AssertionFailedException
 import littleware.bootstrap.AppBootstrap
 import littleware.test.TestFactory
@@ -35,7 +36,7 @@ object PackageTestSuite {
   def suite():TestSuite = try {
     log.log( Level.INFO, "Launching test suite ..." )
     val suite = {
-      val boot = AppBootstrap.appProvider.get(
+      val boot = ServerBootstrap.provider.get( //AppBootstrap.appProvider.get(
           ).addModuleFactory( new littleware.asset.webproxy.JettyModule.AppFactory 
           ).addModuleFactory( new JettyModuleFactory
           ).build()

@@ -17,8 +17,7 @@ import org.joda.{time => jtime}
 import junit.{framework => jtest}
 
 class MessageProcessTester @inject.Inject()(
-  processor:server.MessageProcessor,
-  credsFactory:model.Credentials.Factory
+  processor:server.MessageProcessor
 ) extends littleware.test.LittleTest {
   setName( "testMessageProcess" )
   
@@ -40,7 +39,7 @@ class MessageProcessTester @inject.Inject()(
   def testMessageProcess():Unit = try {
     val now = jtime.DateTime.now
     val client = processor.client
-    val session = client.login( credsFactory.namePasswordCreds("test", "password" ) )
+    val session = client.login( model.Credentials.NamePassword("test", "password" ) )
     val handle:model.MessageHandle = client.postMessage( session, MessageProcessTester.TestMessage )
     val responseSeq:Seq[model.ResponseEnvelope] = responseIterator( session 
     ).take(20).toSeq

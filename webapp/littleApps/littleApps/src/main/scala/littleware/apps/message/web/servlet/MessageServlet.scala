@@ -118,11 +118,10 @@ object MessageServlet {
   class Tools @inject.Inject() (
     val messClient:remote.MessageRemote,
     val messFactory:inject.Provider[model.Message.Builder],
-    credsFactory:model.Credentials.Factory,
     gsonFactory:inject.Provider[gson.Gson]
   ) {
     lazy val gsonTool:gson.Gson = gsonFactory.get
-    val anonymous:model.Credentials = credsFactory.namePasswordCreds("anonymous", "" )
+    val anonymous:model.Credentials = model.Credentials.NamePassword("anonymous", "" )
     lazy val session:model.ClientSession = messClient.login( anonymous )
   }
   

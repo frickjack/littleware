@@ -7,7 +7,7 @@
  */
 
 
-package littleware.base;
+package littleware.base.login;
 
 import javax.security.auth.callback.*;
 import java.io.IOException;

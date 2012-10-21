@@ -14,7 +14,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import littleware.base.LoginCallbackHandler;
+import littleware.base.login.LoginCallbackHandler;
 import littleware.bootstrap.LittleBootstrap;
 
 /**

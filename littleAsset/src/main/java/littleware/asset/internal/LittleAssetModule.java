@@ -51,7 +51,7 @@ import littleware.security.auth.client.internal.RetryRemoteSessionMgr;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.ContentEncodingHttpClient;
+import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -96,6 +96,8 @@ public class LittleAssetModule extends AbstractAppModule {
             }
         }
     }
+    
+    
     private static ClientConfig clientConfig = new ClientConfig();
 
     public static ClientConfig getClientConfig() {
@@ -193,15 +195,18 @@ public class LittleAssetModule extends AbstractAppModule {
         }
 
         
-        final ClientConnectionManager connectionMgr = new org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager();      
-        final ContentEncodingHttpClient httpclient = new ContentEncodingHttpClient(connectionMgr, new org.apache.http.params.SyncBasicHttpParams());
+        final ClientConnectionManager connectionMgr = new org.apache.http.impl.conn.PoolingClientConnectionManager();
+        final DefaultHttpClient defaultClient = new DefaultHttpClient( connectionMgr, new org.apache.http.params.SyncBasicHttpParams());
+        final DecompressingHttpClient httpclient = new DecompressingHttpClient(
+            defaultClient
+            );
         //httpclient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         //httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, java.lang.Boolean.FALSE);
         httpclient.getParams().setParameter(org.apache.http.client.params.ClientPNames.ALLOW_CIRCULAR_REDIRECTS, java.lang.Boolean.TRUE);
         
         binder.bind(ClientConnectionManager.class).toInstance(connectionMgr);
-        binder.bind(DefaultHttpClient.class).toInstance(httpclient);
-        binder.bind(CredentialsProvider.class).toInstance(httpclient.getCredentialsProvider() );
+        //binder.bind(DefaultHttpClient.class).toInstance(defaultClient);
+        binder.bind(CredentialsProvider.class).toInstance(defaultClient.getCredentialsProvider() );
         binder.bind(HttpClient.class).toInstance(httpclient);
 
         // Bind client method of connecting with server

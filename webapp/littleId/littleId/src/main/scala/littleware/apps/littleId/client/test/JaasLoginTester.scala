@@ -17,7 +17,7 @@ import javax.security.auth.login.LoginException
 import junit.framework.Assert
 import junit.framework.TestCase
 import littleware.apps.littleId.client.controller.JaasLoginModule
-import littleware.base.LoginCallbackHandler
+import littleware.base.login.LoginCallbackHandler
 import littleware.scala.LazyLogger
 
 

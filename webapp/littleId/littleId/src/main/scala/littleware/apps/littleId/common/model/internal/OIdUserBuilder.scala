@@ -18,22 +18,16 @@ object OIdUserBuilder {
     @scala.reflect.BeanProperty
     email:String,
     @scala.reflect.BeanProperty
-    openId:URL,
-    credentials:Map[String,String]
+    openId:URL
   ) extends OIdUserCreds {
-    override val name = email
-
-    override def equals( in:Any ):Boolean = in match {
-      case null => false
-      case other:OIdUserCreds => (email == other.email) && (openId == other.openId)
-      case _ => false
-    }
+    val name = email
+    val credentials:Map[String,String] = Map( "email" -> email, "openId" -> openId.toString )
   }
 }
 
 class OIdUserBuilder extends OIdUserCreds.Builder {
   override def build:OIdUserCreds = {
     this.validate()
-    OIdUserBuilder.SimpleOIdUser( email, openId, Map( "email" -> email, "openId" -> openId.toString ) )
+    OIdUserBuilder.SimpleOIdUser( email, openId )
   }
 }

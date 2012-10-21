@@ -30,7 +30,7 @@ import littleware.apps.littleId.client
 import client.controller.VerifyTool
 import client.web.bean
 import littleware.apps.littleId.client.controller.JaasLoginModule
-import littleware.base.LoginCallbackHandler
+import littleware.base.login.LoginCallbackHandler
 import littleware.scala.LazyLogger
 import littleware.scala.LittleHelper
 import littleware.web.beans.GuiceBean

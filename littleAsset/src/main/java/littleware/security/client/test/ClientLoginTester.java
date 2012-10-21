@@ -20,7 +20,7 @@ import junit.framework.Assert;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.test.AbstractAssetTest;
 import littleware.security.auth.LittleSession;
-import littleware.base.LoginCallbackHandler;
+import littleware.base.login.LoginCallbackHandler;
 import littleware.security.LittleUser;
 import littleware.security.auth.client.KeyChain;
 

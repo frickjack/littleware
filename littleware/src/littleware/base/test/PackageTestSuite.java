@@ -25,7 +25,8 @@ public class PackageTestSuite extends JenkinsTestSuite {
      * junit.swingui.TestRunner looks for this.
      */
     @Inject
-    public PackageTestSuite( Provider<WhateverTester> provideWhatever,
+    public PackageTestSuite( 
+            Provider<WhateverTester> provideWhatever,
             Provider<FbIteratorTester> provideFbTester,
             Provider<PropLoaderTester> providePropTester,
             Provider<CacheTester> provideCacheTester,
@@ -33,9 +34,13 @@ public class PackageTestSuite extends JenkinsTestSuite {
             SamplerTester samplerTester,
             ZipUtilTester zipTester,
             Provider<SwingTester> swingTesterProvider,
-            Provider<SwingFeedbackTester> swingFeedbackTestProvider
+            Provider<SwingFeedbackTester> swingFeedbackTestProvider,
+            PropertiesLoginTester loginTester
             ) {
-        super( provideWhatever, provideFbTester, providePropTester, provideCacheTester, nullFbTester, samplerTester, zipTester );
+        super( provideWhatever, provideFbTester, providePropTester, 
+                provideCacheTester, nullFbTester, samplerTester, zipTester,
+                loginTester
+                );
         setName( getClass().getName() );
         boolean runTest = true;
 

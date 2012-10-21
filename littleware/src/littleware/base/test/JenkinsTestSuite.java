@@ -33,7 +33,8 @@ public class JenkinsTestSuite extends TestSuite {
             Provider<CacheTester> provideCacheTester,
             NullFeedbackTester nullFbTester,
             SamplerTester samplerTester,
-            ZipUtilTester zipTester
+            ZipUtilTester zipTester,
+            PropertiesLoginTester loginTester
             ) {
         super( PackageTestSuite.class.getName() );
 
@@ -67,6 +68,9 @@ public class JenkinsTestSuite extends TestSuite {
         }
         if ( runTests ) {
             this.addTest( zipTester );
+        }
+        if ( runTests ) {
+            this.addTest( loginTester );
         }
         log.log(Level.INFO, "JenkinsTestSuite.suite () returning ok ...");
     }

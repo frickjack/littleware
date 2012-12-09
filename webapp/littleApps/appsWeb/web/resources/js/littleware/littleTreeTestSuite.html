@@ -5,10 +5,10 @@
     <head>
         <title>littleware js Test Page</title>
 
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssreset/cssreset.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssbase/cssbase.css"  type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssfonts/cssfonts.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssgrids/cssgrids.css" type="text/css" /> 
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.3/build/cssreset/cssreset.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.3/build/cssbase/cssbase.css"  type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.3/build/cssfonts/cssfonts.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.3/build/cssgrids/cssgrids.css" type="text/css" /> 
 
         <link rel="stylesheet" type="text/css" href="../../css/littleware/little.css" />
         <link rel="stylesheet" type="text/css" href="../../css/littleware/littleTree.css" />
@@ -59,7 +59,7 @@
             </div>
         </script>  
 
-        <script src="http://yui.yahooapis.com/3.5.1/build/yui/yui-debug.js"></script>
+        <script src="http://yui.yahooapis.com/3.7.3/build/yui/yui-debug.js"></script>
         <script type="text/javascript" src="littleYUI.js" charset="utf-8"></script>
 
         <script>
@@ -73,8 +73,10 @@
                     // Your code goes here!
                     var log = new Y.littleware.littleUtil.Logger( "littleTreeTestSuite.html" );
                     var suite = Y.littleware.littleTree.buildTestSuite();
-
+                    var utilSuite = Y.littleware.littleUtil.buildTestSuite();
+                    
                     Y.Test.Runner.add( suite );
+                    Y.Test.Runner.add( utilSuite );
                     Y.Test.Runner.run();                
             });
 

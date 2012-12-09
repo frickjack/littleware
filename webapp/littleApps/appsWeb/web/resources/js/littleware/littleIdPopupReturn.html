@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html >
+    <head>
+        
+        <style id="yuiInsertBeforeMe" type="text/css"></style>        
+    </head>
+    <body>
+            <p>
+                This popup should close automatically in a second after reporting your
+                credentials to the parent login window ...
+            </p>
+            
+        <script src="/resources/yui_3.6.0/yui/build/yui/yui-debug.js"></script>
+        <script type="text/javascript" src="littleYUI.js" charset="utf-8"></script>
+            
+            <script type="text/javascript" language="JavaScript">
+                littleware.littleYUI.bootstrap().use( 'node', 'node-base', 'littleware-littleId', 
+                function(Y) {
+                    console.log( "Looks ok: " + window.location.href );
+                    var loginData = Y.littleware.littleId.CalbackData.buildFromHref( window.location.href );
+                    window.opener.littleware.littleId.LoginProcess.handleProviderCallback( loginData );
+                    window.close();
+                });
+            </script>
+   </body>
+</html>
+

@@ -33,19 +33,48 @@ YUI.add('littleware-littleUtil', function(Y) {
         function Logger( loggerName ) {
             this.loggerName = loggerName;
         }
+        
+        /**
+         * level property limits log messages - 
+         * only logs messages with category >= level
+         * where 'debug' == 1 and 'info' == 2.
+         * Default level is 0.
+         * @static
+         */
+        Logger.level = 0;
 
         /**
          * Call through to Y.log
          * 
          * @param msg string
-         * @param level string - optional
+         * @param cat string - optional
          */
-        Logger.prototype.log = function ( msg, level ) {
-                if( Y.Lang.isUndefined( level ) ) {
-                    level = 'info';
+        Logger.prototype.log = function ( msg, cat ) {
+                var level = 2;
+                if( Y.Lang.isUndefined( cat ) ) {
+                    level = 2;
+                } else if ( cat == 'fine' ) {
+                    level = 1;
                 }
-                Y.log( msg, level, this.loggerName );
+                if ( level > Logger.level ) {
+                    Y.log( msg, cat, this.loggerName );
+                }
             };
+            
+        /** 
+         * Shortcut for log( msg, 'info' )
+         */
+        Logger.prototype.info = function( msg ) {
+            this.log( msg, 'info' );
+        };
+        /**
+         * Shortcut for log( msg, 'fine' )
+         */
+        Logger.prototype.fine = function( msg ) {
+            this.log( msg, 'fine' );
+        };
+        
+        var log = new Logger( "littleUtil" );
             
         /**
          * Return the keys of the given object
@@ -74,6 +103,45 @@ YUI.add('littleware-littleUtil', function(Y) {
         }
         
         /**
+         * Helper for assembling Builder classes.
+         * @class BuilderBuilder
+         */
+        var BuilderBuilder = {
+          /**
+           * Utility assembles a Builder class
+           */            
+          create: function( propsIn ) {
+            var props = Y.Array.unique( propsIn );
+              
+            var Builder = function() {
+                Y.Array.each( props, function(key) {
+                   this[key] = null; 
+                });
+            };
+            
+            Builder.props = props;
+            
+            Y.Array.each( props, function(key) {
+                var funcName = "with" + key[0].toUpperCase() + key.substr(1);
+                //log.fine( "Registering builder function: " + funcName );
+                Builder.prototype[ funcName ] = function( value ) {
+                    this[key] = value;
+                    return this;
+                };
+            });
+
+            /** Return any unset properties */
+            Builder.prototype.validate = function() {
+                return Y.Array.filter( Builder.props, function(key) { 
+                    return this[key] == null;
+                }, this );
+            }
+            
+            return Builder;
+          }  
+        };
+        
+        /**
          * Return a test suite to test this submodule
          * @method buildTestSuite
          * @return Y.Test.Suite
@@ -81,23 +149,33 @@ YUI.add('littleware-littleUtil', function(Y) {
         var buildTestSuite = function() {
             var suite = new Y.Test.Suite( "littleware-littleUtil Test Suite");
             suite.add( new Y.Test.Case( {
-                name: "Bogus Test",
-                testBogus: function() {
+                name: "Builder Test",
+                testBuilder: function() {
                     Y.Assert.isTrue( true, "Do nothing test" );
+                    log.info( "Assembling builder" );
+                    var Builder = BuilderBuilder.create( ["a", "b", "c"]);
+                    var builder = new Builder();
+                    log.info( "Chaining builder assignment" );
+                    builder.withA( "a" ).withB( "b" ).withC( "c" );
+                    log.info( "Checking builder values" );
+                    Y.Assert.isTrue( builder.a == "a" && builder.b == "b" && builder.c == "c", "BuilderBuilder sets up reasonable builder");
+                    Y.Assert.isTrue( builder.validate().length == 0, "test builder validates ok" );
                 }
             }
             ));
 
             return suite;
         };
+        
         // expose an api
         return {
             buildTestSuite: buildTestSuite,
             Logger:Logger,
             keys:keys,
-            assert:assert
+            assert:assert,
+            BuilderBuilder:BuilderBuilder
         };
     })();
 }, '0.1.1' /* module version */, {
-    requires: []
+    requires: [ "array-extras" ]
 });

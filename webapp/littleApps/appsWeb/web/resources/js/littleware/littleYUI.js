@@ -22,7 +22,8 @@ if( window.littleware == undefined ) {
  * @namespace auburn.library
  */
 littleware.littleYUI = (function() {
-
+    var CONTEXT_ROOT = "/btrack";
+    
     /**
      * Get the YUI.config groups entry that registers the littleware javascript
      * modules with - YUI( { ..., groups: { littleware: getLittleModules(), ... } )
@@ -32,12 +33,13 @@ littleware.littleYUI = (function() {
     var getLittleModules = function() {
         return {
             combine: false,
-            base: '/resources/js/littleware/',
+            base: CONTEXT_ROOT + '/resources/js/littleware/',
             //comboBase: 'http://yui.yahooapis.com/combo?',
             //root: '2.8.0r4/build/',
             modules:  { // one or more external modules that can be loaded along side of YUI
                 'littleware-littleUtil': {
-                    path: "littleUtil.js"
+                    path: "littleUtil.js",
+                    requires: [ "array-extras" ]
                 },
                 'littleware-littleId': {
                     path: "littleId.js",

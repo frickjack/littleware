@@ -33,41 +33,6 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
         var log = new util.Logger( "littleBabyTrack" );
 
         /**
-         * Internal utility - pad a positive integer to at least length 2 with a zero
-         * @method zPad
-         * @param {int} i
-         * @return {string} i padded to length >= 2 with zero prefix if necessary
-         */
-        var zPad = function( i ) {
-            if( i < 10 ) {
-                return "0" + i;
-            }
-            return "" + i;
-        };
-        
-        /**
-         * Internal utility - format a date down to minute: HH:MI
-         * @method dateMinuteFormatter
-         * @param {Date} date
-         */
-        var dateMinuteFormatter = function( date ) {
-            var hour = date.getHours() % 12;
-            hour = hour || 12;
-            var minute = date.getMinutes();
-            return "" + hour + ":" + zPad( minute );
-        }
-        
-        /**
-         * Internal uitility - format date to second: HH:MI:SS
-         * @method dateSecondFormatter
-         * @param {Date} date
-         */
-        var dateSecondFormatter = function( date ) {
-            var second = date.getSeconds();
-            return dateMinuteFormatter( date ) + ":" + zPad( second );
-        }
-
-        /**
          * View class extends Y.View
          * @class View
          * @constructor
@@ -81,7 +46,7 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
             
             initializer:function(){
                 
-                var dateFormatter = function( o ) { return dateSecondFormatter( o.value ); }
+                var dateFormatter = function( o ) { return util.Date.secondString( o.value ); }
                 
                 this.dataTable = new Y.DataTable( {
                     columns: [ 
@@ -98,13 +63,45 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                             key:"seconds",
                             label:"duration",
                             formatter:function(o) {
-                                return "" + (Math.floor( o.value / 60 )) + ":" + zPad( o.value % 60);
+                                return "" + (Math.floor( o.value / 60 )) + ":" + util.zPadInt( o.value % 60);
                             }
                         } 
                     ],
                     data: this.get( "model" ).get( "history" )
                   }
                 );
+                
+                var durationFormatter = function( o ) {
+                    var secs = o.value;
+                   return "" + Math.floor( secs / 60 ) + ":" + util.zPadInt( secs % 60 ); 
+                };
+                
+                // Just use a Y.DataTable for the stats for now
+                this.statsTable = new Y.DataTable( {
+                 recordType:Y.littleware.babyTrack.view.statsPanel.Model,
+                 columns: [
+                    {
+                       key:"aveDuration",
+                       label: "Average Duration",
+                       formatter: durationFormatter
+                    },
+                    {
+                        key:"avePeriod",
+                        label: "Average Period Between Contractions",
+                       formatter: durationFormatter
+                    },
+                    {
+                        key:"totalTime",
+                        label: "Total time",
+                       formatter: durationFormatter
+                    }
+                 ],
+                 data:[
+                    new Y.littleware.babyTrack.view.statsPanel.Model()
+                 ]
+                });
+                
+                //this.statsTable.get( "data" ).add( new Y.littleware.babyTrack.view.statsPanel.Model() );
                     
                 this.buttonPanel = view.startStopButtonPanel.Factory.get().build();
 
@@ -122,9 +119,9 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                             labelFunction:function( value ) {
                                 // only display 5-minute values
                                 if ( value.getMinutes() % 5 == 0 ) {
-                                    return dateMinuteFormatter( value );
+                                    return util.Date.minuteString( value );
                                 } else {
-                                    //log.fine( "Chart label ignoring date: " + dateMinuteFormatter( value ) );
+                                    //log.fine( "Chart label ignoring date: " + dateMinuteString( value ) );
                                     return "";
                                 }
                             }
@@ -231,6 +228,10 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                 chartDiv.setHTML( "" );
                 this.chart.render( chartDiv );
                 
+                var statsDiv = root.one( "div#stats" );
+                statsDiv.setHTML( "" );
+                this.statsTable.render( statsDiv );
+                
                 var buttonContainer = root.one( "#button" );
                 buttonContainer.setHTML( "" );
                 this.buttonPanel.set( "container", buttonContainer  );
@@ -302,6 +303,7 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                 this.model.startContraction();
             } else {
                 this.model.endContraction();
+                this.view.statsTable.getRecord(0).updateStats( this.model );
             }
             
             // this is a goofy place to do this ...
@@ -321,6 +323,7 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
     requires: [ 'base', 'charts', 'datatable', 
         'littleware-babyTrack-model-contractionApp', 
         'littleware-babyTrack-view-startStopButtonPanel', 
+        'littleware-babyTrack-view-statsPanel', 
         'littleware-littleUtil', "model-list", 'view' ]
 });
 

@@ -69,12 +69,20 @@ YUI.littleware.babyTrack.contractionMain = (function() {
                 },                
                 'littleware-babyTrack-view-contractionPanel': {
                     path: "babyTrack/view/contractionPanel.js",
-                    requires: [ 'base', 'charts', 'datatable', 'littleware-babyTrack-model-contractionApp', 'littleware-littleUtil', "model-list", 'view' ]
+                    requires: [ 'base', 'charts', 'datatable', 
+                        'littleware-babyTrack-model-contractionApp', 
+                        'littleware-babyTrack-view-startStopButtonPanel',
+                        'littleware-babyTrack-view-statsPanel',
+                        'littleware-littleUtil', "model-list", 'view' ]
                 },
                 'littleware-babyTrack-view-startStopButtonPanel': {
                     path: "babyTrack/view/startStopButtonPanel.js",
                     requires: [ 'base', 'littleware-littleUtil', "model", 'view' ]
-                }                                
+                },
+                'littleware-babyTrack-view-statsPanel': {
+                    path: "babyTrack/view/statsPanel.js",
+                    requires: [ 'base', 'littleware-littleUtil', "model", 'view' ]
+                }                
             }
         };
 
@@ -117,6 +125,9 @@ YUI.littleware.babyTrack.contractionMain = (function() {
                 'littleware-babyTrack-view-contractionPanel',
                 function (Y) {
                     // The modules are loaded and ready to use.
+                    if( Y.config.debug ) {
+                        gY = Y; // set global variable for easy console access in debugging ...
+                    }
                     var util = Y.littleware.littleUtil;
                     var fb = Y.littleware.feedback;
                     var log = new util.Logger( "littleFbTestSuite.html" );

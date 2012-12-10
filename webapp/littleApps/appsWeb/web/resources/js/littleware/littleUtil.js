@@ -140,7 +140,44 @@ YUI.add('littleware-littleUtil', function(Y) {
             return Builder;
           }  
         };
+
+
+        /**
+         * Pad a positive integer to at least length 2 with a zero.
+         * Mostly useful for formatting time-strings (dateMinuteString, etc).
+         * @method zPadInt
+         * @param {int} i
+         * @return {string} i padded to length >= 2 with zero prefix if necessary
+         */
+        var zPadInt = function( i ) {
+            if( i < 10 ) {
+                return "0" + i;
+            }
+            return "" + i;
+        };
         
+        /**
+         * Format a date down to minute: HH:MI
+         * @method dateMinuteString
+         * @param {Date} date
+         */
+        var dateMinuteString = function( date ) {
+            var hour = date.getHours() % 12;
+            hour = hour || 12;
+            var minute = date.getMinutes();
+            return "" + hour + ":" + zPadInt( minute );
+        }
+        
+        /**
+         * Format date to second: HH:MI:SS
+         * @method dateSecondString
+         * @param {Date} date
+         */
+        var dateSecondString = function( date ) {
+            var second = date.getSeconds();
+            return dateMinuteString( date ) + ":" + zPadInt( second );
+        }
+
         /**
          * Return a test suite to test this submodule
          * @method buildTestSuite
@@ -166,14 +203,20 @@ YUI.add('littleware-littleUtil', function(Y) {
 
             return suite;
         };
-        
+
+
         // expose an api
         return {
             buildTestSuite: buildTestSuite,
             Logger:Logger,
             keys:keys,
             assert:assert,
-            BuilderBuilder:BuilderBuilder
+            BuilderBuilder:BuilderBuilder,
+            zPadInt:zPadInt,
+            Date:{
+                minuteString:dateMinuteString,
+                secondString:dateSecondString
+            }
         };
     })();
 }, '0.1.1' /* module version */, {

@@ -50,7 +50,6 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                 
                 this.dataTable = new Y.DataTable( {
                     columns: [ 
-                        "id", 
                         { key:"startTime", 
                             label:"start",
                             formatter:dateFormatter
@@ -81,15 +80,15 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                  recordType:Y.littleware.babyTrack.view.statsPanel.Model,
                  columns: [
                     {
-                       key:"aveDuration",
-                       label: "Average Duration",
+                        key:"avePeriod",
+                        label: "Ave. Period",
                        formatter: durationFormatter
                     },
                     {
-                        key:"avePeriod",
-                        label: "Average Period Between Contractions",
+                       key:"aveDuration",
+                       label: "Ave. Duration",
                        formatter: durationFormatter
-                    },
+                    },                    
                     {
                         key:"totalTime",
                         label: "Total time",
@@ -149,6 +148,12 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                                 }
                         }
                 });
+                
+                //var viewportWidth  = document.documentElement.clientWidth
+                //     , viewportHeight = document.documentElement.clientHeight;
+
+                //Y.on( 'windowresize', function(ev){} ); // bla
+                
             },
             
             /**
@@ -223,10 +228,25 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                 var tableDiv = root.one( "div.dataTable" );
                 tableDiv.setHTML( "" );
                 this.dataTable.render( tableDiv );
-                
+
+                var viewportWidth  = document.documentElement.clientWidth
+                     , viewportHeight = document.documentElement.clientHeight;
+
                 var chartDiv = root.one( "figure" );
                 chartDiv.setHTML( "" );
-                this.chart.render( chartDiv );
+                if( viewportWidth > 400 && viewportHeight > 400 ) {
+                    // do not render chart on small (phone) screens
+                    this.chart.render( chartDiv );
+                } else {
+                    // probably on a phone ...
+                    chartDiv.hide();
+                    // scroll to hide the browser URL chrome ...
+                    //   http://localhost:8080/btrack/babyTrack/en/511.html
+                    Y.one( "body" ).setStyle( "min-height", "480px" );
+                    setTimeout(function(){
+                        window.scrollTo( window.pageXOffset,0);
+                        }, 0);
+                }
                 
                 var statsDiv = root.one( "div#stats" );
                 statsDiv.setHTML( "" );

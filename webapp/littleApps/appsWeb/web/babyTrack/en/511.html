@@ -7,21 +7,31 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
 -->
 
 <!DOCTYPE html>
-<html>
+<html manifest="511.manifest">
     <head>
-        <title>track contractions</title>
+        <title>5-1-1 track contractions</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.3/build/cssreset/cssreset.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.3/build/cssbase/cssbase.css"  type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.3/build/cssfonts/cssfonts.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.7.3/build/cssgrids/cssgrids.css" type="text/css" />         
+
+        <link rel="apple-touch-icon" href="/btrack/resources/img/appIcons/oo511.57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/btrack/resources/img/appIcons/oo511.72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/btrack/resources/img/appIcons/oo511.114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/btrack/resources/img/appIcons/oo511.144x144.png" />
+
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssreset/cssreset.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssbase/cssbase.css"  type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssfonts/cssfonts.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssgrids/cssgrids.css" type="text/css" />         
         <link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />
         
         <style id="yuiInsertBeforeMe" type="text/css">
             body {
                 margin:auto;
-                width:960px;
+                width:100%;
+                height:100%;
+                overflow:auto;
             }
             
             div {
@@ -76,6 +86,7 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
                 background-color: #0066CC;
                 padding:20px;
                 font-weight:bold;
+                font-size:120%;
             }
             
             span.buttonStart {
@@ -88,6 +99,8 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
 
             span.buttonStop {
                 background-color:#DD4400;
+                background-image:url('/btrack/resources/img/wait.gif');
+                background-repeat:no-repeat;
             }
             
             span.buttonStop:hover {
@@ -99,7 +112,7 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
             
             figure#graph {
                 width:100%;
-                height:200px;
+                height:150px;
             }
             
             figure#graph > svg {
@@ -143,6 +156,7 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
            div.dataTable {
                height:100px;
                overflow:auto;
+               -webkit-overflow-scrolling: touch;
            }
            
            div.dataTable table.yui3-datatable-table {
@@ -185,7 +199,7 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
         <div class="yui3-g">
         
           <div id="app" class="yui3-u-1">
-              <h1>Contraction Counter</h1>
+              <h1>5-1-1 Contraction Counter</h1>
               
               <figure id="graph">
                   
@@ -243,7 +257,7 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
         </div>
         
         
-        <script src="http://yui.yahooapis.com/3.7.3/build/yui/yui-debug.js"></script> 
+        <script src="http://yui.yahooapis.com/3.8.0/build/yui/yui-min.js"></script> 
         
         <script type="text/x-handlebars-template" id="dataGraphTemplate">
             <div class="fbTask">

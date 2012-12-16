@@ -130,14 +130,14 @@ YUI.add( 'littleware-babyTrack-view-startStopButtonPanel', function(Y) {
                  * @default {String} "start"
                  */
                 startLabel: {
-                    value:"start"
+                    value:"start contraction"
                 },
                 /**
                  * @attribute stopLabel
                  * @default {String} "stop"
                  */
                 stopLabel: {
-                    value:"stop"
+                    value:"stop contraction"
                 },
                 
                 /**

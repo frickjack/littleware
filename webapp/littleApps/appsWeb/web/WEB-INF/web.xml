@@ -68,6 +68,10 @@
         <extension>svg</extension>
         <mime-type>image/svg+xml</mime-type>
     </mime-mapping>    
+    <mime-mapping>
+        <extension>manifest</extension>
+        <mime-type>text/cache-manifest</mime-type>
+    </mime-mapping>    
  
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>

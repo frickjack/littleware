@@ -27,7 +27,8 @@ YUI.add( 'littleware-babyTrack-model-contractionApp', function(Y) {
         var model = Y.littleware.babyTrack.model;
         var util = Y.littleware.littleUtil;
         var log = new util.Logger( "littleBabyTrack" );
-
+        
+        
         /**
          * AppModel tracks application state
          * @class AppModel
@@ -85,7 +86,7 @@ YUI.add( 'littleware-babyTrack-model-contractionApp', function(Y) {
     }
   )();
 }, '0.1.1' /* module version */, {
-    requires: [ 'base', 'littleware-babyTrack-model-contraction', 'model', 'model-list' ]
+    requires: [ 'base', 'event', 'littleware-babyTrack-model-contraction', 'model', 'model-list', 'node' ]
 });
 
 

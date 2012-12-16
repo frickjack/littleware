@@ -65,7 +65,7 @@ YUI.littleware.babyTrack.contractionMain = (function() {
                 },
                 'littleware-babyTrack-model-contractionApp': {
                     path: "babyTrack/model/contractionApp.js",
-                    requires: [ 'base', 'littleware-babyTrack-model-contraction', 'model', 'model-list' ]
+                    requires: [ 'base', 'event', 'littleware-babyTrack-model-contraction', 'model', 'model-list', 'node' ]
                 },                
                 'littleware-babyTrack-view-contractionPanel': {
                     path: "babyTrack/view/contractionPanel.js",

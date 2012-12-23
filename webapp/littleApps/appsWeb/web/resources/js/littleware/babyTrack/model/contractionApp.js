@@ -36,9 +36,17 @@ YUI.add( 'littleware-babyTrack-model-contractionApp', function(Y) {
          */
         var AppModel = Y.Base.create( 'contractionAppModel', Y.Model, [],
                  {
-                     startContraction:function(){
+                     /**
+                      * Stage a new contraction object to add to 
+                      * app history on call to endContraction
+                      * @method startContraction
+                      * @param {Date} startTime optional date - defaults to now
+                      */
+                     startContraction:function( startTime ){
+                         startTime = startTime || new Date();
                          this.set( "state", "in" );
-                         this.builder = model.contraction.Factory.get();
+                         this.builder = model.contraction.Factory.get(
+                             ).withStartTime( startTime );
                      },
                      endContraction:function(){
                          if ( this.builder ) {

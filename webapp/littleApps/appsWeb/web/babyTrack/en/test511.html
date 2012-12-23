@@ -7,7 +7,7 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
 -->
 
 <!DOCTYPE html>
-<html manifest="511.manifest">
+<html>
     <head>
         <title>5-1-1 track contractions</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -23,12 +23,16 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
         <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssreset/cssreset.css" type="text/css" />
         <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssbase/cssbase.css"  type="text/css" />
         <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssfonts/cssfonts.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssgrids/cssgrids.css" type="text/css" />         
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.8.0/build/cssgrids/cssgrids.css" type="text/css" /> 
         <link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />
         
-        <style id="yuiInsertBeforeMe" type="text/css"></style>
-        <link rel="stylesheet" href="/btrack/resources/css/littleware/babyTrack/main.css" type="text/css" />         
+        
+        <style id="yuiInsertBeforeMe" type="text/css">
+        </style>
+        <link rel="stylesheet" href="/btrack/resources/css/littleware/babyTrack/main.css" type="text/css" /> 
+
     </head>
+        
     <body class="yui3-skin-sam">
 
         <div class="yui3-g">
@@ -37,16 +41,51 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
               <h2>5-1-1 Contraction Timer <span id="clock">3:33:33</span></h2>
               
               <figure id="graph">
+                  
+  <svg class="graphView" viewBox="0 0 1000 50"  preserveAspectRatio="none">
+    <defs>
+    </defs>
+    <g class="mainView">
+       <g class="graph">
+           <g class="gridLine">
+              <path  d="M0,0L0,50L1000,50"></path>
+           </g>
+           <g class="dataBars">
+             <path d="M100,50L100,0L140,0L140,50"></path>
+             <path d="M200,50L200,0L250,0L250,50"></path>
+           </g>
+           <g class="labels">
+              <text x="120" y="30">(1)</text>
+              <text x="225" y="30">(2)</text>
+           </g>           
+       </g>
+    </g>
+  </svg>                  
               </figure>
               <!-- .......................................... -->
               
               <div id="table" class="dataTable">
+                  <table class="history">
+                      <tr class="odd"><td class="id">(1)</td><td class="start">9:10:55</td><td class="stop">9:11:33</td><td class="duration">38 seconds</td></tr>
+                      <tr class="even"><td class="id">(2)</td><td class="start">9:15:03</td><td class="stop">9:16:33</td><td class="duration">90 seconds</td></tr>
+                      <tr class="even"><td class="id">()</td><td class="start"></td><td class="stop"></td><td class="duration"></td></tr>
+                      <tr class="even"><td class="id">()</td><td class="start"></td><td class="stop"></td><td class="duration"></td></tr>
+                      <tr class="even"><td class="id">()</td><td class="start"></td><td class="stop"></td><td class="duration"></td></tr>
+                      <tr class="even"><td class="id">()</td><td class="start"></td><td class="stop"></td><td class="duration"></td></tr>
+                      <tr class="even"><td class="id">()</td><td class="start"></td><td class="stop"></td><td class="duration"></td></tr>
+                  </table>
               </div>
               
               <div id="button">
+                  <span class="button buttonStart">start contraction</span>
               </div>
               
               <div id="stats">
+                  <table class="stats">
+                      <tr><td>average spacing:</td><td>5 minutes</td></tr>
+                      <tr><td>average duration:</td><td>57 seconds</td></tr>
+                      <tr><td>total time tracked:</td><td>12 minutes</td></tr>
+                  </table>
               </div>
               
                    

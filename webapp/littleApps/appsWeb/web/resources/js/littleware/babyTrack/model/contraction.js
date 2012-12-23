@@ -50,30 +50,8 @@ YUI.add( 'littleware-babyTrack-model-contraction', function(Y) {
          * @class Builder
          * @constructor
          */
-        var Builder = function() {
-            this.startTime = new Date();
-            this.endTime = null;
-        };
+        var Builder = util.BuilderBuilder.create( [ "startTime", "endTime" ] );
         
-        /**
-         * @method withStartTime
-         * @param {Date} value
-         * @return {Builder} this
-         */
-        Builder.prototype.withStartTime = function( value ) {
-            this.startTime = value;
-            return this;
-        };
-        
-        /**
-         * @method withEndTime
-         * @param {Date} value
-         * @return {Builder} this
-         */
-        Builder.prototype.withEndTime = function( value ) {
-            this.endTime = value;
-            return this;
-        };
         
         var id=0;
         
@@ -81,6 +59,7 @@ YUI.add( 'littleware-babyTrack-model-contraction', function(Y) {
          * @method build
          */
         Builder.prototype.build = function() {
+            util.assert( this.validate().length == 0, "Builder properties all set" );
             return new Contraction( {
                id:id++,
                startTime:this.startTime,
@@ -97,7 +76,7 @@ YUI.add( 'littleware-babyTrack-model-contraction', function(Y) {
              * @method get
              * @static
              */
-            get:function() { return new Builder(); }
+            get:function() { return (new Builder()).withStartTime( new Date() ); }
         };
         
         //------------------------------------

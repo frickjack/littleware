@@ -56,16 +56,20 @@ YUI.add( 'littleware-babyTrack-view-statsPanel', function(Y) {
                          var period = [];
                          var duration = [];
                          var end = null;
+                         var nowMinus60 = (new Date()).getTime() - 60*60*1000;
+                         // note: most recent sample 1st in history
                          history.each( function( sample ) {
                              var t0 = sample.get( "startTime" );
                              var t1 = sample.get( "endTime" );
-                             duration.push( Math.floor( (t1.getTime() - t0.getTime()) / 1000 ) );
-                             if( null == end ) {
-                                 end = t1;
-                             } else {
-                                 period.push( Math.floor( (start.getTime() - t0.getTime()) / 1000 ) );
+                             if ( (t0.getTime() >= nowMinus60) && (t1.getTime() > t0.getTime()) ) {
+                                duration.push( Math.floor( (t1.getTime() - t0.getTime()) / 1000 ) );
+                                if( null == end ) {
+                                    end = t1;
+                                } else {
+                                    period.push( Math.floor( (start.getTime() - t0.getTime()) / 1000 ) );
+                                }
+                                start = t0;                                
                              }
-                             start = t0;
                          });
                          
                          var average = function( vec ) {
@@ -80,14 +84,23 @@ YUI.add( 'littleware-babyTrack-view-statsPanel', function(Y) {
                          }
                          
                          if ( start && end ) {
-                            this.set( "aveDuration", Math.floor( average( duration ) ) );
-                            this.set( "avePeriod", Math.floor( average( period ) ) );
-                            this.set( "totalTime", Math.floor( (end.getTime() - start.getTime()) / 1000 ));
+                            this.setAttrs( 
+                                {
+                                    aveDuration: Math.floor( average( duration ) ),
+                                    avePeriod: Math.floor( average( period ) ),
+                                    totalTime: {
+                                        startTime:start,
+                                        endTime:end,                                
+                                        total:Math.floor( (end.getTime() - start.getTime()) / 1000 )
+                                    }
+                                }
+                            );
                          }
                      }
                  },
                  {
                      ATTRS: {
+                        
                         /** 
                          * @attribute {int} aveDuration of a contraction in seconds
                          */                         
@@ -101,10 +114,10 @@ YUI.add( 'littleware-babyTrack-view-statsPanel', function(Y) {
                              value: 0
                          },                         
                          /**
-                          * @attribute {int} totalTime
+                          * @attribute {startTime:Date,endTime:Date,total:Int} totalTime
                           */
                          totalTime: {
-                             value: 0
+                             value: { startTime:new Date(), endTime:new Date(), total:0 }
                          }
                      }
                  }

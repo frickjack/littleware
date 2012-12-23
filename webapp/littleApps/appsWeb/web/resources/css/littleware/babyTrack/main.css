@@ -1,0 +1,181 @@
+/* 
+    Document   : main
+    Created on : Dec 22, 2012, 8:23:57 PM
+    Author     : pasquini
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+
+body {
+    margin:auto;
+    width:100%;
+    height:100%;
+    overflow:auto;
+}
+
+div {
+    padding:5px;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+
+/* app level rules */
+div#app {
+    /* font-family: 'EB Garamond', serif; */
+    font-family: arial,sans-serif;
+    width:100%;
+    height:100%;
+} 
+
+h1, h2 {
+    text-align:center;
+    /* margin:5px; */
+}
+
+div#app > div {
+    margin-left:auto;
+    margin-right:auto;
+    width:100%;
+}
+
+
+/*.......... start/stop button ............ */
+
+div#button {
+    padding: 20px;
+    padding-top:40px;
+}
+
+span.button {
+    border-radius: 10px;
+    width:50%;
+    text-align:center;
+    display:block;
+    margin:auto;
+    background-color: #0066CC;
+    padding:20px;
+    font-weight:bold;
+    font-size:120%;
+}
+
+span.buttonStart {
+    background-color:#00DD66;
+}
+
+span.buttonStart:hover {
+    background-color:#00CC66;
+}
+
+span.buttonStop {
+    background-color:#DD4400;
+    background-image:url('/btrack/resources/img/wait.gif');
+    background-repeat:no-repeat;
+}
+
+span.buttonStop:hover {
+    background-color:#CC4400;
+}
+
+
+/* ............ svg graph ............... */
+
+figure#graph {
+    width:100%;
+    height:200px;
+}
+
+figure#graph > svg {
+    display:block;
+    margin:auto;
+    font-family: arial,sans-serif;
+    width:50%;
+    height:25px;
+}
+
+
+path {
+    stroke-width:5;
+    fill-opacity:1;
+    stroke-opacity:1;
+    stroke-dasharray:0;
+    stroke:#55aa55;
+    stroke-width:3;               
+}
+
+g.gridLine path {
+    fill:none;
+}
+g.dataBars path {
+    fill:red;
+    stroke:red;
+}
+
+g text {
+    font-size: 25px;
+    fill: #000000;
+    text-anchor:middle;
+}
+
+g.xlabels text { text-anchor:middle; }
+g.ylabels text { text-anchor:middle; }  
+
+
+/* .............. data table ............... */
+
+div#app > div.dataTable {
+    height:100px;
+    width:300px;
+    overflow:auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+div.dataTable div {
+    padding: 2px;
+}
+
+div.dataTable table.yui3-datatable-table {
+    margin:auto;
+}
+
+tr.odd { background-color: #f0f0f0; }
+td.start { background-color:green; }
+td.stop { background-color:#e00000; }
+
+/* ....... stats table ..... */
+
+div#stats table.yui3-datatable-table {
+    margin:auto;
+}
+
+table.stats {
+    margin:auto;
+    margin-top:10px;
+    border-collapse:collapse;
+    border:none;
+}
+
+table.stats tr, table.stats td { 
+    border:none; 
+    padding:2px;
+    margin:0px;
+}
+
+table.stats tr {
+    border-bottom:1px solid black;
+}

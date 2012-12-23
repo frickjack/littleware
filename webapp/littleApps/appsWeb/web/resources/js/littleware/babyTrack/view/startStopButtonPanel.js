@@ -44,7 +44,7 @@ YUI.add( 'littleware-babyTrack-view-startStopButtonPanel', function(Y) {
              */
             start: function() {
                 var state = this.get( "state" );
-                util.assert( state == "waiting", "Attempt to start running stopwatch" );
+                //util.assert( state == "waiting", "Attempt to start running stopwatch" );
                 this.setAttrs( {
                     state:"running",
                     startTime: new Date(),
@@ -59,7 +59,7 @@ YUI.add( 'littleware-babyTrack-view-startStopButtonPanel', function(Y) {
              */            
             stop: function() {
                 var state = this.get( "state" );
-                util.assert( state == "running", "Attempt to stop waiting stopwatch" );
+                //util.assert( state == "running", "Attempt to stop waiting stopwatch" );
                 this.setAttrs( {
                     state:"waiting",
                     endTime: new Date()
@@ -94,7 +94,6 @@ YUI.add( 'littleware-babyTrack-view-startStopButtonPanel', function(Y) {
          * @constructor
          */
         var View = Y.Base.create( "startStopView", Y.View, [], {
-            //container:"",
             events:{
                 'span.button':{
                     click: "toggleButton"
@@ -121,8 +120,32 @@ YUI.add( 'littleware-babyTrack-view-startStopButtonPanel', function(Y) {
             render:function() {
                 log.info( "Rendering buttonPanel ..." );
                 var root = this.get( "container" );
-                root.setHTML( Y.Lang.sub( this.template, { label:this.get( "startLabel" ) } ) );
+                var content = Y.Lang.sub( this.template, { label:this.get( "startLabel" ) } );
+                log.info( "Button panel rendering: " + content );
+                root.setHTML( content );
+                //alert( "Frickjack!" );
+                this.syncState();
+            },
+            
+            /**
+             * Update UI after state-change on underlying model.
+             */
+            syncState : function ( ) {
+                var model = this.get( "model" );
+                util.assert( model , "View model intialized" );
+                var buttonNode = this.get( "container" ).one( "span.button" );
+                util.assert( buttonNode, "Found button node" );
+                //if( buttonNode ) {  // render() has been called
+                    if( "waiting" == model.get( "state" ) ) {
+                        buttonNode.removeClass( "buttonStop" ).addClass( "buttonStart" 
+                                ).set( 'text', this.get( "startLabel" ));;
+                    } else {
+                        buttonNode.removeClass( "buttonStart" ).addClass( "buttonStop" 
+                            ).set( 'text', this.get( "stopLabel" ));
+                    } 
+                //} 
             }
+                        
         } ,{ 
             ATTRS:{
                 /**
@@ -190,15 +213,13 @@ YUI.add( 'littleware-babyTrack-view-startStopButtonPanel', function(Y) {
          */
         var Controller = function( view ) {
             this.view = view;
-            if ( view ) {
-                this.model = view.get( "model" );    
-            } else {
-                this.model = null;
-            }
+            this.model = view.get( "model" ); 
+            this.model.after( "change", this.view.syncState, this.view );
         }
         
+        
         /**
-         * Record new contraction in response to start/stop contraction button clicks
+         * Update model in response to start/stop contraction button clicks
          * @method toggleContraction
          */
         Controller.prototype.toggleButton = function(ev) {
@@ -207,14 +228,9 @@ YUI.add( 'littleware-babyTrack-view-startStopButtonPanel', function(Y) {
             var buttonNode = this.view.get( "container" ).one( "span.button" );
             if( "waiting" == this.model.get( "state" ) ) {
                 this.model.start();
-                buttonNode.removeClass( "buttonStart" ).addClass( "buttonStop" 
-                    ).set( 'text', this.view.get( "stopLabel" ));
             } else {
                 this.model.stop();
-                buttonNode.removeClass( "buttonStop" ).addClass( "buttonStart" 
-                        ).set( 'text', this.view.get( "startLabel" ));;
-            }
-            
+            }            
         }
         
         

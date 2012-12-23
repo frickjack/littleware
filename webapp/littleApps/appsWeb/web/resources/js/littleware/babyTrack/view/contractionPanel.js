@@ -75,6 +75,14 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                    return "" + Math.floor( secs / 60 ) + ":" + util.zPadInt( secs % 60 ); 
                 };
                 
+                var startStopTotalFormatter = function( o ) {
+                    var info = o.value;
+                    return "" + util.Date.minuteString( info.startTime || new Date() ) +
+                         " to " + util.Date.minuteString( info.endTime || new Date() ) + 
+                         ", total: " + durationFormatter( { value: info.total });
+                         
+                }
+                
                 // Just use a Y.DataTable for the stats for now
                 this.statsTable = new Y.DataTable( {
                  recordType:Y.littleware.babyTrack.view.statsPanel.Model,
@@ -91,8 +99,8 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                     },                    
                     {
                         key:"totalTime",
-                        label: "Total time",
-                       formatter: durationFormatter
+                        label: "Time Covered",
+                       formatter: startStopTotalFormatter
                     }
                  ],
                  data:[
@@ -171,7 +179,8 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                 var now = new Date();
                 
                 if( ! this.startTime ) {
-                    this.startTime = new Date( Math.floor( now.getTime() / msInMin) * msInMin );
+                    var nowMinus20 = new Date( now.getTime() - 20*60*1000 );
+                    this.startTime = new Date( Math.floor( nowMinus20 / msInMin) * msInMin );
                 }
                 var startTime = this.startTime;
 
@@ -252,10 +261,25 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                 statsDiv.setHTML( "" );
                 this.statsTable.render( statsDiv );
                 
-                var buttonContainer = root.one( "#button" );
+                var buttonContainer = root.one( "div#button" );
+                log.fine( "render() Clearing button container ..." );
                 buttonContainer.setHTML( "" );
                 this.buttonPanel.set( "container", buttonContainer  );
                 this.buttonPanel.render();
+                
+                
+                if ( Y.one( "#clock" ) ) {
+                    var tickTock = function() {
+                            var clockNode = Y.one( "#clock" );
+                            if ( clockNode ) {
+                                clockNode.setHTML( util.Date.secondString( new Date() ));
+                            }
+                        };
+                    tickTock();
+                    this.clockInterval = window.setInterval( 
+                        tickTock, 1000
+                    );
+                }
             }
         } /* ,{ ATTRS:{} } */
             );
@@ -281,9 +305,11 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                 this.controller.view = view;
                 this.controller.model = this.model;
                 var buttonModel = view.buttonPanel.get( "model" );
-                buttonModel.after( "stateChange", function(ev) {
-                    view.controller.toggleContraction( ev );
+                buttonModel.after( "change", function(ev) {
+                        // sync app-level model with button-panel model
+                        view.controller.toggleContraction( ev );
                 } );
+                this.controller.loadState();
                 return view;
             }
         });    
@@ -320,17 +346,115 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
             util.assert( this.model && this.view, "Controller model and view intialized" );
             
             if( "running" == state ) {
-                this.model.startContraction();
-            } else {
-                this.model.endContraction();
-                this.view.statsTable.getRecord(0).updateStats( this.model );
-            }
-            
-            // this is a goofy place to do this ...
-            this.view.chart.set( "dataProvider", this.view.buildChartModel() );
-            //this.view.chart.render();
+                   this.model.startContraction();
+             } else {
+                   this.model.endContraction();
+                   this.view.statsTable.getRecord(0).updateStats( this.model );
+             }
+
+               // this is a goofy place to do this ...
+             this.view.chart.set( "dataProvider", this.view.buildChartModel() );
+               //this.view.chart.render();
+             this.saveState();
+          }
+
+        
+        var Suitcase = function() {
+            return {
+                "history":[],
+                "currentStart":null
+            };
         }
         
+        /**
+         * Save the contractionPanel model state to local storage
+         * @method saveState
+         * @return the json structure saved to local storage
+         */
+        Controller.prototype.saveState = function() {
+            var suitcase = new Suitcase();
+            this.model.get( "history" ).each( function( sample ) {
+                var copy = {
+                  startTime: sample.get( "startTime" ).getTime(),
+                  endTime: sample.get( "endTime" ).getTime()
+                };
+                suitcase.history.push( copy );
+            });
+            if ( (this.model.get( "state" ) == "in") && this.model.builder ) {
+                suitcase.currentStart = this.model.builder.startTime.getTime();
+            }
+            localStorage.suitcase = JSON.stringify( suitcase );
+            return suitcase;
+        }
+        
+        /**
+         * Load the contractionPanel state from local storage.
+         * Only works if run once at beginnning of app before 
+         * first render() - otherwise
+         * things get weird.
+         * @method loadState
+         * @return the json structure loaded from local stroage and
+         *             applied to the contractionPanel models
+         */
+        Controller.prototype.loadState = function() {
+            var suitcase = new Suitcase();
+            if ( localStorage.suitcase ) {
+                suitcase = JSON.parse( localStorage.suitcase );
+            }
+            
+            // load samples from local storage,
+            // filter out data older than 2 hours
+            var minus2Hours = new Date(
+                (new Date()).getTime() - 2*60*60*1000
+                );
+            var minus24Hours = new Date(
+                (new Date()).getTime() - 24*60*60*1000
+                );
+                    
+            this.model.get( "history" ).reset( 
+              Y.Array.filter(
+                    Y.Array.map( suitcase.history, function( sample ) {
+                      return model.contraction.Factory.get(
+                         ).withStartTime( new Date( sample.startTime ) 
+                         ).withEndTime( new Date( sample.endTime )
+                         ).build()
+                  }),
+                  function( sample ) {
+                      return sample.startTime.getTime() > minus24Hours.getTime();
+                  }
+              )
+            );
+
+            this.view.chart.set( "dataProvider", this.view.buildChartModel() );
+            this.view.statsTable.getRecord(0).updateStats( this.model );
+            
+            // restore "in-contraction" state if necessary
+            if ( suitcase.currentStart && (suitcase.currentStart > minus2Hours.getTime()) ) {
+                var startTime = new Date( suitcase.currentStart );
+                log.fine( "loadState setting app model in startContraction state ..." );
+                this.model.startContraction( startTime );
+                var buttonModel = this.view.buttonPanel.get( "model" ); 
+                // update button model silently,
+                // so it doesn't trigger changes in app-level listeners
+                log.fine( "loadState() Updating button model ..." );
+                buttonModel.setAttrs( {
+                   state:"running",
+                   startTime: startTime,
+                   endTime:null
+                }, { silent:true });
+                // 1st call to render should do this: this.view.buttonPanel.syncState();
+            }
+            log.info( "Done loading state ..." );
+            return suitcase;
+        }
+        
+        /**
+         * Clear the application state 
+         */
+        Controller.prototype.clearState = function() {
+            delete( localStorage.suitcase );
+            this.loadState();
+        }
         
         //----------------------------------
         
@@ -341,6 +465,7 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
   )();
 }, '0.1.1' /* module version */, {
     requires: [ 'base', 'charts', 'datatable', 
+        'littleware-babyTrack-model-contraction', 
         'littleware-babyTrack-model-contractionApp', 
         'littleware-babyTrack-view-startStopButtonPanel', 
         'littleware-babyTrack-view-statsPanel', 

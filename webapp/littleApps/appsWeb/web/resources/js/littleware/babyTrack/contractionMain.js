@@ -70,6 +70,7 @@ YUI.littleware.babyTrack.contractionMain = (function() {
                 'littleware-babyTrack-view-contractionPanel': {
                     path: "babyTrack/view/contractionPanel.js",
                     requires: [ 'base', 'charts', 'datatable', 
+                        'littleware-babyTrack-model-contraction', 
                         'littleware-babyTrack-model-contractionApp', 
                         'littleware-babyTrack-view-startStopButtonPanel',
                         'littleware-babyTrack-view-statsPanel',
@@ -124,10 +125,6 @@ YUI.littleware.babyTrack.contractionMain = (function() {
                 'node', 'node-base', 'event', 'test', 'scrollview',
                 'littleware-babyTrack-view-contractionPanel',
                 function (Y) {
-                    // The modules are loaded and ready to use.
-                    if( Y.config.debug ) {
-                        gY = Y; // set global variable for easy console access in debugging ...
-                    }
                     var util = Y.littleware.littleUtil;
                     var fb = Y.littleware.feedback;
                     var log = new util.Logger( "littleFbTestSuite.html" );

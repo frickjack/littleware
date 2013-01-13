@@ -15,16 +15,20 @@ import littleware.base.validate._
 
 object LittleValidator {
 
+  /**
+   * Goofy little helper checks a condition, and returns
+   * a copy of itself with/without the message added to an error list.
+   */
   trait Helper {
     val errors:List[String]
+    /**
+     * Return new Helper with message to the error sring if test fails (is false),
+     * otherwise return this
+     */    
     def check( test:Boolean, message:String ):Helper
   }
 
   private class SimpleHelper( override val errors:List[String] ) extends Helper {
-    /**
-     * Return new Helper with message to the error sring if test fails (is false),
-     * otherwise return this
-     */
     override def check( test:Boolean, message:String ):Helper = test match {
       case true => this
       case _ => new SimpleHelper( errors :+ message )
@@ -35,6 +39,9 @@ object LittleValidator {
 }
 
 
+/**
+ * Extends Validator with support for some scala types
+ */
 trait LittleValidator extends Validator {
   @throws(classOf[ValidationException])
   override def validate():Unit = {
@@ -51,5 +58,5 @@ trait LittleValidator extends Validator {
   /**
    * Same as checkIfValid, just scala-friendly return type
    */
-  def checkSanity():Seq[String]
+  def checkSanity():Iterable[String]
 }

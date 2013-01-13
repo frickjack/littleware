@@ -29,19 +29,19 @@ object LittleHelper {
    * Conversion of a null or s_check.trim().equals( "" ) string to None,
    * otherwise Some( s_check )
    */
-  implicit def emptyCheck( value:String ):Option[String] =
+  def emptyCheck( value:String ):Option[String] =
     if ( (null == value) || value.trim.equals( "" ) ) {
       None
     } else {
       Some(value)
     }
 
-  implicit def callable[A]( func:()=>A ):Callable[A] = new Callable[A]() {
+  def callable[A]( func:()=>A ):Callable[A] = new Callable[A]() {
     override def call() = func()
   }
 
 
-  implicit def runnable( func: () => Unit ):Runnable = new Runnable {
+  def runnable( func: () => Unit ):Runnable = new Runnable {
     override def run = func()
   }
 
@@ -121,11 +121,11 @@ object LittleHelper {
           val chunkNumber:Int,
           val inProgress:Seq[Future[B]]
         ){
-          def this( ready:Seq[A], chunkNumber:Int ) = this( chunkNumber, ready.map( (a) => exec.submit( () => stage1(a) ) ) )
+          def this( ready:Seq[A], chunkNumber:Int ) = this( chunkNumber, ready.map( (a) => exec.submit( callable( () => stage1(a) ) ) ) )
           
           def launchStage2():Seq[Future[C]] = inProgress.map( 
             (future) => {
-              val nextStage:Future[C] = exec.submit( () => stage2( future.get ) )
+              val nextStage:Future[C] = exec.submit( callable( () => stage2( future.get ) ) )
               if ( ! parallelStage2 ) {
                 nextStage.get
               }
@@ -181,9 +181,5 @@ object LittleHelper {
     ):Seq[C] = plumber( exec, chunkSize, stage1, stage2, fb, false )
   }
 
-  /**
-   * Implicit Seq to Pipeline converter
-   */
-  implicit def toPipeline[A]( seq:Seq[A] ):Pipeline[A] = new Pipeline( seq )
 }
 

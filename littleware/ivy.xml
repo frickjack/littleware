@@ -5,18 +5,16 @@
     <info organisation="littleware" module="littleware" status="integration" />
     <configurations>
         <!-- compile may build against jars that only include interfaces -->
-        <conf name="compile" visibility="private" extends="client_compile" 
-                  description="compile everything"/>
-        <conf name="client_junit" extends="client" description="extends client with junit dependencies"/>
-        <conf name="client_compile" extends="ee_client" description="extends client with javaee interfaces dependencies"/>
-        <conf name="ee_client"  description="client app in ee6 container"/>
-        <conf name="client"  extends="ee_client" description="generic client app"/>
-        <conf name="client_mail" extends="client" description="extends client with JavaMail sesssion injection"/>
-        <conf name="client_postgres" extends="client" description="extends client with Postgres DataSource injection"/>
-        <conf name="client_mysql" extends="client" description="extends client with MySQL DataSource injection"/>
-        <conf name="client_oracle" extends="client" description="extends client with Oracle DataSource injection"/>
-        <conf name="client_derby" extends="client" description="extends client with JavaDB/Derby DataSource injection"/>
-        <conf name="test" extends="client_junit" visibility="private" description="for testing our framework"/>
+        <conf name="compile" description="compile everything"/>
+        <conf name="client" description="client runtime"/>
+        <conf name="with_junit" description="extends client with junit dependencies"/>
+        <conf name="with_mail"  description="extends client with JavaMail sesssion injection"/>
+        <conf name="with_postgres" description="extends client with Postgres DataSource injection"/>
+        <conf name="with_mysql" description="extends client with MySQL DataSource injection"/>
+        <conf name="with_oracle" description="extends client with Oracle DataSource injection"/>
+        <conf name="with_derby" description="extends client with JavaDB/Derby DataSource injection"/>
+        <conf name="test" extends="client,with_junit,with_mail,with_postgres,with_mysql,with_oracle,with_derby" 
+                         visibility="private" description="for testing our framework" />
     </configurations>
     <publications>
     	<artifact name="littleware" ext="jar" type="jar"  conf="*" />
@@ -30,8 +28,8 @@
     
     <dependencies>    
     
-        <dependency org="javax" name="javaee-api" rev="6.+" conf="client_compile->*" />
-        <dependency org="javax.mail" name="mail" rev="1.4.3" conf="client_mail->*" />        
+        <dependency org="javax" name="javaee-api" rev="6.+" conf="compile->*" />
+        <dependency org="javax.mail" name="mail" rev="1.4.3" conf="with_mail->*" />        
         <dependency org="com.google.inject" name="guice" rev="3.0" e:classifier="no_aop">
             <artifact name="guice" type="no_aop" ext="jar" />
         </dependency>
@@ -42,22 +40,22 @@
         -->
         <dependency org="joda-time" name="joda-time" rev="2.1" />
         <dependency org="org.joda" name="joda-convert" rev="1.2" />
-        <dependency org="com.google.guava" name="guava" rev="11.0.+" />
-        <dependency org="com.google.code.findbugs" name="jsr305" rev="1.3.9" />
+        <dependency org="com.google.guava" name="guava" rev="14.0-rc1" />
+        <dependency org="com.google.code.findbugs" name="jsr305" rev="2.0.1" />
         <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.0.+" />
         
-        <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" conf="compile,client_mysql->*" />
-        <dependency org="org.apache.derby" name="derby" rev="10.5.3.0_1" conf="compile,client_derby->*" />
-        <dependency org="org.apache.derby" name="derbyclient" rev="10.5.3.0_1" conf="compile,client_derby->*" />
-        <dependency org="junit" name="junit" rev="3.8.+" conf="client_junit,client_compile->*" />
+        <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" conf="compile,with_mysql->*" />
+        <dependency org="org.apache.derby" name="derby" rev="10.9.1.+" conf="compile,with_derby->*" />
+        <dependency org="org.apache.derby" name="derbyclient" rev="10.9.1.+" conf="compile,with_derby->*" />
+        <dependency org="junit" name="junit" rev="3.8.+" conf="with_junit,compile->*" />
         <dependency org="proxool" name="proxool" rev="0.9.1" 
-                conf="compile,client_derby,client_postgres->*" 
+                conf="compile,with_derby,with_postgres->*" 
                 />         
         <dependency org="proxool" name="proxool-cglib" rev="0.9.1" 
-                conf="compile,client_derby,client_postgres->*" 
+                conf="compile,with_derby,with_postgres->*" 
                 /> 
-        <dependency org="com.oracle" name="ojdbc6" rev="11gr2" conf="compile,client_oracle->*" />
-        <dependency org="postgresql" name="postgresql" rev="8.4-701.jdbc4" conf="compile,client_postgres->*" />
+        <dependency org="com.oracle" name="ojdbc6" rev="11gr2" conf="compile,with_oracle->*" />
+        <dependency org="postgresql" name="postgresql" rev="9.1-901-1.jdbc4" conf="compile,with_postgres->*" />
     </dependencies>
 
 </ivy-module>

@@ -10,6 +10,9 @@ package littleware.test;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Slight specialization of junit.framework.TestCase
  * adds putName method to allow simultaneously setting
@@ -17,27 +20,39 @@ import junit.framework.TestResult;
  * with a suite:  suite.addTest ( provider.get().putName( "testWhatever" ) )
  */
 public abstract class LittleTest extends TestCase {
-
+    /** Every test wants a logger */
+    public final Logger log = Logger.getLogger( getClass().getName() );
+    
     /**
-     * Call setName(s_name) and return this
-     * @param s_name of test-method to run
+     * Typical exception handler
+     */
+     public void handle( Exception ex ) {
+         log.log( Level.WARNING, "Failed test", ex );
+         fail( "Caught: " + ex );
+     }
+    
+    /**
+     * Call setName(name) and return this
+     * @param name of test-method to run
      * @return this
      */
-    public LittleTest putName(String s_name) {
-        setName(s_name);
+    public final LittleTest putName(String name) {
+        setName(name);
         return this;
     }
+    /** Alias for putName */
+    public final LittleTest withName( String name ) { return putName( name ); }
 
     /**
      * Extension function for TestCase instances not
      * derived from LittleTest.
      * 
-     * @param test to setName( s_name ) on
-     * @param s_name to assign to test.setName( s_name )
-     * @return test after setName( s_name ) call
+     * @param test to setName( name ) on
+     * @param name to assign to test.setName( name )
+     * @return test after setName( name ) call
      */
-    public static TestCase putName(TestCase test, String s_name) {
-        test.setName(s_name);
+    public static TestCase putName(TestCase test, String name) {
+        test.setName(name);
         return test;
     }
 

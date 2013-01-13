@@ -8,7 +8,6 @@
 package littleware.security.internal;
 
 import littleware.base.AssertionFailedException;
-import biz.source_code.base64Coder.Base64Coder;
 import java.security.MessageDigest;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -21,6 +20,8 @@ import littleware.base.validate.ValidationException;
 import littleware.security.LittleUser;
 import littleware.security.LittleUser.Builder;
 import static littleware.security.LittleUser.Status;
+import org.apache.commons.codec.binary.Base64;
+
 
 /**
  * Simple implementation of the SimpleUserBuilder interface
@@ -131,7 +132,7 @@ public class SimpleUserBuilder extends AbstractAssetBuilder<LittleUser.Builder> 
             final MessageDigest digest = MessageDigest.getInstance("SHA-256");
             digest.reset();
             digest.update( salt.getBytes( "UTF-8" ) );
-            return new String(Base64Coder.encode(digest.digest(value.getBytes("UTF-8"))));
+            return Base64.encodeBase64String(digest.digest(value.getBytes("UTF-8")));
         } catch (Exception ex) {
             throw new AssertionFailedException("Cannot hash passwords", ex);
         }

@@ -1,0 +1,28 @@
+<ivy-module version="2.0">
+    <info organisation="littleware" module="appsWeb"/>
+    <configurations>
+        <conf name="compile" description="compile against api's only"/>
+        <conf name="client" description="runtime"/>
+        <conf name="test" extends="client" visibility="private" description="test runtime config" />
+    </configurations>
+    <publications>
+    </publications>
+    
+    <dependencies>        
+        <!-- 
+           glassfish is not happy if we leave littleAsset out due to JSF annotations etc. in littleWeb ..., 
+           jetty doesn't care ...
+           -->                
+      <dependency org="littleware" name="littleware" rev="2.5.+" 
+                conf="test->with_junit" 
+                />
+      <dependency org="littleware" name="littleAsset" rev="2.5.+"
+                conf="compile->with_aws;client->with_aws"
+                />      
+      <dependency org="littleware" name="littleScala" rev="2.5.+"
+                conf="compile->compile;client->client"
+                />      
+                
+    </dependencies>
+
+</ivy-module>

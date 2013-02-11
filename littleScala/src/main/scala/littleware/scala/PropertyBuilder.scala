@@ -33,6 +33,16 @@ trait PropertyBuilder extends LittleValidator {
   def checkSanityByProp():Seq[(Property[_], Iterable[String])] =
     props.toSeq.map( (p) => p -> p.checkSanity() )
   
+  /**
+   * Shortcut for:
+   *    val errors = checkSanity
+   *    assert( errors.isEmpty, "sanity check passed on " + this + ": " + errors.mkString( "," ) )
+   */
+  def assertSanity():Unit = {
+    val errors = checkSanity()
+    assert( errors.isEmpty, "sanity check passed on " + this + ": " + errors.mkString( "," ))
+  }
+  
   override def toString():String = props.mkString( "," )
   
   

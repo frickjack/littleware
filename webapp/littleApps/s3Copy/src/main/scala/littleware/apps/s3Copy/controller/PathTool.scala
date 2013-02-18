@@ -10,6 +10,8 @@
 package littleware.apps.s3Copy
 package controller
 
+
+import java.{io => jio}
 import java.net.URI
 import scala.concurrent.{Await,Future,duration}
 
@@ -33,9 +35,25 @@ trait PathTool {
    * Copy the object at source to dest - overwrites dest if it exists.
    * NOOP (returns None) if source does not exist or references a folder.
    * 
+   * @param source object to copy (must be a file)
+   * @param dest file-path to copy over
    * @return result of ls(dest) after copy
    */
   def copy( source:URI, dest:URI ):Option[model.ObjectSummary]
   
+  /**
+   * Copy source file to destFolder/sourceName
+   */
+  def copyUnder( source:URI, destFolder:URI ):Option[model.ObjectSummary]
 }
 
+object PathTool {
+  
+  /**
+   * Little helper to extract the "base-name" of the given path:
+   *     a:/b/c == c
+   */
+  def baseName( uri:java.net.URI ):String =
+    new jio.File( uri.getPath ).getName
+  
+}

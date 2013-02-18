@@ -25,7 +25,14 @@ class PackageTestSuite @inject.Inject()(
 ) extends TestSuite {
   setName( getClass.getName )
 
-  addTest( pathToolTestFactory.get.withName( "testPathTool" ) )
+  Seq( 
+    "testPathLs"
+    ,"testPathParts"
+    //,"testPathCopy"
+  ).foreach(
+    (testName) => addTest( pathToolTestFactory.get.withName( testName ) )
+  )
+  
 }
 
 object PackageTestSuite {

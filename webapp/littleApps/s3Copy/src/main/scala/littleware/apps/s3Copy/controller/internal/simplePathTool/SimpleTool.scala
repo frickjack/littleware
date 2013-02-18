@@ -13,6 +13,7 @@ package internal
 package simplePathTool
 
 import com.google.inject
+import java.{io => jio}
 import java.net.URI
 import java.util.logging.{Level,Logger}
 
@@ -35,5 +36,23 @@ class SimpleTool @inject.Inject()(
   def lsR( path:URI ):Stream[model.PathSummary] = buildStrategy( path ).lsR
   //def compare( a:model.FolderSummary, b:model.FolderSummary ):model.FolderDiff 
   def copy( source:URI, dest:URI ):Option[model.ObjectSummary] = buildStrategy( source ).copyTo( dest )
+
+  def copyUnder( source:URI, destFolder:URI ):Option[model.ObjectSummary] = 
+    copy( source, SimpleTool.buildCopyPath( source, destFolder ) )
   
+}
+
+object SimpleTool {
+  /**
+   * Build a dest path that copies the file named named by source
+   * to destFolder: destFolder / source.getName
+   */
+  def buildCopyPath( source:java.net.URI, destFolder:java.net.URI ):java.net.URI =
+    new java.net.URI(
+        destFolder.getScheme,
+        destFolder.getHost,
+        (destFolder.getPath + "/" + PathTool.baseName( source )).replaceAll( "//+", "/" ), 
+        null
+      )
+
 }

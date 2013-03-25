@@ -13,7 +13,7 @@ package controller
 
 import java.{io => jio}
 import java.net.URI
-import scala.concurrent.{Await,Future,duration}
+
 
 /**
  * Tool for listing and comparing paths, and copying
@@ -56,4 +56,10 @@ object PathTool {
   def baseName( uri:java.net.URI ):String =
     new jio.File( uri.getPath ).getName
   
+ 
+  /**
+   * Little helper assembles a URI to identify the given S3 object
+   */
+  def s3Path( bucketName:String, key:String ):java.net.URI =
+    new java.net.URI( "s3", bucketName, ("/" + key).replaceAll( "//+", "/" ), null )
 }

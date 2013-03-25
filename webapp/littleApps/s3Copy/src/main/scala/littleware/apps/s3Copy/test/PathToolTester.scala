@@ -22,6 +22,12 @@ class PathToolTester @inject.Inject()(
 ) extends LittleTest {
   setName( "testPathLs" )
   
+  var s3TestFolder:java.net.URI = new java.net.URI( "s3://apps.frickjack.com/" )
+  def withS3TestFolder( value:java.net.URI ):this.type = {
+    s3TestFolder = value
+    this
+  }
+  
   def summaryTest( summary:model.PathSummary ):Unit = {
       log.info( summary.path.toString + " summary: " + summary )
       summary match {
@@ -34,23 +40,28 @@ class PathToolTester @inject.Inject()(
   }
   
   def testPathLs():Unit = try {
-    val testPath = new jio.File( "." ).toURI
-        
-    tool.ls( testPath ).foreach( 
-      (summary) => { 
-        summaryTest( summary )
-        summary match {
-          case folder:model.FolderSummary => {
-              assertTrue( "Folder is not empty: " + folder.path,
-                         folder.objects.nonEmpty && folder.folders.nonEmpty
-                         )
-          }
+    Seq( new jio.File( "." ).toURI,
+         s3TestFolder
+     ).foreach(
+        (testPath) => {
+          tool.ls( testPath ).foreach( 
+            (summary) => { 
+              summaryTest( summary )
+              summary match {
+                case folder:model.FolderSummary => {
+                    assertTrue( "Folder is not empty: " + folder.path,
+                               folder.objects.nonEmpty && folder.folders.nonEmpty
+                               )
+                }
+              }
+            }
+          )
+
+          tool.lsR( testPath ).filter( 
+            (summary) => Seq( ".*ivy/?$", ".*cli/?$", ".*PathToolTester/?$" ).find( (rx) => summary.path.getPath.matches( rx ) ).isEmpty 
+          ).take(3).foreach( (summary) => summaryTest( summary ))
         }
-      }
-    )
-    
-    tool.lsR( testPath ).filter( ! _.path.getPath.matches( ".+ivy/?$" ) ).take(3).foreach( (summary) => summaryTest( summary ))
-    
+      )
   } catch basicHandler
   
   

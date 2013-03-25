@@ -19,7 +19,8 @@ import java.util.logging.{Level,Logger}
 
 
 class SimpleTool @inject.Inject()( 
-  fileStrategyFactory:inject.Provider[FileStrategy.Builder]
+  fileStrategyFactory:inject.Provider[FileStrategy.Builder],
+  s3StrategyFactory:inject.Provider[S3Strategy.Builder]
 ) extends PathTool {
   private val log = Logger.getLogger( getClass.getName )
   
@@ -29,13 +30,27 @@ class SimpleTool @inject.Inject()(
    */
   def buildStrategy( path:java.net.URI ):PathStrategy = path.getScheme match {
     case "file" => fileStrategyFactory.get.path( path ).build
+    case "s3" => s3StrategyFactory.get.path( path ).build
     case scheme => throw new UnsupportedOperationException( "Unsupported path type: " + scheme + " for " + path )
   }
   
   def ls( path:URI ):Option[model.PathSummary] = buildStrategy( path ).ls
   def lsR( path:URI ):Stream[model.PathSummary] = buildStrategy( path ).lsR
+  
   //def compare( a:model.FolderSummary, b:model.FolderSummary ):model.FolderDiff 
-  def copy( source:URI, dest:URI ):Option[model.ObjectSummary] = buildStrategy( source ).copyTo( dest )
+  def copy( source:URI, dest:URI ):Option[model.ObjectSummary] = {
+    val optSrcFile:Option[jio.File] = source.getScheme match {
+      case "file" => {
+          val f = new jio.File( source.getPath )
+          if ( f.exists ) Some(f) else None
+      }
+      case _ => {
+          val temp = jio.File.createTempFile( "s3PathTool", ".copyTemp" )
+          buildStrategy( source ).copyTo( temp ).map( _ => temp )
+      } 
+    }
+    optSrcFile.flatMap( (srcFile) => buildStrategy( dest ).copyFrom( srcFile ) )
+  }
 
   def copyUnder( source:URI, destFolder:URI ):Option[model.ObjectSummary] = 
     copy( source, SimpleTool.buildCopyPath( source, destFolder ) )
@@ -44,7 +59,7 @@ class SimpleTool @inject.Inject()(
 
 object SimpleTool {
   /**
-   * Build a dest path that copies the file named named by source
+   * Build a dest path that copies the file named by source
    * to destFolder: destFolder / source.getName
    */
   def buildCopyPath( source:java.net.URI, destFolder:java.net.URI ):java.net.URI =

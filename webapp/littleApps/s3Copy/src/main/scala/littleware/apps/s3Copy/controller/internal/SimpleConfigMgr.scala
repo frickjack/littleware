@@ -34,3 +34,5 @@ class SimpleConfigMgr @inject.Inject() () extends ConfigMgr {
   }
 
 }
+
+

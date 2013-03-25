@@ -18,6 +18,7 @@ package littleware.scala.test
 class LittleTest extends littleware.test.LittleTest {
   val basicHandler:PartialFunction[Throwable,Unit] = {
     case ex:Exception => handle(ex)
+    case ex:java.lang.AssertionError => handle(ex)
     case ex => throw ex
   }
 }

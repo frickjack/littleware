@@ -8,15 +8,19 @@
 
 package littleware.apps.s3Copy
 
+import com.amazonaws.services.s3
 import com.google.inject
 import java.io
-import java.sql
+import java.util.logging.{Level,Logger}
 import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,helper}
 import org.osgi
 import scala.collection.JavaConversions._
+import scala.util.{Failure,Success,Try}
+
 
 object LittleModuleFactory {
-
+  private val log = Logger.getLogger( getClass.getName )
+  
   /** 
    * Bundle activator registers at startup the default JAAS login configuration 
    * for use by the littleware server code, registers new bullingdon asset types
@@ -33,9 +37,44 @@ object LittleModuleFactory {
   
   //-------------------------------------------
   
+  /**
+   * Try to initialize the S3 client with credentials
+   * from awsCredentials.properties at session startup time ...
+   */
   class SessionStarter @inject.Inject() (
-    
+    configMgr:controller.ConfigMgr,
+    s3ConfigFactory:inject.Provider[model.config.S3Config.Builder],
+    propLoader:littleware.base.PropertiesLoader
     ) extends Runnable {
+      
+    { 
+      val optConfig:Option[model.config.S3Config] =
+        Option( System.getProperty( "littleware.aws.configFile" )
+             ).map( new java.io.File(_)
+             ).filter( _.exists 
+             ).flatMap( (propFile) => try {
+                 Some( s3ConfigFactory.get.credsFromFile( propFile ).build )
+               } catch {
+                 case ex:Throwable => {
+                     log.log( Level.WARNING, "Failed to load aws creds from: " + propFile, ex )
+                     None
+                 }
+               }
+             )
+      if ( optConfig.isDefined ) {
+        configMgr.s3Config( optConfig.get )
+      } else {
+        val resource = "aws/accessKeys.properties"
+        try {
+          configMgr.s3Config( s3ConfigFactory.get.credsFromResource( resource ).build )
+        } catch {
+          case ex:Throwable => {
+              log.log( Level.WARNING, "Failed to load aws creds from default resource: " + resource )
+          }
+        }
+      }
+      
+    }
     
     override def run() {}
   }
@@ -57,6 +96,10 @@ object LittleModuleFactory {
   //-------------------------------------------
   
   
+  class S3Provider @inject.Inject() ( configMgr:controller.ConfigMgr ) 
+    extends inject.Provider[controller.ConfigMgr.S3Factory] {
+      override def get():controller.ConfigMgr.S3Factory = configMgr.s3Factory
+  }
   
   /**
    * Littleware SessionModule establishes session-scoped bindings.
@@ -69,6 +112,9 @@ object LittleModuleFactory {
         ).in( inject.Scopes.SINGLETON )
       binder.bind( classOf[controller.PathTool] ).to( classOf[controller.internal.simplePathTool.SimpleTool]
         ).in( inject.Scopes.SINGLETON )
+      
+      binder.bind( classOf[s3.AmazonS3]).toProvider( classOf[controller.ConfigMgr.S3Factory] )
+      binder.bind( classOf[controller.ConfigMgr.S3Factory] ).toProvider( classOf[S3Provider] )
       
     }
     

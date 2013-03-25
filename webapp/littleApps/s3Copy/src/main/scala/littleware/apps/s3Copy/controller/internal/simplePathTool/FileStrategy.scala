@@ -14,6 +14,7 @@ package simplePathTool
 
 import org.apache.commons.codec
 import com.google.inject
+import com.google.common.{io => gio}
 import java.{io => jio}
 import org.joda.{time => jtime}
 //import scala.collection.JavaConversions._
@@ -30,21 +31,7 @@ class FileStrategy ( val path:java.net.URI,
    * 
    * @param file must obey isFile or fails assertion
    */
-  def fileSummary( file:java.io.File ):model.ObjectSummary = {
-    require( file.isFile, "only accept files" )
-    //val md5 = java.security.MessageDigest.getInstance( "MD5" )
-    val md5Hex = {
-        val in = new jio.FileInputStream( file )
-        try {
-          codec.digest.DigestUtils.md5Hex( in )
-        } finally in.close
-    }
-    objFactory.get.path( path ).sizeBytes( file.length 
-      ).lastModified( new jtime.DateTime( file.lastModified ) 
-      ).md5Hex( md5Hex
-      ).build    
-  }
-
+  def fileSummary( file:java.io.File ):model.ObjectSummary = FileStrategy.fileSummary( file, objFactory.get ).build
   
   def ls( file:jio.File ):Option[model.PathSummary] = Some( file ).filter( 
         (file) => file.exists && (file.isFile || file.isDirectory) 
@@ -75,13 +62,48 @@ class FileStrategy ( val path:java.net.URI,
     }
   ).getOrElse( Stream.empty )
 
-  def copyTo( dest:java.net.URI ):Option[model.ObjectSummary] = ls.map( 
-    { throw new UnsupportedOperationException( "not yet implemented" ) } 
-  )
+  /** Internal helper */
+  private def copy( source:jio.File, dest:jio.File ):Option[model.ObjectSummary] = 
+    Option(source).filter( (source) => source.exists ).flatMap(
+      (source) => {
+          require( source.isFile, "copy only operates on files: " + source )
+          require( source != dest, "copy source and destination must differ: " + source )
+          gio.Files.copy( source, dest )
+          ls( dest ).map( _.asInstanceOf[model.ObjectSummary] )
+        }
+      )
+  
+  
+  def copyTo( dest:java.io.File ):Option[model.ObjectSummary] = 
+    copy( new jio.File( path.getPath ), dest )
+  
+  def copyFrom( source:java.io.File ):Option[model.ObjectSummary] =
+    copy( source, new jio.File( path.getPath ) )
   
 }
 
 object FileStrategy {
+  /**
+   * Internal (to module) helper assembles ObjectSummary for the given file
+   * 
+   * @param file must obey isFile or fails assertion
+   * @param builder to set properties on
+   * @return builder
+   */
+  private[s3Copy] def fileSummary( file:java.io.File, builder:model.ObjectSummary.Builder ):model.ObjectSummary.Builder = {
+    require( file.isFile, "only accept files" )
+    //val md5 = java.security.MessageDigest.getInstance( "MD5" )
+    val md5Hex = {
+        val in = new jio.FileInputStream( file )
+        try {
+          codec.digest.DigestUtils.md5Hex( in )
+        } finally in.close
+    }
+    builder.path( file.getCanonicalFile.toURI ).sizeBytes( file.length 
+      ).lastModified( new jtime.DateTime( file.lastModified ) 
+      ).md5Hex( md5Hex
+      )
+  }
 
   class Builder @inject.Inject() ( 
     infoFactory:inject.Provider[model.ObjectSummary.Builder],

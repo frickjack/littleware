@@ -13,6 +13,7 @@ package internal
 package simplePathTool
 
 import com.google.inject
+import java.{io => jio}
 import java.net.URI
 
 
@@ -25,8 +26,17 @@ trait PathStrategy {
   val ls:Option[model.PathSummary]
   val lsR:Stream[model.PathSummary]
   
-  //def compare( a:model.FolderSummary, b:model.FolderSummary ):model.FolderDiff 
-  def copyTo( dest:URI ):Option[model.ObjectSummary]
+  /**
+   * Internal method copy path to dest.
+   * The local file system is used as the staging point for 
+   * PathTool.copyTo == src.copyTo( tempFile ).map( dest.copyFrom( tempFile ) )
+   */
+  def copyTo( dest:java.io.File ):Option[model.ObjectSummary]
+  
+  /**
+   * Internal method - copy the src file to path
+   */
+  def copyFrom( src:jio.File ):Option[model.ObjectSummary]
 }
 
 object PathStrategy {

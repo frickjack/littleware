@@ -26,7 +26,7 @@ public abstract class LittleTest extends TestCase {
     /**
      * Typical exception handler
      */
-     public void handle( Exception ex ) {
+     public void handle( Throwable ex ) {
          log.log( Level.WARNING, "Failed test", ex );
          fail( "Caught: " + ex );
      }

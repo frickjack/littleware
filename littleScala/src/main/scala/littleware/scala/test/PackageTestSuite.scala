@@ -18,11 +18,15 @@ import littleware.test.TestFactory
 import java.util.logging.{Level,Logger}
 
 class PackageTestSuite @Inject() (
-  helperTesterFactory:Provider[LittleHelperTester]
+  helperTesterFactory:Provider[LittleHelperTester],
+  propTestFactory:Provider[PropertyBuilderTester],
+  getoptTester:GetoptTester
 ) extends TestSuite {
   setName( getClass.getName )
   addTest( helperTesterFactory.get )
   addTest( helperTesterFactory.get.putName( "testPipeline") )
+  addTest( propTestFactory.get )
+  addTest( getoptTester )
 }
 
 object PackageTestSuite {

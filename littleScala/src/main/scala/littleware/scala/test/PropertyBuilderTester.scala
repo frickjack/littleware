@@ -24,6 +24,8 @@ class PropertyBuilderTester extends LittleTest {
       assertTrue( "test builder starts in invalid state: " + sanity.mkString( ", " ), sanity.nonEmpty )
     }
     builder.aString( "bla" ).iNumber( 5 ).bBuffer
+    import PropertyBuilder._
+    assertTrue( "null check does what it does", sanityCheck( nullCheck )(null).nonEmpty )
   } catch basicHandler
 }
 

@@ -11,7 +11,7 @@ package littleware.scala
  */
 trait PropertyBuilder extends LittleValidator {
   builder =>
-  val rb = java.util.ResourceBundle.getBundle( "littleware.scala.Messages" )
+  import PropertyBuilder._
   type BuilderType = this.type
 
   import scala.collection.mutable.Buffer
@@ -92,7 +92,7 @@ trait PropertyBuilder extends LittleValidator {
     */
    class NotNullProperty[T <: AnyRef]( _value:T, _test:(T) => Iterable[String] ) extends Property[T]( _value, _test ) {
      def this( v:T ) = this(v, 
-                       (v:T) => if ( v == null ) Seq( rb.getString( "ValidateNotNull" ) ) else Nil
+                       sanityCheck( nullCheck )
                        )
      def this() = this( null.asInstanceOf[T] )
    } 
@@ -100,9 +100,9 @@ trait PropertyBuilder extends LittleValidator {
    /**
     * Convenience class tests Int Property.  Default test is value >= 0 
     */
-   class IntProperty( _value:Int, test:(Int) => Seq[String] ) extends Property[Int]( _value, test ) {
+   class IntProperty( _value:Int, test:(Int) => Iterable[String] ) extends Property[Int]( _value, test ) {
      
-     def this( v:Int ) = this( v, (i) => if( i >= 0 ) { Nil } else { Seq( rb.getString( "ValidateNonZero") ) } )
+     def this( v:Int ) = this( v, sanityCheck( notNegativeInt ) )
      /** Alias for constructor (-1, (i) => i > 0) */
      def this() = this( -1 ) 
    }   
@@ -121,3 +121,36 @@ trait PropertyBuilder extends LittleValidator {
   
 }
 
+object PropertyBuilder {
+  /**
+   * Compose series of boolean sanity checks into
+   * a single sanity-check function suitable for
+   * attaching as a Property validator.
+   */
+  def sanityCheck[T]( checks:Product2[String,(T)=>Boolean]* ):(T) => Iterable[String] = {
+    (v:T) => checks.filterNot( _ match { case (err,thunk) => thunk(v) } ).map( _._1 )
+  }
+  
+  /** littleware.scala.Messages resource bundle */
+  val rb = java.util.ResourceBundle.getBundle( "littleware.scala.Messages" )
+  
+  /**
+   * Not-null check suitable for adding to sanityCheck
+   * 
+   * @return ( failure message, validation check ) pair
+   */
+  def nullCheck[T <: AnyRef]:(String,(T)=>Boolean) = {
+    def check( t:T ):Boolean = t != null
+    rb.getString( "ValidateNotNull") -> check
+  }
+
+  /**
+   * Not-negative check suitable for adding to sanityCheck
+   * 
+   * @return ( failure message, validation check ) pair
+   */  
+  def notNegativeInt:(String,(Int) => Boolean) = {
+    def check( t:Int ):Boolean = t >= 0
+    rb.getString( "ValidateNonNegative") -> check
+  }
+}

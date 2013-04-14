@@ -28,7 +28,8 @@ class PackageTestSuite @inject.Inject()(
   Seq( 
     "testPathLs"
     ,"testPathParts"
-    //,"testPathCopy"
+    ,"testMimeTypes"
+    ,"testPathCopy"
   ).foreach(
     (testName) => addTest( pathToolTestFactory.get.withName( testName ) )
   )

@@ -1,0 +1,1676 @@
+﻿.\dist\s3cp.bat : Apr 14, 2013 6:07:12 PM 
+littleware.bootstrap.helper.AbstractLittleBootstrap osgiBootstrap
+At line:1 char:1
++ .\dist\s3cp.bat -copy ..\appsWeb\build\web\babyTrack 
+s3://apps.frickjack.com/bab ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~
+    + CategoryInfo          : NotSpecified: (Apr 14, 2013 6:...p osgiBootstrap 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+FINE: Check bootstrap module: littleware.asset.internal.LittleAssetModule
+
+Apr 14, 2013 6:07:12 PM littleware.bootstrap.helper.AbstractLittleBootstrap 
+osgiBootstrap
+FINE: Check bootstrap module: littleware.security.internal.LittleSecurityModule
+
+Apr 14, 2013 6:07:12 PM littleware.bootstrap.helper.AbstractLittleBootstrap 
+osgiBootstrap
+FINE: Check bootstrap module: littleware.bootstrap.helper.LittlePropsModule
+
+Apr 14, 2013 6:07:12 PM littleware.bootstrap.helper.AbstractLittleBootstrap 
+osgiBootstrap
+FINE: Check bootstrap module: littleware.bootstrap.helper.ExecutorModule
+
+Apr 14, 2013 6:07:12 PM littleware.bootstrap.helper.AbstractLittleBootstrap 
+osgiBootstrap
+FINE: Check bootstrap module: littleware.lgo.LgoModuleFactory$AppModule
+
+Apr 14, 2013 6:07:12 PM littleware.bootstrap.helper.AbstractLittleBootstrap 
+osgiBootstrap
+FINE: Check bootstrap module: 
+littleware.apps.s3Copy.littleModule.LittleAppModule
+
+Apr 14, 2013 6:07:12 PM littleware.bootstrap.helper.AbstractLittleBootstrap 
+osgiBootstrap
+FINE: Check bootstrap module: 
+littleware.bootstrap.internal.SimpleAppBuilder$AppSetupModule
+
+Apr 14, 2013 6:07:13 PM littleware.base.PropertiesLoader loadProperties
+FINE: Attempting to load properties for: littleware.properties, true
+
+Apr 14, 2013 6:07:13 PM littleware.base.PropertiesLoader loadProperties
+FINE: Loaded props: 3
+
+Apr 14, 2013 6:07:13 PM littleware.base.PropertiesLoader loadProperties
+FINE: Attempting to load properties for: littleware.properties, false
+
+Apr 14, 2013 6:07:13 PM littleware.base.DynamicEnum registerMemberIfNecessary
+FINE: Registering new new DynamicEnum type: littleware.asset.AssetType
+
+Apr 14, 2013 6:07:13 PM littleware.bootstrap.helper.LittlePropsModule configure
+FINE: Configuring LittlePropsModule ...
+
+Apr 14, 2013 6:07:13 PM littleware.base.PropertiesLoader loadProperties
+FINE: Attempting to load properties for: littleware.properties, false
+
+Apr 14, 2013 6:07:13 PM littleware.bootstrap.helper.AbstractLittleBootstrap 
+osgiBootstrap
+FINE: Waiting for OSGi startup ...
+
+Apr 14, 2013 6:07:13 PM 
+littleware.bootstrap.helper.AbstractLittleBootstrap$SetupActivator$1 
+frameworkEvent
+FINE: Triggering startup barrier ...
+
+Apr 14, 2013 6:07:13 PM littleware.bootstrap.helper.SimpleSessionBuilder <init>
+FINE: Scanning for session factories ...
+
+Apr 14, 2013 6:07:13 PM littleware.bootstrap.helper.SimpleSessionBuilder <init>
+FINE: Adding session module: 
+littleware.asset.client.bootstrap.AssetSessionModule$Factory
+
+Apr 14, 2013 6:07:13 PM littleware.bootstrap.helper.SimpleSessionBuilder <init>
+FINE: Adding session module: littleware.lgo.LgoModuleFactory
+
+Apr 14, 2013 6:07:13 PM littleware.bootstrap.helper.SimpleSessionBuilder <init>
+FINE: Adding session module: littleware.apps.s3Copy.littleModule.Factory
+
+Apr 14, 2013 6:07:13 PM littleware.asset.client.bootstrap.AssetSessionModule 
+configure
+FINE: Asset session configuration running ...
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.LgoModuleFactory$SessionStarter <init>
+FINE: Register lgo command: littleware.lgo.EzHelpCommand
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Searching for help file: littleware/lgo/EzHelpCommandHelp_en_US_.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Searching for help file: littleware/lgo/EzHelpCommandHelp_en_US.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Searching for help file: littleware/lgo/EzHelpCommandHelp_en.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Searching for help file: littleware/lgo/EzHelpCommandHelp.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Loading help file: littleware/lgo/EzHelpCommandHelp.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.LgoModuleFactory$SessionStarter <init>
+FINE: Register lgo command: littleware.lgo.XmlEncodeCommand
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Searching for help file: littleware/lgo/XmlEncodeCommandHelp_en_US_.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Searching for help file: littleware/lgo/XmlEncodeCommandHelp_en_US.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Searching for help file: littleware/lgo/XmlEncodeCommandHelp_en.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Searching for help file: littleware/lgo/XmlEncodeCommandHelp.xml
+
+Apr 14, 2013 6:07:13 PM littleware.lgo.XmlLgoHelpLoader loadHelp
+FINE: Loading help file: littleware/lgo/XmlEncodeCommandHelp.xml
+
+Apr 14, 2013 6:07:14 PM littleware.base.PropertiesLoader loadProperties
+FINE: Attempting to load properties for: aws/accessKeys.properties, true
+
+Apr 14, 2013 6:07:14 PM littleware.base.PropertiesLoader loadProperties
+FINE: Props not on classpath for: aws/accessKeys.properties
+
+Apr 14, 2013 6:07:14 PM littleware.base.PropertiesLoader loadPropsFromFile
+INFO: Loading C:\Users\pasquini\.littleware\aws\accessKeys.properties
+
+Apr 14, 2013 6:07:14 PM littleware.base.feedback.LoggerFeedback$2 
+receiveLittleEvent
+INFO: Scanning file:/C:/Users/pasquini/Documents/Code/littleware/WIP/littleware
+/webapp/littleApps/s3Copy/../appsWeb/build/web/babyTrack/
+
+Apr 14, 2013 6:07:14 PM littleware.base.feedback.LoggerFeedback$1 
+propertyChange
+INFO: : 9%
+
+Apr 14, 2013 6:07:14 PM littleware.base.feedback.LoggerFeedback$2 
+receiveLittleEvent
+INFO: Scanning s3://apps.frickjack.com/babyTrack
+
+Apr 14, 2013 6:07:14 PM 
+littleware.apps.s3Copy.controller.internal.simplePathTool.S3Strategy lsFolder
+FINE: lsFolder(s3://apps.frickjack.com/babyTrack)
+
+Apr 14, 2013 6:07:15 PM littleware.base.feedback.LoggerFeedback$1 
+propertyChange
+INFO: : 19%
+
+Apr 14, 2013 6:07:15 PM littleware.base.feedback.LoggerFeedback$2 
+receiveLittleEvent
+INFO: Merging source and destination index ...
+
+Apr 14, 2013 6:07:15 PM littleware.base.feedback.LoggerFeedback$1 
+propertyChange
+INFO: : 30%
+
+Apr 14, 2013 6:07:15 PM littleware.base.feedback.LoggerFeedback$2 
+receiveLittleEvent
+INFO: SrcDestSummary(ObjectSummary(file:/C:/Users/pasquini/Documents/Code/littl
+eware/WIP/littleware/webapp/littleApps/appsWeb/build/web/babyTrack/en/511.html,
+bddadc347a71f11674e529496f3c0a95,3304,None,2012-12-22T21:39:00.467-06:00),s3://
+apps.frickjack.com/babyTrack/,None)
+
+Apr 14, 2013 6:07:15 PM littleware.base.feedback.LoggerFeedback$2 
+receiveLittleEvent
+INFO: SrcDestSummary(ObjectSummary(file:/C:/Users/pasquini/Documents/Code/littl
+eware/WIP/littleware/webapp/littleApps/appsWeb/build/web/babyTrack/en/511.manif
+est,21b7b1684d71a323a71a913d848ffcd9,5631,None,2012-12-22T21:41:02.574-06:00),s
+3://apps.frickjack.com/babyTrack/,None)
+
+Apr 14, 2013 6:07:15 PM littleware.base.feedback.LoggerFeedback$2 
+receiveLittleEvent
+INFO: SrcDestSummary(ObjectSummary(file:/C:/Users/pasquini/Documents/Code/littl
+eware/WIP/littleware/webapp/littleApps/appsWeb/build/web/babyTrack/en/test511.h
+tml,be8bae563ba11718e2f68ed8a0bd0e82,5417,None,2012-12-22T21:19:09.055-06:00),s
+3://apps.frickjack.com/babyTrack/,None)
+
+Apr 14, 2013 6:07:15 PM littleware.apps.s3Copy.view.cli.CliCopyApp$ main
+WARNING: Runtime error
+java.lang.StackOverflowError
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.coll
+ection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:45
+0)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:23
+7)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at scala.collection.immutable.Stream$$anonfun$append$1.appl
+y(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$$anon
+fun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immut
+able.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.i
+mmutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collecti
+on.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(S
+tream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(S
+tream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at scala.collection.immutable.Stream$$anonfun
+$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutabl
+e.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.co
+llection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scal
+a.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.sc
+ala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.a
+pply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at 
+scala.collection.immutable.Stream$$anonfun$flatMap$1.apply(Stream.scala:450)
+    at scala.collection.immutable.Stream.append(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at 
+scala.collection.immutable.Stream$$anonfun$append$1.apply(Stream.scala:237)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$$anonfun$map$1.apply(Stream.scala:376)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1078)
+    at scala.collection.immutable.Stream$Cons.tail(Stream.scala:1070)
+
+
+Apr 14, 2013 6:07:15 PM littleware.bootstrap.helper.AbstractLittleBootstrap 
+shutdown
+FINE: Shutting down ...
+

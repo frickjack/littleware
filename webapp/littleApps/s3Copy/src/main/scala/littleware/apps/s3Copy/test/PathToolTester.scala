@@ -18,7 +18,8 @@ import junit.framework.Assert._
 import littleware.scala.test.LittleTest
 
 class PathToolTester @inject.Inject()(
-  tool:controller.PathTool
+  tool:controller.PathTool,
+  mimeMap:javax.activation.MimetypesFileTypeMap
 ) extends LittleTest {
   setName( "testPathLs" )
   
@@ -32,12 +33,29 @@ class PathToolTester @inject.Inject()(
       log.info( summary.path.toString + " summary: " + summary )
       summary match {
           case folderSummary:model.FolderSummary => {
-              assertTrue( "ls " + summary.path + " has subfolders", folderSummary.folders.nonEmpty )
-              assertTrue( "ls " + summary.path + " has child objects", folderSummary.objects.nonEmpty )
+              assertTrue( "ls " + summary.path + " has subfolders or objects", 
+                         folderSummary.folders.nonEmpty || folderSummary.objects.nonEmpty 
+              )
+              val cleanPath = folderSummary.path.getPath.replaceAll( "/+", "" )
+              assertTrue( "Folder does not include itself as a subfolder", 
+                         folderSummary.folders.map( _.getPath.replaceAll( "/+", "" ) ).find( _ == cleanPath ).isEmpty 
+              )
           }
           case err => fail( "Unexpected ls result: " + err )
       }
   }
+  
+  def testMimeTypes():Unit = try {
+    Seq( "json" -> "application/json", "html" -> "text/html", 
+        "js" -> "application/javascript", "png" -> "image/png"
+    ).foreach( _ match {
+        case (suffix,mtype) => {
+            val lookup = mimeMap.getContentType( "bla." + suffix )
+            assertTrue( "Got expected mime type: " + lookup + " ?= " + mtype, lookup == mtype )
+        }
+      })
+  } catch basicHandler
+  
   
   def testPathLs():Unit = try {
     Seq( new jio.File( "." ).toURI,
@@ -67,30 +85,32 @@ class PathToolTester @inject.Inject()(
   
   def testPathCopy():Unit = try {
     val testPath = new jio.File( "." ).toURI
-        
-    tool.ls( testPath ).foreach( 
-      (summary) => { 
-        summaryTest( summary )
-        summary match {
-          case folder:model.FolderSummary => {
-              assertTrue( "Folder is not empty: " + folder.path,
-                         folder.objects.nonEmpty && folder.folders.nonEmpty
-                         )
-              val tempFolder = gio.Files.createTempDir.toURI
-              folder.objects.foreach( (f) => {
-                  val optOut = tool.copyUnder( f.path, tempFolder )
-                  log.info( "Copied " + f + " to " + tempFolder )
-                  assertTrue( 
-                    "Copy worked as expected: " + f + " -> " + optOut.getOrElse( "?" ),
-                    optOut.map( 
-                      (summary:model.PathSummary) => new jio.File( summary.path ).exists  
-                    ).getOrElse( false )
-                  )
-                })
+    val destPaths = Seq(
+      gio.Files.createTempDir.toURI,
+      new java.net.URI( "s3://apps.frickjack.com/testSuite/PathToolTester/testPathCopy" )
+    )    
+    destPaths.foreach( (tempFolder) => {
+      tool.ls( testPath ).foreach( 
+        (summary) => { 
+          summaryTest( summary )
+          summary match {
+            case folder:model.FolderSummary => {
+                assertTrue( "Folder is not empty: " + folder.path,
+                           folder.objects.nonEmpty && folder.folders.nonEmpty
+                           )
+                folder.objects.foreach( (f) => {
+                    val optOut = tool.copyUnder( f.path, tempFolder )
+                    log.info( "Copied " + f + " to " + tempFolder )
+                    assertTrue( 
+                      "Copy worked as expected: " + f + " -> " + optOut.getOrElse( "?" ),
+                      optOut.isDefined
+                    )
+                  })
+            }
           }
         }
-      }
-    )    
+      )    
+    })
   } catch basicHandler
   
   def testPathParts():Unit = try {

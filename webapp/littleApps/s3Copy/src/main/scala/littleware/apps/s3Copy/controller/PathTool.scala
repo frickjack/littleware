@@ -61,5 +61,5 @@ object PathTool {
    * Little helper assembles a URI to identify the given S3 object
    */
   def s3Path( bucketName:String, key:String ):java.net.URI =
-    new java.net.URI( "s3", bucketName, ("/" + key).replaceAll( "//+", "/" ), null )
+    new java.net.URI( "s3", bucketName, ("/" + key).replaceAll( "//+", "/" ).replaceAll( "/+$", "" ), null )
 }

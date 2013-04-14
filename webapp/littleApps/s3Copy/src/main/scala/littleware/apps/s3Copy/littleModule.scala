@@ -15,11 +15,26 @@ import java.util.logging.{Level,Logger}
 import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,helper}
 import org.osgi
 import scala.collection.JavaConversions._
-import scala.util.{Failure,Success,Try}
 
 
-object LittleModuleFactory {
-  private val log = Logger.getLogger( getClass.getName )
+
+package littleModule {
+  object Config {
+    val awsKeysResource:String = "aws/accessKeys.properties"
+    private[littleModule] val log = Logger.getLogger( getClass.getName )  
+  }
+  
+  import Config.log
+  
+  /**
+   * Littleware module data - combines both applications scope and
+   * session scope binding module factories.
+   */
+  class Factory extends AppModuleFactory with littleware.bootstrap.SessionModuleFactory {
+    override def build( profile:AppBootstrap.AppProfile ):AppModule = new LittleAppModule( profile )
+    override def buildSessionModule( profile:littleware.bootstrap.AppBootstrap.AppProfile ):littleware.bootstrap.SessionModule = new LittleSessionModule()  
+  }
+
   
   /** 
    * Bundle activator registers at startup the default JAAS login configuration 
@@ -36,6 +51,7 @@ object LittleModuleFactory {
   }
   
   //-------------------------------------------
+  
   
   /**
    * Try to initialize the S3 client with credentials
@@ -63,16 +79,14 @@ object LittleModuleFactory {
              )
       if ( optConfig.isDefined ) {
         configMgr.s3Config( optConfig.get )
-      } else {
-        val resource = "aws/accessKeys.properties"
-        try {
-          configMgr.s3Config( s3ConfigFactory.get.credsFromResource( resource ).build )
+      } else try {
+          configMgr.s3Config( s3ConfigFactory.get.credsFromResource( Config.awsKeysResource ).build )
         } catch {
           case ex:Throwable => {
-              log.log( Level.WARNING, "Failed to load aws creds from default resource: " + resource )
+              log.log( Level.WARNING, "Failed to load aws creds from default resource: " + Config.awsKeysResource )
           }
-        }
       }
+      
       
     }
     
@@ -80,8 +94,6 @@ object LittleModuleFactory {
   }
   
   //-------------------------------------------
-
-  private var _dataSource:Option[javax.sql.DataSource] = None
   
    
   class LittleAppModule ( profile:AppBootstrap.AppProfile ) extends helper.AbstractAppModule( profile ) {
@@ -115,7 +127,7 @@ object LittleModuleFactory {
       
       binder.bind( classOf[s3.AmazonS3]).toProvider( classOf[controller.ConfigMgr.S3Factory] )
       binder.bind( classOf[controller.ConfigMgr.S3Factory] ).toProvider( classOf[S3Provider] )
-      
+      binder.bind( classOf[controller.UIEventHandler] ).to( classOf[controller.internal.SimpleEventHandler]).in( inject.Scopes.SINGLETON )
     }
     
     override def  getSessionStarter():Class[_ <: Runnable] = classOf[SessionStarter]
@@ -124,11 +136,3 @@ object LittleModuleFactory {
 
 }
 
-/**
- * Littleware module data - combines both applications scope and
- * session scope binding module factories.
- */
-class LittleModuleFactory extends AppModuleFactory with littleware.bootstrap.SessionModuleFactory {
-  override def build( profile:AppBootstrap.AppProfile ):AppModule = new LittleModuleFactory.LittleAppModule( profile )
-  override def buildSessionModule( profile:littleware.bootstrap.AppBootstrap.AppProfile ):littleware.bootstrap.SessionModule = new LittleModuleFactory.LittleSessionModule()  
-}

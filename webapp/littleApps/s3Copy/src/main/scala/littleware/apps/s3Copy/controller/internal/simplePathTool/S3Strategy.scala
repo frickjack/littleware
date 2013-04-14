@@ -19,6 +19,7 @@ import java.{io => jio}
 import java.net.URI
 import java.util.logging.{Level,Logger}
 import java.util.zip
+import org.apache.commons.codec
 import org.joda.{time => jtime}
 import scala.collection.JavaConversions._
 import scala.util.{Try,Success,Failure}
@@ -32,13 +33,15 @@ import scala.util.{Try,Success,Failure}
 class S3Strategy ( val path:java.net.URI,
                     objFactory:inject.Provider[model.ObjectSummary.Builder],
                     folderFactory:inject.Provider[model.FolderSummary.Builder],
-                    s3Factory:inject.Provider[s3.AmazonS3]
+                    s3Factory:inject.Provider[s3.AmazonS3],
+                    mimeMap:javax.activation.MimetypesFileTypeMap
 ) extends PathStrategy {
+  import S3Strategy._
+  
   require( path.getScheme == "s3", "S3Strategy only support s3: URIs")  
   private val log = Logger.getLogger( getClass.getName )
   val s3Bucket:String = path.getHost
-  val s3Path:String = ("/" + path.getPath).replaceAll( "//+", "/" 
-    ).replaceAll( "/+$", "" )
+  val s3Path:String = cleanPath( path.getPath )
 
   
   /**
@@ -59,23 +62,25 @@ class S3Strategy ( val path:java.net.URI,
   def lsFolder( s3Client:s3.AmazonS3, folder:java.net.URI ):model.FolderSummary = {
     if( log.isLoggable(Level.FINE) ) log.log( Level.FINE, "lsFolder(" + folder + ")" )
       // no object at the path, so check if it's a folder (s3 prefix)
+      val cleanFolderPath:String = cleanPath( folder.getPath ).trim
+      val queryFolderPath:String = if ( cleanFolderPath.nonEmpty ) cleanFolderPath + "/" 
+          else cleanFolderPath
       lazy val s3Listing:Stream[s3.model.ObjectListing] = 
           s3Client.listObjects( 
-            new s3.model.ListObjectsRequest( folder.getHost, folder.getPath.replaceAll( "^/+", "" ), null, "/", null ) 
+            new s3.model.ListObjectsRequest( folder.getHost, queryFolderPath, null, "/", null ) 
           ) #:: s3Listing.takeWhile( _.isTruncated ).map( (part) => s3Client.listNextBatchOfObjects( part ) )
 
       val folderBuilder = folderFactory.get.path( folder )
-      s3Listing.flatMap( _.getObjectSummaries ).filter( _.getETag != null ).foreach( (obj) => {
+      s3Listing.flatMap( _.getObjectSummaries ).filter( _.getETag != null ).foreach( 
+        (obj) => {
           folderBuilder.objects.add(
-            objFactory.get.path( 
-              PathTool.s3Path( s3Bucket, obj.getKey )
-                            ).md5Hex( obj.getETag 
-                            ).lastModified( new jtime.DateTime( obj.getLastModified )
-                            ).sizeBytes( obj.getSize 
-                            ).build
+            decorate( 
+              objFactory.get.path( PathTool.s3Path( s3Bucket, obj.getKey ) ), 
+              obj ).build
             )
         })
-      s3Listing.flatMap( _.getCommonPrefixes ).foreach( (pre) => {
+      s3Listing.flatMap( _.getCommonPrefixes 
+        ).filter( cleanPath(_) != cleanFolderPath ).foreach( (pre) => {
           folderBuilder.folders.add( PathTool.s3Path( s3Bucket, pre ))
         })
       val result = folderBuilder.build
@@ -84,42 +89,45 @@ class S3Strategy ( val path:java.net.URI,
   }
   
   
-  lazy val ls:Option[model.PathSummary] = {
+  def s3ObjectMetadata(  path:java.net.URI ):Option[s3.model.ObjectMetadata] = {
     val s3Client = s3Factory.get
-    
+    val s3Bucket:String = path.getHost
+    val s3Path:String = cleanPath( path.getPath )
     // first check if there is an object at the path
-    val optObject:Option[model.PathSummary] = Try( s3Client.getObjectMetadata( s3Bucket, s3Path )) match {
+    Try( s3Client.getObjectMetadata( s3Bucket, s3Path )) match {
       case Success(meta) if ( meta.getETag != null ) => {
-          Some( objFactory.get.path( path
-                  ).md5Hex( meta.getETag
-                  ).sizeBytes( meta.getContentLength 
-                  ).lastModified( new jtime.DateTime( meta.getLastModified )
-                  ).build 
-             )
+          Some( meta )
       }
-      case Failure(ex) => ex404Handler[model.PathSummary](ex)
+      case Failure(ex) => ex404Handler[s3.model.ObjectMetadata](ex)
       case Success(meta) => {
           //if( log.isLoggable( Level.FINE ) ) log.log( Level.FINE, "S3 metadata: " + meta.getContentType )
           None
       }
     }
-
-    if ( optObject.isDefined ) optObject else Some( lsFolder( s3Client, path ) )
   }
+  
+  def ls( path:java.net.URI ):Option[model.PathSummary] = {
+    val s3Client = s3Factory.get
+    val optObject = s3ObjectMetadata( path 
+       ).map( (meta) => decorate( objFactory.get.path( path ), meta ).build )
+
+    if ( optObject.isDefined ) optObject else 
+      Some( lsFolder( s3Client, path ) ).filter( (s) => s.folders.nonEmpty || s.objects.nonEmpty )
+  }
+  
+  lazy val ls:Option[model.PathSummary] = ls(path)
   
   val lsR:Stream[model.FolderSummary] = {
     val s3Client = s3Factory.get
-    def doStream( uriStream:Stream[java.net.URI] ):Stream[model.FolderSummary] = {
-      val summaryStream = uriStream.map( (uri) => lsFolder(s3Client,uri) )
-      summaryStream ++ summaryStream.flatMap( (summary) => doStream( summary.folders.toStream ) )
+    
+    def folderStream( folder:java.net.URI ):Stream[model.FolderSummary] = {
+      val f = lsFolder( s3Client, folder )
+      f #:: f.folders.toStream.flatMap( 
+        (furi) => folderStream(furi) 
+      )
     }
     
-    /*
-    lazy val stream:Stream[model.FolderSummary] = lsFolder( s3Client, path ) #:: 
-      stream.flatMap( _.folders ).map( lsFolder( s3Client, _ ) ) 
-    stream
-    */
-   doStream( Stream( path ) )
+     folderStream( path )                                                                      
   }
   
   //def compare( a:model.FolderSummary, b:model.FolderSummary ):model.FolderDiff 
@@ -143,15 +151,78 @@ class S3Strategy ( val path:java.net.URI,
   }
 
   def copyFrom( source:java.io.File ):Option[model.ObjectSummary] = {
-    throw new UnsupportedOperationException( "not yet implemented" )
+    val gzipTemp = {
+        val f = jio.File.createTempFile( "gzipTemp", "." + new jio.File( path.getPath ).getName )
+        val in = new jio.FileInputStream( source )
+        try {
+          val zipOut = new zip.GZIPOutputStream( new jio.FileOutputStream( f ))
+          try {
+            gio.ByteStreams.copy( in, zipOut )
+          } finally zipOut.close
+        } finally in.close
+        f
+      }
+    
+    val gzipMd5Hex = {
+        val in = new jio.FileInputStream( gzipTemp )
+        try {
+          codec.digest.DigestUtils.md5Hex( in )
+        } finally in.close
+    }
+    
+    // check if copy in S3 is already in sync with source
+    val md5Check = ls.map( _.asInstanceOf[model.ObjectSummary] 
+       ).filter( _.md5Hex == gzipMd5Hex 
+       )
+    
+    if ( md5Check.isDefined ) {
+      log.log( Level.FINE, "Skipping copy - md5 checks in sync: {0}", path )
+      md5Check 
+    } else {
+      try {
+        val s3Client = s3Factory.get
+        val request = new s3.model.PutObjectRequest( s3Bucket, s3Path, gzipTemp )
+        val meta = new s3.model.ObjectMetadata()
+        meta.setContentEncoding( "gzip" )
+        request.setMetadata( meta )
+        s3Client.putObject(request)
+      } finally gzipTemp.delete
+      ls( path ).map( _.asInstanceOf[model.ObjectSummary])
+    }
   }
 }
 
 object S3Strategy {
+
+  /**
+   * Clean up leading / and trailing / and duplicate /
+   */
+  def cleanPath( path:String ):String = path.replaceAll( "//+", "/" 
+    ).replaceAll( "/+$", "" ).replaceAll( "^/+", "" )
+    
+  /**
+   * Decorate the object builder with md5, modify date, and size meta data
+   * from S3
+   */
+  def decorate( builder:model.ObjectSummary.Builder, meta:s3.model.ObjectMetadata ):model.ObjectSummary.Builder =
+    builder.md5Hex( meta.getETag 
+            ).sizeBytes( meta.getContentLength 
+            ).encoding( Option( meta.getContentEncoding ).filter( _.nonEmpty )
+            ).lastModified( new jtime.DateTime( meta.getLastModified ) )
+
+  def decorate( builder:model.ObjectSummary.Builder, meta:s3.model.S3ObjectSummary 
+    ):model.ObjectSummary.Builder = 
+    builder.md5Hex( meta.getETag 
+            ).sizeBytes( meta.getSize
+            ).encoding.set( "gzip" // assume everything has gzip encoding in S3
+            ).lastModified( new jtime.DateTime( meta.getLastModified ) )
+
+    
   class Builder @inject.Inject() ( 
     infoFactory:inject.Provider[model.ObjectSummary.Builder],
     summaryFactory:inject.Provider[model.FolderSummary.Builder],
-    s3Factory:inject.Provider[s3.AmazonS3]
+    s3Factory:inject.Provider[s3.AmazonS3],
+    mimeMap:javax.activation.MimetypesFileTypeMap
     ) extends littleware.scala.PropertyBuilder {
       val path = new NotNullProperty[java.net.URI]( null,
            (uri:java.net.URI) => 
@@ -162,7 +233,7 @@ object S3Strategy {
          
       def build():S3Strategy = {
         this.assertSanity()
-        new S3Strategy( path(), infoFactory, summaryFactory, s3Factory )
+        new S3Strategy( path(), infoFactory, summaryFactory, s3Factory, mimeMap )
       }
     }
   

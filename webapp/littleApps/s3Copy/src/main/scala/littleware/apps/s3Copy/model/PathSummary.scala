@@ -15,3 +15,4 @@ package littleware.apps.s3Copy.model
 trait PathSummary {
   val path:java.net.URI
 }
+

@@ -54,6 +54,7 @@ div#app > div {
     width:100%;
 }
 
+div#app > div#footer { text-align:center; }
 
 /*.......... start/stop button ............ */
 
@@ -179,3 +180,4 @@ table.stats tr, table.stats td {
 table.stats tr {
     border-bottom:1px solid black;
 }
+

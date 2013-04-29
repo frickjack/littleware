@@ -34,7 +34,7 @@ object PackageTestSuite {
   val log = Logger.getLogger( getClass.getName )
 
   def suite():TestSuite = try {
-    log.log( Level.INFO, "Launching test suite ..." )
+    log.log( Level.INFO, "Launching test suite in " + new java.io.File( "." ).getAbsolutePath + "..." )
     val suite = {
       val boot = ServerBootstrap.provider.get( //AppBootstrap.appProvider.get(
           ).addModuleFactory( new littleware.asset.webproxy.JettyModule.AppFactory 

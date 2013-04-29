@@ -38,8 +38,25 @@ class SimpleWebRemote (
   private val base64 = new org.apache.commons.codec.binary.Base64(-1)
   
   def login( creds:model.Credentials ):model.ClientSession = {
-    val now = jtime.DateTime.now()
-    model.internal.NullClientSession( java.util.UUID.randomUUID, now, now.plusDays(1) )
+    val urlStr = serviceRoot.toString().replaceAll( "/+$", "" ) + "/session/" + (
+      creds match {
+        case model.Credentials.SessionId( id ) => id.toString
+        case model.Credentials.NamePassword( name, password ) => name + "/" + password
+        case model.Credentials.LittleId( email, secret ) => email + "/" + secret
+      }
+    )
+    val getMethod = new HttpGet( urlStr )
+    val response:String = httpClient.execute( getMethod, new BasicResponseHandler() )
+    val jsResponse = gsonTool.fromJson( response, classOf[gson.JsonElement] ).getAsJsonObject
+    Option( jsResponse.get( "envelopes" ) ).toSeq.flatMap( (js) => {
+        val jsEnvelopes = js.getAsJsonArray 
+        jsEnvelopes.iterator.map( (jsEnv) => {
+            gsonTool.fromJson( jsEnv, classOf[model.ResponseEnvelope] )
+          }
+        ).toSeq
+    } )
+    
+    throw new UnsupportedOperationException( "not yet implemented" )
   }
   
   def addAuthHeader( method:HttpRequestBase, client:model.ClientSession ):Unit = {
@@ -61,7 +78,7 @@ class SimpleWebRemote (
     ).filter( (_) => js.get( "status" ).getAsString.toLowerCase == "ok" 
     ).map( model.MessageHandle(_) 
     ).getOrElse(
-      throw new IllegalStateException( "Post failed: " + js.get( "description" ).getAsString )
+      throw new IllegalStateException( "Post failed: " + response )
     )
   }
   

@@ -16,7 +16,7 @@ import javax.security.auth
 import javax.security.auth.callback
 import javax.security.auth.spi.LoginModule
 import littleware.apps.littleId
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 import scala.collection.JavaConversions._
 
 object JaasLoginModule {
@@ -54,7 +54,7 @@ object JaasLoginModule {
  *               on initialization parameters
  */
 class JaasLoginModule @Inject() ( private var tool:VerifyTool ) extends LoginModule {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
   private var handlerInit:Option[callback.CallbackHandler] = None
   private var subjectInit:Option[auth.Subject] = None
 

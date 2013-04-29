@@ -15,7 +15,7 @@ import java.util.logging.Level
 import junit.framework.TestSuite
 import littleware.base.AssertionFailedException
 import littleware.bootstrap.AppBootstrap
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 import littleware.test.TestFactory
 
 class PackageTestSuite @Inject() (
@@ -28,7 +28,7 @@ class PackageTestSuite @Inject() (
 }
 
 object PackageTestSuite {
-  val log = LazyLogger( getClass )
+  val log = Logger.getLogger( getClass.getName )
   def suite():TestSuite = try {
     (new TestFactory()).build(
       AppBootstrap.appProvider.get().build(),

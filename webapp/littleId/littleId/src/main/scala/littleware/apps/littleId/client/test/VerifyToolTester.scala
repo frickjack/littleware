@@ -14,10 +14,10 @@ import java.util.logging.Level
 import junit.framework.Assert
 import junit.framework.TestCase
 import littleware.apps.littleId.client.controller.VerifyTool
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 
 class VerifyToolTester @Inject()( tool:VerifyTool ) extends TestCase( "testVerifyTool" ) {
-  val log = LazyLogger( getClass )
+  val log = Logger.getLogger( getClass.getName )
 
   def testVerifyTool():Unit = try {
     Assert.assertTrue( "Verify should fail on bogus data",

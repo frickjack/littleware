@@ -20,46 +20,38 @@
     <dependencies>    
         <dependency org="littleware" name="littleware" rev="2.5.+" 
            conf="compile->compile;client->client;test->with_derby,with_junit" />
-        <dependency org="org.hibernate" name="hibernate-entitymanager" rev="3.5.0-Final" conf="compile,with_hibernate->*" />
-        <dependency org="org.hibernate" name="hibernate-annotations" rev="3.5.0-Final" conf="compile,with_hibernate->*"/>
-        <dependency org="org.hibernate" name="hibernate-core" rev="3.5.0-Final" conf="compile,with_hibernate->*" />
-        <dependency org="org.hibernate" name="hibernate-commons-annotations" rev="3.2.0.Final" conf="with_hibernate->*" />
-        <dependency org="org.hibernate" name="hibernate-validator" rev="4.0.2.GA" conf="with_hibernate->*" />
-        <dependency org="org.hibernate.java-persistence" name="jpa-api" rev="2.0-cr-1" conf="with_hibernate->*" />
-        <!-- hibernate needs this -->
-        <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="with_hibernate->*" />
-        
-        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.8" conf="with_hibernate->*" />
-        <dependency org="org.slf4j" name="slf4j-simple" rev="1.5.8" conf="with_hibernate->*" />
-        <dependency org="log4j" name="log4j" rev="1.2.14" conf="with_hibernate->*" />
-        <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="with_hibernate->*">
-            <exclude module=".+" ext="jar" type="src" matcher="regexp" />
+           
+        <dependency org="org.hibernate" name="hibernate-entitymanager" rev="4.2.1.Final" 
+             conf="compile,with_hibernate->default">
         </dependency>
-        <dependency org="javassist" name="javassist" rev="3.11.0.GA" conf="with_hibernate->*" />
-        <dependency org="javax.transaction" name="jta" rev="1.1" conf="with_hibernate->*">
-           <exclude module=".+" ext="jar" type="src" matcher="regexp" />
-        </dependency>
-        <dependency org="antlr" name="antlr" rev="2.7.7" conf="with_hibernate->*" />
 
-        <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" conf="with_jetty->*" />
-        <dependency org="com.google.code.gson" name="gson" rev="2.1" />
+        <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" conf="with_jetty->*,!sources,!javadoc" />
+        <dependency org="com.google.code.gson" name="gson" rev="2.1" conf="*->*,!sources,!javadoc" />
                 
-        <!-- AWS and its apache httpclient dependencies ... -->
-        <dependency org="com.amazonaws" name="aws-java-sdk" rev="1.4.1" conf="compile,with_aws->*" />
-        <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.2.1" conf="compile,with_aws,with_http->*" />
-        <dependency org="org.apache.httpcomponents" name="httpclient-cache" rev="4.2.1" conf="compile,with_aws,with_http->*" />
-        <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.2.2" conf="compile,with_aws,with_http->*" />
-        <dependency org="commons-codec" name="commons-codec" rev="1.7" conf="compile,with_aws,with_http->*" />
-        <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="with_aws,with_http->*" />
+        <!-- AWS and its apache httpclient dependencies ...
+           See http://stackoverflow.com/questions/7104364/how-are-maven-scopes-mapped-to-ivy-configurations-by-ivy
+        --> 
+        <dependency org="com.amazonaws" name="aws-java-sdk" rev="1.4.1" conf="compile,with_aws->master" />
+        <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.2.1" conf="compile,with_aws,with_http->master" />
+        <dependency org="org.apache.httpcomponents" name="httpclient-cache" rev="4.2.1" conf="compile,with_aws,with_http->master" />
+        <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.2.2" conf="compile,with_aws,with_http->master" />
+        <dependency org="commons-codec" name="commons-codec" rev="1.7" conf="compile,with_aws,with_http->master" />
+        <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="with_aws,with_http->master" />
         
-        <!-- Jetty -->
-     <dependency org="org.eclipse.jetty" name="jetty-continuation" rev="8.0.4.v20111024" conf="compile,with_jetty->default" />
-     <dependency org="org.eclipse.jetty" name="jetty-http" rev="8.0.4.v20111024" conf="compile,with_jetty->default" />
-     <dependency org="org.eclipse.jetty" name="jetty-io" rev="8.0.4.v20111024" conf="compile,with_jetty->default" />
-     <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.0.4.v20111024" conf="compile,with_jetty->default" />
-     <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.0.4.v20111024" conf="compile,with_jetty->default" />
-     <dependency org="org.eclipse.jetty" name="jetty-util" rev="8.0.4.v20111024" conf="compile,with_jetty->default" />
-     <dependency org="org.eclipse.jetty" name="jetty-security" rev="8.0.4.v20111024" conf="compile,with_jetty->default" />      
+        
+        <!-- Jetty           -->
+     <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.0.4.v20111024" conf="compile,with_jetty->*,!sources,!javadoc" />
+     <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.0.4.v20111024" conf="compile,with_jetty->*,!sources,!javadoc" />
+     
+     <!--     
+     <dependency org="org.eclipse.jetty" name="jetty-continuation" rev="8.0.4.v20111024" conf="compile,with_jetty->*,!sources,!javadoc" />
+     <dependency org="org.eclipse.jetty" name="jetty-http" rev="8.0.4.v20111024" conf="compile,with_jetty->*,!sources,!javadoc" />
+     <dependency org="org.eclipse.jetty" name="jetty-io" rev="8.0.4.v20111024" conf="compile,with_jetty->*,!sources,!javadoc" />
+     
+     
+     <dependency org="org.eclipse.jetty" name="jetty-util" rev="8.0.4.v20111024" conf="compile,with_jetty->*,!sources,!javadoc" />
+     <dependency org="org.eclipse.jetty" name="jetty-security" rev="8.0.4.v20111024" conf="compile,with_jetty->*,!sources,!javadoc" />      
+      -->
            
     </dependencies>
 

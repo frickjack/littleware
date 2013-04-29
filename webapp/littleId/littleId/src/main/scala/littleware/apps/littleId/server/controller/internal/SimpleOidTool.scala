@@ -17,7 +17,7 @@ import java.util.logging.Level
 import littleware.apps.littleId
 import littleware.apps.littleId.server.controller
 import littleware.base.PropertiesLoader
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 import org.openid4java.consumer
 import org.openid4java.discovery
 import org.openid4java.message
@@ -37,7 +37,7 @@ class SimpleOidTool @Inject() (
   consumerMgr:consumer.ConsumerManager,
   userBuilder:littleId.common.model.OIdUserCreds.Builder
 ) extends controller.OpenIdTool {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
   private val props:Properties = PropertiesLoader.get.loadProperties( classOf[controller.OpenIdTool] )
 
   log.log( Level.INFO, "Registering OpenID consumer URL: " + props.getProperty( "consumerURL" ) )

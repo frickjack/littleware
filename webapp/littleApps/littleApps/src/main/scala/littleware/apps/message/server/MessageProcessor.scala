@@ -17,16 +17,13 @@ trait MessageProcessor {
   def client:remote.MessageRemote
   
   /**
-   * Set the listener for messages of the given type
+   * Set the listener class for messages of the given type.
+   * When a message of the specified type arrives, a session-scoped
+   * instance of each registered listener for that type will be injected
+   * and invoked.
    */
-  def setListener( typeSpec:String, listener:MessageListener ):Unit
-  /*
-  /**
-   * Add a listener for every type of message
-   */
-  def addListener( listener:MessageListener ):Unit
-  def removeListener( typeSpec:String, id:java.util.UUID ):Unit
-  def removeListener( id:java.util.UUID ):Unit
-  */
+  def setListener( typeSpec:String, listenerClass:Class[_ <: MessageListener] ):Unit
+  
+ 
   def postResponse( handle:model.MessageHandle, response:model.Response ):Unit
 }

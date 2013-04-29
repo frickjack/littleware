@@ -27,7 +27,9 @@ public class AppBootstrapListener implements ServletContextListener {
 
     public synchronized void contextInitialized(ServletContextEvent sce) {
         try {
-            boot = Maybe.something(WebBootstrap.bootstrap(sce.getServletContext()) );
+            boot = Maybe.something(
+                    WebBootstrap.bootstrap( AppBootstrap.appProvider.get(), sce.getServletContext()).getInjector().get().getInstance( AppBootstrap.class )
+                    );
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Failed littleware bootstrap", ex);
         }

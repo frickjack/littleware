@@ -21,7 +21,7 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import littleware.apps.littleId.client.web.bean.IdBean
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 
 
 /**
@@ -29,7 +29,7 @@ import littleware.scala.LazyLogger
  * accessing paths matching an init-configured pattern.
  */
 class SecurityFilter extends Filter {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
 
   /**
    * Context-relative path to login form

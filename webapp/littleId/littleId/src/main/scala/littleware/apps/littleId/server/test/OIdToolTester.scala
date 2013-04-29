@@ -16,10 +16,10 @@ import junit.framework.Assert
 import junit.framework.TestCase
 import littleware.apps.littleId.common.model.OIdProvider
 import littleware.apps.littleId.server.controller
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 
 class OIdToolTester @Inject()( tool:controller.OpenIdTool ) extends TestCase( "testOIdTool" ) {
-  val log = LazyLogger( getClass )
+  val log = Logger.getLogger( getClass.getName )
 
   /**
    * Just test the buildRequest method

@@ -17,7 +17,7 @@ import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.validate.ValidationException;
 import littleware.db.DataSourceHandler.DSHBuilder;
-import oracle.jdbc.pool.OracleDataSource;
+// add this back in when we have good public source for the driver :import oracle.jdbc.pool.OracleDataSource;
 
 /**
  * General DataSourceBuilder implementation just resolves
@@ -114,22 +114,10 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
             final Pattern pattern = Pattern.compile("jdbc:derby://(\\w+):(\\d+)/(.+)$");
             final Matcher match = pattern.matcher(url);
             if (match.find()) {
-                /*...
-                org.apache.derby.jdbc.ClientDataSource40 dataSource = new org.apache.derby.jdbc.ClientDataSource40 ();
-                dataSource.setServerName ( match.group(1) );
-                dataSource.setPortNumber( Integer.parseInt( match.group(2) ) );
-                dataSource.setDatabaseName ( match.group(3) );
-                binder.bind(DataSource.class).annotatedWith(Names.named(s_name)).toInstance(dataSource);
-                 * */
-                org.logicalcobwebs.proxool.ProxoolDataSource data = new org.logicalcobwebs.proxool.ProxoolDataSource(name);
-                data.setDriver(org.apache.derby.jdbc.ClientDriver.class.getName());
-                data.setDriverUrl(url);
-                data.setUser("ignore");
-                data.setPassword("ignore");
-                data.setMinimumConnectionCount(10);
-                data.setMaximumConnectionCount(30);
-                data.setSimultaneousBuildThrottle(10);
-                data.setMaximumActiveTime(60000);
+                final org.apache.derby.jdbc.ClientDataSource40 data = new org.apache.derby.jdbc.ClientDataSource40 ();
+                data.setServerName ( match.group(1) );
+                data.setPortNumber( Integer.parseInt( match.group(2) ) );
+                data.setDatabaseName ( match.group(3) );
                 return new Handler(data,url);
             } else {
                 org.apache.derby.jdbc.EmbeddedDataSource40 data = new org.apache.derby.jdbc.EmbeddedDataSource40();
@@ -138,16 +126,17 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
             }
         } else if (url.startsWith("jdbc:oracle:")) {
             try {
+              /*
                 final OracleDataSource data = new OracleDataSource();
                 data.setURL(url);
                 return new Handler(data, url);
+                */
+              throw new UnsupportedOperationException( "Orale support removed until Oracle publishes driver for maven access");
             } catch (Exception ex) {
                 throw new IllegalArgumentException("Failed ORACLE setup " + url, ex);
             }
         } else if (url.startsWith("jdbc:postgresql:")) {
-            org.logicalcobwebs.proxool.ProxoolDataSource data = new org.logicalcobwebs.proxool.ProxoolDataSource(name);
-            data.setDriver(org.postgresql.Driver.class.getName());
-            data.setDriverUrl(url);
+            final org.postgresql.ds.PGSimpleDataSource data = new org.postgresql.ds.PGSimpleDataSource();
 
             String s_user = "littleware_user";
             String s_password = "secret";
@@ -160,10 +149,19 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
                     s_password = s_param.substring("password=".length());
                 }
             }
+            final java.net.URI uri;
+            try {
+              uri = new java.net.URI( url.substring( "jdbc:".length() ));
+            } catch( java.net.URISyntaxException ex ) {
+              throw new IllegalArgumentException( "Failed parsing jdbc url: " + url, ex );
+            }
             data.setUser(s_user);
             data.setPassword(s_password);
-            data.setMaximumConnectionCount(10);
-            data.setMaximumActiveTime(60000);
+            data.setServerName( uri.getHost() );
+            data.setPortNumber( uri.getPort() );
+            data.setDatabaseName( uri.getPath().replaceAll( "^/+", "" ));
+            //data.setMaximumConnectionCount(10);
+            //data.setMaximumActiveTime(60000);
             return new Handler(data,url);
         } else if (url.startsWith("jdbc:mysql:")) {
             com.mysql.jdbc.jdbc2.optional.MysqlDataSource data = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();

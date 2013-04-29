@@ -18,13 +18,13 @@ import junit.framework.TestCase
 import littleware.apps.littleId
 import littleId.common.model
 import littleId.server.controller
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 
 class VerifyToolTester @Inject() (
   verifyTool:controller.AuthVerifyTool,
   openIdBuilder:Provider[littleId.common.model.OIdUserCreds.Builder]
   ) extends TestCase( "testVerifyTool" ) {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
 
   def testVerifyTool():Unit = try {
     val creds1:littleId.common.model.OIdUserCreds = openIdBuilder.get.email( "frickjack@google.com" ).openId( new URL( "http://google.com/frickjack" )).build

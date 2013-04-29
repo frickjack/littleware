@@ -12,6 +12,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import littleware.security.LittleGroup;
 import littleware.security.LittlePermission;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
+import littleware.security.auth.SessionExpiredException;
 import org.joda.time.DateTime;
 
 /**
@@ -90,6 +92,13 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
             final LittleContext adminContext = buildAdminContext();
             final LittleSession session = search.getAsset(adminContext, sessionId, -1L ).getAsset().get().narrow();
             final LittleUser user = search.getAsset(adminContext, session.getOwnerId(), -1L ).getAsset().get().narrow();
+            
+            if ( session.getEndDate() != null ) {
+              final Date now = new Date();
+              if ( session.getEndDate().getTime() < now.getTime() ) {
+                throw new SessionExpiredException();
+              }
+            }
             return new SimpleContext(session, user, adminContext.getTransaction(), isAdmin( adminContext, user), search, adminContext );
         } catch (RuntimeException ex) {
             throw ex;

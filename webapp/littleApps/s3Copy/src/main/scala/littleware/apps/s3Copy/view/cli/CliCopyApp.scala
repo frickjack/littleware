@@ -36,7 +36,7 @@ class CliCopyApp @inject.Inject() (
     require( params.size == 2, useHelp )
     val uris = params.map( 
       (p) => if( p.startsWith( "file:" ) || p.startsWith( "s3:" ) ) new java.net.URI( p )
-      else new java.io.File( p ).getAbsoluteFile.toURI
+      else new java.io.File( p ).getCanonicalFile.toURI
              )
              
     val infoSeq = handler.listCommands( uris(0), uris(1), fb.nested(30,100) )

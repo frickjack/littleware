@@ -39,7 +39,7 @@ class SimpleEventHandler @inject.Inject() (
    */
   def basepath( path:java.net.URI, root:java.net.URI ):String = {
       val pathPath = path.getPath
-      val rootPath = path.getPath
+      val rootPath = root.getPath
       require( pathPath.length >= rootPath.length, "valid looking path and root: " + path + " & " + root )
       pathPath.substring( rootPath.length ).replaceAll( "^/+", "" )
   }

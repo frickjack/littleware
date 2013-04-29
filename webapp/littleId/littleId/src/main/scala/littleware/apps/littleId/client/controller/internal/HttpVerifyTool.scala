@@ -15,12 +15,12 @@ import java.io
 import java.net.{URL,URLEncoder,URLConnection}
 import littleware.apps.littleId
 import littleId.client.controller
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 import littleware.base.Whatever
 
 
 class HttpVerifyTool @Inject()( @Named( "littleId.verfiyURL" ) verifyURL:URL ) extends controller.VerifyTool {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
   
   def verify( secret:String, creds:Map[String,String] ):Boolean = {
     val postData:String = (

@@ -51,7 +51,9 @@ trait OpenIdTool {
   def buildRequest( oidProvider:littleId.common.model.OIdProvider.Value ):OIdRequestData
 
   /**
-   * Process the authentication response from the OID provider
+   * Process the authentication response from the OID provider -
+   * delivered to us when the provider redirects the client back
+   * to our server response end point.
    *
    * @param requestData that the response is responding to
    * @param consumerEndpoint URL that the response was received at

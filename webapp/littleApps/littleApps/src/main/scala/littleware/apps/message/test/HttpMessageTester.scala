@@ -23,7 +23,8 @@ class HttpMessageTester @inject.Inject()(
   
   
   def testWebRemote():Unit = try {
-    val session = client.login( model.Credentials.NamePassword("test", "password" ))
+    val session = client.login( model.Credentials.NamePassword("littleware.test_user", "test123" ))
+    log.log( Level.INFO, "login got session: " + session )
     (0 to 1).foreach( (j) => {
         val handle = client.postMessage( session, MessageProcessTester.TestMessage )
         log.log( Level.INFO, "-" + j + " Waiting for test message response" )

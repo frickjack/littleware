@@ -14,6 +14,6 @@ trait Credentials {
 
 object Credentials {
   case class NamePassword( name:String, password:String ) extends Credentials {}
-  case class LittleId ( secret:String ) extends Credentials {}
+  case class LittleId ( email:String, secret:String ) extends Credentials {}
   case class SessionId ( sessionId:java.util.UUID ) extends Credentials {}
 }

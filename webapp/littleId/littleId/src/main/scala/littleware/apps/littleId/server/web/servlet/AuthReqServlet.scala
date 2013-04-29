@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import littleware.apps.littleId.common.model.OIdProvider
 import littleware.apps.littleId.server._
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 import littleware.scala.LittleHelper
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
@@ -65,7 +65,7 @@ import AuthReqServlet._
  * and forwards the request to a .jsp to construct and auto-submit the provider data form.
  */
 class AuthReqServlet extends HttpServlet {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
 
 
   private var tools:Tools = null

@@ -11,19 +11,29 @@ package littleware.apps.message
 package server
 package internal
 
+import littleware.bootstrap
+
 /**
  * Interface for strategy to which a server-side RemoteLoginManager may
  * deligate authentication of credentials.
  */
-trait LoginStrategy {
+trait LoginStrategy {  
   /**
-   * Returns true if this strategy can handle the given credentials
-   */
-  def acceptsCreds( creds:model.Credentials ):Boolean
-  
-  /**
+   * Creates a new session, authenticate, and cache session injector
+   * for later access by lookup()
+   * 
+   * @return authenticaed session - use strategy.lookup()
    * @throws IllegalArgumentException if ! acceptsCreds( creds )
    * @throws LoginException if credentials fail authentication
    */
   def login( creds:model.Credentials ):model.ClientSession
+  
+  /**
+   * Lookup the session injector associated with the given id.
+   * Should succeed for all valid session ids.
+   * Different implementations may access session data from
+   * a database or whatever.
+   */
+  def lookup( sessionId:java.util.UUID ):bootstrap.SessionInjector
+
 }

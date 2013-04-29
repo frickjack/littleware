@@ -31,7 +31,7 @@ import client.controller.VerifyTool
 import client.web.bean
 import littleware.apps.littleId.client.controller.JaasLoginModule
 import littleware.base.login.LoginCallbackHandler
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 import littleware.scala.LittleHelper
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
@@ -48,7 +48,7 @@ import scala.collection.JavaConversions._
  * a new session, and replaces the Sessin's IdBean as necessary
  */
 class LoginHandler extends HttpServlet with HttpSessionListener {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
 
 
   private def sessionCreated(session:HttpSession ):Unit = {

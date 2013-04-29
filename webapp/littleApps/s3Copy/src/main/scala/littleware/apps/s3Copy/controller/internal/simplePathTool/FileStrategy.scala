@@ -16,6 +16,7 @@ package simplePathTool
 import com.google.inject
 import com.google.common.{io => gio}
 import java.{io => jio}
+import java.util.logging.{Level,Logger}
 import org.apache.commons.codec
 import org.joda.{time => jtime}
 //import scala.collection.JavaConversions._
@@ -25,7 +26,8 @@ class FileStrategy ( val path:java.net.URI,
                     folderFactory:inject.Provider[model.FolderSummary.Builder]
   ) extends PathStrategy {
     require( path.getScheme == "file", "FileStrategy only support file: URIs")
-  val file:jio.File = new jio.File( path.getPath )
+  val file:jio.File = new jio.File( path.getPath ).getCanonicalFile
+  val log = Logger.getLogger( getClass.getName )
   
   /**
    * Internal helper assembles ObjectSummary for the given file
@@ -34,7 +36,7 @@ class FileStrategy ( val path:java.net.URI,
    */
   def fileSummary( file:java.io.File ):model.ObjectSummary = FileStrategy.fileSummary( file, objFactory.get ).build
   
-  def ls( file:jio.File ):Option[model.PathSummary] = Some( file ).filter( 
+  def ls( file:jio.File ):Option[model.PathSummary] = Some( file.getCanonicalFile ).filter( 
         (file) => file.exists && (file.isFile || file.isDirectory) 
     ).map( _ match {
       case f if f.isFile => fileSummary( f )
@@ -44,7 +46,7 @@ class FileStrategy ( val path:java.net.URI,
             (f) => f.getName.endsWith( "~" ) || f.getName.endsWith( ".bak" ) || 
                  f.getName.endsWith( ".old" ) || f.getName.endsWith( "#" )
           )
-          folderFactory.get.path( file.toURI ).folders.addAll( children.filter( _.isDirectory ).map( _.toURI )
+          folderFactory.get.path( d.toURI ).folders.addAll( children.filter( _.isDirectory ).map( _.toURI )
               ).objects.addAll( children.filter( _.isFile ).map( (f) => fileSummary(f) )
               ).build
       }
@@ -55,10 +57,26 @@ class FileStrategy ( val path:java.net.URI,
   
   lazy val lsR:Stream[model.PathSummary] = ls.map(
     _ match {
-      case folder:model.FolderSummary => folder #:: lsR.map( _.asInstanceOf[model.FolderSummary] 
-                                                            ).flatMap( _.folders 
-                                                            ).flatMap( (f) => ls( new jio.File( f.getPath )) 
-                                                            )
+      case folder:model.FolderSummary => {
+          
+          val root = new java.io.File( folder.path.getPath ).getCanonicalFile
+          //case class State( accum:List[jio.File], stack:List[jio.File] )
+          
+          def depthFirst( stack:List[jio.File] ):Stream[jio.File] = {
+            stack match {
+              case head :: tail => {
+                  head #:: depthFirst( tail ++ head.listFiles.filter( _.isDirectory ) )
+              }
+              case Nil => Stream.empty
+            }
+          }
+          
+            /*
+          lazy val temp:Stream[jio.File] = new java.io.File( folder.path.getPath ).getCanonicalFile #:: 
+            temp.flatMap( (d) => { log.fine( "Scanning: " + d ); d.listFiles().filter( (sd) => sd.isDirectory && sd != d ) } )
+            */
+          depthFirst( List( root ) ).map( ls(_).get )
+      }
       case obj => Stream(obj)
     }
   ).getOrElse( Stream.empty )

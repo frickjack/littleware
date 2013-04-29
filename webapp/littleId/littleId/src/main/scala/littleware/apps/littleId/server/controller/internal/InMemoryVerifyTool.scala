@@ -15,12 +15,12 @@ import littleware.apps.littleId
 import littleware.base.cache.Cache
 import java.util.logging.Level
 import littleId.server.{controller,model}
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 
 class InMemoryVerifyTool @Inject() (
   cacheBuilder:Provider[Cache.Builder]
 ) extends controller.AuthVerifyTool {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
 
   private val cache:Cache[String,littleId.common.model.OIdUserCreds] = cacheBuilder.get.maxAgeSecs( 300 ).maxSize( 20000 ).build()
 

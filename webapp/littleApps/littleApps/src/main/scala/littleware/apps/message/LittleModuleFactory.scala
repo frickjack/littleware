@@ -30,19 +30,16 @@ object LittleModuleFactory {
     gsonMessageAdapter:model.internal.GsonMessageAdapter,
     gsonPayloadAdapter:model.internal.GsonPayloadAdapter
   ) extends osgi.framework.BundleActivator {
-    Seq( classOf[model.Message] -> gsonMessageAdapter,
-        classOf[model.ResponseEnvelope] -> gsonEnvelopeAdapter,
-        classOf[model.Payload] -> gsonPayloadAdapter
-    ).foreach( _ match {
+    Seq( 
+      classOf[model.Message] -> gsonMessageAdapter,
+      classOf[model.ResponseEnvelope] -> gsonEnvelopeAdapter,
+      classOf[model.Payload] -> gsonPayloadAdapter
+    ).foreach( 
+      _ match {
         case (clazz,adapter) => gsonFactory.registerTypeAdapter( clazz, adapter )
-      })
-    
-    // register listener for test-messages
-    msgProcessor.setListener( 
-      test.MessageProcessTester.TestMessage.messageType,
-      test.MessageProcessTester.TestListener
-      )
-      
+      }
+    )
+          
     // register pickle handler for test payload
     pickleRegistery.register( test.TestPayload.payloadType, test.TestPayload.GsonAdapter )
       
@@ -53,6 +50,15 @@ object LittleModuleFactory {
   }
   
   //-------------------------------------------
+  
+  class SessionStarter @inject.Inject() (
+    
+    ) extends Runnable {
+    
+    override def run() {}
+  }
+  
+  //-------------------------------------------
 
   private var _dataSource:Option[javax.sql.DataSource] = None
   
@@ -60,16 +66,18 @@ object LittleModuleFactory {
   class LittleAppModule ( profile:AppBootstrap.AppProfile ) extends helper.AbstractAppModule( profile ) {
     
     override def configure( binder:inject.Binder ):Unit = {
-      binder.bind( classOf[model.Response.Builder] ).to( classOf[model.internal.ResponseBuilder])
       binder.bind( classOf[server.MessageProcessor]
         ).to( classOf[server.internal.SimpleMessageProcessor]
         ).in( inject.Scopes.SINGLETON
         )
+      binder.bind( classOf[server.internal.LoginStrategy]).to( classOf[server.internal.LittleLoginStrategy]).in( inject.Scopes.SINGLETON )
       binder.bind( classOf[server.internal.SimpleMessageProcessor] ).in( inject.Scopes.SINGLETON )
       binder.bind( classOf[remote.MessageRemote]
         ).toProvider( classOf[server.internal.SimpleMessageProcessor.SMPClient.Provider]
         ).in( inject.Scopes.SINGLETON
         )
+      
+      binder.bind( classOf[model.Response.Builder] ).to( classOf[model.internal.ResponseBuilder])
       binder.bind( classOf[model.Message.Builder] ).to( classOf[model.internal.SimpleMessageBuilder] )
       binder.bind( classOf[model.Payload.PickleRegistry] 
         ).toInstance( 
@@ -87,15 +95,19 @@ object LittleModuleFactory {
    
   //-------------------------------------------
   
+  
+  
   /**
    * Littleware SessionModule establishes session-scoped bindings.
    * It's possible for an application to have multiple sessions (ex - a webapp)
    */
   class LittleSessionModule extends littleware.bootstrap.SessionModule {
     override def configure( binder:inject.Binder ):Unit = {
+      binder.bind( classOf[model.ClientSession] ).toProvider( classOf[model.internal.LittleSessionProvider] ).in( inject.Scopes.SINGLETON );
+      binder.bind( classOf[model.internal.LittleSessionProvider]).in( inject.Scopes.SINGLETON );
     }
     
-    override def  getSessionStarter():Class[_ <: Runnable] = classOf[littleware.bootstrap.SessionModule.NullStarter]
+    override def  getSessionStarter():Class[_ <: Runnable] = classOf[SessionStarter]
   }
   
 

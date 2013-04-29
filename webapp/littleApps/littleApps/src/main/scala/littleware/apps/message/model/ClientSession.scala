@@ -7,12 +7,15 @@
  */
 
 
-package littleware.apps.message.model
+package littleware.apps.message
+package model
 
 import org.joda.{time => jtime}
 
-trait ClientSession extends Credentials {
-  val sessionId:java.util.UUID
-  val dateCreated:jtime.DateTime
-  val dateExpires:jtime.DateTime
-}
+case class ClientSession private[message] (
+  userId:String,
+  sessionId:java.util.UUID,
+  dateCreated:jtime.DateTime,
+  dateExpires:jtime.DateTime
+  )
+extends Credentials {}

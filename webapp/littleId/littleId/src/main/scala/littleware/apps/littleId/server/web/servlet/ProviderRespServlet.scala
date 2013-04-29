@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import littleware.apps.littleId._
 import littleware.apps.littleId.server._
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
 import scala.collection.JavaConversions._
@@ -62,7 +62,7 @@ import ProviderRespServlet._
  * @TODO implement InjectMeServlet abstract base class
  */
 class ProviderRespServlet extends HttpServlet {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
 
   var clientResponsePage:String = "/openId/view/en/respondToClient.jsp"
   private var tools:Tools = null

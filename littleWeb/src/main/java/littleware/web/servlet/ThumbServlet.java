@@ -20,7 +20,7 @@ import littleware.security.LittleUser;
 /**
  * Simple LittleServlet serves out thumbnail images
  */
-public class ThumbServlet extends LittleServlet {
+public class ThumbServlet implements LittleServlet {
 
     private static final Logger log = Logger.getLogger(ThumbServlet.class.getName());
     private AssetSearchManager search;
@@ -36,7 +36,7 @@ public class ThumbServlet extends LittleServlet {
     }
 
     @Override
-    public void doGetOrPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGetOrPostOrPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         /*..
         final String pathString = request.getParameter("path");
         final String resString = request.getParameter("res");

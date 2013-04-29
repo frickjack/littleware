@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse
 import littleware.apps.littleId
 import littleId.common.model
 import littleId.server.controller
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
 import scala.collection.JavaConversions._
@@ -48,7 +48,7 @@ import VerifyServlet._
  * @TODO implement InjectMeServlet abstract base class
  */
 class VerifyServlet extends HttpServlet {
-  private val log = LazyLogger( getClass )
+  private val log = Logger.getLogger( getClass.getName )
 
   var verifyResponsePage:String = "/openId/view/en/verifyResponse.jsp"
   private var tools:Tools = null

@@ -15,11 +15,7 @@ import javax.servlet.ServletContextListener;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.base.Maybe;
 import littleware.base.Option;
-import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.SessionBootstrap;
-import littleware.bootstrap.SessionBootstrap.SessionBuilder;
-import littleware.web.beans.GuiceBean;
 
 /**
  * ServletContextListener manages bootup and shutdown of littleware with an embedded littleAsset server,
@@ -43,14 +39,7 @@ public class AssetServerBootListener implements ServletContextListener {
     public synchronized void contextInitialized(ServletContextEvent sce) {
         try {
             final ServletContext ctx = sce.getServletContext();
-            final LittleBootstrap server = ServerBootstrap.provider.get().build();
-            boot = Maybe.something( server );
-            ctx.setAttribute( WebBootstrap.littleBoot, server );
-            
-            final SessionBuilder  sessionBuilder = server.newSessionBuilder();
-            final SessionBootstrap session = sessionBuilder.build();
-            final GuiceBean gbean = session.startSession( GuiceBean.class );
-            ctx.setAttribute( WebBootstrap.littleGuice, gbean );
+            WebBootstrap.bootstrap( ServerBootstrap.provider.get(), ctx );
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Failed littleware bootstrap", ex);
         }

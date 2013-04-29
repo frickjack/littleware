@@ -39,7 +39,7 @@ class MessageProcessTester @inject.Inject()(
   def testMessageProcess():Unit = try {
     val now = jtime.DateTime.now
     val client = processor.client
-    val session = client.login( model.Credentials.NamePassword("test", "password" ) )
+    val session = client.login( model.Credentials.NamePassword("littleware.test_user", "test123" ) )
     val handle:model.MessageHandle = client.postMessage( session, MessageProcessTester.TestMessage )
     val responseSeq:Seq[model.ResponseEnvelope] = responseIterator( session 
     ).take(20).toSeq

@@ -25,6 +25,6 @@ import littleware.web.beans.InjectMeBean;
  * A LittleServlet may be used directly in an embedded
  * environment too.
  */
-public abstract class LittleServlet extends InjectMeBean {
-    public abstract void  doGetOrPost( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException;
+public interface LittleServlet {
+    public void  doGetOrPostOrPut( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException;
 }

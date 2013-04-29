@@ -26,33 +26,32 @@ import scala.collection.JavaConversions._
 
 /**
  * Simple in-memory message processor leverages
- * injected executor service and feedback factory
+ * injected executor service and feedback factory.
+ * TODO - implement ApacheMQ or RabbitMQ or whatever processor.
  */
 class SimpleMessageProcessor @inject.Inject()(
   exec:ListeningExecutorService,
   fbFactory:inject.Provider[feedback.Feedback.Builder],
   responseFactory:inject.Provider[model.Response.Builder],
-  fbListenerFactory:inject.Provider[FeedbackListener.Builder]
+  fbListenerFactory:inject.Provider[FeedbackListener.Builder],
+  loginStrategy:LoginStrategy
 ) extends MessageProcessor {
   private val log = Logger.getLogger( getClass.getName )
   
-  private lazy val _client:remote.MessageRemote = new SimpleMessageProcessor.SMPClient( this )
+  private lazy val _client:remote.MessageRemote = new SimpleMessageProcessor.SMPClient( this, loginStrategy )
   override def client:remote.MessageRemote = _client
   
-  //val WILDCARD:String = "*"
-  private[internal] val type2Listener:java.util.concurrent.ConcurrentMap[String,MessageListener] = 
-    new gcollect.MapMaker().concurrencyLevel(4).makeMap()
   
-  //private[internal] val id2Listener:java.util.concurrent.ConcurrentMap[UUID,MessageListener] = new gcollect.MapMaker().makeMap[UUID,MessageListener]()
+  def getListeners( typeSpec:String ):Option[Class[_ <: MessageListener]] = try {
+    Some( Class.forName( typeSpec ).asInstanceOf[Class[_ <: MessageListener]] )
+  } catch {
+     case ex:ClassNotFoundException => {
+         log.warning( "Unable to find class loader for: " + typeSpec )
+         None
+     } 
+  }
   
-  def getListeners( typeSpec:String ):Seq[MessageListener] = Option( type2Listener.get( typeSpec ) ).toSeq
-  //(type2Listener.get( WILDCARD ) ++ type2Listener.get( typeSpec )).flatMap( (id) => Option( id2Listener.get(id) ) ).toSeq
-
   
-  /**
-   * Event bus on which to push client messages for eventual processing
-   */
-  val eventBus:gbus.AsyncEventBus = new gbus.AsyncEventBus( "SimpleMessageProcessor", exec )
   
   /**
    * Cache maps client login session to set of message-handle ids associated
@@ -70,12 +69,20 @@ class SimpleMessageProcessor @inject.Inject()(
   
 
   def postClientMessage( event:model.MessageEvent ):Unit = {
-    val listeners:Seq[MessageListener] = getListeners( event.message.messageType )
-    require( ! listeners.isEmpty, "Listeners registers for posted message type: " + event.message.messageType )
     val sessionId = event.session.sessionId
+    val injector = loginStrategy.lookup( sessionId )
+    val listeners:Option[MessageListener] = getListeners( 
+        event.message.messageType 
+      ).map( 
+        (clazz) => injector.getInstance( clazz ) 
+      )
+    require( ! listeners.isEmpty, 
+            "Listeners registers for posted message type: " + event.message.messageType
+    )
+    
     val minAge = jtime.DateTime.now.minusMinutes(6)
     val sessionMap:java.util.Map[UUID,model.MessageEvent] = messageBySession.get( sessionId )
-    sessionMap.values().toIndexedSeq[model.MessageEvent].foreach( 
+    sessionMap.values().toIndexedSeq.foreach( 
       // clean out old data
       (scan) => if ( scan.dateCreated.isBefore( minAge ) ) {
         sessionMap.remove( scan.handle.id )
@@ -116,67 +123,7 @@ class SimpleMessageProcessor @inject.Inject()(
     
   }
 
-  // dead code ... doesn't work - WTF ?
-  eventBus.register(
-    /**
-     * Event bus listener dispatches events to registered listeners
-     * with a feedback instance that has listeners attached that
-     * auto-generate intermediate responses.
-     */
-    new java.lang.Object() {
-      @gbus.Subscribe()
-      def handler( elPair:SimpleMessageProcessor.EventListenerPair ):Unit = try {
-        log.log( Level.FINE, ">>>> Event bus handler processing event: " + elPair.event.handle )
-        val fbBuilder = fbFactory.get
-        val fbListener = fbListenerFactory.get.processor( SimpleMessageProcessor.this ).handle( elPair.event.handle ).build
-        fbBuilder.addLittleListener( fbListener )
-        fbBuilder.addPropertyChangeListener( fbListener )
-        elPair.listener.messageArrival( elPair.event, fbBuilder.build )
-        postResponse( elPair.event.handle, 
-                     responseFactory.get.state( model.Response.State.COMPLETE ).progress( 100 ).build 
-        )     
-      } catch {
-        case ex => {
-            log.log( Level.WARNING, "Event dispatch failed", ex )
-            postResponse( elPair.event.handle, 
-                         responseFactory.get.state( model.Response.State.FAILED 
-              ).progress( 100 
-              ).addFeedback( ex.toString
-              ).build 
-            )
-          }
-      } 
-    }
-  )
-  
-  override def setListener( typeSpec:String, listener:MessageListener ):Unit = {
-    require( typeSpec.matches( "^[\\w\\.-]+" ), 
-            "Valid listener type spec: " + typeSpec 
-    )
-    type2Listener.put( typeSpec, listener )
-    //id2Listener.put( listener.id, listener )
-  }
-  
-  /*
-   override def addListener( listener:MessageListener ):Unit = {
-   type2Listener.put( WILDCARD, listener.id )
-   id2Listener.put( listener.id, listener )
-   }
-  
-   override def removeListener( typeSpec:String, id:UUID ):Unit = {
-   require( typeSpec.matches( "^\\w+" ), "Valid listener type spec: " + typeSpec )
-   type2Listener.remove( typeSpec, id )
-   if ( ! type2Listener.containsKey( id ) ) {
-   id2Listener.remove( id )
-   }
-   }
-  
-   override def removeListener( id:UUID ):Unit = {
-   type2Listener.keySet.foreach( (k) => type2Listener.remove( k, id ) )
-   id2Listener.remove( id )
-   }
-   */
-   
+     
   val responseByMessage:gcache.LoadingCache[UUID,SimpleMessageProcessor.ResponseQueue] =
     gcache.CacheBuilder.newBuilder(
     ).expireAfterWrite( 3, java.util.concurrent.TimeUnit.MINUTES 
@@ -212,14 +159,14 @@ object SimpleMessageProcessor {
     }
   }
   
-  class SMPClient @inject.Inject() ( processor:SimpleMessageProcessor ) extends remote.MessageRemote {
+  class SMPClient @inject.Inject() ( 
+    processor:SimpleMessageProcessor,
+    loginStrategy:LoginStrategy
+  ) extends remote.MessageRemote {
     /**
      * Just a simple pass-through login
      */
-    def login( creds:model.Credentials ):model.ClientSession = {
-      val now = jtime.DateTime.now
-      model.internal.NullClientSession( java.util.UUID.randomUUID, now, now.plusDays(100) )
-    }
+    def login( creds:model.Credentials ):model.ClientSession = loginStrategy.login( creds )
 
     
     def postMessage( client:model.ClientSession, msg:model.Message ):model.MessageHandle = {

@@ -18,11 +18,11 @@ import junit.framework.Assert
 import junit.framework.TestCase
 import littleware.apps.littleId.client.controller.JaasLoginModule
 import littleware.base.login.LoginCallbackHandler
-import littleware.scala.LazyLogger
+import java.util.logging.{Level,Logger}
 
 
 class JaasLoginTester @Inject()( loginConfig:JaasLoginModule.Config ) extends TestCase( "testJaas" ) {
-  val log = LazyLogger( getClass )
+  val log = Logger.getLogger( getClass.getName )
 
   def testJaas():Unit = try {
     (new LoginContext( "littleId", new Subject(),

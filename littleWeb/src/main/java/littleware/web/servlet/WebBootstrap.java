@@ -15,7 +15,7 @@ import littleware.bootstrap.AppBootstrap;
 import littleware.web.beans.GuiceBean;
 
 /**
- * Specialization of ClientBootstrap sets up
+ * Just defines a few constants.
  * per-client littleware environment.
  * An HttpSessionListener like littleware.web.servlet.LoginHandler
  * is a good place to bootstrap and shutdown littleware
@@ -23,21 +23,18 @@ import littleware.web.beans.GuiceBean;
  */
 public class WebBootstrap {
     /** Bean names in session */
-    public static String littleBoot = "littleBoot";
     public static String littleGuice = "guiceBean";
-    public static String littleInjector = "injector";
+
     
     /**
-     * Setup a littleware environment (guicebean, bootstrap) in application scope.
-     * Bootstraps littleware, and registers GuiceBean and LittleBoot
-     * with the ServletContext.
+     * Little helper boots the given bootstrap builder,
+     * and sets a GuiceBean for an unauthenticated session in the 
+     * servlet context littleGues attribute.
      */
-    public static AppBootstrap bootstrap( ServletContext context ) {
-        final AppBootstrap boot = AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.WebApp).build();
+    public static GuiceBean bootstrap( AppBootstrap.AppBuilder bootBuilder, ServletContext context ) {
+        final AppBootstrap boot = bootBuilder.profile(AppBootstrap.AppProfile.WebApp).build();
         final GuiceBean gbean = boot.bootstrap( GuiceBean.class );
         context.setAttribute( littleGuice, gbean );
-        context.setAttribute(littleBoot, boot );
-        context.setAttribute( littleInjector, gbean.getInjector().get().getInjector() );
-        return boot;
+        return gbean;
     }
 }

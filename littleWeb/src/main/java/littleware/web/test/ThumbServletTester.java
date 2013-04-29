@@ -45,7 +45,7 @@ public class ThumbServletTester extends AbstractAssetTest {
                     });
             EasyMock.replay( mockRequest );
             EasyMock.replay( mockResponse );
-            servlet.doGetOrPost(mockRequest, mockResponse);
+            servlet.doGetOrPostOrPut(mockRequest, mockResponse);
             EasyMock.verify( mockRequest );
             EasyMock.verify( mockResponse );
         } catch (Exception ex) {

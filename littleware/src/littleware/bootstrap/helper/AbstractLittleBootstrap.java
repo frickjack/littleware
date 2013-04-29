@@ -123,6 +123,7 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
             felixPropertyMap.put(BundleCache.CACHE_ROOTDIR_PROP, cacheDir.toString());
         }
         felixPropertyMap.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, activatorList);
+        felixPropertyMap.put( FelixConstants.SERVICE_URLHANDLERS_PROP, "false" );
         felix = new Felix(felixPropertyMap);
         try {
             felix.start();

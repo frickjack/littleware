@@ -23,12 +23,17 @@ public class SimpleEmbeddedBuilder implements EmbeddedServletBuilder {
         return new HttpServlet() {
             @Override
             public void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
-                littleServlet.doGetOrPost( req, res );
+                littleServlet.doGetOrPostOrPut( req, res );
             }
 
             @Override
             public void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
-                littleServlet.doGetOrPost( req, res );
+                littleServlet.doGetOrPostOrPut( req, res );
+            }
+
+            @Override
+            public void doPut( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+                littleServlet.doGetOrPostOrPut( req, res );
             }
 
         };

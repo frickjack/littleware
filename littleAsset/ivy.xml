@@ -35,7 +35,7 @@
         <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.2.1" conf="compile,with_aws,with_http->master" />
         <dependency org="org.apache.httpcomponents" name="httpclient-cache" rev="4.2.1" conf="compile,with_aws,with_http->master" />
         <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.2.2" conf="compile,with_aws,with_http->master" />
-        <dependency org="commons-codec" name="commons-codec" rev="1.7" conf="compile,with_aws,with_http->master" />
+        <dependency org="commons-codec" name="commons-codec" rev="1.8" conf="compile,with_aws,with_http->master" />
         <dependency org="commons-logging" name="commons-logging" rev="1.+" conf="with_aws,with_http->master" />
         
         

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- -->
+<!-- Ant project mixin with build rules for IVY support etc. -->
 <!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!--  -->
 <project
      xmlns:ivy="antlib:org.apache.ivy.ant"
      name="ivy-template"
      >
     <description>Some build rules with IVY.</description>
 
-<property name="ivy.install.version" value="2.2.0" /> 
+<property name="ivy.install.version" value="2.3.0" /> 
 <dirname property="ivy.jar.dir" file="${ant.file.ivy-template}" />
 <property name="ivy.settings.file" value="${ivy.jar.dir}/littlesettings.xml" />
 <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" /> 

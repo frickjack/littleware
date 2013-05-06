@@ -10,6 +10,7 @@
 
 package littleware.web.servlet;
 
+import littleware.web.servlet.internal.SimpleEmbeddedBuilder;
 import com.google.inject.ImplementedBy;
 import javax.servlet.http.HttpServlet;
 

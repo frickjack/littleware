@@ -6,7 +6,7 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.web.servlet;
+package littleware.web.servlet.internal;
 
 import com.google.inject.Singleton;
 import java.io.IOException;
@@ -14,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import littleware.web.servlet.EmbeddedServletBuilder;
+import littleware.web.servlet.LittleServlet;
 
 @Singleton
 public class SimpleEmbeddedBuilder implements EmbeddedServletBuilder {

@@ -86,7 +86,7 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
 
         private final Collection<SessionModule> sessionModuleSet;
         private final Injector parentInjector;
-        private final String sessionId = UUID.randomUUID().toString();
+        private final UUID sessionId = UUID.randomUUID();
 
         public Bootstrap(
                 ImmutableList<SessionModule> sessionModuleSet,
@@ -173,7 +173,7 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
         }
 
         @Override
-        public String getSessionId() {
+        public UUID getSessionId() {
             return sessionId;
         }
     }

@@ -60,6 +60,7 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
         }
     }
 
+    public boolean nonEmpty() { return isSet(); }
 
     public T get () {
         if ( ! isSet() ) {
@@ -71,7 +72,15 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
         return value;
     }
 
+    public T getOrThrow( RuntimeException ex ) {
+      if ( isEmpty() ) { throw ex; } else { return value; }
+    }
+    
+    public T getOrThrow( Exception ex ) throws Exception {
+      if ( isEmpty() ) { throw ex; } else { return value; }
+    }
 
+    
     public final T getRef() {
         return get();
     }

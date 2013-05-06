@@ -73,7 +73,7 @@ public class DbByNameLoader implements DbReader<Option<Asset>, String> {
                     if ( null == id ) {
                         throw new AssertionFailedException("Unexpected query result");
                     }
-                    return Maybe.emptyIfNull( loader.loadObject(id) );
+                    return Maybe.something( loader.loadObject(id) );
                 }
             }
             return Maybe.empty();

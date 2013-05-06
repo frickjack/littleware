@@ -81,7 +81,7 @@ public class AssetSearchServlet extends HttpServlet {
     @Override
     public void init() {
         final ServletConfig config = getServletConfig();
-        uriPrefix = Maybe.emptyIfNull(config.getInitParameter("uriPrefix")).getOr(uriPrefix);
+        uriPrefix = Maybe.something(config.getInitParameter("uriPrefix")).getOr(uriPrefix);
         // TODO - work out bootstrap/injection mechanism
         if (null == tools) {
             tools = ((SessionInjector) config.getServletContext().getAttribute("injector")).getInstance(Tools.class);

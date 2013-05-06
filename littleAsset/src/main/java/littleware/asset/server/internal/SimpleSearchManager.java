@@ -74,7 +74,7 @@ public class SimpleSearchManager implements ServerSearchManager {
             }
 
             if (loadedAssets.isEmpty()) {
-                return Maybe.empty("No asset " + name + "/:type:" + type);
+                return Maybe.empty();
             }
             final Asset asset = loadedAssets.iterator().next();
             accessCache.put(asset.getId(), asset);
@@ -108,7 +108,7 @@ public class SimpleSearchManager implements ServerSearchManager {
             }
 
             if (result.isEmpty()) {
-                return Maybe.empty("No asset " + name + " under parent " + parentId );
+                return Maybe.empty();
             }
             final Asset asset = result.iterator().next();
             accessCache.put(asset.getId(), asset);
@@ -156,7 +156,7 @@ public class SimpleSearchManager implements ServerSearchManager {
         final LittleTransaction trans = ctx.getTransaction();
         trans.startDbAccess();
         try {
-            final DbReader<Set<UUID>, String> reader = dbMgr.makeDbAssetIdsToLoader(trans, toId, Maybe.emptyIfNull(type));
+            final DbReader<Set<UUID>, String> reader = dbMgr.makeDbAssetIdsToLoader(trans, toId, Maybe.something(type));
             return reader.loadObject(null);
         } catch (SQLException ex) {
             log.log(Level.INFO, "Failed call", ex);
@@ -402,7 +402,7 @@ public class SimpleSearchManager implements ServerSearchManager {
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
 
         try {
-            final DbReader<Map<String, UUID>, String> reader = dbMgr.makeDbAssetIdsFromLoader(trans, sourceId, Maybe.emptyIfNull((AssetType) assetType), Maybe.empty(Integer.class));
+            final DbReader<Map<String, UUID>, String> reader = dbMgr.makeDbAssetIdsFromLoader(trans, sourceId, Maybe.something((AssetType) assetType), Maybe.NONE);
             return reader.loadObject(null);
         } catch (SQLException ex) {
             // do not throw cause e - may not be serializable

@@ -167,7 +167,7 @@ public class SimpleSearchService implements AssetSearchManager {
         final Cache<String, Object> cache = clientCache.getCache();
         final String key = "path:" + path;
         {
-            final Option<Asset> cacheEntry = Maybe.emptyIfNull((Asset) cache.get(key));
+            final Option<Asset> cacheEntry = Maybe.something((Asset) cache.get(key));
             if (cacheEntry.isSet()) {
                 return library.syncAsset(cacheEntry.get());
             }
@@ -236,7 +236,7 @@ public class SimpleSearchService implements AssetSearchManager {
             RemoteException {
         final Cache<String, Object> cache = clientCache.getCache();
         final String key = "from:" + UUIDFactory.makeCleanString(parentId) + name;
-        Option<Asset> result = Maybe.emptyIfNull((Asset) cache.get(key));
+        Option<Asset> result = Maybe.something((Asset) cache.get(key));
         if (result.isSet()) {
             return library.syncAsset(result.get());
         }
@@ -295,11 +295,11 @@ public class SimpleSearchService implements AssetSearchManager {
             return library.syncAsset( everybody );
         }
 
-        Option<Asset> result = Maybe.emptyIfNull(clientCache.get(id));
+        Option<Asset> result = Maybe.something(clientCache.get(id));
         if (result.isSet()) {
             return library.syncAsset(result.get());
         }
-        result = Maybe.emptyIfNull( personalCache.get(id));
+        result = Maybe.something( personalCache.get(id));
         final UUID sessionId = keychain.getDefaultSessionId().get();
         final long timestamp = (result.isSet()) ? result.get().getTimestamp() : -1L;
         {

@@ -172,7 +172,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
 
         @Override
         public Option<Asset> checkCache(UUID id) {
-            return Maybe.emptyIfNull(lookupCache.get(id));
+            return Maybe.something(lookupCache.get(id));
         }
 
         @Override
@@ -187,7 +187,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
 
         @Override
         public Option<Asset> checkIfSaved(UUID id) {
-            return Maybe.emptyIfNull(savedCache.get(id));
+            return Maybe.something(savedCache.get(id));
         }
 
         @Override

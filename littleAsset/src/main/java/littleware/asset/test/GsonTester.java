@@ -45,7 +45,7 @@ public class GsonTester extends LittleTest {
 
         @Override
         public Option<Asset> getAsset(UUID id) throws BaseException, GeneralSecurityException, RemoteException {
-            return Maybe.emptyIfNull(testAssets.get(id));
+            return Maybe.something(testAssets.get(id));
         }
 
         @Override

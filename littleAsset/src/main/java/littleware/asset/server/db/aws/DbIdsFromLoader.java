@@ -118,12 +118,12 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
         }
 
         public Builder type(AssetType value) {
-            maybeType = Maybe.emptyIfNull(value);
+            maybeType = Maybe.something(value);
             return this;
         }
 
         public Builder state(Integer value) {
-            maybeState = Maybe.emptyIfNull(value);
+            maybeState = Maybe.something(value);
             return this;
         }
 

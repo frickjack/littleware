@@ -32,7 +32,7 @@ public class IdWithClockBuilder implements IdWithClock.Builder {
         public Data( UUID id, UUID from, long transaction ) {
             this.id = id;
             this.transaction = transaction;
-            this.maybeFrom = Maybe.emptyIfNull( from );
+            this.maybeFrom = Maybe.something( from );
         }
 
         @Override

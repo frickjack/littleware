@@ -232,7 +232,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
     }
 
     public Option<UUID> getLink(String key) {
-        return Maybe.emptyIfNull(linkMap.get(key));
+        return Maybe.something(linkMap.get(key));
     }
 
     public Map<String, Date> getDateMap() {
@@ -240,7 +240,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
     }
 
     public Option<Date> getDate(String key) {
-        return Maybe.emptyIfNull(dateMap.get(key));
+        return Maybe.something(dateMap.get(key));
     }
 
     public Map<String, String> getAttributeMap() {
@@ -248,7 +248,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
     }
 
     public Option<String> getAttribute(String key) {
-        return Maybe.emptyIfNull(attributeMap.get(key));
+        return Maybe.something(attributeMap.get(key));
     }
 
     @Override

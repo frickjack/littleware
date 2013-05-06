@@ -108,4 +108,19 @@ public class MockAssetRef implements AssetRef {
         return ref.iterator();
     }
 
+  @Override
+  public boolean nonEmpty() {
+    return ref.nonEmpty();
+  }
+
+  @Override
+  public Asset getOrThrow(RuntimeException re) {
+    return ref.getOrThrow( re );
+  }
+
+  @Override
+  public Asset getOrThrow(Exception excptn) throws Exception {
+    return ref.getOrThrow( excptn );
+  }
+
 }

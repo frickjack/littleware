@@ -105,7 +105,7 @@ public class DbIdsToLoader implements DbReader<Set<UUID>, String> {
         }
 
         public Builder type(AssetType value) {
-            maybeType = Maybe.emptyIfNull(value);
+            maybeType = Maybe.something(value);
             return this;
         }
 

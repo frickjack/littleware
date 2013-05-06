@@ -179,7 +179,7 @@ public class SimpleAssetLibrary
          * Constructor associates an asset
          */
         public SimpleAssetRef(Asset asset, SimpleAssetLibrary library) {
-            this.asset = Maybe.emptyIfNull( asset );
+            this.asset = Maybe.something( asset );
             this.library = library;
             ValidationException.validate( asset != null, "Must reference non-null asset");
         }
@@ -328,6 +328,21 @@ public class SimpleAssetLibrary
         public Iterator<Asset> iterator() {
             return asset.iterator();
         }
+
+    @Override
+    public boolean nonEmpty() {
+      return ! isEmpty();
+    }
+
+    @Override
+    public Asset getOrThrow(RuntimeException re) {
+      return asset.getOrThrow(re);
+    }
+
+    @Override
+    public Asset getOrThrow(Exception excptn) throws Exception {
+      return asset.getOrThrow( excptn );
+    }
 
     }
 }

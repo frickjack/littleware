@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
+import java.security.Principal;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -18,9 +21,13 @@ import javax.security.auth.*;
 import javax.security.auth.spi.*;
 import javax.security.auth.login.*;
 import javax.security.auth.callback.*;
+import littleware.asset.AssetException;
+import littleware.asset.client.AssetManager;
 
 
 import littleware.base.*;
+import littleware.security.LittleUser;
+import littleware.security.auth.LittleSession;
 
 /**
  * Login module for littleware clients.
@@ -45,12 +52,14 @@ public class ClientLoginModule implements LoginModule {
     public final static String PORT_OPTION = "port";
     public final static String CACHE_OPTION = "cache";
     public final static String MANAGER_OPTION = "sessionManager";
+    public final static String SAVER_OPTION = "assetManager";
 
     private CallbackHandler handler = null;
     private SessionManager sessionManager = null;
     private Subject subject = null;
     private Set<String> aclNameList = new HashSet<String>();
     private boolean useCache = false;
+  private AssetManager assetSaver;
 
     /**
      * Initialize the module with data from underlying
@@ -69,6 +78,7 @@ public class ClientLoginModule implements LoginModule {
         this.subject = subject;
         this.handler = handler;
         this.sessionManager = (SessionManager) optionsMap.get( MANAGER_OPTION );
+        this.assetSaver = (AssetManager) optionsMap.get( SAVER_OPTION );
         final String host = (String) optionsMap.get(HOST_OPTION);
         final String port = (String) optionsMap.get(PORT_OPTION);
         final String cacheString = (String) optionsMap.get(CACHE_OPTION);
@@ -236,34 +246,6 @@ public class ClientLoginModule implements LoginModule {
 
             if (!aclNameList.isEmpty()) {
                 log.log( Level.WARNING, "Ignoring aclNameList for now ..." );
-                /*..
-                // Check the user's access to ACL's, and add derivative roles to Subject Principal set
-                final Set<LittlePermission> permissionSet = LittlePermission.getMembers();
-
-                for (String aclName : aclNameList) {
-                    try {
-                        final AssetRef maybeAcl = search.getByName(aclName,
-                                LittleAcl.ACL_TYPE);
-                        if (maybeAcl.isSet()) {
-                            final LittleAcl acl_check = maybeAcl.get().narrow();
-                            for (LittlePermission permissionCheck : permissionSet) {
-                                if (acl_check.checkPermission(user, permissionCheck)) {
-                                    final String roleName = aclName + ":" + permissionCheck.toString();
-                                    log.log(Level.INFO, "For user {0} adding role: {1}", new Object[]{user.getName(), roleName});
-                                    subject.getPrincipals().add(new SimpleRole(roleName));
-                                }
-                            }
-                        }
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } catch (Exception ex) {
-                        log.log(Level.WARNING, "Failure loading acl: " + aclName
-                                + " for user " + user.getName(), ex);
-                        // keep going
-                    }
-                }
-                 *
-                 */
             }
             log.log(Level.INFO, "User authenticated: {0}", creds.getUser().getName());
         } catch (RuntimeException ex) {
@@ -300,14 +282,26 @@ public class ClientLoginModule implements LoginModule {
 
     /**
      * Logout the subject associated with this module's context.
-     * Does nothing for now - should cancel out the LittleSession later.
+     * Sets end-date on LittleSession which effectively disables
+     * access to littleware's backend - at least until the user reauthenticates.
      *
      * @return true if logout ok, false to ignore this module
      * @throws LoginException if logout fails
      */
     @Override
     public boolean logout() throws LoginException {
-        return true;
+      // can only logout the user associated with this session
+      final Option<SessionManager.Credentials> optCreds = sessionManager.getCredentials();
+      if ( ! optCreds.isEmpty() ) {
+        // end the session
+        final LittleSession ls = optCreds.get().getSession().copy().endDate( new Date() ).build();
+        try {
+          assetSaver.saveAsset(ls, "JAAS logout" );
+        } catch (BaseException  | GeneralSecurityException | RemoteException ex) {
+          log.log(Level.INFO, "Failed to update session for logout ...", ex);
+        }
+      }
+      return true;
     }
 
     /**

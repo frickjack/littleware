@@ -153,6 +153,21 @@ public interface AssetRef extends CacheableObject, LittleReference<Asset>, Littl
             return emptyIterator;
         }
 
+    @Override
+    public boolean nonEmpty() {
+      return ! isEmpty();
+    }
+
+    @Override
+    public Asset getOrThrow(RuntimeException re) {
+      throw re;
+    }
+
+    @Override
+    public Asset getOrThrow(Exception excptn) throws Exception {
+      throw excptn;
+    }
+
     };
 }
 

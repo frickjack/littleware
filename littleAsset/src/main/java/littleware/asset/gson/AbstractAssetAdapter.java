@@ -148,15 +148,15 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         final JsonObject empty = new JsonObject();
         
         for (Map.Entry<String, JsonElement> entry : 
-                Maybe.emptyIfNull( json.getAsJsonObject("attrMap") ).getOr( empty ).entrySet()) {
+                Maybe.something( json.getAsJsonObject("attrMap") ).getOr( empty ).entrySet()) {
             builder.putAttribute(entry.getKey(), entry.getValue().getAsString());
         }
         for (Map.Entry<String, JsonElement> entry : 
-                Maybe.emptyIfNull( json.getAsJsonObject("linkMap") ).getOr( empty ).entrySet()) {
+                Maybe.something( json.getAsJsonObject("linkMap") ).getOr( empty ).entrySet()) {
             builder.putLink(entry.getKey(), UUIDFactory.parseUUID( entry.getValue().getAsString()) );
         }
         for( Map.Entry<String, JsonElement> entry : 
-                Maybe.emptyIfNull( json.getAsJsonObject("dateMap") ).getOr( empty ).entrySet() ) {
+                Maybe.something( json.getAsJsonObject("dateMap") ).getOr( empty ).entrySet() ) {
             try {
                 builder.putDate( entry.getKey(), getDateFormat().parse( entry.getValue().getAsString() ) );
             } catch ( Exception ex ) {

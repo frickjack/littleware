@@ -55,8 +55,8 @@ public interface RemoteSearchManager extends Remote {
         public Option<Asset> getAsset() { return asset; }
         
         // ----
-        private static AssetResult useCache = new AssetResult( State.USE_YOUR_CACHE, Maybe.empty( Asset.class ) );
-        private static AssetResult noAsset = new AssetResult( State.NO_SUCH_ASSET, Maybe.empty( Asset.class ) );
+        private static AssetResult useCache = new AssetResult( State.USE_YOUR_CACHE, Maybe.NONE );
+        private static AssetResult noAsset = new AssetResult( State.NO_SUCH_ASSET, Maybe.NONE );
 
         
         public static AssetResult useCache() {

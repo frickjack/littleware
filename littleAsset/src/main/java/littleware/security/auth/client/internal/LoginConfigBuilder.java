@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
+import littleware.asset.client.AssetManager;
 import littleware.security.auth.client.ClientLoginModule;
 import littleware.security.auth.client.SessionManager;
 
@@ -24,8 +25,9 @@ public class LoginConfigBuilder implements ClientLoginModule.ConfigurationBuilde
     public LoginConfigBuilder() {}
     
     @Inject
-    public LoginConfigBuilder( SessionManager sessionManager ) {
+    public LoginConfigBuilder( SessionManager sessionManager, AssetManager assetSaver ) {
         optionMap.put( ClientLoginModule.MANAGER_OPTION, sessionManager );
+        optionMap.put( ClientLoginModule.SAVER_OPTION, assetSaver );
     }
 
     @Override

@@ -81,7 +81,7 @@ public interface GenericAsset extends TreeNode {
     public Map<String, String> getAttributeMap();
 
     /**
-     * Shortcut for Maybe.emptyIfNull( getUserAttributes().get( name ) )
+     * Shortcut for Maybe.something( getUserAttributes().get( name ) )
      */
     public Option<String> getAttribute(String key);
     

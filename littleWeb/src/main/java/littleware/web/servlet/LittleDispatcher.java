@@ -67,10 +67,12 @@ public class LittleDispatcher extends HttpServlet {
                 }
             }
         }
-        final HttpSession session = request.getSession();
+        
+        final Option<HttpSession> optSession = Maybe.something( request.getSession(false) );
         String message = "Command not registered: " + command;
         final Option<LittleServlet> optHandler;
-        {
+        if ( optSession.isEmpty() ) { optHandler = Maybe.empty(); } else {
+          final HttpSession session = optSession.get();
             Option<LittleServlet> lookup = Maybe.empty();
             // Allocate service and inject little-session dependencies
             final Class<?> commandClass = dispatchMap.get(command);

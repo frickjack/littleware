@@ -23,7 +23,7 @@ import littleware.lgo.LgoCommand.LgoBuilder;
  */
 public class EzLgoCommandDictionary implements LgoCommandDictionary {
     private static final Logger   log = Logger.getLogger( EzLgoCommandDictionary.class.getName() );
-    private final Map<String, Provider<LgoCommand.LgoBuilder>> commandMap = new HashMap<String, Provider<LgoCommand.LgoBuilder>>();
+    private final Map<String, Provider<LgoCommand.LgoBuilder>> commandMap = new HashMap<>();
 
     @Override
     public Collection<LgoCommand.LgoBuilder> guessCommand(String s_partial) {
@@ -79,6 +79,6 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
 
     @Override
     public Option<Provider<LgoCommand.LgoBuilder>> getProvider(String s_name) {
-        return Maybe.emptyIfNull(commandMap.get( s_name ));
+        return Maybe.something(commandMap.get( s_name ));
     }
 }

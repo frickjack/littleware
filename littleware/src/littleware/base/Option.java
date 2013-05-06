@@ -6,19 +6,24 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-
 package littleware.base;
 
 import java.util.concurrent.Callable;
 
 /**
- * Option interface based on scala.Option
+ * Option interface based on scala.Option.
+ * Usually used in conjuction with the static methods in littleware.base.Maybe
  */
 public interface Option<T> extends Iterable<T> {
     public boolean isSet();
     public boolean isEmpty();
+    /** Alias for isSet */
+    public boolean nonEmpty();
     public T getOr( T alt );
     public T getOrCall( Callable<T> call ) throws Exception;
+    public T getOrThrow( RuntimeException ex );
+    public T getOrThrow( Exception ex ) throws Exception;
+    
     /**
      * Get the value if set, otherwise throw NoSuchElementException
      */
@@ -28,4 +33,11 @@ public interface Option<T> extends Iterable<T> {
      * from JSF/JSP expression language, etc.
      */
     public T getRef();
+
+
+    
+    /**
+     * Either return this if Filter.accept == true, or EMPTY
+     */
+    public Option<T> filter( Filter<? super T> filter );
 }

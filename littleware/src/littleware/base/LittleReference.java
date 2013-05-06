@@ -25,8 +25,12 @@ import littleware.base.event.LittleBean;
 public interface LittleReference<T> extends LittleBean, Iterable<T> {
     public boolean isSet();
     public boolean isEmpty();
+    public boolean nonEmpty();
     public T getOr( T alt );
     public T getOrCall( Callable<T> call ) throws Exception;
+    public T getOrThrow( RuntimeException ex );
+    public T getOrThrow( Exception ex ) throws Exception;
+    
     /**
      * Get the value if set, otherwise throw NoSuchElementException
      */

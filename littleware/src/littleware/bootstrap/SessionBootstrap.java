@@ -9,6 +9,7 @@
 package littleware.bootstrap;
 
 import java.util.Collection;
+import java.util.UUID;
 
 
 /**
@@ -38,7 +39,7 @@ public interface SessionBootstrap {
     /**
      * Globally unique id string
      */
-    public String getSessionId();
+    public UUID getSessionId();
 
 
     /**

@@ -36,6 +36,7 @@ public class AssetServerBootListener implements ServletContextListener {
     private static final Logger log = Logger.getLogger(AssetServerBootListener.class.getName());
     private Option<LittleBootstrap> boot = Maybe.empty();
 
+  @Override
     public synchronized void contextInitialized(ServletContextEvent sce) {
         try {
             final ServletContext ctx = sce.getServletContext();
@@ -45,6 +46,7 @@ public class AssetServerBootListener implements ServletContextListener {
         }
     }
 
+  @Override
     public synchronized void contextDestroyed(ServletContextEvent sce) {
         if ( boot.isSet() ) {
             log.log(Level.INFO, "Shutting down littleware ...");

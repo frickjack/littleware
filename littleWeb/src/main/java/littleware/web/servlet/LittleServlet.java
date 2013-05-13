@@ -14,7 +14,6 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import littleware.web.beans.InjectMeBean;
 
 /**
  * Interface for servlet delegate tied to a particular
@@ -26,5 +25,6 @@ import littleware.web.beans.InjectMeBean;
  * environment too.
  */
 public interface LittleServlet {
-    public void  doGetOrPostOrPut( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException;
+    void  doGetOrPostOrPut( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException;
+        
 }

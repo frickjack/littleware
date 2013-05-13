@@ -11,9 +11,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -22,9 +25,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
+import littleware.base.Whatever;
 import littleware.web.beans.GuiceBean;
 import littleware.web.servlet.WebBootstrap;
 
@@ -40,7 +46,10 @@ public class LoginFilter implements Filter {
 
   Option<GuiceBean> optGuice = Maybe.empty();
   private final Gson gsonTool = new Gson();
-  
+  private final MimetypesFileTypeMap mimeMap = new MimetypesFileTypeMap();
+
+          
+          
   @Override
   public void init(FilterConfig fc) throws ServletException {
     // noop
@@ -51,12 +60,15 @@ public class LoginFilter implements Filter {
    * Just make sure the freakin' littleware session is initialized ...
    */
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-    final HttpServletRequest req = (HttpServletRequest) request;
+  public void doFilter(ServletRequest requestIn, ServletResponse responseIn, FilterChain chain) throws IOException, ServletException {
+    final HttpServletRequest req = (HttpServletRequest) requestIn;
+    final HttpServletResponse resp = (HttpServletResponse) responseIn;
     
-    if ( optGuice.nonEmpty() && null == req.getAttribute( guiceBean ) ) {
-      try {
-        
+    if ( optGuice.nonEmpty() && 
+            (null == req.getSession(false) 
+            || null == req.getSession().getAttribute( guiceBean ))
+            ) {
+        final HttpSession hsession = req.getSession();
         final Option<JsonObject> optSessionInfo;
         {
           JsonObject js = null;
@@ -69,18 +81,34 @@ public class LoginFilter implements Filter {
           optSessionInfo = Maybe.something( js );
         }
 
-        // TODO: setup LoadingCache for session bla bla
         if ( optSessionInfo.nonEmpty() ) {
-          final UUID sessionId = UUIDFactory.parseUUID( optSessionInfo.get().get( "id" ).getAsString() );
-        } 
-
-      } catch (IllegalStateException ex) {
-        log.log(Level.INFO, "Ignoring webapp state exception setting up session - some weird glassfish race condition", ex);
-      }
+          try {
+            final JsonObject js = optSessionInfo.get();
+            final UUID sessionId = UUIDFactory.parseUUID( js.get( "id" ).getAsString() );
+            final SessionMgr sessionMgr = optGuice.get().getInjector().get().getInstance( SessionMgr.class );
+            final SessionInfo sinfo = SessionInfo.fromJson(sessionMgr, js);
+            hsession.setAttribute( WebBootstrap.littleGuice, sinfo.getGBean() );
+            chain.doFilter(req, resp);
+          } catch ( Exception ex ) {
+            log.log(Level.INFO, "Failed to establish session from cookie: " + optSessionInfo.get(), ex);
+            final JsonObject jsResult = new JsonObject();
+            jsResult.addProperty( "status", "error" );
+            jsResult.addProperty( "statusInfo", "failed to establish session - probably need to re-login" );
+            resp.setStatus( HttpServletResponse.SC_UNAUTHORIZED );
+            resp.setContentType( mimeMap.getContentType( "bla.js" ) );
+            final Writer writer = new OutputStreamWriter( resp.getOutputStream(), Whatever.UTF8 );
+            try {
+              writer.write( gsonTool.toJson( jsResult ) );
+            } finally { writer.flush(); }
+          }          
+        } else {
+          chain.doFilter(req, resp);
+        }
     } else {
       log.log(Level.WARNING, "Application level GUICE injection not configured");
+      chain.doFilter(req, resp);
     }
-    chain.doFilter(request, response);
+    
   }
 
   public void destroy() {}

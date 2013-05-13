@@ -10,6 +10,7 @@ package littleware.web.servlet.login;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.auth.login.LoginException;
@@ -22,6 +23,7 @@ import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.security.auth.LittleSession;
 import littleware.web.servlet.LittleServlet;
+import littleware.web.servlet.helper.JsonResponse;
 
 /**
  * Exports servlet methods: login, logout, sessionInfo ... 
@@ -33,11 +35,17 @@ public class LoginServlet implements LittleServlet {
   private static final Logger log = Logger.getLogger(LoginServlet.class.getName());
   private final SessionInfo initSession;
   private final Gson gsonTool;
+  private final Provider<JsonResponse.Builder> responseFactory;
 
   @Inject
-  public LoginServlet(SessionInfo initSession, Gson gsonTool) {
+  public LoginServlet(
+          SessionInfo initSession, 
+          Gson gsonTool,
+          Provider<JsonResponse.Builder> responseFactory
+          ) {
     this.initSession = initSession;
     this.gsonTool = gsonTool;
+    this.responseFactory = responseFactory;
   }
 
   /*  
@@ -68,6 +76,7 @@ public class LoginServlet implements LittleServlet {
     // destroy littleware session cookie ...
   }
 
+  @Override
   public void doGetOrPostOrPut(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     final String action;
     {
@@ -80,6 +89,9 @@ public class LoginServlet implements LittleServlet {
       }
     }
 
+    final JsonResponse.Builder respBuilder = responseFactory.get();
+    assert( false ); // TODO: need to integrate reponse builder ...
+    
     SessionInfo activeSession = initSession;
 
     if (action.equalsIgnoreCase("login")) {

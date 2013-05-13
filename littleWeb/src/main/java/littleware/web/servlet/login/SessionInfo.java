@@ -18,7 +18,6 @@ import javax.security.auth.login.LoginException;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.base.login.LoginCallbackHandler;
-import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.SessionBootstrap;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
@@ -35,31 +34,38 @@ public class SessionInfo {
   private final Provider<LittleSession> sessionFactory;
   private final KeyChain keyChain;
   private final Provider<LittleUser> userFactory;
-  private final AppBootstrap boot;
   private final Configuration loginConfig;
   private final UUID id;
+  private final SessionMgr mgr;
+  private final GuiceBean gBean;
 
   @Inject()
   public SessionInfo(
-          AppBootstrap boot,
           Configuration loginConfig,
           KeyChain keyChain,
           Provider<LittleUser> userFactory,
           Provider<LittleSession> sessionFactory,
           GuiceBean gBean,
-          SessionBootstrap sboot) {
-    this.boot = boot;
+          SessionBootstrap sboot,
+          SessionMgr mgr ) {
     this.loginConfig = loginConfig;
     this.keyChain = keyChain;
     this.userFactory = userFactory;
     this.sessionFactory = sessionFactory;
     this.id = sboot.getSessionId();
+    this.mgr = mgr;
+    this.gBean = gBean;
   }
 
   public UUID getId() {
     return id;
   }
 
+  /**
+   * Get the guice bean associated with this session
+   */
+  public GuiceBean getGBean() { return gBean; }
+  
   /**
    * Return the currently logged in user if any
    */
@@ -72,8 +78,6 @@ public class SessionInfo {
 
   /**
    * Return the currently active littleware login-session if any
-   *
-   * @return
    */
   public Option<LittleSession> getLoginSession() {
     if (keyChain.getDefaultSessionId().isSet()) {
@@ -105,7 +109,9 @@ public class SessionInfo {
   /**
    * Login the given user if user != getActiveUser to the active session, and
    * return a new session, otherwise just return this if user is already logged
-   * id.
+   * id.  It's the responsibility of the caller to reset the
+   * cookie or whatever on the HTTP request with the new data from
+   * the returned SessionInfo.
    */
   public SessionInfo login(String user, String password) throws LoginException {
     final Option<LittleUser> optCurrentUser = getActiveUser();
@@ -118,7 +124,7 @@ public class SessionInfo {
     } else if (optCurrentUser.get().getName().equals(user)) { // already logged in as user
       return this;
     } else { // somebody else logged in - logout of this session, and setup a new one ...
-      final SessionInfo newSession = boot.newSessionBuilder().build().startSession(SessionInfo.class);
+      final SessionInfo newSession = mgr.loadSession( UUID.randomUUID() );
       newSession.login(user, password);
       return newSession;
     }
@@ -137,4 +143,20 @@ public class SessionInfo {
     }
     return js;
   }
+
+  /**
+   * Load session with id specified in id from SessionMgr,
+   * and login if json user and authKey provided.
+   */
+  public static SessionInfo fromJson( final SessionMgr mgr, final JsonObject js ) throws LoginException {
+    final SessionInfo info = mgr.loadSession( UUID.fromString( js.get( "id" ).getAsString() ));
+    final SessionInfo result;
+    
+    if ( js.has( "user" ) && js.has( "authKey" ) && js.has( "authExpires" ) ) {
+      result = info.login( js.get( "user" ).getAsString(), js.get( "authKey" ).getAsString() );
+    } else { result = info; }
+    
+    return result; 
+  }
+  
 }

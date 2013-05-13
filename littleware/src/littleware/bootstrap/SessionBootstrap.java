@@ -27,6 +27,10 @@ public interface SessionBootstrap {
         public SessionBuilder addModuleFactory(SessionModuleFactory factory);
         public SessionBuilder removeModuleFactory(SessionModuleFactory factory);
 
+        public UUID  getSessionId();
+        public void  setSessionId( UUID v );
+        public SessionBuilder sessionId( UUID v );
+        
         public SessionBootstrap build();
         
     }

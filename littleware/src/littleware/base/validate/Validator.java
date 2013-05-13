@@ -10,6 +10,7 @@
 package littleware.base.validate;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Standard interface for validation test

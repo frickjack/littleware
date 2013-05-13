@@ -78,21 +78,35 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
         for (SessionModuleFactory factory : sessionFactoryList) {
             sessionBuilder.add(factory.buildSessionModule(profile));
         }
-        return new Bootstrap(sessionBuilder.build(), parentInjector);
+        return new Bootstrap(sessionBuilder.build(), parentInjector, sessionId );
     }
+
+    private UUID sessionId = UUID.randomUUID();
+  @Override
+  public UUID getSessionId() { return sessionId; }
+
+  @Override
+  public final void setSessionId(UUID v) { sessionId( v ); }
+
+  @Override
+  public SessionBuilder sessionId(UUID v) {
+    sessionId = v; return this;
+  }
 
     //---------------------------------------------------
     private static class Bootstrap implements SessionBootstrap {
 
         private final Collection<SessionModule> sessionModuleSet;
         private final Injector parentInjector;
-        private final UUID sessionId = UUID.randomUUID();
+        private final UUID sessionId;
 
         public Bootstrap(
                 ImmutableList<SessionModule> sessionModuleSet,
-                Injector injector) {
+                Injector injector,
+                UUID sessionId ) {
             this.parentInjector = injector;
             this.sessionModuleSet = sessionModuleSet;
+            this.sessionId = sessionId;
         }
 
         @Override

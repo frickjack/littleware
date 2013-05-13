@@ -25,6 +25,7 @@ public class AppBootstrapListener implements ServletContextListener {
     private static final Logger log = Logger.getLogger(AppBootstrapListener.class.getName());
     private Option<AppBootstrap> boot = Maybe.empty();
 
+  @Override
     public synchronized void contextInitialized(ServletContextEvent sce) {
         try {
             boot = Maybe.something(
@@ -35,6 +36,7 @@ public class AppBootstrapListener implements ServletContextListener {
         }
     }
 
+  @Override
     public synchronized void contextDestroyed(ServletContextEvent sce) {
         if ( boot.isSet() ) {
             log.log(Level.INFO, "Shutting down littleware ...");

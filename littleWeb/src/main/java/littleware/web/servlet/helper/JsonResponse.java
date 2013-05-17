@@ -67,8 +67,14 @@ public class JsonResponse {
     public String toString() {
       return new StringBuilder().append( status ).append( content ).toString();
     }
-    
+
+    /**
+     * Builds JsonResponse - adds property:
+     *    { "littleStatus" : status.get() }
+     * to content as side effect.
+     */
     public JsonResponse build() {
+      this.content.get().addProperty( "littleStatus", this.status.get().intValue() );
       this.validate();
       return new JsonResponse( status.get(), content.get() );
     }

@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.auth.login.LoginException;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -21,7 +22,6 @@ import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.web.servlet.LittleServlet;
 import littleware.web.servlet.helper.JsonResponse;
-import littleware.web.servlet.helper.ResponseHelper;
 import littleware.web.servlet.login.controller.*;
 import littleware.web.servlet.login.model.*;
 
@@ -30,28 +30,25 @@ import littleware.web.servlet.login.model.*;
  * Exports servlet methods: login, logout, sessionInfo ... 
  * works in conjunction with LoginFilter
  */
-public class LoginServlet implements LittleServlet {
+public class LoginServletBackup implements LittleServlet {
 
-  private static final Logger log = Logger.getLogger(LoginServlet.class.getName());
+  private static final Logger log = Logger.getLogger(LoginServletBackup.class.getName());
   private final SessionMgr sessionMgr;
   private final SessionInfo initSession;
   private final Gson gsonTool;
   private final Provider<JsonResponse.Builder> responseFactory;
-  private final ResponseHelper helper;
 
   @Inject
-  public LoginServlet(
+  public LoginServletBackup(
           SessionMgr sessionMgr,
           SessionInfo initSession, 
           Gson gsonTool,
-          Provider<JsonResponse.Builder> responseFactory,
-          ResponseHelper helper
+          Provider<JsonResponse.Builder> responseFactory
           ) {
     this.sessionMgr = sessionMgr;
     this.initSession = initSession;
     this.gsonTool = gsonTool;
     this.responseFactory = responseFactory;
-    this.helper = helper;
   }
 
   /**
@@ -71,9 +68,20 @@ public class LoginServlet implements LittleServlet {
   }
 
   @Override
-  public void doGetOrPostOrPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, java.io.IOException {
-    final String action = Maybe.something( request.getParameter("action") ).getOr( "status" ).trim().toLowerCase();
+  public void doGetOrPostOrPut(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    final String action;
+    {
+      final String temp = request.getParameter("action");
+
+      if (null == temp) {
+        throw new IllegalArgumentException("action parameter not specified");
+      } else {
+        action = temp.trim();
+      }
+    }
+
     final JsonResponse.Builder respBuilder = responseFactory.get();
+    assert( false ); // TODO: need to integrate reponse builder ...
     
     SessionInfo activeSession = initSession;
 
@@ -91,24 +99,19 @@ public class LoginServlet implements LittleServlet {
         activeSession = newSession;
       } catch ( LoginException ex) {
         log.log(Level.WARNING, "Login failed", ex);
-        helper.write(response, respBuilder.status.set( HttpServletResponse.SC_FORBIDDEN ).build() );
-        return;  // failed login is done
+        throw new ServletException("Login failed", ex);
       }
     } else if (action.equalsIgnoreCase("logout")) {
         if ( sessionMgr.logout( initSession ) ) {
           zapSessionAfterLogout(request);
         }
-        helper.write( response, respBuilder.build() );
-        return;  // logout is done
     }
     
     //
     // finally - assemble a response with information about the active session,
     // and update the session cookie too ...
     //
-    final com.google.gson.JsonObject js = sessionMgr.addSessionCookie( request, response, activeSession );
-    final JsonResponse jsResponse = responseFactory.get().content.set(js).build();
-    helper.write( response, jsResponse );
+    sessionMgr.addSessionCookie( request, response, activeSession );
   }
 
 }

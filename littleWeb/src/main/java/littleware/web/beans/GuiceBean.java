@@ -9,7 +9,6 @@
 package littleware.web.beans;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.bootstrap.SessionInjector;
@@ -17,6 +16,12 @@ import littleware.bootstrap.SessionInjector;
 /**
  * Attempt to marry littleware world with
  * web jsp/jsf servlet world.
+ * The servlet.login.LoginFilter injects a session-scoped GuiceBean
+ * into each request with attribute WebBootstrap.littleGuice,
+ * and servlet.AppBootstrapListener injects an application-scoped
+ * injector into the servlet context with the same attribute.
+ * Avoid injecting into session as this bean doesn't 
+ * deserialize into a valid state.
  */
 public class GuiceBean implements java.io.Serializable {
     private transient Option<SessionInjector> maybeInjector;
@@ -46,8 +51,24 @@ public class GuiceBean implements java.io.Serializable {
         maybeInjector = Maybe.something( value );
     }
     
+    /**
+     * Guice bean may be in uninitialized state if restored from
+     * serialization.  This littleware injection stuff does not
+     * support restore at server restart.
+     */
     public Option<SessionInjector> getInjector() {
         return maybeInjector;
+    }
+    
+    /**
+     * Shortcut for getInject().get().getInstance()
+     * @throws IllegalStateException if bean not properly initialized 
+     */
+    public final <T> T getInstance( Class<T> clazz ) {
+      if( maybeInjector.isSet() ) {
+        return maybeInjector.get().getInstance( clazz );
+      }
+      throw new IllegalStateException( "Guice bean not properly initialized" );
     }
     
     /**

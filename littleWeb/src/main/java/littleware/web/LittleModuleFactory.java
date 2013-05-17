@@ -15,6 +15,11 @@ import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.SessionModule;
 import littleware.bootstrap.SessionModuleFactory;
 import littleware.bootstrap.helper.NullActivator;
+import littleware.web.servlet.login.LoginServlet;
+import littleware.web.servlet.login.controller.SessionMgr;
+import littleware.web.servlet.login.controller.internal.SimpleSessionMgr;
+import littleware.web.servlet.login.model.SessionInfo;
+import littleware.web.servlet.login.model.internal.SimpleSessionInfo;
 import org.osgi.framework.BundleActivator;
 
 /**
@@ -40,7 +45,8 @@ public class LittleModuleFactory implements AppModuleFactory, SessionModuleFacto
 
     @Override
     public void configure(Binder binder) {
-      binder.bind( littleware.web.servlet.login.SessionMgr.class ).in( Scopes.SINGLETON );
+      binder.bind( SessionMgr.class ).to( SimpleSessionMgr.class ).in( Scopes.SINGLETON );
+      binder.bind( SimpleSessionMgr.class ).in( Scopes.SINGLETON );
     }
     
   }
@@ -56,6 +62,9 @@ public class LittleModuleFactory implements AppModuleFactory, SessionModuleFacto
 
     @Override
     public void configure(Binder binder) {
+      binder.bind( LoginServlet.class ).in( Scopes.SINGLETON );
+      binder.bind( SessionInfo.class ).to( SimpleSessionInfo.class ).in( Scopes.SINGLETON );
+      binder.bind( SimpleSessionInfo.class ).in( Scopes.SINGLETON );
     }
     
   }

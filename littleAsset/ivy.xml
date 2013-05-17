@@ -4,9 +4,9 @@
         <!-- compile may build against jars that only include interfaces -->
         <conf name="compile" description="compile everything"/>
         <!-- java ee environment provides some runtime jars - so don't have to include them in runtime deployment -->
-        <conf name="client"  description="generic app"/>        
+        <conf name="client" extends="with_http"  description="generic app"/>        
         
-        <conf name="with_server"  description="combined server+client running in a java ee 6+ container"/>
+        <conf name="with_server" extends="with_aws,with_http,with_hibernate" description="combined server+client running in a java ee 6+ container"/>
         <conf name="with_jetty" description="with jetty runtime configuration" />
         <conf name="with_hibernate" description="with hibernate JPA runtime" />
         <conf name="with_http" description="with apache http components runtime" />
@@ -19,7 +19,7 @@
     
     <dependencies>    
         <dependency org="littleware" name="littleware" rev="2.5.+" 
-           conf="compile->compile;client->client;test->with_derby,with_junit" />
+           conf="compile->compile;client->client;with_server->with_derby,with_mysql,with_postgres;test->with_derby,with_junit" />
            
         <dependency org="org.hibernate" name="hibernate-entitymanager" rev="4.2.1.Final" 
              conf="compile,with_hibernate->default">

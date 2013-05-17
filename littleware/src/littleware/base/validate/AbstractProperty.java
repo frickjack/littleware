@@ -53,9 +53,13 @@ public class AbstractProperty<O, V> extends AbstractValidator {
   }
   
 
+  /**
+   * Default checkIfValid method just checks that the property is not null ...
+   * @return 
+   */
   @Override
   public Collection<String> checkIfValid() {
-    return Collections.emptyList();
+    return this.buildErrorTracker().check( get() != null, "property may not be null" ).getErrors();
   }
   
 }

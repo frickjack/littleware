@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
-import java.security.Principal;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -21,12 +20,10 @@ import javax.security.auth.*;
 import javax.security.auth.spi.*;
 import javax.security.auth.login.*;
 import javax.security.auth.callback.*;
-import littleware.asset.AssetException;
 import littleware.asset.client.AssetManager;
 
 
 import littleware.base.*;
-import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 
 /**

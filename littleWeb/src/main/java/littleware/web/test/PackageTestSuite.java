@@ -33,8 +33,7 @@ public class PackageTestSuite extends TestSuite {
      */
     @Inject
     public PackageTestSuite ( 
-            //Provider<BrowserTypeTester> provideBrowserTypeTester,
-            Provider<ThumbServletTester> provideThumbServTester
+            Provider<LoginTester> provideLoginTester
             ) {
         super( PackageTestSuite.class.getName() );
 
@@ -43,9 +42,8 @@ public class PackageTestSuite extends TestSuite {
         // This should get the SimpleSessionManager up and listening on the default port
         boolean runTest = true;
 
-        if ( false ) {
-            // disable until ThumbManager is ready for use with littleware 2.5
-            this.addTest( provideThumbServTester.get() );
+        if ( runTest ) {
+            this.addTest( provideLoginTester.get() );
         }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }

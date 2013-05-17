@@ -16,9 +16,10 @@
     </publications>
     
     <dependencies>    
-      <dependency org="littleware" name="littleAsset" rev="2.5.+" conf="compile->compile;client->client;test->with_server" />
+      <dependency org="littleware" name="littleAsset" rev="2.5.+" conf="compile->compile;client->client;test->with_server,with_jetty" />
       <dependency org="org.easymock" name="easymock" rev="3.1" conf="test,compile->master"/>
       <dependency org="littleware" name="littleware" rev="2.5.+" conf="test->with_junit" />
+      <dependency org="com.nimbusds" name="nimbus-jose-jwt" rev="2.15.0" conf="*->default" />
       <!--
       <dependency org="org.primefaces" name="primefaces" rev="2.2.RC1" conf="compile,ee_client->*" />
       <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" />

@@ -19,10 +19,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import littleware.base.Maybe;
 import littleware.base.Option;
 import littleware.web.beans.GuiceBean;
+import littleware.web.servlet.helper.JsonResponse;
+import littleware.web.servlet.helper.ResponseHelper;
 
 /**
  * Dispatcher attempts to lookup a LittleServlet in the session scope.
@@ -53,6 +54,7 @@ public class LittleDispatcher extends HttpServlet {
     }
 
     private void doGetOrPostOrPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // The command name (url prefix) this URL wants to execute
         final String command;
         {
             final String temp = request.getPathInfo().replaceAll( "/+$", "" );
@@ -67,40 +69,26 @@ public class LittleDispatcher extends HttpServlet {
                 }
             }
         }
+        // GuiceBean should have been injected by request filter
+        final GuiceBean guiceBean = Maybe.something( (GuiceBean) request.getAttribute( WebBootstrap.littleGuice ) ).get();
         
-        final Option<HttpSession> optSession = Maybe.something( request.getSession(false) );
-        String message = "Command not registered: " + command;
+        // Lookup the LittleServlet registered to handle this command (url)
         final Option<LittleServlet> optHandler;
-        if ( optSession.isEmpty() ) { optHandler = Maybe.empty(); } else {
-          final HttpSession session = optSession.get();
+        {
             Option<LittleServlet> lookup = Maybe.empty();
             // Allocate service and inject little-session dependencies
             final Class<?> commandClass = dispatchMap.get(command);
             if (null != commandClass) {
-                try {
-                    // GuiceBean should have been injected by request filter
-                    final GuiceBean guiceBean = (GuiceBean) session.getAttribute("guiceBean");
-                    
-                    if (null == guiceBean) {
-                        message = "No guiceBean registered in session";
-                        lookup = littleware.base.Maybe.empty();
-                    } else {
-                        lookup = littleware.base.Maybe.something( (LittleServlet) guiceBean.getInjector().get().getInstance( commandClass ) );
-                    }
-                } catch (Exception ex) {
-                    log.log(Level.SEVERE, "Failed to allocate command class", ex);
-                    message = "Failed to alocate " + commandClass.getName();
-                    lookup = Maybe.empty();
-                }
+                lookup = littleware.base.Maybe.something( (LittleServlet) guiceBean.getInstance( commandClass ) );
             }
             optHandler = lookup;
         }
         if ( optHandler.isEmpty() ) {
-            final PrintWriter writer = response.getWriter();
-            writer.println("<html><head><title>command not available</title></head><body><p>Command not available: ");
-            writer.println( command + ", " + message );
-            writer.println("</p></body></html>");
-            return;
+          final JsonResponse.Builder respBuilder = guiceBean.getInstance( JsonResponse.Builder.class );
+          final ResponseHelper helper = guiceBean.getInstance( ResponseHelper.class );
+          respBuilder.status.set( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
+          helper.write(response, respBuilder.build() );
+          return;
         }
         optHandler.get().doGetOrPostOrPut(request, response);
     }

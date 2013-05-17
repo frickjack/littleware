@@ -13,6 +13,7 @@ application/xml xml
 image/png png
 image/jpeg jpg jpeg
 image/svg+xml svg
+text/cache-manifest manifest
 text/css css
 text/csv csv
 text/html html

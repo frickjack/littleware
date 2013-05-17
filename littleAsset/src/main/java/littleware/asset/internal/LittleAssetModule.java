@@ -194,7 +194,6 @@ public class LittleAssetModule extends AbstractAppModule {
             throw new littleware.base.AssertionFailedException( "Failed accessing littleware.properties", ex );
         }
 
-        
         final ClientConnectionManager connectionMgr = new org.apache.http.impl.conn.PoolingClientConnectionManager();
         final DefaultHttpClient defaultClient = new DefaultHttpClient( connectionMgr, new org.apache.http.params.SyncBasicHttpParams());
         final DecompressingHttpClient httpclient = new DecompressingHttpClient(
@@ -203,12 +202,12 @@ public class LittleAssetModule extends AbstractAppModule {
         //httpclient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         //httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, java.lang.Boolean.FALSE);
         httpclient.getParams().setParameter(org.apache.http.client.params.ClientPNames.ALLOW_CIRCULAR_REDIRECTS, java.lang.Boolean.TRUE);
-        
+
         binder.bind(ClientConnectionManager.class).toInstance(connectionMgr);
         //binder.bind(DefaultHttpClient.class).toInstance(defaultClient);
         binder.bind(CredentialsProvider.class).toInstance(defaultClient.getCredentialsProvider() );
-        binder.bind(HttpClient.class).toInstance(httpclient);
-
+        binder.bind(HttpClient.class).toInstance(httpclient);              
+                
         // Bind client method of connecting with server
         switch (getClientConfig().getRemoteMethod()) {
             case RMI: {
@@ -222,7 +221,7 @@ public class LittleAssetModule extends AbstractAppModule {
                 binder.bind(RemoteSearchMgrProxy.class).to(InMemorySearchMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSessionMgrProxy.class).to(InMemorySessionMgrProxy.class).in(Scopes.SINGLETON);
             }
-            break;
+              break;
         }
     }
 }

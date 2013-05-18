@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="littleware" module="littleWeb"/>
+    <info organisation="littleware" module="littleWeb" revision="2.5" />
     <configurations>
         <!-- compile may build against jars that only include interfaces -->
         <conf name="compile"  description="compile everything"/>

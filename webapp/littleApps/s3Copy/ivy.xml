@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="littleware" module="appsWeb"/>
+    <info organisation="littleware" module="appsWeb" revision="2.5" />
     <configurations>
         <conf name="compile" description="compile against api's only"/>
         <conf name="client" description="runtime"/>

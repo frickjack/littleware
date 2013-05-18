@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="littleware" module="littleId"/>
+    <info organisation="littleware" module="littleId" revision="2.5" />
     <configurations>
         <conf name="compile" description="compile everything"/>
         <conf name="test" extends="client" visibility="private" description="for testing our framework"/>

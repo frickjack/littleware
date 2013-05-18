@@ -4,7 +4,7 @@
 <!-- (If you delete it and reopen the project it will be recreated.) -->
 <project name="littleScala" default="default" basedir=".">
     <description>Builds, tests, and runs the project littleScala.</description>
-    <property name="ivy.deliver.revision" value="2.5" />
+    
     <property name="test.classFile" value="littleware/scala/test/PackageTestSuite.class" />
     <import file="../ivy/ivy_build_rules.xml"/>    
     <import file="nbproject/build-impl.xml"/>

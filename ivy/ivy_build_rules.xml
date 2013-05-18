@@ -37,6 +37,7 @@
     </condition>
     <available file="ivy/test" property="ivy.resolve.test.exists" />
     <available file="ivy/compile" property="ivy.resolve.compile.exists" />
+    
     <condition property="ivy.resolve.exists">
         <and>
             <isset property="ivy.resolve.test.exists" />
@@ -80,6 +81,7 @@
     	<ivy:settings url="http://ivy2maven2.littleware.googlecode.com/hg/littlesettings.xml" />
     	-->
     	<ivy:settings />
+    	<ivy:info />
 </target>    
 
     
@@ -182,11 +184,11 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
         </fileset>
     </copy>
   </target>
-
-<target name="publish" depends="resolve,-init-project,jar" description="publish SNAPSHOT build to local ivy repository">
+  
+<target name="publish-fast" depends="-init-project,jar" description="publish SNAPSHOT build to local ivy repository without initial resolve">
 	<ivy:publish  overwrite="true"
 			           resolver="local"
-			           pubrevision="${ivy.deliver.revision}.zSNAPSHOT"
+			           pubrevision="${ivy.revision}.zSNAPSHOT"
 			           replacedynamicrev="false"
 			           status="integration"
 			           update="true"
@@ -195,12 +197,14 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
          </ivy:publish>
          <delete dir="${ivy.cache.dir}/${ivy.organisation}" />
     </target>
+  
+<target name="publish" depends="resolve,publish-fast" description="publish SNAPSHOT build to local ivy repository" />
     
  <!-- publish with a date-based revision number -->   
 <target name="milestone" depends="publish,-set-buildId" description="deliver MILESTONE build to local repository">
 	<ivy:publish  overwrite="true"
 			           resolver="local"
-			           pubrevision="${ivy.deliver.revision}.b${buildId}"
+			           pubrevision="${ivy.revision}.b${buildId}"
 			           replacedynamicrev="false"
 			           status="milestone"
 			           update="true"

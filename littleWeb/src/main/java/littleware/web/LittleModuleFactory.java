@@ -15,6 +15,8 @@ import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.SessionModule;
 import littleware.bootstrap.SessionModuleFactory;
 import littleware.bootstrap.helper.NullActivator;
+import littleware.web.jwt.TokenFoundry;
+import littleware.web.jwt.internal.SimpleTokenFoundry;
 import littleware.web.servlet.login.LoginServlet;
 import littleware.web.servlet.login.controller.SessionMgr;
 import littleware.web.servlet.login.controller.internal.SimpleSessionMgr;
@@ -47,6 +49,8 @@ public class LittleModuleFactory implements AppModuleFactory, SessionModuleFacto
     public void configure(Binder binder) {
       binder.bind( SessionMgr.class ).to( SimpleSessionMgr.class ).in( Scopes.SINGLETON );
       binder.bind( SimpleSessionMgr.class ).in( Scopes.SINGLETON );
+      binder.bind( TokenFoundry.class ).to( SimpleTokenFoundry.class ).in( Scopes.SINGLETON );
+      binder.bind( SimpleTokenFoundry.class ).in( Scopes.SINGLETON );
     }
     
   }

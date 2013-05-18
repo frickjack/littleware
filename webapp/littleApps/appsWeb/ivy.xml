@@ -21,7 +21,9 @@
                 
       <dependency org="littleware" name="littleId" rev="latest.integration"
                 conf="compile->compile;client->client"
-                />      
+                />  
+                
+     <dependency org="org.ebaysf.web" name="cors-filter" rev="1.0.0" conf="*->default" />
                 
       <!-- Jetty does not include CDI by default 
       <dependency org="javax.inject" name="javax.inject" rev="1" conf="ee_client->*" />

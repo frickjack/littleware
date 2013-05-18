@@ -127,6 +127,15 @@
         </init-param>        
     </filter>
 
+    <!-- EBay CORS filter: https://github.com/eBay/cors-filter -->
+   <filter>
+    <filter-name>CORS Filter</filter-name>
+    <filter-class>org.ebaysf.web.cors.CORSFilter</filter-class>
+        <init-param>
+            <param-name>cors.allowed.origins</param-name>
+            <param-value>http://apps.frickjack.com,http://apps.frickjack.com.s3-website-us-east-1.amazonaws.com</param-value>
+        </init-param>            
+  </filter>
     <!--
     <filter>
         <filter-name>SecureFilter</filter-name>
@@ -184,6 +193,10 @@
         <filter-name>AuthOptionalFilter</filter-name>
         <url-pattern>/auth/*</url-pattern>
     </filter-mapping>
+  <filter-mapping>
+    <filter-name>CORS Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>    
         
     <session-config>
         <session-timeout>

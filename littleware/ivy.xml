@@ -2,7 +2,7 @@
     xmlns:m="http://ant.apache.org/ivy/maven"
     xmlns:e="http://ant.apache.org/ivy/extra"
 >
-    <info organisation="littleware" module="littleware" status="integration" />
+    <info organisation="littleware" module="littleware" revision="2.5" />
     <configurations>
         <!-- compile may build against jars that only include interfaces -->
         <conf name="compile" description="compile everything"/>

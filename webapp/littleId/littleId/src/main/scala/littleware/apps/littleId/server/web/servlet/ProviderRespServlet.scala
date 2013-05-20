@@ -10,6 +10,7 @@
 
 package littleware.apps.littleId.server.web.servlet
 
+import com.google.gson
 import com.google.inject.{Inject,Provider}
 import java.net.URL
 import java.util.logging.Level
@@ -29,7 +30,7 @@ object ProviderRespServlet {
   class Tools @Inject() (
     val openIdTool:controller.OpenIdTool,
     val verifyTool:controller.AuthVerifyTool,
-    val responseBuilder:Provider[model.AuthResponse.Builder]
+    val gsonTool:gson.Gson
   ) {}
 
   /**
@@ -64,7 +65,6 @@ import ProviderRespServlet._
 class ProviderRespServlet extends HttpServlet {
   private val log = Logger.getLogger( getClass.getName )
 
-  var clientResponsePage:String = "/openId/view/en/respondToClient.jsp"
   private var tools:Tools = null
 
   @Inject
@@ -73,12 +73,10 @@ class ProviderRespServlet extends HttpServlet {
   }
 
   /**
-   * Lookup the GuiceBean, and self-inject.
-   * Also processes the "providerSubmitForm"
+   * Lookup the GuiceBean, and inject dependencies.
    */
   @throws(classOf[ServletException])
   override def init():Unit = try {
-    Option( getServletConfig.getInitParameter( "viewPath" ) ).map( (value) => { clientResponsePage = value })
     val gbean:GuiceBean = getServletContext.getAttribute( WebBootstrap.littleGuice ).asInstanceOf[GuiceBean]
     gbean.injectMembers(this)
   } catch {
@@ -94,35 +92,37 @@ class ProviderRespServlet extends HttpServlet {
   @throws(classOf[ServletException])
   def doGetOrPost( req:HttpServletRequest, resp:HttpServletResponse ):Unit = {
     val session = req.getSession
-    val oIdRequestData:controller.OpenIdTool.OIdRequestData = session.getAttribute( AuthReqServlet.oIdRequestDataKey ).asInstanceOf[controller.OpenIdTool.OIdRequestData]
-    val authRequest:model.AuthRequest = session.getAttribute( AuthReqServlet.authRequestKey ).asInstanceOf[model.AuthRequest]
-    //session.removeAttribute( AuthReqServlet.oIdRequestDataKey )
-    //session.removeAttribute( AuthReqServlet.authRequestKey )
-    require( oIdRequestData != null, "OId request data is stored with session" )
-    require( authRequest != null, "Client authRequest data is stored with session")
-    val response:model.AuthResponse = tools.openIdTool.processResponse(oIdRequestData, new URL( req.getRequestURL.toString ),
-                                                                       req.getParameterMap.entrySet.map( (entry) => (entry.getKey -> entry.getValue)
+    val oidProvider = {
+      // Request URL should end in /google or /yahoo or whatever
+      val uriStr = req.getRequestURI()
+      val providerName:String = uriStr.substring( uriStr.lastIndexOf( "/" ) + 1 )
+      common.model.OIdProvider.withName( providerName )
+    }
+    
+    val authRequest:model.AuthRequest = {
+      val cookie = req.getCookies().find( _.getName() == controller.OpenIdTool.stateCookieName ).get
+      val state = tools.gsonTool.fromJson( cookie.getValue, classOf[model.AuthState] )
+      state.request
+    }
+    
+    val response:model.AuthState = tools.openIdTool.processProviderResponse(
+      oidProvider, new URL( req.getRequestURL.toString ),
+      req.getParameterMap.entrySet.map( (entry) => (entry.getKey -> entry.getValue)
       ).toMap
-    ) match {
-      case Some(creds) => tools.responseBuilder.get.request( authRequest ).success( creds )
-      case _ => tools.responseBuilder.get.request( authRequest ).failure
-    }
-    val responseBean = response match {
-      case success:model.AuthResponse.AuthSuccess => {
-          tools.verifyTool.cacheCreds( success.verifySecret, success.userInfo )
-          // Go ahead and update the IdBean in the session for case
-          // where client and server are the same
-          req.getSession.setAttribute( "idBean", new client.web.bean.IdBean( success.userInfo ) )
-          ClientResponseBean( true, success.userInfo.email,
-                             success.userInfo.openId.toString,
-                             success.verifySecret
-          )
-        }
-      case _ => ClientResponseBean( false, "authorization failed", "authorization failed", "authorization failed")
-    }
+    ).map( (creds) => model.AuthState.Success( authRequest, creds, tools.openIdTool.credsToToken(creds) )
+    ).getOrElse( model.AuthState.Failure( authRequest ))
 
-    req.setAttribute( clientResponseBeanKey, responseBean )
-    req.getRequestDispatcher( clientResponsePage ).forward(req,resp)
+    //
+    // store the response in a cookie, then redirect the client back to the 
+    // main application's site, so the app's javascript can retrieve
+    // the creds (this servlet is running in the authorization service)
+    // 
+    val jsStr = tools.gsonTool.toJson( response, classOf[model.AuthState] )
+    val cookie = new javax.servlet.http.Cookie( controller.OpenIdTool.stateCookieName, jsStr )
+    cookie.setMaxAge( 300 )
+    cookie.setPath( Option( req.getContextPath ).filter( _.nonEmpty ).getOrElse( "/" ) )
+    resp.addCookie( cookie )
+    
   }
 
   @throws(classOf[ServletException])

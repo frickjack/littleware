@@ -35,7 +35,7 @@ object PackageTestSuite {
       classOf[PackageTestSuite]
     )
   } catch {
-    case ex => {
+    case ex:Throwable => {
       log.log( Level.WARNING, "Failed to launch test suite", ex )
       throw new AssertionFailedException( "Failed to launch test", ex )
     }

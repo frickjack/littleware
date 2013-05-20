@@ -8,34 +8,33 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.server.controller.internal
+package littleware.apps.littleId
+package server
+package controller
+package internal
 
-import com.google.inject.Inject
+import com.google.gson
+import com.google.inject
 import java.net.URL
 import java.util.Properties
 import java.util.logging.Level
 import littleware.apps.littleId
 import littleware.apps.littleId.server.controller
 import littleware.base.PropertiesLoader
+import littleware.web.jwt
 import java.util.logging.{Level,Logger}
 import org.openid4java.consumer
 import org.openid4java.discovery
 import org.openid4java.message
 import scala.collection.JavaConversions._
 
-object SimpleOidTool {
-  case class SimpleRequestData(
-    override val providerInfo:discovery.DiscoveryInformation,
-    override val providerEndpoint:URL,
-    override val params:Map[String,String]
-  ) extends controller.OpenIdTool.OIdRequestData with java.io.Serializable {}  
-}
 
-import SimpleOidTool._
-
-class SimpleOidTool @Inject() (
+class SimpleOidTool @inject.Inject() (
   consumerMgr:consumer.ConsumerManager,
-  userBuilder:littleId.common.model.OIdUserCreds.Builder
+  userCredsFactory:inject.Provider[common.model.OIdUserCreds.Builder],
+  requestFactory:inject.Provider[model.AuthRequest.Builder],
+  tokenFoundry:jwt.TokenFoundry,
+  gsonTool:gson.Gson
 ) extends controller.OpenIdTool {
   private val log = Logger.getLogger( getClass.getName )
   private val props:Properties = PropertiesLoader.get.loadProperties( classOf[controller.OpenIdTool] )
@@ -43,8 +42,7 @@ class SimpleOidTool @Inject() (
   log.log( Level.INFO, "Registering OpenID consumer URL: " + props.getProperty( "consumerURL" ) )
   override var consumerURL = new URL( props.getProperty( "consumerURL" ) )
 
-
-  def buildRequest( oidProvider:littleId.common.model.OIdProvider.Value ):controller.OpenIdTool.OIdRequestData = {
+  private def associateWithProvider( oidProvider:littleId.common.model.OIdProvider.Value ):discovery.DiscoveryInformation = {
     val openid:URL = oidProvider match {
       case littleId.common.model.OIdProvider.Yahoo => new URL( "https://me.yahoo.com" )
       case _ => new URL( "https://www.google.com/accounts/o8/id" )
@@ -52,13 +50,20 @@ class SimpleOidTool @Inject() (
 
     // attempt to associate with an OpenID provider
     // and retrieve one service endpoint for authentication
-    val discovered:discovery.DiscoveryInformation = consumerMgr.associate( consumerMgr.discover( openid.toString ) )
+    consumerMgr.associate( consumerMgr.discover( openid.toString ) )
+  }
+
+  def startOpenIdAuth( authReq:model.AuthRequest ):model.DataForProvider = {
+    val discovered = associateWithProvider( authReq.openIdProvider )
 
     // store the discovery information in the user's session
     //session.setAttribute("openid-disco", discovered)
 
     // obtain a AuthRequest message to be sent to the OpenID provider
-    val authReq:message.AuthRequest = consumerMgr.authenticate( discovered, consumerURL.toString );
+    val authMess:message.AuthRequest = consumerMgr.authenticate( 
+      // put the name of the provider at the end of the URL: /google, /yahoo, whatever
+      discovered, consumerURL.toString.replaceAll( "/+$", "" ) + "/" + authReq.openIdProvider 
+    );
     {
       // Attribute Exchange example: fetching the 'email' attribute
       val fetch = message.ax.FetchRequest.createFetchRequest()
@@ -70,24 +75,28 @@ class SimpleOidTool @Inject() (
 
       fetch.setCount( "email", 1 );
       // attach the extension to the authentication request
-      authReq.addExtension(fetch)
+      authMess.addExtension(fetch)
     }
-    SimpleRequestData( discovered,
-                      new URL( authReq.getOPEndpoint() ),
-                      authReq.getParameterMap.entrySet.map(
+    model.DataForProvider( authReq,
+                      new URL( authMess.getOPEndpoint() ),
+                      authMess.getParameterMap.entrySet.map(
         (entry) => entry.getKey.toString -> entry.getValue.toString
       ).toMap
     )
   }
+  
 
-  def processResponse( requestData:controller.OpenIdTool.OIdRequestData, 
+  override def processProviderResponse( oidProvider:littleId.common.model.OIdProvider.Value,
                       consumerEndpoint:URL, responseParams:Map[String,Array[String]]
   ):Option[littleId.common.model.OIdUserCreds] = {
+    val discovered = associateWithProvider( oidProvider )
+    val userBuilder = userCredsFactory.get()
+    
     // Verify the validity of the response
     consumerMgr.verify(
       consumerEndpoint.toString(),
       new message.ParameterList( responseParams ),
-      requestData.providerInfo
+      discovered
     ).getAuthResponse match {
       case authSuccess:message.AuthSuccess => {
           val openId:String = authSuccess.getIdentity
@@ -101,7 +110,9 @@ class SimpleOidTool @Inject() (
           maybeEmail.map( (email) => userBuilder.email( email ).openId( new URL( openId ) ).build )
         }
       case _ => None
-
     }
   }
+  
+  def credsToToken( creds:common.model.OIdUserCreds ):String =
+    tokenFoundry.makeToken( gsonTool.toJsonTree( creds, classOf[common.model.OIdUserCreds] ).getAsJsonObject )
 }

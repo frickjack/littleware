@@ -19,7 +19,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.lang.reflect.Type;
@@ -37,7 +36,6 @@ import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
 import littleware.asset.gson.GsonAssetAdapter;
 import littleware.asset.gson.LittleGsonFactory;
-import littleware.asset.spi.AssetProviderRegistry;
 
 /**
  * Register serializers for core types with GsonBuilder

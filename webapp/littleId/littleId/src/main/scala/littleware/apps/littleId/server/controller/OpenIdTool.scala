@@ -8,32 +8,20 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.server.controller
+package littleware.apps.littleId
+package server
+package controller
 
+import com.google.gson
 import java.net.URL
 import littleware.apps.littleId
-import org.openid4java.discovery.DiscoveryInformation
 
-object OpenIdTool {
-  /**
-   * POJO bundles data needed to route the client to the OID provider for authentication
-   */
-  trait OIdRequestData {
-    /** providerInfo discovery information needed to by openid engine to process response */
-    val providerInfo:DiscoveryInformation
-    /** provider endpoint to which to route the user for authentication */
-    val providerEndpoint:URL
-    /** HTTP parameters to deliver to the provider endpoint */
-    val params:Map[String,String]
-  }
-}
-
-import OpenIdTool._
 
 /**
  * Tool for interacting with an OId provider
  */
 trait OpenIdTool {
+  
   /**
    * Property specifies the URL where the server's OpenID consumer
    * (Provider Response Servlet) is waiting for the OpenID client redirect - ex:
@@ -48,7 +36,8 @@ trait OpenIdTool {
    * @param oidProvider to build request data for
    * @return data needed to route the client over to the OId provider
    */
-  def buildRequest( oidProvider:littleId.common.model.OIdProvider.Value ):OIdRequestData
+  def startOpenIdAuth( authReq:model.AuthRequest ):model.DataForProvider
+  
 
   /**
    * Process the authentication response from the OID provider -
@@ -60,5 +49,18 @@ trait OpenIdTool {
    * @param responseParams HTTP parameters delivered by the response
    * @return credentials for the authenticated user - or none if no user authenticated
    */
-  def processResponse( requestData:OIdRequestData, consumerEndpoint:URL, responseParams:Map[String,Array[String]] ):Option[littleId.common.model.OIdUserCreds]
+  def processProviderResponse( oidProvider:littleId.common.model.OIdProvider.Value, 
+                              consumerEndpoint:URL, 
+                              responseParams:Map[String,Array[String]] 
+  ):Option[littleId.common.model.OIdUserCreds]
+  
+  /**
+   * Encode the given credenties as a signed web token that trusted partners
+   * can verify
+   */
+  def credsToToken( creds:littleId.common.model.OIdUserCreds ):String
+}
+
+object OpenIdTool {
+  val stateCookieName = "littleIdState"
 }

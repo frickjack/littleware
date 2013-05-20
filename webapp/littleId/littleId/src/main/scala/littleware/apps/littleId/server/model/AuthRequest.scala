@@ -10,46 +10,37 @@
 
 package littleware.apps.littleId.server.model
 
-import java.net.URL
-import littleware.apps.littleId.common.model.OIdProvider
 
+import java.util.UUID
+import littleware.apps.littleId.common.model.OIdProvider
+import littleware.scala.PropertyBuilder
+import org.joda.{time => jtime}
 
 /**
  * User-supplied data for open-id authentication
  */
-trait AuthRequest {
-  val openIdProvider:OIdProvider.Value
-  val replyTo:URL
-  val replyMethod:AuthRequest.ReplyMethod.Value
-}
+case class AuthRequest private[model](
+  id:UUID, 
+  openIdProvider:OIdProvider.Value,
+  dateTime:jtime.DateTime,
+  /** 
+   * Client application URL to load in the auth-popup when the openId authorization result is ready 
+   * for the client to retrieve
+   */
+  replyToURL:java.net.URL
+ ) {}
+  
 
 object AuthRequest {
-  object ReplyMethod extends Enumeration {
-    val GET, POST = Value
+  class Builder extends PropertyBuilder {
+    val id = new NotNullProperty[UUID]( UUID.randomUUID ).name( "id" )
+    val openIdProvider = new NotNullProperty[OIdProvider.Value]( OIdProvider.Google ).name( "openIdProvider" )
+    val dateTime = new NotNullProperty[jtime.DateTime]( jtime.DateTime.now() ).name( "dateTime" )
+    val replyToURL = new NotNullProperty[java.net.URL]().name( "replyToURL" )
+    
+    def build():AuthRequest = {
+      this.assertSanity
+      AuthRequest( id(), openIdProvider(), dateTime(), replyToURL() )
+    }
   }
-
-  trait Builder {
-    var openIdProvider:OIdProvider.Value = null
-    def openIdProvider( value:OIdProvider.Value ):this.type = {
-      openIdProvider = value
-      this
-    }
-
-    var replyTo:URL = null
-    def replyTo( value:URL ):this.type = {
-      replyTo = value
-      this
-    }
-
-    var replyMethod:AuthRequest.ReplyMethod.Value = ReplyMethod.POST
-    def replyMethod( value:ReplyMethod.Value ):this.type = {
-      replyMethod = value
-      this
-    }
-
-    def build():AuthRequest
-  }
-
-  
-  
 }

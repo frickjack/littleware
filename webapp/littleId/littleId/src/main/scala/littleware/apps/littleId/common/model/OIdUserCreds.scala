@@ -11,37 +11,39 @@
 package littleware.apps.littleId.common.model
 
 import java.net.URL
-import littleware.scala.LittleHelper
-import littleware.scala.LittleValidator
-
+import littleware.scala.PropertyBuilder
+import org.joda.{time => jtime}
 
 /**
  * UserCredentials guaranteed to have e-mail and open-id
  */
-trait OIdUserCreds extends UserCreds {
-  val email:String
-  val openId:URL
-}
+case class OIdUserCreds private[model] (
+  email:String,
+  openId:URL,
+  /** The date these creds were created - services may decide how long to accept these credentials */
+  dateCreated:jtime.DateTime
+  ) extends UserCreds {
+    val name:String = email
+    val credentials:Map[String,String] = Map( "email" -> email, "openId" -> openId.toString )
+  }
 
 object OIdUserCreds {
-  trait Builder extends LittleValidator {
-    var email:String = null
-    def email( value:String ):this.type = {
-      this.email = value
-      this
+  private val rxEmail = """"^[\w\.-]+\@[\w\.]+$""".r
+  
+  
+  class Builder extends PropertyBuilder {
+    import PropertyBuilder._
+    val email = new NotNullProperty[String]( 
+      null, sanityCheck( nullCheck, "invalid email" -> (v => rxEmail.findFirstIn(v).nonEmpty) )
+    ).name( "email" )
+
+    val openId = new NotNullProperty[URL]().name( "openId" )
+    
+    val dateCreated = new NotNullProperty[jtime.DateTime]( jtime.DateTime.now() ).name( "dateCreated" )
+
+    def build():OIdUserCreds = {
+      this.assertSanity
+      OIdUserCreds( email(), openId(), dateCreated() )
     }
-
-    var openId:URL = null
-    def openId( value:URL ):this.type = {
-      this.openId = value
-      this
-    }
-
-    override def checkSanity():Seq[String] = LittleValidator.helper.
-          check( LittleHelper.emptyCheck( email ).isDefined, "Email defined"
-                ).check( null != openId, "OpenId URL defined"
-                ).errors
-
-    def build():OIdUserCreds
   }
 }

@@ -10,11 +10,13 @@
 
 package littleware.apps.littleId.server.web.servlet
 
+import com.google.gson
 import com.google.inject.Inject
 import com.google.inject.Provider
 import java.net.URL
 import java.util.logging.Level
 import javax.servlet.ServletException
+import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -24,25 +26,20 @@ import java.util.logging.{Level,Logger}
 import littleware.scala.LittleHelper
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
+import littleware.web.servlet.helper.JsonResponse
+import littleware.web.servlet.helper.ResponseHelper
 import scala.collection.JavaConversions._
 
 object AuthReqServlet {
   
   class Tools @Inject() (
     val openIdTool:controller.OpenIdTool,
-    val authReqBuilder:Provider[model.AuthRequest.Builder]
+    val jsResponseFactory:Provider[JsonResponse.Builder],
+    val helper:ResponseHelper,
+    val gsonTool:gson.Gson,
+    val requestFactory:Provider[model.AuthRequest.Builder]
   ) {}
 
-  /**
-   * Little bean passed to jsp that posts a request-data form to
-   * the OpenId provider
-   */
-  class FormDataBean (
-    @scala.reflect.BeanProperty
-    val actionURL:URL,
-    @scala.reflect.BeanProperty
-    val params:java.util.Map[String,String]
-  ) {}
 
 
   /**
@@ -62,7 +59,8 @@ import AuthReqServlet._
  * Either doGet or doPost unpacks the "provider" param,
  * discovers corresponsing OpenID provider,
  * bundles up a FormDataBean with the endpoint and paramerters for the provider,
- * and forwards the request to a .jsp to construct and auto-submit the provider data form.
+ * and returns to the client in json form, so client can
+ * post the request to the OpenId provider.
  */
 class AuthReqServlet extends HttpServlet {
   private val log = Logger.getLogger( getClass.getName )
@@ -76,20 +74,12 @@ class AuthReqServlet extends HttpServlet {
     this.tools = tools
   }
 
-  /**
-   * Property determines the context-relative URL of the .jsp
-   * that builds and submits the provider-data form using the FormDataBean
-   * published by this servlet's doGet or doPost methods
-   */
-  var providerSubmitForm = "/openId/view/en/postToProvider.jsp"
 
   /**
-   * Lookup the GuiceBean, and self-inject.
-   * Also processes the "providerSubmitForm"
+   * Lookup the GuiceBean, and inject dependencies.
    */
   @throws(classOf[ServletException])
   override def init():Unit = try {
-    Option( getServletConfig.getInitParameter( "viewPath" ) ).map( (value) => { providerSubmitForm = value })
     val gbean:GuiceBean = getServletContext.getAttribute( WebBootstrap.littleGuice ).asInstanceOf[GuiceBean]
     gbean.injectMembers(this)
   } catch {
@@ -104,31 +94,29 @@ class AuthReqServlet extends HttpServlet {
 
   @throws(classOf[ServletException])
   def doGetOrPost( req:HttpServletRequest, resp:HttpServletResponse ):Unit = {
-    val authReq:model.AuthRequest = tools.authReqBuilder.get(
-    ).openIdProvider(
-      LittleHelper.emptyCheck( req.getParameter( "provider" ) ).getOrElse( "google" )toLowerCase match {
+    val authRequest:model.AuthRequest = {
+      val provider = Option( req.getParameter( "provider" ) ).getOrElse( "google" ).toLowerCase match {
         case "yahoo" => OIdProvider.Yahoo
         case _ => OIdProvider.Google
       }
-    ).replyTo(
-      LittleHelper.emptyCheck( req.getParameter( "replyTo" ) ).getOrElse(
-        req.getHeader( "Referer" )
-      ) match {
-        case null => null
-        case urlString:String => new java.net.URL( urlString )
-      }
-    ).replyMethod(
-      LittleHelper.emptyCheck( req.getParameter( "replyMethod" ) ).getOrElse( "post" )toLowerCase match {
-        case "post" => model.AuthRequest.ReplyMethod.POST
-        case _ => model.AuthRequest.ReplyMethod.GET
-      }
-    ).build
-    val oidReq:controller.OpenIdTool.OIdRequestData = tools.openIdTool.buildRequest(authReq.openIdProvider)
-    val session = req.getSession
-    session.setAttribute( oIdRequestDataKey, oidReq )
-    session.setAttribute( authRequestKey, authReq )
-    req.setAttribute( "formDataBean", new FormDataBean( oidReq.providerEndpoint, oidReq.params ) )
-    req.getRequestDispatcher( providerSubmitForm ).forward( req, resp )
+      val replyTo = new java.net.URL( Option( req.getParameter( "replyTo" ) ).get )
+      tools.requestFactory.get.openIdProvider( provider ).replyToURL( replyTo ).build() 
+    }
+    
+    val dataForProvider = tools.openIdTool.startOpenIdAuth( authRequest )
+    
+    // set a cookie with the AuthResponse state
+    val state = model.AuthState.Running( dataForProvider.request )
+    val cookie = new Cookie( controller.OpenIdTool.stateCookieName, tools.gsonTool.toJson( state, classOf[model.AuthState]) )
+    cookie.setMaxAge( 300 ) // 5 minutes
+    cookie.setPath( Option( req.getContextPath ).filter( _.nonEmpty ).getOrElse( "/" ) )
+    resp.addCookie( cookie )
+    
+    val jsonResponse = tools.jsResponseFactory.get.content.set( 
+      tools.gsonTool.toJsonTree( dataForProvider, classOf[model.DataForProvider] ).getAsJsonObject
+    ).build();
+    tools.helper.write( resp, jsonResponse )
+    
   }
 
   @throws(classOf[ServletException])

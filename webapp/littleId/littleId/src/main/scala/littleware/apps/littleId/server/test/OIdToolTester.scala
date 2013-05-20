@@ -12,26 +12,23 @@ package littleware.apps.littleId.server.test
 
 import com.google.inject.Inject
 import java.util.logging.Level
-import junit.framework.Assert
-import junit.framework.TestCase
-import littleware.apps.littleId.common.model.OIdProvider
+import junit.framework.Assert._
 import littleware.apps.littleId.server.controller
 import java.util.logging.{Level,Logger}
 
-class OIdToolTester @Inject()( tool:controller.OpenIdTool ) extends TestCase( "testOIdTool" ) {
-  val log = Logger.getLogger( getClass.getName )
+class OIdToolTester @Inject()( tool:controller.OpenIdTool ) extends littleware.scala.test.LittleTest {
+  setName(  "testOIdTool" )
 
   /**
    * Just test the buildRequest method
    */
   def testOIdTool():Unit = try {
+    fail( "Need to update this test!" )
+    /*
     for( provider <- OIdProvider.values ) {
       tool.buildRequest( provider )
     }
-  } catch {
-    case ex:Exception => {
-        log.log( Level.WARNING, "Test failed", ex )
-        Assert.fail( "Caught exception: " + ex )
-      }
-  }
+    */
+  } catch basicHandler
+  
 }

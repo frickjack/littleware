@@ -7,7 +7,9 @@
  */
 
 
-package littleware.apps.littleId.client.controller
+package littleware.apps.littleId
+package client
+package controller
 
 import collection.JavaConversions._
 
@@ -15,13 +17,5 @@ trait VerifyTool {
   /**
    * Verify the given credentials with the given secret
    */
-  def verify( secret:String, creds:Map[String,String] ):Boolean
-
-  /**
-   * Java friendly version
-   */
-  def jverify( secret:String, creds:java.util.Map[String,String] ):Boolean = 
-    verify( secret,
-           creds.entrySet.map( (entry) => entry.getKey -> entry.getValue ).toMap
-    )
+  def verify( secret:String ):Option[common.model.OIdUserCreds]
 }

@@ -11,22 +11,49 @@ package littleware.apps.littleId
 package gsonAdapter
 
 import com.google.gson
+import com.google.inject
 
-import server.model.AuthState
+import common.model.OIdUserCreds
+import server.model.{AuthRequest,AuthState}
+import AuthState._
 
 
-class AuthStateAdapter extends gson.JsonSerializer[AuthState] with gson.JsonDeserializer[AuthState] {
+class AuthStateAdapter @inject.Inject() (
+  credsFactory:inject.Provider[OIdUserCreds.Builder]
+) extends gson.JsonSerializer[AuthState] with gson.JsonDeserializer[AuthState] {
+  
   def serialize( src:AuthState,
                 typeOfSrc:java.lang.reflect.Type,
                 context:gson.JsonSerializationContext 
   ):gson.JsonElement = {
-    throw new UnsupportedOperationException( "not yet implemented" )          
+    val js = new gson.JsonObject
+    js.add( "request", context.serialize( src.request, classOf[server.model.AuthRequest]))
+    src match {
+      case Success( _, creds, secret ) => {
+          js.addProperty( "state", "success" )
+          js.add( "creds", context.serialize( creds, classOf[OIdUserCreds] ) )
+          js.addProperty( "token", secret )
+          js
+      }
+      case _:Failure => js.addProperty( "state", "failure" )
+      case _:Running => js.addProperty( "state", "running" )
+    }
+    js
   }
 
 
   def deserialize( je:gson.JsonElement,  typeOut:java.lang.reflect.Type, 
                   jdc:gson.JsonDeserializationContext ):AuthState = {
-    throw new UnsupportedOperationException( "not yet implemented" )
+    val js = je.getAsJsonObject
+    val request:AuthRequest = jdc.deserialize( js.get( "request" ), classOf[AuthRequest] )
+    js.get( "state" ).getAsString match {
+      case "success" => Success( request, 
+                jdc.deserialize( js.get( "creds" ), classOf[OIdUserCreds] ), 
+                js.get( "token" ).getAsString 
+        )
+      case "failure" => Failure( request )
+      case "running" => Running( request )
+    }
   }
 
 }

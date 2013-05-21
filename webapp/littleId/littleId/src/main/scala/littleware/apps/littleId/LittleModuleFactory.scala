@@ -26,12 +26,14 @@ object LittleModuleFactory {
     gsonFactory:LittleGsonFactory,
     authRequestAdapter:gsonAdapter.AuthRequestAdapter,
     authStateAdapter:gsonAdapter.AuthStateAdapter,
-    dataForProviderAdapter:gsonAdapter.DataForProviderAdapter
+    dataForProviderAdapter:gsonAdapter.DataForProviderAdapter,
+    oidCredsAdapter:gsonAdapter.OIdCredsAdapter
   ) extends osgi.framework.BundleActivator {
     import server.model._
     Seq( classOf[AuthRequest] -> authRequestAdapter,
         classOf[AuthState] -> authStateAdapter,
-        classOf[DataForProvider] -> dataForProviderAdapter
+        classOf[DataForProvider] -> dataForProviderAdapter,
+        classOf[common.model.OIdUserCreds] -> oidCredsAdapter
         ).foreach( {
             case (clazz,adapter) => gsonFactory.registerTypeAdapter( clazz, adapter )
           })

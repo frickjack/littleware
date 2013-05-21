@@ -6,35 +6,33 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.client.controller.internal
+package littleware.apps.littleId
+package client
+package controller
+package internal
 
+import com.google.gson
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.google.common.{io => gio}
 import java.io
-import java.net.{URL,URLEncoder,URLConnection}
-import littleware.apps.littleId
-import littleId.client.controller
+import java.net.{URL,URLEncoder,URLConnection, HttpURLConnection}
 import java.util.logging.{Level,Logger}
 import littleware.base.Whatever
 
 
-class HttpVerifyTool @Inject()( @Named( "littleId.verfiyURL" ) verifyURL:URL ) extends controller.VerifyTool {
+class HttpVerifyTool @Inject()( 
+  @Named( "littleId.verfiyURL" ) verifyURL:URL,
+  gsonTool:gson.Gson
+) extends controller.VerifyTool {
   private val log = Logger.getLogger( getClass.getName )
   
-  def verify( secret:String, creds:Map[String,String] ):Boolean = {
-    val postData:String = (
-      (new StringBuilder).append( "secret=" ).append( URLEncoder.encode( secret, Whatever.UTF8.toString )) /:
-      creds.toSeq
-    )( (sb,entry) => entry match {
-        case (key,value) => sb.append( "&" 
-          ).append( key ).append( "="
-          ).append( URLEncoder.encode( value, Whatever.UTF8.toString ))
-      }
-    ).toString
+  def verify( secret:String ):Option[common.model.OIdUserCreds] = {
+    val postData:String = 
+      (new StringBuilder).append( "secret=" ).append( URLEncoder.encode( secret, Whatever.UTF8.toString )).toString
 
-    val verifyResponse:String = {
-      val conn:URLConnection = verifyURL.openConnection
+    val (verifyResponse:String,httpCode:Int) = {
+      val conn:HttpURLConnection = verifyURL.openConnection.asInstanceOf[HttpURLConnection]
       conn.setDoOutput( true )
       val writer = new io.OutputStreamWriter( conn.getOutputStream(), Whatever.UTF8 )
       try {
@@ -42,11 +40,18 @@ class HttpVerifyTool @Inject()( @Named( "littleId.verfiyURL" ) verifyURL:URL ) e
         writer.flush
         val reader = new io.BufferedReader( new io.InputStreamReader( conn.getInputStream, Whatever.UTF8 ))
         try {
-          gio.CharStreams.toString( reader )
+          (gio.CharStreams.toString( reader ), conn.getResponseCode)
         } finally reader.close
       } finally writer.close
+      
     }
-    log.fine( "Verify request to " + verifyURL + " got response: " + verifyResponse )
-    verifyResponse.replaceAll( "\\s+", "" ).indexOf( "<verify>true</verify>" ) >= 0
+    
+    log.log( Level.FINE, "Verify request to {0} got response http-status:{1} - {2}", 
+            Array[Object]( verifyURL, new Integer( httpCode ), verifyResponse ) 
+    )
+    
+    if( httpCode >= 200 && httpCode <= 300 ) {
+      Some( gsonTool.fromJson( verifyResponse, classOf[common.model.OIdUserCreds]) )
+    } else None
   }
 }

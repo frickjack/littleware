@@ -40,17 +40,13 @@ import VerifyServlet._
 
 
 /**
- * Servlet handles the response from the OId provider,
- * assembles a model.AuthResponse request-scope bean,
- * and forwards to an authResponse jsp that generates the
- * client response.
- *
- * @TODO implement InjectMeServlet abstract base class
+ * Servlet verifies that either the submitted token or
+ * the token from the client's littleId cookie if not supplied
+ * is a valid token.
  */
 class VerifyServlet extends HttpServlet {
   private val log = Logger.getLogger( getClass.getName )
 
-  var verifyResponsePage:String = "/openId/view/en/verifyResponse.jsp"
   private var tools:Tools = null
 
   @Inject

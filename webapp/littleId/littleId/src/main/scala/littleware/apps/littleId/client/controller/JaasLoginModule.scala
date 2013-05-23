@@ -20,10 +20,6 @@ import java.util.logging.{Level,Logger}
 import scala.collection.JavaConversions._
 
 object JaasLoginModule {
-  /**
-   * JAAS configuration key to override the default littleId verify URL
-   */
-  val VerifyUrlOptionKey = "verify_url"
   val VerifyToolOptionKey = "verify_tool"
 
   /**
@@ -43,6 +39,13 @@ object JaasLoginModule {
     override def getAppConfigurationEntry(name:String):Array[auth.login.AppConfigurationEntry] = entryArray
   }
 
+  
+  private var _verifyTool:VerifyTool = null
+  
+  /**
+   * Internal method allows module-startup to publish a verify tool for JAAS use
+   */
+  private[littleId] def publishTool( tool:VerifyTool ):Unit = { _verifyTool = tool }
 }
 
 /**
@@ -70,7 +73,8 @@ class JaasLoginModule @Inject() ( private var tool:VerifyTool ) extends LoginMod
    * @param subject to manage
    * @param handler to invoke for user-supplied data
    * @param sharedState map shared with other login modules
-   * @param optionsMap login options - currently only look for verify_url
+   * @param optionsMap login options - look for JaasLoginModule.VerifyToolOptionKey,
+   *               and fall back to in-memory verify tool (using local secret) if not found
    */
   override def initialize(
     subject:auth.Subject,
@@ -84,11 +88,7 @@ class JaasLoginModule @Inject() ( private var tool:VerifyTool ) extends LoginMod
       tool = optionsMap.get( JaasLoginModule.VerifyToolOptionKey ).asInstanceOf[VerifyTool]
     }
     if ( null == tool ) {
-      tool = new internal.HttpVerifyTool(
-        new URL( Option( optionsMap.get( JaasLoginModule.VerifyUrlOptionKey ).asInstanceOf[String]
-          ).getOrElse( "http://beta.frickjack.com:8080/openId/openId/services/verify/" )
-        )
-      )
+      tool = JaasLoginModule._verifyTool
     }
   }
 
@@ -113,21 +113,18 @@ class JaasLoginModule @Inject() ( private var tool:VerifyTool ) extends LoginMod
           passwordCallback
         ))
 
-      val email = nameCallback.getName()
       val secret = new String(passwordCallback.getPassword());
-      if ( tool.verify( secret, Map( "email" -> email ))) {
+      tool.verify( secret ).map( creds => {
         // decorate the authenticated Subject
 
         //subject.getPrincipals().add(
         //user);
         //subject.getPrivateCredentials().add(helper);
 
-        log.log(Level.INFO, "User authenticated: " + email )
-        subject.getPrincipals().add( littleId.common.model.UserCreds(email) )
+        log.log(Level.INFO, "User authenticated: " + creds.name )
+        subject.getPrincipals().add( creds )
         true
-      } else {
-        false
-      }
+      } ).isDefined
     }).getOrElse( {
         log.log( Level.WARNING, "Subject or Handler not initialized for JaasLoginModule")
         false

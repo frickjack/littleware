@@ -22,19 +22,26 @@ case class OIdUserCreds private[model] (
   openId:URL,
   /** The date these creds were created - services may decide how long to accept these credentials */
   dateCreated:jtime.DateTime
-  ) extends UserCreds {
+) extends UserCreds {
     val name:String = email
     val credentials:Map[String,String] = Map( "email" -> email, "openId" -> openId.toString )
-  }
+    
+  override def equals( other:Any ):Boolean =
+    (null != other) && (other match {
+      case OIdUserCreds(email,openId,date) => this.email == email && this.openId == openId &&
+        math.abs( this.dateCreated.getMillis - date.getMillis ) < 10000
+    })
+  
+}
 
 object OIdUserCreds {
-  private val rxEmail = """"^[\w\.-]+\@[\w\.]+$""".r
+  private val rxEmail = """^[\w\.-]+\@[\w\.]+$""".r
   
   
   class Builder extends PropertyBuilder {
     import PropertyBuilder._
     val email = new NotNullProperty[String]( 
-      null, sanityCheck( nullCheck, "invalid email" -> (v => rxEmail.findFirstIn(v).nonEmpty) )
+      null, sanityCheck( nullCheck, "email has valid syntax" -> (v => rxEmail.findFirstIn(v).nonEmpty) )
     ).name( "email" )
 
     val openId = new NotNullProperty[URL]().name( "openId" )

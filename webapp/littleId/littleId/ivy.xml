@@ -21,7 +21,7 @@
       <dependency org="littleware" name="littleWeb" rev="2.5.+" 
         conf="compile->compile;client->client" />
       <dependency org="littleware" name="littleAsset" rev="2.5.+" 
-        conf="client->with_http" />
+        conf="client->with_http;test->with_jetty" />
 
       <dependency org="littleware" name="littleware" rev="2.5.+" conf="test->with_junit" />
       

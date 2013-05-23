@@ -29,7 +29,6 @@ object ProviderRespServlet {
   
   class Tools @Inject() (
     val openIdTool:controller.OpenIdTool,
-    val verifyTool:controller.AuthVerifyTool,
     val gsonTool:gson.Gson
   ) {}
 
@@ -113,9 +112,9 @@ class ProviderRespServlet extends HttpServlet {
     ).getOrElse( model.AuthState.Failure( authRequest ))
 
     //
-    // store the response in a cookie, then redirect the client back to the 
-    // main application's site, so the app's javascript can retrieve
-    // the creds (this servlet is running in the authorization service)
+    // store the response in a cookie, then send a page back to the
+    // client to close the login popup (javascript API puts user in
+    // a popup for OpenId provider (Google, Yahoo, whatever) )
     // 
     val jsStr = tools.gsonTool.toJson( response, classOf[model.AuthState] )
     val cookie = new javax.servlet.http.Cookie( controller.OpenIdTool.stateCookieName, jsStr )

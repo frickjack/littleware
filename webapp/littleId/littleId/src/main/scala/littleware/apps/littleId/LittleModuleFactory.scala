@@ -10,19 +10,19 @@
 
 package littleware.apps.littleId
 
-import com.google.inject.Binder
-import com.google.inject.Scopes
+import com.google.inject
 import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,helper}
 import littleware.asset.gson.LittleGsonFactory
 import scala.collection.JavaConversions._
 import org.osgi
+
 
 object LittleModuleFactory {
   
   /**
    * Registers custom gson adapters at startup
    */
-  class ModuleActivator (
+  class ModuleActivator @inject.Inject() (
     gsonFactory:LittleGsonFactory,
     authRequestAdapter:gsonAdapter.AuthRequestAdapter,
     authStateAdapter:gsonAdapter.AuthStateAdapter,
@@ -47,16 +47,15 @@ object LittleModuleFactory {
   class LittleModule ( profile:AppBootstrap.AppProfile ) extends helper.AbstractAppModule( profile ) {
     override def  getActivator():Class[_ <: osgi.framework.BundleActivator] = classOf[ModuleActivator]
 
-    override def configure( binder:Binder ):Unit = {
+    override def configure( binder:inject.Binder ):Unit = {
       binder.bind( classOf[server.controller.OpenIdTool]
                   ).to( classOf[server.controller.internal.SimpleOidTool]
-                  ).in( Scopes.SINGLETON )
-      binder.bind( classOf[server.controller.AuthVerifyTool]
-                  ).to( classOf[server.controller.internal.InMemoryVerifyTool]
-                  ).in( Scopes.SINGLETON )
+                  ).in( inject.Scopes.SINGLETON )
       binder.bind( classOf[client.controller.VerifyTool]
-        ).to( classOf[client.controller.internal.HttpVerifyTool]
-        ).in( Scopes.SINGLETON )
+        ).to( classOf[client.controller.internal.InMemoryVerifyTool]
+        ).in( inject.Scopes.SINGLETON )
+      binder.bind( classOf[client.controller.internal.InMemoryVerifyTool] 
+        ).in( inject.Scopes.SINGLETON )
       littleware.base.PropertiesGuice.build(
         classOf[client.controller.internal.HttpVerifyTool]
       ).configure( binder )

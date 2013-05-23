@@ -22,12 +22,7 @@ import org.joda.{time => jtime}
 case class AuthRequest private[model](
   id:UUID, 
   openIdProvider:OIdProvider.Value,
-  dateTime:jtime.DateTime,
-  /** 
-   * Client application URL to load in the auth-popup when the openId authorization result is ready 
-   * for the client to retrieve
-   */
-  replyToURL:java.net.URL
+  dateTime:jtime.DateTime
  ) {}
   
 
@@ -36,11 +31,11 @@ object AuthRequest {
     val id = new NotNullProperty[UUID]( UUID.randomUUID ).name( "id" )
     val openIdProvider = new NotNullProperty[OIdProvider.Value]( OIdProvider.Google ).name( "openIdProvider" )
     val dateTime = new NotNullProperty[jtime.DateTime]( jtime.DateTime.now() ).name( "dateTime" )
-    val replyToURL = new NotNullProperty[java.net.URL]().name( "replyToURL" )
+    //val replyToURL = new NotNullProperty[java.net.URL]().name( "replyToURL" )
     
     def build():AuthRequest = {
       this.assertSanity
-      AuthRequest( id(), openIdProvider(), dateTime(), replyToURL() )
+      AuthRequest( id(), openIdProvider(), dateTime() )
     }
   }
 }

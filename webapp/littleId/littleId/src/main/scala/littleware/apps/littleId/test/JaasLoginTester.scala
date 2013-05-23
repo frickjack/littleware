@@ -7,7 +7,7 @@
  */
 
 
-package littleware.apps.littleId.client.test
+package littleware.apps.littleId.test
 
 import com.google.inject.Inject
 import java.util.logging.Level

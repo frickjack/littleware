@@ -8,28 +8,34 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.server.web.servlet
+package littleware.apps.littleId
+package server
+package web
+package servlet
 
-import com.google.inject.{Inject,Provider}
+
+import com.google.gson
+import com.google.inject
 import java.net.URL
 import java.util.logging.Level
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import littleware.apps.littleId
-import littleId.common.model
-import littleId.server.controller
 import java.util.logging.{Level,Logger}
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
+import littleware.web.servlet.helper.JsonResponse
+import littleware.web.servlet.helper.ResponseHelper
 import scala.collection.JavaConversions._
 
 object VerifyServlet {
   
-  class Tools @Inject() (
-    val verifyTool:controller.AuthVerifyTool,
-    val userBuilder:Provider[littleId.common.model.OIdUserCreds.Builder]
+  class Tools @inject.Inject() (
+    val verifyTool:client.controller.internal.InMemoryVerifyTool,
+    val gsonTool:gson.Gson,
+    val jsResponseFactory:inject.Provider[JsonResponse.Builder],
+    val responseHelper:ResponseHelper
   ) {}
 
 
@@ -49,7 +55,7 @@ class VerifyServlet extends HttpServlet {
 
   private var tools:Tools = null
 
-  @Inject
+  @inject.Inject
   def injectMe( tools:Tools ):Unit = {
     this.tools = tools
   }
@@ -60,7 +66,6 @@ class VerifyServlet extends HttpServlet {
    */
   @throws(classOf[ServletException])
   override def init():Unit = try {
-    Option( getServletConfig.getInitParameter( "viewPath" ) ).map( (value) => { verifyResponsePage = value })
     val gbean:GuiceBean = getServletContext.getAttribute( WebBootstrap.littleGuice ).asInstanceOf[GuiceBean]
     gbean.injectMembers(this)
   } catch {
@@ -75,18 +80,31 @@ class VerifyServlet extends HttpServlet {
 
   @throws(classOf[ServletException])
   def doGetOrPost( req:HttpServletRequest, resp:HttpServletResponse ):Unit = {
-    val session = req.getSession
-    val secret:String = Option( req.getParameter( "secret" ) ).getOrElse(
-      throw new IllegalArgumentException( "secret is a required parameter" )
+    val optSecret:Option[String] = Option( req.getParameter( "secret" ) ) match {
+      case Some(token) => Some(token)
+      case _ => req.getCookies.find( _.getName == controller.OpenIdTool.stateCookieName 
+        ).flatMap( 
+          cookie => tools.gsonTool.fromJson( cookie.getValue, classOf[model.AuthState]) match {
+            case model.AuthState.Success( _, _, token) => Some(token)
+            case _ => None
+          }
+        )
+    }
+
+    val jsResponse:JsonResponse =  optSecret.flatMap( secret => {
+      tools.verifyTool.verify( secret ).map( 
+        (creds:common.model.OIdUserCreds) => 
+          tools.jsResponseFactory.get.content.set( 
+            tools.gsonTool.toJsonTree( creds, classOf[common.model.OIdUserCreds] ).getAsJsonObject 
+          ).build 
+      )
+    }).getOrElse( 
+      // either no secret token was passed as a paramter or cookie,
+      // or the given token failed validation
+      tools.jsResponseFactory.get.status.set( HttpServletResponse.SC_NOT_FOUND ).build() 
     )
-    val creds:Map[String,String] = req.getParameterNames.filter( { _ != "secret" }
-    ).map(
-      (name) => name -> req.getParameter(name)
-    ).toMap
-    log.log( Level.FINE, "VerifyServlet processing parameters: {0}", Array[Object]( creds ) )
-    req.setAttribute( "verifyRequest", model.VerifyRequest( creds, secret ) )
-    req.setAttribute( "verifyResponse", model.VerifyResponse( tools.verifyTool.verifyCreds(secret, creds ) )  )
-    req.getRequestDispatcher( verifyResponsePage ).forward(req,resp)
+  
+    tools.responseHelper.write( resp, jsResponse )
   }
 
   @throws(classOf[ServletException])

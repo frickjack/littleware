@@ -8,7 +8,8 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-package littleware.apps.littleId.server.test
+package littleware.apps.littleId
+package test
 
 import com.google.inject.Inject
 import java.util.logging.Level
@@ -20,11 +21,11 @@ import littleware.test.TestFactory
 
 class PackageTestSuite @Inject() (
   openIdToolTester:OIdToolTester,
-  verifyToolTester:VerifyToolTester
+  jaasTester:JaasLoginTester
 ) extends TestSuite {
   setName( getClass.getName )
   addTest( openIdToolTester )
-  addTest( verifyToolTester )
+  addTest( jaasTester )
 }
 
 object PackageTestSuite {

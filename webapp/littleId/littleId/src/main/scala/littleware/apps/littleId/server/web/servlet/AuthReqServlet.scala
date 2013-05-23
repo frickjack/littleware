@@ -99,8 +99,7 @@ class AuthReqServlet extends HttpServlet {
         case "yahoo" => OIdProvider.Yahoo
         case _ => OIdProvider.Google
       }
-      val replyTo = new java.net.URL( Option( req.getParameter( "replyTo" ) ).get )
-      tools.requestFactory.get.openIdProvider( provider ).replyToURL( replyTo ).build() 
+      tools.requestFactory.get.openIdProvider( provider ).build() 
     }
     
     val dataForProvider = tools.openIdTool.startOpenIdAuth( authRequest )

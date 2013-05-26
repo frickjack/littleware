@@ -126,8 +126,7 @@ YUI.littleware.babyTrack.contractionMain = (function() {
                 'littleware-babyTrack-view-contractionPanel',
                 function (Y) {
                     var util = Y.littleware.littleUtil;
-                    var fb = Y.littleware.feedback;
-                    var log = new util.Logger( "littleFbTestSuite.html" );
+                    var log = new util.Logger( "btrack-contractionMain" );
                     
                     log.log( "main() running" );
                     var view = Y.littleware.babyTrack.view.contractionPanel.Factory.get().build();

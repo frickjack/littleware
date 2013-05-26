@@ -60,6 +60,14 @@ littleware.littleYUI = (function() {
                 'littleware-feedback-view': {
                     path: "feedback/FbWidget.js",
                     requires: [ 'node', 'base', 'littleware-littleUtil', 'littleware-feedback-model', 'test']
+                },
+                'littleware-toy-toyA': {
+                    path: "toy/toyA.js",
+                    requires: [ 'node', 'base', 'littleware-littleUtil', 'test']
+                },
+                'littleware-toy-toyB': {
+                    path: "toy/toyB.js",
+                    requires: [ 'littleware-toy-toyA']
                 }                                                
             }
         }    ;
@@ -96,3 +104,22 @@ littleware.littleYUI = (function() {
         getLittleModules: getLittleModules
     };
 })();
+
+
+/**
+ * AMB module hook - still needs work ...
+ * @param argNames {Array[String]}
+ * @param moduleThunk {function(requires,exports,import1, import2, ...)}
+ */
+function define( argNames, moduleThunk ) {
+  var name = null;
+  // hacky way to get the YUI module name ...
+  try { moduleThunk( null, null ); } catch ( v ) { name = v; }
+  YUI.add(name, function(Y) {
+    var thunkArgs = [];
+    for( var i=0; i < argNames.length; ++i ) {
+      thunkArgs.push( Y );
+    }
+    moduleThunk.apply( Y, thunkArgs );
+  }, '0.1.1' );
+}

@@ -1,20 +1,11 @@
-<!--
-Copyright 2012 http://code.google.com/p/littleware
-
-The contents of this file are available subject to the terms of the
-Lesser GNU General Public License (LGPL) Version 2.1.
-http://www.gnu.org/licenses/lgpl-2.1.html.
--->
-
 <!DOCTYPE html>
-<html manifest="511.manifest">
-    <head>
-        <title>5-1-1</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html>
+  <head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         
-
         <link rel="apple-touch-icon" href="/btrack/resources/img/appIcons/oo511.57x57.png" />
         <link rel="apple-touch-icon" sizes="72x72" href="/btrack/resources/img/appIcons/oo511.72x72.png" />
         <link rel="apple-touch-icon" sizes="114x114" href="/btrack/resources/img/appIcons/oo511.114x114.png" />
@@ -28,25 +19,16 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
         
         <style id="yuiInsertBeforeMe" type="text/css"></style>
         <link rel="stylesheet" href="/btrack/resources/css/littleware/babyTrack/main.css" type="text/css" />         
-    </head>
+  </head>
     <body class="yui3-skin-sam">
 
         <div class="yui3-g">
         
           <div id="app" class="yui3-u-1">
-              <h2>5-1-1 Contraction Timer <span id="clock">3:33:33</span></h2>
+              <h2>Event Tracker</h2>
               
-              <figure id="graph">
-              </figure>
-              <!-- .......................................... -->
-              
-              <div id="table" class="dataTable">
-              </div>
-              
-              <div id="button">
-              </div>
-              
-              <div id="stats">
+              <div class="toy">
+                <p></p>
               </div>
               
               <div id="footer">
@@ -55,12 +37,8 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
                    
           </div>
           
-            
-            
         </div>
         
-        
-        <script src="http://yui.yahooapis.com/3.10.1/build/yui/yui-min.js"></script> 
         
         <script type="text/x-handlebars-template" id="dataGraphTemplate">
             <div class="fbTask">
@@ -71,15 +49,25 @@ http://www.gnu.org/licenses/lgpl-2.1.html.
             </div>            
         </script>  
 
-        <script src="/btrack/resources/js/littleware/babyTrack/contractionMain.js"></script>
+        <script src="http://yui.yahooapis.com/3.10.1/build/yui/yui-min.js"></script> 
+        <script src="/btrack/resources/js/littleware/littleYUI.js"></script>
         
 <script>
-    YUI.littleware.babyTrack.contractionMain.main();
-// Create a YUI sandbox on your page.
-//YUI().use('node', 'event', function (Y) {
-    // The Node and Event modules are loaded and ready to use.
-    // Your code goes here!
-//});
+  
+   littleware.littleYUI.bootstrap().use( 
+                'node', 'node-base', 'event', 'test', 'scrollview',
+                'littleware-toy-toyB',
+                function (Y) {
+                    var util = Y.littleware.littleUtil;
+                    var log = new util.Logger( "events.html" );
+                    
+                    log.log( "main() running" );
+                    var toy = Y.littleware.toy.b
+                    var greeter = new toy.Greeter( "Dude" );
+                    toy.runGreeter( greeter );
+                }
+        );
+
 </script>
 
     </body>

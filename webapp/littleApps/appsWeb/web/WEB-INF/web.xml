@@ -28,28 +28,16 @@
     <servlet>
         <servlet-name>AuthReq Servlet</servlet-name>
         <servlet-class>littleware.apps.littleId.server.web.servlet.AuthReqServlet</servlet-class>
-        <init-param>
-            <param-name> viewPath </param-name>
-            <param-value> /openId/view/en/postToProvider.jsf </param-value>
-        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
         <servlet-name>ProviderResp Servlet</servlet-name>
         <servlet-class>littleware.apps.littleId.server.web.servlet.ProviderRespServlet</servlet-class>
-         <init-param>
-            <param-name> viewPath </param-name>
-            <param-value> /openId/view/en/authProviderResponse.jsf </param-value>
-        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
         <servlet-name>Verify Servlet</servlet-name>
         <servlet-class>littleware.apps.littleId.server.web.servlet.VerifyServlet</servlet-class>
-         <init-param>
-            <param-name> viewPath </param-name>
-            <param-value> /openId/view/en/verifyXml.jsp </param-value>
-        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     

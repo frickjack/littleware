@@ -43,7 +43,30 @@
             <isset property="ivy.resolve.test.exists" />
             <isset property="ivy.resolve.compile.exists" />
         </and>
+    </condition>
+    
+    <condition property="typescript.ready">
+        <and>
+            <!--
+            <isset property="settings.exists" />
+            -->
+            <isset property="build.web.dir" />
+            <isset property="typescript.compiler.path" />
+            <available file="${typescript.compiler.path}" />
+        </and>
     </condition>    
+    
+    <condition property="ydoc.ready">
+        <and>
+            <!--
+            <isset property="settings.exists" />
+            -->
+            <isset property="build.web.dir" />
+            <isset property="ydoc.path" />
+            <available file="${ydoc.path}" />
+        </and>
+    </condition>    
+    
 </target>
 
 
@@ -289,5 +312,132 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     </sequential>
 </target>
 
+<!-- web project stuff -->
+
+<property name="typescript.compiler.path" value="${user.home}/AppData/Roaming/npm/tsc.cmd" />
+<property name="ydoc.path" value="${user.home}/Documents/Code/yuidoc/bin/ydoc.bat" />
+
+
+<target name="ydoc" depends="config-check" if="ydoc.ready" 
+    description="run ydoc on build/ js"
+    >
+  <exec executable="${ydoc.path}">
+    <arg value="${build.web.dir}/resources/js/littleware"/>
+ </exec>    
+</target>
+
+    
+<!--
+    Recursively read a source directory for TypeScript files, generate a compile list in the
+    format needed by the TypeScript compiler adding every parameters it take.
+    Thanks Tekool.net:
+       http://stackoverflow.com/questions/12799237/how-to-watch-and-compile-all-typescript-sources
+-->
+<macrodef name="TypeScriptCompileDir">
+
+    <!-- required attribute -->
+    <attribute name="src" />
+
+    <!-- optional attributes -->
+    <attribute name="out" default="" />
+    <attribute name="module" default="" />
+    <attribute name="comments" default="" />
+    <attribute name="declarations" default="" />
+    <attribute name="nolib" default="" />
+    <attribute name="target" default="" />
+
+    <sequential>
+
+        <!-- local properties -->
+        <local name="out.arg"/>
+        <local name="module.arg"/>
+        <local name="comments.arg"/>
+        <local name="declarations.arg"/>
+        <local name="nolib.arg"/>
+        <local name="target.arg"/>
+        <local name="typescript.file.list"/>
+        <local name="tsc.compile.file"/>
+
+        <property name="tsc.compile.file" value="@{src}compile.list" />
+
+        <!-- Optional arguments are not written to compile file when attributes not set -->
+        <condition property="out.arg" value="" else='--out "@{out}"'>
+            <equals arg1="@{out}" arg2="" />
+        </condition>
+
+        <condition property="module.arg" value="" else="--module @{module}">
+            <equals arg1="@{module}" arg2="" />
+        </condition>
+
+        <condition property="comments.arg" value="" else="--comments">
+            <equals arg1="@{comments}" arg2="" />
+        </condition>
+
+        <condition property="declarations.arg" value="" else="--declarations">
+            <equals arg1="@{declarations}" arg2="" />
+        </condition>
+
+        <condition property="nolib.arg" value="" else="--nolib">
+            <equals arg1="@{nolib}" arg2="" />
+        </condition>
+
+        <!-- Could have been defaulted to ES3 but let the compiler uses its own default is quite better -->
+        <condition property="target.arg" value="" else="--target @{target}">
+            <equals arg1="@{target}" arg2="" />
+        </condition>
+
+        <!-- Recursively read TypeScript source directory and generate a compile list -->
+        <pathconvert property="typescript.file.list" dirsep="\" pathsep="${line.separator}">
+
+            <fileset dir="@{src}">
+                <include name="**/*.ts" />
+                <exclude name="**/*.d.ts" />
+            </fileset>
+
+            <!-- In case regexp doesn't work on your computer, comment <mapper /> and uncomment <regexpmapper /> -->
+            <mapper type="regexp" from="^(.*)$" to='"\1"' />
+            <!--regexpmapper from="^(.*)$" to='"\1"' /-->
+
+        </pathconvert>
+
+
+        <!-- Write to the file -->
+        <echo message="Writing tsc command line arguments to : ${tsc.compile.file}" />
+        <echo file="${tsc.compile.file}" message="${typescript.file.list}${line.separator}${out.arg}${line.separator}${module.arg}${line.separator}${comments.arg}${line.separator}${declarations.arg}${line.separator}${nolib.arg}${line.separator}${target.arg}${line.separator}--sourcemap" append="false" />
+
+        <!-- Compile using the generated compile file --> 
+        <echo message="Calling ${typescript.compiler.path} with ${tsc.compile.file}" />
+        <exec dir="." executable="${typescript.compiler.path}">
+            <arg value="@${tsc.compile.file}"/>
+        </exec>
+
+        <!-- Finally delete the compile file 
+        <echo message="${tsc.compile.file} deleted" />
+        <delete file="${tsc.compile.file}" />
+        -->
+
+    </sequential>
+
+</macrodef>
+
+
+<target name="typescript" depends="config-check" if="typescript.ready" 
+    description="compile typescript files build/*.ts"
+    >
+      <TypeScriptCompileDir
+          src="${build.web.dir}/resources/js/"
+          module="amd"
+      />      
+      
+    <!-- out="${build.web.dir}/resources/js" -->
+</target>
+
+
+<!-- post-compile rule kicks in if build.web.dir netbeans property is defined -->
+<target name="-post-compile" depends="ydoc,typescript" if="build.web.dir">
+      <copy todir="${build.web.dir}/WEB-INF/lib">
+        <fileset dir="ivy/test"/>
+      </copy>
+</target>
 
 </project>

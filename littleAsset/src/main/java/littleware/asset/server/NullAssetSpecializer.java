@@ -6,7 +6,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Set;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 
 
@@ -44,7 +44,7 @@ public class NullAssetSpecializer implements AssetSpecializer {
 
     @Override
     public Option<String> validate( LittleContext ctx, Asset asset) throws BaseException, AssetException, GeneralSecurityException {
-        return Maybe.empty();
+        return Options.empty();
     }
 }
 

@@ -27,7 +27,7 @@ import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.spi.AbstractAsset;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.event.LittleEvent;
 import littleware.base.event.LittleListener;
@@ -171,7 +171,7 @@ public class SimpleAssetLibrary
      */
     private static class SimpleAssetRef implements AssetRef {
 
-        private Option<Asset> asset = Maybe.empty();
+        private Option<Asset> asset = Options.empty();
         private final SimpleLittleTool eventSupport = new SimpleLittleTool(this);
         private final SimpleAssetLibrary library;
 
@@ -179,7 +179,7 @@ public class SimpleAssetLibrary
          * Constructor associates an asset
          */
         public SimpleAssetRef(Asset asset, SimpleAssetLibrary library) {
-            this.asset = Maybe.something( asset );
+            this.asset = Options.some( asset );
             this.library = library;
             ValidationException.validate( asset != null, "Must reference non-null asset");
         }
@@ -202,14 +202,14 @@ public class SimpleAssetLibrary
                 return newAsset;
             }
             if ( asset.isEmpty() ) {
-                asset = Maybe.something(newAsset);
+                asset = Options.some(newAsset);
             }
             if ( newAsset.getTimestamp() <= asset.get().getTimestamp() ) {
                 return asset.get();
             }
             // this call syncs a_new with oa_data
             final Asset oldAsset = asset.get();
-            asset = Maybe.something(newAsset );
+            asset = Options.some(newAsset );
 
             if ( ! oldAsset.getName().equals( newAsset.getName() )) {
                 library.nameMap.remove( library.nameKey( oldAsset ) );
@@ -270,7 +270,7 @@ public class SimpleAssetLibrary
 
         @Override
         public void clear() {
-            asset = Maybe.empty();
+            asset = Options.empty();
             final AssetActionEvent event = new AssetActionEvent(
                     this, AssetRef.Operation.assetDeleted
                     );

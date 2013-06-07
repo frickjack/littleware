@@ -16,7 +16,7 @@ import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.ClientScannerFactory;
 import littleware.asset.internal.AbstractTemplateScanner;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 
 @Singleton
@@ -33,7 +33,7 @@ public class SimpleScannerFactory implements ClientScannerFactory {
         return new Scanner( search );
     }
 
-    private static final Option<TreeNode> emptyNode = Maybe.empty();
+    private static final Option<TreeNode> emptyNode = Options.empty();
 
     //------------------------------------------
     public static class Scanner extends AbstractTemplateScanner {
@@ -49,7 +49,7 @@ public class SimpleScannerFactory implements ClientScannerFactory {
             try {
                 final AssetRef ref = search.getAssetFrom( parentId, name );
                 if ( ref.isSet() ) {
-                    return Maybe.something( ref.get().narrow( TreeNode.class ) );
+                    return Options.some( ref.get().narrow( TreeNode.class ) );
                 } else {
                     return emptyNode;
                 }

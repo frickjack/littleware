@@ -41,6 +41,8 @@ import littleware.asset.pickle.internal.SimpleHumanRegistry;
 import littleware.asset.pickle.internal.SimpleXmlRegistry;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.asset.spi.internal.SimpleAssetRegistry;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
@@ -53,8 +55,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+
 
 /**
  * Module binds and registers littleware.asset asset types
@@ -109,7 +110,7 @@ public class LittleAssetModule extends AbstractAppModule {
         super(profile);
     }
 
-    public static class Activator implements BundleActivator {
+    public static class Activator implements LifecycleCallback {
 
         @Inject
         public Activator(AssetProviderRegistry assetRegistry,
@@ -134,17 +135,16 @@ public class LittleAssetModule extends AbstractAppModule {
         }
 
         @Override
-        public void start(BundleContext bc) throws Exception {
-        }
+        public void startUp(){}
+        
 
         @Override
-        public void stop(BundleContext bc) throws Exception {
-        }
+        public void shutDown(){}
     }
 
     @Override
-    public Class<? extends BundleActivator> getActivator() {
-        return Activator.class;
+    public Option<Class<Activator>> getCallback() {
+        return Options.some( Activator.class );
     }
 
     public static class GsonBuilderFactory implements Provider<GsonBuilder> {

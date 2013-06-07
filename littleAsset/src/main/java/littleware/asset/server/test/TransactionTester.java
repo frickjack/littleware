@@ -13,22 +13,17 @@ import java.sql.Connection;
 import java.sql.Savepoint;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 
 import littleware.asset.*;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.JdbcTransaction;
-import littleware.base.*;
 import littleware.test.LittleTest;
 
 /**
  * Test littleware.asset.server.TransactionManager and supporting classes
  */
 public class TransactionTester extends LittleTest {
-
-    private static final Logger log = Logger.getLogger( TransactionTester.class.getName() );
     private final Provider<LittleTransaction> transactionProvider;
 
 
@@ -61,8 +56,8 @@ public class TransactionTester extends LittleTest {
                 assertTrue("Extra recycle should have thrown FactoryException", false);
             } catch (Exception e) {
             }
-        } catch (FactoryException e) {
-            assertTrue("Caught unexpected: " + e, false);
+        } catch (Exception e) {
+            this.handle(e);
         }
     }
 
@@ -75,15 +70,14 @@ public class TransactionTester extends LittleTest {
         try {
             trans_test.startDbUpdate();
             try {
-                Connection conn_test = trans_test.getConnection();
-                Savepoint savept_test = conn_test.setSavepoint();
+                final Connection conn_test = trans_test.getConnection();
+                final Savepoint savept_test = conn_test.setSavepoint();
                 conn_test.releaseSavepoint(savept_test);
             } finally {
                 trans_test.endDbUpdate(true);
             }
         } catch (SQLException e) {
-            log.log(Level.WARNING, "Caught unexpected SQLException", e);
-            assertTrue("Should not have cuaght: " + e, false);
+            handle(e);
         }
     }
 }

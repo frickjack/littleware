@@ -29,8 +29,8 @@ import littleware.base.UUIDFactory;
  */
 public abstract class AbstractLittleTransaction implements LittleTransaction {
     private static final Logger    log = Logger.getLogger ( AbstractLittleTransaction.class.getName () );
-    private final Map<UUID,Asset>  assetCache = new HashMap<UUID,Asset> ();
-    private final UUID             transactionId = UUIDFactory.getFactory ().create ();
+    private final Map<UUID,Asset>  assetCache = new HashMap<> ();
+    private final UUID             transactionId = UUIDFactory.getFactory ().get ();
     private int                    callCounter = 0;
     private Date                   transactionTimer = null;
 
@@ -121,7 +121,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
 
     // Little flag to set when running deferred actions for sanity check
     private boolean                    runningDeffered = false;
-    private final List<Runnable>             deferredActions = new ArrayList<Runnable> ();
+    private final List<Runnable>             deferredActions = new ArrayList<> ();
 
     private class MySavePoint {
         private final int updateLevel = callCounter;
@@ -130,7 +130,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
         public int getLevel() { return updateLevel; }
         public int getDeferSize() { return deferSize; }
     }
-    private final List<MySavePoint>       savePointStack = new ArrayList<MySavePoint>();
+    private final List<MySavePoint>       savePointStack = new ArrayList<>();
 
     @Override
     public final void deferTillTransactionEnd ( Runnable runLater ) {
@@ -218,7 +218,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
         }
     }
 
-    private final Map<String,Object> dataMap = new HashMap<String,Object>();
+    private final Map<String,Object> dataMap = new HashMap<>();
 
     @Override
     public void putData( String key, Object value ) {

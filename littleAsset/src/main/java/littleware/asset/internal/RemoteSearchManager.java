@@ -18,7 +18,7 @@ import littleware.asset.AssetType;
 
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.NoSuchThingException;
 import littleware.base.Option;
 import littleware.security.AccessDeniedException;
@@ -55,8 +55,8 @@ public interface RemoteSearchManager extends Remote {
         public Option<Asset> getAsset() { return asset; }
         
         // ----
-        private static AssetResult useCache = new AssetResult( State.USE_YOUR_CACHE, Maybe.NONE );
-        private static AssetResult noAsset = new AssetResult( State.NO_SUCH_ASSET, Maybe.NONE );
+        private static AssetResult useCache = new AssetResult( State.USE_YOUR_CACHE, Options.NONE );
+        private static AssetResult noAsset = new AssetResult( State.NO_SUCH_ASSET, Options.NONE );
 
         
         public static AssetResult useCache() {
@@ -68,7 +68,7 @@ public interface RemoteSearchManager extends Remote {
         
         
         public static AssetResult build( Asset asset ) {
-            return new AssetResult( State.ASSET_IN_RESULT, Maybe.something(asset));
+            return new AssetResult( State.ASSET_IN_RESULT, Options.some(asset));
         }
     }
 

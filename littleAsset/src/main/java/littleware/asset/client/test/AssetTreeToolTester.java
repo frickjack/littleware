@@ -33,7 +33,7 @@ import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.ClientScannerFactory;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 
 /**
@@ -87,7 +87,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             final Map<String, UUID> mapChildren = search.getAssetIdsFrom(parentNode.getId(), null);
             for (int i = 0; i < 3; ++i) {
                 final String sChild = "Child" + i;
-                final Option<UUID> maybeChildId = Maybe.something(mapChildren.get(sChild));
+                final Option<UUID> maybeChildId = Options.some(mapChildren.get(sChild));
                 final TreeNode childNode;
                 final Map<String, UUID> mapBrat;
                 if (!maybeChildId.isSet()) {

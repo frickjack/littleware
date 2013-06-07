@@ -20,6 +20,7 @@ import littleware.asset.client.test.AbstractAssetTest;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.AssertionFailedException;
+import littleware.base.Whatever;
 import littleware.security.AccountManager;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
@@ -118,7 +119,9 @@ public class DbInitializer {
             if (null == everybody) {
                 // Create a stub group for everybody group - everybody group is actualy
                 // implemented as a special class where isMember(x) == true in all cases
-                everybody = this.groupFactory.get().parent(littleHome).id(AccountManager.UUID_EVERYBODY_GROUP).name("group.littleware.everybody").aclId(LittleAcl.UUID_EVERYBODY_READ).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(AccountManager.UUID_ADMIN).comment("littleware everybody group").lastUpdate("auto-created by AwsModule domain setup").build().narrow();
+                everybody = this.groupFactory.get().parent(littleHome).id(AccountManager.UUID_EVERYBODY_GROUP).name("group.littleware.everybody").aclId(LittleAcl.UUID_EVERYBODY_READ).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(AccountManager.UUID_ADMIN).comment("littleware everybody group").lastUpdate("auto-created by AwsModule domain setup"
+                            ).build().narrow();
+                // note - everybody group is actually a singleton with hard-coded timestamp 0L
                 mgr.makeDbAssetSaver(trans).saveObject(everybody);
             }
 
@@ -126,7 +129,8 @@ public class DbInitializer {
                 final LittleAcl aclRead = aclFactory.get().id(LittleAcl.UUID_EVERYBODY_READ).aclId(LittleAcl.UUID_EVERYBODY_READ).name("acl.littleware.everybody.read").parent(littleHome).ownerId(AccountManager.UUID_ADMIN).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("littleware everybody read acl").lastUpdate("auto-created by AwsModule domain setup").build();
                 mgr.makeDbAssetSaver(trans).saveObject(aclRead);
 
-                final LittleAclEntry entry = aclEntryFactory.get().owningAcl(aclRead).principal(everybody).name("group.littleware.everybody.positive").addPermission(LittlePermission.READ).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("everybody group entry").lastUpdate("auto-created by AwsModule domain setup").build();
+                final LittleAclEntry entry = aclEntryFactory.get().owningAcl(aclRead).principal(everybody).name("group.littleware.everybody.positive").addPermission(LittlePermission.READ).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).comment("everybody group entry").lastUpdate("auto-created by AwsModule domain setup"
+                        ).build();
                 mgr.makeDbAssetSaver(trans).saveObject(entry);
             }
             if (null == mgr.makeDbAssetLoader(trans).loadObject(LittleAcl.UUID_EVERYBODY_WRITE)) {

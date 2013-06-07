@@ -61,7 +61,7 @@ public class AssetType extends DynamicEnum<AssetType> {
         }
     }
     
-    private Option<AssetType> superType = Maybe.empty();
+    private Option<AssetType> superType = Options.empty();
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -83,7 +83,7 @@ public class AssetType extends DynamicEnum<AssetType> {
 
     public AssetType(UUID typeId, String typeName, AssetType superType) {
         super(typeId, typeName, AssetType.class);
-        this.superType = Maybe.something(superType);
+        this.superType = Options.some(superType);
         updateSubtypes( this );
     }
 
@@ -150,7 +150,7 @@ public class AssetType extends DynamicEnum<AssetType> {
         }
 
         // climb this assset's inheritance tree, cache the result
-        for (Option<AssetType> maybe = Maybe.something((AssetType) this);
+        for (Option<AssetType> maybe = Options.some((AssetType) this);
                 maybe.isSet();
                 maybe = maybe.get().getSuperType()) {
             if (maybe.get().equals(atype_other)) {

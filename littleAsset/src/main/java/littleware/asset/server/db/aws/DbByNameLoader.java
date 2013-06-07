@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
@@ -73,10 +73,10 @@ public class DbByNameLoader implements DbReader<Option<Asset>, String> {
                     if ( null == id ) {
                         throw new AssertionFailedException("Unexpected query result");
                     }
-                    return Maybe.something( loader.loadObject(id) );
+                    return Options.some( loader.loadObject(id) );
                 }
             }
-            return Maybe.empty();
+            return Options.empty();
         } catch (Exception ex) {
             throw new SQLException("Failed query", ex);
         }

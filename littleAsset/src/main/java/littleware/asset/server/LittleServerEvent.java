@@ -13,7 +13,7 @@ import java.util.EventObject;
 import java.util.UUID;
 import javax.security.auth.Subject;
 import littleware.asset.Asset;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 
 /**
@@ -34,14 +34,14 @@ public class LittleServerEvent extends EventObject {
         super( source );
         this.assetSource = source;
         this.subject = Subject.getSubject( AccessController.getContext() );
-        this.maybeParent = Maybe.empty();
+        this.maybeParent = Options.empty();
     }
 
     public LittleServerEvent( Asset source, LittleServerEvent parentEvent ) {
         super( source );
         this.assetSource = source;
         this.subject = Subject.getSubject( AccessController.getContext() );
-        this.maybeParent = Maybe.something( parentEvent );
+        this.maybeParent = Options.some( parentEvent );
     }
 
 

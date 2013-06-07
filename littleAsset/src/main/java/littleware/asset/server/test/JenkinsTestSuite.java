@@ -13,8 +13,6 @@ import com.google.inject.Provider;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import junit.framework.*;
-import littleware.asset.client.test.AssetManagerTester;
-import littleware.asset.client.test.AssetSearchManagerTester;
 import littleware.asset.server.LittleContext.ContextFactory;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.asset.server.db.test.DbAssetManagerTester;

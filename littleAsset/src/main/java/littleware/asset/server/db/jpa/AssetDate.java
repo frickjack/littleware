@@ -9,12 +9,13 @@
  */
 package littleware.asset.server.db.jpa;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
 
 @Entity(name = "AssetDate")
 @Table(name = "asset_date")
-public class AssetDate {
+public class AssetDate implements Serializable {
 
     @Id
     @Column(name = "i_id")

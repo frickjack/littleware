@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.AssetType;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.base.validate.ValidationException;
@@ -101,8 +101,8 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
     public static class Builder {
 
         private UUID fromId = null;
-        private Option<AssetType> maybeType = Maybe.empty();
-        private Option<Integer> maybeState = Maybe.empty();
+        private Option<AssetType> maybeType = Options.empty();
+        private Option<Integer> maybeState = Options.empty();
         private final AmazonSimpleDB db;
         private final AwsConfig config;
 
@@ -118,12 +118,12 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
         }
 
         public Builder type(AssetType value) {
-            maybeType = Maybe.something(value);
+            maybeType = Options.some(value);
             return this;
         }
 
         public Builder state(Integer value) {
-            maybeState = Maybe.something(value);
+            maybeState = Options.some(value);
             return this;
         }
 

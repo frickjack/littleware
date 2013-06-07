@@ -46,7 +46,7 @@ import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.spi.AbstractAsset;
 import littleware.base.BaseException;
 import littleware.base.cache.Cache;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.security.Everybody;
@@ -167,7 +167,7 @@ public class SimpleSearchService implements AssetSearchManager {
         final Cache<String, Object> cache = clientCache.getCache();
         final String key = "path:" + path;
         {
-            final Option<Asset> cacheEntry = Maybe.something((Asset) cache.get(key));
+            final Option<Asset> cacheEntry = Options.some((Asset) cache.get(key));
             if (cacheEntry.isSet()) {
                 return library.syncAsset(cacheEntry.get());
             }
@@ -236,7 +236,7 @@ public class SimpleSearchService implements AssetSearchManager {
             RemoteException {
         final Cache<String, Object> cache = clientCache.getCache();
         final String key = "from:" + UUIDFactory.makeCleanString(parentId) + name;
-        Option<Asset> result = Maybe.something((Asset) cache.get(key));
+        Option<Asset> result = Options.some((Asset) cache.get(key));
         if (result.isSet()) {
             return library.syncAsset(result.get());
         }
@@ -295,11 +295,11 @@ public class SimpleSearchService implements AssetSearchManager {
             return library.syncAsset( everybody );
         }
 
-        Option<Asset> result = Maybe.something(clientCache.get(id));
+        Option<Asset> result = Options.some(clientCache.get(id));
         if (result.isSet()) {
             return library.syncAsset(result.get());
         }
-        result = Maybe.something( personalCache.get(id));
+        result = Options.some( personalCache.get(id));
         final UUID sessionId = keychain.getDefaultSessionId().get();
         final long timestamp = (result.isSet()) ? result.get().getTimestamp() : -1L;
         {

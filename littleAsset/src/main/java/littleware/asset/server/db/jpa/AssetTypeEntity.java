@@ -12,10 +12,12 @@ package littleware.asset.server.db.jpa;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import javax.persistence.*;
 import littleware.asset.AssetType;
 import littleware.base.UUIDFactory;
+import littleware.base.Whatever;
 
 /**
  * Read-only entity corresponds to AssetType representation in database
@@ -91,7 +93,7 @@ public class AssetTypeEntity implements Serializable {
         osParent = value;
     }
 
-    @OneToMany()
+    @ManyToMany()
     @JoinTable(name = "x_asset_type_tree", 
     joinColumns = {@JoinColumn(name = "s_ancestor_id")},
     inverseJoinColumns = {@JoinColumn(name = "s_descendent_id")})
@@ -99,7 +101,12 @@ public class AssetTypeEntity implements Serializable {
         return ovSubtype;
     }
 
-    public void setSubtypeList(List<AssetTypeEntity> vSubtype) {
+    public void setSubtypeList(List<AssetTypeEntity> vSubtype) { 
+        if ( null != vSubtype ) {
+            Whatever.get().check( "Setting consistent subtypes", 
+                (new HashSet<>( vSubtype )).size() == vSubtype.size() 
+                );
+        }
         ovSubtype = vSubtype;
     }
 

@@ -11,6 +11,8 @@ import com.google.inject.Binder;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
@@ -22,9 +24,7 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.nio.BlockingChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+
 
 /**
  * Optional module starts Jetty server, binds Server and /littleware/ ServletContext,
@@ -44,8 +44,8 @@ public class JettyModule implements littleware.bootstrap.AppModule {
     }
 
     @Override
-    public Class<? extends BundleActivator> getActivator() {
-        return JettyActivator.class;
+    public Option<Class<JettyActivator>> getCallback() {
+        return Options.some( JettyActivator.class );
     }
 
     @Override
@@ -65,7 +65,7 @@ public class JettyModule implements littleware.bootstrap.AppModule {
         binder.bind( ResourceHandler.class ).toInstance( resourceHandler );
     }
     
-    public static class JettyActivator implements BundleActivator {
+    public static class JettyActivator implements LifecycleCallback {
         private static final Logger log = Logger.getLogger( JettyActivator.class.getName() );
         private final Server server;
         private final ServletContextHandler servletHandler;
@@ -86,7 +86,7 @@ public class JettyModule implements littleware.bootstrap.AppModule {
         }
 
         @Override
-        public void start(BundleContext bc) throws Exception {
+        public void startUp(){
             try {
                 // Startup Jetty
                 final Connector connector = new BlockingChannelConnector();
@@ -115,9 +115,13 @@ public class JettyModule implements littleware.bootstrap.AppModule {
         }
 
         @Override
-        public void stop(BundleContext bc) throws Exception {
-            server.stop();
-            log.log(Level.INFO, "Jetty shutdown ok");
+        public void shutDown(){
+            try {
+                server.stop();
+                log.log(Level.INFO, "Jetty shutdown ok");
+            } catch (Exception ex) {
+                log.log(Level.WARNING, "Jetty shutdown error", ex);
+            }
         }
     }
     

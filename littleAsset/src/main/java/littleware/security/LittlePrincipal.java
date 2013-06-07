@@ -10,7 +10,7 @@ package littleware.security;
 
 import littleware.asset.AssetType;
 import littleware.asset.TreeNode;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 

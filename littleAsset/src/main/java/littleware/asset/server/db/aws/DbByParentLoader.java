@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
@@ -69,11 +69,11 @@ public class DbByParentLoader implements DbReader<Option<Asset>, String> {
           }
           final Asset asset = loader.loadObject(id);
           if ( null != asset ) {
-            return Maybe.something( asset );
+            return Options.some( asset );
           }
         }
       }
-      return Maybe.empty();
+      return Options.empty();
     } catch (Exception ex) {
       throw new SQLException("Failed query", ex);
     }

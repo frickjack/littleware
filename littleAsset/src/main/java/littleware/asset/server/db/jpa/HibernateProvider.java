@@ -11,11 +11,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.sql.DataSource;
-import org.hibernate.ejb.Ejb3Configuration;
+
 
 /**
  * Subtypes can specialize and rebind this frickjack to add
@@ -25,61 +24,25 @@ import org.hibernate.ejb.Ejb3Configuration;
 @Singleton
 public class HibernateProvider implements Provider<EntityManagerFactory> {
 
-    private final DataSource odsource;
-    private final String osUrl;
-    private EntityManagerFactory ofactory = null;
-    private final List<Class<?>> ovExtraEntity = new ArrayList<Class<?>>();
+    private final DataSource dataSource;
+    private final String dataSourceURL;
+    private EntityManagerFactory emFactory = null;
+
 
     @Inject
     public HibernateProvider(@Named("datasource.littleware") DataSource dsource,
             @Named("datasource.littleware") String sDatasourceUrl) {
-        odsource = dsource;
-        osUrl = sDatasourceUrl;
+        dataSource = dsource;
+        dataSourceURL = sDatasourceUrl;
     }
 
-    /**
-     * Allow subtypes to extend the set of registered entity classes
-     */
-    protected HibernateProvider(DataSource dsource,
-            String         sDatasourceUrl,
-            List<Class<?>> vExtraEntity) {
-        odsource = dsource;
-        osUrl = sDatasourceUrl;
-        ovExtraEntity.addAll(vExtraEntity);
-    }
 
     @Override
     public EntityManagerFactory get() {
-        if (null == ofactory) {
-            final Ejb3Configuration config = new org.hibernate.ejb.Ejb3Configuration(). 
-                    addAnnotatedClass(AssetEntity.class).
-                    addAnnotatedClass(AssetAttribute.class).
-                    addAnnotatedClass(AssetDate.class).
-                    addAnnotatedClass(AssetLink.class).
-                    addAnnotatedClass(TransactionEntity.class).
-                    addAnnotatedClass(AssetTypeEntity.class);
-            //config.setProperty("hibernate.show_sql", "true"); //.jdbc:derby://localhost:1527/littleware
-            final String lowerCaseUrl = osUrl.toLowerCase();
-            if (
-                    (lowerCaseUrl.indexOf("javadb") > -1)
-                    || (lowerCaseUrl.indexOf("derby") > -1)
-             ){
-                config.setProperty("hibernate.dialect",
-                        "org.hibernate.dialect.DerbyDialect");
-            } else if ( lowerCaseUrl.indexOf( "postgres" ) > -1 ) {
-                config.setProperty( "hibernate.dialect",
-                        "org.hibernate.dialect.PostgreSQLDialect" );
-            } else {
-                config.setProperty("hibernate.dialect",
-                        "org.hibernate.dialect.MySQLDialect");
-            }
-            for (Class<?> entityClass : ovExtraEntity) {
-                config.addAnnotatedClass(entityClass);
-            }
-
-            config.setDataSource(odsource);
-            ofactory = config.buildEntityManagerFactory();
+        if (null == emFactory) {
+            LittleDriver.setDataSource(dataSource);
+            emFactory = Persistence.createEntityManagerFactory( "littlewarePU" );
         }
-        return ofactory;
+        return emFactory;
     }
 }

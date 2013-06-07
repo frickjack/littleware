@@ -26,7 +26,7 @@ import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.db.AbstractLittleTransaction;
 import littleware.asset.server.db.DbAssetManager;
 import littleware.asset.server.db.DbInitializer;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.PropertiesLoader;
 import littleware.bootstrap.AppBootstrap;
@@ -45,7 +45,7 @@ public class AwsModule extends AbstractServerModule {
      * only checked at boot time - changing dbDomainOverride after
      * the application has started has no effect.
      */
-    public static Option<String> dbDomainOverride = Maybe.empty();
+    public static Option<String> dbDomainOverride = Options.empty();
     private static final Logger log = Logger.getLogger(AwsModule.class.getName());
 
     public AwsModule(AppBootstrap.AppProfile profile) {

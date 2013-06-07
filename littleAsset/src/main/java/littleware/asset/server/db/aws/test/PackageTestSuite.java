@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import junit.framework.TestSuite;
 import littleware.asset.server.db.aws.AwsModule;
 import littleware.asset.server.db.test.DbAssetManagerTester;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
@@ -44,7 +44,7 @@ public class PackageTestSuite extends TestSuite {
      */
     public static TestSuite suite() {
         try {
-            AwsModule.dbDomainOverride = Maybe.something( "littleTestDomain" );
+            AwsModule.dbDomainOverride = Options.some( "littleTestDomain" );
             final AppBootstrap boot = AppBootstrap.appProvider.get().addModuleFactory(
                     new AppModuleFactory() {
 

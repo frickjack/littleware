@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.asset.*;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAcl.Builder;
@@ -201,7 +201,7 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
         @Override
         public Option<LittleAclEntry> getEntry(LittlePrincipal principal, boolean negative) {
             final Map<? extends LittlePrincipal, LittleAclEntry> entryMap = getCacheForEntry(principal, negative);
-            return Maybe.something( (LittleAclEntry) entryMap.get(principal) );
+            return Options.some( (LittleAclEntry) entryMap.get(principal) );
         }
 
 

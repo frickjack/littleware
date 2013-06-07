@@ -8,14 +8,12 @@
 package littleware.security.auth.server;
 
 import com.google.inject.Binder;
-import com.google.inject.Inject;
 import com.google.inject.Scopes;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.bootstrap.AppBootstrap.AppProfile;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+
 
 /**
  * Littleware server-bootstrap module takes care of injecting dependencies
@@ -34,28 +32,7 @@ public class LittleModuleFactory implements ServerModuleFactory {
             binder.bind( ServerConfigFactory.class ).in( Scopes.SINGLETON );
         }
         
-        @Override
-        public Class<? extends BundleActivator> getActivator() {
-            return Activator.class;
-        }
         
-        /**
-         * Activator takes care of registering LittleLoginModule.injectTools
-         */
-        public static class Activator implements BundleActivator {
-            @Inject
-            public Activator( LittleLoginModule.Tools loginTools ) {
-                LittleLoginModule.injectTools(loginTools);
-            }
-
-            @Override
-            public void start(BundleContext bc) throws Exception {
-            }
-
-            @Override
-            public void stop(BundleContext bc) throws Exception {
-            }
-        }
     }
     
     @Override

@@ -12,8 +12,6 @@ import com.google.inject.Provider;
 import java.util.Collection;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppModuleFactory;
-import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.LittleModule;
 
 /**
  * Server-side bootstrap configuration manager

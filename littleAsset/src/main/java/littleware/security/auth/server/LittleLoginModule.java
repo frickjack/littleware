@@ -23,7 +23,7 @@ import littleware.asset.Asset;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.ServerSearchManager;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.Whatever;
 import littleware.security.LittleUser;
@@ -73,13 +73,13 @@ public class LittleLoginModule implements LoginModule {
         try {
             final Option<Asset> maybe = tools.search.getByName( ctx, userName, LittleUser.USER_TYPE );
             if ( maybe.isEmpty() ) {
-                return Maybe.empty();
+                return Options.empty();
             }
             final LittleUser user = maybe.get().narrow();
             if ( ! user.getStatus().equals( LittleUser.Status.ACTIVE ) ) {
-                return Maybe.empty();
+                return Options.empty();
             }
-            return Maybe.something( user );
+            return Options.some( user );
         } catch ( Exception ex ) {
             log.log( Level.WARNING, "Failed asset lookup", ex );
             throw new FailedLoginException( "Failed repository lookup" );

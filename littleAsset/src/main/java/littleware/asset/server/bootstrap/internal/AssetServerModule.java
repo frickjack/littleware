@@ -15,6 +15,8 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -45,7 +47,7 @@ import littleware.security.server.internal.SimpleQuotaUtil;
 import littleware.asset.server.internal.SimpleSpecializerRegistry;
 import littleware.asset.server.db.DbAssetManager;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.PropertiesGuice;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
@@ -68,8 +70,7 @@ import littleware.security.auth.internal.RemoteSessionManager;
 import littleware.security.auth.server.internal.SimpleSessionManager;
 import littleware.security.server.internal.SimpleAccountManager;
 import littleware.security.server.internal.SimpleAclManager;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+
 
 /**
  * Simple server-side bootstrap module for littleware.asset and littleware.security
@@ -104,7 +105,7 @@ public class AssetServerModule extends AbstractServerModule {
         }
     }
 
-    public static class Activator implements BundleActivator {
+    public static class Activator implements LifecycleCallback {
 
         private final int registryPort;
         private boolean localRegistry = false;
@@ -154,13 +155,13 @@ public class AssetServerModule extends AbstractServerModule {
         }
 
         @Override
-        public void start(BundleContext bc) throws Exception {
+        public void startUp() {
             try {
                 // inject local SessionManager for colocated server-client situation
                 //SessionUtil.get().injectLocalManager(sessionMgr);
-                Registry rmi_registry = null;
                 final int port = registryPort;
                 if (port > 0) {
+                    Registry rmi_registry;
                     try {
                         log.log(Level.INFO, "Looking for RMI registry on port: {0}", port);
                         rmi_registry = LocateRegistry.createRegistry(port, LittleRemoteObject.getClientSockFactory(), LittleRemoteObject.getServerSockFactory() );
@@ -171,7 +172,7 @@ public class AssetServerModule extends AbstractServerModule {
 
                         rmi_registry = LocateRegistry.getRegistry(port);
                     }
-                    maybeRegistry = Maybe.something(rmi_registry);
+                    maybeRegistry = Options.some(rmi_registry);
 
                     /**
                      * Need to wrap session manager with an invocation handler,
@@ -203,12 +204,16 @@ public class AssetServerModule extends AbstractServerModule {
         }
 
         @Override
-        public void stop(BundleContext bc) throws Exception {
+        public void shutDown(){
             if (maybeRegistry.isSet()) {
-                final Registry reg = maybeRegistry.get();
-                reg.unbind("littleware/SessionManager");
-                if (localRegistry) {
-                    UnicastRemoteObject.unexportObject(maybeRegistry.get(), true);
+                try {
+                    final Registry reg = maybeRegistry.get();
+                    reg.unbind("littleware/SessionManager");
+                    if (localRegistry) {
+                        UnicastRemoteObject.unexportObject(maybeRegistry.get(), true);
+                    }
+                } catch (  RemoteException | NotBoundException ex) {
+                    log.log(Level.WARNING, "RMI registry shutdown cleanup failed", ex);
                 }
             }
             log.log(Level.INFO, "littleware shutdown ok");
@@ -216,8 +221,8 @@ public class AssetServerModule extends AbstractServerModule {
     }
 
     @Override
-    public Class<Activator> getActivator() {
-        return Activator.class;
+    public Option<Class<Activator>> getCallback() {
+        return Options.some( Activator.class );
     }
 
 

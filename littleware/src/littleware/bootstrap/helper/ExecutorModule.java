@@ -17,21 +17,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.base.feedback.TaskFactory;
 import littleware.base.feedback.internal.SimpleTaskFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
 /**
- * Littleware module binds, starts, and shuts down ExecutorService
- * thread pool.
+ * Littleware module binds, starts, and shuts down ExecutorService thread pool.
  */
 public class ExecutorModule extends AbstractAppModule {
-    
+
+    private static final Logger log = Logger.getLogger(ExecutorModule.class.getName());
+
     public static class Factory implements AppModuleFactory {
 
         @Override
@@ -45,12 +48,11 @@ public class ExecutorModule extends AbstractAppModule {
     }
 
     /**
-     * Utility activator takes care of shutting down the
-     * executor service and the JCS cache, and bootstraps
-     * the session helper.
-     * Public for guice-no_aop access only.
+     * Utility activator takes care of shutting down the executor service and
+     * the JCS cache, and bootstraps the session helper. Public for guice-no_aop
+     * access only.
      */
-    public static class ExecActivator implements BundleActivator {
+    public static class ExecActivator implements AppModule.LifecycleCallback {
 
         private final ExecutorService executor;
         private final ScheduledExecutorService scheduledExecutor;
@@ -63,16 +65,24 @@ public class ExecutorModule extends AbstractAppModule {
         }
 
         @Override
-        public void start(BundleContext ctx) throws Exception {
+        public void startUp() {
         }
 
         @Override
-        public void stop(BundleContext ctx) throws Exception {
-            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
+        public void shutDown() {
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException ex) {
+                log.log(Level.WARNING, "Exception shutting down executor service", ex);
             }
-            if (!scheduledExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-                scheduledExecutor.shutdownNow();
+            try {
+                if (!scheduledExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    scheduledExecutor.shutdownNow();
+                }
+            } catch (InterruptedException ex) {
+                log.log(Level.WARNING, "Exception shutting down executor service", ex);
             }
 
         }
@@ -82,15 +92,15 @@ public class ExecutorModule extends AbstractAppModule {
     public void configure(Binder binder) {
         final ScheduledExecutorService schedExec = Executors.newScheduledThreadPool(2);
         final ExecutorService exec = Executors.newFixedThreadPool(10);
-        binder.bind(ExecutorService.class).toInstance( exec );
-        binder.bind(ScheduledExecutorService.class).toInstance( schedExec );
-        binder.bind( ListeningExecutorService.class ).toInstance( MoreExecutors.listeningDecorator(exec));
-        binder.bind( ListeningScheduledExecutorService.class ).toInstance( MoreExecutors.listeningDecorator(schedExec)); 
-        binder.bind( TaskFactory.class ).to( SimpleTaskFactory.class ).in( Scopes.SINGLETON );
+        binder.bind(ExecutorService.class).toInstance(exec);
+        binder.bind(ScheduledExecutorService.class).toInstance(schedExec);
+        binder.bind(ListeningExecutorService.class).toInstance(MoreExecutors.listeningDecorator(exec));
+        binder.bind(ListeningScheduledExecutorService.class).toInstance(MoreExecutors.listeningDecorator(schedExec));
+        binder.bind(TaskFactory.class).to(SimpleTaskFactory.class).in(Scopes.SINGLETON);
     }
 
     @Override
-    public Class<ExecActivator> getActivator() {
-        return ExecActivator.class;
+    public Option<Class<ExecActivator>> getCallback() {
+        return Options.some(ExecActivator.class);
     }
 }

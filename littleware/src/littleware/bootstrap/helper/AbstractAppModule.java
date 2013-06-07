@@ -8,10 +8,11 @@
 
 package littleware.bootstrap.helper;
 
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
-import org.osgi.framework.BundleActivator;
 
 public abstract class AbstractAppModule implements AppModule {
     private final AppProfile profile;
@@ -28,8 +29,8 @@ public abstract class AbstractAppModule implements AppModule {
     }
 
     @Override
-    public Class<? extends BundleActivator> getActivator() {
-        return NullActivator.class;
+    public Option<? extends Class<? extends LifecycleCallback>> getCallback() {
+        return Options.empty();
     }
 
 }

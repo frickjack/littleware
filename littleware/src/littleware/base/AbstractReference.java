@@ -100,7 +100,7 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
 
     @Override
     public boolean equals( final Object other ) {
-        if ( other instanceof Maybe ) {
+        if ( other instanceof Options ) {
             final Option<?> maybe = (Option<?>) other;
             return (isSet() == maybe.isSet()) &&
                     (isSet() ? get().equals( maybe.get() ) : true);

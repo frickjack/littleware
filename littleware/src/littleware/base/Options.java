@@ -10,7 +10,7 @@ package littleware.base;
 /**
  * A little set/not-set object. Facilitates deferred loading and other patterns.
  */
-public final class Maybe<T> {
+public final class Options<T> {
 
   /**
    * Same kind of trick as Collections.EMPTY_LIST or whatever
@@ -50,7 +50,7 @@ public final class Maybe<T> {
   /**
    * Maybe factory set if val is not null, otherwise empty
    */
-  public static <T> Option<T> something(T val) {
+  public static <T> Option<T> some(T val) {
     if (null == val) {
       return new SimpleOption<>();
     } else {

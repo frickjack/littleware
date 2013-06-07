@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.lgo.LgoCommand.LgoBuilder;
 
@@ -40,9 +40,9 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     public Option<LgoCommand.LgoBuilder> buildCommand(String s_name) {
         final Provider<LgoCommand.LgoBuilder> provider = commandMap.get(s_name);
         if ( null == provider ) {
-            return Maybe.empty();
+            return Options.empty();
         } else {
-            return Maybe.something( provider.get() );
+            return Options.some( provider.get() );
         }
     }
 
@@ -79,6 +79,6 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
 
     @Override
     public Option<Provider<LgoCommand.LgoBuilder>> getProvider(String s_name) {
-        return Maybe.something(commandMap.get( s_name ));
+        return Options.some(commandMap.get( s_name ));
     }
 }

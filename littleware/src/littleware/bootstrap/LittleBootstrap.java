@@ -9,6 +9,8 @@
 package littleware.bootstrap;
 
 import java.util.Collection;
+import littleware.base.Option;
+import littleware.bootstrap.internal.SimpleAppFactory;
 
 /**
  * Just a little interface that a bootstrap class
@@ -53,4 +55,33 @@ public interface LittleBootstrap {
         public LittleBootstrap build();
     }
 
+    /**
+     * Current runtime implementation requires that only one
+     * application bootstrap at a time.
+     * This Factory helps enforce that constraint, and provides
+     * hooks for code outside the normal injection control-flow to
+     * allocate instances of classes managed by littleware.
+     */
+    interface Factory {
+        /**
+         * Return the active app if littleware runtime has been bootstrap,
+         * otherwise return false
+         */
+        Option<LittleBootstrap> getActiveRuntime();
+        
+        /**
+         * Lookup the given class in the active littleware runtime.
+         * If littleware has not yet bootstrapped, then bootstrap the
+         * default environment.
+         * Note that this method cannot allocate session-scoped classes,
+         * since it doesn't know which session the client code is associated with.
+         */
+        <T> T lookup( Class<T> clazz );
+    }
+    
+
+    /**
+     * Handle for global Factory singleton
+     */
+    public static Factory factory = SimpleAppFactory.getSingleton();
 }

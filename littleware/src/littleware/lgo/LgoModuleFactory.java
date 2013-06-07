@@ -14,6 +14,8 @@ import com.google.inject.Scopes;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModuleFactory;
@@ -22,7 +24,7 @@ import littleware.bootstrap.SessionInjector;
 import littleware.bootstrap.SessionModule;
 import littleware.bootstrap.SessionModuleFactory;
 import littleware.bootstrap.helper.AbstractAppModule;
-import littleware.bootstrap.helper.NullActivator;
+
 
 /**
  * Combined AppModuleFactory and SessionModuleFactory for configuring
@@ -58,12 +60,11 @@ public class LgoModuleFactory implements AppModuleFactory, SessionModuleFactory 
             binder.bind(LgoHelpLoader.class).to(XmlLgoHelpLoader.class).in(Scopes.SINGLETON);
         }
 
-        @Override
-        public Class<NullActivator> getActivator() {
-            return NullActivator.class;
-        }
     }
 
+    /**
+     * Session module.  Lgo commands are injected and executed in session scope.
+     */
     public static class LgoSessionModule implements LgoServiceModule {
 
         private final Collection<Class<? extends LgoCommand.LgoBuilder>> lgoCommands;
@@ -79,8 +80,8 @@ public class LgoModuleFactory implements AppModuleFactory, SessionModuleFactory 
         }
 
         @Override
-        public Class<? extends Runnable> getSessionStarter() {
-            return SessionStarter.class;
+        public Option<? extends Class<? extends Runnable>> getSessionStarter() {
+            return Options.some( SessionStarter.class );
         }
 
         @Override

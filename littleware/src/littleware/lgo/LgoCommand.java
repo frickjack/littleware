@@ -13,11 +13,8 @@ import java.util.List;
 import littleware.base.feedback.Feedback;
 
 /**
- * Interface for plugins to the LittleGo app-launcher.
- * 
- * TODO: refactor for asynchronous invocation - various
- * run methods should return a Handle for querying and killing
- * the child thread.
+ * Interface for command objects that can be 
+ * executed via the LittleGo app-launcher or servlet.
  */
 public interface LgoCommand {
 

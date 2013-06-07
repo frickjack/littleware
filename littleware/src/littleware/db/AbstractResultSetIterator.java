@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 
 /**
@@ -12,7 +12,7 @@ import littleware.base.Option;
  */
 public abstract class AbstractResultSetIterator<T> implements java.util.Iterator<T> {
 
-    private Option<Boolean> lastNext = Maybe.empty();
+    private Option<Boolean> lastNext = Options.empty();
     private int counter = 0;
     private final static Logger log = Logger.getLogger(AbstractResultSetIterator.class.getName());
     protected final ResultSet rset;
@@ -30,7 +30,7 @@ public abstract class AbstractResultSetIterator<T> implements java.util.Iterator
     @Override
     public final T next() {
         hasNext();
-        lastNext = Maybe.empty();
+        lastNext = Options.empty();
         counter += 1;
         if (0 == counter % 10000) {
             log.log(Level.FINE, "Retrieving row: " + counter);
@@ -42,7 +42,7 @@ public abstract class AbstractResultSetIterator<T> implements java.util.Iterator
     public final boolean hasNext() {
         try {
             if (lastNext.isEmpty()) {
-                lastNext = Maybe.something(rset.next());
+                lastNext = Options.some(rset.next());
             }
             return lastNext.get();
         } catch (SQLException ex) {

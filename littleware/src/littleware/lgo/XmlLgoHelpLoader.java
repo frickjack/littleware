@@ -24,7 +24,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.Whatever;
 
@@ -90,7 +90,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
         }
                 
         if ( null == istream ) {
-            return Maybe.empty();
+            return Options.empty();
         }
         final XmlDataHandler saxHandler = new XmlDataHandler ( helpPath );
         try {
@@ -102,13 +102,13 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                     new InputSource( new InputStreamReader( istream, Whatever.UTF8 ) ),
                     saxHandler
                     );
-            return Maybe.something( saxHandler.getHelp () );
+            return Options.some( saxHandler.getHelp () );
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception ex) {
             log.log( Level.WARNING, "Failure parsing resource: " + helpPath, ex );
         }
-        return Maybe.empty();
+        return Options.empty();
     }
 
     @Override

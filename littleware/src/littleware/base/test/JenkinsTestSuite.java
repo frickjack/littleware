@@ -13,7 +13,6 @@ import com.google.inject.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.TestSuite;
-import littleware.base.UUIDFactory;
 import littleware.base.stat.test.SamplerTester;
 
 /**
@@ -34,7 +33,8 @@ public class JenkinsTestSuite extends TestSuite {
             NullFeedbackTester nullFbTester,
             SamplerTester samplerTester,
             ZipUtilTester zipTester,
-            PropertiesLoginTester loginTester
+            PropertiesLoginTester loginTester,
+            UUIDFactoryTester uuidTester
             ) {
         super( PackageTestSuite.class.getName() );
 
@@ -58,7 +58,7 @@ public class JenkinsTestSuite extends TestSuite {
             this.addTest( provideCacheTester.get().putName("testSizeLimit") );
         }
         if (runTests) {
-            this.addTest(new UUIDFactoryTester("testFactory", UUIDFactory.getFactory()));
+            this.addTest(uuidTester);
             this.addTest(new DynamicEnumTester("testEnum"));
             this.addTest(new XmlSpecialTester("testEncodeDecode"));
             this.addTest(samplerTester);

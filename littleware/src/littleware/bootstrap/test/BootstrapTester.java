@@ -11,6 +11,8 @@ import com.google.inject.Binder;
 import com.google.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.SessionBootstrap;
@@ -19,8 +21,6 @@ import littleware.bootstrap.SessionModuleFactory;
 import littleware.test.LittleTest;
 
 public class BootstrapTester extends LittleTest {
-
-    private static final Logger log = Logger.getLogger(BootstrapTester.class.getName());
     private final LittleBootstrap boot;
 
     @Inject
@@ -37,10 +37,10 @@ public class BootstrapTester extends LittleTest {
         try {
             assertTrue("Found an app module",
                     !boot.getModuleSet().isEmpty());
-        } catch (Exception ex) {
-            log.log(Level.WARNING, "Test failed", ex);
-            fail("Caught exception: " + ex);
-        }
+            assertTrue( "Boootstrap factory initialized",
+                    LittleBootstrap.factory.getActiveRuntime().get() == boot
+                    );
+        } catch (Exception ex) { handle(ex); }
     }
 
     private SessionBootstrap buildSession(final String label) {
@@ -55,8 +55,8 @@ public class BootstrapTester extends LittleTest {
                 return new SessionModule() {
 
                     @Override
-                    public Class<? extends Runnable> getSessionStarter() {
-                        return SessionModule.NullStarter.class;
+                    public Option<? extends Class<Runnable>> getSessionStarter() {
+                        return Options.NONE;
                     }
 
                     @Override
@@ -78,10 +78,6 @@ public class BootstrapTester extends LittleTest {
             assertTrue("Got expected session 1 label: " + label1, "1".equals(label1));
             final String label2 = buildSession("2").startSession(String.class);
             assertTrue("Got expected session 2 label: " + label2, "2".equals(label2));
-        } catch (Exception ex) {
-            log.log(Level.WARNING, "Test failed", ex);
-            fail("Caught exception: " + ex);
-        }
-
+        } catch (Exception ex) { handle(ex); }
     }
 }

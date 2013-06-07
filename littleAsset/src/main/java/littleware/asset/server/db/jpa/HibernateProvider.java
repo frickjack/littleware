@@ -16,11 +16,6 @@ import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
 
-/**
- * Subtypes can specialize and rebind this frickjack to add
- * additional entity types
- * for testing.
- */
 @Singleton
 public class HibernateProvider implements Provider<EntityManagerFactory> {
 
@@ -40,7 +35,12 @@ public class HibernateProvider implements Provider<EntityManagerFactory> {
     @Override
     public EntityManagerFactory get() {
         if (null == emFactory) {
-            LittleDriver.setDataSource(dataSource);
+            LittleDriver.setDataSource( dataSource );
+            LittleContext.setDataSource( dataSource );
+            if ( null == System.getProperty(  "java.naming.factory.initial" ) ) {
+                System.setProperty( "java.naming.factory.initial", LittleContext.Factory.class.getName() );
+            }
+            
             emFactory = Persistence.createEntityManagerFactory( "littlewarePU" );
         }
         return emFactory;

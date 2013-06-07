@@ -9,11 +9,12 @@
  */
 package littleware.asset.server.db.jpa;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 @Entity(name = "AssetAttribute")
 @Table(name = "asset_attr")
-public class AssetAttribute {
+public class AssetAttribute implements Serializable {
 
     @Id
     @Column(name = "i_id")
@@ -21,7 +22,7 @@ public class AssetAttribute {
     private long id;
 
     @ManyToOne
-    @JoinColumn( name="s_asset_id" )
+    @JoinColumn( name="s_asset_id", nullable=false )
     private AssetEntity asset;
 
     @Column( name="s_key", length=20)

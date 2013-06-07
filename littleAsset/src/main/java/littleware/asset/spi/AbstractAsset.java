@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.cache.AbstractCacheableObject;
 import littleware.base.validate.ValidationException;
@@ -232,7 +232,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
     }
 
     public Option<UUID> getLink(String key) {
-        return Maybe.something(linkMap.get(key));
+        return Options.some(linkMap.get(key));
     }
 
     public Map<String, Date> getDateMap() {
@@ -240,7 +240,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
     }
 
     public Option<Date> getDate(String key) {
-        return Maybe.something(dateMap.get(key));
+        return Options.some(dateMap.get(key));
     }
 
     public Map<String, String> getAttributeMap() {
@@ -248,7 +248,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
     }
 
     public Option<String> getAttribute(String key) {
-        return Maybe.something(attributeMap.get(key));
+        return Options.some(attributeMap.get(key));
     }
 
     @Override

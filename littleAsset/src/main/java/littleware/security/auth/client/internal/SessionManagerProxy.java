@@ -22,7 +22,7 @@ import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
@@ -84,7 +84,7 @@ public class SessionManagerProxy implements SessionManager {
         return remote.getServerVersion();
     }
 
-    private static final Option<Credentials> emptyCreds = Maybe.empty();
+    private static final Option<Credentials> emptyCreds = Options.empty();
 
     @Override
     public Option<Credentials> getCredentials() {
@@ -95,7 +95,7 @@ public class SessionManagerProxy implements SessionManager {
         try {
             final LittleSession session = search.getAsset( key.get() ).get().narrow();
             final LittleUser    user = search.getAsset( session.getOwnerId() ).get().narrow();
-            return Maybe.something( (Credentials) new Creds( session, user ) );
+            return Options.some( (Credentials) new Creds( session, user ) );
         } catch ( RuntimeException ex ) {
             throw ex;
         } catch ( Exception ex ) {

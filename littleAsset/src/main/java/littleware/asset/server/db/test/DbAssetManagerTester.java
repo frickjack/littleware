@@ -10,11 +10,9 @@ package littleware.asset.server.db.test;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.asset.*;
-import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.client.test.AbstractAssetTest;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.db.*;
@@ -28,7 +26,6 @@ import littleware.test.LittleTest;
  */
 public class DbAssetManagerTester extends LittleTest {
 
-    private static final Logger log = Logger.getLogger(DbAssetManagerTester.class.getName());
     private static final UUID testHomeId = AbstractAssetTest.getTestHomeId();
     private static final UUID testCreateId = UUIDFactory.parseUUID("0443fe54-53c6-4d80-ba88-d09c7d96d809");
     private static final AssetType  testSuperType;
@@ -43,6 +40,7 @@ public class DbAssetManagerTester extends LittleTest {
     private final DbAssetManager dbMgr;
     private final Provider<GenericAsset.GenericBuilder> nodeProvider;
     private final LittleTransaction trans;
+    private final Provider<UUID> uuidFactory;
 
     /**
      * Constructor stashes data to run tests against
@@ -50,12 +48,14 @@ public class DbAssetManagerTester extends LittleTest {
     @Inject
     public DbAssetManagerTester(DbAssetManager mgrDb,
             Provider<GenericAsset.GenericBuilder> nodeProvider,
-            LittleTransaction trans
+            LittleTransaction trans,
+            Provider<UUID> uuidFactory
             ) {
         setName("testLoad");
         dbMgr = mgrDb;
         this.nodeProvider = nodeProvider;
         this.trans = trans;
+        this.uuidFactory = uuidFactory;
     }
 
     /**
@@ -70,7 +70,7 @@ public class DbAssetManagerTester extends LittleTest {
                     testHome.getAssetType().equals(LittleHome.HOME_TYPE));
             assertTrue("Asset has right id", testHome.getId().equals(testHomeId));
             // Verify that looking up a non-existent thing does not throw an exceptioon
-            final UUID bogusId = UUIDFactory.getFactory().create();
+            final UUID bogusId = uuidFactory.get();
             assertTrue("Got null result for nonexistent UUID", null == reader.loadObject(bogusId) );
         } catch (Exception e) {
             log.log(Level.INFO, "Caught unexpected", e);
@@ -120,7 +120,9 @@ public class DbAssetManagerTester extends LittleTest {
             assertTrue( "attr1 preserved on load", "bla".equals( testLoad.getAttribute( "attr1" ).getOr( "Ugh!") ) );
             assertTrue( "comment preserved on load", testLoad.getComment().equals( testSave.getComment() ) );
             assertTrue( "data preserved on load", testLoad.getData().equals( testSave.getData() ) );
-            final GenericAsset resave = testLoad.copy().narrow( GenericAsset.GenericBuilder.class ).removeAttribute("attr1").build();
+            
+            final GenericAsset resave = testLoad.copy().narrow( GenericAsset.GenericBuilder.class 
+                    ).removeAttribute("attr1").build();
             assertTrue( "Timestamp preserved on copy: " + resave.getTimestamp(), resave.getTimestamp() >= trans.getTimestamp() );
             assertTrue( "Ids are consistent", resave.getId().equals( testSave.getId() ) );
             assertTrue( "resave has no attributes", resave.getAttributeMap().isEmpty() );
@@ -128,7 +130,7 @@ public class DbAssetManagerTester extends LittleTest {
             assertTrue( "attr1 removed on reload", dbMgr.makeDbAssetLoader( trans ).loadObject( testSave.getId()).narrow( GenericAsset.class ).getAttribute("attr1" ).isEmpty() );
             
             // Test from-loader
-            final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader( trans, testHomeId, Maybe.something((AssetType) TreeNode.TREE_NODE_TYPE ), Maybe.NONE).loadObject("");
+            final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader( trans, testHomeId, Options.some((AssetType) TreeNode.TREE_NODE_TYPE ), Options.NONE).loadObject("");
             assertTrue("Able to load children using a parent asset type", !mapChildren.isEmpty());
             
             // Test transaction nonsense
@@ -139,9 +141,8 @@ public class DbAssetManagerTester extends LittleTest {
             // Delete the test asset
             dbMgr.makeDbAssetDeleter( trans ).saveObject(testLoad);
             
-        } catch (Exception e) {
-            log.log(Level.INFO, "Caught unexpected", e);
-            fail("Caught unexpected: " + e);
+        } catch (Exception ex ) {
+            handle(ex);
             bRollback = true;
         } finally {
             try {
@@ -158,9 +159,7 @@ public class DbAssetManagerTester extends LittleTest {
         trans.startDbAccess();
         try {
             dbMgr.makeTypeChecker(trans).saveObject(testSubType);
-        } catch ( Exception ex ) {
-            log.log( Level.WARNING, "Failed test", ex );
-            fail( "Caught exception: "  + ex );
+        } catch ( Exception ex ) { handle(ex);
         } finally {
             trans.endDbAccess();
         }
@@ -175,9 +174,7 @@ public class DbAssetManagerTester extends LittleTest {
             assertTrue( "Found some home ids",
                     ! dbMgr.makeDbHomeIdLoader(trans).loadObject("").isEmpty()
                     );
-        } catch ( Exception ex ) {
-            log.log( Level.WARNING, "Failed test", ex );
-            fail( "Caught exception: "  + ex );
+        } catch ( Exception ex ) { handle(ex);
         } finally {
             trans.endDbAccess();
         }
@@ -192,9 +189,7 @@ public class DbAssetManagerTester extends LittleTest {
             assertTrue( "Found the test home",
                     ! dbMgr.makeDbAssetsByNameLoader(trans, AbstractAssetTest.getTestHome(), LittleHome.HOME_TYPE ).loadObject("").isEmpty()
                     );
-        } catch ( Exception ex ) {
-            log.log( Level.WARNING, "Failed test", ex );
-            fail( "Caught exception: "  + ex );
+        } catch ( Exception ex ) { handle(ex);
         } finally {
             trans.endDbAccess();
         }        

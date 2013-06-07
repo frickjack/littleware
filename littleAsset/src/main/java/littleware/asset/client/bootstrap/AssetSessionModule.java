@@ -32,6 +32,8 @@ import littleware.asset.client.internal.SimpleServiceBus;
 import littleware.asset.client.spi.ClientCache;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.base.AssertionFailedException;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.SessionModule;
 import littleware.bootstrap.SessionModuleFactory;
@@ -82,6 +84,11 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
         }
     }
 
+    @Override
+    public Option<Class<Runnable>> getSessionStarter() {
+        return Options.empty();
+    }
+
     /*
     @Provides
     @Singleton
@@ -122,10 +129,6 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
         binder.bind(Configuration.class).toProvider(ConfigProvider.class).in(Scopes.SINGLETON);
     }
 
-    @Override
-    public Class<? extends Runnable> getSessionStarter() {
-        return SessionModule.NullStarter.class;
-    }
     private static AssetSessionModule _singleton = new AssetSessionModule();
 
     public static AssetSessionModule get() {

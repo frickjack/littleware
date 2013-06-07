@@ -9,6 +9,7 @@ package littleware.asset.server.internal;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
@@ -53,7 +54,7 @@ public class SimpleAssetManager implements ServerAssetManager {
     private static final Logger log = Logger.getLogger(SimpleAssetManager.class.getName());
     private final DbAssetManager dbMgr;
     private final ServerSearchManager search;
-    private final Factory<UUID> uuidFactory = UUIDFactory.getFactory();
+    private final Provider<UUID> uuidFactory;
     private final QuotaUtil quotaUtil;
     private final AssetSpecializerRegistry specializerReg;
 
@@ -65,11 +66,13 @@ public class SimpleAssetManager implements ServerAssetManager {
             ServerSearchManager search,
             DbAssetManager dbMgr,
             QuotaUtil quotaUtil,
-            AssetSpecializerRegistry specializerReg) {
+            AssetSpecializerRegistry specializerReg,
+            Provider<UUID> uuidFactory ) {
         this.search = search;
         this.dbMgr = dbMgr;
         this.quotaUtil = quotaUtil;
         this.specializerReg = specializerReg;
+        this.uuidFactory = uuidFactory;
     }
     
 
@@ -158,11 +161,11 @@ public class SimpleAssetManager implements ServerAssetManager {
         // Don't save the same asset more than once in this timestamp
         final boolean bCallerIsAdmin = ctx.isAdmin();
         final boolean cycleSave;  // is this a save via a callback ?  - avoid infinite loops
-        final Map<UUID,Asset>  resultBuilder = new HashMap<UUID,Asset>();
+        final Map<UUID,Asset>  resultBuilder = new HashMap<>();
         
         try {
             if (null == asset.getId()) {
-                builder.setId(uuidFactory.create());
+                builder.setId(uuidFactory.get());
                 if (asset.getAssetType().equals(LittleHome.HOME_TYPE)) {
                     // HOME asset type should reference itself
                     builder.setHomeId(asset.getId());

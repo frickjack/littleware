@@ -17,8 +17,8 @@ import littleware.asset.server.AssetSpecializer;
 import littleware.asset.server.LittleServerListener;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.helper.AbstractAppModule;
-import littleware.bootstrap.helper.NullActivator;
-import org.osgi.framework.BundleActivator;
+
+
 
 public abstract class AbstractServerModule extends AbstractAppModule implements ServerModule {
     
@@ -53,9 +53,5 @@ public abstract class AbstractServerModule extends AbstractAppModule implements 
         return serverListeners;
     }
 
-    @Override
-    public Class<? extends BundleActivator> getActivator() {
-        return NullActivator.class;
-    }
 
 }

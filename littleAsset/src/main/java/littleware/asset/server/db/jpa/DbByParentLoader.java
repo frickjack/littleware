@@ -21,7 +21,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
@@ -61,9 +61,9 @@ class DbByParentLoader implements DbReader<Option<Asset>, String> {
             for (AssetEntity ent : info) {
                 final AssetType assetType = AssetType.getMember(UUIDFactory.parseUUID(ent.getTypeId()));
                 log.log( Level.FINE, "Building asset from entity with type: {0}", assetType);
-                return Maybe.something(ent.buildAsset(assetRegistry.getService(assetType).get()));
+                return Options.some(ent.buildAsset(assetRegistry.getService(assetType).get()));
             }
-            return Maybe.empty();
+            return Options.empty();
         } catch (BaseException ex) {
             throw new SQLException("Failed to resolve entity to asset", ex);
         }

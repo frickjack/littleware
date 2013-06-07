@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import littleware.asset.Asset;
 import littleware.base.UUIDFactory;
 import littleware.db.DbWriter;
+import littleware.security.AccountManager;
 
 /**
  * Simple asset saver.  Does not attempt to maintain history table.
@@ -29,8 +30,11 @@ public class DbAssetSaver implements DbWriter<Asset> {
 
     @Override
     public void saveObject(Asset asset) throws SQLException {
-        if ( asset.getTimestamp() != trans.getTimestamp() ) {
-            throw new IllegalStateException( "Transaction not established" );
+        if ( (asset.getTimestamp() != trans.getTimestamp()) &&
+                // include back-door for initial-save of the "everybody" group
+                (! asset.getId().equals( AccountManager.UUID_EVERYBODY_GROUP))
+                ) {
+            throw new IllegalStateException( "Transaction not established: " + asset.getTimestamp() + " != " + trans.getTimestamp() );
         }
         final EntityManager entMgr = trans.getEntityManager();
         AssetEntity entity = entMgr.find( AssetEntity.class,
@@ -40,7 +44,9 @@ public class DbAssetSaver implements DbWriter<Asset> {
             entity = AssetEntity.buildEntity(asset);
             entMgr.merge( entity );
         } else {
-            entity.filter( asset );
+            for( Object old : entity.filter( asset ) ) {
+                entMgr.remove(old);
+            }
         }
     }
 

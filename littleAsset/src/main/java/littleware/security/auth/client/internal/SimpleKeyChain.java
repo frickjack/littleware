@@ -15,7 +15,7 @@ import com.google.inject.name.Named;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
 import java.util.UUID;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.event.LittleListener;
 import littleware.base.event.helper.SimpleLittleTool;
@@ -48,7 +48,7 @@ public class SimpleKeyChain implements KeyChain {
         return defaultHost;
     }
 
-    final Option<UUID> empty = Maybe.empty();
+    final Option<UUID> empty = Options.empty();
 
     
     public Option<UUID> getHostSessionId(String host) {
@@ -60,7 +60,7 @@ public class SimpleKeyChain implements KeyChain {
         if ( null == id ) {
             return empty;
         }
-        return Maybe.something( id );
+        return Options.some( id );
     }
 
     

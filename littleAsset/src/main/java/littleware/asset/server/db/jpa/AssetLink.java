@@ -9,11 +9,12 @@
  */
 package littleware.asset.server.db.jpa;
 
+import java.io.Serializable;
 import javax.persistence.*;
 
 @Entity(name = "AssetLink")
 @Table(name = "asset_link")
-public class AssetLink {
+public class AssetLink implements Serializable {
 
     @Id
     @Column(name = "i_id")

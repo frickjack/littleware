@@ -78,8 +78,15 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
             }
             oentMgr.getTransaction().begin();
             final TransactionEntity trans = oentMgr.find(TransactionEntity.class, new Integer(1));
-            transactionCounter = trans.getTimestamp() + 1;
-            trans.setTimestamp(transactionCounter);
+            if ( null != trans ) {
+                transactionCounter = trans.getTimestamp() + 1;
+                trans.setTimestamp(transactionCounter);
+            } else { // database is empty - need to intialize counter
+                transactionCounter = 100;
+                final TransactionEntity counter = new TransactionEntity();
+                counter.setTimestamp(transactionCounter);
+                oentMgr.merge(counter);
+            }
         }
         super.startDbUpdate();
     }

@@ -29,7 +29,7 @@ import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.server.LittleContext;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.UUIDFactory;
 import littleware.bootstrap.SessionInjector;
 import littleware.security.AccessDeniedException;
@@ -81,7 +81,7 @@ public class AssetSearchServlet extends HttpServlet {
     @Override
     public void init() {
         final ServletConfig config = getServletConfig();
-        uriPrefix = Maybe.something(config.getInitParameter("uriPrefix")).getOr(uriPrefix);
+        uriPrefix = Options.some(config.getInitParameter("uriPrefix")).getOr(uriPrefix);
         // TODO - work out bootstrap/injection mechanism
         if (null == tools) {
             tools = ((SessionInjector) config.getServletContext().getAttribute("injector")).getInstance(Tools.class);

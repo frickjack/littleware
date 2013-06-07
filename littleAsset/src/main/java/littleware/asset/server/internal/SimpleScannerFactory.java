@@ -18,14 +18,14 @@ import littleware.asset.internal.AbstractTemplateScanner;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.ServerScannerFactory;
 import littleware.asset.server.ServerSearchManager;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 
 @Singleton
 public class SimpleScannerFactory implements ServerScannerFactory {
 
 
-    private static final Option<TreeNode> emptyNode = Maybe.empty();
+    private static final Option<TreeNode> emptyNode = Options.empty();
     private final ServerSearchManager search;
 
     @Inject
@@ -54,7 +54,7 @@ public class SimpleScannerFactory implements ServerScannerFactory {
             try {
                 final Option<Asset> maybe = search.getAssetFrom( ctx, parentId, name );
                 if ( maybe.isSet() ) {
-                    return Maybe.something( maybe.get().narrow( TreeNode.class ) );
+                    return Options.some( maybe.get().narrow( TreeNode.class ) );
                 } else {
                     return emptyNode;
                 }

@@ -243,8 +243,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
 
             // Create the session asset as the admin user - session has null from-id
             return setupSession(adminCtx, sessionBuilder.build(), sessionComment);
-        } catch (FactoryException e) {
-            throw new AssertionFailedException("Caught: " + e, e);
         } catch (NoSuchThingException e) {
             throw new AssertionFailedException("Caught: " + e, e);
         } finally {

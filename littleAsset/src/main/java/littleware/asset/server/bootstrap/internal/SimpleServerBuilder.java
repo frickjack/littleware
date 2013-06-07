@@ -36,8 +36,8 @@ import littleware.bootstrap.helper.SimpleSessionBuilder;
 public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
     private static final Logger log = Logger.getLogger( SimpleServerBuilder.class.getName() );
     
-    private final List<ServerModuleFactory>  serverFactoryList = new ArrayList<ServerModuleFactory>();
-    private final List<AppModuleFactory>  appFactoryList = new ArrayList<AppModuleFactory>();
+    private final List<ServerModuleFactory>  serverFactoryList = new ArrayList<>();
+    private final List<AppModuleFactory>  appFactoryList = new ArrayList<>();
 
     private AppProfile profile = AppProfile.CliApp;
 
@@ -137,7 +137,7 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
                 }
                 );
             
-            appInjector = super.osgiBootstrap( Injector.class, builder.build() );            
+            appInjector = super.bootstrapCore( builder.build() );            
             return appInjector;
         }
 
@@ -147,10 +147,6 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
             return new SimpleSessionBuilder( profile, bootstrapApp() );
         }
 
-        @Override
-        public void bootstrap() {
-            bootstrap( Injector.class );
-        }
 
         @Override
         public <T> T bootstrap(Class<T> bootClass) {

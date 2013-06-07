@@ -24,7 +24,7 @@ import littleware.asset.TreeNode;
 import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.gson.LittleGsonResolver;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
@@ -45,7 +45,7 @@ public class GsonTester extends LittleTest {
 
         @Override
         public Option<Asset> getAsset(UUID id) throws BaseException, GeneralSecurityException, RemoteException {
-            return Maybe.something(testAssets.get(id));
+            return Options.some(testAssets.get(id));
         }
 
         @Override

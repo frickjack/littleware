@@ -10,7 +10,7 @@ package littleware.asset;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 
@@ -61,7 +61,7 @@ public interface GenericAsset extends TreeNode {
     public Map<String, UUID> getLinkMap();
 
     /**
-     * Shortcut for Maybe.emtpyIfNull( getLinks().get( name ) )
+     * Shortcut for Options.emtpyIfNull( getLinks().get( name ) )
      */
     public Option<UUID> getLink(String key);
 
@@ -71,7 +71,7 @@ public interface GenericAsset extends TreeNode {
     public Map<String, Date> getDateMap();
 
     /**
-     * Shortcut for Maybe.emtpyIfNull( getDates().get( name ) )
+     * Shortcut for Options.emtpyIfNull( getDates().get( name ) )
      */
     public Option<Date> getDate(String key);
 
@@ -81,7 +81,7 @@ public interface GenericAsset extends TreeNode {
     public Map<String, String> getAttributeMap();
 
     /**
-     * Shortcut for Maybe.something( getUserAttributes().get( name ) )
+     * Shortcut for Options.some( getUserAttributes().get( name ) )
      */
     public Option<String> getAttribute(String key);
     

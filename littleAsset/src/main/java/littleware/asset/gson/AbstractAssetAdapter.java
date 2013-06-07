@@ -27,7 +27,7 @@ import littleware.asset.AssetType;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.UUIDFactory;
 
 /**
@@ -148,15 +148,15 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         final JsonObject empty = new JsonObject();
         
         for (Map.Entry<String, JsonElement> entry : 
-                Maybe.something( json.getAsJsonObject("attrMap") ).getOr( empty ).entrySet()) {
+                Options.some( json.getAsJsonObject("attrMap") ).getOr( empty ).entrySet()) {
             builder.putAttribute(entry.getKey(), entry.getValue().getAsString());
         }
         for (Map.Entry<String, JsonElement> entry : 
-                Maybe.something( json.getAsJsonObject("linkMap") ).getOr( empty ).entrySet()) {
+                Options.some( json.getAsJsonObject("linkMap") ).getOr( empty ).entrySet()) {
             builder.putLink(entry.getKey(), UUIDFactory.parseUUID( entry.getValue().getAsString()) );
         }
         for( Map.Entry<String, JsonElement> entry : 
-                Maybe.something( json.getAsJsonObject("dateMap") ).getOr( empty ).entrySet() ) {
+                Options.some( json.getAsJsonObject("dateMap") ).getOr( empty ).entrySet() ) {
             try {
                 builder.putDate( entry.getKey(), getDateFormat().parse( entry.getValue().getAsString() ) );
             } catch ( Exception ex ) {

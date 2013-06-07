@@ -8,10 +8,12 @@
 
 package littleware.asset.server.db.jpa;
 
+import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -58,6 +60,7 @@ public class AssetEntity implements Serializable {
     @OneToMany(targetEntity=AssetAttribute.class,
             fetch=FetchType.EAGER,
             cascade=CascadeType.ALL,
+            orphanRemoval=true,
             mappedBy="asset"
             )
     public Set<AssetAttribute> getAttributeSet() {
@@ -73,6 +76,7 @@ public class AssetEntity implements Serializable {
     @OneToMany(targetEntity=AssetLink.class,
             fetch=FetchType.EAGER,
             cascade=CascadeType.ALL,
+            orphanRemoval=true,
             mappedBy="asset")
     public Set<AssetLink> getLinkSet() {
         return linkSet;
@@ -86,6 +90,7 @@ public class AssetEntity implements Serializable {
     @OneToMany(targetEntity=AssetDate.class,
             fetch=FetchType.EAGER,
             cascade=CascadeType.ALL,
+            orphanRemoval=true,
             mappedBy="asset")
     public Set<AssetDate> getDateSet() {
         return dateSet;
@@ -213,7 +218,7 @@ public class AssetEntity implements Serializable {
         osLastChange = sLastChange;
     }
 
-    @Column(name = "s_data", length = 128)
+    @Column(name = "s_data", length = 1024)
     public String getData() {
         return osData;
     }
@@ -341,9 +346,12 @@ public class AssetEntity implements Serializable {
      * Pull property values from the given asset
      * 
      * @param asset to filter
+     * @return list of child entities (attributes, etc.) to remove from the database -
+     *       see http://stackoverflow.com/questions/2011519/jpa-onetomany-not-deleting-child
      * @throws IllegalArgumentException if asset.getId != this.getId
      */
-    public void filter( final Asset assetIn ) {
+    public List<Object> filter( final Asset assetIn ) {
+        final ImmutableList.Builder<Object> builder = ImmutableList.builder();
         final AbstractAsset asset = (AbstractAsset) assetIn;
         
         this.setTypeId(UUIDFactory.makeCleanString(asset.getAssetType().getObjectId()));
@@ -372,7 +380,7 @@ public class AssetEntity implements Serializable {
             }
             final Set<AssetAttribute> clean = new HashSet<AssetAttribute>();
             for ( final Map.Entry<String,String> scan : asset.getAttributeMap().entrySet() ) {
-                final AssetAttribute old = oldMap.get(scan.getKey() );
+                final AssetAttribute old = oldMap.remove(scan.getKey() );
                 if ( null == old ) {
                     clean.add( AssetAttribute.build( this, scan.getKey(), scan.getValue() ));
                 } else {
@@ -380,6 +388,7 @@ public class AssetEntity implements Serializable {
                     clean.add( old );
                 }
             }
+            builder.addAll( oldMap.values());
             this.setAttributeSet( clean );
         }
         {
@@ -390,7 +399,7 @@ public class AssetEntity implements Serializable {
 
             final Set<AssetLink> clean = new HashSet<AssetLink>();
             for ( final Map.Entry<String,UUID> scan : asset.getLinkMap().entrySet() ) {
-                final AssetLink old = oldMap.get( scan.getKey() );
+                final AssetLink old = oldMap.remove( scan.getKey() );
                 if ( null == old ) {
                     clean.add( AssetLink.build( this, scan.getKey(), UUIDFactory.makeCleanString(scan.getValue() )));
                 } else {
@@ -398,6 +407,7 @@ public class AssetEntity implements Serializable {
                     clean.add( old );
                 }
             }
+            builder.addAll( oldMap.values() );
             this.setLinkSet(clean);
         }
         {
@@ -408,7 +418,7 @@ public class AssetEntity implements Serializable {
 
             final Set<AssetDate> clean = new HashSet<AssetDate>();
             for ( final Map.Entry<String,Date> scan : asset.getDateMap().entrySet() ) {
-                final AssetDate old = oldMap.get( scan.getKey () );
+                final AssetDate old = oldMap.remove( scan.getKey () );
                 if ( null == old ) {
                     clean.add( AssetDate.build( this, scan.getKey(), scan.getValue() ) );
                 } else {
@@ -416,9 +426,10 @@ public class AssetEntity implements Serializable {
                     clean.add( old );
                 }
             }
+            builder.addAll( oldMap.values() );
             this.setDateSet( clean );
         }
-
+        return builder.build();
     }
 
     /**

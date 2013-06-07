@@ -24,7 +24,7 @@ import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.ServerSearchManager;
 import littleware.base.BaseException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.security.AccountManager;
 import littleware.security.LittleAcl;
@@ -172,7 +172,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
 
         @Override
         public Option<Asset> checkCache(UUID id) {
-            return Maybe.something(lookupCache.get(id));
+            return Options.some(lookupCache.get(id));
         }
 
         @Override
@@ -187,7 +187,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
 
         @Override
         public Option<Asset> checkIfSaved(UUID id) {
-            return Maybe.something(savedCache.get(id));
+            return Options.some(savedCache.get(id));
         }
 
         @Override

@@ -8,6 +8,7 @@
 
 package littleware.asset.spi;
 
+import com.google.inject.Provider;
 import littleware.base.validate.ValidationException;
 import littleware.base.validate.AbstractValidator;
 import java.beans.PropertyChangeSupport;
@@ -32,11 +33,11 @@ import littleware.base.*;
  */
 public abstract class AbstractAssetBuilder<B extends AssetBuilder> extends AbstractValidator {
 
-    private static final Factory<UUID> uuidFactory = UUIDFactory.getFactory();
+    private static final Provider<UUID> uuidFactory = UUIDFactory.getFactory();
     private static final Logger log = Logger.getLogger(AbstractAssetBuilder.class.getName());
     /** Limit on the size of the data block */
     public static final int DATA_LIMIT = 1024;
-    private UUID id = uuidFactory.create();
+    private UUID id = uuidFactory.get();
     private UUID creatorId = null;
     private UUID lastUpdater = null;
     private UUID aclId = null;
@@ -58,11 +59,11 @@ public abstract class AbstractAssetBuilder<B extends AssetBuilder> extends Abstr
     private PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
     private long timestamp = -1L;
     private final AssetBuilderValidator validatorBuilder;
-    private final Map<String, UUID> linkMap = new HashMap<String, UUID>();
+    private final Map<String, UUID> linkMap = new HashMap<>();
     private final Map<String, UUID> roLinkMap = Collections.unmodifiableMap(linkMap);
-    private final Map<String, String> attributeMap = new HashMap<String, String>();
+    private final Map<String, String> attributeMap = new HashMap<>();
     private final Map<String, String> roAttributeMap = Collections.unmodifiableMap(attributeMap);
-    private final Map<String, Date> dateMap = new HashMap<String, Date>();
+    private final Map<String, Date> dateMap = new HashMap<>();
     private final Map<String, Date> roDateMap = Collections.unmodifiableMap(dateMap);
 
     /** 

@@ -59,9 +59,7 @@ public abstract class AbstractGuice extends AbstractServerModule {
     }
 
     /**
-     * Handler for initializing a new AWS SimpleDB domain for littleware use.
-     * Domain is initialized lazily at the first attempt to instantiate an
-     * AwsDbAssetManager.
+     * Handler for initializing a JPA environment for littleware use.
      */
     public static class SetupHandler implements Runnable, Provider<DbAssetManager> {
 

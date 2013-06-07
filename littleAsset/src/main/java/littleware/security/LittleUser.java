@@ -12,7 +12,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
 

@@ -18,6 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.apps.swingbase.controller.SwingBaseTool;
 import littleware.apps.swingbase.model.BaseData;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.base.validate.ValidationException;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.FeedbackBundle;
@@ -26,8 +28,6 @@ import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.helper.AbstractAppModule;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
 /**
  * Setup basic bindings for Feedback and whatever for swing.base framework.
@@ -99,7 +99,7 @@ public class SwingBaseModule extends AbstractAppModule {
      * At start-time - just load the BaseData properties
      * from storage.
      */
-    public static class Activator implements BundleActivator {
+    public static class Activator implements AppModule.LifecycleCallback {
 
         private final BaseData data;
         private final SwingBaseTool tool;
@@ -111,7 +111,7 @@ public class SwingBaseModule extends AbstractAppModule {
         }
 
         @Override
-        public void start(BundleContext bc) {
+        public void startUp() {
             try {
                 tool.loadAndApplySavedProps(data);
             } catch (Exception ex) {
@@ -120,7 +120,7 @@ public class SwingBaseModule extends AbstractAppModule {
         }
 
         @Override
-        public void stop(BundleContext bc) throws Exception {
+        public void shutDown(){
         }
     }
     private final String appName;
@@ -162,7 +162,7 @@ public class SwingBaseModule extends AbstractAppModule {
     }
 
     @Override
-    public Class<Activator> getActivator() {
-        return Activator.class;
+    public Option<Class<Activator>> getCallback() {
+        return Options.some( Activator.class );
     }
 }

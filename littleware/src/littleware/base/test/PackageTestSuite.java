@@ -12,38 +12,33 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.stat.test.SamplerTester;
+import junit.framework.TestSuite;
 
 /**
  * Specialization of JenkinsTestSuite includes swing UI tests
  * that require user interaction
  */
-public class PackageTestSuite extends JenkinsTestSuite {
+public class PackageTestSuite extends TestSuite {
+
     private static final Logger log = Logger.getLogger( PackageTestSuite.class.getName() );
+    
+    
     /**
      * Setup a test suite to exercise this package -
      * junit.swingui.TestRunner looks for this.
      */
     @Inject
     public PackageTestSuite( 
-            Provider<WhateverTester> provideWhatever,
-            Provider<FbIteratorTester> provideFbTester,
-            Provider<PropLoaderTester> providePropTester,
-            Provider<CacheTester> provideCacheTester,
-            NullFeedbackTester nullFbTester,
-            SamplerTester samplerTester,
-            ZipUtilTester zipTester,
+            JenkinsTestSuite jenkinsSuite,
             Provider<SwingTester> swingTesterProvider,
-            Provider<SwingFeedbackTester> swingFeedbackTestProvider,
-            PropertiesLoginTester loginTester
+            Provider<SwingFeedbackTester> swingFeedbackTestProvider
             ) {
-        super( provideWhatever, provideFbTester, providePropTester, 
-                provideCacheTester, nullFbTester, samplerTester, zipTester,
-                loginTester
-                );
         setName( getClass().getName() );
-        boolean runTest = true;
+        final boolean runTest = true;
 
+        if ( runTest ) {
+            this.addTest( jenkinsSuite );
+        }
         if (runTest) {
             // These tests require UI access - won't run under Hudson
             this.addTest( swingTesterProvider.get().putName("testJTextAppender"));

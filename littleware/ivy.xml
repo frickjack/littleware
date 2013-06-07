@@ -28,7 +28,7 @@
     
     <dependencies>    
     
-        <dependency org="javax" name="javaee-api" rev="6.+" conf="compile->*,!sources,!javadoc" />
+        <dependency org="javax" name="javaee-api" rev="6.0" conf="compile->*,!sources,!javadoc" />
         <dependency org="javax.mail" name="mail" rev="1.4.3" conf="with_mail->*,!sources,!javadoc" />        
         <dependency org="com.google.inject" name="guice" rev="3.0" e:classifier="no_aop">
             <artifact name="guice" type="no_aop" ext="jar" />
@@ -43,7 +43,6 @@
         <dependency org="org.javasimon" name="javasimon-core" rev="3.3.0" conf="*->default" />
         <dependency org="com.google.guava" name="guava" rev="14.0.1" conf="*->*,!sources,!javadoc"/>
         <dependency org="com.google.code.findbugs" name="jsr305" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
-        <dependency org="org.apache.felix" name="org.apache.felix.framework" rev="4.0.+" conf="*->*,!sources,!javadoc"/>
         
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" conf="compile,with_mysql->*,!sources,!javadoc" />
         <dependency org="org.apache.derby" name="derby" rev="10.9.1.+" conf="compile,with_derby->*,!sources,!javadoc" />

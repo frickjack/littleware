@@ -20,6 +20,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.AssertionFailedException;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.SessionBootstrap;
 import littleware.bootstrap.SessionBootstrap.SessionBuilder;
@@ -30,7 +32,7 @@ import littleware.bootstrap.SessionModuleFactory;
 public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
 
     private static final Logger log = Logger.getLogger(SimpleSessionBuilder.class.getName());
-    private final List<SessionModuleFactory> sessionFactoryList = new ArrayList<SessionModuleFactory>();
+    private final List<SessionModuleFactory> sessionFactoryList = new ArrayList<>();
 
     {
         log.log(Level.FINE, "Scanning for session factories ...");
@@ -167,8 +169,8 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
                     }
 
                     @Override
-                    public Class<? extends Runnable> getSessionStarter() {
-                        return SessionModule.NullStarter.class;
+                    public Option<? extends Class<? extends Runnable>> getSessionStarter() {
+                        return Options.empty();
                     }
                 };
                 modSetBuilder.add(module);
@@ -177,8 +179,11 @@ public class SimpleSessionBuilder implements SessionBootstrap.SessionBuilder {
 
             final Injector childInjector = parentInjector.createChildInjector(modSetBuilder.build());
             ((SimpleSessionInjector) childInjector.getInstance( SessionInjector.class )).setInjector( childInjector );
-            for (SessionModule module : modSetBuilder.build()) {
-                childInjector.getInstance(module.getSessionStarter()).run();
+            for ( SessionModule module : modSetBuilder.build() ) {
+                final Option<? extends Class<? extends Runnable>> optStarter = module.getSessionStarter();
+                if ( optStarter.nonEmpty() ) {
+                    childInjector.getInstance( optStarter.get() ).run();
+                }
             }
             if (childInjector.getInstance(Injector.class) != childInjector) {
                 throw new AssertionFailedException("What the frick ?");

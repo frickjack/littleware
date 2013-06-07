@@ -15,29 +15,29 @@ import java.util.concurrent.Callable;
  * Usually used in conjuction with the static methods in littleware.base.Maybe
  */
 public interface Option<T> extends Iterable<T> {
-    public boolean isSet();
-    public boolean isEmpty();
+    boolean isSet();
+    boolean isEmpty();
     /** Alias for isSet */
-    public boolean nonEmpty();
-    public T getOr( T alt );
-    public T getOrCall( Callable<T> call ) throws Exception;
-    public T getOrThrow( RuntimeException ex );
-    public T getOrThrow( Exception ex ) throws Exception;
+    boolean nonEmpty();
+    T getOr( T alt );
+    T getOrCall( Callable<T> call ) throws Exception;
+    T getOrThrow( RuntimeException ex );
+    T getOrThrow( Exception ex ) throws Exception;
     
     /**
      * Get the value if set, otherwise throw NoSuchElementException
      */
-    public T get ();
+    T get ();
     /**
      * Just calls get() - setup as Property to simplify access
      * from JSF/JSP expression language, etc.
      */
-    public T getRef();
+    T getRef();
 
 
     
     /**
      * Either return this if Filter.accept == true, or EMPTY
      */
-    public Option<T> filter( Filter<? super T> filter );
+    Option<T> filter( Filter<? super T> filter );
 }

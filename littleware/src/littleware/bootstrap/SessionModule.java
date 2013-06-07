@@ -9,6 +9,7 @@
 package littleware.bootstrap;
 
 import com.google.inject.Module;
+import littleware.base.Option;
 
 /**
  * Bootstrap module for session-scoped classes
@@ -17,17 +18,10 @@ import com.google.inject.Module;
  */
 public interface SessionModule extends Module {
     /**
-     * Return a class to inject and run after session injector initialization -
+     * Return an optional class to inject and run after session injector initialization -
      * note the run() method should runs inline with session startup,
      * so it should return quickly or it will lock up session startup
      */
-    public Class<? extends Runnable>  getSessionStarter();    
+    public Option<? extends Class<? extends Runnable>>  getSessionStarter();    
     
-    /**
-     * Convenience class - do nothing starter
-     */
-    public static class NullStarter implements Runnable {
-        @Override
-        public void run() {}
-    }
 }

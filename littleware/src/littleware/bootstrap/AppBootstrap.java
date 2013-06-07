@@ -11,6 +11,7 @@ package littleware.bootstrap;
 import littleware.bootstrap.internal.SimpleAppBuilder;
 import com.google.inject.Provider;
 import java.util.Collection;
+import littleware.base.Option;
 
 /**
  * Bootstrap manager for littleware applications.
@@ -24,7 +25,7 @@ public interface AppBootstrap extends LittleBootstrap {
 
     /**
      * Some standard application profiles.
-     * JNLP is actually sort of a special SwingApp ...
+     * JNLP is actually sort of a special SwingApp running in a web start environment ...
      */
     public enum AppProfile {
         SwingApp, CliApp, WebApp, JNLP;
@@ -52,12 +53,15 @@ public interface AppBootstrap extends LittleBootstrap {
         public AppBootstrap build();
     }
 
+    
+    
     public static final Provider<AppBuilder> appProvider = new Provider<AppBuilder>() {
         @Override
         public AppBuilder get() {
             return new SimpleAppBuilder();
         }
     };
+
     
 }
 

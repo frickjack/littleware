@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import littleware.base.EventBarrier;
 import littleware.bootstrap.LittleBootstrap;
 
 
@@ -23,10 +22,6 @@ import littleware.bootstrap.LittleBootstrap;
 public class TestFactory {
 
     private static final Logger log = Logger.getLogger(TestFactory.class.getName());
-
-    public static class SetupBarrier extends EventBarrier<TestSuite> {
-    }
-
 
 
     /**

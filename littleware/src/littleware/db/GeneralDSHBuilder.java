@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.validate.ValidationException;
 import littleware.db.DataSourceHandler.DSHBuilder;
@@ -95,9 +95,9 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
         public Option<DataSource> resetIfNecessary(String newJdbcUrl, DSHBuilder builder) {
             final String cleanUrl = newJdbcUrl.trim();
             if( cleanUrl.equalsIgnoreCase( getJdbcUrl() ) ) {
-                return Maybe.empty();
+                return Options.empty();
             }
-            final Option<DataSource> result = Maybe.something( dsource );
+            final Option<DataSource> result = Options.some( dsource );
             setDataSource( builder.url( cleanUrl ).build().getDataSource(), cleanUrl );
             return result;
         }

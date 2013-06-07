@@ -30,7 +30,7 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
 
     private static final Logger log = Logger.getLogger(SimpleAppBuilder.class.getName());
     // ---------------
-    private final List<AppModuleFactory> factoryList = new ArrayList<AppModuleFactory>();
+    private final List<AppModuleFactory> factoryList = new ArrayList<>();
     private AppProfile profile = AppProfile.SwingApp;
 
     {
@@ -95,7 +95,7 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
             final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
             builder.addAll( this.moduleSet );
             builder.add(new AppSetupModule(profile, this));
-            appInjector = super.osgiBootstrap( Injector.class, builder.build());
+            appInjector = super.bootstrapCore( builder.build());
             return appInjector;
         }
 
@@ -104,10 +104,6 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
             return new SimpleSessionBuilder( getProfile(), bootstrapApp() );
         }
 
-        @Override
-        public void bootstrap() {
-            bootstrap( Injector.class );
-        }
 
         @Override
         public <T> T bootstrap(Class<T> bootClass) {

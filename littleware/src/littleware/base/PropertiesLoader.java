@@ -51,7 +51,7 @@ public class PropertiesLoader {
 
 
     {
-        Option<File> maybe = Maybe.empty();
+        Option<File> maybe = Options.empty();
         try {
             String sHome = System.getProperty( LITTLEHOME );
             if ( null == sHome ) {
@@ -63,10 +63,10 @@ public class PropertiesLoader {
             if ( null != sHome ) {
                 File fh_home = new File( sHome );
                 if ( fh_home.isDirectory() && fh_home.canRead() ) {
-                    maybe = Maybe.something( fh_home );
+                    maybe = Options.some( fh_home );
                 } else if ( ! fh_home.exists() ) {
                     fh_home.mkdirs();
-                    maybe = Maybe.something( fh_home );
+                    maybe = Options.some( fh_home );
                 }
             }
         } catch ( Exception ex ) {

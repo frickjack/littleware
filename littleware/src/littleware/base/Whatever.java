@@ -114,7 +114,7 @@ public class Whatever {
      *
      * @param read_all reader to suck dry
      * @return string pulled from reader
-     * @throws IOException if something goes wrong
+     * @throws IOException if some goes wrong
      */
     public String readAll(Reader read_all) throws IOException {
         final int i_buffer = 10240;
@@ -164,10 +164,10 @@ public class Whatever {
     public <T extends Enum<T>> Option<T> findEnumIgnoreCase(String lookFor, T[] values) {
         for (T scan : values) {
             if (lookFor.equalsIgnoreCase(scan.toString())) {
-                return Maybe.something(scan);
+                return Options.some(scan);
             }
         }
-        return Maybe.empty();
+        return Options.empty();
     }
 
     /**
@@ -187,7 +187,7 @@ public class Whatever {
             }
         }
         final IllegalStateException failure = new IllegalStateException( "Dispatch failed" );
-        final EventBarrier<Object> barrier = new EventBarrier<Object>();
+        final Promise<Object> barrier = new Promise<Object>();
         SwingUtilities.invokeLater(
                 new Runnable() {
 

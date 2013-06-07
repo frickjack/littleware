@@ -16,9 +16,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Simple event barrier.
+ * Simple Promise implementation that works with java futures
  */
-public class EventBarrier<T> implements Future<T> {
+public class Promise<T> implements Future<T> {
     private boolean  isEventReady = false;
     private T        data = null;
 

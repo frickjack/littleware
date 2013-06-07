@@ -25,7 +25,7 @@ import littleware.apps.swingbase.controller.ShutdownHandler;
 import littleware.apps.swingbase.model.BaseData;
 import littleware.apps.swingbase.view.BaseView;
 import littleware.apps.swingbase.view.BaseView.ViewBuilder;
-import littleware.base.EventBarrier;
+import littleware.base.Promise;
 import littleware.base.swing.GridBagWrap;
 import littleware.test.LittleTest;
 
@@ -48,7 +48,7 @@ public class SwingBaseTester extends LittleTest {
         Passed, Failed
     }
 
-    private void launchView(final EventBarrier<TestResult> barrier) {
+    private void launchView(final Promise<TestResult> barrier) {
         try {
             if (!SwingUtilities.isEventDispatchThread()) {
                 throw new IllegalStateException("Not running on dispatch thread");
@@ -97,7 +97,7 @@ public class SwingBaseTester extends LittleTest {
     }
 
     public void testSwingBase() {
-        final EventBarrier<TestResult> barrier = new EventBarrier<TestResult>();
+        final Promise<TestResult> barrier = new Promise<TestResult>();
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override

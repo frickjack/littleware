@@ -8,7 +8,6 @@
 package littleware.test;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import java.util.logging.*;
 import junit.framework.*;
 import littleware.bootstrap.AppBootstrap;

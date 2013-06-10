@@ -5,6 +5,7 @@ derby.log
 ^littleware/lib
 ^littleware/applet_test
 /build/
+/derbyDB/
 ^littleware/LittleTestCache
 ^littleware/littleTest
 ^webapp/littleApps/appsWeb/web/resources/yui*

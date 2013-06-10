@@ -1,5 +1,5 @@
 declare var YUI:any;
-/// <reference path="yui" />
+/// <reference path="../../libts/yui" />
 declare var exports:Y;
 
 if ( null == exports ) {

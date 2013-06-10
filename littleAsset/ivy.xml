@@ -6,7 +6,7 @@
         <!-- java ee environment provides some runtime jars - so don't have to include them in runtime deployment -->
         <conf name="client" extends="with_http"  description="generic app"/>        
         
-        <conf name="with_server" extends="with_aws,with_http,with_hibernate" description="combined server+client running in a java ee 6+ container"/>
+        <conf name="with_server" extends="with_aws,with_http" description="combined server+client"/>
         <conf name="with_jetty" description="with jetty runtime configuration" />
         <conf name="with_hibernate" description="with hibernate JPA runtime" />
         <conf name="with_http" description="with apache http components runtime" />

@@ -25,10 +25,11 @@
         <class>littleware.asset.server.db.jpa.AssetEntity</class>
         
     <properties>
-        <!--
-      <property name="eclipselink.target-database" value="DERBY"/>
       <property name="eclipselink.ddl-generation" value="create-tables" />
       <property name="hibernate.hbm2ddl.auto" value="create"/>
+        
+        <!--
+      <property name="eclipselink.target-database" value="DERBY"/>
       <property name="hibernate.dialect" value="org.hibernate.dialect.DerbyDialect" />
       
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/>

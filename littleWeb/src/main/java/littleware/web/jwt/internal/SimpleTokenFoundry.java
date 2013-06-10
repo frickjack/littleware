@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.PropertiesLoader;
 import littleware.base.Whatever;
@@ -38,7 +38,7 @@ public class SimpleTokenFoundry implements TokenFoundry {
 
   private static String loadSecret() {
     try {
-      return Maybe.something( PropertiesLoader.get().loadProperties(SimpleTokenFoundry.class).getProperty("sharedSecret") ).get();
+      return Options.some( PropertiesLoader.get().loadProperties(SimpleTokenFoundry.class).getProperty("sharedSecret") ).get();
     } catch (IOException ex) {
       log.log(Level.WARNING, "Failed to load JWT shatred secret", ex);
       throw new IllegalStateException("No shared secret configured");
@@ -80,7 +80,7 @@ public class SimpleTokenFoundry implements TokenFoundry {
       jwsObject = JWSObject.parse(token);
     } catch (ParseException ex) {
       log.log(Level.FINE, "Failed to parse given string as a jwt token: {0}", token);
-      return Maybe.empty();
+      return Options.empty();
     }
 
     final JWSVerifier verifier = new MACVerifier(secretBytes);
@@ -90,13 +90,13 @@ public class SimpleTokenFoundry implements TokenFoundry {
       verifiedSignature = jwsObject.verify(verifier);
     } catch (JOSEException ex) {
       log.log(Level.FINE, "Signature verification threw exception", ex);
-      return Maybe.empty();
+      return Options.empty();
     }
 
     if (!verifiedSignature) {
-      return Maybe.empty();
+      return Options.empty();
     }
 
-    return Maybe.something(gsonTool.fromJson(jwsObject.getPayload().toString(), JsonElement.class).getAsJsonObject());
+    return Options.some(gsonTool.fromJson(jwsObject.getPayload().toString(), JsonElement.class).getAsJsonObject());
   }
 }

@@ -27,7 +27,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.Whatever;
 import littleware.web.beans.GuiceBean;
@@ -90,7 +90,7 @@ public class LoginFilter implements Filter {
     Whatever.get().check("Application scope guice bean initialized", gbean != null);
     this.tools = gbean.getInstance(Tools.class);
     
-    final String authStr = Maybe.something( fc.getInitParameter( "authRequired" ) ).getOr( "false" ).trim().toLowerCase();
+    final String authStr = Options.some( fc.getInitParameter( "authRequired" ) ).getOr( "false" ).trim().toLowerCase();
     authRequired = authStr.equals( "true" ) || authStr.equals("yes");
   }
 
@@ -113,7 +113,7 @@ public class LoginFilter implements Filter {
           js = gsonTool.fromJson(cookie.getValue(), JsonElement.class).getAsJsonObject();
         }
       }
-      optJsCreds = Maybe.something(js);
+      optJsCreds = Options.some(js);
     }
 
     boolean success = false;

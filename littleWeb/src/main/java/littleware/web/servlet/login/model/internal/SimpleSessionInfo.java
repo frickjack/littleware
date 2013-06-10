@@ -10,7 +10,7 @@ package littleware.web.servlet.login.model.internal;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.UUID;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.bootstrap.SessionBootstrap;
 import littleware.security.LittleUser;
@@ -64,9 +64,9 @@ public class SimpleSessionInfo implements SessionInfo {
   @Override
   public Option<LittleUser> getActiveUser() {
     if (keyChain.getDefaultSessionId().isSet()) {
-      return Maybe.something(userFactory.get());
+      return Options.some(userFactory.get());
     } 
-    return Maybe.empty();
+    return Options.empty();
   }
 
 

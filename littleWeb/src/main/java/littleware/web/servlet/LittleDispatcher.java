@@ -19,7 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.web.beans.GuiceBean;
 import littleware.web.servlet.helper.JsonResponse;
@@ -70,16 +70,16 @@ public class LittleDispatcher extends HttpServlet {
             }
         }
         // GuiceBean should have been injected by request filter
-        final GuiceBean guiceBean = Maybe.something( (GuiceBean) request.getAttribute( WebBootstrap.littleGuice ) ).get();
+        final GuiceBean guiceBean = Options.some( (GuiceBean) request.getAttribute( WebBootstrap.littleGuice ) ).get();
         
         // Lookup the LittleServlet registered to handle this command (url)
         final Option<LittleServlet> optHandler;
         {
-            Option<LittleServlet> lookup = Maybe.empty();
+            Option<LittleServlet> lookup = Options.empty();
             // Allocate service and inject little-session dependencies
             final Class<?> commandClass = dispatchMap.get(command);
             if (null != commandClass) {
-                lookup = littleware.base.Maybe.something( (LittleServlet) guiceBean.getInstance( commandClass ) );
+                lookup = littleware.base.Options.some( (LittleServlet) guiceBean.getInstance( commandClass ) );
             }
             optHandler = lookup;
         }

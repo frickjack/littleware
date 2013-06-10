@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.bootstrap.AppBootstrap;
 
@@ -23,12 +23,12 @@ import littleware.bootstrap.AppBootstrap;
 public class AppBootstrapListener implements ServletContextListener {
 
     private static final Logger log = Logger.getLogger(AppBootstrapListener.class.getName());
-    private Option<AppBootstrap> boot = Maybe.empty();
+    private Option<AppBootstrap> boot = Options.empty();
 
   @Override
     public synchronized void contextInitialized(ServletContextEvent sce) {
         try {
-            boot = Maybe.something(
+            boot = Options.some(
                     WebBootstrap.bootstrap( AppBootstrap.appProvider.get(), sce.getServletContext()).getInjector().get().getInstance( AppBootstrap.class )
                     );
         } catch (Exception ex) {
@@ -41,7 +41,7 @@ public class AppBootstrapListener implements ServletContextListener {
         if ( boot.isSet() ) {
             log.log(Level.INFO, "Shutting down littleware ...");
             boot.get().shutdown();
-            boot = Maybe.empty();
+            boot = Options.empty();
         }
     }
 }

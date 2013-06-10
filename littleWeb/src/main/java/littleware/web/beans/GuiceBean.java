@@ -9,7 +9,7 @@
 package littleware.web.beans;
 
 import com.google.inject.Inject;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.bootstrap.SessionInjector;
 
@@ -30,7 +30,7 @@ public class GuiceBean implements java.io.Serializable {
      * Just here for deserialization ...
      */
     public GuiceBean() {
-        this.maybeInjector = Maybe.empty();
+        this.maybeInjector = Options.empty();
     }
     
     
@@ -40,7 +40,7 @@ public class GuiceBean implements java.io.Serializable {
      */
     @Inject
     public GuiceBean( SessionInjector sessionInjector ) {
-        this.maybeInjector = Maybe.something( sessionInjector );
+        this.maybeInjector = Options.some( sessionInjector );
     }
 
 
@@ -48,7 +48,7 @@ public class GuiceBean implements java.io.Serializable {
      * setInjector throws IllegalStateException if GuiceBean already has an injector
      */
     public void setInjector( SessionInjector value ) {
-        maybeInjector = Maybe.something( value );
+        maybeInjector = Options.some( value );
     }
     
     /**

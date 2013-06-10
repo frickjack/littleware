@@ -18,7 +18,7 @@ import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.client.AssetSearchManager;
 import littleware.base.AssertionFailedException;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.security.AccountManager;
 import littleware.security.LittleAcl;
@@ -38,7 +38,7 @@ public class SecurityFilter implements Filter {
 
     private static final Logger log = Logger.getLogger(SecurityFilter.class.getName());
     private String loginFormUri = "/home.jsf";
-    private Option<String> accessControl = Maybe.empty();
+    private Option<String> accessControl = Options.empty();
 
     /** Do nothing init */
     @Override
@@ -57,7 +57,7 @@ public class SecurityFilter implements Filter {
         if (null == accessCheck) {
             log.log(Level.INFO, "No access check registered");
         } else if (accessCheck.startsWith("group:") || accessCheck.startsWith("acl:read:") || accessCheck.startsWith("acl:write:")) {
-            accessControl = Maybe.something(accessCheck);
+            accessControl = Options.some(accessCheck);
             log.log(Level.INFO, "Access control registered: " + accessCheck);
         } else {
             log.log(Level.WARNING, "Ignoring illegal access control: " + accessCheck);

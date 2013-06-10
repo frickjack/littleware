@@ -17,7 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.web.servlet.LittleServlet;
 import littleware.web.servlet.helper.JsonResponse;
@@ -62,7 +62,7 @@ public class LoginServlet implements LittleServlet {
    * @throws LoginException
    */
   public void zapSessionAfterLogout(HttpServletRequest request) {
-    final Option<HttpSession> optSession = Maybe.something(request.getSession(false));
+    final Option<HttpSession> optSession = Options.some(request.getSession(false));
     if (optSession.nonEmpty()) {
       optSession.get().invalidate();
     }
@@ -72,7 +72,7 @@ public class LoginServlet implements LittleServlet {
 
   @Override
   public void doGetOrPostOrPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, java.io.IOException {
-    final String action = Maybe.something( request.getParameter("action") ).getOr( "status" ).trim().toLowerCase();
+    final String action = Options.some( request.getParameter("action") ).getOr( "status" ).trim().toLowerCase();
     final JsonResponse.Builder respBuilder = responseFactory.get();
     
     SessionInfo activeSession = initSession;

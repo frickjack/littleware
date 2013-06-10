@@ -13,7 +13,6 @@ import com.google.inject
 import java.io
 import java.util.logging.{Level,Logger}
 import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,helper}
-import org.osgi
 import scala.collection.JavaConversions._
 
 
@@ -36,19 +35,6 @@ package littleModule {
   }
 
   
-  /** 
-   * Bundle activator registers at startup the default JAAS login configuration 
-   * for use by the littleware server code, registers new bullingdon asset types
-   * with registry
-   */
-  class Activator @inject.Inject()( 
-  ) extends osgi.framework.BundleActivator {
-      
-    override def start( bc:osgi.framework.BundleContext ):Unit = {
-    }
-    
-    override def stop( bc:osgi.framework.BundleContext ):Unit = {}
-  }
   
   //-------------------------------------------
   
@@ -102,7 +88,6 @@ package littleModule {
       //binder.bind( classOf[model.Response.Builder] ).to( classOf[model.internal.ResponseBuilder])
     }
     
-    override def getActivator = classOf[Activator]
   }
    
   //-------------------------------------------
@@ -130,7 +115,9 @@ package littleModule {
       binder.bind( classOf[controller.UIEventHandler] ).to( classOf[controller.internal.SimpleEventHandler]).in( inject.Scopes.SINGLETON )
     }
     
-    override def  getSessionStarter():Class[_ <: Runnable] = classOf[SessionStarter]
+    type Opt[T] = littleware.base.Option[T]
+    import littleware.base.Options
+    override def  getSessionStarter():Opt[Class[SessionStarter]] = Options.some( classOf[SessionStarter] )
   }
   
 

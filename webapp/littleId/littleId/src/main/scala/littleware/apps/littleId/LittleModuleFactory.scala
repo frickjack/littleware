@@ -11,10 +11,11 @@
 package littleware.apps.littleId
 
 import com.google.inject
-import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,helper}
+import littleware.base.Options
+import littleware.bootstrap.{AppBootstrap,AppModule,AppModuleFactory,LittleModule,helper}
 import littleware.asset.gson.LittleGsonFactory
 import scala.collection.JavaConversions._
-import org.osgi
+
 
 
 object LittleModuleFactory {
@@ -28,7 +29,7 @@ object LittleModuleFactory {
     authStateAdapter:gsonAdapter.AuthStateAdapter,
     dataForProviderAdapter:gsonAdapter.DataForProviderAdapter,
     oidCredsAdapter:gsonAdapter.OIdCredsAdapter
-  ) extends osgi.framework.BundleActivator {
+  ) extends LittleModule.LifecycleCallback {
     import server.model._
     Seq( classOf[AuthRequest] -> authRequestAdapter,
         classOf[AuthState] -> authStateAdapter,
@@ -38,14 +39,14 @@ object LittleModuleFactory {
             case (clazz,adapter) => gsonFactory.registerTypeAdapter( clazz, adapter )
           })
     
-    def start( bc:osgi.framework.BundleContext ):Unit = {}
+    def startUp() = {}
 
-    def stop( bc:osgi.framework.BundleContext  ):Unit = {}
+    def shutDown() = {}
 
   }
 
   class LittleModule ( profile:AppBootstrap.AppProfile ) extends helper.AbstractAppModule( profile ) {
-    override def  getActivator():Class[_ <: osgi.framework.BundleActivator] = classOf[ModuleActivator]
+    override def  getCallback():littleware.base.Option[Class[ModuleActivator]] = Options.some( classOf[ModuleActivator] )
 
     override def configure( binder:inject.Binder ):Unit = {
       binder.bind( classOf[server.controller.OpenIdTool]

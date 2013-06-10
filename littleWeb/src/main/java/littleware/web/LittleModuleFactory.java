@@ -9,12 +9,14 @@ package littleware.web;
 
 import com.google.inject.Binder;
 import com.google.inject.Scopes;
+import littleware.base.Option;
+import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.SessionModule;
 import littleware.bootstrap.SessionModuleFactory;
-import littleware.bootstrap.helper.NullActivator;
+import littleware.bootstrap.helper.AbstractAppModule;
 import littleware.web.jwt.TokenFoundry;
 import littleware.web.jwt.internal.SimpleTokenFoundry;
 import littleware.web.servlet.login.LoginServlet;
@@ -22,7 +24,7 @@ import littleware.web.servlet.login.controller.SessionMgr;
 import littleware.web.servlet.login.controller.internal.SimpleSessionMgr;
 import littleware.web.servlet.login.model.SessionInfo;
 import littleware.web.servlet.login.model.internal.SimpleSessionInfo;
-import org.osgi.framework.BundleActivator;
+
 
 /**
  * Littleware module factory registers and configures web classes
@@ -30,20 +32,10 @@ import org.osgi.framework.BundleActivator;
  */
 public class LittleModuleFactory implements AppModuleFactory, SessionModuleFactory {
 
-  public static class MyAppModule implements AppModule {
-    private final AppProfile profile;
+  public static class MyAppModule extends AbstractAppModule {
 
-    public MyAppModule( AppProfile profile ) { this.profile = profile; }
+    public MyAppModule( AppProfile profile ){ super( profile ); }
     
-    @Override
-    public AppProfile getProfile() {
-      return profile;
-    }
-
-    @Override
-    public Class<? extends BundleActivator> getActivator() {
-      return NullActivator.class;
-    }
 
     @Override
     public void configure(Binder binder) {
@@ -60,8 +52,8 @@ public class LittleModuleFactory implements AppModuleFactory, SessionModuleFacto
   public static class MySessionModule implements SessionModule {
 
     @Override
-    public Class<? extends Runnable> getSessionStarter() {
-      return NullStarter.class;
+    public Option<Class<Runnable>> getSessionStarter() {
+      return Options.empty();
     }
 
     @Override

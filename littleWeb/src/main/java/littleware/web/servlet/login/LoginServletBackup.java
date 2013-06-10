@@ -18,7 +18,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.web.servlet.LittleServlet;
 import littleware.web.servlet.helper.JsonResponse;
@@ -59,7 +59,7 @@ public class LoginServletBackup implements LittleServlet {
    * @throws LoginException
    */
   public void zapSessionAfterLogout(HttpServletRequest request) {
-    final Option<HttpSession> optSession = Maybe.something(request.getSession(false));
+    final Option<HttpSession> optSession = Options.some(request.getSession(false));
     if (optSession.nonEmpty()) {
       optSession.get().invalidate();
     }

@@ -9,7 +9,7 @@ package littleware.web.servlet.login.model;
 
 import java.util.Objects;
 import java.util.UUID;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import static littleware.base.validate.ValidatorUtil.check;
 import org.joda.time.DateTime;
@@ -34,7 +34,7 @@ public class LoginCreds extends SessionCreds {
             );
   }
   
-  private final Option<LoginCreds> me = Maybe.something( this );
+  private final Option<LoginCreds> me = Options.some( this );
   
   @Override
   public Option<LoginCreds> getLoginCreds() { return me; }

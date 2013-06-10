@@ -9,7 +9,7 @@ package littleware.web.servlet.login.model;
 
 import java.util.Objects;
 import java.util.UUID;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 
 import static littleware.base.validate.ValidatorUtil.check;
@@ -34,9 +34,9 @@ public class SessionCreds {
   
   /**
    * Returns Option(this) if this is an instance of LoginCreds -
-   * just a shortcut for Maybe.something( LoginCreds.class.cast( this ) ) ...
+   * just a shortcut for Options.some( LoginCreds.class.cast( this ) ) ...
    */
-  public Option<LoginCreds> getLoginCreds() { return Maybe.empty(); }
+  public Option<LoginCreds> getLoginCreds() { return Options.empty(); }
   
   @Override
   public boolean equals( Object other ) {

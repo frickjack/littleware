@@ -13,7 +13,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import littleware.asset.server.bootstrap.ServerBootstrap;
-import littleware.base.Maybe;
+import littleware.base.Options;
 import littleware.base.Option;
 import littleware.bootstrap.LittleBootstrap;
 
@@ -34,7 +34,7 @@ import littleware.bootstrap.LittleBootstrap;
 public class AssetServerBootListener implements ServletContextListener {
 
     private static final Logger log = Logger.getLogger(AssetServerBootListener.class.getName());
-    private Option<LittleBootstrap> boot = Maybe.empty();
+    private Option<LittleBootstrap> boot = Options.empty();
 
   @Override
     public synchronized void contextInitialized(ServletContextEvent sce) {
@@ -51,7 +51,7 @@ public class AssetServerBootListener implements ServletContextListener {
         if ( boot.isSet() ) {
             log.log(Level.INFO, "Shutting down littleware ...");
             boot.get().shutdown();
-            boot = Maybe.empty();
+            boot = Options.empty();
         }
     }
 }

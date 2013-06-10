@@ -15,6 +15,9 @@
 <property name="ivy.settings.file" value="${ivy.jar.dir}/littlesettings.xml" />
 <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" /> 
 <property name="libs.CopyLibs.classpath" value="${ivy.jar.dir}/netbeans_ant/org-netbeans-modules-java-j2seproject-copylibstask.jar" />
+<property name="typescript.compiler.path" value="${user.home}/AppData/Roaming/npm/tsc.cmd" />
+<property name="ydoc.path" value="${user.home}/Documents/Code/yuidoc/bin/ydoc.bat" />
+
 
 
 <target name="-post-clean">
@@ -44,29 +47,7 @@
             <isset property="ivy.resolve.compile.exists" />
         </and>
     </condition>
-    
-    <condition property="typescript.ready">
-        <and>
-            <!--
-            <isset property="settings.exists" />
-            -->
-            <isset property="build.web.dir" />
-            <isset property="typescript.compiler.path" />
-            <available file="${typescript.compiler.path}" />
-        </and>
-    </condition>    
-    
-    <condition property="ydoc.ready">
-        <and>
-            <!--
-            <isset property="settings.exists" />
-            -->
-            <isset property="build.web.dir" />
-            <isset property="ydoc.path" />
-            <available file="${ydoc.path}" />
-        </and>
-    </condition>    
-    
+        
 </target>
 
 
@@ -178,7 +159,32 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     <property name="run.test.classpath" value="build/classes:${ivy.test.classpath}" />
 </target>
 
+<!-- nbproject/project.properties loaded in "init" -->
 <target name="-pre-init" depends="resolveIfNecessary" />
+<target name="-post-init">
+    <condition property="typescript.ready">
+        <and>
+            <!--
+            <isset property="settings.exists" />
+            -->
+            <isset property="build.web.dir" />
+            <isset property="typescript.compiler.path" />
+            <available file="${typescript.compiler.path}" />
+        </and>
+    </condition>    
+    
+    <condition property="ydoc.ready">
+        <and>
+            <!--
+            <isset property="settings.exists" />
+            -->
+            <isset property="build.web.dir" />
+            <isset property="ydoc.path" />
+            <available file="${ydoc.path}" />
+        </and>
+    </condition>    
+</target>
+
 <target name="-pre-compile" depends="resolveIfClean" />
 
 <target name="cli-check">
@@ -314,9 +320,6 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
 
 <!-- web project stuff -->
 
-<property name="typescript.compiler.path" value="${user.home}/AppData/Roaming/npm/tsc.cmd" />
-<property name="ydoc.path" value="${user.home}/Documents/Code/yuidoc/bin/ydoc.bat" />
-
 
 <target name="ydoc" depends="config-check" if="ydoc.ready" 
     description="run ydoc on build/ js"
@@ -421,9 +424,10 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
 </macrodef>
 
 
-<target name="typescript" depends="config-check" if="typescript.ready" 
+<target name="typescript" depends="-init-project,-post-init" if="typescript.ready"
     description="compile typescript files build/*.ts"
     >
+    <echo message="Typescript compiling ${build.web.dir}/resources/js" />
       <TypeScriptCompileDir
           src="${build.web.dir}/resources/js/"
           module="amd"

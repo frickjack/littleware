@@ -85,10 +85,12 @@
         <antcall target="buildSubproject">
             <param name="param.subproject" value="littleWeb" />
         </antcall>
+        
+        <!--
         <antcall target="buildSubproject">
             <param name="param.subproject" value="littleTools" />
         </antcall>
-          <!--
+          
         <antcall target="buildSubproject">
             <param name="param.subproject" value="lgoServer" />
         </antcall>
@@ -103,6 +105,9 @@
             -->
         <antcall target="buildSubproject">
             <param name="param.subproject" value="webapp/littleId/littleId" />
+        </antcall>
+        <antcall target="buildSubproject">
+            <param name="param.subproject" value="webapp/littleApps/littleApps" />
         </antcall>
             
     </target>

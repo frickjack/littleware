@@ -1,7 +1,7 @@
-declare var YUI:any;
-/// <reference path="yui" />
+//declare var YUI:any;
+/// <reference path="../../libts/yui" />
 /// <reference path="toyA" />
-declare var exports:Y;
+declare var exports:Y.YUI;
 
 //declare module littleware.toy.a;
 if ( null == exports ) {
@@ -11,12 +11,13 @@ if ( null == exports ) {
 
 //import yui = module( "yui" );
 
-var Y:Y = exports;
+var Y:Y.YUI = exports;
 
+import modA = module( "toyA" );
 
 export module littleware.toy.b {
     
-    export import modA = module( "toyA" );
+    
     //import modA = littleware.toy.a;
     //module a = modA.littleware.toy.a;
 

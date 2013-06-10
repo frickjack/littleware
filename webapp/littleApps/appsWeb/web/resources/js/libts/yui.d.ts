@@ -47,7 +47,8 @@ module Y {
             some(fn: Function, context: any): bool;
             toJSON(): any[];
         }
-    
+
+        
         interface AsyncQueue extends EventTarget { 
             (callback: Function);
             
@@ -770,8 +771,11 @@ module Y {
             hasAttribute(attribute: string): bool;
             hasChildNodes(): bool;
             on(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
+            one(node: string): Node;
+            one(node: HTMLElement): Node;
+            one(node: string): any;
+            one(node: HTMLElement): any;                        
             item(index: number): Node;
-            getData(name: string): any;
             getData(name: string): any;
             getHTML(): string;
             getContent(): string;
@@ -840,7 +844,6 @@ module Y {
             setContent(content: HTMLElement): Node;
             setContent(content: NodeList): Node;
             setContent(content: HTMLCollection): Node;
-            setHTML(content: string): Node;
             setHTML(content: string): Node;
             setHTML(content: Node): Node;
             setHTML(content: HTMLElement): Node;
@@ -982,7 +985,8 @@ module Y {
             resetCache(): any;
         }
     
-        interface Plugin_DDNodeScroll extends Scroll { 
+        
+        interface Plugin_DDNodeScroll { 
             
             
         }
@@ -992,7 +996,7 @@ module Y {
             
         }
     
-        interface Plugin_DDWindowScroll extends Scroll { 
+        interface Plugin_DDWindowScroll { 
             
             
         }
@@ -1157,16 +1161,11 @@ module Y {
             removeQuery(url: string): string;
             replace(url?: string): Router;
             route(path: string, callbacks: (req: any, res: any, next: (err?: string) => any) => any): Router;
-            route(path: string, callbacks: (req: any, res: any, next: (err?: string) => any) => any): Router;
-            route(path: string, callbacks: (req: any, res: any, next: (err?: string) => any) => any): Router;
-            route(path: RegExp, callbacks: (req: any, res: any, next: (err?: string) => any) => any): Router;
-            route(path: RegExp, callbacks: (req: any, res: any, next: (err?: string) => any) => any): Router;
-            route(path: RegExp, callbacks: (req: any, res: any, next: (err?: string) => any) => any): Router;
             save(url?: string): Router;
             upgrade(): bool;
         }
     
-        interface SWF extends Y_Event_Target { 
+        interface SWF { 
             (id: string, swfURL: string, p_oAttributes: any);
             
             
@@ -1421,8 +1420,6 @@ module Y {
         }
     
         interface Widget extends Base { 
-            (config: any);
-            
             UI_EVENTS: any;
             BOUNDING_TEMPLATE: string;
             CONTENT_TEMPLATE: string;
@@ -1481,6 +1478,7 @@ module Y {
             send(): YQLRequest;
         }
     
+        
         interface YUI extends EventTarget { 
             (o?: any);
             
@@ -3679,7 +3677,6 @@ module Y {
     
         interface EventTarget {
             
-            
             before(): any;
             after(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
             bubble(evt: CustomEvent): bool;
@@ -4964,8 +4961,6 @@ module Y {
             NON_BUTTON_NODE_CFG: any[];
             CLASS_NAMES: any;
             
-            addButton(button: (action?: Function, classNames?: string, context?: any, disabled?: bool, events?: string, isDefault?: bool, label?: string, name?: string, section?: string, srcNode?: Node, template?: string) => any, section?: string, index?: number): WidgetButtons;
-            addButton(button: (action?: Function, classNames?: string, context?: any, disabled?: bool, events?: string, isDefault?: bool, label?: string, name?: string, section?: string, srcNode?: Node, template?: string) => any, section?: string, index?: number): WidgetButtons;
             addButton(button: (action?: Function, classNames?: string, context?: any, disabled?: bool, events?: string, isDefault?: bool, label?: string, name?: string, section?: string, srcNode?: Node, template?: string) => any, section?: string, index?: number): WidgetButtons;
             getButton(name: number, section?: string): Node;
             getButton(name: string, section?: string): Node;

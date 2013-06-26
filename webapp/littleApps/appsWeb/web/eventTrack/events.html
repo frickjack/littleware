@@ -1,73 +1,217 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
-  <head>
-    <title></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        
+
         <link rel="apple-touch-icon" href="/btrack/resources/img/appIcons/oo511.57x57.png" />
         <link rel="apple-touch-icon" sizes="72x72" href="/btrack/resources/img/appIcons/oo511.72x72.png" />
         <link rel="apple-touch-icon" sizes="114x114" href="/btrack/resources/img/appIcons/oo511.114x114.png" />
         <link rel="apple-touch-icon" sizes="144x144" href="/btrack/resources/img/appIcons/oo511.144x144.png" />
 
+        <!--
         <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.10.3/build/cssnormalize/cssnormalize-min.css">
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssfonts/cssfonts.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssgrids/cssgrids.css" type="text/css" />         
-        <link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />
         
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssgrids-responsive/cssgrids-responsive.css" type="text/css" /> 
+        -->
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssfonts/cssfonts.css" type="text/css" />
+
+
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.0/pure-min.css">
+
+        <link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />
+
         <style id="yuiInsertBeforeMe" type="text/css"></style>
+        <!--
         <link rel="stylesheet" href="/btrack/resources/css/littleware/babyTrack/main.css" type="text/css" />         
-  </head>
+        -->
+
+        <style>
+            body {
+                margin: auto; /* center in viewport */
+                width: 100%;
+            }
+            div {
+                transition:width 2s, height 2s, background-color 2s;
+                border: 1px solid green;
+            }
+
+            * { box-sizing:border-box }
+
+            .little-panel > div {
+                min-height: 450px;
+            }
+
+            div.little-panel {
+                padding: 5px;
+            }
+
+            /* width-sensitive panel width by media query */
+            @media only screen and ( min-width: 1101px ) {
+                
+                .little-panel {
+                    width: 25%;
+                    padding: 5px;
+                }
+            }
+
+            @media only screen and ( max-width: 1100px ) {
+                .little-panel {
+                    width: 30%;
+                }
+            }
+
+            @media only screen and ( max-width: 800px ) {
+                .little-panel {
+                    width: 50%;
+                }
+            }
+
+            @media only screen and ( max-width:500px ) {
+                .little-panel {
+                    width: 100%;
+                }
+            }
+        </style>        
+    </head>
     <body class="yui3-skin-sam">
 
-        <div class="yui3-g">
         
-          <div id="app" class="yui3-u-1">
-              <h2>Event Tracker</h2>
-              
-              <div class="toy">
-                <p></p>
-              </div>
-              
-              <div id="footer">
-          <a  href="http://blog.frickjack.com/2013/04/511-labor-contraction-counter-app.html">info</a>            
-              </div>
-                   
-          </div>
-          
-        </div>
-        
-        
-        <script type="text/x-handlebars-template" id="dataGraphTemplate">
-            <div class="fbTask">
-                <div class="fbBar" style="width:0%;">0%</div>
-                <div class="fbContent">
-                (Running ...)
-                </div>
-            </div>            
-        </script>  
+        <!-- ................................................ -->
 
-        <script src="http://yui.yahooapis.com/3.10.3/build/yui/yui-min.js"></script> 
+        <script type="text/x-handlebars-template" id="t_menuPage">
+            <div style="background-color:{{color}}">
+            <p>Page:{{title}}</p>
+
+            <ul>
+                {{#items}}
+                    <li><a class="little-route" href="{{url}}">{{name}}</a></li>
+                {{/items}}
+            </ul>
+            </div>
+        </script>
+
+        <!-- ................................................ -->
+
+
+        <div id="app">
+
+        </div>
+
+
+
+        <!-- ................................................ -->
+
+        <script src="http://yui.yahooapis.com/3.10.3/build/yui/yui-debug.js"></script> 
         <script src="/btrack/resources/js/littleware/littleYUI.js"></script>
-        
-<script>
-  
-   littleware.littleYUI.bootstrap().use( 
-                'node', 'node-base', 'event', 'test', 'scrollview',
-                'littleware-toy-toyB',
+
+        <script>
+
+            littleware.littleYUI.bootstrap( { classNamePrefix: 'pure' } ).use( 
+                'app-base', 'node', 'event', 'handlebars', 'router', 'scrollview', 'view', 'test',
+                'transition', 'littleware-toy-toyB', 'littleware-eventTrack-littleApp',
                 function (Y) {
                     var util = Y.littleware.littleUtil;
-                    var log = new util.Logger( "events.html" );
-                    
-                    log.log( "main() running" );
-                    var toy = Y.littleware.toy.b
-                    var greeter = new toy.Greeter( "Dude" );
-                    toy.runGreeter( greeter );
-                }
-        );
+                    var log = new util.Logger("events.html");
 
-</script>
+                    var PageView = Y.Base.create("pageView", Y.View, [], {
+                        template: Y.Handlebars.compile(Y.one("#t_menuPage").getHTML()),
+                        render: function () {
+                            var container = this.get('container');
+                            // title and items are for view template ...
+                            var pathDepth = this.get("pathDepth");
+                            var pathParts = this.get("pathParts");
+                            if (pathParts.length < pathDepth) {
+                                pathParts.push("unknown");
+                            }
+                            var title = this.get("title") + "-" + pathParts[pathDepth];
+                            var myPath = pathParts.slice(0, pathDepth + 1).join("/");
+                            var parentPath = pathParts.slice(0, pathDepth).join("/") || "/";
+
+                            var children = this.get("children");
+                            var items = [{ url: parentPath, name: "<< back" } ];
+                            for (var i = 0; i < children.length; ++i) {
+                                items.push({
+                                    url: myPath + "/" + children[i],
+                                    name: children[i]
+                                });
+                            }
+                            var content = this.template(
+                                {
+                                    title: title,
+                                    items: items,
+                                    color: this.get( "color" )
+                                }
+                                );
+                            container.setHTML(content);
+                            /*
+                            if ( ! container.inDoc() ) {
+                                Y.one( "#boxA" ).append( container );
+                            }
+                            */
+                            return this;
+                        }
+                    }, {
+                        ATTRS: {
+                            title: { value: "title" },
+                            children: { value: [] },
+                            color: { value: "green" },
+                            pathDepth: { value: 1 },
+                            pathParts: { value: [] }
+                        }
+                    });
+
+                    var appModule = Y.littleware.eventTrack.littleApp;
+
+                    log.log("Setting up app ...");
+                    // 2 panels in this app in addition to home page
+                    var panel2 = new appModule.LittlePanel("panel2",
+                        new PageView({ title: "panel2", color: "magenta", pathDepth:2 })
+                        );
+                    var panel1 = new appModule.LittlePanel("panel1",
+                        new PageView({ title: "panel1", children: ["A", "B", "C"], pathDepth:1 })
+                        );
+
+
+                    // home page info
+                    var versionInfo = Y.Node.create("<div><p>LittleEvents<br>Version 0.0 2013/06/21</p></div>");
+                    var homePage = new Y.View();
+                    homePage.get("container").append(versionInfo);
+
+                    // router
+                    var router = new Y.Router(
+                        { root: "/btrack/eventTrack/events.html" }
+                        );
+
+                    // inject homepage and router into view manager
+                    var app = appModule.ViewManager.getFactory().create("app", "div#app", homePage, router);
+
+                    //
+                    // passed to registerPanel (below) - notifies panel of new path on view change.
+                    // could also just add a listener on the router ...
+                    //
+                    var viewListener = function (panelStatus) {
+                        if (panelStatus.state.name == "VISIBLE") {
+                            var oldPath = panelStatus.panel.view.get("pathParts").join("/");
+                            if (oldPath != panelStatus.path) {
+                                //log.log("Setting new path: " + oldPath + " != " + panelStatus.path);
+                                panelStatus.panel.view.set("pathParts", panelStatus.path.split("/"));
+                                app.markPanelDirty(panelStatus.panel.id);
+                            }
+                        }
+                    };
+
+                    // register panels according to position in control-flow tree
+                    app.registerRootPanel(panel1, panel1.id, viewListener);
+                    // panel2 is a "child" of panel1
+                    app.registerPanel(panel2, panel1.id, function () { return true; }, viewListener );
+                    app.show();
+                }
+            );
+
+        </script>
 
     </body>
 </html>

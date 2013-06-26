@@ -71,25 +71,7 @@
     nbproject/build-impl.xml file. 
 
     -->
-    <target name="-ydoc-exists">
-         <available file="${ydoc.path}" property="ydoc.exists" />
-    </target>
-    
-    <target name="ydoc" depends="-ydoc-exists" if="ydoc.exists" 
-        description="run ydoc on build/ js"
-        >
-      <exec executable="${ydoc.path}">
-        <arg value="build/web/resources/js/littleware"/>
-     </exec>    
-    </target>
-    
     
     <target name="jar" depends="dist" />
-    <target name="-post-compile" depends="ydoc">
-      <copy todir="build/web/WEB-INF/lib">
-        <fileset dir="ivy/test"/>
-      </copy>
-      
-    </target>
-    
+        
 </project>

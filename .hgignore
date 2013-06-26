@@ -1,11 +1,13 @@
 CVS
 derby.log
 .picasa.ini
+Thumbs.db
 ^Auburn/
 ^littleware/lib
 ^littleware/applet_test
 /build/
 /derbyDB/
+/glyphicons/
 ^littleware/LittleTestCache
 ^littleware/littleTest
 ^webapp/littleApps/appsWeb/web/resources/yui*

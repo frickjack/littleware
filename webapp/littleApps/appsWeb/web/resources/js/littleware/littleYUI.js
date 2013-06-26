@@ -68,36 +68,56 @@ littleware.littleYUI = (function() {
                 'littleware-toy-toyB': {
                     path: "toy/toyB.js",
                     requires: [ 'littleware-toy-toyA']
-                }                                                
+                },
+                "littleware-eventTrack-littleApp": {
+                    path: "eventTrack/littleApp.js",
+                    requires: [ 'littleware-littleUtil', 'router', 'test', 'timers', 'view', 'transition' ]
+                }
             }
         }    ;
     };
 
+    /** Little internal merge function ... */
+    function merge( a, b ) {
+        var c = {};
+        for ( var key in a ) {
+            c[key] = a[key];
+        }
+        for ( var key in b ) {
+            c[key] = b[key];
+        }
+        return c;
+    }
     
     /**
      * littleYUI - wrapper around YUI3 YUI() method that
      * registers local littleware modules.
+     * 
+     * @param configIn YUI(config) configuration - extended by bootstrap
      */
-    var bootstrap = function () {
-        return YUI({
-            //lang: 'ko-KR,en-GB,zh-Hant-TW', // languages in order of preference
-            //base: '../../build/', // the base path to the YUI install.  Usually not needed because the default is the same base path as the yui.js include file
-            //charset: 'utf-8', // specify a charset for inserted nodes, default is utf-8
-            //loadOptional: true, // automatically load optional dependencies, default false
-            //combine: true, // use the Yahoo! CDN combo service for YUI resources, default is true unless 'base' has been changed
-            filter: 'raw', // apply a filter to load the raw or debug version of YUI files
-            timeout: 10000, // specify the amount of time to wait for a node to finish loading before aborting
-            insertBefore: 'yuiInsertBeforeMe', // The insertion point for new nodes
+    var bootstrap = function ( configIn ) {
+        var config = merge( configIn || {},
+            {
+                //lang: 'ko-KR,en-GB,zh-Hant-TW', // languages in order of preference
+                //base: '../../build/', // the base path to the YUI install.  Usually not needed because the default is the same base path as the yui.js include file
+                //charset: 'utf-8', // specify a charset for inserted nodes, default is utf-8
+                //loadOptional: true, // automatically load optional dependencies, default false
+                //combine: true, // use the Yahoo! CDN combo service for YUI resources, default is true unless 'base' has been changed
+                filter: 'raw', // apply a filter to load the raw or debug version of YUI files
+                timeout: 10000, // specify the amount of time to wait for a node to finish loading before aborting
+                insertBefore: 'yuiInsertBeforeMe', // The insertion point for new nodes
 
-            // one or more groups of modules which share the same base path and
-            // combo service specification.
-            groups: {
-                // Note, while this is a valid way to load YUI2, 3.1.0 has intrinsic
-                // YUI 2 loading built in.  See the examples to learn how to use
-                // this feature.
-                littleware: getLittleModules()
+                // one or more groups of modules which share the same base path and
+                // combo service specification.
+                groups: {
+                    // Note, while this is a valid way to load YUI2, 3.1.0 has intrinsic
+                    // YUI 2 loading built in.  See the examples to learn how to use
+                    // this feature.
+                    littleware: getLittleModules()
+                }
             }
-        });
+            );
+        return YUI( config );
     };
     return {
         bootstrap: bootstrap,

@@ -721,7 +721,6 @@ module Y {
         interface Node extends EventTarget { 
             (node: HTMLElement);
             
-            
             contains(needle: Node): bool;
             contains(needle: HTMLElement): bool;
             createCaption(): Node;
@@ -749,6 +748,7 @@ module Y {
             generateID(): string;
             getAttribute(name: string): string;
             focus(): Node;
+            delegate(type: string, fn: Function, el: string): EventHandle;
             delegate(type: string, fn: Function, spec: string, context: any, args: any): EventHandle;
             delegate(type: string, fn: Function, spec: Function, context: any, args: any): EventHandle;
             each(fn: Function, context: any): Node;
@@ -757,6 +757,7 @@ module Y {
             getAttrs(attrs: any[]): any;
             get(attr: string): any;
             hide(name: string, config: any, callback: Function): Node;
+            hide();
             getComputedStyle(attr: string): string;
             getStyle(attr: string): string;
             getY(): number;
@@ -862,6 +863,7 @@ module Y {
             setStyle(attr: string, val: number): Node;
             setStyles(hash: any): Node;
             show(name: string, config: any, callback: Function): Node;
+            show();
             toString(): string;
             toggleClass(className: string, force: bool): Node;
             transition(config: any, callback: Function): Node;
@@ -895,6 +897,7 @@ module Y {
             generateID(): string;
             detachAll(): any;
             detach(): any;
+            each( fn: Function ): any;
             getAttribute(name: string): string;
             isEmpty(): bool;
             odd(): NodeList;
@@ -1820,6 +1823,7 @@ module Y {
             
             applyTo(id: string, method: string, args: any[]): any;
             applyConfig(o: any): any;
+            assert(condition: bool, message: string): any;
             cached(source: Function, cache?: any, refetch?: any): Function;
             bind(f: Function, c: any, args: any): Function;
             bind(f: string, c: any, args: any): Function;
@@ -1874,6 +1878,7 @@ module Y {
             rbind(f: string, c: any, args: any): Function;
             stamp(o: any, readOnly: bool): string;
             some(o: any, f: Function, c: any, proto: bool): bool;
+            soon(fn: Function): any;
             substitute(s: string, o: any, f: Function, recurse: bool): string;
             throttle(fn: Function, ms: number): Function;
             use(modules: string, callback?: (Y: YUI, status: any) => any): YUI;
@@ -2364,6 +2369,7 @@ module Y {
             ATTRS: any;
             
             create(html: string, doc: HTMLDocument): Node;
+            create(html: string ): Node;
             DEFAULT_GETTER(name: string): any;
             DEFAULT_SETTER(name: string, val: any): any;
             addMethod(name: string, fn: Function, context: any): any;

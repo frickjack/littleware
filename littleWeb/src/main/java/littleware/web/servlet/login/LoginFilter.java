@@ -108,9 +108,11 @@ public class LoginFilter implements Filter {
     {
       JsonObject js = null;
       final Cookie[] cookies = req.getCookies();
-      for (Cookie cookie : cookies) {
-        if (cookie.getName().equals(littleCookie)) {
-          js = gsonTool.fromJson(cookie.getValue(), JsonElement.class).getAsJsonObject();
+      if ( null != cookies ) {
+        for (Cookie cookie : cookies) {
+          if (cookie.getName().equals(littleCookie)) {
+            js = gsonTool.fromJson(cookie.getValue(), JsonElement.class).getAsJsonObject();
+          }
         }
       }
       optJsCreds = Options.some(js);
@@ -123,16 +125,16 @@ public class LoginFilter implements Filter {
         final SessionCreds creds = tools.mgr.fromJson(optJsCreds.get());
         final SessionInfo sinfo = tools.mgr.loadSession(creds);
         
+        log.log( Level.FINE, "Processing credentials {0}", optJsCreds.get() );
         if( sinfo.getCredentials().getLoginCreds().isSet() &&
-             sinfo.getCredentials().getLoginCreds().get().expiration.isBefore( DateTime.now() )
+             sinfo.getCredentials().getLoginCreds().get().expiration.isAfter( DateTime.now() )
             ) {
-          // NOOP - do not continue with an unauthenticated session -
-          //   setup a new one below if authentication not required ...
-          success = false;
+          req.setAttribute(WebBootstrap.littleGuice, sinfo.getGBean());
+          success = true;
         } else if ( authRequired ) { // session must be authenticated
-          //req.setAttribute(WebBootstrap.littleGuice, sinfo.getGBean());
+          // auth required, but creds either corrupt or expired
           success = false;
-        } else { // authenticated session not required 
+        } else { // authenticated session not required - re-use existing gbean
           req.setAttribute(WebBootstrap.littleGuice, sinfo.getGBean());
           success = true;          
         }
@@ -140,10 +142,12 @@ public class LoginFilter implements Filter {
       } catch (Exception ex) {
         log.log(Level.INFO, "Failed to establish session from cookie: " + optJsCreds.get(), ex);
       }
+    } else {
+        log.log( Level.FINE, "No credentials cookie present in request" );
     }
 
     if ( (! success) && (! authRequired) ) {
-      // setup an unauthenticated session
+      // setup an unauthenticated session, and update the client's cookie
       final SessionInfo sinfo = tools.mgr.loadSession( UUID.randomUUID() );
       req.setAttribute(WebBootstrap.littleGuice, sinfo.getGBean());
       tools.mgr.addSessionCookie(req, resp, sinfo);

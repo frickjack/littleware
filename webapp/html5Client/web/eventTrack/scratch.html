@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+
+        <link rel="apple-touch-icon" href="/btrack/resources/img/appIcons/oo511.57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/btrack/resources/img/appIcons/oo511.72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/btrack/resources/img/appIcons/oo511.114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/btrack/resources/img/appIcons/oo511.144x144.png" />
+
+        <!--
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.10.3/build/cssnormalize/cssnormalize-min.css">
+        
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssgrids-responsive/cssgrids-responsive.css" type="text/css" /> 
+        -->
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssfonts/cssfonts.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.1.0/pure-min.css">
+        <link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />
+
+        <style id="yuiInsertBeforeMe" type="text/css"></style>
+        <!--
+        <link rel="stylesheet" href="/btrack/resources/css/littleware/babyTrack/main.css" type="text/css" />         
+        -->
+
+        <style>
+            body {
+                margin: auto; /* center in viewport */
+                width: 960px;
+            }
+            div {
+                transition:width 2s, height 2s, background-color 2s;
+            }
+        </style>        
+    </head>
+    <body class="yui3-skin-sam">
+
+        <div id="page0" class="pure-g little-page">
+
+            <div id="pg0panel0" class="pure-u-1-3 little-panel">
+                <div id="boxA" class="little-content">
+                    <h2>A</h2>
+                </div>
+            </div>
+
+            <div id="pg0panel1" class="pure-u-1-3 little-panel">
+                <div id="boxB" class="little-content">
+                    <h2>B</h2>
+                </div>
+            </div>
+
+            <div id="pg0panel2" class="pure-u-1-3 little-panel">
+                <div id="boxC" class="toy little-content">
+                    <h2>C</h2>
+                    <p>...</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="page1" class="pure-g little-page">
+            <div id="pg1panel0" class="pure-u-1-2 little-panel">
+                <div id="boxA" class="little-content">
+                    <h2>D</h2>
+                    
+                    <div id="nav" class="pure-menu pure-menu-open pure-menu-horizontal">
+                        <ul>
+                            <li  class="pure-menu-selected"><a href="#page0" class="little-nav0">Page0</a></li>
+                            <li> <a href="#page1" class="little-nav1">Page1</a></li>
+                        </ul>
+                    </div>                
+                </div>
+            </div>
+
+            <div id="pg1panel1" class="pure-u-1-2 little-panel">
+                <div id="boxB" class="little-content">
+                    <h2>E</h2>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div id="viewContainer">
+            <h2>YUI App Test Area</h2>
+        </div>
+
+        <script type="text/x-handlebars-template" id="dataGraphTemplate">
+            <div class="fbTask">
+            <div class="fbBar" style="width:0%;">0%</div>
+            <div class="fbContent">
+            (Running ...)
+            </div>
+            </div>            
+        </script>  
+
+        <script src="http://yui.yahooapis.com/3.10.3/build/yui/yui-min.js"></script> 
+        <script src="/btrack/resources/js/littleware/littleYUI.js"></script>
+
+        <script>
+
+            littleware.littleYUI.bootstrap( { classNamePrefix: 'pure' } ).use( 
+                'app-base', 'node', 'event', 'handlebars', 'scrollview', 'view', 'test',
+                'littleware-toy-toyB',
+            function (Y) {
+                var util = Y.littleware.littleUtil;
+                var log = new util.Logger( "events.html" );
+
+                log.log( "main() running" );
+                var toy = Y.littleware.toy.b
+                var greeter = new toy.Greeter( "Dude" );
+                toy.runGreeter( greeter );
+
+                var colors = [ "red", "green", "magenta" ];
+                var counter = 0;
+                
+                var PageView = Y.Base.create( "pageView", Y.View, [], {
+                    template: Y.Handlebars.compile( "<p>Hello, {{name}}! {{counter}}</p>" ),
+                    render:function() {
+                        counter += 1;
+                        var container = this.get( 'container' );
+                        var content = this.template( { counter: "" + counter, name: this.get( "name" ) } );
+                        container.setHTML( content );
+                        /*
+                        if ( ! container.inDoc() ) {
+                            Y.one( "#boxA" ).append( container );
+                        }
+                        */
+                        return this;
+                    }
+                }, { ATTRS : { name: { value: "Fred" } } } );
+                
+                var page0View = new PageView( {
+                    container: Y.Node.create( "<div id='page0' />" ),
+                    name: "Barney"
+                });
+                var page1View = new PageView( {
+                    container: Y.Node.create( "<div id='page2' />" )
+                });
+                page0View.render();
+                page1View.render();
+                
+                var app = new Y.App( {
+                    views: {
+                        page0 : {preserve: true, type:PageView, instance:page0View},
+                        page1 : {preserve: true, type:PageView, instance:page1View}
+                        //user : {parent: 'users'}
+                    },
+                    transitions:true,
+                    container:"#viewContainer",
+                    viewContainer:"#viewContainer",
+                    serverRouting:false
+                });
+                
+                app.showView( "page0"  );
+                
+                Y.all( "a.little-nav0" ).on( "click", function(ev) {
+                  ev.preventDefault();
+                  app.showView( "page0" );
+                });
+                
+                Y.all( "a.little-nav1" ).on( "click", function(ev) {
+                  ev.preventDefault();
+                  app.showView( "page1" );
+                });
+                
+            }
+            );
+
+        </script>
+
+    </body>
+</html>

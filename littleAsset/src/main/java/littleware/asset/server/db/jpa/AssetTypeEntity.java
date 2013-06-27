@@ -12,6 +12,7 @@ package littleware.asset.server.db.jpa;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import javax.persistence.*;
@@ -98,6 +99,12 @@ public class AssetTypeEntity implements Serializable {
     joinColumns = {@JoinColumn(name = "s_ancestor_id")},
     inverseJoinColumns = {@JoinColumn(name = "s_descendent_id")})
     public List<AssetTypeEntity> getSubtypeList() {
+        if ( null == ovSubtype ) {
+            // ugh - glassfish 4 eclipselink setting null subtype list ?
+            // actually - that might have been a different problem, 
+            // but leaving this here for now ...
+            return Collections.emptyList();
+        }
         return ovSubtype;
     }
 

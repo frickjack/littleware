@@ -12,6 +12,7 @@ import com.google.inject.Provider;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.asset.AssetType;
 import littleware.asset.LittleHome;
 import littleware.asset.LittleHome.HomeBuilder;
 import littleware.asset.TreeNode;
@@ -20,7 +21,6 @@ import littleware.asset.client.test.AbstractAssetTest;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.AssertionFailedException;
-import littleware.base.Whatever;
 import littleware.security.AccountManager;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
@@ -141,6 +141,10 @@ public class DbInitializer {
                 mgr.makeDbAssetSaver(trans).saveObject(entry);
             }
 
+            // make sure the type data is in the db too ...
+            for( AssetType atype : AssetType.getMembers() ) {
+                mgr.makeTypeChecker(trans).saveObject(atype);
+            }
         } catch (SQLException ex) {
             log.log(Level.WARNING, "Failed to initialize AWS domain", ex);
             throw new AssertionFailedException("Failed to initialize AWS domain", ex);

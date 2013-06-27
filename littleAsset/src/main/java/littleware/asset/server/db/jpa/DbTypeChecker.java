@@ -22,7 +22,7 @@ import littleware.base.UUIDFactory;
 import littleware.db.DbWriter;
 
 /**
- * Verify asset-type data.  
+ * Verify asset-type data for given type is saved to the database.  
  */
 public class DbTypeChecker implements DbWriter<AssetType> {
     private final JpaLittleTransaction trans;

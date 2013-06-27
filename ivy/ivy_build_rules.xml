@@ -30,16 +30,15 @@
     <available file="${ivy.jar.dir}/littlesettings.xml" property="settings.exists"/>
     -->
     <available file="${ivy.jar.file}" property="ivyjar.exists"/>
+    <available file="ivy/test" property="ivy.resolve.test.exists" />
+    <available file="ivy/compile" property="ivy.resolve.compile.exists" />
+    <available file="ivy.xml" property="ivy.xml.exists" />
+
     <condition property="skip.download">
         <and>
-            <!--
-            <isset property="settings.exists" />
-            -->
             <isset property="ivyjar.exists" />
         </and>
     </condition>
-    <available file="ivy/test" property="ivy.resolve.test.exists" />
-    <available file="ivy/compile" property="ivy.resolve.compile.exists" />
     
     <condition property="ivy.resolve.exists">
         <and>
@@ -70,7 +69,7 @@
             if you already have ivy in your ant lib, you can simply remove this
             target and the dependency the 'go' target has on it
          ================================= --> 
-<target name="install-ivy" depends="download-ivy" description="--> install ivy"> 
+<target name="install-ivy" depends="download-ivy" description="--> install ivy" if="ivy.xml.exists"> 
     	<!-- try to load ivy here from local ivy dir, in case the user has not already dropped
     	      it into ant's lib dir (note that the latter copy will always take precedence).
     	      We will not fail as long as local lib dir exists (it may be empty) and
@@ -126,14 +125,14 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
 
 <target name="resolveIfClean" 
     depends="install-ivy" 
-    description="-- same as retrieve if 'clean' was executed in a previous task: ant clean compile"
+    description="-- same as resolve if 'clean' was executed in a previous task: ant clean compile"
     if="ivy.clean"
     >   
     <antcall target="resolve" />
 </target>
 
 
-<target name="resolve" depends="install-ivy" description="-- retrieve dependencies with ivy">
+<target name="resolve" depends="install-ivy" description="-- retrieve dependencies with ivy" if="ivy.xml.exists">
     <!--
     We assume here that there are 'compile' and 'test' ivy configs.
     Delete dist/ivy.xml to force rebuild
@@ -161,7 +160,8 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
 
 <!-- nbproject/project.properties loaded in "init" -->
 <target name="-pre-init" depends="resolveIfNecessary" />
-<target name="-post-init">
+
+<target depends="init" name="-check-webproject-status">
     <condition property="typescript.ready">
         <and>
             <!--
@@ -170,6 +170,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
             <isset property="build.web.dir" />
             <isset property="typescript.compiler.path" />
             <available file="${typescript.compiler.path}" />
+            <available file="${build.web.dir}/resources/js" />
         </and>
     </condition>    
     
@@ -181,8 +182,18 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
             <isset property="build.web.dir" />
             <isset property="ydoc.path" />
             <available file="${ydoc.path}" />
+            <available file="${build.web.dir}/resources/js/littleware" />
         </and>
     </condition>    
+    
+    <condition property="build.copy.webjars">
+       <and>
+          <isset property="build.web.dir" />
+          <isset property="ivy.resolve.test.exists" />
+       </and>
+    </condition>
+    
+    <echo message="post-init checks, ydoc.ready: ${ydoc.ready}, typescript.ready: ${typescript.ready}, build.copy.webjars: ${build.copy.webjars}" />
 </target>
 
 <target name="-pre-compile" depends="resolveIfClean" />
@@ -213,7 +224,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
         </fileset>
     </copy>
   </target>
-  
+    
 <target name="publish-fast" depends="-init-project,jar" description="publish SNAPSHOT build to local ivy repository without initial resolve">
 	<ivy:publish  overwrite="true"
 			           resolver="local"
@@ -321,7 +332,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
 <!-- web project stuff -->
 
 
-<target name="ydoc" depends="config-check" if="ydoc.ready" 
+<target name="ydoc" depends="-check-webproject-status" if="ydoc.ready" 
     description="run ydoc on build/ js"
     >
   <exec executable="${ydoc.path}">
@@ -424,7 +435,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
 </macrodef>
 
 
-<target name="typescript" depends="-init-project,-post-init" if="typescript.ready"
+<target name="typescript" depends="-check-webproject-status" if="typescript.ready"
     description="compile typescript files build/*.ts"
     >
     <echo message="Typescript compiling ${build.web.dir}/resources/js" />
@@ -437,8 +448,8 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
 </target>
 
 
-<!-- post-compile rule kicks in if build.web.dir netbeans property is defined -->
-<target name="-post-compile" depends="ydoc,typescript" if="build.web.dir">
+<!-- post-compile rule for web projects - kicks in if build.web.dir netbeans property is defined -->
+<target name="-post-compile" depends="config-check,ydoc,typescript" if="build.copy.webjars">
       <copy todir="${build.web.dir}/WEB-INF/lib">
         <fileset dir="ivy/test"/>
       </copy>

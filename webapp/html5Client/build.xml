@@ -7,11 +7,10 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="appsWeb" default="default" basedir=".">
-    <description>Builds, tests, and runs the project appsWeb.</description>
-    
-    <property name="little.ivy.dir" value="../../../ivy" />
-    <import file="${little.ivy.dir}/ivy_build_rules.xml"/>             
+<project name="html5Client" default="default" basedir=".">
+    <description>Builds, tests, and runs the project html5Client.</description>
+    <property name="little.ivy.dir" value="../../ivy" />
+    <import file="${little.ivy.dir}/ivy_build_rules.xml"/>                 
     <import file="nbproject/build-impl.xml"/>
     
     <!-- ivy_build_rules requires that there is a "jar" target -->
@@ -75,6 +74,4 @@
     nbproject/build-impl.xml file. 
 
     -->
-    
-        
 </project>

@@ -19,6 +19,7 @@ import javax.persistence.Query;
 import littleware.asset.AssetType;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
+import littleware.base.Whatever;
 import littleware.db.DbReader;
 
 /**
@@ -85,6 +86,7 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
         } else {
             final AssetType type = maybeType.get();
             final AssetTypeEntity typeEnt = entMgr.find(AssetTypeEntity.class, UUIDFactory.makeCleanString(type.getObjectId()));
+            Whatever.get().check( "Found asset type in database: " + type, null != typeEnt );
             vInfo = loadInfo(type.getObjectId());
             for (AssetTypeEntity subtype : typeEnt.getSubtypeList()) {
                 vInfo.addAll(loadInfo(UUIDFactory.parseUUID(subtype.getObjectId())));

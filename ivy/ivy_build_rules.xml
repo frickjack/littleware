@@ -189,7 +189,7 @@ IVY resolve the param.ivy.config configuration into ivy/${param.ivy.config}
     <condition property="build.copy.webjars">
        <and>
           <isset property="build.web.dir" />
-          <isset property="ivy.resolve.test.exists" />
+          <available file="ivy/test" />
        </and>
     </condition>
     

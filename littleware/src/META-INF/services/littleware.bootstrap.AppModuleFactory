@@ -1,4 +1,8 @@
 # littleware AppModule service providers
 littleware.bootstrap.helper.LittlePropsModule$Factory
-littleware.bootstrap.helper.ExecutorModule$Factory
-littleware.lgo.LgoModuleFactory
+#
+# Optional modules - apps can add explicitly if desired 
+#
+# littleware.bootstrap.helper.ExecutorModule$Factory
+# littleware.lgo.LgoModuleFactory
+#

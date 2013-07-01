@@ -250,7 +250,7 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                     // probably on a phone ...
                     chartDiv.hide();
                     // scroll to hide the browser URL chrome ...
-                    //   http://localhost:8080/btrack/babyTrack/en/511.html
+                    //   http://localhost:8080/littleware_apps/babyTrack/en/511.html
                     Y.one( "body" ).setStyle( "min-height", "480px" );
                     setTimeout(function(){
                         window.scrollTo( window.pageXOffset,0);

@@ -17,25 +17,25 @@ http://yui.yahooapis.com/3.9.1/build/cssfonts/cssfonts.css
 http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids.css
 http://yui.yahooapis.com/3.9.1/build/cssreset/cssreset.css
 http://yui.yahooapis.com/combo?3.9.1/build/widget-base/assets/skins/sam/widget-base.css&3.9.1/build/scrollview-base/assets/skins/sam/scrollview-base.css&3.9.1/build/scrollview-scrollbars/assets/skins/sam/scrollview-scrollbars.css&3.9.1/build/widget-stack/assets/skins/sam/widget-stack.css&3.9.1/build/datatable-base/assets/skins/sam/datatable-base.css&3.9.1/build/datatable-message/assets/skins/sam/datatable-message.css&3.9.1/build/datatable-sort/assets/skins/sam/datatable-sort.css
-/btrack/resources/css/littleware/babyTrack/main.css
+/littleware_apps/resources/css/littleware/babyTrack/main.css
 
 #style sheet images
-/btrack/resources/img/wait.gif
+/littleware_apps/resources/img/wait.gif
 
 #javascript files
-/btrack/resources/js/littleware/littleUtil.js
-/btrack/resources/js/littleware/babyTrack/model/contraction.js
-/btrack/resources/js/littleware/babyTrack/model/contractionApp.js
-/btrack/resources/js/littleware/babyTrack/view/startStopButtonPanel.js
-/btrack/resources/js/littleware/babyTrack/view/statsPanel.js
-/btrack/resources/js/littleware/babyTrack/view/contractionPanel.js
+/littleware_apps/resources/js/littleware/littleUtil.js
+/littleware_apps/resources/js/littleware/babyTrack/model/contraction.js
+/littleware_apps/resources/js/littleware/babyTrack/model/contractionApp.js
+/littleware_apps/resources/js/littleware/babyTrack/view/startStopButtonPanel.js
+/littleware_apps/resources/js/littleware/babyTrack/view/statsPanel.js
+/littleware_apps/resources/js/littleware/babyTrack/view/contractionPanel.js
 http://yui.yahooapis.com/combo?3.9.1/build/oop/oop.js&3.9.1/build/event-custom-base/event-custom-base.js&3.9.1/build/dom-core/dom-core.js&3.9.1/build/dom-base/dom-base.js&3.9.1/build/selector-native/selector-native.js&3.9.1/build/selector/selector.js&3.9.1/build/node-core/node-core.js&3.9.1/build/node-base/node-base.js&3.9.1/build/event-base/event-base.js&3.9.1/build/event-delegate/event-delegate.js&3.9.1/build/node-event-delegate/node-event-delegate.js&3.9.1/build/pluginhost-base/pluginhost-base.js&3.9.1/build/pluginhost-config/pluginhost-config.js&3.9.1/build/node-pluginhost/node-pluginhost.js&3.9.1/build/dom-style/dom-style.js&3.9.1/build/dom-screen/dom-screen.js&3.9.1/build/node-screen/node-screen.js&3.9.1/build/node-style/node-style.js&3.9.1/build/event-custom-complex/event-custom-complex.js&3.9.1/build/event-synthetic/event-synthetic.js&3.9.1/build/event-mousewheel/event-mousewheel.js&3.9.1/build/event-mouseenter/event-mouseenter.js&3.9.1/build/event-key/event-key.js
 http://yui.yahooapis.com/combo?3.9.1/build/event-focus/event-focus.js&3.9.1/build/event-resize/event-resize.js&3.9.1/build/event-hover/event-hover.js&3.9.1/build/event-outside/event-outside.js&3.9.1/build/event-touch/event-touch.js&3.9.1/build/event-move/event-move.js&3.9.1/build/event-flick/event-flick.js&3.9.1/build/event-valuechange/event-valuechange.js&3.9.1/build/event-tap/event-tap.js&3.9.1/build/event-simulate/event-simulate.js&3.9.1/build/json-stringify/json-stringify.js&3.9.1/build/test/test.js&3.9.1/build/attribute-core/attribute-core.js&3.9.1/build/attribute-observable/attribute-observable.js&3.9.1/build/attribute-extras/attribute-extras.js&3.9.1/build/attribute-base/attribute-base.js&3.9.1/build/attribute-complex/attribute-complex.js&3.9.1/build/base-core/base-core.js&3.9.1/build/base-observable/base-observable.js&3.9.1/build/base-base/base-base.js&3.9.1/build/base-pluginhost/base-pluginhost.js&3.9.1/build/classnamemanager/classnamemanager.js&3.9.1/build/widget-base/widget-base.js
 http://yui.yahooapis.com/combo?3.9.1/build/widget-htmlparser/widget-htmlparser.js&3.9.1/build/widget-skin/widget-skin.js&3.9.1/build/widget-uievents/widget-uievents.js&3.9.1/build/transition/transition.js&3.9.1/build/scrollview-base/scrollview-base.js&3.9.1/build/plugin/plugin.js&3.9.1/build/scrollview-scrollbars/scrollview-scrollbars.js&3.9.1/build/scrollview/scrollview.js&3.9.1/build/intl/intl.js&3.9.1/build/base-build/base-build.js&3.9.1/build/datatype-number-parse/datatype-number-parse.js&3.9.1/build/datatype-number-format/datatype-number-format.js&3.9.1/build/datatype-date-parse/datatype-date-parse.js&3.9.1/build/datatype-date-format/lang/datatype-date-format_en-US.js&3.9.1/build/datatype-date-format/datatype-date-format.js&3.9.1/build/datatype-date-math/datatype-date-math.js&3.9.1/build/widget-position/widget-position.js&3.9.1/build/widget-stack/widget-stack.js&3.9.1/build/matrix/matrix.js&3.9.1/build/graphics/graphics.js&3.9.1/build/graphics-svg-default/graphics-svg-default.js
 http://yui.yahooapis.com/combo?3.9.1/build/graphics-svg/graphics-svg.js&3.9.1/build/charts-base/charts-base.js&3.9.1/build/charts/charts.js&3.9.1/build/escape/escape.js&3.9.1/build/array-extras/array-extras.js&3.9.1/build/array-invoke/array-invoke.js&3.9.1/build/arraylist/arraylist.js&3.9.1/build/json-parse/json-parse.js&3.9.1/build/model/model.js&3.9.1/build/model-list/model-list.js&3.9.1/build/datatable-core/datatable-core.js&3.9.1/build/view/view.js&3.9.1/build/datatable-head/datatable-head.js&3.9.1/build/datatable-body/datatable-body.js&3.9.1/build/datatable-table/datatable-table.js&3.9.1/build/datatable-base/datatable-base.js&3.9.1/build/datatable-column-widths/datatable-column-widths.js&3.9.1/build/datatable-message/lang/datatable-message_en.js&3.9.1/build/datatable-message/datatable-message.js&3.9.1/build/datatable-mutable/datatable-mutable.js&3.9.1/build/datatable-sort/lang/datatable-sort_en.js&3.9.1/build/datatable-sort/datatable-sort.js&3.9.1/build/datasource-local/datasource-local.js
 http://yui.yahooapis.com/combo?3.9.1/build/datatable-datasource/datatable-datasource.js
 http://yui.yahooapis.com/3.9.1/build/yui/yui-min.js
-/btrack/resources/js/littleware/babyTrack/contractionMain.js
+/littleware_apps/resources/js/littleware/babyTrack/contractionMain.js
 
 NETWORK:
 *

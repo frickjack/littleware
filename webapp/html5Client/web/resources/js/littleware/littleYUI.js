@@ -22,7 +22,7 @@ if( window.littleware == undefined ) {
  * @namespace auburn.library
  */
 littleware.littleYUI = (function() {
-    var CONTEXT_ROOT = "/btrack";
+    var CONTEXT_ROOT = "/littleware_apps";
     
     /**
      * Get the YUI.config groups entry that registers the littleware javascript

@@ -70,7 +70,8 @@ public class JenkinsTestSuite extends TestSuite {
         log.log(Level.WARNING, "Guice 2.0 has an AOP bug that may throw an exception booting in test-runner class-loader");
         try {
             return (new TestFactory()).build(
-                    AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.CliApp).build(),
+                    AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.CliApp
+                    ).addModuleFactory(new littleware.lgo.LgoModuleFactory()).build(),
                     JenkinsTestSuite.class
                     );
         } catch (RuntimeException ex) {

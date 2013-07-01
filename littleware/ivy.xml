@@ -41,6 +41,7 @@
         <dependency org="joda-time" name="joda-time" rev="2.1" conf="*->*,!sources,!javadoc" />
 
         <dependency org="org.javasimon" name="javasimon-core" rev="3.3.0" conf="*->default" />
+        <!-- Note: guava 14+ introduces jsr330 dependency problematic in CDI 1.1 glassfish 4 -->
         <dependency org="com.google.guava" name="guava" rev="14.0.1" conf="*->*,!sources,!javadoc"/>
         <dependency org="com.google.code.findbugs" name="jsr305" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
         

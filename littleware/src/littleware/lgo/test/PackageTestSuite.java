@@ -39,7 +39,7 @@ public class PackageTestSuite extends TestSuite {
      */
     public static Test suite() {
         return (new TestFactory()).build(
-                AppBootstrap.appProvider.get().build(),
+                AppBootstrap.appProvider.get().addModuleFactory( new littleware.lgo.LgoModuleFactory() ).build(),
                 PackageTestSuite.class
                 );
     }

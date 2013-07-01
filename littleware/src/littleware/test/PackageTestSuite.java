@@ -53,7 +53,8 @@ public class PackageTestSuite extends TestSuite {
         try {
             return (new TestFactory()).build(
                     littleware.apps.swingbase.test.PackageTestSuite.registerSwingBase(
-                    AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.SwingApp)).build(),
+                        AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.SwingApp)
+                    ).addModuleFactory(new littleware.lgo.LgoModuleFactory()).build(),
                     PackageTestSuite.class);
         } catch (RuntimeException ex) {
             log.log(Level.SEVERE, "Test setup failed", ex);

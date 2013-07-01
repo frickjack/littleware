@@ -11,7 +11,7 @@
     <description>Builds, tests, and runs the project appsWeb.</description>
     
     <property name="little.ivy.dir" value="../../../ivy" />
-    <import file="${little.ivy.dir}/ivy_build_rules.xml"/>             
+    <import file="${little.ivy.dir}/ivy_build_rules.xml" as="ivy_build_rules" />             
     <import file="nbproject/build-impl.xml"/>
     
     <!-- ivy_build_rules requires that there is a "jar" target -->
@@ -76,5 +76,12 @@
 
     -->
     
+    <target name="-post-compile" depends="ivy_build_rules.-post-compile">
+        <jar update="true" keepcompression="true" 
+                destfile="${build.web.dir}/WEB-INF/lib/guava-14.0.1-bundle.jar"
+                >
+            <fileset dir="src/java" />
+        </jar>
+    </target>
         
 </project>

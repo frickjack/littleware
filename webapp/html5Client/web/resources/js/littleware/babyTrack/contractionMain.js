@@ -23,7 +23,7 @@ YUI.namespace( "littleware.babyTrack" );
  */
 YUI.littleware.babyTrack.contractionMain = (function() {
 
-    var CONTEXT_ROOT = "/btrack";
+    var CONTEXT_ROOT = "/littleware_apps";
     
     /*
      * The YUI.config groups entry that registers the littleware javascript

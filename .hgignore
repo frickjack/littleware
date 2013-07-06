@@ -1,6 +1,8 @@
 CVS
 derby.log
 .picasa.ini
+.git/
+.gitignore
 Thumbs.db
 ^Auburn/
 ^littleware/lib
@@ -40,5 +42,6 @@ EclipseWorkspace/\.project/
 EclipseWorkspace/\.settings/
 EclipseWorkspace/RemoteSystemTempFiles/
 .rpc$
+.swp$
 /GwtDemo/
 latest_session.properties$

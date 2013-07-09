@@ -47,7 +47,8 @@ class PathToolTester @inject.Inject()(
   
   def testMimeTypes():Unit = try {
     Seq( "json" -> "application/json", "html" -> "text/html", 
-        "js" -> "application/javascript", "png" -> "image/png"
+        "js" -> "application/javascript", "png" -> "image/png",
+        "manifest" -> "text/cache-manifest"
     ).foreach( _ match {
         case (suffix,mtype) => {
             val lookup = mimeMap.getContentType( "bla." + suffix )

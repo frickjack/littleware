@@ -35,13 +35,21 @@ class SimpleEventHandler @inject.Inject() (
 
   /** 
    * Internal utility - extract the path portion of a given  
-   * uri below a given root uri removing leading "/" from result
+   * uri below a given root uri removing leading "/" from result unless
+   * path==root, then just return path.basename
    */
   def basepath( path:java.net.URI, root:java.net.URI ):String = {
       val pathPath = path.getPath
       val rootPath = root.getPath
       require( pathPath.length >= rootPath.length, "valid looking path and root: " + path + " & " + root )
-      pathPath.substring( rootPath.length ).replaceAll( "^/+", "" )
+      if ( pathPath.length > rootPath.length ) {
+        pathPath.substring( rootPath.length ).replaceAll( "^/+", "" )
+      } else {
+        val lastSlash = pathPath.lastIndexOf( '/' )
+        if ( lastSlash > -1 ) {
+          pathPath.substring( lastSlash+1 )
+        } else pathPath
+      }
   }
   
   def listCommands( srcRoot:java.net.URI, 
@@ -57,14 +65,25 @@ class SimpleEventHandler @inject.Inject() (
       val srcObjects:Seq[model.ObjectSummary] = tool.lsR( srcRoot ).flatMap( pathToObjs(_) )
       fb.setProgress( 33 )
       fb.info( "Scanning " + destRoot )
-      val destObjects = tool.lsR( destRoot ).flatMap( pathToObjs(_)  )
+      
+      val destRootStr = destRoot.toString.replaceAll( "/+$", "" ) + "/"
+      
+      val destObjects:Seq[model.ObjectSummary] = if( srcObjects.size == 1 ) {
+        // single object copy - just check if dest already exists
+        srcObjects.flatMap( 
+          (o) => {
+            val destUri = new java.net.URI( destRootStr + basepath( o.path, srcRoot ) )
+            tool.ls( destUri )
+          } ).flatMap( pathToObjs(_) )
+      } else tool.lsR( destRoot ).flatMap( pathToObjs(_)  )
+      
       // sub-destRoot path to object map
       val destIndex:Map[java.net.URI,model.ObjectSummary] = destObjects.map( 
         o => o.path -> o
       ).toMap
       fb.setProgress( 66 )
       fb.info( "Merging source and destination index ...")
-      val destRootStr = destRoot.toString.replaceAll( "/+$", "" ) + "/"
+      
       srcObjects.map( o => {
           val destUri = new java.net.URI( destRootStr + basepath( o.path, srcRoot ) )
           SrcDestSummary( o, destUri, destIndex.get( destUri ))

@@ -17,7 +17,7 @@ import java.{io => jio}
 import java.net.URI
 import java.util.logging.{Level,Logger}
 
-
+  
 class SimpleTool @inject.Inject()( 
   fileStrategyFactory:inject.Provider[FileStrategy.Builder],
   s3StrategyFactory:inject.Provider[S3Strategy.Builder]

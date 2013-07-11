@@ -56,13 +56,8 @@
         <script src="http://yui.yahooapis.com/3.10.3/build/yui/yui-debug.js"></script>
         <script type="text/javascript" src="../resources/js/littleware/littleYUI.js" charset="utf-8"></script>
 
-        <script>
-    
-            //
-            // Create a YUI sandbox on your page.
-            // Loadup syncrhonously to play nice with phantomjs headless testing
-            //
-            littleware.littleYUI.bootstrap( { sync: true } ).use( 
+        <script>    
+            littleware.littleYUI.bootstrap().use( 
                 'littleware-littleUtil', 'test',
                 function (Y) {
                     // The modules are loaded and ready to use.

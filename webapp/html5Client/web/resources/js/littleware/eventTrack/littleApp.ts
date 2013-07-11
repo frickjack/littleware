@@ -11,12 +11,17 @@ if ( null == exports ) {
 var Y:Y.YUI = exports;
 var lw: any = exports.littleware;
 
+/**
+ * @module littleware-eventTrack-littleApp
+ */
 export module littleware.eventTrack.littleApp {
     var log = new lw.littleUtil.Logger("littleware.eventTrack.littleApp");
     log.log("littleware logger loaded ...");
 
     /**
      * Base class for enumertions - see PanelState below
+     * 
+     * @class LittleEnum
      */
     export class LittleEnum {
         constructor(public id: number, public name: String) { }
@@ -547,12 +552,35 @@ export module littleware.eventTrack.littleApp {
                                 var path: string = router.removeRoot( e.currentTarget.get('href') );
                                 e.preventDefault();
 
-                                if ( (router.getPath() != path) && router.hasRoute(path)) {    
+                                if ( (router.getPath() != path) && router.hasRoute(path) ) {    
                                     router.save(path);
                                 }
                             }, 'a.little-route'
                           );
 
+                          /*... ugh - doesn't work on Android Chrome - browser already uses flick ? ...
+                        // flick gesture ... back or forward
+                        this.container.on( "flick", 
+                            (ev) => {
+                                alert( "flick!: + flick.axis + " " + flick.start.pageX + " to " + ev.pageX" );
+                               var flick = ev.flick;
+                               log.log( "Flick!: " + flick.axis + " " + flick.start.pageX + " to " + ev.pageX );
+                               if ( flick.axis == 'x' && ev.pageX > flick.start.pageX ) {
+                                var pathParts = router.getPath().split( /\/+/ );
+                                if ( pathParts.length > 1 ) {
+                                    ev.preventDefault();
+                                    pathParts.pop();
+                                    router.save( pathParts.join( "/" ) );
+                                }
+                               }
+                            }, {
+                                //minDistance: 20,
+                                //minVelocity: 0.8
+                                //preventDefault: true
+                            }
+                        );
+                            */
+                           
                         this.scheduleRender();
                     }
                 }

@@ -10,6 +10,8 @@
 <project name="html5Client" default="default" basedir=".">
     <description>Builds, tests, and runs the project html5Client.</description>
     <property name="little.ivy.dir" value="../../ivy" />
+    <property name="phantomjs.urls" value="http://localhost:8080/littleware_apps/testsuite/littleUtilTestSuite.html" />
+    
     <import file="${little.ivy.dir}/ivy_build_rules.xml"/>                 
     <import file="nbproject/build-impl.xml"/>
     

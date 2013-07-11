@@ -13,7 +13,7 @@
  * YUI doc comments: http://developer.yahoo.com/yui/yuidoc/
  * YUI extension mechanism: http://developer.yahoo.com/yui/3/yui/#yuiadd
  *
- * @module littleware.littleUtil
+ * @module littleware-littleUtil
  * @namespace littleware.littleUtil
  */
 YUI.add('littleware-littleUtil', function(Y) {
@@ -81,7 +81,7 @@ YUI.add('littleware-littleUtil', function(Y) {
          * @method keys
          * @param o object to scan for keys
          * @return {Array} of key-names
-         * @for
+         * @for Module
          * @static
          */
         function keys( o ) {
@@ -92,9 +92,12 @@ YUI.add('littleware-littleUtil', function(Y) {
         
         /**
          * Throws new Error( message ) if predicate evaluates false
+         * 
          * @method assert
          * @param {Boolean} predicate
          * @param {String} message
+         * @for Module
+         * @static
          */
         function assert( predicate, message ) {
             if( ! predicate ) {
@@ -102,8 +105,41 @@ YUI.add('littleware-littleUtil', function(Y) {
             }
         }
         
+        
+        /**
+         * Little helper loads and compiles a handlebar template via an AJAX call
+         * 
+         * @method loadHandlebar
+         * @param url {string}
+         * @return {Promise} Y.Promise delivers compiled template function or error info
+         * @static
+         */
+        function loadHandlebar( url ) {            
+            var promise = new Y.Promise( function(resolve,reject) {
+                var ioconf = {
+                  method:"GET",
+                  on: {
+                    success:function( id, resp, args ){
+                        resolve( Y.Handlebars.compile( resp.responseText ) );
+                    },
+                    failure:function( id, resp, args ) {
+                        log.log( "Failed to load " + url + ": " + resp.status + ", " + resp.statusText );
+                        reject( resp );
+                    }
+                  },
+                  timeout:60000
+                };
+                Y.io( url, ioconf );
+            });
+            return promise;
+        }
+        
+        //--------------------------------------
+        
         /**
          * Helper for assembling Builder classes.
+         * 
+         * @namespace littleware.littleUtil
          * @class BuilderBuilder
          */
         var BuilderBuilder = {
@@ -187,6 +223,7 @@ YUI.add('littleware-littleUtil', function(Y) {
             var suite = new Y.Test.Suite( "littleware-littleUtil Test Suite");
             suite.add( new Y.Test.Case( {
                 name: "Builder Test",
+                
                 testBuilder: function() {
                     Y.Assert.isTrue( true, "Do nothing test" );
                     log.info( "Assembling builder" );
@@ -197,7 +234,28 @@ YUI.add('littleware-littleUtil', function(Y) {
                     log.info( "Checking builder values" );
                     Y.Assert.isTrue( builder.a == "a" && builder.b == "b" && builder.c == "c", "BuilderBuilder sets up reasonable builder");
                     Y.Assert.isTrue( builder.validate().length == 0, "test builder validates ok" );
+                },
+                
+                testLoadHandlebar: function() {
+                    var test = this;
+                    
+                    var promise = loadHandlebar( littleware.littleYUI.config.CONTEXT_ROOT + "/resources/templates/testcase.handlebars" );
+                    promise.then( function( template ) {
+                            var node = Y.Node.create( template( {name:"Reuben"} ) );
+                            test.resume( function() {
+                                log.log( "Template node has type: " + typeof( node ) + ": " + node.getHTML() );
+                                Y.Assert.isTrue( node.one( "p" ).getHTML() == "Hello, Reuben!" ); 
+                            });
+                        }, function( err ) {
+                            log.log( "Test template load failed: " + err );
+                            test.resume( function() {
+                                Y.Assert.fail( "Failed to load template: " + err );
+                            });
+                        });
+                    
+                    this.wait( 2000 );
                 }
+                
             }
             ));
 
@@ -216,9 +274,10 @@ YUI.add('littleware-littleUtil', function(Y) {
             Date:{
                 minuteString:dateMinuteString,
                 secondString:dateSecondString
-            }
+            },
+            loadHandlebar:loadHandlebar
         };
     })();
 }, '0.1.1' /* module version */, {
-    requires: [ "array-extras" ]
+    requires: [ "array-extras", "handlebars", "io", "node", "promise", "querystring-stringify-simple", 'test' ]
 });

@@ -6,9 +6,10 @@
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
 
-if( window.littleware == undefined ) {
-    window.littleware = {};
-}
+if( typeof( littleware ) == 'undefined' ) {
+    littleware = {};
+} 
+
 
 /**
  * littleYUI module, see http://yuiblog.com/blog/2007/06/12/module-pattern/
@@ -22,7 +23,9 @@ if( window.littleware == undefined ) {
  * @namespace auburn.library
  */
 littleware.littleYUI = (function() {
-    var CONTEXT_ROOT = "/littleware_apps";
+    var config = {
+        CONTEXT_ROOT : "/littleware_apps"
+    };
     
     /**
      * Get the YUI.config groups entry that registers the littleware javascript
@@ -33,13 +36,13 @@ littleware.littleYUI = (function() {
     var getLittleModules = function() {
         return {
             combine: false,
-            base: CONTEXT_ROOT + '/resources/js/littleware/',
+            base: config.CONTEXT_ROOT + '/resources/js/littleware/',
             //comboBase: 'http://yui.yahooapis.com/combo?',
             //root: '2.8.0r4/build/',
             modules:  { // one or more external modules that can be loaded along side of YUI
                 'littleware-littleUtil': {
                     path: "littleUtil.js",
-                    requires: [ "array-extras" ]
+                    requires: [ "array-extras", "handlebars", "io", "node", "promise", "querystring-stringify-simple", 'test' ]
                 },
                 'littleware-littleId': {
                     path: "littleId.js",
@@ -71,7 +74,9 @@ littleware.littleYUI = (function() {
                 },
                 "littleware-eventTrack-littleApp": {
                     path: "eventTrack/littleApp.js",
-                    requires: [ 'littleware-littleUtil', 'router', 'test', 'timers', 'view', 'transition' ]
+                    requires: [ 'event-gestures', 'littleware-littleUtil', 'router', 
+                                'test', 'timers', 'view', 'transition' 
+                            ]
                 }
             }
         }    ;
@@ -96,7 +101,7 @@ littleware.littleYUI = (function() {
      * @param configIn YUI(config) configuration - extended by bootstrap
      */
     var bootstrap = function ( configIn ) {
-        var config = merge( configIn || {},
+        var bootConfig = merge( configIn || {},
             {
                 //lang: 'ko-KR,en-GB,zh-Hant-TW', // languages in order of preference
                 //base: '../../build/', // the base path to the YUI install.  Usually not needed because the default is the same base path as the yui.js include file
@@ -117,9 +122,10 @@ littleware.littleYUI = (function() {
                 }
             }
             );
-        return YUI( config );
+        return YUI( bootConfig );
     };
     return {
+        config: config,
         bootstrap: bootstrap,
         getLittleModules: getLittleModules
     };

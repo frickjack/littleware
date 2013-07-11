@@ -4,15 +4,74 @@
     <head>
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width" />
         
         <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.0/pure-min.css">
         <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssfonts/cssfonts.css" type="text/css" />
         <link href='http://fonts.googleapis.com/css?family=Orienta|EB+Garamond' rel='stylesheet' type='text/css' />  
         
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            
+            h1 {
+                font-family: 'EB Garamond', arial;
+            }
+            
+            li {
+                list-style-type: circle;
+                padding: 5px;
+            }
+            
+            div#content {
+                padding:10px;
+                margin-left:auto;
+                margin-right:auto;
+            }
+            
+            div#header {
+                background-color:#00CC66;
+                min-height: 50px;
+                padding:10px;
+                color:rgb(240,240,20);
+            }
+            
+            ul.pure-menu.pure-menu-open {
+                background:rgb(63, 187, 39);
+                padding: 0px;
+            }
+            .pure-menu a {
+                color:rgb(74, 83, 180);
+            }
+            
+            .pure-menu li a:hover, .pure-menu li a:focus {
+                background-color: inherit;
+            }
+        </style>
     </head>
     <body>
-        <div>
-            
+       <div class="pure-g">
+            <div id="header" class="pure-u-1">
+                <ul class="pure-menu pure-menu-open pure-menu-horizontal">
+                    <li><a href="http://frickjack.com">home</a></li>
+                    <li><a href="https://github.com/frickjack/">github</a></li>
+                    <li><a href="http://blog.frickjack.com/">bLog</a></li>
+                </ul>
+                <p>
+                    HTML5 apps and tests.
+                </p>
+                
+            </div>
+       </div>
+        <div class="pure-g">
+            <div id="content" class="pure-u-1">
+                <ul>
+                    <li><a href="/btrack/babyTrack/en/511.html">511 app</a></li>
+                    <li>Tree control-flow response grid <a href="/littleware_apps/blog/gridDemo.html">demo</a></li>
+                    <li><a href="/myrwa/">slide show</a></li>
+                </ul>
+            </div>
         </div>
     </body>
 </html>

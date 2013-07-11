@@ -19,6 +19,7 @@ Thumbs.db
 ^littleware_client
 ^littleware/ddl/derbycache
 nbproject/private
+node_modules/
 /bucketRoot/
 /cachedir/
 ^scratch

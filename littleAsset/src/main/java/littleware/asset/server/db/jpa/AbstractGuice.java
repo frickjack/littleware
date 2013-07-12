@@ -20,7 +20,6 @@ import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.db.DbAssetManager;
 import littleware.asset.server.db.DbInitializer;
-import littleware.base.ThreadLocalProvider;
 import littleware.bootstrap.AppBootstrap;
 
 /**
@@ -45,7 +44,7 @@ public abstract class AbstractGuice extends AbstractServerModule {
 
     }
 
-    public static class TransactionProvider extends ThreadLocalProvider<SimpleJpaTransaction> {
+    public static class TransactionProvider implements Provider<SimpleJpaTransaction> {
         private Provider<EntityManager> entMgrFactory;
         @Inject
         public TransactionProvider( Provider<EntityManager> provideEntMgr ) {
@@ -53,7 +52,7 @@ public abstract class AbstractGuice extends AbstractServerModule {
         }
 
         @Override
-        protected SimpleJpaTransaction build() {
+        public SimpleJpaTransaction get() {
             return new SimpleJpaTransaction( entMgrFactory );
         }
     }

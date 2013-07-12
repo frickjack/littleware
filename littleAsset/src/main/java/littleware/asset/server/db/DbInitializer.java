@@ -17,7 +17,7 @@ import littleware.asset.LittleHome;
 import littleware.asset.LittleHome.HomeBuilder;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeNode.TreeNodeBuilder;
-import littleware.asset.client.test.AbstractAssetTest;
+import littleware.asset.client.test.Config;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.AssertionFailedException;
@@ -86,9 +86,9 @@ public class DbInitializer {
         final LittleTransaction trans = transFactory.get();
         trans.startDbUpdate();
         try { // Go on to setup initial freakin' repository nodes ...
-            if (null == mgr.makeDbAssetLoader(trans).loadObject(AbstractAssetTest.getTestHomeId())) {
+            if (null == mgr.makeDbAssetLoader(trans).loadObject(Config.getTestHomeId())) {
                 // Note: need to initialize everything as we're bypassing a couple layers of API
-                final LittleHome testHome = homeFactory.get().homeId(AbstractAssetTest.getTestHomeId()).id(AbstractAssetTest.getTestHomeId()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(AbstractAssetTest.getTestUserId()).aclId(LittleAcl.UUID_EVERYBODY_READ).name(AbstractAssetTest.getTestHome()).comment("Tree for test-case nodes").lastUpdate("auto-created by AwsModule domain setup").timestamp(trans.getTimestamp()).build().narrow();
+                final LittleHome testHome = homeFactory.get().homeId(Config.getTestHomeId()).id(Config.getTestHomeId()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(Config.getTestUserId()).aclId(LittleAcl.UUID_EVERYBODY_READ).name(Config.getTestHome()).comment("Tree for test-case nodes").lastUpdate("auto-created by AwsModule domain setup").timestamp(trans.getTimestamp()).build().narrow();
                 mgr.makeDbAssetSaver(trans).saveObject(testHome);
             }
             LittleHome littleHome = (LittleHome) mgr.makeDbAssetLoader(trans).loadObject(LittleHome.LITTLE_HOME_ID);
@@ -102,8 +102,8 @@ public class DbInitializer {
                 admin = this.userFactory.get().parent(littleHome).id(AccountManager.UUID_ADMIN).name(AccountManager.LITTLEWARE_ADMIN).aclId(null).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(AccountManager.UUID_ADMIN).comment("littleware admin user").lastUpdate("auto-created by AwsModule domain setup").build().narrow();
                 mgr.makeDbAssetSaver(trans).saveObject(admin);
             }
-            if (null == mgr.makeDbAssetLoader(trans).loadObject(AbstractAssetTest.getTestUserId())) {
-                final LittleUser testUser = this.userFactory.get().parent(littleHome).id(AbstractAssetTest.getTestUserId()).name(AbstractAssetTest.getTestUserName()).aclId(null).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(AbstractAssetTest.getTestUserId()).comment("littleware test user").lastUpdate("auto-created by AwsModule domain setup").build().narrow();
+            if (null == mgr.makeDbAssetLoader(trans).loadObject(Config.getTestUserId())) {
+                final LittleUser testUser = this.userFactory.get().parent(littleHome).id(Config.getTestUserId()).name(Config.getTestUserName()).aclId(null).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(Config.getTestUserId()).comment("littleware test user").lastUpdate("auto-created by AwsModule domain setup").build().narrow();
                 mgr.makeDbAssetSaver(trans).saveObject(testUser);
             }
 

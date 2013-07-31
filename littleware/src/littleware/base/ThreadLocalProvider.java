@@ -7,39 +7,36 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-
 package littleware.base;
 
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
- * Simple ThreadLocalProvider base class.
- * Allocate the provider as a singleton.
- * The provider keeps an internal thread-local variable
- * initialized by the subtype provided build() method.
+ * Simple ThreadLocalProvider base class. Allocate the provider as a singleton.
+ * The provider keeps an internal thread-local variable initialized by the
+ * subtype provided build() method.
  */
-@Singleton
 public abstract class ThreadLocalProvider<T> implements Provider<T> {
-    private final ThreadLocal<T>  othreadCache = new ThreadLocal<T>() {
+
+    private final ThreadLocal<T> threadCache = new ThreadLocal<T>() {
         @Override
-		protected T initialValue() {
-			return build();
-		}
-	};
+        protected T initialValue() {
+            return build();
+        }
+    };
 
     /**
-     * NOTE: SimpleLittleTransaction.setDataSource must be called  before the
-     *      first call here.
+     * NOTE: SimpleLittleTransaction.setDataSource must be called before the
+     * first call here.
      */
     @Override
-    public T get () {
-        return othreadCache.get ();
+    public T get() {
+        return threadCache.get();
     }
 
     /**
      * Subtype needs to allocate a new object for us
-     * 
+     *
      * @return new object to cache in thread scope
      */
     protected abstract T build();

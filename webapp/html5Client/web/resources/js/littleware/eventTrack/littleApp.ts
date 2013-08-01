@@ -31,6 +31,8 @@ export module littleware.eventTrack.littleApp {
     /**
      * Interface for panel managed by ViewManager.Manager.
      * The id should be unique across panel instances.
+     * 
+     * @class LittlePanel
      */
     export class LittlePanel {
         constructor(
@@ -38,9 +40,15 @@ export module littleware.eventTrack.littleApp {
             public view: Y.View
             ) {
             Y.assert(id ? true : false, "Id must evaluate true in a boolean expression: " + id);
-            }
+        }
     }
 
+    /**
+     * Enumeration of states for a panel registered with the View manager -
+     * currently just VISIBLE and HIDDEN
+     * 
+     * @class PanelState
+     */
     export class PanelState extends LittleEnum {
         constructor(name: String) { super(PanelState.values.push( this ), name); }
 
@@ -54,6 +62,8 @@ export module littleware.eventTrack.littleApp {
      * Data supplied to a panel's view-state listener 
      * (supplied to ViewManager.registerPanel) when
      * the managed view moves to a new route path.
+     * 
+     * @class PanelStatus
      */
     export class PanelStatus {
         constructor(

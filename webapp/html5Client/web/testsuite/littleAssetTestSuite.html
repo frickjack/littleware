@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>littleware js Test Page</title>
+        <meta name="viewport" content="width=device-width" />
+        
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssreset/cssreset.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssbase/cssbase.css"  type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssfonts/cssfonts.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssgrids/cssgrids.css" type="text/css" /> 
+
+        <link rel="stylesheet" type="text/css" href="../resources/css/littleware/little.css" />
+        <link rel="stylesheet" type="text/css" href="../resources/css/littleware/littleTree.css" />
+
+        <style id="yuiInsertBeforeMe" type="text/css">
+            * {
+                box-sizing:border-box;
+            }
+            
+            body {
+                margin: auto; /* center in viewport */
+                /* width: 960px; */
+                width:100%;
+            }   
+            
+            div.content-box {
+                padding:10px;
+            }
+        </style>
+    </head>
+    <body>
+
+    <div id='root'>
+        <div class="yui3-g">
+            <div class="yui3-u-1 content-box">
+                <h1>littleware test suite</h1>
+                
+                <p>
+                    Check the console for test results.
+                    This page automatically runs the littleware-util test suite,
+                    but you can interactively run other suites - something like this:
+                    
+                <pre>
+                  var Y = littleware.littleYUI.bootstrap();
+                  Y.use( "module-name", "test" );
+                  Y.Module.buildTestSuite();
+                </pre>
+                   
+                </p>
+            </div>
+        </div>
+    </div>
+        
+        <script src="http://yui.yahooapis.com/3.10.3/build/yui/yui-debug.js"></script>
+        <script type="text/javascript" src="../resources/js/littleware/littleYUI.js" charset="utf-8"></script>
+
+        <script>    
+            littleware.littleYUI.bootstrap().use( 
+                'littleware-asset-base', 'test',
+                function (Y) {
+                    // The modules are loaded and ready to use.
+                    // Your code goes here!
+                    var util = Y.littleware.littleUtil;
+                    var log = new util.Logger( "littleAssetTestSuite.html" );
+                    var suite = Y.littleware.asset.buildTestSuite();
+                    
+                    Y.Test.Runner.add( suite );
+                    
+                    if ( typeof( window.callPhantom ) != 'undefined' ) {
+                        // phantomjs environment!
+                        console.log( "Phantomjs detected!" );
+                        Y.Test.Runner.subscribe( Y.Test.Runner.COMPLETE_EVENT, window.callPhantom );
+                    }
+
+                    Y.Test.Runner.run();          
+            });
+
+        </script>
+
+    </body>
+</html>

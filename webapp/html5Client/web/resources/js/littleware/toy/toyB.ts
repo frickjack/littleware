@@ -1,7 +1,8 @@
 //declare var YUI:any;
-/// <reference path="../../libts/yui" />
-/// <reference path="toyA" />
-declare var exports:Y.YUI;
+/// <reference path="../../libts/yui.d.ts" />
+/// <reference path="toyA.ts" />
+
+declare var exports:any;
 
 //declare module littleware.toy.a;
 if ( null == exports ) {

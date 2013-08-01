@@ -39,7 +39,11 @@ littleware.littleYUI = (function() {
             base: config.CONTEXT_ROOT + '/resources/js/littleware/',
             //comboBase: 'http://yui.yahooapis.com/combo?',
             //root: '2.8.0r4/build/',
-            modules:  { // one or more external modules that can be loaded along side of YUI
+            modules: { // one or more external modules that can be loaded along side of YUI
+                'littleware-asset-base': {
+                    path: "asset/littleAsset.js",
+                    requires: [ "array-extras", "event-custom", "littleware-littleUtil" ]
+                },
                 'littleware-littleUtil': {
                     path: "littleUtil.js",
                     requires: [ "array-extras", "handlebars", "io", "node", "promise", "querystring-stringify-simple", 'test' ]
@@ -77,6 +81,11 @@ littleware.littleYUI = (function() {
                     requires: [ 'event-gestures', 'littleware-littleUtil', 'router', 
                                 'test', 'timers', 'view', 'transition' 
                             ]
+                },
+                "littleware-eventTrack-littleToDo": {
+                    path: "eventTrack/littleToDo.js",
+                    requires: ['littleware-asset-base', 'littleware-littleUtil', 'test'
+                    ]
                 }
             }
         }    ;

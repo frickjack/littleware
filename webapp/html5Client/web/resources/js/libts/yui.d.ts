@@ -1,5 +1,87 @@
+/**
+ * YUI3 establishes a module namespace root on a variable
+ * usually named 'Y' exposed in a closure that the application's
+ * main() method runs in.  For example- an application might 
+ * launch with code like this: <br />
+ *    YUI().use( 'node', function(Y) { ... } );  <br />
+ * In this example - the application loads the 'node' YUI module
+ * under the Y.Node namespace.
+ * A YUI module will often mixin its methods onto the
+ * namespace root to save some user typing, 
+ * so Y.Node.one() is also available as Y.one().
+ * This definition file attempts to provide type 
+ * information for commonly used YUI modules including
+ * the different function mixins.
+ */
 module Y {
-    
+
+            function applyTo(id: string, method: string, args: any[]): any;
+            function applyConfig(o: any): any;
+            function assert(condition: bool, message: string): any;
+            function cached(source: Function, cache?: any, refetch?: any): Function;
+            function batch(...proms: Promise[]): Promise;
+            function bind(f: Function, c: any, args: any): Function;
+            function bind(f: string, c: any, args: any): Function;
+            function clone(o: any, safe: bool, f: Function, c: any, owner: any, cloned: any): any[];
+            function clone(o: any, safe: bool, f: Function, c: any, owner: any, cloned: any): any;
+            function aggregate(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[]): any;
+            function augment(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any[]): Function;
+            function augment(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any): Function;
+            function augment(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any[]): Function;
+            function augment(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any): Function;
+            function all(selector: string): NodeList;
+            function after(type: string, fn: Function, context?: any, ...args: any[]): EventHandle;
+            function destroy(): any;
+            function error(msg: string, e: Error, src: any): YUI;
+            function error(msg: string, e: string, src: any): YUI;
+            function each(o: any, f: Function, c: any, proto: bool): YUI;
+            function extend(r: Function, s: Function, px: any, sx: any): any;
+            function dump(o: any, d: number): string;
+            function delegate(type: string, fn: Function, el: string, filter: string, context: any, args: any): EventHandle;
+            function delegate(type: string, fn: Function, el: string, filter: Function, context: any, args: any): EventHandle;
+            function delegate(type: string, fn: Function, el: Node, filter: string, context: any, args: any): EventHandle;
+            function delegate(type: string, fn: Function, el: Node, filter: Function, context: any, args: any): EventHandle;
+            function instanceOf(o: any, type: any): any;
+            function guid(pre: string): string;
+            function namespace(namespace: string): any;
+            function on(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
+            function once(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
+            function onceAfter(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
+            function message(msg: string, cat: string, src: string, silent: bool): YUI;
+            function log(msg: string, cat: string, src: string, silent: bool): YUI;
+            function later(when: number, o: any, fn: Function, data: any, periodic: bool): any;
+            function later(when: number, o: any, fn: string, data: any, periodic: bool): any;
+            function mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
+            function mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
+            function mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
+            function mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
+            function mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
+            function mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
+            function mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
+            function mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
+            function mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
+            function mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
+            function mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
+            function mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
+            function merge(objects: any): any;
+            function getLocation(): Location;
+            function one(node: string): Node;
+            function one(node: HTMLElement): Node;
+            function one(node: string): any;
+            function one(node: HTMLElement): any;
+            function rbind(f: Function, c: any, args: any): Function;
+            function rbind(f: string, c: any, args: any): Function;
+            function stamp(o: any, readOnly: bool): string;
+            function some(o: any, f: Function, c: any, proto: bool): bool;
+            function soon(fn: Function): any;
+            function substitute(s: string, o: any, f: Function, recurse: bool): string;
+            function throttle(fn: Function, ms: number): Function;
+            function use(modules: string, callback?: (Y: YUI, status: any) => any): YUI;
+            function use(modules: any[], callback?: (Y: YUI, status: any) => any): YUI;
+
+
+    var Assert: Test_Assert;
+
         interface Anim extends Base { 
             
             
@@ -141,16 +223,15 @@ module Y {
             createNode(node: any, config: any): any;
         }
     
-        interface Cache extends Base { 
-            
+        interface Cache extends Base {
+            add(request: any, response: any): any;
+            retrieve(request: any): any;
+
             
         }
     
         interface CacheOffline extends Cache { 
             
-            
-            add(request: any, response: any): any;
-            retrieve(request: any): any;
         }
     
         interface Calendar extends CalendarBase { 
@@ -1490,6 +1571,7 @@ module Y {
             App_Base: App_BaseStatic;
             ArrayList: ArrayListStatic;
             Array: ArrayStatic;
+            Assert: Test_Assert;
             AsyncQueue: AsyncQueueStatic;
             AttributeLite: AttributeLiteStatic;
             AutoCompleteList: AutoCompleteListStatic;
@@ -4501,31 +4583,71 @@ module Y {
             
         }
     
-        interface Test {
+        module Test {
             
-            Console: Test_Console;
-            ArrayAssert: Test_ArrayAssert;
-            Assert: Test_Assert;
-            AssertionError: Test_AssertionError;
-            ComparisonFailure: Test_ComparisonFailure;
-            CoverageFormat: Test_CoverageFormat;
-            DateAssert: Test_DateAssert;
-            EventTarget: Test_EventTarget;
-            Mock: Test_Mock;
-            ObjectAssert: Test_ObjectAssert;
-            Reporter: Test_ReporterStatic;
-            Results: Test_Results;
-            ShouldError: Test_ShouldError;
-            ShouldFail: Test_ShouldFail;
-            TestCase: Test_TestCase;
-            TestFormat: Test_TestFormat;
-            TestRunner: Test_TestRunner;
-            TestNode: Test_TestNode;
-            Runner: Test_Runner;
-            TestSuite: Test_TestSuite;
-            UnexpectedError: Test_UnexpectedError;
-            UnexpectedValue: Test_UnexpectedValue;
-            Wait: Test_Wait;
+            class Console implements Test_Console { }
+            var ArrayAssert: Test_ArrayAssert;
+            var Assert: Test_Assert;
+
+            class AssertionError implements Test_AssertionError {
+                name: string;
+                message: string;
+
+                getMessage(): string;
+                toString(): string;
+            }
+
+            class ComparisonFailure implements Test_ComparisonFailure {
+                actual: any;
+                expected: any;
+                name: string;
+
+                getMessage(): string;
+            }
+
+            class TestCase implements Test_TestCase {
+                constructor(methods: any);
+                assert(condition: bool, message: string): any;
+                callback(): Function;
+                destroy(): any;
+                fail(message: string): any;
+                init(): any;
+                resume(segment: Function): undefined;
+                setUp(): undefined;
+                tearDown(): undefined;
+                wait(segment: Function, delay: number): undefined;
+            }
+
+            class TestSuite implements Test_TestSuite {
+                name: string;
+
+                constructor(name: string);
+                add(testObject: Test_TestSuite): undefined;
+                add(testObject: Test_TestCase): undefined;
+                setUp(): undefined;
+                tearDown(): undefined;
+            }
+
+            var CoverageFormat: Test_CoverageFormat;
+            var DateAssert: Test_DateAssert;
+            var EventTarget: Test_EventTarget;
+            var Mock: Test_Mock;
+            var ObjectAssert: Test_ObjectAssert;
+            var Reporter: Test_ReporterStatic;
+            var Results: Test_Results;
+            var ShouldError: Test_ShouldError;
+            var ShouldFail: Test_ShouldFail;
+
+
+            var TestFormat: Test_TestFormat;
+            var TestRunner: Test_TestRunner;
+
+            var TestNode: Test_TestNode;
+            var Runner: Test_Runner;
+            
+            //UnexpectedError: Test_UnexpectedError;
+            //UnexpectedValue: Test_UnexpectedValue;
+            //Wait: Test_Wait;
             
         }
     
@@ -5129,6 +5251,12 @@ module Y {
             
         }
     
+        class Promise {
+            constructor(lambda: any);
+            then(fulfilled: any, rejected?: any): Promise;
+            getStatus(): string;
+            static batch(...proms: Promise[]): Promise;
+        }
 }
 
 declare var YUI: Y.YUIStatic;

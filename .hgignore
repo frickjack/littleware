@@ -33,6 +33,7 @@ node_modules/
 javadoc/api
 ivy/ivy.jar
 ~$
+.suo$
 .zip$
 .orig$
 .\#$

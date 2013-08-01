@@ -220,8 +220,8 @@ YUI.add('littleware-littleUtil', function(Y) {
          * @return Y.Test.Suite
          */
         var buildTestSuite = function() {
-            var suite = new Y.Test.Suite( "littleware-littleUtil Test Suite");
-            suite.add( new Y.Test.Case( {
+            var suite = new Y.Test.TestSuite( "littleware-littleUtil Test Suite");
+            suite.add( new Y.Test.TestCase( {
                 name: "Builder Test",
                 
                 testBuilder: function() {

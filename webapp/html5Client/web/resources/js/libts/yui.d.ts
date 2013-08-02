@@ -107,10 +107,13 @@ module Y {
             showView(view: View, config?: any, options?: any, callback?: (view: View) => any): App_Base;
         }
     
-        interface Array { 
-            (thing: any, startIndex?: number, force?: bool);
+        class Array { 
+            constructor(thing: any, startIndex?: number, force?: bool);
             
-            
+            static filter(v: any[], f: (any) => bool, o?: any): any[];
+            static find(v: any[], f: (any) => bool, o?: any): any;
+            static reject(v: any[], f: (any) => bool, o?: any): any[];
+
         }
     
         interface ArrayList { 

@@ -549,7 +549,13 @@ export module littleware.asset {
         detach(): void;
     }
 
-
+    /**
+     * name-id tuple for AssetManager.listChildren and similar methods
+     * @class NameIdPair
+     */
+    export class NameIdPair {
+        constructor( public name: string, public id: string) { }
+    }
 
     /**
      * API tool for interacting with the asset repo.
@@ -573,6 +579,13 @@ export module littleware.asset {
          * @return {Y.Promise[AssetRef]}
          */
         loadAsset(id: string): Y.Promise;
+
+        /**
+         * List the children if any under the given parent node
+         * @method listChildren
+         * @return {Y.Promise[NameIdPair]}
+         */
+        listChildren(parentId: string): Y.Promise;
     }
 
     /**
@@ -701,17 +714,26 @@ export module littleware.asset {
 
     /**
      * InternalManager implementation that stores its repository in the 
-     * HTML5 local cache
+     * HTML5 local cache.  Note - 5MB storage limit in most browsers.
      * @class LocalCacheManager
      */
     class LocalCacheManager implements InternalManager {
         private cache: { [key: string]: InternalAssetRef; } = {};
         timestamp = 0;
-        static keyPrefix = "assetManager/";
+        static nodePrefix = "assetMan/nodes/";
+        static childPrefix = "assetMan/children/";
+        static confPrefix = "assetMan/conf/";
+
+        private storage = {
+            getItem: function (key: string): string { return null; },
+            setItem: function ( key:string, value:string ):void { },
+            removeItem: function ( key:string ):void { }
+        };
 
         constructor() {
-            if (typeof (localStorage) != 'undefined') {
-                var tsEntry = localStorage.getItem( LocalCacheManager.keyPrefix + "timestamp");
+            if ( typeof (localStorage) != 'undefined' ) {
+                this.storage = localStorage;
+                var tsEntry = this.storage.getItem( LocalCacheManager.confPrefix + "timestamp");
                 if (tsEntry) {
                     this.timestamp = parseInt(tsEntry);
                 }
@@ -720,24 +742,49 @@ export module littleware.asset {
 
         saveAsset(value: Asset, updateComment: string): Y.Promise {
             return this.loadAsset(value.getId()).then((refIn) => {
-                var ref = <InternalAssetRef> refIn;
-                this.timestamp++;
-                if (value.getTimestamp() > this.timestamp) {
+               var ref = <InternalAssetRef> refIn;
+               this.timestamp++;
+               if (value.getTimestamp() > this.timestamp) {
                     this.timestamp = value.getTimestamp() + 1;
-                }
+               }
 
-                var copy = value.copy().withTimestamp(this.timestamp).withDateUpdated(new Date()).build();
+               var copy = value.copy().withTimestamp(this.timestamp).withDateUpdated(new Date()).build();
 
-                if (typeof (localStorage) != "undefined") {
-                    localStorage.setItem(LocalCacheManager.keyPrefix + copy.getId(), JSON.stringify(copy));
-                    localStorage.setItem(LocalCacheManager.keyPrefix + "timestamp", "" + this.timestamp );
-                }
-                if (!ref.isEmpty()) {
-                    //log.log("Updating cached asset reference: " + copy.getId() + " - " + copy.getTimestamp() );
-                    ref.updateAsset(copy);
+               this.storage.setItem(LocalCacheManager.nodePrefix + copy.getId(), JSON.stringify(copy));
+               this.storage.setItem(LocalCacheManager.confPrefix + "timestamp", "" + this.timestamp);
+
+               var oldParentId = null;
+               var oldName = null;
+               var newParentId = copy.getFromId();
+               if (!ref.isEmpty()) {
+                   oldParentId = ref.getAsset().getFromId();
+                   oldName = ref.getAsset().getName();
+               }
+
+               if ( (newParentId !== oldParentId) || (copy.getName() !== oldName) ) { // update children info
+                   if (oldParentId) {
+                       var oldParentChildren: NameIdPair[] = JSON.parse(this.storage.getItem(LocalCacheManager.childPrefix + oldParentId)) || [];
+                       if (oldParentChildren.length > 0) {
+                           oldParentChildren = Y.Array.reject(oldParentChildren, function (item) { return item.id == copy.getId(); });
+                           this.storage.setItem(LocalCacheManager.childPrefix + oldParentId,
+                               JSON.stringify(oldParentChildren)
+                               );
+                       }
+                   }
+                   var newParentChildren: NameIdPair[] = JSON.parse(this.storage.getItem(LocalCacheManager.childPrefix + newParentId)) || [];
+                   newParentChildren = Y.Array.reject(newParentChildren, function (item) { return item.id == copy.getId(); });
+                   newParentChildren.push(new NameIdPair( copy.getName(), copy.getId() ));
+                   this.storage.setItem(LocalCacheManager.childPrefix + newParentId,
+                       JSON.stringify(newParentChildren)
+                       );
+               }
+
+               if (!ref.isEmpty()) {
+                   //log.log("Updating cached asset reference: " + copy.getId() + " - " + copy.getTimestamp() );
+                   ref.updateAsset(copy);
                 } else {
-                    ref = new InternalAssetRef(copy, this);
-                    this.cache[copy.getId()] = ref;
+                   ref = new InternalAssetRef(copy, this);
+                   this.cache[copy.getId()] = ref;
                 }
                 return ref;
             });
@@ -746,10 +793,15 @@ export module littleware.asset {
         deleteAsset(id: string, deleteComment: string): Y.Promise {
             return new Y.Promise((resolve, reject) => {
                 delete (this.cache[id]);
-                if (typeof (localStorage) != "undefined") {
-                    localStorage.removeItem(LocalCacheManager.keyPrefix + id);
-                }
+                this.storage.removeItem(LocalCacheManager.nodePrefix + id);
                 resolve( id );
+            });
+        }
+
+        listChildren(parentId: string): Y.Promise {
+            return new Y.Promise((resolve, reject) => {
+                var children: NameIdPair[] = JSON.parse(this.storage.getItem(LocalCacheManager.childPrefix + parentId)) || [];
+                resolve(children);
             });
         }
 
@@ -759,8 +811,8 @@ export module littleware.asset {
                 if (this.cache[id]) {
                     ref = this.cache[id];
                     ref.refCount++;
-                } else if (typeof (localStorage) != "undefined") {
-                    var json = localStorage.getItem(LocalCacheManager.keyPrefix + id);
+                } else {
+                    var json = this.storage.getItem(LocalCacheManager.nodePrefix + id);
                     if (json) {
                         var info = JSON.parse(json);
                         var builder = AssetType.lookup(info.assetType.id).newBuilder()
@@ -888,21 +940,36 @@ export module littleware.asset {
                         var a1: Asset = this.testAssetBuild();
                         // make name unique
                         var a2 = a1.copy().withName("a1" + (new Date()).getTime()).build();
-                        var a2Ref;
+                        var a2Ref:AssetRef;
 
                         var promise = mgr.saveAsset(a2, "Saving test asset").then(
                             (ref) => {
                                 Y.Assert.isTrue(a2.getId() == ref.getAsset().getId(), "Id preserved on save");
                                 Y.Assert.isTrue(ref.getAsset().getTimestamp() >= 0, "Timestamp updated on save");
-                                return mgr.loadAsset(a2.getId());
+                                return Y.batch(
+                                    mgr.loadAsset(a2.getId()),
+                                    mgr.listChildren( a2.getFromId() )
+                                    );
                             }
                         ).then(
-                            (ref) => {
+                            (batchVec) => {
+                                var ref: AssetRef, childList: NameIdPair[];
+                                if (batchVec.length > 1) {
+                                    ref = batchVec[0];
+                                    childList = batchVec[1];
+                                }
+
                                 a2Ref = ref;
                                 this.resume(
                                     () => {
                                         Y.Assert.isTrue(ref.isDefined(), "Able to load just saved asset");
-                                        Y.Assert.isTrue(ref.getAsset().getId() == a2.getId(), "test load looks ok");
+                                        var asset = ref.getAsset();
+                                        Y.Assert.isTrue(asset.getId() == a2.getId(), "test load looks ok");
+                                        Y.Assert.isTrue(childList.length > 0, "test child list non empty");
+                                        Y.Assert.isTrue(Y.Array.find(childList,
+                                            function (it) { return (it.id == asset.getId()) && (it.name == asset.getName()); }
+                                            ) && true, "children list includes newly saved asset"
+                                            );
                                     }
                                 );
                                 return mgr.deleteAsset(ref.getAsset().getId(), "cleanup test node");

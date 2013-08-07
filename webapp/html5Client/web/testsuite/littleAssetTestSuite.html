@@ -58,13 +58,13 @@
 
         <script>    
             littleware.littleYUI.bootstrap().use( 
-                'littleware-asset-base', 'test',
+                'littleware-asset-test',
                 function (Y) {
                     // The modules are loaded and ready to use.
                     // Your code goes here!
                     var util = Y.littleware.littleUtil;
                     var log = new util.Logger( "littleAssetTestSuite.html" );
-                    var suite = Y.littleware.asset.buildTestSuite();
+                    var suite = Y.littleware.asset.test.buildTestSuite();
                     
                     Y.Test.Runner.add( suite );
                     

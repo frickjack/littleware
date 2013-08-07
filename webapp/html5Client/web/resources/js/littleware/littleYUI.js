@@ -44,6 +44,14 @@ littleware.littleYUI = (function() {
                     path: "asset/littleAsset.js",
                     requires: [ "array-extras", "event-custom", "littleware-littleUtil" ]
                 },
+                'littleware-asset-manager': {
+                    path: "asset/assetMgr.js",
+                    requires: ["littleware-asset-base" ]
+                },
+                'littleware-asset-test': {
+                    path: "asset/testSuite.js",
+                    requires: [ "littleware-asset-manager", "test" ]
+                },
                 'littleware-littleUtil': {
                     path: "littleUtil.js",
                     requires: [ "array-extras", "handlebars", "io", "node", "promise", "querystring-stringify-simple", 'test' ]

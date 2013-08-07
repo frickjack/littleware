@@ -429,6 +429,7 @@ export module littleware.asset {
     HomeAsset.HOME_TYPE.newBuilder = function () {
         var builder = new AssetBuilder(HomeAsset.HOME_TYPE);
         builder.build = function () {
+            builder.fromId = null;  // home assets don't have parents
             return new HomeAsset(builder);
         };
 
@@ -581,11 +582,38 @@ export module littleware.asset {
         loadAsset(id: string): Y.Promise;
 
         /**
+         * Load the child of the given parent with the given name -
+         * every child has a unique name within its set of siblings.
+         * Usually implemented as a shortcut for loadAsset( listChildren( parentId )[name] ).
+         * @method loadChild
+         * @param parentId {string}
+         * @param name {string}
+         * @return {Y.Promise{AssetRef}}
+         */
+        loadChild(parentId: string, name: string): Y.Promise;
+
+        /**
+         * Load the asset at the given path if any
+         * @method loadPath
+         * @param path {string}
+         * @return {Y.Promise{AssetRef}}
+         */
+        loadPath(path: string): Y.Promise;
+
+        /**
          * List the children if any under the given parent node
          * @method listChildren
+         * @param parentId {string}
          * @return {Y.Promise[NameIdPair]}
          */
         listChildren(parentId: string): Y.Promise;
+
+        /**
+         * List the root (littleware.HOME-TYPE) nodes - shortcut for listChildren(null)
+         * @method listRoots
+         * @return {Y.Promise[NameIdPair]}
+         */
+        listRoots(): Y.Promise;
     }
 
     /**
@@ -718,7 +746,13 @@ export module littleware.asset {
      * @class LocalCacheManager
      */
     class LocalCacheManager implements InternalManager {
+        //
+        // TODO - eventually will need to eject old data from in-memory cache (check littleUtil.Cache),
+        //  but just keep everything in memory for now - just building little toy apps
+        //
         private cache: { [key: string]: InternalAssetRef; } = {};
+        private childCache: { [key: string]: NameIdPair[]; } = {};
+
         timestamp = 0;
         static nodePrefix = "assetMan/nodes/";
         static childPrefix = "assetMan/children/";
@@ -740,6 +774,33 @@ export module littleware.asset {
             }
         }
 
+        /** 
+         * Internal synchronous list children implementation - just accesses
+         * cache or local storage directly.
+         */
+        private _listChildren(parentId: string): NameIdPair[]{
+            parentId = parentId || "homeRoot";
+            var result: NameIdPair[] = this.childCache[parentId];
+            if (!result) {
+                result = JSON.parse(this.storage.getItem(LocalCacheManager.childPrefix + parentId)) || [];
+                this.childCache[parentId] = result;
+            }
+            return result;
+        }
+
+        /**
+         * Internal save-child data 
+         */
+        private _saveChildren(parentId: string, data: NameIdPair[]): void {
+            parentId = parentId || "homeRoot";
+            this.childCache[parentId] = data;
+            this.storage.setItem(LocalCacheManager.childPrefix + parentId,
+                JSON.stringify(data)
+                );
+        }
+
+        
+
         saveAsset(value: Asset, updateComment: string): Y.Promise {
             return this.loadAsset(value.getId()).then((refIn) => {
                var ref = <InternalAssetRef> refIn;
@@ -750,35 +811,47 @@ export module littleware.asset {
 
                var copy = value.copy().withTimestamp(this.timestamp).withDateUpdated(new Date()).build();
 
-               this.storage.setItem(LocalCacheManager.nodePrefix + copy.getId(), JSON.stringify(copy));
-               this.storage.setItem(LocalCacheManager.confPrefix + "timestamp", "" + this.timestamp);
-
                var oldParentId = null;
                var oldName = null;
                var newParentId = copy.getFromId();
+
                if (!ref.isEmpty()) {
                    oldParentId = ref.getAsset().getFromId();
                    oldName = ref.getAsset().getName();
                }
+               if (copy.getAssetType().id === HomeAsset.HOME_TYPE.id) {
+                   newParentId = "homeRoot";
+               } else if (newParentId == null) {
+                   throw new Error("Must specify asset's fromId unless it's a HOME-type asset");
+               } // TODO - verify an asset has a clean path to a root (is not a child of a descendent - ugh)
 
+                // update the child-lists on the old and new parent
                if ( (newParentId !== oldParentId) || (copy.getName() !== oldName) ) { // update children info
-                   if (oldParentId) {
-                       var oldParentChildren: NameIdPair[] = JSON.parse(this.storage.getItem(LocalCacheManager.childPrefix + oldParentId)) || [];
+                   // first - verify that the new name or parent doesn't have a name collision with its children
+                   var newParentChildren: NameIdPair[] = this._listChildren( newParentId );
+                   newParentChildren = Y.Array.reject(newParentChildren, function (item) { return item.id == copy.getId(); });
+                   if (Y.Array.find(newParentChildren, function (it) { return it.name == copy.getName(); })) {
+                       throw new Error("Asset already exists under new parent with name: " + copy.getName());
+                   }
+                   newParentChildren.push(new NameIdPair(copy.getName(), copy.getId()));
+                   this._saveChildren( newParentId, newParentChildren );
+
+                   // update old parent if any
+                   if (oldParentId && (oldParentId != copy.getFromId()) ) {  
+                       var oldParentChildren: NameIdPair[] = this._listChildren( oldParentId );
                        if (oldParentChildren.length > 0) {
                            oldParentChildren = Y.Array.reject(oldParentChildren, function (item) { return item.id == copy.getId(); });
-                           this.storage.setItem(LocalCacheManager.childPrefix + oldParentId,
-                               JSON.stringify(oldParentChildren)
-                               );
+                           this._saveChildren( oldParentId, oldParentChildren );
                        }
                    }
-                   var newParentChildren: NameIdPair[] = JSON.parse(this.storage.getItem(LocalCacheManager.childPrefix + newParentId)) || [];
-                   newParentChildren = Y.Array.reject(newParentChildren, function (item) { return item.id == copy.getId(); });
-                   newParentChildren.push(new NameIdPair( copy.getName(), copy.getId() ));
-                   this.storage.setItem(LocalCacheManager.childPrefix + newParentId,
-                       JSON.stringify(newParentChildren)
-                       );
+
                }
 
+                // if we made it this far, then the asset passed whatever validation we have
+               this.storage.setItem(LocalCacheManager.nodePrefix + copy.getId(), JSON.stringify(copy));
+               this.storage.setItem(LocalCacheManager.confPrefix + "timestamp", "" + this.timestamp);
+
+                // finally - update the in-memory cache and reference
                if (!ref.isEmpty()) {
                    //log.log("Updating cached asset reference: " + copy.getId() + " - " + copy.getTimestamp() );
                    ref.updateAsset(copy);
@@ -790,19 +863,16 @@ export module littleware.asset {
             });
         }
 
-        deleteAsset(id: string, deleteComment: string): Y.Promise {
+    
+        listChildren(parentId: string): Y.Promise {
             return new Y.Promise((resolve, reject) => {
-                delete (this.cache[id]);
-                this.storage.removeItem(LocalCacheManager.nodePrefix + id);
-                resolve( id );
+                var children: NameIdPair[] = this._listChildren( parentId );
+                resolve(children);
             });
         }
 
-        listChildren(parentId: string): Y.Promise {
-            return new Y.Promise((resolve, reject) => {
-                var children: NameIdPair[] = JSON.parse(this.storage.getItem(LocalCacheManager.childPrefix + parentId)) || [];
-                resolve(children);
-            });
+        listRoots(): Y.Promise {
+            return this.listChildren( null );
         }
 
         loadAsset(id: string): Y.Promise {
@@ -826,9 +896,94 @@ export module littleware.asset {
 
         }
 
+        loadChild(parentId: string, name: string): Y.Promise {
+            return this.listChildren(parentId).then(
+                (siblings) => {
+                    var childInfo:NameIdPair = Y.Array.find(siblings, (it) => {
+                        return it.name === name;
+                    });
+                    if (childInfo) {
+                        return this.loadAsset(childInfo.id);
+                    } else {
+                        return new Y.Promise((resolve) => resolve(EmptyRef));
+                    }
+                }
+            );
+        }
+
+        /**
+         * Internal helper - traverse path recursively
+         */
+        private _loadPath(parentId: string, partsLeft: string[]): Y.Promise {
+            var name = partsLeft.shift();
+            //log.log("_loadPath loading " + parentId + " child " + name);
+            var childPromise = this.loadChild(parentId, name);
+            if (partsLeft.length > 0) {
+                return childPromise.then(
+                    (ref: AssetRef) => {
+                        if (ref.isEmpty() ) {
+                            //log.log("_loadPath EMPTY result for " + parentId + " child " + name + ", partsLeft: " + partsLeft.length );
+                            return new Y.Promise((resolve) => {
+                                resolve(ref);
+                            });
+                        } else {
+                            //log.log("_loadPath got result for " + parentId + " child " + name + ", partsLeft: " + partsLeft.length);
+                            return this._loadPath(ref.getAsset().getId(), partsLeft);
+                        }
+                    }
+                );
+            } else {
+                return childPromise;
+            }
+        }
+
+        loadPath(path: string): Y.Promise {
+            var parts = Y.Array.filter(path.split(/\/+/), (it) => { return it && true; });
+            if (parts.length < 1) {
+                return new Y.Promise((resolve, reject) => {
+                    reject(new Error("failed to parse path: " + path));
+                });
+            }
+            return this._loadPath(null, parts);
+        }
+
         getFromCache(id: string): AssetRef {
             var ref = this.cache[id];
             return ref || EmptyRef;
+        }
+
+        deleteAsset(id: string, deleteComment: string): Y.Promise {
+            return Y.Promise.batch(
+                this.loadAsset(id), this.listChildren(id)
+             ).then(
+                (dataVec) => {
+                    var ref: AssetRef = dataVec[0];
+                    var childList: NameIdPair[] = dataVec[1];
+                    var asset = ref.getAsset();
+
+                    // note - let the server take care of this kind of check if/when
+                    //   we have a real backend ...
+                    if (childList.length > 0) {
+                        throw new Error("May not delete an asset with children in the tree");
+                    }
+
+                    // remove node from cache and storage
+                    delete (this.cache[id]);
+                    delete (this.childCache[id]);
+                    this.storage.removeItem(LocalCacheManager.nodePrefix + id);
+
+                    // update parent's list of children
+                    var parentId = asset.getFromId();
+                    if (asset.getAssetType().id === HomeAsset.HOME_TYPE.id) {
+                        parentId = "homeRoot";
+                    }
+                    var siblings = this._listChildren(parentId);
+                    siblings = Y.Array.reject(siblings, (it) => {
+                        it.id === asset.getId();
+                    });
+                    this._saveChildren(parentId, siblings);
+                }
+            )
         }
 
     }
@@ -940,7 +1095,7 @@ export module littleware.asset {
                         var a1: Asset = this.testAssetBuild();
                         // make name unique
                         var a2 = a1.copy().withName("a1" + (new Date()).getTime()).build();
-                        var a2Ref:AssetRef;
+                        var a2Path = "/littleware.test_home/testFolder/" + a2.getName();
 
                         var promise = mgr.saveAsset(a2, "Saving test asset").then(
                             (ref) => {
@@ -948,31 +1103,64 @@ export module littleware.asset {
                                 Y.Assert.isTrue(ref.getAsset().getTimestamp() >= 0, "Timestamp updated on save");
                                 return Y.batch(
                                     mgr.loadAsset(a2.getId()),
-                                    mgr.listChildren( a2.getFromId() )
+                                    mgr.listChildren(a2.getFromId()),
+                                    mgr.listRoots(),
+                                    mgr.loadChild( null, "littleware.test_home" ),
+                                    mgr.loadChild(a2.getFromId(), a2.getName()),
+                                    mgr.loadPath( a2Path )
                                     );
                             }
                         ).then(
                             (batchVec) => {
-                                var ref: AssetRef, childList: NameIdPair[];
+                                var ref: AssetRef, childList: NameIdPair[], rootList:NameIdPair[], homeRef:AssetRef, nameRef:AssetRef, pathRef:AssetRef;
                                 if (batchVec.length > 1) {
                                     ref = batchVec[0];
                                     childList = batchVec[1];
-                                }
+                                    rootList = batchVec[2];
+                                    homeRef = batchVec[3];
+                                    nameRef = batchVec[4];
+                                    pathRef = batchVec[5];
 
-                                a2Ref = ref;
-                                this.resume(
-                                    () => {
-                                        Y.Assert.isTrue(ref.isDefined(), "Able to load just saved asset");
-                                        var asset = ref.getAsset();
-                                        Y.Assert.isTrue(asset.getId() == a2.getId(), "test load looks ok");
-                                        Y.Assert.isTrue(childList.length > 0, "test child list non empty");
-                                        Y.Assert.isTrue(Y.Array.find(childList,
-                                            function (it) { return (it.id == asset.getId()) && (it.name == asset.getName()); }
-                                            ) && true, "children list includes newly saved asset"
+                                    log.log("Attempting to save asset with same name under test parent");
+                                    // finally - try to save an asset with the same name - should fail
+                                    mgr.saveAsset(ref.getAsset().copy().withId(ref.getAsset().getId() + "-2").build(),
+                                                   "Try to save a copy"
+                                    ).then(
+                                        () => {
+                                            this.resume(() => {
+                                                Y.Assert.fail("Succeeded saving 2nd asset with same name under a common parent");
+                                            });
+                                            mgr.deleteAsset(ref.getAsset().getId(), "cleanup test node");
+                                        },
+                                        () => {
+                                            this.resume(
+                                                () => {
+                                                    Y.Assert.isTrue(ref.isDefined(), "Able to load just saved asset");
+                                                    var asset = ref.getAsset();
+                                                    Y.Assert.isTrue(rootList.length > 0, "Non-empty root list");
+                                                    Y.Assert.isTrue(homeRef.isDefined() && (homeRef.getAsset().getName() == "littleware.test_home"), "Loaded test home" );
+                                                    Y.Assert.isTrue(nameRef.isDefined() && (nameRef.getAsset().getId() == asset.getId()),
+                                                        "loadChild works ..."
+                                                        );
+                                                    Y.Assert.isTrue(pathRef.isDefined() && (pathRef.getAsset().getId() == asset.getId()),
+                                                        "loadPath works ...: " + a2Path
+                                                        );
+                                                    Y.Assert.isTrue(asset.getId() == a2.getId(), "test load looks ok");
+                                                    Y.Assert.isTrue(childList.length > 0, "test child list non empty");
+                                                    Y.Assert.isTrue(Y.Array.find(childList,
+                                                        function (it) { return (it.id == asset.getId()) && (it.name == asset.getName()); }
+                                                        ) && true, "children list includes newly saved asset"
+                                                        );
+                                                }
                                             );
-                                    }
-                                );
-                                return mgr.deleteAsset(ref.getAsset().getId(), "cleanup test node");
+                                            mgr.deleteAsset(ref.getAsset().getId(), "cleanup test node");
+                                        }
+                                        );
+                                } else {
+                                    this.resume(() => {
+                                        Y.Assert.fail("Unexpected runtime failure");
+                                    });
+                                }
                             },
                             (err) => {
                                 this.resume(

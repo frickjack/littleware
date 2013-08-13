@@ -29,46 +29,38 @@ export module littleware.asset.test {
 
     module TestSuite {
         export var testHomeId = "D589EABED8EA43C1890DBF3CF1F9689A";
-        export var homeRef: axMgr.AssetRef;
+        //export var homeRef: axMgr.AssetRef;
         export var folderId = "63E182C6E64C4C598A0B5FAB6597B54A";
         export var testFolderRef: axMgr.AssetRef;
         export var mgr = axMgr.getAssetManager();
 
-        function createIfNecessary(asset: ax.Asset): Y.Promise {
-            // make sure the "test home" has been initialized
-            return mgr.loadAsset(asset.getId()).then(
-                (ref: ax.AssetRef) => {
-                    if (ref.isEmpty()) { // need to create the asset - use the builder
-                        log.log( "Creating asset: " + asset.getName() );
-                        return mgr.saveAsset(asset, "setup test sandbox");
-                    }
-                    log.log("Found asset: " + asset.getName());
-                    return new Y.Promise((resolve, reject) => { resolve(ref); });
-                }
-            );
-        }
 
-        export var setupPromise = createIfNecessary(
-            ax.HomeAsset.HOME_TYPE.newBuilder().withId(testHomeId).withName("littleware.test_home"
-                ).withComment("root of test sandbox node tree").build()
-        ).then((ref) => {
-            homeRef = ref;
-            return createIfNecessary(
-                ax.GenericAsset.GENERIC_TYPE.newBuilder().withName("testFolder"
-                        ).withComment("parent asset for simple build test"
-                        ).withFromId(homeRef.getAsset().getId()
-                        ).withId(folderId).build()
-                );
-        }
-        ).then(
-                (ref) => {
+        export var setupPromise = mgr.buildBranch(null, [
+            {
+                name: "littleware.test_home",
+                builder: (parent: ax.Asset) => {
+                    return ax.HomeAsset.HOME_TYPE.newBuilder().withId(testHomeId
+                    ).withComment("root of test sandbox node tree");
+                }
+            },
+            {
+                name: "testFolder",
+                builder: (parent: ax.Asset) => {
+                    return ax.GenericAsset.GENERIC_TYPE.newBuilder(
+                            ).withComment("parent asset for simple build test"
+                            ).withId(folderId);
+                }
+            }
+        ]).then(
+                (refs:ax.AssetRef[]) => {
                     log.log("Test setup looks ok ...");
-                    testFolderRef = ref;
+                    testFolderRef = refs[1];
                 },
                 (error) => {
                     log.log("Ugh! setup failed: " + error);
                 }
         );
+
 
         /**
          * Little helper - verifies that test environment has been setup
@@ -76,8 +68,8 @@ export module littleware.asset.test {
          * @param testCase {TestCase}
          */
         export function checkSetup():void {
-            Y.Assert.isTrue( homeRef && testFolderRef && true, "littleware.test_home setup properly - homeRef: " +
-                homeRef + ", folderRef: " + testFolderRef
+            Y.Assert.isTrue( testFolderRef && true, 
+                "littleware.test_home setup properly - folderRef: " + testFolderRef
                 );
         }
     }
@@ -146,7 +138,7 @@ export module littleware.asset.test {
                             }
                         ).then(
                             (batchVec) => {
-                                var ref: axMgr.AssetRef, childList: axMgr.NameIdPair[], rootList: axMgr.NameIdPair[], homeRef: axMgr.AssetRef, nameRef: axMgr.AssetRef, pathRef: axMgr.AssetRef;
+                                var ref: axMgr.AssetRef, childList: axMgr.RONameIdList, rootList: axMgr.RONameIdList, homeRef: axMgr.AssetRef, nameRef: axMgr.AssetRef, pathRef: axMgr.AssetRef;
                                 if (batchVec.length > 1) {
                                     ref = batchVec[0];
                                     childList = batchVec[1];
@@ -171,7 +163,7 @@ export module littleware.asset.test {
                                                 () => {
                                                     Y.Assert.isTrue(ref.isDefined(), "Able to load just saved asset");
                                                     var asset = ref.getAsset();
-                                                    Y.Assert.isTrue(rootList.length > 0, "Non-empty root list");
+                                                    Y.Assert.isTrue(rootList.size() > 0, "Non-empty root list");
                                                     Y.Assert.isTrue(homeRef.isDefined() && (homeRef.getAsset().getName() == "littleware.test_home"), "Loaded test home" );
                                                     Y.Assert.isTrue(nameRef.isDefined() && (nameRef.getAsset().getId() == asset.getId()),
                                                         "loadChild works ..."
@@ -180,9 +172,9 @@ export module littleware.asset.test {
                                                         "loadPath works ...: " + a2Path
                                                         );
                                                     Y.Assert.isTrue(asset.getId() == a2.getId(), "test load looks ok");
-                                                    Y.Assert.isTrue(childList.length > 0, "test child list non empty");
-                                                    Y.Assert.isTrue(Y.Array.find(childList,
-                                                        function (it) { return (it.id == asset.getId()) && (it.name == asset.getName()); }
+                                                    Y.Assert.isTrue(childList.size() > 0, "test child list non empty");
+                                                    Y.Assert.isTrue(Y.Array.find(childList.copy(),
+                                                        function (it:axMgr.NameIdPair) { return (it.getId() == asset.getId()) && (it.getName() == asset.getName()); }
                                                         ) && true, "children list includes newly saved asset"
                                                         );
                                                 }
@@ -212,7 +204,7 @@ export module littleware.asset.test {
                         var ref = TestSuite.testFolderRef;
                         var oldValue = ref.getAsset().getValue();
 
-                        ref.addListener(
+                        mgr.addListener(
                             (ev: axMgr.RefEvent) => {
                                 log.log("Received update event: " + ev.eventType);
                                 this.resume(() => {

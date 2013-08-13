@@ -78,7 +78,7 @@ module Y {
             function throttle(fn: Function, ms: number): Function;
             function use(modules: string, callback?: (Y: YUI, status: any) => any): YUI;
             function use(modules: any[], callback?: (Y: YUI, status: any) => any): YUI;
-
+            function when(ref: any): Promise;
 
     var Assert: Test_Assert;
 
@@ -110,6 +110,7 @@ module Y {
         class Array { 
             constructor(thing: any, startIndex?: number, force?: bool);
             
+            static each(v: any[], f: (any) => bool, o?: any): any[];
             static filter(v: any[], f: (any) => bool, o?: any): any[];
             static find(v: any[], f: (any) => bool, o?: any): any;
             static reject(v: any[], f: (any) => bool, o?: any): any[];

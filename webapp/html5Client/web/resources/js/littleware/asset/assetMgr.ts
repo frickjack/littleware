@@ -130,9 +130,9 @@ export module littleware.asset.manager {
 
     /**
      * Read-only name-id pair list suitable for re-use from cache
-     * @class RONameIdList
+     * @class NameIdListRef
      */
-    export class RONameIdList {
+    export class NameIdListRef {
         constructor(private _list: NameIdPair[]) { }
 
         /**
@@ -233,14 +233,14 @@ export module littleware.asset.manager {
          * List the children if any under the given parent node
          * @method listChildren
          * @param parentId {string}
-         * @return {Y.Promise{RONameIdList}}
+         * @return {Y.Promise{NameIdListRef}}
          */
         listChildren(parentId: string): Y.Promise;
 
         /**
          * List the root (littleware.HOME-TYPE) nodes - shortcut for listChildren(null)
          * @method listRoots
-         * @return {Y.Promise{RONameIdList}}
+         * @return {Y.Promise{NameIdListRef}}
          */
         listRoots(): Y.Promise;
     }
@@ -374,7 +374,7 @@ export module littleware.asset.manager {
         //  but just keep everything in memory for now - just building little toy apps
         //
         private cache: { [key: string]: InternalAssetRef; } = {};
-        private childCache: { [key: string]: RONameIdList; } = {};
+        private childCache: { [key: string]: NameIdListRef; } = {};
         // Only public to simplify AssetRef - CacheManager interplay
         private target: Y.EventTarget = new exports.EventTarget();
 
@@ -416,9 +416,9 @@ export module littleware.asset.manager {
          * Internal synchronous list children implementation - just accesses
          * cache or local storage directly.
          */
-        private _listChildren(parentId: string): RONameIdList {
+        private _listChildren(parentId: string): NameIdListRef {
             parentId = parentId || "homeRoot";
-            var result: RONameIdList = this.childCache[parentId];
+            var result: NameIdListRef = this.childCache[parentId];
             if (!result) {
                 var js = JSON.parse(this.storage.getItem(LocalCacheManager.childPrefix + parentId)) || [];
                 var data: NameIdPair[] = [];
@@ -427,7 +427,7 @@ export module littleware.asset.manager {
                         data.push(new NameIdPair(js[i]._name, js[i]._id));
                     }
                 }
-                result = new RONameIdList(data);
+                result = new NameIdListRef(data);
                 this.childCache[parentId] = result;
             }
             return result;
@@ -443,7 +443,13 @@ export module littleware.asset.manager {
                 Y.assert(it._id && it._name, "child data looks valid");
             });
 
-            this.childCache[parentId] = new RONameIdList(data);
+            if (this.childCache[parentId]) {
+                // swap in new data with existing NameIdListRef - auto-updates clients that 
+                // have already loaded data
+                (<any> this.childCache[parentId])._list = data;
+            } else {
+                this.childCache[parentId] = new NameIdListRef(data);
+            }
             var js = JSON.stringify(data);
             //log.log("Saving child info for " + parentId + ": " + js);
             this.storage.setItem(LocalCacheManager.childPrefix + parentId, js );
@@ -524,7 +530,7 @@ export module littleware.asset.manager {
 
     
         listChildren(parentId: string): Y.Promise {
-           var children: RONameIdList = this._listChildren(parentId);
+           var children: NameIdListRef = this._listChildren(parentId);
            return Y.when( children );
         }
 
@@ -557,7 +563,7 @@ export module littleware.asset.manager {
 
         loadChild(parentId: string, name: string): Y.Promise {
             return this.listChildren(parentId).then(
-                (siblings:RONameIdList) => {
+                (siblings:NameIdListRef) => {
                     var childInfo:NameIdPair = Y.Array.find(siblings.copy(), (it:NameIdPair) => {
                         return it.getName() === name;
                     });

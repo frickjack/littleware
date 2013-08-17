@@ -92,7 +92,7 @@ littleware.littleYUI = (function() {
                 },
                 "littleware-eventTrack-littleToDo": {
                     path: "eventTrack/littleToDo.js",
-                    requires: ['littleware-asset-base', 'littleware-littleUtil', 'test'
+                    requires: ['littleware-asset-manager', 'littleware-littleUtil', 'test'
                     ]
                 }
             }

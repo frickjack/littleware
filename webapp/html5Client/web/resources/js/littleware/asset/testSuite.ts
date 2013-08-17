@@ -138,7 +138,7 @@ export module littleware.asset.test {
                             }
                         ).then(
                             (batchVec) => {
-                                var ref: axMgr.AssetRef, childList: axMgr.RONameIdList, rootList: axMgr.RONameIdList, homeRef: axMgr.AssetRef, nameRef: axMgr.AssetRef, pathRef: axMgr.AssetRef;
+                                var ref: axMgr.AssetRef, childList: axMgr.NameIdListRef, rootList: axMgr.NameIdListRef, homeRef: axMgr.AssetRef, nameRef: axMgr.AssetRef, pathRef: axMgr.AssetRef;
                                 if (batchVec.length > 1) {
                                     ref = batchVec[0];
                                     childList = batchVec[1];

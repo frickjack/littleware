@@ -110,9 +110,10 @@ module Y {
         class Array { 
             constructor(thing: any, startIndex?: number, force?: bool);
             
-            static each(v: any[], f: (any) => bool, o?: any): any[];
+            static each(v: any[], f: (any) => bool, o?: any): void;
             static filter(v: any[], f: (any) => bool, o?: any): any[];
             static find(v: any[], f: (any) => bool, o?: any): any;
+            static map(v: any[], f: (any) => bool, o?: any): any[];
             static reject(v: any[], f: (any) => bool, o?: any): any[];
 
         }

@@ -23,30 +23,12 @@ import axMgr = assetMgr.littleware.asset.manager;
 /**
  * @module littleware-eventTrack-littleApp
  * @namespace littleware.eventTrack.littleToDo
- */
+ */          
 export module littleware.eventTrack.littleToDo {
     
     var log = new lw.littleUtil.Logger("littleware.eventTrack.littleToDo");
     log.log("littleware logger loaded ...");
 
-    var rootNode = ax.GenericAsset.GENERIC_TYPE.newBuilder().withName("littleToDo"
-        ).withComment("Root node for littleToDo data tree"
-        ).build();
-
-
-
-    /**
-     * Just a place holder for now.  Each user has a data-folder
-     * for her TODO data in our imagined eventual global TODO database.  
-     * Bla.
-     * @method dataFolderId
-     * @return {string} folder id
-     * @static 
-     */
-    function getDataFolder(): ax.Asset {
-        return rootNode;
-    }
-    
 
     /**
      * Data node in the user's tree of TODOs extends littleware's Asset class.
@@ -115,7 +97,7 @@ export module littleware.eventTrack.littleToDo {
     export class ToDoSummary {
         constructor(
             public ref: axMgr.AssetRef,
-            public children: axMgr.RONameIdList,
+            public children: axMgr.NameIdListRef,
             mgr:ToDoManager
             ) { }
 
@@ -132,6 +114,8 @@ export module littleware.eventTrack.littleToDo {
         getLabel(): string { return this.ref.getAsset().getName(); }
 
         getDescription(): string { return this.ref.getAsset().getComment(); }
+
+        getParentId(): string { return this.ref.getAsset().getToId(); }
 
     }
 
@@ -150,7 +134,7 @@ export module littleware.eventTrack.littleToDo {
          * Get the root under which the manager builds the ToDo subtree for
          * the currently authenticated user
          * @method getUserDataFolder
-         * @return {Y.Promise{Asset}}
+         * @return {Y.Promise{AssetRef}}
          */
         getUserDataFolder(): Y.Promise;
 
@@ -174,14 +158,14 @@ export module littleware.eventTrack.littleToDo {
          * @method updateToDo
          * @return {Y.Promise{ToDoSummary}}
          */
-        updateToDo( id: string, name: string, description: string, state: number, comment: String): Y.Promise;
+        updateToDo( id: string, name: string, description: string, state: number, comment: string): Y.Promise;
 
         /**
          * Factory for ToDoSummary
-         * @method newToDo
+         * @method createToDo
          * @return {Y.Promise{ToDoSummary}} new ToDo saved to the repository
          */
-        newToDo(parentId: string, name: string, description: string): Y.Promise;
+        createToDo(parentId: string, name: string, description: string): Y.Promise;
     }
 
     //-----------------------------------
@@ -205,23 +189,27 @@ export module littleware.eventTrack.littleToDo {
                         return this.axTool.listChildren(ref.getAsset().getId());
                     }
                 ).then(
-                    (children: axMgr.RONameIdList) => {
-                        return Y.batch.apply(Y,
-                            Y.Array.each(children.copy(), (it: axMgr.NameIdPair) => { return this.axTool.loadAsset(it.getId()); })
-                        );
+                    (children: axMgr.NameIdListRef) => {
+                        //log.log("loadActiveToDos active children list size: " + children.size() + ", " + JSON.stringify( children.copy() ) );
+                        //Y.assert( children.copy().length === children.size(), "List copy behaves as expected");
+                        var batch = Y.Array.map(children.copy(), (it: axMgr.NameIdPair) => { return this.axTool.loadAsset(it.getId()); });
+                        Y.assert(batch.length == children.size(), "batch setup looks ok");
+                        return Y.batch.apply(Y, batch);
                     }
                 ).then(
                     (refs: ax.AssetRef[]) => {
+                        //log.log("loadActiveToDos child-load batch size: " + refs.length);
                         var assets: ToDoItem[] = [];
-                        for (var i = 0; i < assets.length; ++i) {
+                        for (var i = 0; i < refs.length; ++i) {
                             if (refs[i].isDefined()) {
                                 assets.push(refs[i].getAsset() );
                             }
                         }
-                        return Y.batch.apply( Y,
-                            Y.Array.each(assets,
+                        log.log("Loading active todos: " + assets.length);
+                        return Y.batch.apply(Y,
+                            Y.Array.map(assets,
                                 (todo: ToDoItem) => {
-                                    return this.loadToDo( todo.getId() );
+                                    return this.loadToDo(todo.getId());
                                 }
                             )
                           );
@@ -233,26 +221,26 @@ export module littleware.eventTrack.littleToDo {
         private _todoCache: { [key: string]: ToDoSummary; } = {};
 
         loadToDo(id: string): Y.Promise {
-            // TODO: add cache!!!
-            if ( this._todoCache[id]) {
+            //log.log("Loading ToDo summary: " + id);
+            if (this._todoCache[id]) {
                 return Y.when( this._todoCache[id] );
             }
             return this.axTool.loadAsset(id).then(
                 (ref: axMgr.AssetRef) => {
                     if (ref.isDefined()) {
-                        var todo = ref.getAsset();
-                        this.axTool.loadSubpath(todo.getId(), activeFolderName
+                        var todo:ToDoItem = ref.getAsset();
+                        return this.axTool.loadSubpath(todo.getId(), activeFolderName
                             ).then(
                                 (ref: axMgr.AssetRef) => {
                                     if (ref.isDefined()) {
                                         return this.axTool.listChildren(ref.getAsset().getId());
                                     } else {
-                                        return Y.when( new axMgr.RONameIdList( [] ) );
+                                        return Y.when( new axMgr.NameIdListRef( [] ) );
                                     }
                                 }
                             ).then(
-                                (children: axMgr.RONameIdList) => {
-                                    var result = new ToDoSummary(todo, children, this);
+                                (children: axMgr.NameIdListRef) => {
+                                    var result = new ToDoSummary(ref, children, this);
                                     this._todoCache[todo.getId()] = result;
                                     return result;
                                 }
@@ -266,21 +254,96 @@ export module littleware.eventTrack.littleToDo {
               );
         }
 
-        updateToDo(id: string, name: string, description: string, state: number, comment: String): Y.Promise {
+        private _isArchiveState(state: number): bool {
+            return ((state === ToDoItem.STATE.CANCELED) || (state === ToDoItem.STATE.COMPLETE));
+        }
+
+        private _monthString(date: Date): string {
+            var month = "00" + date.getMonth();
+            month = month.substring(month.length - 2);
+            return "" + date.getFullYear() + month;
+        }
+
+        updateToDo(id: string, name: string, description: string, state: number, comment: string): Y.Promise {
+            // TODO - clean this up to handle different scenarios - todo goes inactive, but has children, ...
             return this.axTool.loadAsset(id).then(
                 (ref: axMgr.AssetRef) => {
-                    if (ref.isDefined()) {
+                    Y.assert(ref.isDefined(), "ToDo exists with id: " + id);
+                    Y.assert(ref.getAsset().getAssetType().id == ToDoItem.TODO_TYPE.id, "asset must have ToDoItem type: " + id);
+                    var builder: ax.AssetBuilder = ref.getAsset().copy();
+                    if (name) { builder.name = name; }
+                    if (description) { builder.comment = description; }
+                    if ((state === 0) || state) { builder.state = state; }
+
+                    Y.assert( builder.toId && true, "todo has pointer to parent");
+
+                    //
+                    // posibly move ToDo to a different folder (active or archive) -
+                    // initial default is no move
+                    //
+                    var moveFolderStep: Y.Promise = Y.when(builder.fromId);
+
+                    if ( this._isArchiveState(state) && (! this._isArchiveState(ref.getAsset().getState()))
+                         ) {
+                        // move asset under parent's archive folder
+                        var now = new Date();
+                        
+                        var archiveBranch = [
+                            {
+                                name: "archive",
+                                builder: (parent) => { return ax.GenericAsset.GENERIC_TYPE.newBuilder(); }
+                            },
+                            {
+                                name: this._monthString( now ),
+                                builder: (parent) => { return ax.GenericAsset.GENERIC_TYPE.newBuilder(); }
+                            }
+                        ];
+                        moveFolderStep = this.axTool.buildBranch(builder.toId, archiveBranch).then(
+                            (refs: ax.AssetRef[]) => {
+                                return refs[refs.length - 1].getAsset().getId();
+                            }
+                        );
+                        // give asset a unique name for archive
+                        builder.name = builder.name + "-" + now.getTime();
+                    } else if ( (!this._isArchiveState(state)) && this._isArchiveState(ref.getAsset().getState()) ) {
+                        // move asset back under parent's active folder
+                        var activeBranch = [
+                            {
+                                name: activeFolderName,
+                                builder: (parent) => {
+                                    return ax.GenericAsset.GENERIC_TYPE.newBuilder();
+                                }
+                            }
+                        ];
+                        moveFolderStep = this.axTool.buildBranch(builder.toId, activeBranch).then(
+                            (refs: ax.AssetRef[]) => {
+                                return refs[refs.length - 1].getAsset().getId();
+                            }
+                        );
                     }
+                    return moveFolderStep.then(
+                            (fromId: string) => { return this.axTool.saveAsset(builder.withFromId(fromId).build(), comment); }
+                        ).then(
+                            (ref: axMgr.AssetRef) => {
+                                return this.loadToDo(ref.getAsset().getId());
+                            }
+                        );
                 }
              );
         }
 
-        newToDo(parentId: string, name: string, description: string): Y.Promise { 
-            return this.axTool.buildBranch(parentId, [
+        createToDo(parentId: string, name: string, description: string): Y.Promise {
+            var branch = [
+                {
+                    name: activeFolderName,
+                    builder: (parent) => {
+                        return ax.GenericAsset.GENERIC_TYPE.newBuilder();
+                    }
+                },
                 {
                     name: name,
                     builder: (parent) => {
-                        return ToDoItem.TODO_TYPE.newBuilder().withComment(description);
+                        return ToDoItem.TODO_TYPE.newBuilder().withComment(description).withToId(parentId);
                     }
                 },
                 {
@@ -289,27 +352,77 @@ export module littleware.eventTrack.littleToDo {
                         return ax.GenericAsset.GENERIC_TYPE.newBuilder();
                     }
                 }
-            ]
-                ).then(
-                    (refs: ax.AssetRef[]) => {
-                        var itemRef = refs[0];
-                        return new ToDoSummary(itemRef, new axMgr.RONameIdList([]), this);
-                    }
-                );
+
+            ];
+
+            // First - load parent, make sure it's a TODO ...
+            return this.axTool.loadAsset(parentId).then(
+                (ref: axMgr.AssetRef) => {
+                    Y.assert(ref.isDefined(), "unable to load todo parent: " + parentId);
+                    return this.axTool.buildBranch(parentId, branch
+                        ).then(
+                            (refs: ax.AssetRef[]) => {
+                                Y.assert(refs.length == 3, "createToDo got expected branch result");
+                                var todoRef = refs[1];
+                                Y.assert(todoRef.getAsset().getAssetType().id === ToDoItem.TODO_TYPE.id,
+                                    "createToDo branch-create setup is as expected"
+                                    );
+                                return new ToDoSummary(todoRef, new axMgr.NameIdListRef([]), this);
+                            }
+                        );
+                }
+              );
         }
 
     }
 
-    
+    // setup ToDo data folder
+    var singleton: SimpleManager = null;
+
+    /**
+     * Get the ToDo manager singleton ...
+     * @method getToDoManager
+     * @for
+     */
+    export function getToDoManager(): ToDoManager {
+        if (singleton) {
+            return singleton;
+        }
+        var tool: axMgr.AssetManager = axMgr.getAssetManager();
+        var branch = [
+            {
+                name: "littleToDo",
+                builder: (parent) => {
+                    return ax.HomeAsset.HOME_TYPE.newBuilder().withComment("root for littleToDo data");
+                }
+            },
+            {
+                name: "user",
+                builder: (parent) => {
+                    return ax.GenericAsset.GENERIC_TYPE.newBuilder().withComment("place holder for eventual user name");
+                }
+            }
+        ];
+        var folderPromise: Y.Promise = tool.buildBranch(null, branch).then((refs: ax.AssetRef[]) => {
+            return refs[refs.length - 1];
+        }
+        );
+        singleton = new SimpleManager(tool, folderPromise);
+        return singleton;
+    }
 
     //-----------------------------------
 
     export function buildTestSuite(): Y.Test_TestSuite {
-        var suite: Y.Test_TestSuite = new Y.Test.TestSuite("littleware-asset");
+        var suite: Y.Test_TestSuite = new Y.Test.TestSuite("littleware-littleToDo");
         suite.add(new Y.Test.TestCase(
                 {
                     testToDoBuild: function () {
-                        var parent = getDataFolder();
+                        var parent =  ax.GenericAsset.GENERIC_TYPE.newBuilder().withName("littleToDo"
+                            ).withComment("Root node for littleToDo data tree"
+                            ).withFromId( "bogus"  // just for testing
+                            ).build();
+
                         var list_1 = ToDoItem.TODO_TYPE.newBuilder().withName("list_1"
                             ).withComment("todo test list 1").withParent(parent).build();
                         var todo_1 = ToDoItem.TODO_TYPE.newBuilder().withName("list_1_todo_1"
@@ -321,10 +434,77 @@ export module littleware.eventTrack.littleToDo {
                         Y.Assert.isTrue(todo_2.getFromId() == todo_1.getFromId(),
                                      "todos have same list as parent"
                                     );
+                    },
+
+                    // create a couple todos, archive, etc.
+                    testToDoManager: function () {
+                        var tool: ToDoManager = getToDoManager();
+
+                        var createTestToDo = (parentId: string, logLabel:string ) => {
+                            return tool.createToDo(parentId, "TestToDo", "test ToDo"
+                               ).then(
+                                    (todo: ToDoSummary) => {
+                                        return tool.loadActiveToDos(todo.getParentId());
+                                    }
+                                ).then(
+                                    (todoList: ToDoSummary[]) => {
+                                        log.log( "active todos list size: " + todoList.length );
+                                        for (var i = 0; i < todoList.length; ++i) {
+                                            log.log( "active todo: " + todoList[i].getLabel() );
+                                        }
+                                        var todo = Y.Array.find(todoList, (it: ToDoSummary) => {
+                                            return (it.getLabel() === "TestToDo");
+                                        });
+                                        Y.Assert.isTrue(todo && true, logLabel + " found TestToDo in active list");
+                                        return todo;
+                                    }
+                                );
+                        };
+
+                        tool.getUserDataFolder().then(
+                            // create test to-do
+                            (ref: axMgr.AssetRef) => {
+                                return createTestToDo(ref.getAsset().getId(), "root test:" );
+                            }
+                          ).then(
+                            // create a child to-do under the first to-do
+                            (todo: ToDoSummary) => {
+                                return createTestToDo(todo.getId(), "2nd level:" );
+                            }
+                          ).then(
+                            // finally, cleanup - archive the 1st todo
+                            (child: ToDoSummary) => {
+                                return tool.updateToDo(child.getParentId(), null, null,
+                                    ToDoItem.STATE.COMPLETE, "archive complete TODO"
+                                    );
+                            }
+                          ).then(
+                            (todo: ToDoSummary) => {
+                                log.log("checking that archived todo is out of active list ...");
+                                return tool.loadActiveToDos(todo.getParentId());
+                            }
+                          ).then(
+                            (todoList: ToDoSummary[]) => {
+                                this.resume(() => {
+                                    var shouldNotFind = Y.Array.find(todoList, (it: ToDoSummary) => {
+                                        return (it.getLabel() == "TestToDo");
+                                    });
+                                    Y.Assert.isTrue(!(shouldNotFind && true), "Archived ToDo should not show up in active list");
+                                });
+                            },
+                            (err) => {
+                                this.resume(() => {
+                                    throw err;
+                                });
+                            }
+                          );
+                        this.wait(5000);
                     }
                 }
             ));
         return suite;
     }
 
+
+    log.log("module initialized ...");
 }

@@ -249,7 +249,7 @@ export module littleware.asset {
      */
     export class IdFactories {
         private static _idFactory: IdFactory = {
-            get: function () { return "" + (new Date()).getTime() + "/" + Math.random(); }
+            get: function () { return "" + (new Date()).getTime() + "-" + Math.floor( 100 * Math.random() ); }
         };
 
         /**

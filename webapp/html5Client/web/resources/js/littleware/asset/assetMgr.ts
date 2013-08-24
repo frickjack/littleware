@@ -359,6 +359,8 @@ export module littleware.asset.manager {
 
     Y.assert(EmptyRef.isEmpty(), "empty ref better be empty!");
 
+    export function emptyRef(): AssetRef { return EmptyRef; }
+
     //Y.augment( <any> AssetRef, <any> Y.EventTarget);
 
     //-----------------------------------

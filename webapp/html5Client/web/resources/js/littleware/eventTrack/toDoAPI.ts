@@ -6,7 +6,7 @@ declare var exports:any;
 
 if ( null == exports ) {
     // Hook to communicate out to YUI module system a YUI module-name for this typescript file
-    throw "littleware-eventTrack-littleToDo";
+    throw "littleware-eventTrack-toDoAPI";
 }
 
 // little dance for hooking into YUI's module system
@@ -21,12 +21,12 @@ import ax = littleAsset.littleware.asset;
 import axMgr = assetMgr.littleware.asset.manager;
 
 /**
- * @module littleware-eventTrack-littleApp
- * @namespace littleware.eventTrack.littleToDo
+ * @module littleware-eventTrack-toDoAPI
+ * @namespace littleware.eventTrack.toDoAPI
  */          
-export module littleware.eventTrack.littleToDo {
+export module littleware.eventTrack.toDoAPI {
     
-    var log = new lw.littleUtil.Logger("littleware.eventTrack.littleToDo");
+    var log = new lw.littleUtil.Logger("littleware.eventTrack.toDoAPI");
     log.log("littleware logger loaded ...");
 
 
@@ -142,7 +142,7 @@ export module littleware.eventTrack.littleToDo {
          * Get the active child-tasks (not grandchildren, etc) under the given parent
          * @method getActiveToDos
          * @param parentId {string}
-         * @reutrn {Promise{Array{ToDoItem}}}
+         * @reutrn {Promise{Array{ToDoSummary}}}
          */
         loadActiveToDos(parentId: string): Y.Promise;
 
@@ -414,7 +414,7 @@ export module littleware.eventTrack.littleToDo {
     //-----------------------------------
 
     export function buildTestSuite(): Y.Test_TestSuite {
-        var suite: Y.Test_TestSuite = new Y.Test.TestSuite("littleware-littleToDo");
+        var suite: Y.Test_TestSuite = new Y.Test.TestSuite("littleware-toDoAPI");
         suite.add(new Y.Test.TestCase(
                 {
                     testToDoBuild: function () {

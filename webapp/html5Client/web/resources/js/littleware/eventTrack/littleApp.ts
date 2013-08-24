@@ -186,6 +186,7 @@ export module littleware.eventTrack.littleApp {
             /**
              * Child panel of homePage - "config"
              * is reserved for internally managed configuration panels.
+             * @method registerRootPanel
              */
             registerRootPanel(
                 panel: LittlePanel,
@@ -558,8 +559,34 @@ export module littleware.eventTrack.littleApp {
                                 // The .href/get( 'href' ) absolute-path values are relative
                                 // to the actual page URL, not the HTML5 pushState path ... ugh.
                                 //
-                                //log.log("Removing root from click target: " + e.currentTarget.get('href') + " -- " + e.currentTarget.getDOMNode().href);
-                                var path: string = router.removeRoot( e.currentTarget.get('href') );
+                                var path: string = e.currentTarget.getAttribute('href');
+                                var panelPath: string = e.currentTarget.getAttribute("data-panel-path");
+                                log.log("click handler processing: " + path + ", " + panelPath );
+                                if ( (path.substr(0, 1) === ".") && panelPath ) {
+                                    // relative path: ./bla or ../bla bla
+                                    var pathParts: string[] = Y.Array.filter(
+                                        panelPath.split(/\/+/),
+                                        function (s) { return s; }
+                                        );
+                                    var newParts: string[] = Y.Array.filter(
+                                        path.split(/\/+/),
+                                        function (s) { return s; }
+                                        );
+                                    var token: string;
+                                    for (var i = 0; i < newParts.length; ++i) {
+                                        token = newParts[i];
+                                        if (token === "..") {
+                                            pathParts.pop();
+                                        } else if (token !== ".") {
+                                            pathParts.push(token);
+                                        }
+                                    }
+                                    path = pathParts.join("/");
+                                } else {
+                                    // absolute path
+                                    path = router.removeRoot( e.currentTarget.get( "href" ) );
+                                }
+                                
                                 e.preventDefault();
 
                                 if ( (router.getPath() != path) && router.hasRoute(path) ) {    
@@ -567,7 +594,7 @@ export module littleware.eventTrack.littleApp {
                                 }
                             }, 'a.little-route'
                           );
-
+                        
                           /*... ugh - doesn't work on Android Chrome - browser already uses flick ? ...
                         // flick gesture ... back or forward
                         this.container.on( "flick", 

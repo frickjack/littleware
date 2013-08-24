@@ -6,13 +6,11 @@
         <title>littleware js Test Page</title>
         <meta name="viewport" content="width=device-width" />
         
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssreset/cssreset.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssbase/cssbase.css"  type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssfonts/cssfonts.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssgrids/cssgrids.css" type="text/css" /> 
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.1/pure-min.css">
+
 
         <link rel="stylesheet" type="text/css" href="../resources/css/littleware/little.css" />
-        <link rel="stylesheet" type="text/css" href="../resources/css/littleware/littleTree.css" />
+        <link rel="stylesheet" href="/littleware_apps/resources/css/littleware/eventTrack/panelView.css" type="text/css" />
 
         <style id="yuiInsertBeforeMe" type="text/css">
             * {
@@ -33,8 +31,8 @@
     <body>
 
     <div id='root'>
-        <div class="yui3-g">
-            <div class="yui3-u-1 content-box">
+        <div class="pure-g">
+            <div class="pure-u-1 content-box">
                 <h1>littleware test suite</h1>
                 
                 <p>
@@ -44,21 +42,25 @@
                     
                 <pre>
                   var Y = littleware.littleYUI.bootstrap();
-                  Y.use( "module-name", "test" );
+                  Y.use( "module-name", "test", function(){ console.log( "loading complete ..." ); } );
                   Y.Module.buildTestSuite();
                 </pre>
                    
                 </p>
+
             </div>
+        </div>
+        <div id="app">
+
         </div>
     </div>
         
-        <script src="http://yui.yahooapis.com/3.10.3/build/yui/yui-debug.js"></script>
+        <script src="http://yui.yahooapis.com/3.11.0/build/yui/yui-debug.js"></script>
         <script type="text/javascript" src="../resources/js/littleware/littleYUI.js" charset="utf-8"></script>
 
         <script>    
             littleware.littleYUI.bootstrap().use( 
-                "littleware-eventTrack-littleToDo", 'littleware-asset-test',
+                "littleware-eventTrack-toDoApp", 'littleware-asset-test',
                 function (Y) {
                     // The modules are loaded and ready to use.
                     // Your code goes here!
@@ -67,7 +69,8 @@
                     
                     Y.Test.Runner.add( util.buildTestSuite() );
                     Y.Test.Runner.add(Y.littleware.asset.test.buildTestSuite());
-                    Y.Test.Runner.add(Y.littleware.eventTrack.littleToDo.buildTestSuite());
+                    Y.Test.Runner.add(Y.littleware.eventTrack.toDoAPI.buildTestSuite());
+                    Y.Test.Runner.add(Y.littleware.eventTrack.toDoView.buildTestSuite());
                     
                     if ( typeof( window.callPhantom ) != 'undefined' ) {
                         // phantomjs environment!
@@ -75,7 +78,11 @@
                         Y.Test.Runner.subscribe( Y.Test.Runner.COMPLETE_EVENT, window.callPhantom );
                     }
 
-                    Y.Test.Runner.run();          
+                    Y.Test.Runner.run();
+                    var config = new Y.littleware.eventTrack.toDoApp.Config();
+                    config.root = "/littleware_apps/testsuite/littleToDoTestSuite.html";
+                    var app = Y.littleware.eventTrack.toDoApp.buildApp( config );
+                    app.show();
             });
 
         </script>

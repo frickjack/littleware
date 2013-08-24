@@ -11,13 +11,13 @@
         <link rel="apple-touch-icon" sizes="114x114" href="/littleware_apps/resources/img/appIcons/oo511.114x114.png" />
         <link rel="apple-touch-icon" sizes="144x144" href="/littleware_apps/resources/img/appIcons/oo511.144x144.png" />
 
-        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.0/pure-min.css">
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.1/pure-min.css">
         <!--
-        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.10.3/build/cssnormalize/cssnormalize-min.css">
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.11.0/build/cssnormalize/cssnormalize-min.css">
         
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssgrids-responsive/cssgrids-responsive.css" type="text/css" /> 
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.11.0/build/cssgrids-responsive/cssgrids-responsive.css" type="text/css" /> 
         -->
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.10.3/build/cssfonts/cssfonts.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.11.0/build/cssfonts/cssfonts.css" type="text/css" />
         
         <style id="yuiInsertBeforeMe" type="text/css"></style>
         <!--
@@ -114,7 +114,7 @@
 
             <ul class="little-menu">
                 {{#items}}
-                    <li><a class="little-route pure-button" href="{{url}}">{{name}}</a></li>
+                    <li><a class="little-route pure-button" data-panel-path="{{../panelPath}}" href="{{url}}">{{name}}</a></li>
                 {{/items}}
             </ul>
             </div>
@@ -131,7 +131,7 @@
 
         <!-- ................................................ -->
 
-        <script src="http://yui.yahooapis.com/3.10.3/build/yui/yui-debug.js"></script> 
+        <script src="http://yui.yahooapis.com/3.11.0/build/yui/yui-debug.js"></script> 
         <script src="/littleware_apps/resources/js/littleware/littleYUI.js"></script>
 
         <script>
@@ -158,10 +158,10 @@
                             var parentPath = pathParts.slice(0, pathDepth).join("/") || "/";
 
                             var children = this.get("children");
-                            var items = [{ url: parentPath, name: "<< back" } ];
+                            var items = [{ url: "..", name: "<< back" } ];
                             for (var i = 0; i < children.length; ++i) {
                                 items.push({
-                                    url: myPath + "/" + children[i],
+                                    url: "./" + children[i],  // myPath + "/" + ...
                                     name: children[i]
                                 });
                             }
@@ -169,7 +169,8 @@
                                 {
                                     title: title,
                                     items: items,
-                                    color: this.get( "color" )
+                                    color: this.get("color"),
+                                    panelPath: myPath
                                 }
                                 );
                             container.setHTML(content);

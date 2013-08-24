@@ -90,10 +90,20 @@ littleware.littleYUI = (function() {
                                 'test', 'timers', 'view', 'transition' 
                             ]
                 },
-                "littleware-eventTrack-littleToDo": {
-                    path: "eventTrack/littleToDo.js",
+                "littleware-eventTrack-toDoAPI": {
+                    path: "eventTrack/toDoAPI.js",
                     requires: ['littleware-asset-manager', 'littleware-littleUtil', 'test'
                     ]
+                },
+                "littleware-eventTrack-toDoView": {
+                    path: "eventTrack/toDoView.js",
+                    requires: ['littleware-eventTrack-toDoAPI', 'view'
+                    ]
+                },
+                "littleware-eventTrack-toDoApp": {
+                        path: "eventTrack/toDoApp.js",
+                        requires: ['littleware-eventTrack-toDoView', "littleware-eventTrack-littleApp", "router"
+                        ]
                 }
             }
         }    ;

@@ -1,0 +1,13 @@
+<div>
+    <span class="little-header">{{label}}</span><a class="little-tools" href="{{id}}">++</a>
+
+  <ul class="little-menu">
+    {{#children}}
+    <li>
+      <a class="little-tools" href="{{id}}">[tools]</a>
+      <a class="little-route pure-button" data-panel-path="{{../path}}" href="./{{name}}">{{name}} [{{numChildren}}]</a>
+    </li>
+    {{/children}}
+  </ul>
+
+</div>

@@ -1253,6 +1253,8 @@ module Y {
             save(url?: string): Router;
             upgrade(): bool;
         }
+
+        var Router: any;  // hack - Router is actaully a class, so need to be able to do: new Y.Router
     
         interface SWF { 
             (id: string, swfURL: string, p_oAttributes: any);
@@ -1507,6 +1509,8 @@ module Y {
             remove(): View;
             render(): View;
         }
+
+        var View: any;
     
         interface Widget extends Base { 
             UI_EVENTS: any;
@@ -2095,11 +2099,13 @@ module Y {
             ATTRS: any;
             
             build(name: Function, main: Function, extensions: Function[], cfg: any): Function;
-            create(name: Function, main: Function, extensions: Function[], px: any, sx: any): Function;
+            create(name: string, main: any, extensions: any[], px: any, sx: any): any;
             mix(main: Function, extensions: Function[]): Function;
             plug(): any;
             unplug(): any;
         }
+
+        var Base: BaseStatic;
     
         interface ButtonCoreStatic {
             new (config: any): ButtonCore;
@@ -2475,6 +2481,8 @@ module Y {
             unplug(plugin: Function): any;
             unplug(plugin: any[]): any;
         }
+
+        var Node: NodeStatic;
     
         interface OverlayStatic {
             new (object: any): Overlay;
@@ -3881,6 +3889,9 @@ module Y {
             registerHelper(name: string, fn: Function, inverse?: bool): any;
             template(template: Function): Function;
         }
+
+        var Handlebars: Handlebars;
+
     
         interface Highlight {
             

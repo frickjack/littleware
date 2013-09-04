@@ -66,11 +66,52 @@ export module littleware.eventTrack.littleApp {
      * @class PanelStatus
      */
     export class PanelStatus {
+        /**
+         * route.split( /\/+/ ).length
+         * @property routeDepth
+         * @type int
+         */
+        public routeDepth: number = -1;
+
+        /**
+         * The route sub-path for this particular panel: path.split( /\/+/ ).slice( 0, panelDepth ).join( "/" )
+         * @property panelPath
+         * @type string
+         */
+        public panelPath: string;
+
+        /**
+         * The application route path - URI decoded
+         * @property route
+         * @type {string}
+         */
+        public route: string;
+
         constructor(
+            /**
+             * This panel this object is decorating with additional state 
+             * @property panel
+             * @type LittlePanel
+             */
             public panel: LittlePanel,
+            /**
+             * @property state
+             * @type PanelState
+             */
             public state: PanelState,
-            public path:string
-            ) { }
+            dirtyRoute:string,
+            /**
+             * The depth of the panel in the view tree (home panel is 0, a root panel is 1, child of root is 2, ...)
+             * @property panelDepth
+             * @type int
+             */
+            public panelDepth: number
+            ) {
+            this.route = decodeURIComponent(dirtyRoute);
+            var pathParts: string[] = Y.Array.filter( this.route.split(/\/+/), function (it) { return it; });
+            this.routeDepth = pathParts.length;
+            this.panelPath = "/" + pathParts.slice(0, this.panelDepth).join("/");
+        }
     }
 
 
@@ -187,12 +228,15 @@ export module littleware.eventTrack.littleApp {
              * Child panel of homePage - "config"
              * is reserved for internally managed configuration panels.
              * @method registerRootPanel
+             * @param panel {LittlePanel} to register
+             * @param baseName {string} of route to associate panel with
+             * @param listener {Function} to notify when path changes on route associated with this panel
              */
             registerRootPanel(
                 panel: LittlePanel,
                 baseName: string,
                 listener: (PanelStatus) => void
-                );
+                ):void;
 
             /**
              * Register panels along with id of its parent, and a baseFilter
@@ -203,13 +247,17 @@ export module littleware.eventTrack.littleApp {
              * to determine which panel to associate with that route.
              *
              * @method registerPanel
+             * @param panel {LittlePanel} to register
+             * @param parentId {string} id of parent panel in route tree
+             * @param routeFilter {Function} filter returns true if a given route basename maps to this panel, false otherwise
+             * @param listener {Function} to notify when path changes on route associated with this panel
              */
             registerPanel(
                     panel: LittlePanel,
                     parentId: string,
                     routeFilter: (string) => bool,
                     listener: (PanelStatus) => void
-                );
+                ):void;
 
             /**
              * By default the manager does not re-render a panel when it
@@ -219,7 +267,22 @@ export module littleware.eventTrack.littleApp {
              *
              * @method markPanelDirty
              */
-            markPanelDirty(panelId: string);
+            markPanelDirty(panelId: string):void;
+
+            /**
+             * Little utilty - lookup the panels associated with the given route path if any
+             * @method lookupPanels
+             * @param route {string}
+             * @return {LittlePanel[]} where [0] is home panel
+             */
+            lookupPanels(route: string): LittlePanel[];
+
+            /**
+             * Lookup a panel by its id
+             * @method lookupPanelById
+             * @return {LittlePanel} panel or null
+             */
+            lookupPanelById(id: string): LittlePanel;
 
             /**
              * Triggers the manager to render its initial view (depends on the active route),
@@ -366,14 +429,22 @@ export module littleware.eventTrack.littleApp {
                         );
                   }
 
+                lookupPanelById(id: string): LittlePanel {
+                    var info = this.panelIdIndex[id];
+                    if (info) {
+                        return info.panel;
+                    } else {
+                        return undefined;
+                    }
+                }
                 
                 /**
                  * Determine the list of panel ids to display for the given route
                  *
-                 * @param path sub-root route path: req.path
+                 * @param path {string} sub-root route path: req.path
                  * @return {Array<String>} list of panel ids in left-to-right order
                  */
-                private lookupPanelsForRoute(path:string) {
+                private lookupPanelsForRoute(path:string):string[] {
                     log.log("Handling route: " + path);
                     var parts: string[] = Y.Array.filter(path.split(/\/+/), function (s) { return s; });
                     var panelIds: string[] = [];
@@ -397,13 +468,22 @@ export module littleware.eventTrack.littleApp {
                 }
                 
 
+                lookupPanels(path: string): LittlePanel[]{
+                    var panels = [];
+                    var ids = this.lookupPanelsForRoute(path);
 
+                    for (var i = 0; i < ids.length; ++i) {
+                        panels.push( this.panelIdIndex[ids[i]].panel );
+                    }
+
+                    return panels;
+                }
 
                 registerRootPanel(
                     panel: LittlePanel,
                     baseName: string,
                     listener: (PanelStatus) => void
-                    ) {
+                    ):void {
                     this.registerPanel(panel, homeId, (name) => name == baseName, listener);
                     this.routeIndex.push("/" + baseName);
                     this.markPanelDirty(this.homePanel.id);
@@ -435,7 +515,7 @@ export module littleware.eventTrack.littleApp {
 
                 private renderPending = false;
                 private scheduleRender() {
-                    if ((!this.renderPending) && (this.state.id == ManagerState.ACTIVE.id) ) {
+                    if ((!this.renderPending) && (this.state.id === ManagerState.ACTIVE.id) ) {
                         this.renderPending = true;
                         log.log("Scheduling render ...");
                         Y.soon(() => { try {
@@ -450,18 +530,22 @@ export module littleware.eventTrack.littleApp {
                                 numToRender = 1;
                             }
 
+                            //
+                            // Figure out which panels to render for the active route.
+                            // The route panel ids array holds the array of ids associated with the given route.
+                            //
                             var newPanelIds: string[] = [];
                             for (var i = this.routePanelIds.length; (i >= 0) && (newPanelIds.length < numToRender); i--) {
                                 if (this.routePanelIds[i] != null) {
                                     newPanelIds.unshift(this.routePanelIds[i]);
                                 }
                             }
+                            var numInvisiblePanels = Math.max( this.routePanelIds.length - numToRender, 0 );
                             log.log("Rendering panels: " + newPanelIds.join(", "));
 
                             var routerPath = this.router.getPath();
-
                             //
-                            // first - go through and remove children, 
+                            // first - go through and remove children (panels for last route), 
                             // so we don't accidentally try to give a DOM node 2 parents ...
                             //
                             for( var i=0; i < this.viewInfo.length; ++i ) {
@@ -472,7 +556,7 @@ export module littleware.eventTrack.littleApp {
                                   if ( (i < numToRender) && (i < newPanelIds.length) ) {
                                       if ( (currentView.panelId) && (currentView.panelId != newPanelIds[i]) ) { // && info.div.hasChildNodes()) {
                                           var panelInfo = this.panelIdIndex[ currentView.panelId ];
-                                          panelInfo.listener( new PanelStatus( panelInfo.panel, PanelState.HIDDEN, routerPath ) );
+                                          panelInfo.listener( new PanelStatus( panelInfo.panel, PanelState.HIDDEN, routerPath, i ) );
                                           currentView.div.setHTML("");
                                           currentView.panelId = null;
                                       }
@@ -482,11 +566,10 @@ export module littleware.eventTrack.littleApp {
                                   } else if ( currentView.panelId ) {
                                       //node.setStyle("width", "0" );
                                       //if ( info.div.hasChildNodes()) {
-                                          //info.div.get("children").each((child) => info.div.remove(child));
-                                          
+                                      //info.div.get("children").each((child) => info.div.remove(child));    
                                       //}
                                       var panelInfo = this.panelIdIndex[ currentView.panelId];
-                                      panelInfo.listener(new PanelStatus(panelInfo.panel, PanelState.HIDDEN, routerPath ));
+                                      panelInfo.listener(new PanelStatus(panelInfo.panel, PanelState.HIDDEN, routerPath, i ));
 
                                       currentView.div.setHTML("");
                                       //info.div.hide();
@@ -507,7 +590,8 @@ export module littleware.eventTrack.littleApp {
                                 // notify new panel that it's visible, so it can update itself, and mark itself dirty for render
                                 // if necessary.  The render() call is made further below ...
                                 //
-                                newPanelInfo.listener(new PanelStatus(newPanelInfo.panel, PanelState.VISIBLE, routerPath ));
+                                log.log("Calling panel listener for: " + newPanelId + ": " + routerPath);
+                                newPanelInfo.listener(new PanelStatus(newPanelInfo.panel, PanelState.VISIBLE, routerPath, i + numInvisiblePanels ));
 
                                 if (currentView.panelId != newPanelId ) {
                                     Y.assert(!Y.Lang.isUndefined(newPanelInfo), "Panel registered for display exists: " + newPanelId);
@@ -539,8 +623,10 @@ export module littleware.eventTrack.littleApp {
                 show() {
                     if (this.state.id != ManagerState.ACTIVE.id) {
                         this.state = ManagerState.ACTIVE;
+                        log.log("Registering 'onwindowresize' handler ...");
                         Y.on('windowresize', (ev) => {
                             this.viewMode = ViewMode.selectModeByWidth(window.innerWidth);
+                            log.log("Scheduling render after window resize ...");
                             this.scheduleRender();
                         });
                         // register "a" click delegate to trigger routes when appropriate
@@ -548,8 +634,16 @@ export module littleware.eventTrack.littleApp {
 
                         this.container.delegate('click',
                             (e) => {
+                                e.preventDefault();
+                            }, "a.little-tools"
+                            );
+
+                        this.container.delegate('click',
+                            (e: Y.DOMEventFacade) => {
+                                //
                                 // Allow the native behavior on middle/right-click, or when Ctrl or Command
                                 // are pressed.
+                                //
                                 if (e.button !== 1 || e.ctrlKey || e.metaKey) {
                                     return;
                                 }

@@ -824,6 +824,7 @@ module Y {
             all(selector: string): NodeList;
             ancestors(fn: string, testSelf: bool): NodeList;
             ancestors(fn: Function, testSelf: bool): NodeList;
+            ancestor(fn: string): Node;
             ancestor(fn: string, testSelf: bool, stopFn: string): Node;
             ancestor(fn: string, testSelf: bool, stopFn: Function): Node;
             ancestor(fn: Function, testSelf: bool, stopFn: string): Node;
@@ -835,7 +836,7 @@ module Y {
             getAttribute(name: string): string;
             focus(): Node;
             delegate(type: string, fn: Function, el: string): EventHandle;
-            delegate(type: string, fn: Function, spec: string, context: any, args: any): EventHandle;
+            delegate(type: string, fn: Function, spec: string, context: any, args?: any): EventHandle;
             delegate(type: string, fn: Function, spec: Function, context: any, args: any): EventHandle;
             each(fn: Function, context: any): Node;
             empty(): Node;
@@ -979,6 +980,7 @@ module Y {
             destroy(recursivePurge: bool): any;
             even(): NodeList;
             filter(selector: string): NodeList;
+            filter(fn: Function): NodeList;
             each(fn: Function, context: any): NodeList;
             generateID(): string;
             detachAll(): any;
@@ -3371,7 +3373,7 @@ module Y {
             which: number;
             
             halt(immediate: bool): any;
-            preventDefault(returnValue: string): any;
+            preventDefault(returnValue?: string): any;
             stopPropagation(): any;
             stopImmediatePropagation(): any;
         }

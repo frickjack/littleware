@@ -86,7 +86,7 @@ littleware.littleYUI = (function() {
                 },
                 "littleware-eventTrack-littleApp": {
                     path: "eventTrack/littleApp.js",
-                    requires: [ 'event-gestures', 'littleware-littleUtil', 'router', 
+                    requires: [ 'event-resize', 'littleware-littleUtil', 'router', 
                                 'test', 'timers', 'view', 'transition' 
                             ]
                 },
@@ -102,7 +102,8 @@ littleware.littleYUI = (function() {
                 },
                 "littleware-eventTrack-toDoApp": {
                         path: "eventTrack/toDoApp.js",
-                        requires: ['littleware-eventTrack-toDoView', "littleware-eventTrack-littleApp", "router"
+                        requires: ['littleware-eventTrack-toDoView', "littleware-eventTrack-littleApp",
+                            "event-key", "node-event-delegate", "router"
                         ]
                 }
             }

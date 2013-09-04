@@ -235,10 +235,10 @@
                     //
                     var viewListener = function (panelStatus) {
                         if (panelStatus.state.name == "VISIBLE") {
-                            var oldPath = panelStatus.panel.view.get("pathParts").join("/");
-                            if (oldPath != panelStatus.path) {
+                            var oldPath = "/" + panelStatus.panel.view.get("pathParts").join("/");
+                            if (oldPath != panelStatus.route) {
                                 //log.log("Setting new path: " + oldPath + " != " + panelStatus.path);
-                                panelStatus.panel.view.set("pathParts", panelStatus.path.split("/"));
+                                panelStatus.panel.view.set("pathParts", panelStatus.route.split("/"));
                                 app.markPanelDirty(panelStatus.panel.id);
                             }
                         }

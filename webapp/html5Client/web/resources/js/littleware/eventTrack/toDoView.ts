@@ -76,6 +76,13 @@ export module littleware.eventTrack.toDoView {
          * @return {Promise} 
          */
         setModelPromise(promise: Y.Promise): Y.Promise;
+
+        /**
+         * Helper extracts a ViewModel object from the attributes attached to this view
+         * @method getModel
+         * @return {ViewModel}
+         */
+        getModel(): ViewModel;
     }
 
     
@@ -110,6 +117,7 @@ export module littleware.eventTrack.toDoView {
             }  else if (attrs.asset && attrs.asset.isDefined()) {
                 var templateData = {
                     label: attrs.asset.getAsset().getName(),
+                    id: attrs.asset.getAsset().getId(),
                     description: attrs.asset.getAsset().getComment(),
                     path: attrs.path,
                     children: []
@@ -120,6 +128,7 @@ export module littleware.eventTrack.toDoView {
                     child = attrs.children[i];
                     templateData.children.push(
                             {
+                                id: child.getId(),
                                 name: child.getLabel(),
                                 numChildren: child.children.size()
                             }
@@ -130,6 +139,7 @@ export module littleware.eventTrack.toDoView {
                 content = "<h1>No Data Found</h1>";
             }
             container.setHTML(content);
+            container.one("input[type='text']").focus();
             return this;
         },
 
@@ -142,7 +152,13 @@ export module littleware.eventTrack.toDoView {
                         state: "ready"
                     }
                 );
-        },
+       },
+
+       getModel: function () {
+           var attrs = this.getAttrs( [ "asset", "children", "path" ] );
+           var model = new ViewModel( attrs.asset, attrs.children, attrs.path, "");
+           return model;
+       },
 
         setModelPromise: function (promise: Y.Promise): Y.Promise {
             Y.assert(this.get("state") === "ready", "cannot set promise on view already in loading state");

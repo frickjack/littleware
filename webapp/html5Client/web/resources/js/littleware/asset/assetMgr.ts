@@ -306,14 +306,14 @@ export module littleware.asset.manager {
          * @param value {Asset}
          */
         updateAsset(value: ax.Asset): void {
-            Y.assert(value.getId() == this.asset.getId(), "Update id =? reference id");
-            if (value.getTimestamp() >= this.asset.getTimestamp()) {
-                var old = this.asset;
+            var old = this.asset || null;
+            Y.assert( (old === this.asset) || (value.getId() === this.asset.getId()), "Update id =? reference id");
+            if ( (null == old) || (value.getTimestamp() >= old.getTimestamp()) ) {
                 this.asset = value;
                 //log.log("Firing update event for " + this.asset.getId());
                 this.mgr.fire( new RefEvent(RefEvent.EVENT_TYPES.ASSET_CHANGED, value.getId(), null ));
-                if (old.getFromId() != value.getFromId()) {
-                    if (null != old.getFromId()) {
+                if ( (null == old) || (old.getFromId() != value.getFromId()) ) {
+                    if ( old && (null != old.getFromId()) ) {
                         var oldParent = <InternalAssetRef> this.mgr.getFromCache(old.getFromId());
                         if (oldParent.isDefined()) {
                             this.mgr.fire(
@@ -445,12 +445,13 @@ export module littleware.asset.manager {
                 Y.assert(it._id && it._name, "child data looks valid");
             });
 
+            var copy: NameIdPair[] = Y.Array.map(data, function (it) { return it; });
             if (this.childCache[parentId]) {
                 // swap in new data with existing NameIdListRef - auto-updates clients that 
                 // have already loaded data
-                (<any> this.childCache[parentId])._list = data;
+                (<any> this.childCache[parentId])._list = copy;
             } else {
-                this.childCache[parentId] = new NameIdListRef(data);
+                this.childCache[parentId] = new NameIdListRef(copy);
             }
             var js = JSON.stringify(data);
             //log.log("Saving child info for " + parentId + ": " + js);
@@ -483,9 +484,10 @@ export module littleware.asset.manager {
                    throw new Error("Must specify asset's fromId unless it's a HOME-type asset");
                } // TODO - verify an asset has a clean path to a root (is not a child of a descendent - ugh)
 
-               log.log("Saving asset " +copy.getName() + " under " +copy.getFromId() + ", old parent: " +oldParentId);
+               log.log("Saving asset " +copy.getName() + " (" + copy.getId() + ") under " + newParentId + ", old parent: " +oldParentId);
                 //
                 // update the child-lists on the old and new parent
+                //
                 if ((newParentId !== oldParentId) || (copy.getName() !== oldName))  // update children info
                {
                    // verify that the parent exist
@@ -493,18 +495,20 @@ export module littleware.asset.manager {
                        var parentRef = this._loadAsset(newParentId);
                        Y.assert(parentRef.isDefined(), "Cannot save asset under parent that does not exist" );
                    }
-
+                    
                    // now verify that the new name or parent doesn't have a name collision with its children
-                   var newParentChildren: NameIdPair[] = this._listChildren( newParentId ).copy();
-                   newParentChildren = Y.Array.reject(newParentChildren, function (item:NameIdPair) { return item.getId() == copy.getId(); });
-                   if (Y.Array.find(newParentChildren, function (it:NameIdPair) { return it.getName() == copy.getName(); })) {
+                   var newParentChildren: NameIdPair[] = this._listChildren(newParentId).copy();
+                   log.log("new asset's siblings: " + Y.Array.map(newParentChildren, function (it: NameIdPair) { return it.getName(); }).join(","));
+                   newParentChildren = Y.Array.reject(newParentChildren, function (item: NameIdPair) { return item.getId() === copy.getId(); });
+                   var twin:NameIdPair = Y.Array.find(newParentChildren, function (it: NameIdPair) { return it.getName() === copy.getName(); });
+                   if (twin) {
                        throw new Error("Asset already exists under new parent with name: " + copy.getName());
                    }
                    newParentChildren.push(new NameIdPair(copy.getName(), copy.getId()));
                    this._saveChildren( newParentId, newParentChildren );
 
                    // update old parent if any
-                   if (oldParentId && (oldParentId !== copy.getFromId()) ) {  
+                   if (oldParentId && (oldParentId !== newParentId) ) {  
                        var oldParentChildren: NameIdPair[] = this._listChildren( oldParentId ).copy();
                        if (oldParentChildren.length > 0) {
                            oldParentChildren = Y.Array.reject(oldParentChildren, function (item:NameIdPair) { return item.getId() == copy.getId(); });
@@ -519,14 +523,12 @@ export module littleware.asset.manager {
                this.storage.setItem(LocalCacheManager.confPrefix + "timestamp", "" + this.timestamp);
 
                 // finally - update the in-memory cache and reference
-               if (!ref.isEmpty()) {
-                   //log.log("Updating cached asset reference: " + copy.getId() + " - " + copy.getTimestamp() );
-                   ref.updateAsset(copy);
-                } else {
-                   ref = new InternalAssetRef(copy, this);
+               if ( ref.isEmpty()) {
+                   ref = new InternalAssetRef(null, this);
                    this.cache[copy.getId()] = ref;
-                }
-                return ref;
+               }
+               ref.updateAsset(copy);
+               return ref;
             });
         }
 
@@ -624,6 +626,8 @@ export module littleware.asset.manager {
         buildBranch( rootId: string,
                      branch: { name: string; builder: (parent:ax.Asset) => ax.AssetBuilder; }[]
             ): Y.Promise {
+            log.log("buildBranch: " + Y.Array.map(branch, function (it) { return it.name; } ).join( "/" ) );
+            console.dir(branch);
             Y.assert((rootId) || (branch.length > 0), "nothing to do with empty rootid and empty branch");
             if (branch.length == 0) {
                 return this.loadAsset(rootId);

@@ -42,6 +42,17 @@ export module littleware.eventTrack.toDoAPI {
         static TODO_TYPE = new ax.AssetType("A2985AD5556242D28B9FBA65789F21F6", -1, "littleware.TODO");
 
         /**
+         * Alias for getToId
+         * returns the "ToDoParent" id - which is not the "fromId", because
+         * ToDo's are organized under /active and /archived subtrees,
+         * so a structure like /parent/active/child1 or /parent/archive/year/month/child2
+         * is typical.  
+         * @method getParentToDoId
+         * @return {string} id of parent if any - parent may not necessarily be a ToDoItem itself ...
+         */
+        getParentToDoId(): string { return this.getToId(); }
+
+        /**
          * STATE enumerates the different states currently supported:
          *    WAITING, UNASSIGNED, ASSIGNED, RUNNING, CANCELED, COMPLETE,
          * so use in builder like this: 
@@ -156,9 +167,13 @@ export module littleware.eventTrack.toDoAPI {
         /**
          * Helper for updating ToDo model data in response to typical UI events
          * @method updateToDo
+         * @param id {string}
+         * @param props {[key:string]}
          * @return {Y.Promise{ToDoSummary}}
          */
-        updateToDo( id: string, name: string, description: string, state: number, comment: string): Y.Promise;
+        updateToDo(id: string,
+            props: { name?: string; description?: string; state?: number; }
+            ): Y.Promise;
 
         /**
          * Factory for ToDoSummary
@@ -186,7 +201,11 @@ export module littleware.eventTrack.toDoAPI {
             return this.axTool.loadChild(parentId, activeFolderName
                 ).then(
                     (ref: axMgr.AssetRef) => {
-                        return this.axTool.listChildren(ref.getAsset().getId());
+                        if (ref.isDefined()) {
+                            return this.axTool.listChildren(ref.getAsset().getId());
+                        } else {
+                            return Y.when( new axMgr.NameIdListRef([]) );
+                        }
                     }
                 ).then(
                     (children: axMgr.NameIdListRef) => {
@@ -264,16 +283,18 @@ export module littleware.eventTrack.toDoAPI {
             return "" + date.getFullYear() + month;
         }
 
-        updateToDo(id: string, name: string, description: string, state: number, comment: string): Y.Promise {
+        updateToDo(id: string,
+            props: { name?: string; description?: string; state?: number; }
+            ): Y.Promise {
             // TODO - clean this up to handle different scenarios - todo goes inactive, but has children, ...
             return this.axTool.loadAsset(id).then(
                 (ref: axMgr.AssetRef) => {
                     Y.assert(ref.isDefined(), "ToDo exists with id: " + id);
                     Y.assert(ref.getAsset().getAssetType().id == ToDoItem.TODO_TYPE.id, "asset must have ToDoItem type: " + id);
                     var builder: ax.AssetBuilder = ref.getAsset().copy();
-                    if (name) { builder.name = name; }
-                    if (description) { builder.comment = description; }
-                    if ((state === 0) || state) { builder.state = state; }
+                    if ( props.name ) { builder.name = props.name; }
+                    if ( props.description) { builder.comment = props.description; }
+                    if ((props.state === 0) || props.state) { builder.state = props.state; }
 
                     Y.assert( builder.toId && true, "todo has pointer to parent");
 
@@ -283,7 +304,7 @@ export module littleware.eventTrack.toDoAPI {
                     //
                     var moveFolderStep: Y.Promise = Y.when(builder.fromId);
 
-                    if ( this._isArchiveState(state) && (! this._isArchiveState(ref.getAsset().getState()))
+                    if ( this._isArchiveState( builder.state) && (! this._isArchiveState(ref.getAsset().getState()))
                          ) {
                         // move asset under parent's archive folder
                         var now = new Date();
@@ -305,7 +326,7 @@ export module littleware.eventTrack.toDoAPI {
                         );
                         // give asset a unique name for archive
                         builder.name = builder.name + "-" + now.getTime();
-                    } else if ( (!this._isArchiveState(state)) && this._isArchiveState(ref.getAsset().getState()) ) {
+                    } else if ( (!this._isArchiveState( builder.state)) && this._isArchiveState(ref.getAsset().getState()) ) {
                         // move asset back under parent's active folder
                         var activeBranch = [
                             {
@@ -322,7 +343,7 @@ export module littleware.eventTrack.toDoAPI {
                         );
                     }
                     return moveFolderStep.then(
-                            (fromId: string) => { return this.axTool.saveAsset(builder.withFromId(fromId).build(), comment); }
+                            (fromId: string) => { return this.axTool.saveAsset(builder.withFromId(fromId).build(), builder.comment); }
                         ).then(
                             (ref: axMgr.AssetRef) => {
                                 return this.loadToDo(ref.getAsset().getId());
@@ -474,8 +495,9 @@ export module littleware.eventTrack.toDoAPI {
                           ).then(
                             // finally, cleanup - archive the 1st todo
                             (child: ToDoSummary) => {
-                                return tool.updateToDo(child.getParentId(), null, null,
-                                    ToDoItem.STATE.COMPLETE, "archive complete TODO"
+                                return tool.updateToDo(child.getParentId(), {
+                                    state: ToDoItem.STATE.COMPLETE, comment: "archive complete TODO"
+                                }
                                     );
                             }
                           ).then(

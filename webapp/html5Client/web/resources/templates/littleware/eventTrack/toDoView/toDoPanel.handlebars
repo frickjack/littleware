@@ -1,13 +1,25 @@
-<div>
-    <span class="little-header">{{label}}</span><a class="little-tools" href="{{id}}">++</a>
+<div class="little-todo-panel">
+    <h2>
+      <a class="little-route" data-panel-path="{{path}}" href="..">
+        <img alt="back" src="/littleware_apps/resources/img/glyphicons/png/glyphicons_216_circle_arrow_left.png"/>
+      </a> {{label}}</h2>
 
+  <input data-panel-path="{{path}}" class="little-newToDo" name="{{id}}-newToDo" type="text" />
+  
   <ul class="little-menu">
     {{#children}}
     <li>
-      <a class="little-tools" href="{{id}}">[tools]</a>
+      <input type="checkbox" name="{{id}}"></input>
       <a class="little-route pure-button" data-panel-path="{{../path}}" href="./{{name}}">{{name}} [{{numChildren}}]</a>
     </li>
     {{/children}}
   </ul>
-
+  
+  <ul class="little-toolbox pure-menu pure-menu-open pure-menu-horizontal">
+    <li>
+      <a class="little-tools pure-button" data-action="delete" href="/delete">
+        <img src="/littleware_apps/resources/img/glyphicons/png/glyphicons_197_remove.png" alt="delete selected" title="delete selected" />
+      </a>
+    </li>
+  </ul>
 </div>

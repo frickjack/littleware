@@ -1,0 +1,51 @@
+a.little-route {
+    text-decoration: none;
+}
+
+a.little-route.pure-button {
+    text-align: left;
+    width: 250px; 
+}
+            
+div.panel-content {
+    padding: 5px;
+    min-height: 450px;
+}
+            
+div.panel-content a {
+    font-weight: bold;
+    color: #77F;
+}
+            
+.app-title {
+    font-size: 1.5em;
+}
+h2 {
+    font-weight: normal;
+}
+            
+ul.little-menu {
+    padding: 0px;
+}
+
+a.little-tools.pure-button {
+    background-color: inherit;
+}
+
+ul.little-toolbox.pure-menu {
+    padding: 0 0 0 0px;
+}
+
+            
+ul.little-menu li {
+    background-color: #eee;
+    padding: 5px;
+    margin: 1px;
+    list-style-type: none;
+}
+
+/*
+ul.little-menu li a {
+    width: 100%;
+}
+    */

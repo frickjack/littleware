@@ -1,17 +1,20 @@
-/// <reference path="../../libts/yui.d.ts" />
-declare var exports:any;
+declare var exports: any;
 
-var Y:Y = exports;
 
 if ( null == exports ) {
     // Hook to communicate out to YUI module system a YUI module-name for this typescript file
     throw "littleware-asset-manager";
 }
 
+var lw: any = exports.littleware;
 
-var lw = exports.littleware;
+import importY = require("../../libts/yui");
+importY; // workaround for typescript bug: https://typescript.codeplex.com/workitem/1531
+import Y = importY.Y;
+Y = exports;
 
-import littleAsset = module("littleAsset");
+import littleAsset = require("littleAsset");
+littleAsset;
 import ax = littleAsset.littleware.asset;
 
 
@@ -86,13 +89,13 @@ export module littleware.asset.manager {
          * True if null reference 
          * @method isEmpty
          */
-        isEmpty(): bool;
+        isEmpty(): boolean;
 
         /**
          * ! isEmpty
          * @method isDefined
          */
-        isDefined(): bool;
+        isDefined(): boolean;
 
         /**
          * Invoke the given function on the referenced asset if isDefined
@@ -342,9 +345,9 @@ export module littleware.asset.manager {
 
         getAsset(): ax.Asset { return this.asset; }
 
-        isEmpty(): bool { return this.asset == null; }
+        isEmpty(): boolean { return this.asset == null; }
 
-        isDefined(): bool { return !this.isEmpty(); }
+        isDefined(): boolean { return !this.isEmpty(); }
 
         map(lambda: (Asset) => any): any {
             if (this.isEmpty()) {
@@ -704,7 +707,7 @@ export module littleware.asset.manager {
                     }
                     var siblings = this._listChildren(parentId).copy();
                     siblings = Y.Array.reject(siblings, (it:NameIdPair) => {
-                        it.getId() === asset.getId();
+                        return it.getId() === asset.getId();
                     });
                     this._saveChildren(parentId, siblings);
                 }

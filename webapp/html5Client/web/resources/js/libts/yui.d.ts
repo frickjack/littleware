@@ -13,28 +13,27 @@
  * information for commonly used YUI modules including
  * the different function mixins.
  */
-module Y {
+export declare module Y {
 
             function applyTo(id: string, method: string, args: any[]): any;
             function applyConfig(o: any): any;
-            function assert(condition: bool, message: string): any;
+            function assert(condition: boolean, message: string): any;
             function cached(source: Function, cache?: any, refetch?: any): Function;
             function batch(...proms: Promise[]): Promise;
             function bind(f: Function, c: any, args: any): Function;
             function bind(f: string, c: any, args: any): Function;
-            function clone(o: any, safe: bool, f: Function, c: any, owner: any, cloned: any): any[];
-            function clone(o: any, safe: bool, f: Function, c: any, owner: any, cloned: any): any;
-            function aggregate(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[]): any;
-            function augment(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any[]): Function;
-            function augment(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any): Function;
-            function augment(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any[]): Function;
-            function augment(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any): Function;
+            function clone(o: any, safe: boolean, f: Function, c: any, owner: any, cloned: any): any;
+            function aggregate(receiver: any, supplier: any, overwrite?: boolean, whitelist?: String[]): any;
+            function augment(receiver: Function, supplier: Function, overwrite?: boolean, whitelist?: String[], args?: any[]): Function;
+            function augment(receiver: Function, supplier: Function, overwrite?: boolean, whitelist?: String[], args?: any): Function;
+            function augment(receiver: any, supplier: Function, overwrite?: boolean, whitelist?: String[], args?: any[]): Function;
+            function augment(receiver: any, supplier: Function, overwrite?: boolean, whitelist?: String[], args?: any): Function;
             function all(selector: string): NodeList;
             function after(type: string, fn: Function, context?: any, ...args: any[]): EventHandle;
             function destroy(): any;
             function error(msg: string, e: Error, src: any): YUI;
             function error(msg: string, e: string, src: any): YUI;
-            function each(o: any, f: Function, c: any, proto: bool): YUI;
+            function each(o: any, f: Function, c: any, proto: boolean): YUI;
             function extend(r: Function, s: Function, px: any, sx: any): any;
             function dump(o: any, d: number): string;
             function delegate(type: string, fn: Function, el: string, filter: string, context: any, args: any): EventHandle;
@@ -47,34 +46,24 @@ module Y {
             function on(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
             function once(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
             function onceAfter(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
-            function message(msg: string, cat: string, src: string, silent: bool): YUI;
-            function log(msg: string, cat: string, src: string, silent: bool): YUI;
-            function later(when: number, o: any, fn: Function, data: any, periodic: bool): any;
-            function later(when: number, o: any, fn: string, data: any, periodic: bool): any;
-            function mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
-            function mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
-            function mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
-            function mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
-            function mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
-            function mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
-            function mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
-            function mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
-            function mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
-            function mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
-            function mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
-            function mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
+            function message(msg: string, cat: string, src: string, silent: boolean): YUI;
+            function log(msg: string, cat: string, src: string, silent: boolean): YUI;
+            function later(when: number, o: any, fn: Function, data: any, periodic: boolean): any;
+            function later(when: number, o: any, fn: string, data: any, periodic: boolean): any;
+            function mix(receiver: Function, supplier: Function, overwrite?: boolean, whitelist?: String[], mode?: number, merge?: boolean): Function;
+            function mix(receiver: Function, supplier: any, overwrite?: boolean, whitelist?: String[], mode?: number, merge?: boolean): Function;
+            function mix(receiver: any, supplier: Function, overwrite?: boolean, whitelist?: String[], mode?: number, merge?: boolean): Function;
+            function mix(receiver: any, supplier: any, overwrite?: boolean, whitelist?: String[], mode?: number, merge?: boolean): Function;
             function merge(objects: any): any;
             function getLocation(): Location;
             function one(node: string): Node;
             function one(node: HTMLElement): Node;
-            function one(node: string): any;
-            function one(node: HTMLElement): any;
             function rbind(f: Function, c: any, args: any): Function;
             function rbind(f: string, c: any, args: any): Function;
-            function stamp(o: any, readOnly: bool): string;
-            function some(o: any, f: Function, c: any, proto: bool): bool;
+            function stamp(o: any, readOnly: boolean): string;
+            function some(o: any, f: Function, c: any, proto: boolean): boolean;
             function soon(fn: Function): any;
-            function substitute(s: string, o: any, f: Function, recurse: bool): string;
+            function substitute(s: string, o: any, f: Function, recurse: boolean): string;
             function throttle(fn: Function, ms: number): Function;
             function use(modules: string, callback?: (Y: YUI, status: any) => any): YUI;
             function use(modules: any[], callback?: (Y: YUI, status: any) => any): YUI;
@@ -108,13 +97,13 @@ module Y {
         }
     
         class Array { 
-            constructor(thing: any, startIndex?: number, force?: bool);
+            constructor(thing: any, startIndex?: number, force?: boolean);
             
-            static each(v: any[], f: (any) => bool, o?: any): void;
-            static filter(v: any[], f: (any) => bool, o?: any): any[];
-            static find(v: any[], f: (any) => bool, o?: any): any;
-            static map(v: any[], f: (any) => bool, o?: any): any[];
-            static reject(v: any[], f: (any) => bool, o?: any): any[];
+            static each(v: any[], f: (any) => any, o?: any): void;
+            static filter(v: any[], f: (any) => boolean, o?: any): any[];
+            static find(v: any[], f: (any) => boolean, o?: any): any;
+            static map(v: any[], f: (any) => any, o?: any): any[];
+            static reject(v: any[], f: (any) => boolean, o?: any): any[];
 
         }
     
@@ -125,13 +114,13 @@ module Y {
             add(item: any, index: number): ArrayList;
             filter(validator: Function): ArrayList;
             each(fn: Function, context: any): ArrayList;
-            isEmpty(): bool;
+            isEmpty(): boolean;
             indexOf(needle: any): number;
             item(i: number): any;
-            itemsAreEqual(a: any, b: any): bool;
-            remove(needle: any, all: bool, comparator: Function): ArrayList;
+            itemsAreEqual(a: any, b: any): boolean;
+            remove(needle: any, all: boolean, comparator: Function): ArrayList;
             size(): number;
-            some(fn: Function, context: any): bool;
+            some(fn: Function, context: any): boolean;
             toJSON(): any[];
         }
 
@@ -144,7 +133,7 @@ module Y {
             add(callback: Function): AsyncQueue;
             add(callback: any): AsyncQueue;
             next(): Function;
-            isRunning(): bool;
+            isRunning(): boolean;
             indexOf(callback: string): number;
             indexOf(callback: Function): number;
             getCallback(id: string): any;
@@ -276,46 +265,45 @@ module Y {
         interface CustomEvent { 
             (type: string, o: any);
             
-            bubbles: bool;
+            bubbles: boolean;
             defaultFn: Function;
-            async: bool;
+            async: boolean;
             afters: Subscriber ;
             broadcast: number;
             context: any;
-            fired: bool;
+            fired: boolean;
             firedWith: any[];
-            fireOnce: bool;
-            emitFacade: bool;
-            monitored: bool;
+            fireOnce: boolean;
+            emitFacade: boolean;
+            monitored: boolean;
             host: EventTarget;
             prevented: number;
-            preventable: bool;
+            preventable: boolean;
             preventedFn: Function;
-            queuable: bool;
+            queuable: boolean;
             signature: number;
-            silent: bool;
+            silent: boolean;
             stoppedFn: Function;
             stopped: number;
             subscribers: Subscriber ;
             type: string;
             
             after(fn: Function, context: any, arg: any): EventHandle;
-            applyConfig(o: any, force: bool): any;
+            applyConfig(o: any, force: boolean): any;
             detachAll(): number;
-            fire(...arguments: Object[]): bool;
+            fire(...arguments: Object[]): boolean;
             detach(fn: Function, context: any): number;
             hasSubs(): any;
             monitor(what: string): EventHandle;
             getSubs(): any[];
             on(fn: Function, context: any, arg: any): EventHandle;
             log(msg: string, cat: string): any;
-            halt(immediate: bool): any;
+            halt(immediate: boolean): any;
             preventDefault(): any;
             subscribe(fn: Function): EventHandle;
             stopPropagation(): any;
             stopImmediatePropagation(): any;
             unsubscribe(fn: Function, context: any): number;
-            unsubscribe(fn: Function, context: any): undefined;
             unsubscribeAll(): number;
         }
     
@@ -324,21 +312,20 @@ module Y {
             activeDrop: any;
             activeDrag: DD_Drag;
             CSS_PREFIX: string;
-            _active: bool;
+            _active: boolean;
             otherDrops: any;
             targets: any[];
             validDrops: any[];
-            useHash: bool;
+            useHash: boolean;
             
             clearCache(): any;
-            getBestMatch(drops: any[], all: bool): any;
-            getBestMatch(drops: any[], all: bool): any[];
+            getBestMatch(drops: any[], all: boolean): any;
             getDrag(node: string): any;
             getDrag(node: any): any;
             getNode(n: Node): Node;
             getNode(n: any): Node;
             getNode(n: string): Node;
-            isOverTarget(drop: any): bool;
+            isOverTarget(drop: any): boolean;
             getDrop(node: string): any;
             getDrop(node: any): any;
             getDelegate(): any;
@@ -346,7 +333,7 @@ module Y {
             stopDrag(): DD_DDM;
             swapPosition(n1: Node, n2: Node): Node;
             swapNode(n1: Node, n2: Node): Node;
-            syncActiveShims(force: bool): any;
+            syncActiveShims(force: boolean): any;
         }
     
         interface DD_Delegate extends Base { 
@@ -378,12 +365,12 @@ module Y {
             removeInvalid(str: string): DD_Drag;
             start(): DD_Drag;
             stopDrag(): DD_Drag;
-            validClick(ev: EventFacade): bool;
+            validClick(ev: EventFacade): boolean;
         }
     
         interface DD_Drop extends Base { 
             
-            overTarget: bool;
+            overTarget: boolean;
             region: any;
             shim: any;
             
@@ -486,7 +473,6 @@ module Y {
             frame: any;
             
             copyStyles(from: Node, to: Node): any;
-            execCommand(cmd: string, val: string): Node;
             execCommand(cmd: string, val: string): NodeList;
             focus(fn: Function): EditorBase;
             getDomPath(node: Node): any;
@@ -507,20 +493,20 @@ module Y {
             focusNode: Node;
             focusOffset: number;
             focusTextNode: Node;
-            isCollapsed: bool;
+            isCollapsed: boolean;
             text: string;
             
             createRange(): any;
             focusCursor(): Node;
             getCursor(): Node;
-            insertAtCursor(html: string, node: Node, offset: number, collapse: bool): Node;
+            insertAtCursor(html: string, node: Node, offset: number, collapse: boolean): Node;
             insertContent(html: string): Node;
             getSelected(): NodeList;
-            removeCursor(keep: bool): Node;
+            removeCursor(keep: boolean): Node;
             remove(): EditorSelection;
             replace(se: string, re: string): Node;
             setCursor(): Node;
-            selectNode(node: Node, collapse: bool): EditorSelection;
+            selectNode(node: Node, collapse: boolean): EditorSelection;
             toString(): string;
             wrapContent(tag: string): NodeList;
         }
@@ -639,45 +625,24 @@ module Y {
         interface ImgLoadImgObj extends Base { 
             
             
-            fetch(withinY: number): bool;
+            fetch(withinY: number): boolean;
         }
-    
-        interface LazyModelList extends ModelList { 
-            
-            
-            free(model?: Model): LazyModelList;
-            free(model?: number): LazyModelList;
-            get(name: string): String[];
-            getAsHTML(name: string): String[];
-            getAsURL(name: string): String[];
-            indexOf(needle: Model): number;
-            indexOf(needle: any): number;
-            reset(models?: Object[], options?: any): LazyModelList;
-            reset(models?: Model[], options?: any): LazyModelList;
-            reset(models?: ModelList, options?: any): LazyModelList;
-            revive(item?: number): Model;
-            revive(item?: any): Model;
-            revive(item?: number): Model[];
-            revive(item?: any): Model[];
-            revive(item?: number): any;
-            revive(item?: any): any;
-            toJSON(): Object[];
-        }
+
     
         interface Loader { 
             (config: any);
             
             async: any;
-            allowRollup: bool;
+            allowRollup: boolean;
             comboSep: string;
-            combine: bool;
+            combine: boolean;
             comboBase: string;
             base: string;
             cssAttributes: any;
             charset: string;
             data: any;
             context: any;
-            dirty: bool;
+            dirty: boolean;
             filters: any;
             filter: string;
             force: string[];
@@ -688,7 +653,7 @@ module Y {
             ignore: string[];
             moduleInfo: any;
             loaded: string;
-            loadOptional: bool;
+            loadOptional: boolean;
             inserted: string;
             patterns: any;
             rollups: any;
@@ -718,7 +683,7 @@ module Y {
             insert(o: any, type: string): any;
             loadNext(mname: string): any;
             load(cb: Function): any;
-            resolve(calc?: bool, s?: any[]): any;
+            resolve(calc?: boolean, s?: any[]): any;
             require(what: String[]): any;
             require(...what: string[]): any;
         }
@@ -763,8 +728,8 @@ module Y {
             get(name: string): any;
             getAsHTML(name: string): string;
             getAsURL(name: string): string;
-            isModified(): bool;
-            isNew(): bool;
+            isModified(): boolean;
+            isNew(): boolean;
             parse(response: any): any;
             set(name: string, value: any, options?: any): Model;
             setAttrs(attributes: any, options?: any): Model;
@@ -780,16 +745,11 @@ module Y {
             model: Model;
             
             comparator(model: Model): number;
-            comparator(model: Model): string;
             each(callback: (model: Model, index: number, list: ModelList) => any, thisObj?: any): ModelList;
-            filter(options?: any, callback?: (model: Model, index: number, list: ModelList) => any): any[];
             filter(options?: any, callback?: (model: Model, index: number, list: ModelList) => any): ModelList;
             get(name: string): any;
-            get(name: string): any[];
             getAsHTML(name: string): string;
-            getAsHTML(name: string): String[];
             getAsURL(name: string): string;
-            getAsURL(name: string): String[];
             getByClientId(clientId: string): Model;
             getById(id: string): Model;
             getById(id: number): Model;
@@ -797,7 +757,7 @@ module Y {
             item(index: number): Model;
             map(fn: (model: Model, index: number, models: Model[]) => any, thisObj?: any): any[];
             parse(response: any): Object[];
-            some(callback: (model: Model, index: number, list: ModelList) => any, thisObj?: any): bool;
+            some(callback: (model: Model, index: number, list: ModelList) => any, thisObj?: any): boolean;
             sort(options?: any): ModelList;
             toJSON(): Object[];
             toArray(): any[];
@@ -807,11 +767,11 @@ module Y {
         interface Node extends EventTarget { 
             (node: HTMLElement);
             
-            contains(needle: Node): bool;
-            contains(needle: HTMLElement): bool;
+            contains(needle: Node): boolean;
+            contains(needle: HTMLElement): boolean;
             createCaption(): Node;
             blur(): Node;
-            cloneNode(deep: bool): Node;
+            cloneNode(deep: boolean): Node;
             clearData(name: string): Node;
             appendTo(node: Node): Node;
             appendTo(node: HTMLElement): Node;
@@ -822,15 +782,15 @@ module Y {
             append(content: Node): Node;
             append(content: HTMLElement): Node;
             all(selector: string): NodeList;
-            ancestors(fn: string, testSelf: bool): NodeList;
-            ancestors(fn: Function, testSelf: bool): NodeList;
+            ancestors(fn: string, testSelf: boolean): NodeList;
+            ancestors(fn: Function, testSelf: boolean): NodeList;
             ancestor(fn: string): Node;
-            ancestor(fn: string, testSelf: bool, stopFn: string): Node;
-            ancestor(fn: string, testSelf: bool, stopFn: Function): Node;
-            ancestor(fn: Function, testSelf: bool, stopFn: string): Node;
-            ancestor(fn: Function, testSelf: bool, stopFn: Function): Node;
-            compareTo(refNode: HTMLElement): bool;
-            compareTo(refNode: Node): bool;
+            ancestor(fn: string, testSelf: boolean, stopFn: string): Node;
+            ancestor(fn: string, testSelf: boolean, stopFn: Function): Node;
+            ancestor(fn: Function, testSelf: boolean, stopFn: string): Node;
+            ancestor(fn: Function, testSelf: boolean, stopFn: Function): Node;
+            compareTo(refNode: HTMLElement): boolean;
+            compareTo(refNode: Node): boolean;
             addClass(className: string): Node;
             generateID(): string;
             getAttribute(name: string): string;
@@ -840,7 +800,7 @@ module Y {
             delegate(type: string, fn: Function, spec: Function, context: any, args: any): EventHandle;
             each(fn: Function, context: any): Node;
             empty(): Node;
-            destroy(recursivePurge: bool): any;
+            destroy(recursivePurge: boolean): any;
             getAttrs(attrs: any[]): any;
             get(attr: string): any;
             hide(name: string, config: any, callback: Function): Node;
@@ -850,19 +810,17 @@ module Y {
             getY(): number;
             getX(): number;
             getXY(): any[];
-            inRegion(node2: Node, all: bool, altRegion: any): any;
-            inRegion(node2: any, all: bool, altRegion: any): any;
+            inRegion(node2: Node, all: boolean, altRegion: any): any;
+            inRegion(node2: any, all: boolean, altRegion: any): any;
             intersect(node2: Node, altRegion: any): any;
             intersect(node2: any, altRegion: any): any;
             load(url: string, selector: string, callback: Function): Node;
             getElementsByTagName(tagName: string): NodeList;
-            hasAttribute(attribute: string): bool;
-            hasChildNodes(): bool;
+            hasAttribute(attribute: string): boolean;
+            hasChildNodes(): boolean;
             on(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
             one(node: string): Node;
             one(node: HTMLElement): Node;
-            one(node: string): any;
-            one(node: HTMLElement): any;                        
             item(index: number): Node;
             getData(name: string): any;
             getHTML(): string;
@@ -896,15 +854,15 @@ module Y {
             invoke(method: string, a: any): any;
             next(fn: string): Node;
             next(fn: Function): Node;
-            inDoc(doc: Node): bool;
-            inDoc(doc: HTMLElement): bool;
-            hasClass(className: string): bool;
+            inDoc(doc: Node): boolean;
+            inDoc(doc: HTMLElement): boolean;
+            hasClass(className: string): boolean;
             prepend(content: string): Node;
             prepend(content: Node): Node;
             prepend(content: HTMLElement): Node;
             previous(fn: string): Node;
             previous(fn: Function): Node;
-            remove(destroy: bool): Node;
+            remove(destroy: boolean): Node;
             replace(newNode: Node): Node;
             replace(newNode: HTMLElement): Node;
             replaceChild(node: string, refNode: HTMLElement): Node;
@@ -915,7 +873,7 @@ module Y {
             replaceChild(node: Node, refNode: Node): Node;
             query(selector: string): Node;
             queryAll(selector: string): NodeList;
-            purge(recurse: bool, type: string): Node;
+            purge(recurse: boolean, type: string): Node;
             removeChild(node: HTMLElement): Node;
             removeChild(node: Node): Node;
             scrollIntoView(): Node;
@@ -939,8 +897,6 @@ module Y {
             setHTML(content: HTMLCollection): Node;
             setData(name: string, val: any): Node;
             size(): number;
-            simulate(type: string, options: any): undefined;
-            simulateGesture(name: string, options?: any, cb?: (err: Error) => any): undefined;
             select(): Node;
             setAttribute(name: string, value: string): Node;
             setXY(xy: any[]): Node;
@@ -952,11 +908,11 @@ module Y {
             show(name: string, config: any, callback: Function): Node;
             show();
             toString(): string;
-            toggleClass(className: string, force: bool): Node;
+            toggleClass(className: string, force: boolean): Node;
             transition(config: any, callback: Function): Node;
-            test(selector: string): bool;
+            test(selector: string): boolean;
             swap(otherNode: Node): Node;
-            toggleView(on?: bool, callback?: Function): Node;
+            toggleView(on?: boolean, callback?: Function): Node;
             swapXY(otherNode: Node): Node;
             swapXY(otherNode: HTMLElement): Node;
             submit(): Node;
@@ -977,7 +933,7 @@ module Y {
             addClass(className: string): NodeList;
             get(): any;
             empty(): NodeList;
-            destroy(recursivePurge: bool): any;
+            destroy(recursivePurge: boolean): any;
             even(): NodeList;
             filter(selector: string): NodeList;
             filter(fn: Function): NodeList;
@@ -987,7 +943,7 @@ module Y {
             detach(): any;
             each( fn: Function ): any;
             getAttribute(name: string): string;
-            isEmpty(): bool;
+            isEmpty(): boolean;
             odd(): NodeList;
             modulus(n: number, r: number): NodeList;
             indexOf(node: Node): number;
@@ -1016,7 +972,7 @@ module Y {
             push(nodes: Node): any;
             push(nodes: HTMLElement): any;
             refresh(): NodeList;
-            remove(destroy: bool): NodeList;
+            remove(destroy: boolean): NodeList;
             setAttribute(name: string, value: string): NodeList;
             setContent(): any;
             setHTML(): any;
@@ -1028,12 +984,12 @@ module Y {
             shift(): Node;
             slice(begin: number, end: number): NodeList;
             splice(index: number, howMany: number): NodeList;
-            some(fn: Function, context: any): bool;
+            some(fn: Function, context: any): boolean;
             size(): number;
             set(attr: string, val: any): NodeList;
             toFrag(): Node;
             transition(config: any, callback: Function): NodeList;
-            toggleView(on?: bool, callback?: Function): NodeList;
+            toggleView(on?: boolean, callback?: Function): NodeList;
             toggleClass(className: string): NodeList;
             unwrap(): NodeList;
             unshift(nodes: Node): any;
@@ -1071,8 +1027,8 @@ module Y {
             
             align(): any;
             drag(): any;
-            getRegion(inc: bool): any;
-            inRegion(xy: any[]): bool;
+            getRegion(inc: boolean): any;
+            inRegion(xy: any[]): boolean;
             resetCache(): any;
         }
     
@@ -1145,7 +1101,6 @@ module Y {
             
             bidi: any;
             
-            command(action: string, value: string): Node;
             command(action: string, value: string): NodeList;
             getInstance(): YUI;
         }
@@ -1175,9 +1130,9 @@ module Y {
             
             
             flash(): any;
-            hide(animated: bool): any;
+            hide(animated: boolean): any;
             initializer(): any;
-            show(animated: bool): any;
+            show(animated: boolean): any;
         }
     
         interface Plugin_SortScroll extends Base { 
@@ -1219,10 +1174,10 @@ module Y {
         interface Resize extends Base { 
             (config: any);
             
-            changeWidthHandles: bool;
-            changeTopHandles: bool;
-            changeLeftHandles: bool;
-            changeHeightHandles: bool;
+            changeWidthHandles: boolean;
+            changeTopHandles: boolean;
+            changeLeftHandles: boolean;
+            changeHeightHandles: boolean;
             HANDLE_TEMPLATE: string;
             WRAP_TEMPLATE: string;
             HANDLES_WRAP_TEMPLATE: string;
@@ -1246,14 +1201,14 @@ module Y {
             
             dispatch(): Router;
             getPath(): string;
-            hasRoute(url: string): bool;
+            hasRoute(url: string): boolean;
             match(path: string): Object[];
             removeRoot(url: string): string;
             removeQuery(url: string): string;
             replace(url?: string): Router;
             route(path: string, callbacks: (req: any, res: any, next: (err?: string) => any) => any): Router;
             save(url?: string): Router;
-            upgrade(): bool;
+            upgrade(): boolean;
         }
 
         var Router: any;  // hack - Router is actaully a class, so need to be able to do: new Y.Router
@@ -1269,7 +1224,7 @@ module Y {
         interface SWFDetect { 
             
             
-            isFlashVersionAtLeast(flashMajor: number, flashMinor: number, flashRev: number): bool;
+            isFlashVersionAtLeast(flashMajor: number, flashMinor: number, flashRev: number): boolean;
             getFlashVersion(): any;
         }
     
@@ -1288,8 +1243,8 @@ module Y {
             (cfg: any);
             
             
-            compareTo(refNode: HTMLElement): bool;
-            compareTo(refNode: Node): bool;
+            compareTo(refNode: HTMLElement): boolean;
+            compareTo(refNode: Node): boolean;
             contains(needle: Shape): any;
             contains(needle: HTMLElement): any;
             addClass(className: string): any;
@@ -1355,7 +1310,7 @@ module Y {
             add(name: string, key: string, val: any): any;
             addAll(name: string, obj: any): any;
             get(name: string, key: string): any;
-            getAll(name: string, reference: bool): any;
+            getAll(name: string, reference: boolean): any;
             remove(name: string, key: string): any;
             removeAll(name: string, obj: any): any;
             removeAll(name: string, obj: any[]): any;
@@ -1368,7 +1323,7 @@ module Y {
             disable(): StyleSheet;
             enable(): StyleSheet;
             getCssText(sel: string): string;
-            isEnabled(): bool;
+            isEnabled(): boolean;
             getId(): number;
             set(sel: string, css: any): StyleSheet;
             unset(sel: string, css: string): StyleSheet;
@@ -1385,7 +1340,7 @@ module Y {
             id: string;
             once: any;
             
-            contains(fn: Function, context: any): bool;
+            contains(fn: Function, context: any): boolean;
             notify(args: any[], ce: CustomEvent): any;
         }
     
@@ -1400,7 +1355,7 @@ module Y {
         interface SyntheticEvent { 
             (cfg: any);
             
-            preventDups: bool;
+            preventDups: boolean;
             
             applyArgExtras(extra: any, sub: any): any;
             detachDelegate(node: Node, sub: any, notifier: SyntheticEvent_Notifier, filter: string): any;
@@ -1409,13 +1364,13 @@ module Y {
             delegate(node: Node, sub: any, notifier: SyntheticEvent_Notifier, filter: Function): any;
             detach(node: Node, sub: any, notifier: SyntheticEvent_Notifier): any;
             on(node: Node, sub: any, notifier: SyntheticEvent_Notifier): any;
-            getSubs(node: Node, args: any[], filter: Function, first: bool): EventHandle[];
-            processArgs(args: any[], delegate: bool): any;
-            subMatch(sub: any, args: any[]): bool;
+            getSubs(node: Node, args: any[], filter: Function, first: boolean): EventHandle[];
+            processArgs(args: any[], delegate: boolean): any;
+            subMatch(sub: any, args: any[]): boolean;
         }
     
         interface SyntheticEvent_Notifier { 
-            (handle: EventHandle, emitFacade: bool);
+            (handle: EventHandle, emitFacade: boolean);
             
             
         }
@@ -1438,10 +1393,10 @@ module Y {
             format: Function;
             url: string;
             
-            clearFields(): undefined;
-            addField(name: string, value: any): undefined;
-            destroy(): undefined;
-            report(results: any): undefined;
+            clearFields(): void;
+            addField(name: string, value: any): void;
+            destroy(): void;
+            report(results: any): void;
         }
     
         interface ToggleButton extends Button { 
@@ -1526,16 +1481,15 @@ module Y {
             disable(): Widget;
             enable(): Widget;
             focus(): Widget;
-            destroy(destroyAllNodes: bool): Widget;
             getSkinName(): string;
             getDefaultLocale(): string;
             getStrings(key: string): string;
             getString(key: string): string;
             hide(): Widget;
             getClassName(...args: String[]): any;
-            isRoot(): bool;
-            next(circular: bool): Widget;
-            previous(circular: bool): Widget;
+            isRoot(): boolean;
+            next(circular: boolean): Widget;
+            previous(circular: boolean): Widget;
             show(): Widget;
             toString(): string;
         }
@@ -1548,8 +1502,6 @@ module Y {
             add(child: any, index: number): ArrayList;
             deselectAll(): any;
             destructor(): any;
-            removeAll(): ArrayList;
-            remove(index: number): Widget;
             selectAll(): any;
             selectChild(i: number): any;
         }
@@ -1630,7 +1582,6 @@ module Y {
             IO: IOStatic;
             ImgLoadGroup: ImgLoadGroupStatic;
             ImgLoadImgObj: ImgLoadImgObjStatic;
-            LazyModelList: LazyModelListStatic;
             Loader: LoaderStatic;
             Matrix: MatrixStatic;
             ModelList: ModelListStatic;
@@ -1854,7 +1805,6 @@ module Y {
             StackedMarkerSeries: StackedMarkerSeries;
             StackedSplineSeries: StackedSplineSeries;
             StackingUtil: StackingUtil;
-            Test: Test;
             Test_ArrayAssert: Test_ArrayAssert;
             Test_Assert: Test_Assert;
             Test_AssertionError: Test_AssertionError;
@@ -1916,23 +1866,22 @@ module Y {
             
             applyTo(id: string, method: string, args: any[]): any;
             applyConfig(o: any): any;
-            assert(condition: bool, message: string): any;
+            assert(condition: boolean, message: string): any;
             cached(source: Function, cache?: any, refetch?: any): Function;
             bind(f: Function, c: any, args: any): Function;
             bind(f: string, c: any, args: any): Function;
-            clone(o: any, safe: bool, f: Function, c: any, owner: any, cloned: any): any[];
-            clone(o: any, safe: bool, f: Function, c: any, owner: any, cloned: any): any;
-            aggregate(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[]): any;
-            augment(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any[]): Function;
-            augment(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any): Function;
-            augment(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any[]): Function;
-            augment(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], args?: any): Function;
+            clone(o: any, safe: boolean, f: Function, c: any, owner: any, cloned: any): any;
+            aggregate(receiver: any, supplier: any, overwrite?: boolean, whitelist?: String[]): any;
+            augment(receiver: Function, supplier: Function, overwrite?: boolean, whitelist?: String[], args?: any[]): Function;
+            augment(receiver: Function, supplier: Function, overwrite?: boolean, whitelist?: String[], args?: any): Function;
+            augment(receiver: any, supplier: Function, overwrite?: boolean, whitelist?: String[], args?: any[]): Function;
+            augment(receiver: any, supplier: Function, overwrite?: boolean, whitelist?: String[], args?: any): Function;
             all(selector: string): NodeList;
             after(type: string, fn: Function, context?: any, ...args: any[]): EventHandle;
             destroy(): any;
             error(msg: string, e: Error, src: any): YUI;
             error(msg: string, e: string, src: any): YUI;
-            each(o: any, f: Function, c: any, proto: bool): YUI;
+            each(o: any, f: Function, c: any, proto: boolean): YUI;
             extend(r: Function, s: Function, px: any, sx: any): any;
             dump(o: any, d: number): string;
             delegate(type: string, fn: Function, el: string, filter: string, context: any, args: any): EventHandle;
@@ -1945,37 +1894,28 @@ module Y {
             on(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
             once(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
             onceAfter(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
-            message(msg: string, cat: string, src: string, silent: bool): YUI;
-            log(msg: string, cat: string, src: string, silent: bool): YUI;
-            later(when: number, o: any, fn: Function, data: any, periodic: bool): any;
-            later(when: number, o: any, fn: string, data: any, periodic: bool): any;
-            mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
-            mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
-            mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
-            mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): Function;
-            mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
-            mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
-            mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
-            mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): any;
-            mix(receiver: Function, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
-            mix(receiver: Function, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
-            mix(receiver: any, supplier: Function, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
-            mix(receiver: any, supplier: any, overwrite?: bool, whitelist?: String[], mode?: number, merge?: bool): YUI;
+            message(msg: string, cat: string, src: string, silent: boolean): YUI;
+            log(msg: string, cat: string, src: string, silent: boolean): YUI;
+            later(when: number, o: any, fn: Function, data: any, periodic: boolean): any;
+            later(when: number, o: any, fn: string, data: any, periodic: boolean): any;
+            mix(receiver: Function, supplier: Function, overwrite?: boolean, whitelist?: String[], mode?: number, merge?: boolean): any;
+            mix(receiver: Function, supplier: any, overwrite?: boolean, whitelist?: String[], mode?: number, merge?: boolean): any;
+            mix(receiver: any, supplier: Function, overwrite?: boolean, whitelist?: String[], mode?: number, merge?: boolean): any;
+            mix(receiver: any, supplier: any, overwrite?: boolean, whitelist?: String[], mode?: number, merge?: boolean): any;
             merge(objects: any): any;
             getLocation(): Location;
             one(node: string): Node;
             one(node: HTMLElement): Node;
-            one(node: string): any;
-            one(node: HTMLElement): any;
             rbind(f: Function, c: any, args: any): Function;
             rbind(f: string, c: any, args: any): Function;
-            stamp(o: any, readOnly: bool): string;
-            some(o: any, f: Function, c: any, proto: bool): bool;
+            stamp(o: any, readOnly: boolean): string;
+            some(o: any, f: Function, c: any, proto: boolean): boolean;
             soon(fn: Function): any;
-            substitute(s: string, o: any, f: Function, recurse: bool): string;
+            substitute(s: string, o: any, f: Function, recurse: boolean): string;
             throttle(fn: Function, ms: number): Function;
             use(modules: string, callback?: (Y: YUI, status: any) => any): YUI;
             use(modules: any[], callback?: (Y: YUI, status: any) => any): YUI;
+            when(ref: any): Promise;
         }
     
         interface YUIStatic { 
@@ -1984,7 +1924,7 @@ module Y {
             GlobalConfig: any;
             
             add(name: string, fn: (Y: YUI, name: string) => any, version: string, details: any): YUI;
-            assert(condition: bool, message: string): any;
+            assert(condition: boolean, message: string): any;
             fail(message: string): any;
             get(node: string, doc: Node): any;
             get(node: string, doc: HTMLElement): any;
@@ -2022,7 +1962,7 @@ module Y {
             TransitionsNative: App_TransitionsNative;
             Content: App_Content;
             CLASS_NAMES: any;
-            serverRouting: bool;
+            serverRouting: boolean;
             
         }
     
@@ -2041,14 +1981,14 @@ module Y {
         }
     
         interface ArrayStatic {
-            new (thing: any, startIndex?: number, force?: bool): Array;
+            new (thing: any, startIndex?: number, force?: boolean): Array;
             
             
             dedupe(array: String[]): any[];
             forEach(): any;
             each(array: any[], fn: (item: any, index: number, array: any[]) => any, thisObj?: any): YUI;
             filter(a: any[], f: Function, o?: any): any[];
-            every(a: any[], f: Function, o?: any): bool;
+            every(a: any[], f: Function, o?: any): boolean;
             find(a: any[], f: Function, o?: any): any;
             flatten(a: any[]): any[];
             invoke(items: any[], name: string, ...args: any[]): any[];
@@ -2061,7 +2001,7 @@ module Y {
             partition(a: any[], f: (item: any, index: number, array: any[]) => any, o?: any): any;
             reduce(a: any[], init: any, f: (previousValue: any, currentValue: any, index: number, array: any[]) => any, o?: any): any;
             reject(a: any[], f: Function, o?: any): any[];
-            some(array: any[], fn: (value: any, index: number, array: any[]) => any, thisObj?: any): bool;
+            some(array: any[], fn: (value: any, index: number, array: any[]) => any, thisObj?: any): boolean;
             test(obj: any): number;
             unique(array: any[], testFn?: (a: any, b: any, index: number, array: any[]) => any): any[];
             zip(a: any[], a2: any[]): any[];
@@ -2181,7 +2121,7 @@ module Y {
         interface CustomEventStatic {
             new (type: string, o: any): CustomEvent;
             
-            keepDeprecatedSubs: bool;
+            keepDeprecatedSubs: boolean;
             
         }
     
@@ -2419,11 +2359,6 @@ module Y {
             
         }
     
-        interface LazyModelListStatic {
-            new (): LazyModelList;
-            
-            
-        }
     
         interface LoaderStatic {
             new (config: any): Loader;
@@ -2472,14 +2407,10 @@ module Y {
             plug(plugin: any[], config: any): any;
             one(node: string): Node;
             one(node: HTMLElement): Node;
-            one(node: string): any;
-            one(node: HTMLElement): any;
             importMethod(host: any, name: string, altName: string, context: any): any;
             getDOMNode(node: Node): HTMLElement;
             getDOMNode(node: HTMLElement): HTMLElement;
             scrubVal(node: any): Node;
-            scrubVal(node: any): NodeList;
-            scrubVal(node: any): any;
             unplug(plugin: Function): any;
             unplug(plugin: any[]): any;
         }
@@ -2765,8 +2696,8 @@ module Y {
             new (seed: string, name: string): StyleSheet;
             
             
-            isValidSelector(sel: string): bool;
-            register(name: string, sheet: StyleSheet): bool;
+            isValidSelector(sel: string): boolean;
+            register(name: string, sheet: StyleSheet): boolean;
             toCssText(css: any, cssText: string): string;
         }
     
@@ -2790,7 +2721,7 @@ module Y {
         }
     
         interface SyntheticEvent_NotifierStatic {
-            new (handle: EventHandle, emitFacade: bool): SyntheticEvent_Notifier;
+            new (handle: EventHandle, emitFacade: boolean): SyntheticEvent_Notifier;
             
             
         }
@@ -2950,7 +2881,7 @@ module Y {
         interface ArraySort {
             
             
-            compare(a: any, b: any, desc: bool): bool;
+            compare(a: any, b: any, desc: boolean): boolean;
         }
     
         interface Attribute {
@@ -2963,12 +2894,12 @@ module Y {
             
             INVALID_VALUE: any;
             
-            addAttr(name: string, config: any, lazy: bool): any;
-            attrAdded(name: string): bool;
-            addAttrs(cfgs: any, values: any, lazy: bool): any;
+            addAttr(name: string, config: any, lazy: boolean): any;
+            attrAdded(name: string): boolean;
+            addAttrs(cfgs: any, values: any, lazy: boolean): any;
             get(name: string): any;
             getAttrs(attrs: any[]): any;
-            getAttrs(attrs: bool): any;
+            getAttrs(attrs: boolean): any;
             set(name: string, value: any): any;
             setAttrs(attrs: any): any;
         }
@@ -3133,8 +3064,8 @@ module Y {
         interface CanvasShape {
             
             
-            compareTo(refNode: HTMLElement): bool;
-            compareTo(refNode: Node): bool;
+            compareTo(refNode: HTMLElement): boolean;
+            compareTo(refNode: Node): boolean;
             contains(needle: CanvasShape): any;
             contains(needle: HTMLElement): any;
             addClass(className: string): any;
@@ -3217,7 +3148,7 @@ module Y {
             classNamePrefix: string;
             classNameDelimiter: string;
             
-            getClassName(args: string, skipPrefix: bool): any;
+            getClassName(args: string, skipPrefix: boolean): any;
         }
     
         interface ClickableRail {
@@ -3269,7 +3200,7 @@ module Y {
             
             get(name: string, options: Function): any;
             get(name: string, options: any): any;
-            exists(name: string): bool;
+            exists(name: string): boolean;
             getSub(name: string, subName: string, converter: Function): any;
             getSubs(name: string): any;
             removeSub(name: string, subName: string, options: any): string;
@@ -3301,25 +3232,22 @@ module Y {
             addHTML(node: HTMLElement, content: any[], where: HTMLElement): any;
             addHTML(node: HTMLElement, content: HTMLCollection, where: HTMLElement): any;
             create(html: string, doc: HTMLDocument): HTMLElement;
-            create(html: string, doc: HTMLDocument): DocumentFragment;
-            contains(element: HTMLElement, needle: HTMLElement): bool;
+            contains(element: HTMLElement, needle: HTMLElement): boolean;
             byId(id: string, doc: any): HTMLElement;
-            byId(id: string, doc: any): any;
             addClass(element: HTMLElement, className: string): any;
             getAttribute(el: HTMLElement, attr: string): string;
-            elementByAxis(element: HTMLElement, axis: string, fn: Function, all: bool): HTMLElement;
-            elementByAxis(element: HTMLElement, axis: string, fn: Function, all: bool): any;
+            elementByAxis(element: HTMLElement, axis: string, fn: Function, all: boolean): HTMLElement;
             docHeight(): number;
             docWidth(): number;
             docScrollX(): number;
             docScrollY(): number;
             getText(element: HTMLElement): string;
-            hasClass(element: HTMLElement, className: string): bool;
-            inDoc(element: HTMLElement, doc: HTMLElement): bool;
+            hasClass(element: HTMLElement, className: string): boolean;
+            inDoc(element: HTMLElement, doc: HTMLElement): boolean;
             intersect(element: HTMLElement, element2: HTMLElement, altRegion: any): any;
             intersect(element: HTMLElement, element2: any, altRegion: any): any;
-            inRegion(node: any, node2: any, all: bool, altRegion: any): bool;
-            inViewportRegion(element: HTMLElement, all: bool, altRegion: any): bool;
+            inRegion(node: any, node2: any, all: boolean, altRegion: any): boolean;
+            inViewportRegion(element: HTMLElement, all: boolean, altRegion: any): boolean;
             getXY(element: any): any[];
             getScrollbarWidth(): number;
             getX(element: any): number;
@@ -3339,10 +3267,10 @@ module Y {
             setWidth(element: HTMLElement, size: string): any;
             setWidth(element: HTMLElement, size: number): any;
             setY(element: any, y: number): any;
-            setXY(element: any, xy: any[], noRetry: bool): any;
+            setXY(element: any, xy: any[], noRetry: boolean): any;
             setX(element: any, x: number): any;
             swapXY(node: Node, otherNode: Node): Node;
-            toggleClass(element: HTMLElement, className: string, addClass: bool): any;
+            toggleClass(element: HTMLElement, className: string, addClass: boolean): any;
             viewportRegion(): any;
             winWidth(): number;
             winHeight(): number;
@@ -3355,16 +3283,16 @@ module Y {
             charCode: number;
             clientY: number;
             clientX: number;
-            ctrlKey: bool;
-            altKey: bool;
+            ctrlKey: boolean;
+            altKey: boolean;
             _GESTURE_MAP: any;
             changedTouches: DOMEventFacade[];
-            metaKey: bool;
+            metaKey: boolean;
             pageX: number;
             pageY: number;
             keyCode: number;
             relatedTarget: Node;
-            shiftKey: bool;
+            shiftKey: boolean;
             touches: DOMEventFacade[];
             targetTouches: DOMEventFacade[];
             type: string;
@@ -3372,7 +3300,7 @@ module Y {
             wheelDelta: number;
             which: number;
             
-            halt(immediate: bool): any;
+            halt(immediate: boolean): any;
             preventDefault(returnValue?: string): any;
             stopPropagation(): any;
             stopImmediatePropagation(): any;
@@ -3650,7 +3578,7 @@ module Y {
         interface Date {
             
             
-            areEqual(aDate: Date, bDate: Date): bool;
+            areEqual(aDate: Date, bDate: Date): boolean;
             addDays(oDate: Date, numMonths: number): Date;
             addMonths(oDate: Date, numMonths: number): Date;
             addYears(oDate: Date, numYears: number): Date;
@@ -3659,10 +3587,10 @@ module Y {
             parse(data: string): Date;
             parse(data: number): Date;
             listOfDatesInMonth(oDate: Date): any[];
-            isInRange(aDate: Date, bDate: Date, cDate: Date): bool;
-            isGreaterOrEqual(aDate: Date, bDate: Date): bool;
-            isGreater(aDate: Date, bDate: Date): bool;
-            isValidDate(oDate: Date): bool;
+            isInRange(aDate: Date, bDate: Date, cDate: Date): boolean;
+            isGreaterOrEqual(aDate: Date, bDate: Date): boolean;
+            isGreater(aDate: Date, bDate: Date): boolean;
+            isValidDate(oDate: Date): boolean;
         }
     
         interface Do {
@@ -3717,51 +3645,51 @@ module Y {
     
         interface Event {
             
-            DOMReady: bool;
+            DOMReady: boolean;
             POLL_INTERVAL: number;
             POLL_RETRYS: number;
             lastError: Error;
             
-            define(type: string, config: any, force: bool): SyntheticEvent;
+            define(type: string, config: any, force: boolean): SyntheticEvent;
             defineOutside(event: string, name: string): any;
-            attach(type: string, fn: Function, el: string, context: any, args: bool): EventHandle;
+            attach(type: string, fn: Function, el: string, context: any, args: boolean): EventHandle;
             attach(type: string, fn: Function, el: string, context: any, args: any): EventHandle;
-            attach(type: string, fn: Function, el: HTMLElement, context: any, args: bool): EventHandle;
+            attach(type: string, fn: Function, el: HTMLElement, context: any, args: boolean): EventHandle;
             attach(type: string, fn: Function, el: HTMLElement, context: any, args: any): EventHandle;
-            attach(type: string, fn: Function, el: any[], context: any, args: bool): EventHandle;
+            attach(type: string, fn: Function, el: any[], context: any, args: boolean): EventHandle;
             attach(type: string, fn: Function, el: any[], context: any, args: any): EventHandle;
-            attach(type: string, fn: Function, el: NodeList, context: any, args: bool): EventHandle;
+            attach(type: string, fn: Function, el: NodeList, context: any, args: boolean): EventHandle;
             attach(type: string, fn: Function, el: NodeList, context: any, args: any): EventHandle;
             compileFilter(selector: string): Function;
             flick(cb: Function, point: any[], axis: string, distance: number, duration: number): any;
-            detachDelegate(node: Node, subscription: any[], notifier: bool): any;
+            detachDelegate(node: Node, subscription: any[], notifier: boolean): any;
             generateId(el: any): string;
-            detach(type: string, fn: Function, el: string): bool;
-            detach(type: string, fn: Function, el: HTMLElement): bool;
-            detach(type: string, fn: Function, el: any[]): bool;
-            detach(type: string, fn: Function, el: NodeList): bool;
-            detach(type: string, fn: Function, el: EventHandle): bool;
+            detach(type: string, fn: Function, el: string): boolean;
+            detach(type: string, fn: Function, el: HTMLElement): boolean;
+            detach(type: string, fn: Function, el: any[]): boolean;
+            detach(type: string, fn: Function, el: NodeList): boolean;
+            detach(type: string, fn: Function, el: EventHandle): boolean;
             delegate(type: string, fn: Function, el: string, filter: string, context: any, args: any): EventHandle;
             delegate(type: string, fn: Function, el: string, filter: Function, context: any, args: any): EventHandle;
             delegate(type: string, fn: Function, el: Node, filter: string, context: any, args: any): EventHandle;
             delegate(type: string, fn: Function, el: Node, filter: Function, context: any, args: any): EventHandle;
-            onAvailable(id: string, fn: Function, p_obj: any, p_override: bool, checkContent: bool): any;
-            onAvailable(id: string, fn: Function, p_obj: any, p_override: any, checkContent: bool): any;
-            onAvailable(id: string[], fn: Function, p_obj: any, p_override: bool, checkContent: bool): any;
-            onAvailable(id: string[], fn: Function, p_obj: any, p_override: any, checkContent: bool): any;
-            onContentReady(id: string, fn: Function, obj: any, override: bool): any;
+            onAvailable(id: string, fn: Function, p_obj: any, p_override: boolean, checkContent: boolean): any;
+            onAvailable(id: string, fn: Function, p_obj: any, p_override: any, checkContent: boolean): any;
+            onAvailable(id: string[], fn: Function, p_obj: any, p_override: boolean, checkContent: boolean): any;
+            onAvailable(id: string[], fn: Function, p_obj: any, p_override: any, checkContent: boolean): any;
+            onContentReady(id: string, fn: Function, obj: any, override: boolean): any;
             onContentReady(id: string, fn: Function, obj: any, override: any): any;
             getEvent(e: Event, el: HTMLElement): Event;
             getListeners(el: HTMLElement, type: string): CustomEvent;
             getListeners(el: string, type: string): CustomEvent;
-            on(node: Node, subscription: any[], notifier: bool): any;
+            on(node: Node, subscription: any[], notifier: boolean): any;
             move(cb: Function, path: any, duration: number): any;
             pinch(cb: Function, center: any[], startRadius: number, endRadius: number, duration: number, start: number, rotation: number): any;
-            purgeElement(el: HTMLElement, recurse: bool, type: string): any;
+            purgeElement(el: HTMLElement, recurse: boolean, type: string): any;
             rotate(cb: Function, center: any[], startRadius: number, endRadius: number, duration: number, start: number, rotation: number): any;
-            simulate(target: HTMLElement, type: string, options: any): undefined;
-            simulateGesture(node: HTMLElement, name: string, options?: any, cb?: (err: Error) => any): undefined;
-            simulateGesture(node: Node, name: string, options?: any, cb?: (err: Error) => any): undefined;
+            simulate(target: HTMLElement, type: string, options: any): void;
+            simulateGesture(node: HTMLElement, name: string, options?: any, cb?: (err: Error) => any): void;
+            simulateGesture(node: Node, name: string, options?: any, cb?: (err: Error) => any): void;
         }
     
         interface EventFacade {
@@ -3772,7 +3700,7 @@ module Y {
             type: string;
             target: Node;
             
-            halt(immediate: bool): any;
+            halt(immediate: boolean): any;
             preventDefault(): any;
             stopPropagation(): any;
             stopImmediatePropagation(): any;
@@ -3782,7 +3710,7 @@ module Y {
             
             before(): any;
             after(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;
-            bubble(evt: CustomEvent): bool;
+            bubble(evt: CustomEvent): boolean;
             addTarget(o: EventTarget): any;
             fire(type: string, ...arguments: Object[]): EventTarget;
             fire(type: any, ...arguments: Object[]): EventTarget;
@@ -3813,7 +3741,7 @@ module Y {
             
             all(cat: string, args: any[]): string;
             add(cat: string, name: string, o: any): any;
-            test(cat: string, name: string, args: any[]): bool;
+            test(cat: string, name: string, args: any[]): boolean;
         }
     
         interface File {
@@ -3888,7 +3816,7 @@ module Y {
             render(string: string, context: any, options?: any): string;
             registerPartial(name: string, partial: Function): any;
             registerPartial(name: string, partial: string): any;
-            registerHelper(name: string, fn: Function, inverse?: bool): any;
+            registerHelper(name: string, fn: Function, inverse?: boolean): any;
             template(template: Function): Function;
         }
 
@@ -3928,14 +3856,13 @@ module Y {
             SRC_REPLACE: string;
             SRC_ADD: string;
             NAME: string;
-            force: bool;
-            html5: bool;
-            nativeHashChange: bool;
+            force: boolean;
+            html5: boolean;
+            nativeHashChange: boolean;
             
             addValue(key: string, value: string, options: any): HistoryBase;
             add(state: any, options: any): HistoryBase;
             get(key: string): any;
-            get(key: string): string;
             replaceValue(key: string, value: string, options: any): HistoryBase;
             replace(state: any, options: any): HistoryBase;
         }
@@ -3978,8 +3905,8 @@ module Y {
             charCacheThreshold: number;
             _default: string;
             transports: any;
-            useNativeStringify: bool;
-            useNativeParse: bool;
+            useNativeStringify: boolean;
+            useNativeParse: boolean;
             
             dateToString(d: Date): string;
             customTransport(id: string): any;
@@ -3999,25 +3926,25 @@ module Y {
             send(args: any): JSONPRequest;
         }
     
-        interface Lang {
+        class Lang {
             
             
-            now(): number;
-            isValue(o: any): bool;
-            isUndefined(o: any): bool;
-            isString(o: any): bool;
-            isObject(o: any, failfn: bool): bool;
-            isNumber(o: any): bool;
-            isNull(o: any): bool;
-            isFunction(o: any): bool;
-            isDate(o: any): bool;
-            isBoolean(o: any): bool;
-            isArray(o: any): bool;
-            type(o: any): string;
-            trimRight(s: string): string;
-            trimLeft(s: string): string;
-            trim(s: string): string;
-            sub(s: string, o: any): string;
+            static now(): number;
+            static isValue(o: any): boolean;
+            static isUndefined(o: any): boolean;
+            static isString(o: any): boolean;
+            static isObject(o: any, failfn: boolean): boolean;
+            static isNumber(o: any): boolean;
+            static isNull(o: any): boolean;
+            static isFunction(o: any): boolean;
+            static isDate(o: any): boolean;
+            static isBoolean(o: any): boolean;
+            static isArray(o: any): boolean;
+            static type(o: any): string;
+            static trimRight(s: string): string;
+            static trimLeft(s: string): string;
+            static trim(s: string): string;
+            static sub(s: string, o: any): string;
         }
     
         interface LeftAxisLayout {
@@ -4055,7 +3982,7 @@ module Y {
         interface ModelSync_REST {
             
             CSRF_TOKEN: string;
-            EMULATE_HTTP: bool;
+            EMULATE_HTTP: boolean;
             HTTP_HEADERS: any;
             HTTP_METHODS: any;
             HTTP_TIMEOUT: number;
@@ -4074,7 +4001,7 @@ module Y {
             format(data: number, config: any): string;
             parse(data: string): number;
             parse(data: number): number;
-            parse(data: bool): number;
+            parse(data: boolean): number;
         }
     
         interface NumericAxis {
@@ -4088,15 +4015,15 @@ module Y {
         interface Object {
             
             
-            each(obj: any, fn: (value: any, key: string, obj: any) => any, thisObj?: any, proto?: bool): YUI;
-            isEmpty(obj: any): bool;
+            each(obj: any, fn: (value: any, key: string, obj: any) => any, thisObj?: any, proto?: boolean): YUI;
+            isEmpty(obj: any): boolean;
             getValue(o: any, path: any[]): any;
-            hasValue(obj: any, value: any): bool;
+            hasValue(obj: any, value: any): boolean;
             keys(obj: any): String[];
-            hasKey(obj: any, key: string): bool;
-            owns(obj: any, key: string): bool;
+            hasKey(obj: any, key: string): boolean;
+            owns(obj: any, key: string): boolean;
             setValue(o: any, path: any[], val: any): any;
-            some(obj: any, fn: (value: any, key: string, obj: any) => any, thisObj?: any, proto?: bool): bool;
+            some(obj: any, fn: (value: any, key: string, obj: any) => any, thisObj?: any, proto?: boolean): boolean;
             size(obj: any): number;
             values(obj: any): any[];
         }
@@ -4189,10 +4116,10 @@ module Y {
             center(region: HTMLElement): any;
             center(region: any): any;
             destroy(): any;
-            to(region: string, regionPoint: string, point: string, resize: bool): any;
-            to(region: Node, regionPoint: string, point: string, resize: bool): any;
-            to(region: HTMLElement, regionPoint: string, point: string, resize: bool): any;
-            to(region: any, regionPoint: string, point: string, resize: bool): any;
+            to(region: string, regionPoint: string, point: string, resize: boolean): any;
+            to(region: Node, regionPoint: string, point: string, resize: boolean): any;
+            to(region: HTMLElement, regionPoint: string, point: string, resize: boolean): any;
+            to(region: any, regionPoint: string, point: string, resize: boolean): any;
         }
     
         interface Plugin_AutoComplete {
@@ -4373,7 +4300,7 @@ module Y {
         interface Profiler {
             
             
-            clear(name: string): undefined;
+            clear(name: string): void;
             getAverage(name: string): number;
             getFullReport(): any;
             getReport(): any;
@@ -4383,15 +4310,14 @@ module Y {
             getCallCount(name: string): number;
             instrument(name: string, method: Function): Function;
             getOriginal(name: string): Function;
-            getOriginal(name: string): any;
-            pause(name: string): undefined;
-            registerConstructor(name: string, owner: any): undefined;
-            registerFunction(name: string, owner: any, registerPrototype: bool): undefined;
-            registerObject(name: string, owner: any, recurse: bool): undefined;
-            start(name: string): undefined;
-            stop(name: string): undefined;
-            unregisterObject(name: string, recurse: bool): undefined;
-            unregisterFunction(name: string): undefined;
+            pause(name: string): void;
+            registerConstructor(name: string, owner: any): void;
+            registerFunction(name: string, owner: any, registerPrototype: boolean): void;
+            registerObject(name: string, owner: any, recurse: boolean): void;
+            start(name: string): void;
+            stop(name: string): void;
+            unregisterObject(name: string, recurse: boolean): void;
+            unregisterFunction(name: string): void;
         }
     
         interface QueryString {
@@ -4428,7 +4354,7 @@ module Y {
             flip(): any;
             resort(): any;
             reverse(): any;
-            sort(field: string, desc: bool): any;
+            sort(field: string, desc: boolean): any;
         }
     
         interface Renderer {
@@ -4501,8 +4427,8 @@ module Y {
         interface SVGShape {
             
             
-            compareTo(refNode: HTMLElement): bool;
-            compareTo(refNode: Node): bool;
+            compareTo(refNode: HTMLElement): boolean;
+            compareTo(refNode: Node): boolean;
             contains(needle: SVGShape): any;
             contains(needle: HTMLElement): any;
             addClass(className: string): any;
@@ -4530,8 +4456,8 @@ module Y {
             operators: any;
             shorthand: any;
             
-            ancestor(element: HTMLElement, selector: string, testSelf: bool): HTMLElement;
-            query(selector: string, root: HTMLElement, firstOnly: bool): any[];
+            ancestor(element: HTMLElement, selector: string, testSelf: boolean): HTMLElement;
+            query(selector: string, root: HTMLElement, firstOnly: boolean): any[];
         }
     
         interface SliderValueRange {
@@ -4625,25 +4551,25 @@ module Y {
 
             class TestCase implements Test_TestCase {
                 constructor(methods: any);
-                assert(condition: bool, message: string): any;
+                assert(condition: boolean, message: string): any;
                 callback(): Function;
                 destroy(): any;
                 fail(message: string): any;
                 init(): any;
-                resume(segment: Function): undefined;
-                setUp(): undefined;
-                tearDown(): undefined;
-                wait(segment: Function, delay: number): undefined;
+                resume(segment: Function): void;
+                setUp(): void;
+                tearDown(): void;
+                wait(segment: Function, delay: number): void;
             }
 
             class TestSuite implements Test_TestSuite {
                 name: string;
 
                 constructor(name: string);
-                add(testObject: Test_TestSuite): undefined;
-                add(testObject: Test_TestCase): undefined;
-                setUp(): undefined;
-                tearDown(): undefined;
+                add(testObject: Test_TestSuite): void;
+                add(testObject: Test_TestCase): void;
+                setUp(): void;
+                tearDown(): void;
             }
 
             var CoverageFormat: Test_CoverageFormat;
@@ -4682,7 +4608,7 @@ module Y {
             itemsAreSame(expected: any[], actual: any[], message: string): any;
             isNotEmpty(actual: any[], message: string): any;
             isEmpty(actual: any[], message: string): any;
-            itemsAreEquivalent(expected: any[], actual: any[], comparator: Function, message: string): undefined;
+            itemsAreEquivalent(expected: any[], actual: any[], comparator: Function, message: string): void;
             itemsAreEqual(expected: any[], actual: any[], message: string): any;
             indexOf(needle: any, haystack: any[], index: number, message: string): any;
         }
@@ -4712,9 +4638,9 @@ module Y {
             isTrue(actual: any, message: string): any;
             isFalse(actual: any, message: string): any;
             pass(): any;
-            throwsError(expectedError: string, method: Function, message: string): undefined;
-            throwsError(expectedError: Function, method: Function, message: string): undefined;
-            throwsError(expectedError: any, method: Function, message: string): undefined;
+            throwsError(expectedError: string, method: Function, message: string): void;
+            throwsError(expectedError: Function, method: Function, message: string): void;
+            throwsError(expectedError: any, method: Function, message: string): void;
         }
     
         interface Test_AssertionError {
@@ -4757,19 +4683,19 @@ module Y {
         interface Test_EventTarget {
             
             
-            attach(type: string, listener: Function): undefined;
-            detach(type: string, listener: Function): undefined;
-            fire(event: any): undefined;
-            fire(event: string): undefined;
-            subscribe(type: string, listener: Function): undefined;
-            unsubscribe(type: string, listener: Function): undefined;
+            attach(type: string, listener: Function): void;
+            detach(type: string, listener: Function): void;
+            fire(event: any): void;
+            fire(event: string): void;
+            subscribe(type: string, listener: Function): void;
+            unsubscribe(type: string, listener: Function): void;
         }
     
         interface Test_Mock {
             
             
-            expect(mock: any, expectation: any): undefined;
-            verify(mock: any): undefined;
+            expect(mock: any, expectation: any): void;
+            verify(mock: any): void;
         }
     
         interface Test_Mock_Value {
@@ -4808,25 +4734,22 @@ module Y {
             passed: number;
             total: number;
             
-            include(result: Test_Results): undefined;
+            include(result: Test_Results): void;
         }
     
         interface Test_Runner {
             
             
-            clear(): undefined;
-            add(testObject: any): undefined;
+            clear(): void;
+            add(testObject: any): void;
             getCoverage(format: Function): any;
-            getCoverage(format: Function): string;
             getResults(format: Function): any;
-            getResults(format: Function): string;
-            isRunning(): bool;
-            isWaiting(): bool;
+            isRunning(): boolean;
+            isWaiting(): boolean;
             getName(): string;
-            run(options: any): undefined;
-            run(options: bool): undefined;
-            resume(segment: Function): undefined;
-            setName(name: string): undefined;
+            run(options: any): void;
+            resume(segment: Function): void;
+            setName(name: string): void;
         }
     
         interface Test_ShouldError {
@@ -4844,15 +4767,15 @@ module Y {
         interface Test_TestCase {
             
             
-            assert(condition: bool, message: string): any;
+            assert(condition: boolean, message: string): any;
             callback(): Function;
             destroy(): any;
             fail(message: string): any;
             init(): any;
-            resume(segment: Function): undefined;
-            setUp(): undefined;
-            tearDown(): undefined;
-            wait(segment: Function, delay: number): undefined;
+            resume(segment: Function): void;
+            setUp(): void;
+            tearDown(): void;
+            wait(segment: Function, delay: number): void;
         }
     
         interface Test_TestFormat {
@@ -4878,10 +4801,10 @@ module Y {
             
             name: string;
             
-            add(testObject: Test_TestSuite): undefined;
-            add(testObject: Test_TestCase): undefined;
-            setUp(): undefined;
-            tearDown(): undefined;
+            add(testObject: Test_TestSuite): void;
+            add(testObject: Test_TestCase): void;
+            setUp(): void;
+            tearDown(): void;
         }
     
         interface Test_UnexpectedError {
@@ -4917,19 +4840,18 @@ module Y {
         interface Text_AccentFold {
             
             
-            compare(a: string, b: string, func: Function): bool;
-            canFold(string: string): bool;
+            compare(a: string, b: string, func: Function): boolean;
+            canFold(string: string): boolean;
             fold(input: string): string;
             fold(input: any[]): string;
-            fold(input: string): any[];
-            fold(input: any[]): any[];
+            fold(input: any): any[];
             filter(haystack: any[], func: Function): any[];
         }
     
         interface Text_WordBreak {
             
             
-            isWordBoundary(string: string, index: number): bool;
+            isWordBoundary(string: string, index: number): boolean;
             getUniqueWords(string: string, options: any): any[];
             getWords(string: string, options: any): any[];
         }
@@ -4949,14 +4871,14 @@ module Y {
         interface UA {
             
             caja: number;
-            accel: bool;
+            accel: boolean;
             android: number;
             air: number;
             chrome: number;
             gecko: number;
             nodejs: number;
             os: string;
-            ios: bool;
+            ios: boolean;
             ipod: number;
             iphone: number;
             ipad: number;
@@ -4965,7 +4887,7 @@ module Y {
             ie: number;
             phantomjs: number;
             safari: number;
-            secure: bool;
+            secure: boolean;
             silk: number;
             userAgent: string;
             webos: number;
@@ -5048,8 +4970,8 @@ module Y {
         interface VMLShape {
             
             
-            compareTo(refNode: HTMLElement): bool;
-            compareTo(refNode: Node): bool;
+            compareTo(refNode: HTMLElement): boolean;
+            compareTo(refNode: Node): boolean;
             contains(needle: VMLShape): any;
             contains(needle: HTMLElement): any;
             addClass(className: string): any;
@@ -5107,7 +5029,7 @@ module Y {
             NON_BUTTON_NODE_CFG: any[];
             CLASS_NAMES: any;
             
-            addButton(button: (action?: Function, classNames?: string, context?: any, disabled?: bool, events?: string, isDefault?: bool, label?: string, name?: string, section?: string, srcNode?: Node, template?: string) => any, section?: string, index?: number): WidgetButtons;
+            addButton(button: (action?: Function, classNames?: string, context?: any, disabled?: boolean, events?: string, isDefault?: boolean, label?: string, name?: string, section?: string, srcNode?: Node, template?: string) => any, section?: string, index?: number): WidgetButtons;
             getButton(name: number, section?: string): Node;
             getButton(name: string, section?: string): Node;
             removeButton(button: Node, section?: string): WidgetButtons;
@@ -5133,7 +5055,7 @@ module Y {
             _detachUIHandlesModal(): any;
             _attachUIHandlesModal(): any;
             _uiSetHostZIndexModal(ZIndex: number): any;
-            _uiSetHostVisibleModal(Whether: bool): any;
+            _uiSetHostVisibleModal(Whether: boolean): any;
             _getMaskNode(): Node;
             _blur(): any;
             _focus(): any;
@@ -5155,7 +5077,7 @@ module Y {
             ATTRS: any;
             
             getConstrainedXY(xy: any[], node: Node): any[];
-            getConstrainedXY(xy: any[], node: bool): any[];
+            getConstrainedXY(xy: any[], node: boolean): any[];
         }
     
         interface WidgetStack {
@@ -5182,7 +5104,7 @@ module Y {
             BODY: string;
             HEADER: string;
             
-            getStdModNode(section: string, forceCreate: bool): Node;
+            getStdModNode(section: string, forceCreate: boolean): Node;
             setStdModContent(section: string, content: string, where: string): any;
             setStdModContent(section: string, content: Node, where: string): any;
         }
@@ -5197,20 +5119,20 @@ module Y {
         interface config {
             
             delayUntil: string;
-            cacheUse: bool;
+            cacheUse: boolean;
             _2in3: string;
             aliases: any;
             cssAttributes: string;
-            combine: bool;
+            combine: boolean;
             comboBase: string;
             base: string;
             dateFormat: string;
             core: any[];
-            debug: bool;
-            bootstrap: bool;
+            debug: boolean;
+            bootstrap: boolean;
             errorFn: Function;
             gallery: string;
-            fetchCSS: bool;
+            fetchCSS: boolean;
             force: string[];
             filters: any;
             filter: string;
@@ -5226,19 +5148,19 @@ module Y {
             ignore: string[];
             locale: string;
             lang: string;
-            injected: bool;
+            injected: boolean;
             logExclude: any;
             logInclude: any;
             pollInterval: number;
-            requireRegistration: bool;
+            requireRegistration: boolean;
             root: string;
             purgethreshold: number;
             skin: any;
             timeout: number;
-            throwFail: bool;
-            useNativeES5: bool;
-            useHistoryHTML5: bool;
-            useBrowserConsole: bool;
+            throwFail: boolean;
+            useNativeES5: boolean;
+            useHistoryHTML5: boolean;
+            useBrowserConsole: boolean;
             windowResizeDelay: number;
             win: Window;
             yui2: string;
@@ -5277,4 +5199,5 @@ module Y {
         }
 }
 
-declare var YUI: Y.YUIStatic;
+
+

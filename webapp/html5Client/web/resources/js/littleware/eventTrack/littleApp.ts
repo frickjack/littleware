@@ -1,6 +1,4 @@
-/// <reference path="../../libts/yui.d.ts" />
 declare var exports:any;
-
 
 if ( null == exports ) {
     // Hook to communicate out to YUI module system a YUI module-name for this typescript file
@@ -8,8 +6,14 @@ if ( null == exports ) {
 }
 
 
-var Y:Y.YUI = exports;
+import importY = require("../../libts/yui");
+importY; // workaround for typescript bug: https://typescript.codeplex.com/workitem/1531
+import Y = importY.Y;
+Y = exports;
+
+// hook into littleware javascript coded modules ...
 var lw: any = exports.littleware;
+
 
 /**
  * @module littleware-eventTrack-littleApp
@@ -176,16 +180,16 @@ export module littleware.eventTrack.littleApp {
              * @param width {int}
              */
             static selectModeByWidth(width: number): ViewMode {
-                var mode = FOURPANEL;
+                var mode = ViewMode.FOURPANEL;
 
                 if (width < 1101) {
-                    mode = THREEPANEL;
+                    mode = ViewMode.THREEPANEL;
                 }
                 if (width < 801) {
-                    mode = TWOPANEL;
+                    mode = ViewMode.TWOPANEL;
                 }
                 if (width < 501) {
-                    mode = ONEPANEL;
+                    mode = ViewMode.ONEPANEL;
                 }
                 return mode;
             }
@@ -255,7 +259,7 @@ export module littleware.eventTrack.littleApp {
             registerPanel(
                     panel: LittlePanel,
                     parentId: string,
-                    routeFilter: (string) => bool,
+                    routeFilter: (string) => boolean,
                     listener: (PanelStatus) => void
                 ):void;
 
@@ -320,7 +324,7 @@ export module littleware.eventTrack.littleApp {
             class PanelInfo {
                 constructor(
                     public panel: LittlePanel,
-                    public routeFilter:(string) => bool,
+                    public routeFilter:(string) => boolean,
                     public listener: (PanelStatus) => void
                     ) {
                     if (null == listener) { this.listener = function () { } };
@@ -453,7 +457,7 @@ export module littleware.eventTrack.littleApp {
                     var parent = homeId;
                     for (var i = 0; (i < parts.length) && (parent != null); i++) {
                         var children:PanelInfo[] = Y.Array.filter(
-                            Y.Array.map( this.parentIdToChildren[parent], (childId) => this.panelIdIndex[childId] ),
+                            Y.Array.map(this.parentIdToChildren[parent], (childId) => { return this.panelIdIndex[childId]; } ),
                             (info) => info.routeFilter( parts[i] )
                             );
                         if (children.length > 0) {
@@ -493,7 +497,7 @@ export module littleware.eventTrack.littleApp {
                 registerPanel(
                     panel: LittlePanel,
                     parentId: string,
-                    baseFilter: (string) => bool,
+                    baseFilter: (string) => boolean,
                     listener: (PanelStatus) => void
                     ) {
                     Y.assert(Y.Lang.isUndefined(this.panelIdIndex[panel.id]),
@@ -511,7 +515,7 @@ export module littleware.eventTrack.littleApp {
                 }
 
 
-                private dirtyPanels: { [id: string]: bool; } = {};
+                private dirtyPanels: { [id: string]: boolean; } = {};
 
                 private renderPending = false;
                 private scheduleRender() {

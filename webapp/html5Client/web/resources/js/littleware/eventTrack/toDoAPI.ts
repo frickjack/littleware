@@ -150,7 +150,7 @@ export module littleware.eventTrack.toDoAPI {
          * @method getUserDataFolder
          * @return {Y.Promise{AssetRef}}
          */
-        getUserDataFolder(): Y.Promise;
+        getUserDataFolder(): Y.Promise<axMgr.AssetRef>;
 
         /**
          * Get the active child-tasks (not grandchildren, etc) under the given parent
@@ -158,14 +158,14 @@ export module littleware.eventTrack.toDoAPI {
          * @param parentId {string}
          * @reutrn {Promise{Array{ToDoSummary}}}
          */
-        loadActiveToDos(parentId: string): Y.Promise;
+        loadActiveToDos(parentId: string): Y.Promise<ToDoSummary[]>;
 
         /**
          * Load the ToDo with the given id
          * @param id {string}
          * @return {Y.Promise{ToDoSummary}}
          */
-        loadToDo(id: string): Y.Promise;
+        loadToDo(id: string): Y.Promise<ToDoSummary>;
 
         /**
          * Helper for updating ToDo model data in response to typical UI events
@@ -176,14 +176,14 @@ export module littleware.eventTrack.toDoAPI {
          */
         updateToDo(id: string,
             props: { name?: string; description?: string; state?: number; }
-            ): Y.Promise;
+            ): Y.Promise<ToDoSummary>;
 
         /**
          * Factory for ToDoSummary
          * @method createToDo
          * @return {Y.Promise{ToDoSummary}} new ToDo saved to the repository
          */
-        createToDo(parentId: string, name: string, description: string): Y.Promise;
+        createToDo(parentId: string, name: string, description: string): Y.Promise<ToDoSummary>;
     }
 
     //-----------------------------------
@@ -193,14 +193,14 @@ export module littleware.eventTrack.toDoAPI {
     class SimpleManager implements ToDoManager {
         constructor(
             private axTool: axMgr.AssetManager,
-            private folderPromise: Y.Promise
+            private folderPromise: Y.Promise<axMgr.AssetRef>
             ) { }
 
-        getUserDataFolder(): Y.Promise {
+        getUserDataFolder(): Y.Promise<axMgr.AssetRef> {
             return this.folderPromise;
         }
 
-        loadActiveToDos(parentId: string): Y.Promise {
+        loadActiveToDos(parentId: string): Y.Promise<ToDoSummary[]> {
             return this.axTool.loadChild(parentId, activeFolderName
                 ).then(
                     (ref: axMgr.AssetRef) => {
@@ -242,7 +242,7 @@ export module littleware.eventTrack.toDoAPI {
 
         private _todoCache: { [key: string]: ToDoSummary; } = {};
 
-        loadToDo(id: string): Y.Promise {
+        loadToDo(id: string): Y.Promise<ToDoSummary> {
             //log.log("Loading ToDo summary: " + id);
             if (this._todoCache[id]) {
                 return Y.when( this._todoCache[id] );
@@ -268,7 +268,7 @@ export module littleware.eventTrack.toDoAPI {
                                 }
                             );
                     } else {
-                        return new Y.Promise((resolve, reject) => {
+                        return new Y.Promise<ToDoSummary>((resolve, reject) => {
                             reject("no todo with id: " + id);
                         });
                     }
@@ -288,7 +288,7 @@ export module littleware.eventTrack.toDoAPI {
 
         updateToDo(id: string,
             props: { name?: string; description?: string; state?: number; }
-            ): Y.Promise {
+            ): Y.Promise<ToDoSummary> {
             // TODO - clean this up to handle different scenarios - todo goes inactive, but has children, ...
             return this.axTool.loadAsset(id).then(
                 (ref: axMgr.AssetRef) => {
@@ -305,7 +305,7 @@ export module littleware.eventTrack.toDoAPI {
                     // posibly move ToDo to a different folder (active or archive) -
                     // initial default is no move
                     //
-                    var moveFolderStep: Y.Promise = Y.when(builder.fromId);
+                    var moveFolderStep: Y.Promise<string> = Y.when(builder.fromId);
 
                     if ( this._isArchiveState( builder.state) && (! this._isArchiveState(ref.getAsset().getState()))
                          ) {
@@ -356,7 +356,7 @@ export module littleware.eventTrack.toDoAPI {
              );
         }
 
-        createToDo(parentId: string, name: string, description: string): Y.Promise {
+        createToDo(parentId: string, name: string, description: string): Y.Promise<ToDoSummary> {
             var branch = [
                 {
                     name: activeFolderName,
@@ -427,7 +427,7 @@ export module littleware.eventTrack.toDoAPI {
                 }
             }
         ];
-        var folderPromise: Y.Promise = tool.buildBranch(null, branch).then((refs: axMgr.AssetRef[]) => {
+        var folderPromise: Y.Promise<axMgr.AssetRef> = tool.buildBranch(null, branch).then((refs: axMgr.AssetRef[]) => {
             return refs[refs.length - 1];
         }
         );

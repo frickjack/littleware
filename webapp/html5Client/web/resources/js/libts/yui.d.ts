@@ -19,7 +19,7 @@ export declare module Y {
             function applyConfig(o: any): any;
             function assert(condition: boolean, message: string): any;
             function cached(source: Function, cache?: any, refetch?: any): Function;
-            function batch(...proms: Promise[]): Promise;
+            function batch(...proms: Promise<any>[]): Promise<any[]>;
             function bind(f: Function, c: any, args: any): Function;
             function bind(f: string, c: any, args: any): Function;
             function clone(o: any, safe: boolean, f: Function, c: any, owner: any, cloned: any): any;
@@ -67,7 +67,7 @@ export declare module Y {
             function throttle(fn: Function, ms: number): Function;
             function use(modules: string, callback?: (Y: YUI, status: any) => any): YUI;
             function use(modules: any[], callback?: (Y: YUI, status: any) => any): YUI;
-            function when(ref: any): Promise;
+            function when(ref: any): Promise<any>;
 
     var Assert: Test_Assert;
 
@@ -1915,7 +1915,7 @@ export declare module Y {
             throttle(fn: Function, ms: number): Function;
             use(modules: string, callback?: (Y: YUI, status: any) => any): YUI;
             use(modules: any[], callback?: (Y: YUI, status: any) => any): YUI;
-            when(ref: any): Promise;
+            when(ref: any): Promise<any>;
         }
     
         interface YUIStatic { 
@@ -5191,11 +5191,11 @@ export declare module Y {
             
         }
     
-        class Promise {
-            constructor(lambda: any);
-            then(fulfilled: any, rejected?: any): Promise;
+        class Promise<T> {
+            constructor(lambda: ( resolve:(T) => void, reject:(any) => void ) => any );
+            then(fulfilled: (T) => any, rejected?: (T) => any): Promise<any>;
             getStatus(): string;
-            static batch(...proms: Promise[]): Promise;
+            static batch(...proms: Promise[]): Promise<any[]>;
         }
 }
 

@@ -145,7 +145,7 @@ export module littleware.eventTrack.toDoApp {
             console.dir(panelStatus);
             var oldPath = panelStatus.panel.view.get("path") || "";
 
-            if ( (panelStatus.state.name === "VISIBLE") && (oldPath != panelStatus.panelPath) ) {
+            if ( (panelStatus.state.name === "VISIBLE") && (oldPath != panelStatus.panelPath) && (panelStatus.panel.view.get( "state" ) !== "loading") ) {
                 
                 //var ref:axMgr.AssetRef = panelStatus.panel.view.get("asset") || axMgr.emptyRef();
                 log.log("Setting new path: " + oldPath + " != " + panelStatus.panelPath);
@@ -291,9 +291,9 @@ export module littleware.eventTrack.toDoApp {
      * Configure the toDo application.  
      * @method buildApp
      * @param config {Config} runtime config
-     * @return {littleApp.ViewManager.Manager} ready for app.show()
+     * @return {Y.Promise{littleApp.ViewManager.Manager}} ready for app.show()
      */
-    export function buildApp( config?:Config ): littleApp.ViewManager.Manager {
+    export function buildApp( config?:Config ): Y.Promise<littleApp.ViewManager.Manager> {
         // home page info
         var config = config || new Config();
         var versionInfo = Y.Node.create("<div id='app-info'><span class='app-title'>Little To Do</span><br>Version 0.0 2013/08/21</p></div>");
@@ -310,7 +310,7 @@ export module littleware.eventTrack.toDoApp {
 
         // create a couple root ToDo's if none exist
         var todoMgr = toDo.getToDoManager();
-        todoMgr.getUserDataFolder().then(
+        return todoMgr.getUserDataFolder().then(
             (ref) => {
                 return todoMgr.loadActiveToDos(ref.getAsset().getId()).then(
                     (todos: toDo.ToDoSummary[]) => {
@@ -373,13 +373,13 @@ export module littleware.eventTrack.toDoApp {
 
                 // register listener for model changes
                 assetMgr.addListener(controller.assetListener.bind(controller));
+                return app;
             },
             (err) => {
                 log.log("Failed setup: " + err);
                 alert("Failed ToDo setup: " + err);
             }
         );
-        return app;
     }
 
 

@@ -77,9 +77,9 @@ export module littleware.eventTrack.toDoView {
          * can mark the parent LittlePanel dirty to re-render on promise completion.
          * @method setModelPromise
          * @param promise {Promise{ViewModel}}
-         * @return {Promise} 
+         * @return {Promise{ViewModel}} 
          */
-        setModelPromise(promise: Y.Promise): Y.Promise;
+        setModelPromise(promise: Y.Promise<ViewModel>): Y.Promise<ViewModel>;
 
         /**
          * Helper extracts a ViewModel object from the attributes attached to this view
@@ -92,7 +92,7 @@ export module littleware.eventTrack.toDoView {
     
     var templatePath = "/littleware_apps/resources/templates/littleware/eventTrack/toDoView/toDoPanel.handlebars"
     log.log("Loading template: " + templatePath );
-    var templatePromise:Y.Promise = lw.littleUtil.loadHandlebar( templatePath
+    var templatePromise:Y.Promise<(any) => string> = lw.littleUtil.loadHandlebar( templatePath
         ).then(
             (tplate) => {
                 log.log("Loaded template ...");
@@ -143,7 +143,8 @@ export module littleware.eventTrack.toDoView {
                 content = "<h1>No Data Found</h1>";
             }
             container.setHTML(content);
-            container.one("input[type='text']").focus();
+            var input: Y.Node = container.one("input[type='text']");
+            if (input) { input.focus(); }
             return this;
         },
 
@@ -164,7 +165,7 @@ export module littleware.eventTrack.toDoView {
            return model;
        },
 
-        setModelPromise: function (promise: Y.Promise): Y.Promise {
+        setModelPromise: function (promise: Y.Promise<ViewModel>): Y.Promise<ViewModel> {
             Y.assert(this.get("state") === "ready", "cannot set promise on view already in loading state");
             this.set("state", "loading");
             return promise.then(
@@ -216,7 +217,7 @@ export module littleware.eventTrack.toDoView {
          * @static
          * @return {Promise{PageView}}
          */
-        newView: function (): Y.Promise {
+        newView: function (): Y.Promise<PageView> {
             return templatePromise.then((template) => {
                 var view = new SimplePageView();
                 view.template = template;

@@ -64,7 +64,7 @@ export module littleware.eventTrack.toDoApp {
          * @param route {string} route associated with this id
          * @return {Promise{ViewModel}} Promise for ViewModel with undefined path
          */
-        loadModel(id: string, route:string ): Y.Promise {
+        loadModel(id: string, route:string ): Y.Promise<toDoView.ViewModel> {
             return this.assetTool.loadAsset( id 
             ).then(
                 (ref: axMgr.AssetRef) => {
@@ -156,7 +156,7 @@ export module littleware.eventTrack.toDoApp {
                 var assetPath: string = "active/" + pathParts.join("/active/");
 
                 log.log("Loading ToDo's under " + assetPath);
-                var dataPromise = this.todoTool.getUserDataFolder().then(
+                var dataPromise:Y.Promise<toDoView.ViewModel> = this.todoTool.getUserDataFolder().then(
                         (ref: axMgr.AssetRef) => {
                             Y.assert(ref.isDefined(), "User data folder should be auto-setup");
                             if (pathParts.length > 0) {
@@ -338,7 +338,7 @@ export module littleware.eventTrack.toDoApp {
             }
         ).then(
             (todos) => {
-                var views: Y.Promise[] = [];
+                var views: Y.Promise<toDoView.PageView>[] = [];
                 for (var i = 0; i < maxToDoDepth; ++i) {
                     views.push(toDoView.PageViewFactory.newView());
                 }

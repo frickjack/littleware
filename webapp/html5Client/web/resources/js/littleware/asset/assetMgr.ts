@@ -178,19 +178,19 @@ export module littleware.asset.manager {
          * @method saveAsset
          * @return {Y.Promise[AssetRef]}
          */
-        saveAsset(value: ax.Asset, updateComment: string): Y.Promise;
+        saveAsset(value: ax.Asset, updateComment: string): Y.Promise<AssetRef>;
         /**
          * @method deleteAsset
          * @return {Y.Promise[string]}
          */
-        deleteAsset(id: string, deleteComment: string): Y.Promise;
+        deleteAsset(id: string, deleteComment: string): Y.Promise<AssetRef>;
 
         /**
          * Return a reference to the asset with the given id if any - otherwise null.
          * @method loadAsset
          * @return {Y.Promise[AssetRef]}
          */
-        loadAsset(id: string): Y.Promise;
+        loadAsset(id: string): Y.Promise<AssetRef>;
 
         /**
          * Load the child of the given parent with the given name -
@@ -201,7 +201,7 @@ export module littleware.asset.manager {
          * @param name {string}
          * @return {Y.Promise{AssetRef}}
          */
-        loadChild(parentId: string, name: string): Y.Promise;
+        loadChild(parentId: string, name: string): Y.Promise<AssetRef>;
 
         /**
          * Load the asset at the given path if any - same as loadSubpath( null, path )
@@ -209,7 +209,7 @@ export module littleware.asset.manager {
          * @param path {string}
          * @return {Y.Promise{AssetRef}}
          */
-        loadPath(path: string): Y.Promise;
+        loadPath(path: string): Y.Promise<AssetRef>;
 
         /**
          * Load the asset at the given path below the given root
@@ -218,7 +218,7 @@ export module littleware.asset.manager {
          * @param path {string}
          * @return {Y.Promise{AssetRef}}
          */
-        loadSubpath(rootId: string, path: string): Y.Promise;
+        loadSubpath(rootId: string, path: string): Y.Promise<AssetRef>;
 
         /**
          * Like loadSubpath, but allows specification of a builder function 
@@ -229,7 +229,7 @@ export module littleware.asset.manager {
          * @param branch {{name:string,builder:(parent:Asset)=>AssetBuilder}[]}
          * @return {Y.Promise{AssetRef[]}}
          */
-        buildBranch(rootId: string, branch: { name: string; builder:(parent:ax.Asset) => ax.AssetBuilder; }[]): Y.Promise;
+        buildBranch(rootId: string, branch: { name: string; builder: (parent: ax.Asset) => ax.AssetBuilder; }[]): Y.Promise<AssetRef[]>;
 
 
         /**
@@ -238,14 +238,14 @@ export module littleware.asset.manager {
          * @param parentId {string}
          * @return {Y.Promise{NameIdListRef}}
          */
-        listChildren(parentId: string): Y.Promise;
+        listChildren(parentId: string): Y.Promise<NameIdListRef>;
 
         /**
          * List the root (littleware.HOME-TYPE) nodes - shortcut for listChildren(null)
          * @method listRoots
          * @return {Y.Promise{NameIdListRef}}
          */
-        listRoots(): Y.Promise;
+        listRoots(): Y.Promise<NameIdListRef>;
     }
 
     /**
@@ -463,7 +463,7 @@ export module littleware.asset.manager {
 
         
 
-        saveAsset(value: ax.Asset, updateComment: string): Y.Promise {
+        saveAsset(value: ax.Asset, updateComment: string): Y.Promise<AssetRef> {
             return this.loadAsset(value.getId()).then((ref:InternalAssetRef) => {
                this.timestamp++;
                if (value.getTimestamp() > this.timestamp) {
@@ -536,12 +536,12 @@ export module littleware.asset.manager {
         }
 
     
-        listChildren(parentId: string): Y.Promise {
+        listChildren(parentId: string): Y.Promise<NameIdListRef> {
            var children: NameIdListRef = this._listChildren(parentId);
            return Y.when( children );
         }
 
-        listRoots(): Y.Promise {
+        listRoots(): Y.Promise<NameIdListRef> {
             return this.listChildren( null );
         }
 
@@ -564,11 +564,11 @@ export module littleware.asset.manager {
             return ref;
         }
 
-        loadAsset(id: string): Y.Promise {
+        loadAsset(id: string): Y.Promise<AssetRef> {
             return Y.when(this._loadAsset(id));
         }
 
-        loadChild(parentId: string, name: string): Y.Promise {
+        loadChild(parentId: string, name: string): Y.Promise<AssetRef> {
             return this.listChildren(parentId).then(
                 (siblings:NameIdListRef) => {
                     var childInfo:NameIdPair = Y.Array.find(siblings.copy(), (it:NameIdPair) => {
@@ -586,7 +586,7 @@ export module littleware.asset.manager {
         /*
          * Internal helper - traverse path recursively
          */
-        private _loadPath(parentId: string, partsLeft: string[]): Y.Promise {
+        private _loadPath(parentId: string, partsLeft: string[]): Y.Promise<AssetRef> {
             var name = partsLeft.shift();
             //log.log("_loadPath loading " + parentId + " child " + name);
             var childPromise = this.loadChild(parentId, name);
@@ -607,10 +607,10 @@ export module littleware.asset.manager {
             }
         }
 
-        loadSubpath(rootId: string, path: string): Y.Promise {
+        loadSubpath(rootId: string, path: string): Y.Promise<AssetRef> {
             var parts = Y.Array.filter(path.split(/\/+/), (it) => { return it && true; });
             if (parts.length < 1) {
-                return new Y.Promise((resolve, reject) => {
+                return new Y.Promise<AssetRef>((resolve, reject) => {
                     reject(new Error("failed to parse path: " + path));
                 });
             }
@@ -621,14 +621,14 @@ export module littleware.asset.manager {
             }
         }
 
-        loadPath(path: string): Y.Promise {
+        loadPath(path: string): Y.Promise<AssetRef> {
             return this.loadSubpath(null, path);
         }
 
 
         buildBranch( rootId: string,
                      branch: { name: string; builder: (parent:ax.Asset) => ax.AssetBuilder; }[]
-            ): Y.Promise {
+            ): Y.Promise<AssetRef[]> {
             log.log("buildBranch: " + Y.Array.map(branch, function (it) { return it.name; } ).join( "/" ) );
             console.dir(branch);
             Y.assert((rootId) || (branch.length > 0), "nothing to do with empty rootid and empty branch");
@@ -680,7 +680,7 @@ export module littleware.asset.manager {
             return ref || EmptyRef;
         }
 
-        deleteAsset(id: string, deleteComment: string): Y.Promise {
+        deleteAsset(id: string, deleteComment: string): Y.Promise<void> {
             return Y.Promise.batch(
                 this.loadAsset(id), this.listChildren(id)
              ).then(

@@ -427,6 +427,9 @@ export module littleware.eventTrack.littleApp {
 
                     router.route("*", (req) => {
                         var panelIds = this.lookupPanelsForRoute(req.path);
+                        if ((typeof (localStorage) != 'undefined') && (panelIds.length > 0)) {
+                            localStorage.setItem("littleApp/route", req.path);
+                        }
                         this.routePanelIds = panelIds;
                         this.scheduleRender();
                     }
@@ -692,31 +695,45 @@ export module littleware.eventTrack.littleApp {
                                 }
                             }, 'a.little-route'
                           );
-                        
-                          /*... ugh - doesn't work on Android Chrome - browser already uses flick ? ...
-                        // flick gesture ... back or forward
-                        this.container.on( "flick", 
-                            (ev) => {
-                                alert( "flick!: + flick.axis + " " + flick.start.pageX + " to " + ev.pageX" );
-                               var flick = ev.flick;
-                               log.log( "Flick!: " + flick.axis + " " + flick.start.pageX + " to " + ev.pageX );
-                               if ( flick.axis == 'x' && ev.pageX > flick.start.pageX ) {
-                                var pathParts = router.getPath().split( /\/+/ );
-                                if ( pathParts.length > 1 ) {
-                                    ev.preventDefault();
-                                    pathParts.pop();
-                                    router.save( pathParts.join( "/" ) );
+
+                        /*... ugh - doesn't work on Android Chrome - browser already uses flick ? ...
+                      // flick gesture ... back or forward
+                      this.container.on( "flick", 
+                          (ev) => {
+                              alert( "flick!: + flick.axis + " " + flick.start.pageX + " to " + ev.pageX" );
+                             var flick = ev.flick;
+                             log.log( "Flick!: " + flick.axis + " " + flick.start.pageX + " to " + ev.pageX );
+                             if ( flick.axis == 'x' && ev.pageX > flick.start.pageX ) {
+                              var pathParts = router.getPath().split( /\/+/ );
+                              if ( pathParts.length > 1 ) {
+                                  ev.preventDefault();
+                                  pathParts.pop();
+                                  router.save( pathParts.join( "/" ) );
+                              }
+                             }
+                          }, {
+                              //minDistance: 20,
+                              //minVelocity: 0.8
+                              //preventDefault: true
+                          }
+                      );
+                          */
+
+                        Y.soon(() => {
+                            if (typeof (localStorage) != 'undefined') {
+                                var savedPath: string = localStorage.getItem("littleApp/route");
+                                if (savedPath) {
+                                    var panelIds = this.lookupPanelsForRoute(savedPath);
+                                    if (panelIds.length > 0) { // saved path looks valid
+                                        log.log("Moving to saved route: " + savedPath);
+                                        this.router.save(savedPath);
+                                    }
                                 }
-                               }
-                            }, {
-                                //minDistance: 20,
-                                //minVelocity: 0.8
-                                //preventDefault: true
                             }
-                        );
-                            */
-                           
-                        this.scheduleRender();
+                            this.scheduleRender();
+                        }
+                            );
+                        
                     }
                 }
 

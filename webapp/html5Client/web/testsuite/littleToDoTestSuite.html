@@ -81,8 +81,14 @@
                     Y.Test.Runner.run();
                     var config = new Y.littleware.eventTrack.toDoApp.Config();
                     config.root = "/littleware_apps/testsuite/littleToDoTestSuite.html";
-                    var app = Y.littleware.eventTrack.toDoApp.buildApp( config );
-                    app.show();
+                    Y.littleware.eventTrack.toDoApp.buildApp(config).then(
+                        function (app) {
+                            app.show();
+                        },
+                        function (err) {
+                            log.log("toDoApp.buildApp error: " + err);
+                        }
+                        );
             });
 
         </script>

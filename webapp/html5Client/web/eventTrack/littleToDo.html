@@ -54,8 +54,14 @@
 
                     var config = new Y.littleware.eventTrack.toDoApp.Config();
                     config.root = "/littleware_apps/eventTrack/littleToDo.html";
-                    var app = Y.littleware.eventTrack.toDoApp.buildApp(config);
-                    app.show();
+                    Y.littleware.eventTrack.toDoApp.buildApp(config).then(
+                        function (app) {
+                            app.show();
+                        },
+                        function (err) {
+                            alert("Startup error: " + err);
+                        }
+                    );
                 }
             );
 

@@ -1,15 +1,11 @@
 
-/// <reference path="../../libts/yui.d.ts" />
-declare var exports:Y;
+declare var exports:any;
 
 if ( null == exports ) {
     // Hook to communicate out to YUI module system a YUI module-name for this typescript file
     throw "littleware-toy-toyA";
 }
 
-//import yui = module( "yui" );
-
-var Y:Y = exports;
 
 export module littleware.toy.a {
 	

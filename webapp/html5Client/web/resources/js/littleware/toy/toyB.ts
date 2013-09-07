@@ -1,7 +1,3 @@
-//declare var YUI:any;
-/// <reference path="../../libts/yui.d.ts" />
-/// <reference path="toyA.ts" />
-
 declare var exports:any;
 
 //declare module littleware.toy.a;
@@ -10,11 +6,19 @@ if ( null == exports ) {
     throw "littleware-toy-toyB";
 }
 
-//import yui = module( "yui" );
 
-var Y:Y.YUI = exports;
+import importY = require("../../libts/yui");
+importY;
+import Y = importY.Y;
+Y = exports;
 
-import modA = module( "toyA" );
+import importModA = require("toyA");
+importModA;
+import modA = importModA.littleware.toy.a;
+
+// hack - map the module names to the YUI namespace
+Y = exports;
+modA = exports.littleware.toy.a;
 
 export module littleware.toy.b {
     
@@ -23,10 +27,10 @@ export module littleware.toy.b {
     //module a = modA.littleware.toy.a;
 
   export class Greeter {
-      delegate:modA.littleware.toy.a.Greeter;
+      delegate:modA.Greeter;
 
       constructor(message: string) {
-          this.delegate = new modA.littleware.toy.a.Greeter( message );
+          this.delegate = new modA.Greeter( message );
       }
       greet() {
           return this.delegate.greet();

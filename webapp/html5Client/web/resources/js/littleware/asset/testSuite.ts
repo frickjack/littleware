@@ -1,21 +1,26 @@
-/// <reference path="../../libts/yui.d.ts" />
 declare var exports:any;
 
-var Y:Y = exports;
 
 if ( null == exports ) {
     // Hook to communicate out to YUI module system a YUI module-name for this typescript file
     throw "littleware-asset-test";
 }
 
+import importY = require("../../libts/yui");
+importY; // workaround for typescript bug: https://typescript.codeplex.com/workitem/1531
+import Y = importY.Y;
+Y = exports;
 
-var lw = exports.littleware;
+import importLittleAsset = require("littleAsset");
+importLittleAsset;
+import ax = importLittleAsset.littleware.asset;
 
-import littleAsset = module("littleAsset");
-import ax = littleAsset.littleware.asset;
+import importAssetMgr = require("assetMgr");
+importAssetMgr;
+import axMgr = importAssetMgr.littleware.asset.manager;
 
-import assetMgr = module("assetMgr");
-import axMgr = assetMgr.littleware.asset.manager;
+// hook into littleware javascript coded modules ...
+var lw: any = exports.littleware;
 
 
 /**
@@ -52,7 +57,7 @@ export module littleware.asset.test {
                 }
             }
         ]).then(
-                (refs:ax.AssetRef[]) => {
+                (refs:axMgr.AssetRef[]) => {
                     log.log("Test setup looks ok ...");
                     testFolderRef = refs[1];
                 },

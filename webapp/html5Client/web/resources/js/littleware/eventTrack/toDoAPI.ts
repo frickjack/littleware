@@ -1,6 +1,3 @@
-/// <reference path="../../libts/yui.d.ts" />
-
-
 declare var exports:any;
 
 
@@ -9,16 +6,22 @@ if ( null == exports ) {
     throw "littleware-eventTrack-toDoAPI";
 }
 
-// little dance for hooking into YUI's module system
-var Y: Y = exports;
+
+import importY = require("../../libts/yui");
+importY; // workaround for typescript bug: https://typescript.codeplex.com/workitem/1531
+import Y = importY.Y;
+Y = exports;
+
+import importLittleAsset = require("../asset/littleAsset");
+importLittleAsset;
+import ax = importLittleAsset.littleware.asset;
+
+import importAssetMgr = require("../asset/assetMgr");
+importAssetMgr;
+import axMgr = importAssetMgr.littleware.asset.manager;
 
 // lw for accessing untyped littleware modules implements in javascript
-var lw = exports.littleware;
-import littleAsset = module("../asset/littleAsset");
-import assetMgr = module("../asset/assetMgr");
-
-import ax = littleAsset.littleware.asset;
-import axMgr = assetMgr.littleware.asset.manager;
+var lw: any = exports.littleware;
 
 /**
  * @module littleware-eventTrack-toDoAPI
@@ -38,7 +41,7 @@ export module littleware.eventTrack.toDoAPI {
      *
      * @class ToDoItem
      */
-    export class ToDoItem extends littleAsset.littleware.asset.Asset {
+    export class ToDoItem extends ax.Asset {
         static TODO_TYPE = new ax.AssetType("A2985AD5556242D28B9FBA65789F21F6", -1, "littleware.TODO");
 
         /**
@@ -216,12 +219,12 @@ export module littleware.eventTrack.toDoAPI {
                         return Y.batch.apply(Y, batch);
                     }
                 ).then(
-                    (refs: ax.AssetRef[]) => {
+                    (refs: axMgr.AssetRef[]) => {
                         //log.log("loadActiveToDos child-load batch size: " + refs.length);
                         var assets: ToDoItem[] = [];
-                        for (var i = 0; i < refs.length; ++i) {
+                        for (var i = 0; i < refs.length; ++i) { // assume all the assets under /active are ToDoItems
                             if (refs[i].isDefined()) {
-                                assets.push(refs[i].getAsset() );
+                                assets.push( <ToDoItem> refs[i].getAsset() );
                             }
                         }
                         log.log("Loading active todos: " + assets.length);
@@ -247,7 +250,7 @@ export module littleware.eventTrack.toDoAPI {
             return this.axTool.loadAsset(id).then(
                 (ref: axMgr.AssetRef) => {
                     if (ref.isDefined()) {
-                        var todo:ToDoItem = ref.getAsset();
+                        var todo:ToDoItem = <ToDoItem> ref.getAsset();
                         return this.axTool.loadSubpath(todo.getId(), activeFolderName
                             ).then(
                                 (ref: axMgr.AssetRef) => {
@@ -273,7 +276,7 @@ export module littleware.eventTrack.toDoAPI {
               );
         }
 
-        private _isArchiveState(state: number): bool {
+        private _isArchiveState(state: number): boolean {
             return ((state === ToDoItem.STATE.CANCELED) || (state === ToDoItem.STATE.COMPLETE));
         }
 
@@ -320,7 +323,7 @@ export module littleware.eventTrack.toDoAPI {
                             }
                         ];
                         moveFolderStep = this.axTool.buildBranch(builder.toId, archiveBranch).then(
-                            (refs: ax.AssetRef[]) => {
+                            (refs: axMgr.AssetRef[]) => {
                                 return refs[refs.length - 1].getAsset().getId();
                             }
                         );
@@ -337,7 +340,7 @@ export module littleware.eventTrack.toDoAPI {
                             }
                         ];
                         moveFolderStep = this.axTool.buildBranch(builder.toId, activeBranch).then(
-                            (refs: ax.AssetRef[]) => {
+                            (refs: axMgr.AssetRef[]) => {
                                 return refs[refs.length - 1].getAsset().getId();
                             }
                         );
@@ -382,7 +385,7 @@ export module littleware.eventTrack.toDoAPI {
                     Y.assert(ref.isDefined(), "unable to load todo parent: " + parentId);
                     return this.axTool.buildBranch(parentId, branch
                         ).then(
-                            (refs: ax.AssetRef[]) => {
+                            (refs: axMgr.AssetRef[]) => {
                                 Y.assert(refs.length == 3, "createToDo got expected branch result");
                                 var todoRef = refs[1];
                                 Y.assert(todoRef.getAsset().getAssetType().id === ToDoItem.TODO_TYPE.id,
@@ -424,7 +427,7 @@ export module littleware.eventTrack.toDoAPI {
                 }
             }
         ];
-        var folderPromise: Y.Promise = tool.buildBranch(null, branch).then((refs: ax.AssetRef[]) => {
+        var folderPromise: Y.Promise = tool.buildBranch(null, branch).then((refs: axMgr.AssetRef[]) => {
             return refs[refs.length - 1];
         }
         );

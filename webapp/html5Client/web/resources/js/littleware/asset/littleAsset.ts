@@ -1,15 +1,17 @@
-/// <reference path="../../libts/yui.d.ts" />
 declare var exports:any;
 
-var Y:Y = exports;
 
 if ( null == exports ) {
     // Hook to communicate out to YUI module system a YUI module-name for this typescript file
     throw "littleware-asset-base";
 }
 
+import importY = require("../../libts/yui");
+importY; // workaround for typescript bug: https://typescript.codeplex.com/workitem/1531
+import Y = importY.Y;
+Y = exports;
 
-var lw = exports.littleware;
+var lw: any = exports.littleware;
 
 /**
  * @module littleware-asset-base
@@ -110,7 +112,7 @@ export module littleware.asset {
      *
      * @class Asset
      */
-    export class Asset implements CacheObject {
+    export class Asset {
         private id: string;
         private assetType: AssetType;
         private timestamp: number;
@@ -155,7 +157,8 @@ export module littleware.asset {
             this.state = Math.floor(builder.state);
             this.value = builder.value;
 
-            Y.assert(this.id && this.assetType && this.name && 
+            Y.assert( 
+                this.id && this.assetType && this.name && 
                 ((this.assetType.id == HomeAsset.HOME_TYPE.id) || (this.fromId && (this.id != this.fromId))), 
                 "asset passes basic validation"
                 );
@@ -256,7 +259,7 @@ export module littleware.asset {
          * Allocate an id-factory - just a singleton for this implementation
          * @method get
          */
-        static get (): IdFactory { return _idFactory; }
+        static get (): IdFactory { return IdFactories._idFactory; }
     }
 
 

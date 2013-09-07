@@ -1,6 +1,3 @@
-/// <reference path="../../libts/yui.d.ts" />
-
-
 declare var exports:any;
 
 
@@ -9,19 +6,26 @@ if ( null == exports ) {
     throw "littleware-eventTrack-toDoView";
 }
 
-// little dance for hooking into YUI's module system
-var Y: Y = exports;
+import importY = require("../../libts/yui");
+importY; // workaround for typescript bug: https://typescript.codeplex.com/workitem/1531
+import Y = importY.Y;
+Y = exports;
 
+import importLittleAsset = require("../asset/littleAsset");
+importLittleAsset;
+import ax = importLittleAsset.littleware.asset;
+
+import importAssetMgr = require("../asset/assetMgr");
+importAssetMgr;
+import axMgr = importAssetMgr.littleware.asset.manager;
+
+import importToDo = require("toDoAPI");
+importToDo;
+import toDo = importToDo.littleware.eventTrack.toDoAPI;
 
 // lw for accessing untyped littleware modules implements in javascript
-var lw = exports.littleware;
-import importLittleAsset = module("../asset/littleAsset");
-import importAssetMgr = module("../asset/assetMgr");
-import importToDo = module( "toDoAPI" );
+var lw: any = exports.littleware;
 
-import ax = importLittleAsset.littleware.asset;
-import axMgr = importAssetMgr.littleware.asset.manager;
-import toDo = importToDo.littleware.eventTrack.toDoAPI;
 
 /**
  * @module littleware-eventTrack-toDoView

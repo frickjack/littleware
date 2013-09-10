@@ -184,7 +184,17 @@ export module littleware.eventTrack.toDoAPI {
          * @return {Y.Promise{ToDoSummary}} new ToDo saved to the repository
          */
         createToDo(parentId: string, name: string, description: string): Y.Promise<ToDoSummary>;
+
+        /**
+         * Remove archive folders for the previous month and earlier
+         * @method cleanArchive
+         * @param id {string} id of ToDo to clean archive folder under
+         * @param optDeleteAll {boolean} optional - true deletes whole archive instead of leaving one month behind, default false
+         * @return {Y.Promise{int}} promise resolves to number of archived children deleted
+         */
+        cleanArchive(id: string, optDeleteAll?:boolean ): Y.Promise<number>;
     }
+
 
     //-----------------------------------
 
@@ -322,11 +332,16 @@ export module littleware.eventTrack.toDoAPI {
                                 builder: (parent) => { return ax.GenericAsset.GENERIC_TYPE.newBuilder(); }
                             }
                         ];
-                        moveFolderStep = this.axTool.buildBranch(builder.toId, archiveBranch).then(
-                            (refs: axMgr.AssetRef[]) => {
-                                return refs[refs.length - 1].getAsset().getId();
-                            }
-                        );
+                        moveFolderStep = this.cleanArchive(builder.toId).then(
+                                 () => {
+                                     return this.axTool.buildBranch(builder.toId, archiveBranch);
+                                 }
+                                 ).then(
+                                 (refs: axMgr.AssetRef[]) => {
+                                     return refs[refs.length - 1].getAsset().getId();
+                                 }
+                                 );
+                        
                         // give asset a unique name for archive
                         builder.name = builder.name + "-" + now.getTime();
                     } else if ( (!this._isArchiveState( builder.state)) && this._isArchiveState(ref.getAsset().getState()) ) {
@@ -354,6 +369,89 @@ export module littleware.eventTrack.toDoAPI {
                         );
                 }
              );
+        }
+
+
+        /**
+         * Another internal helper for cleanArchive - delets the given ToDo recursively -
+         * refuses if the ToDo has active children
+         * @method _deleteRecursive
+         * @param id {string} todo id
+         * @return {Y.Promise{number}} promise with total number of assets deleted
+         */
+        private _deleteRecursive(id: string ): Y.Promise<number> {
+            return this.axTool.loadAsset(id).then(
+                (ref: axMgr.AssetRef) => {
+                    if (ref.isDefined()) {
+                        return this.axTool.listChildren(id).then(
+                            (idList: axMgr.NameIdListRef) => {
+                                var childIds: string[] = [];
+                                for (var i = 0; i < idList.size(); ++i) {
+                                    childIds.push(idList.get(i).getId());
+                                }
+                                if (childIds.length > 0) {
+                                    return Y.batch.apply(Y,
+                                        Y.Array.map(childIds, (childId) => { return this._deleteRecursive(childId); })
+                                        );
+                                } else {
+                                    return Y.when([0]);
+                                }
+                            }
+                            ).then(
+                            (childCounts: number[]) => {
+                                var sum: number = 0;
+                                Y.Array.each(childCounts, (num) => {
+                                    sum += num;
+                                });
+                                return this.axTool.deleteAsset(ref.getAsset().getId(), "delete ToDo").then(
+                                    () => {
+                                        return sum;
+                                    }
+                                    );
+                            }
+                            );
+                    } else {
+                        return 0;
+                    }
+                }
+             );
+        }
+
+
+        cleanArchive(id: string, optDeleteAll?: boolean): Y.Promise<number> {
+            var deleteAll: boolean = Y.Lang.isUndefined(optDeleteAll) ? false : optDeleteAll;
+            return this.loadToDo(id).then(
+                (todo: ToDoSummary) => {
+                    return this.axTool.loadSubpath(todo.getId(), "archive");
+                }
+                ).then(
+                (archiveRef: axMgr.AssetRef) => {
+                    if (archiveRef.isDefined()) {
+                        return this.axTool.listChildren(archiveRef.getAsset().getId());
+                    } else {
+                        return Y.when(new axMgr.NameIdListRef([]));
+                    }
+                }
+                ).then(
+                (nameIdList: axMgr.NameIdListRef) => {
+                    var monthString: string = this._monthString(new Date());
+                    var oldArchives: axMgr.NameIdPair[] = nameIdList.filter((it: axMgr.NameIdPair) => {
+                        return (deleteAll || (it.getName() < monthString));
+                    });
+                    var promises: Y.Promise<number>[] = Y.Array.map(oldArchives,
+                        (it: axMgr.NameIdPair) => { return this._deleteRecursive(it.getId()); }
+                        );
+                    if (promises.length > 0) {
+                        return Y.batch.apply(Y, promises);
+                    } else {
+                        return Y.when([]);
+                    }
+                }
+                ).then(
+                (batch: any[]) => {
+                    return batch.length;
+                }
+                );
         }
 
         createToDo(parentId: string, name: string, description: string): Y.Promise<ToDoSummary> {
@@ -504,9 +602,11 @@ export module littleware.eventTrack.toDoAPI {
                                     );
                             }
                           ).then(
-                            (todo: ToDoSummary) => {
-                                log.log("checking that archived todo is out of active list ...");
-                                return tool.loadActiveToDos(todo.getParentId());
+                            (child: ToDoSummary) => {
+                                log.log("cleaning archive, checking that archived todo is out of active list ...");
+                                return tool.cleanArchive(child.getParentId(), true ).then(
+                                    () => { return tool.loadActiveToDos(child.getParentId()); }
+                                    );
                             }
                           ).then(
                             (todoList: ToDoSummary[]) => {

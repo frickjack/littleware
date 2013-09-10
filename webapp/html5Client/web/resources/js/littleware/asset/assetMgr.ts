@@ -160,6 +160,46 @@ export module littleware.asset.manager {
             }
             return result;
         }
+
+        /**
+         * list comprehension ...
+         * @method each
+         * @param thunk {(NameIdPair) => any}
+         */
+        each(thunk: (it: NameIdPair) => any): void {
+            Y.Array.each(this._list, thunk);
+        }
+
+        /**
+         * list comprehension ...
+         * @method map
+         * @param thunk {(NameIdPair) => T}
+         * @return {T[]}
+         */
+        map<T>(thunk: (it: NameIdPair) => T): T[] {
+            return Y.Array.map(this._list, thunk);
+        }
+
+        /**
+         * list comprehension ...
+         * @method filter
+         * @param thunk {(NameIdPair) => boolean}
+         * @return {NameIdPair[]}
+         */
+        filter(thunk: (it: NameIdPair) => boolean): NameIdPair[]{
+            return Y.Array.filter(this._list, thunk);
+        }
+
+        /**
+         * list comprehension ...
+         * @method find
+         * @param thunk {(NameIdPair) => boolean}
+         * @return {NameIdPair}
+         */
+        find(thunk: (it: NameIdPair) => boolean): NameIdPair {
+            return Y.Array.find(this._list, thunk);
+        }
+
     }
 
     /**
@@ -181,9 +221,9 @@ export module littleware.asset.manager {
         saveAsset(value: ax.Asset, updateComment: string): Y.Promise<AssetRef>;
         /**
          * @method deleteAsset
-         * @return {Y.Promise[string]}
+         * @return {Y.Promise[void]}
          */
-        deleteAsset(id: string, deleteComment: string): Y.Promise<AssetRef>;
+        deleteAsset(id: string, deleteComment: string): Y.Promise<void>;
 
         /**
          * Return a reference to the asset with the given id if any - otherwise null.

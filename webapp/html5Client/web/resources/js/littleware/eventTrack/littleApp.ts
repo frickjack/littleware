@@ -428,7 +428,7 @@ export module littleware.eventTrack.littleApp {
                     router.route("*", (req) => {
                         var panelIds = this.lookupPanelsForRoute(req.path);
                         if ((typeof (localStorage) != 'undefined') && (panelIds.length > 0)) {
-                            localStorage.setItem("littleApp/route", req.path);
+                            localStorage.setItem("littleApp/route/" + this.name, req.path);
                         }
                         this.routePanelIds = panelIds;
                         this.scheduleRender();
@@ -721,7 +721,7 @@ export module littleware.eventTrack.littleApp {
 
                         Y.soon(() => {
                             if (typeof (localStorage) != 'undefined') {
-                                var savedPath: string = localStorage.getItem("littleApp/route");
+                                var savedPath: string = localStorage.getItem("littleApp/route/" + this.name );
                                 if (savedPath) {
                                     var panelIds = this.lookupPanelsForRoute(savedPath);
                                     if (panelIds.length > 0) { // saved path looks valid

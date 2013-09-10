@@ -296,7 +296,11 @@ export module littleware.eventTrack.toDoApp {
     export function buildApp( config?:Config ): Y.Promise<littleApp.ViewManager.Manager> {
         // home page info
         var config = config || new Config();
-        var versionInfo = Y.Node.create("<div id='app-info'><span class='app-title'>Little To Do</span><br>Version 0.0 2013/08/21</p></div>");
+        var versionInfo = Y.Node.create(
+            "<div id='app-info'><span class='app-title'>Little To Do</span><br/>Version 0.0 2013/09/10<br/>" +
+            "<img src='/littleware_apps/resources/img/checkbox.svg' width='25' alt='checkbox icon' />" +
+            "</div>"
+            );
         var homePage:Y.View = new Y.View();
         homePage.get("container").append(versionInfo);
 
@@ -306,7 +310,7 @@ export module littleware.eventTrack.toDoApp {
             );
 
         // inject homepage and router into view manager
-        var app = littleApp.ViewManager.getFactory().create("app", config.container, homePage, router);
+        var app = littleApp.ViewManager.getFactory().create("littleToDo", config.container, homePage, router);
 
         // create a couple root ToDo's if none exist
         var todoMgr = toDo.getToDoManager();

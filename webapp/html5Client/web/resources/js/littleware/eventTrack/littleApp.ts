@@ -402,7 +402,7 @@ export module littleware.eventTrack.littleApp {
                         // TODO - load template from somewhere
                         var index = mgr.routeIndex;
                         index.sort();
-                        var content = "<ul class='pure-menu pure-menu-open'>\n";
+                        var content = "<ul class='little-menu pure-menu pure-menu-open'>\n";
                         for (var i = 0; i < index.length; ++i) {
                             content += "<li><a class='little-route' href='" + index[i] + "'>" + index[i] + "</a></li>";
                         }

@@ -10,12 +10,27 @@ div {
 
 * { box-sizing:border-box }
 
+ul.little-menu {
+    padding: 0px;
+}
+
+
+ul.little-menu li {
+    background-color: #eee;
+    padding: 5px;
+    margin: 1px;
+    list-style-type: none;
+}
+
+.little-panel {
+    padding: 5px;
+}
+
 /* width-sensitive panel width by media query */
 @media only screen and ( min-width: 1101px ) {
                 
     .little-panel {
         width: 25%;
-        padding: 5px;
     }
 }
 

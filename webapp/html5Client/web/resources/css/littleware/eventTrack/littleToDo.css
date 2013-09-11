@@ -4,7 +4,7 @@ a.little-route {
 
 a.little-route.pure-button {
     text-align: left;
-    width: 250px; 
+    min-width: 200px; 
 }
             
 div.panel-content {
@@ -24,10 +24,6 @@ h2 {
     font-weight: normal;
 }
             
-ul.little-menu {
-    padding: 0px;
-}
-
 a.little-tools.pure-button {
     background-color: inherit;
 }
@@ -37,12 +33,6 @@ ul.little-toolbox.pure-menu {
 }
 
             
-ul.little-menu li {
-    background-color: #eee;
-    padding: 5px;
-    margin: 1px;
-    list-style-type: none;
-}
 
 /*
 ul.little-menu li a {

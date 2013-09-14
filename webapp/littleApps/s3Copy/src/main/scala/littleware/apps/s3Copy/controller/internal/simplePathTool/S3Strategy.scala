@@ -184,6 +184,7 @@ class S3Strategy ( val path:java.net.URI,
         val request = new s3.model.PutObjectRequest( s3Bucket, s3Path, gzipTemp )
         val meta = new s3.model.ObjectMetadata()
         meta.setContentEncoding( "gzip" )
+        meta.setContentType( mimeMap.getContentType( source ) )
         request.setMetadata( meta )
         s3Client.putObject(request)
         ls( path ).map( _.asInstanceOf[model.ObjectSummary])

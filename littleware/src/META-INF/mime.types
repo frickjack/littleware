@@ -11,9 +11,9 @@ application/vnd.ms-excel xls
 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet xlsx
 application/xml xml
 image/png png
-image/jpeg jpg jpeg
+image/jpeg jpg jpegcd 
 image/svg+xml svg
-text/cache-manifest manifest
+text/cache-manifest manifest appcache
 text/css css
 text/csv csv
 text/html html

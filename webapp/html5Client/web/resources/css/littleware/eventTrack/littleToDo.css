@@ -4,7 +4,7 @@ a.little-route {
 
 a.little-route.pure-button {
     text-align: left;
-    min-width: 200px; 
+    min-width: 50%; 
 }
             
 div.panel-content {
@@ -32,7 +32,11 @@ ul.little-toolbox.pure-menu {
     padding: 0 0 0 0px;
 }
 
-            
+
+/** for fat fingers ... */
+ul.little-menu li input[type=checkbox] {
+    margin:5px;
+}
 
 /*
 ul.little-menu li a {

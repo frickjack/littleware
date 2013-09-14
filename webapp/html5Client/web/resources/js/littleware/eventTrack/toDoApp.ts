@@ -306,7 +306,10 @@ export module littleware.eventTrack.toDoApp {
 
         // router
         var router:Y.Router = new Y.Router(
-            { root:  config.root }
+            {
+                html5: false,  // force client-side route handling
+                root: config.root
+            }
             );
 
         // inject homepage and router into view manager

@@ -9,15 +9,11 @@
     </publications>
     
     <dependencies>        
-        <!-- 
-           glassfish is not happy if we leave littleAsset out due to JSF annotations etc. in littleWeb ..., 
-           jetty doesn't care ...
-           -->                
       <dependency org="littleware" name="littleWeb" rev="2.5.+" 
                 conf="compile->compile;client->client" 
                 />
       <dependency org="littleware" name="littleAsset" rev="2.5.+" 
-            conf="client->with_server" />
+            conf="client->client" />
                 
       <dependency org="littleware" name="littleId" rev="latest.integration"
                 conf="compile->compile;client->client"
@@ -25,20 +21,6 @@
                 
      <dependency org="org.ebaysf.web" name="cors-filter" rev="1.0.0" conf="*->master" />
                 
-      <!-- Jetty does not include CDI by default 
-      <dependency org="javax.inject" name="javax.inject" rev="1" conf="ee_client->*" />
-      -->
-      <!-- Tomcat does not include JSTL 
-      <dependency org="javax.servlet.jsp.jstl" name="jstl-api" rev="1.2" conf="ee_client->*">
-          <artifact name="jstl-api" type="jar" />
-      </dependency>
-      
-      <dependency org="org.glassfish.web" name="jstl-impl" rev="1.2" >
-          <artifact name="jstl-impl" type="jar" />
-      </dependency>
-      -->
-      
-      <dependency org="junit" name="junit" rev="3.8.+" conf="test->default" />
       
       <!-- 
          Want to use Jetty's GzipFilter, but freakin' thing has hooks into core
@@ -49,10 +31,6 @@
      </dependency>
       -->
       
-                <!--
-     <dependency org="com.sun.facelets" name="jsf-facelets" rev="1.1.14" conf="ee_client->*" />
-     <dependency org="org.apache.myfaces" name="myfaces" rev="10" conf="ee_client->*" />
-                  -->
     </dependencies>
 
 </ivy-module>

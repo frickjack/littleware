@@ -24,6 +24,7 @@ node_modules/
 /cachedir/
 ^scratch
 /ivy/
+/target/
 ^ivy/littleTestHome/
 ^ivy/ivyRepo/
 /ydoc/
@@ -38,6 +39,8 @@ ivy/ivy.jar
 .orig$
 .\#$
 .class$
+.jar$
+.war$
 /manifests/
 EclipseWorkspace/\.metadata/
 EclipseWorkspace/\.project/

@@ -78,8 +78,8 @@
             
         <chain name="default" returnFirst="true">
             <resolver ref="local"/>
-            <resolver ref="localMaven"/>
             <resolver ref="central"/>
+            <resolver ref="localMaven"/> <!-- for self-archived artifacts -->
             
             <!-- ... these artifacts now in central ...
             <resolver ref="java.net"/>

@@ -297,7 +297,8 @@ export module littleware.eventTrack.toDoApp {
         // home page info
         var config = config || new Config();
         var versionInfo = Y.Node.create(
-            "<div id='app-info'><span class='app-title'>Little To Do</span><br/>Version 0.0 2013/09/10<br/>" +
+            "<div id='app-info'><span class='app-title'>Little To Do</span><br/>" +
+            "<a href='http://blog.frickjack.com/2013/09/little-to-do.html' target='_blank'>Version 0.0.2013.09.14</a><br/ > " +
             "<img src='/littleware_apps/resources/img/checkbox.svg' width='25' alt='checkbox icon' />" +
             "</div>"
             );

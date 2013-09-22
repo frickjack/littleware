@@ -8,6 +8,8 @@
 
 package littleware.apps.fishRunner;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -17,12 +19,17 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.glassfish.embeddable.Deployer;
@@ -32,13 +39,14 @@ import org.glassfish.embeddable.GlassFishException;
 /**
  * Download a .war from S3 and deploy to an embedded glassfish server
  */
-public class FishApp implements Runnable
+public class FishApp implements Callable
 {
     private static final Logger log = Logger.getLogger( FishApp.class.getName() );
     
     private final Provider<GlassFish> fishFactory;
     private final AmazonS3 s3;
     private final Config config;
+
     
     /**
      * Little POJO for FishApp configuration props
@@ -64,7 +72,7 @@ public class FishApp implements Runnable
      * Exception on failure to parse user-supplied configuration or
      * retrieve user-specified resource - that kind of thing.
      */
-    public static class ConfigException extends RuntimeException {
+    public static class ConfigException extends Exception {
         public ConfigException( String message ) { super( message ); }
         public ConfigException( String message, Throwable cause ) { super( message, cause ); }
     }
@@ -130,7 +138,7 @@ public class FishApp implements Runnable
      * Download and deploy the war specified in this.config
      */
     @Override
-    public void run() {
+    public GlassFish call() throws ConfigException {
         final File warFile = downloadHelper( config.WAR_URI, new File( "deploy.war" ) );
         
         if ( null != config.LOGIN_URI ) { // download and register login.conf
@@ -138,13 +146,14 @@ public class FishApp implements Runnable
             try {
                 System.setProperty( "java.security.auth.login.config", confFile.getCanonicalPath() );
             } catch (IOException ex) {
-                throw new RuntimeException( "Failed to resolve canonical path for login config: " + confFile, ex );
+                throw new ConfigException( "Failed to resolve canonical path for login config: " + confFile, ex );
             }
         }
         try { // deploy war file
             final GlassFish gf = fishFactory.get();
             final Deployer deployer = gf.getDeployer();
             deployer.deploy( warFile, "--force=true", "--contextroot", config.CONTEXT_ROOT  );
+            return gf;
         } catch (GlassFishException ex) {
             throw new RuntimeException( "Failed war deployment", ex);
         }
@@ -154,10 +163,21 @@ public class FishApp implements Runnable
      * Command-line/environment-variable configuration flags
      */
     public static enum Flag {
-        S3_KEY, S3_SECRET,
+        S3_KEY, S3_SECRET, S3_CREDSFILE,
         DATABASE_URL, WAR_URI, CONTEXT_ROOT, LOGIN_URI;
     }
 
+
+    private static final String instructions = 
+            "\nfishRunner key value key value ...\nOptions pulled first from system environment,\nthen overriden by command line values:" +
+            "\nS3_KEY" +
+            "\nS3_SECRET" +
+            "\nS3_CREDSFILE  - either both S3_KEY and S3_SECRET or S3_CREDSFILE must be defined" +
+            "\nWAR_URI - required - either an s3:// URI otherwise treated as local file path" +
+            "\nLOGIN_URI - optional - JAAS login.conf location either and s3:// URI otherwise treated as local file path" +
+            "\nCONTEXT_ROOT - required - glassfish deploy context root for war" +
+            "\nDATABASE_URL - required - ex: postgres://user:password@host:port/database\n";
+    
     /**
      * Pulls in configuration from command line or falls back to environment variables
      * of the same name. 
@@ -177,7 +197,7 @@ public class FishApp implements Runnable
     public static void main( String[] args )
     {
         final Map<String,String> configMap = new HashMap<>();
-        
+
         for( Flag key : Flag.values() ) {  // scan environment
             configMap.put( key.toString(), System.getenv(key.toString()));
         }
@@ -193,15 +213,39 @@ public class FishApp implements Runnable
                 }
             }
         }
-        
-        for( Flag key : Flag.values() ) { // sanity check
-            // LOGIN_URI may be null
-            if ( (! key.equals( Flag.LOGIN_URI )) && (null == configMap.get(key.toString())) ) {
-                throw new RuntimeException( "Parameter must be specified in environment or on command line: " + key );
-            }
+
+        log.log( Level.INFO, "Setting up runtime environment: " );
+        for( String key : configMap.keySet() ) {
+            log.log( Level.INFO, key + "=" + configMap.get(key) );
         }
         
         try {
+        
+            // sanity check
+            for( Flag key : EnumSet.of( Flag.CONTEXT_ROOT, Flag.DATABASE_URL, Flag.WAR_URI ) ) { 
+                // LOGIN_URI may be null
+                if ( null == configMap.get(key.toString() ) ) {
+                    throw new ConfigException( "Parameter must be specified in environment or on command line: " + key );
+                }
+            }
+
+            final Set<Flag> s3Flags = EnumSet.of( Flag.S3_CREDSFILE, Flag.S3_KEY, Flag.S3_SECRET );
+            String s3Key = configMap.get( Flag.S3_KEY.toString() );
+            String s3Secret = configMap.get( Flag.S3_SECRET.toString() );
+            String s3CredsFile = configMap.get( Flag.S3_CREDSFILE.toString() );
+
+            if ( (null == s3Key) || (null == s3Secret) ) {
+                if ( null == s3CredsFile ) {
+                    throw new ConfigException( "Must specify (S3_KEY,S3_SECRET) or S3_CREDSFILE" );
+                }
+                final AWSCredentials creds = new PropertiesCredentials( new java.io.File( s3CredsFile ) );
+                s3Key = creds.getAWSAccessKeyId();
+                s3Secret = creds.getAWSSecretKey();
+            } else if ( null != s3CredsFile ) {
+                throw new ConfigException( "Ambiguous S3 credentials - both (S3_KEY,S3_SECRET) and S3_CREDSFILE defined");
+            }
+        
+
             // finally - launch the app
             final Config config = new Config( 
                     configMap.get( Flag.WAR_URI.toString() ), 
@@ -211,19 +255,31 @@ public class FishApp implements Runnable
 
             final Injector ij = Guice.createInjector( 
                     new AppModule( config ),
-                    new FishModule( configMap.get( Flag.S3_KEY.toString() ), 
-                        configMap.get( Flag.S3_SECRET.toString() ), 
+                    new FishModule( s3Key, s3Secret,
                         new java.net.URI( configMap.get( Flag.DATABASE_URL.toString() ) )
                         )
                     );
             
             final FishApp app = ij.getInstance( FishApp.class );
-            app.run();
+            final GlassFish gf = app.call();
             
-        } catch (URISyntaxException ex) {
+            System.out.println( "Enter 'quit' to shutdown server:\n> " );
+            final BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );
+            while( true ) {
+                final String input = reader.readLine();
+                System.out.println( "\n> " );
+                if ( input.equals( "quit" ) ) {
+                    log.log( Level.INFO, "Shutting down ..." );
+                    gf.stop();
+                    Thread.sleep( 5000 );
+                    System.exit(0);
+                }
+            }
+        } catch (Exception ex) {
             log.log(Level.SEVERE, 
-                    "Failed to parse some URI - DATABASE_URL: " + configMap.get( Flag.DATABASE_URL.toString() ),
+                    "Failed to launch webapp",
                     ex);
+            log.log( Level.INFO, instructions );
             System.exit(1);
         }
     }

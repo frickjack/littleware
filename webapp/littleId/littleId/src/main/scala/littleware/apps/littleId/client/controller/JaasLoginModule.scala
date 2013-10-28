@@ -10,13 +10,14 @@
 package littleware.apps.littleId.client.controller
 
 import com.google.inject.Inject
-import java.net.URL
 import java.util.logging.Level
 import javax.security.auth
 import javax.security.auth.callback
+import javax.security.auth.login.FailedLoginException
 import javax.security.auth.spi.LoginModule
 import littleware.apps.littleId
 import java.util.logging.{Level,Logger}
+import org.joda.{time => jtime}
 import scala.collection.JavaConversions._
 
 object JaasLoginModule {
@@ -113,18 +114,22 @@ class JaasLoginModule @Inject() ( private var tool:VerifyTool ) extends LoginMod
           passwordCallback
         ))
 
-      val secret = new String(passwordCallback.getPassword());
-      tool.verify( secret ).map( creds => {
-        // decorate the authenticated Subject
-
-        //subject.getPrincipals().add(
-        //user);
-        //subject.getPrivateCredentials().add(helper);
-
-        log.log(Level.INFO, "User authenticated: " + creds.name )
-        subject.getPrincipals().add( creds )
-        true
-      } ).isDefined
+      val expectedName = nameCallback.getName()
+      val secret = new String(passwordCallback.getPassword())
+      tool.verify( secret ).filter( creds => {
+        //
+        // verify the secret is for the user trying to login,
+        // and that the secret is less than 24 hrs old
+        // 
+        ((creds.email == expectedName) ||
+         (creds.openId.toString == expectedName)
+        ) && (creds.dateCreated.isAfter( jtime.DateTime.now.minusDays(1) ))
+      } ).map( (creds) => {
+          // decorate the authenticated Subject
+          log.log(Level.INFO, "User authenticated: " + creds.name )
+          subject.getPrincipals().add( creds )
+          true
+      } ).getOrElse( { throw new FailedLoginException() } )
     }).getOrElse( {
         log.log( Level.WARNING, "Subject or Handler not initialized for JaasLoginModule")
         false

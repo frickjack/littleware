@@ -31,6 +31,7 @@ class AuthRequestAdapter @inject.Inject() ( requestFactory:inject.Provider[AuthR
     js.addProperty( "id", src.id.toString )
     js.addProperty( "provider", src.openIdProvider.toString )
     js.addProperty( "dateTime", src.dateTime.toString() )
+    js.addProperty( "replyToURL", src.replyToURL.toString() )
     js
   }
 
@@ -41,6 +42,7 @@ class AuthRequestAdapter @inject.Inject() ( requestFactory:inject.Provider[AuthR
     requestFactory.get.id( UUIDFactory.parseUUID( js.get( "id" ).getAsString() )
       ).openIdProvider( common.model.OIdProvider.withName( js.get( "provider" ).getAsString() )
       ).dateTime( jtime.DateTime.parse( js.get( "dateTime" ).getAsString() ) 
+      ).replyToURL( new java.net.URL( js.get( "replyToURL" ).getAsString() )
       ).build()
   }
 

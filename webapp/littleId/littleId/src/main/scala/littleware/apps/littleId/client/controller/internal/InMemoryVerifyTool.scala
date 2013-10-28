@@ -29,7 +29,11 @@ class InMemoryVerifyTool @inject.Inject() (
   
   override def verify( secret:String ):Option[common.model.OIdUserCreds] = 
     Some( tokenFoundry.verifyToken( secret ) ).filter( _.isSet ).map( 
-      optJs => gsonTool.fromJson( optJs.get, classOf[common.model.OIdUserCreds] ) 
-      )
+      optJs => {
+        val js:gson.JsonObject = optJs.get
+        log.log( Level.FINE, "Attempting to parse creds: {0}", js )
+        gsonTool.fromJson( js, classOf[common.model.OIdUserCreds] ) 
+      }
+   )
   
 }

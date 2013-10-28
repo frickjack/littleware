@@ -28,7 +28,9 @@ object LittleModuleFactory {
     authRequestAdapter:gsonAdapter.AuthRequestAdapter,
     authStateAdapter:gsonAdapter.AuthStateAdapter,
     dataForProviderAdapter:gsonAdapter.DataForProviderAdapter,
-    oidCredsAdapter:gsonAdapter.OIdCredsAdapter
+    oidCredsAdapter:gsonAdapter.OIdCredsAdapter,
+    // tool factory depends on properly initialized gsonTool, so just inject provider
+    toolFactory:inject.Provider[client.controller.VerifyTool]
   ) extends LittleModule.LifecycleCallback {
     import server.model._
     Seq( classOf[AuthRequest] -> authRequestAdapter,
@@ -39,9 +41,13 @@ object LittleModuleFactory {
             case (clazz,adapter) => gsonFactory.registerTypeAdapter( clazz, adapter )
           })
     
-    def startUp() = {}
+    def startUp():Unit = {
+      client.controller.JaasLoginModule.publishTool(toolFactory.get)
+    }
 
-    def shutDown() = {}
+    def shutDown():Unit = {
+      
+    }
 
   }
 

@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html>  
+    <head>
+        <title>openId auth popup</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width" />
+
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.3.0/pure-min.css">
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.13.0/build/cssfonts/cssfonts.css" type="text/css" />
+        
+        <style id="yuiInsertBeforeMe" type="text/css"></style>
+
+        <link rel="stylesheet" href="/littleware_apps/resources/css/littleware/eventTrack/panelView.css" type="text/css" />
+        <link rel="stylesheet" href="/littleware_apps/resources/css/littleware/eventTrack/littleToDo.css" type="text/css" />
+
+        <style>
+
+        </style>        
+    </head>
+    <body>
+
+        <div id="app">
+            <div class="pure-g">
+                <div class="pure-u-1">
+                    <ul class="little-menu">
+                        <li>
+                            <a href="#" data-provider="yahoo" class="little-idprovider pure-button">
+                                <img src="../resources/img/yahoo.png" alt="Yahoo openId provider" /> 
+                                </a>
+                        </li>
+                        <li>
+                            <a href="#" data-provider="google" class="little-idprovider pure-button">
+                                <img src="../resources/img/google.png" alt="Google openId provider" /> 
+                                </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ................................................ -->
+
+        <script src="http://yui.yahooapis.com/3.13.0/build/yui/yui-min.js"></script> 
+        <script src="/littleware_apps/resources/js/littleware/littleYUI.js"></script>
+
+        <script>
+
+            littleware.littleYUI.bootstrap( {/*  classNamePrefix: 'pure'  */ } ).use( 
+                'transition', 'littleware-littleId', 'littleware-littleUtil',
+                function (Y) {
+                    var util = Y.littleware.littleUtil;
+                    var log = new util.Logger("openIdPop.html");
+                    var littleId = Y.littleware.auth.littleId;
+
+                    littleId.helperFactory.get().then(
+                        function (loginHelper) {
+
+                            // handle provider-selection event
+                            Y.one("div#app").delegate('click',
+                                    function (e) {
+                                        e.preventDefault();
+                                        var providerName = e.currentTarget.getAttribute('data-provider');
+                                        log.log("Authenticating with provider: " + providerName);
+                                        loginHelper.prepareAuthRequest(providerName).then(
+                                            function (request) {
+                                                log.log("Check 1");
+                                                var formBlock = loginHelper.buildProviderForm(request);
+                                                Y.one("body").appendChild(formBlock);
+                                                //log.log("Added form to body: " + formBlock.getHTML());
+                                                formBlock.one( "form" ).getDOMNode().submit();  // exit to openId provider!
+                                            },
+                                            function (err) {
+                                                alert("Error collecting auth data");
+                                                log.log("Auth prep error");
+                                                console.dir(err);
+                                            }
+                                        );
+                                    }, "a.little-idprovider"
+                             );
+
+                            // handle auth data present in the URL paremeter if any ...
+                            if ( littleId.CallbackData.isCallbackURL( window.location.href ) ) {
+                                var callbackData = littleId.CallbackData.buildFromURL(window.location.href);
+                                var message = "";
+                                if (callbackData.authSuccess) {
+                                    message = "Authenticated as " + callbackData.userCreds.email +
+                                        ", secret: " + callbackData.userCreds.secret;
+                                } else {
+                                    message = "Not authenticated";
+                                }
+
+                                // little bit of feedback
+                                Y.one("div#app").setHTML("<p>" + message + "</p>");
+                                
+                                // if running as a popup - than call out to parent window, and close this popup
+                                if (window.opener) {
+                                    window.opener.littleware.auth.littleId.LoginProcess.handleProviderCallback( callbackData );
+                                    window.close();
+                                }
+                            }
+                        }
+                    );
+                }
+            );
+
+        </script>
+
+    </body>
+</html>

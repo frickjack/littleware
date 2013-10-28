@@ -41,6 +41,7 @@ export declare module Y {
             function delegate(type: string, fn: Function, el: Node, filter: string, context: any, args: any): EventHandle;
             function delegate(type: string, fn: Function, el: Node, filter: Function, context: any, args: any): EventHandle;
             function instanceOf(o: any, type: any): any;
+            function io(url: string, config: any): any;
             function guid(pre: string): string;
             function namespace(namespace: string): any;
             function on(type: string, fn: Function, context?: any, ...arg: any[]): EventHandle;

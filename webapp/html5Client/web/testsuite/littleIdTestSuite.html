@@ -15,79 +15,116 @@ http://www.gnu.org/licenses/lgpl-2.1.html
     <head>
         <title>littleware js Test Page</title>
 
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssreset/cssreset.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssbase/cssbase.css"  type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssfonts/cssfonts.css" type="text/css" />
-        <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssgrids/cssgrids.css" type="text/css" /> 
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.13.0/build/cssreset/cssreset.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.13.0/build/cssbase/cssbase.css"  type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.13.0/build/cssfonts/cssfonts.css" type="text/css" />
+        <link rel="stylesheet" href="http://yui.yahooapis.com/3.13.0/build/cssgrids/cssgrids.css" type="text/css" /> 
 
         <style id="yuiInsertBeforeMe" type="text/css">
-            body {
-                padding: 10px;
+
+            * {
+                box-sizing:border-box;
             }
+            
+            body {
+                margin: auto; /* center in viewport */
+                /* width: 960px; */
+                width:100%;
+            }   
+            
+            div.content-box {
+                padding:10px;
+            }
+
         </style>
-        <link rel="stylesheet" type="text/css" href="../../css/littleware/littleId.css" />
+
+        <link rel="stylesheet" type="text/css" href="../resources/css/littleware/littleId.css" />
     </head>
     <body class="yui3-skin-sam">
+    <div id='root'>
+        <div class="yui3-g">
+            <div class="yui3-u-1 content-box">
+
         <div id="intro">
             <h3>littleware js Test Page</h3>
         </div>
 
         <div id="pageStatus">
             <p>
-                <img alt="waiting" src="../../img/wait.gif" /> Running tests ...
+                <img alt="waiting" src="../resources/img/wait.gif" /> Running tests ...
             </p>
         </div>
         <div id="littleIdUI" class="littleId_popup"></div>
 
-        <script type="text/javascript"  src="http://yui.yahooapis.com/3.5.1/build/yui/yui-debug.js"
-        charset="utf-8"></script>
-        <script type="text/javascript"
-                src="./littleYUI.js"
-        charset="utf-8"></script>
-        <script language="javascript" type="text/javascript">
-            // <![CDATA[            
-            littleware.littleYUI.bootstrap().use( 'anim', 'console', 'node', 'test', 'littleware-littleUtil', 'littleware-littleId', function(Y) {
-                var logSrc = "testSuite.html";
-                littleware.littleId = Y.littleware.littleId;
-                littleware.littleId.LoginProcess.set( 'replyMethod', 'GET' );
+        <script src="http://yui.yahooapis.com/3.13.0/build/yui/yui-debug.js"></script>
+        <script src="../resources/js/littleware/littleYUI.js"></script>
 
-                // ex: http://localhost:8080/openId/resources/js/littleware/testSuite.html?authSuccess=true&openId=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3DAItOawm-Y4hQri5D3YqT9SZvewbiawLVcBf-X5o&email=reuben.pasquini512%40gmail.com&verifySecret=9bcf160b-cfe6-4833-8adc-13ffd7117a8d
-                var authMatch = /authSuccess=(\w+)/.exec( window.location.href )
-                var emailMatch = /email=([^&]+)/.exec( window.location.href )
-                var idMatch = /openId=([^&]+)/.exec( window.location.href )
-                var secretMatch = /verifySecret=([^&]+)/.exec( window.location.href )
+        <script>
+            littleware.littleYUI.bootstrap().use(
+                'littleware-auth-authService', 'littleware-littleId', 'test',
+                function (Y) {
+                    var logSrc = "testSuite.html";
+                    littleware.littleId = Y.littleware.littleId;
+                    littleware.littleId.LoginProcess.set( 'replyMethod', 'GET' );
 
-                if( authMatch && emailMatch && idMatch && secretMatch ) {
-                    if ( Y.Lang.isValue( window.opener )
-                        && Y.Lang.isValue( window.parent.littleware )
-                        && Y.Lang.isValue( window.parent.littleware.littleId )
-                        && Y.Lang.isValue( window.parent.littleware.littleId.LoginProcess )
-                ) {
-                        //alert( "This looks like a callback ..." );
-                        var loginData = Y.littleware.littleId.CalbackData.buildFromHref( window.location.href )
-                        window.opener.littleware.littleId.LoginProcess.handleProviderCallback( loginData );
-                        window.close();
-                    } else {
-                        alert( "URL looks like openID response, but window parent does not look like a popup launcher");
+                    Y.Test.Runner.subscribe(Y.Test.Runner.COMPLETE_EVENT, 
+                        function () {
+                            Y.one("#pageStatus").setHTML("Test run complete");
+                        }
+                        );
+                    if (typeof (window.callPhantom) != 'undefined') {
+                        // phantomjs environment!
+                        console.log("Phantomjs detected!");
+                        Y.Test.Runner.subscribe(Y.Test.Runner.COMPLETE_EVENT, window.callPhantom);
                     }
+
+                    if (false) { // old code - remove later when new code isr eady ...
+                        // ex: http://localhost:8080/openId/resources/js/littleware/testSuite.html?authSuccess=true&openId=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3DAItOawm-Y4hQri5D3YqT9SZvewbiawLVcBf-X5o&email=reuben.pasquini512%40gmail.com&verifySecret=9bcf160b-cfe6-4833-8adc-13ffd7117a8d
+                        var authMatch = /authSuccess=(\w+)/.exec(window.location.href)
+                        var emailMatch = /email=([^&]+)/.exec(window.location.href)
+                        var idMatch = /openId=([^&]+)/.exec(window.location.href)
+                        var secretMatch = /verifySecret=([^&]+)/.exec(window.location.href)
+
+                        if (authMatch && emailMatch && idMatch && secretMatch) {
+                            if (Y.Lang.isValue(window.opener)
+                                && Y.Lang.isValue(window.parent.littleware)
+                                && Y.Lang.isValue(window.parent.littleware.littleId)
+                                && Y.Lang.isValue(window.parent.littleware.littleId.LoginProcess)
+                        ) {
+                                //alert( "This looks like a callback ..." );
+                                var loginData = Y.littleware.littleId.CalbackData.buildFromHref(window.location.href)
+                                window.opener.littleware.littleId.LoginProcess.handleProviderCallback(loginData);
+                                window.close();
+                            } else {
+                                alert("URL looks like openID response, but window parent does not look like a popup launcher");
+                            }
+                        }
+                        new Y.Console({ newestOnTop: false }).render();
+                    }
+
+                    Y.log( "We're up and running!", "info", logSrc );
+                    var suite = new Y.Test.Suite( "littleware Test Suite" );
+                    Y.log( "Test suite defined ok ..." );
+                    //suite.add( Y.littleware.littleUtil.buildTestSuite() );
+                    //suite.add( Y.littleware.littleId.buildTestSuite() );
+                    suite.add(Y.littleware.auth.authService.buildTestSuite());
+                    Y.Test.Runner.add( suite );
+                    Y.Test.Runner.run();
+
+                    /*
+                    var statusNode = Y.one( '#pageStatus' );
+                    statusNode.get( 'children' ).remove();
+                    statusNode.appendChild( Y.Node.create( "<p>Test Complete</p>" ) );
+                    var login = Y.littleware.littleId.LoginProcess
+                    login.after('loginStateChange', function (ev) {
+                        Y.log("Login state changed! : " + login.get('loginState'))
+                    });
+                    */
+
                 }
-                new Y.Console( { newestOnTop:false }).render();
-                Y.log( "We're up and running!", "info", logSrc );
-                var suite = new Y.Test.Suite( "littleware Test Suite" );
-                Y.log( "Test suite defined ok ..." );
-                suite.add( Y.littleware.littleUtil.buildTestSuite() );
-                suite.add( Y.littleware.littleId.buildTestSuite() );
-                Y.Test.Runner.add( suite );
-                Y.Test.Runner.run();
-                var statusNode = Y.one( '#pageStatus' );
-                statusNode.get( 'children' ).remove();
-                statusNode.appendChild( Y.Node.create( "<p>Test Complete</p>" ) );
-                var login = Y.littleware.littleId.LoginProcess
-                login.after( 'loginStateChange', function(ev) {
-                    Y.log( "Login state changed! : " + login.get( 'loginState' ) )
-                })
-            });
+            );
             // ]]>
         </script>
+    </div></div></div>
     </body>
 </html>

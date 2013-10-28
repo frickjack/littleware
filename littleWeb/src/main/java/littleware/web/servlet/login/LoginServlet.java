@@ -10,6 +10,7 @@ package littleware.web.servlet.login;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.auth.login.LoginException;
@@ -98,8 +99,8 @@ public class LoginServlet implements LittleServlet {
         if ( sessionMgr.logout( initSession ) ) {
           zapSessionAfterLogout(request);
         }
-        helper.write( response, respBuilder.build() );
-        return;  // logout is done
+        // old session expired now - setup a new id
+        activeSession = sessionMgr.loadSession( UUID.randomUUID() );
     }
     
     //

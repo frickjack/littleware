@@ -84,6 +84,7 @@ public class SimpleSessionMgr implements SessionMgr {
       final LoginCreds lcreds = (LoginCreds) creds;
       js.addProperty("authToken", lcreds.authToken);
       js.addProperty("authExpires", lcreds.expiration.toString());
+      
     }
     return js;
   }
@@ -92,8 +93,10 @@ public class SimpleSessionMgr implements SessionMgr {
   public SessionCreds fromJson(final JsonObject js) {
     final UUID id = UUID.fromString(js.get("id").getAsString());
     if (js.has("authToken")) {
-      return new LoginCreds(id, js.get("authToken").getAsString(),
-              DateTime.parse(js.get("authExpires").getAsString()));
+      return new LoginCreds(
+              id, js.get("authToken").getAsString(),
+              DateTime.parse(js.get("authExpires").getAsString())
+              );
     }
     return new SessionCreds(id);
   }
@@ -131,8 +134,21 @@ public class SimpleSessionMgr implements SessionMgr {
   
   
   @Override
-   public JsonObject addSessionCookie( HttpServletRequest req, HttpServletResponse resp, SessionInfo activeSession ) {
+   public JsonObject addSessionCookie( 
+          HttpServletRequest req, 
+          HttpServletResponse resp, 
+          SessionInfo activeSession 
+          ) {
     final JsonObject js = toJson( activeSession.getCredentials() );
+    // add user property for javascript client to latch onto
+    final String user;
+    if ( activeSession.getActiveUser().isSet() ) {
+        user = activeSession.getActiveUser().get().getName();
+    } else {
+        user = "unknown";
+    }
+    js.addProperty( "user", user );
+    
     final String json = gsonTool.toJson( js );
     final Cookie cookie = new Cookie(littleCookieName, json );
     cookie.setMaxAge(60 * 60 * 24);  // 1 day

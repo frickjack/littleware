@@ -22,18 +22,8 @@ public class FishFactory implements Provider<GlassFish> {
     private static final Logger log = Logger.getLogger(FishFactory.class.getName());
     private GlassFish glassfish;
     private final URI dbURL;
+    private final GlassFishProperties glassfishProperties;
 
-    {
-        try {
-            final GlassFishProperties glassfishProperties = new GlassFishProperties();
-            glassfishProperties.setPort("http-listener", 8080);
-            // glassfishProperties.setPort("https-listener", 8181);
-
-            glassfish = GlassFishRuntime.bootstrap().newGlassFish(glassfishProperties);
-        } catch (GlassFishException ex) {
-            throw new RuntimeException("glassfish startup failed", ex);
-        }
-    }
 
     private void setupDbConnection() throws GlassFishException {
         // setup database connection pool
@@ -74,10 +64,17 @@ public class FishFactory implements Provider<GlassFish> {
     }
 
     @Inject
-    public FishFactory(@Named("DATABASE_URL") URI dbURL) {
+    public FishFactory( @Named("DATABASE_URL") URI dbURL, GlassFishProperties glassfishProperties ) {
         this.dbURL = dbURL;
+        this.glassfishProperties = glassfishProperties;
+        try {
+            glassfish = GlassFishRuntime.bootstrap().newGlassFish(glassfishProperties);
+        } catch (GlassFishException ex) {
+            throw new RuntimeException("glassfish startup failed", ex);
+        }
     }
 
+    @Override
     public GlassFish get() {
         try {
             if (!(glassfish.getStatus().equals(GlassFish.Status.STARTING)

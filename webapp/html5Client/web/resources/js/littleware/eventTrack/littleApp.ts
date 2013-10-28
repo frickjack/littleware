@@ -426,9 +426,10 @@ export module littleware.eventTrack.littleApp {
                     }
 
                     router.route("*", (req) => {
-                        var panelIds = this.lookupPanelsForRoute(req.path);
+                        var path = router.removeRoot( req.path );
+                        var panelIds = this.lookupPanelsForRoute( router.removeRoot( path ) );
                         if ((typeof (localStorage) != 'undefined') && (panelIds.length > 0)) {
-                            localStorage.setItem("littleApp/route/" + this.name, req.path);
+                            localStorage.setItem("littleApp/route/" + this.name, path);
                         }
                         this.routePanelIds = panelIds;
                         this.scheduleRender();
@@ -550,7 +551,7 @@ export module littleware.eventTrack.littleApp {
                             var numInvisiblePanels = Math.max( this.routePanelIds.length - numToRender, 0 );
                             log.log("Rendering panels: " + newPanelIds.join(", "));
 
-                            var routerPath = this.router.getPath();
+                            var routerPath = this.router.removeRoot( this.router.getPath() );
                             //
                             // first - go through and remove children (panels for last route), 
                             // so we don't accidentally try to give a DOM node 2 parents ...
@@ -690,7 +691,11 @@ export module littleware.eventTrack.littleApp {
                                 
                                 e.preventDefault();
 
-                                if ( (router.getPath() != path) && router.hasRoute(path) ) {    
+                                var currentPath = router.removeRoot(router.getPath());
+                                var newRoute = router.get("root") + "/" + path;
+                                log.log("Comparing " + currentPath + " ?= " + path + ", has route?: " + router.hasRoute( newRoute ) );
+                                if ((currentPath != path) && router.hasRoute(newRoute)) {    
+                                    log.log("Routing to path: " + path);
                                     router.save(path);
                                 }
                             }, 'a.little-route'

@@ -8,17 +8,17 @@
 
 
 /**
- * littleware.littleId module,
+ * littleware.auth.littleId module,
  * see http://yuiblog.com/blog/2007/06/12/module-pattern/
  * YUI doc comments: http://developer.yahoo.com/yui/yuidoc/
  * YUI extension mechanism: http://developer.yahoo.com/yui/3/yui/#yuiadd
  *
- * @module littleware.littleId
- * @namespace littleware.littleId
+ * @module littleware.auth.littleId
+ * @namespace littleware.auth.littleId
  */
 YUI.add('littleware-littleId', function(Y) {
-    Y.namespace('littleware');
-    Y.littleware.littleId = (function() {
+    Y.namespace('littleware.auth');
+    Y.littleware.auth.littleId = (function() {
         function log( msg, level ) {
             if( Y.Lang.isUndefined( level ) ) {
                 level = 'info';
@@ -30,21 +30,22 @@ YUI.add('littleware-littleId', function(Y) {
          * Class manages an OpenID Login interaction
          *
          * @param config with attributes replyToURL and replyToMethod
-         *
-         * @class LoginProcess
+         * @param formTemplate
+         * @class LoginHelper
          * @constructor
          * @extends Base
          */
-        function LoginProcess(config) {
+        function LoginHelper(config,formTemplate) {
             // Invoke Base constructor, passing through arguments
-            LoginProcess.superclass.constructor.apply(this, config);
+            LoginHelper.superclass.constructor.apply(this, config);
+            this.formTemplate = formTemplate;
         }
 
-        LoginProcess.NAME = "LoginProcess"
-        LoginProcess.openIdURL = "http://beta.frickjack.com:8080/services/"
-        LoginProcess.STATES = [ "NotYetStarted", "Started", "CanceledByUser", "Waiting4Provider", "CredsReady", "FailedAuth"];
+        LoginHelper.NAME = "LoginHelper"
+        LoginHelper.openIdURL = "http://localhost:8080/littleware_services/"
+        LoginHelper.STATES = [ "NotYetStarted", "Started", "CanceledByUser", "Waiting4Provider", "CredsReady", "FailedAuth"];
 
-        LoginProcess.ATTRS = {
+        LoginHelper.ATTRS = {
             loginState: {
                 value:"NotYetStarted",
                 readOnly:true
@@ -68,8 +69,11 @@ YUI.add('littleware-littleId', function(Y) {
             }
         }
 
+        var util = Y.littleware.littleUtil; // shortcut
+
+
         // Define methods here, so NetBeans IDE navigator picks them up
-        var LoginProcessMethods = {
+        var LoginHelperMethods = {
             // Prototype methods for your new class
             /**
              * Move into the 'Started' state, and prompt the user to select a provider
@@ -86,7 +90,7 @@ YUI.add('littleware-littleId', function(Y) {
                     var state = this.get( 'loginState' )
 
                     if( (state == 'Started') || (state == 'Waiting4Provider') ) {
-                        throw new Error( "LoginProcess in invalid state for action: " + state)
+                        throw new Error( "LoginHelper in invalid state for action: " + state)
                     }
                 }
                 node.setStyle( "height", "0px" );
@@ -103,7 +107,7 @@ YUI.add('littleware-littleId', function(Y) {
                 }, closeLink
                 );
 
-                var yahooLink = Y.Node.create( "<a href='#'>Sign in with <br /> <img src='" + LoginProcess.openIdURL + "resources/img/yahoo.png' /></a>")
+                var yahooLink = Y.Node.create( "<a href='#'>Sign in with <br /> <img src='" + LoginHelper.openIdURL + "resources/img/yahoo.png' /></a>")
                 Y.on( 'click', function(ev) {
                     ev.preventDefault();
                     loginProcess.set( 'oidProvider', 'yahoo' )
@@ -112,7 +116,7 @@ YUI.add('littleware-littleId', function(Y) {
                 yahooLink
                 )
 
-                var googleLink = Y.Node.create( "<a href='#'>Sign in with <br /> <img src='" + LoginProcess.openIdURL + "resources/img/google.png' /></a>" )
+                var googleLink = Y.Node.create( "<a href='#'>Sign in with <br /> <img src='" + LoginHelper.openIdURL + "resources/img/google.png' /></a>" )
                 Y.on( 'click', function(ev) {
                     ev.preventDefault();
                     loginProcess.set( 'oidProvider', 'google' )
@@ -149,59 +153,83 @@ YUI.add('littleware-littleId', function(Y) {
                 );
                 myAnim.run();
             },
+
             /**
-             * Launch a popup window in which the user will authenticate
-             * with the OID provider.  Exposes this object in the global
-             * namespace at littleware.littleId.LoginProcess, so the
-             * popup-window window.parent callback can access it.
+             * Retrieve the endpoint information to post to an openId provider
+             * to carry out openId authentication via the littleId service.
+             *
+             * @method prepareAuthRequest
+             * @param provider currently littleId support yahoo and google
+             * @return {Y.Promise{RequestInfo}} promise that resolves with openId auth request
              */
-            authenticateWithProvider:function(){
-                var ui = Y.one( this.get( "uiDivSelector" ) + " div.littleId_popupBody" )
-                ui.get( 'children' ).remove();
-                ui.append( "<p>Contacting " + this.get( "oidProvider" ) + " in popup ... <img src='" +
-                    LoginProcess.openIdURL + "resources/img/wait.gif' alt='waiting' /></p>"
-                    );
-                //ui.append( "<iframe src='" + LoginProcess.openIdURL + "openId/services/authRequest/?provider=" + this.get( "oidProvider" ) + "'></iframe>" )
-                var openIdURL = LoginProcess.openIdURL + "openId/services/authRequest/?provider=" + this.get( "oidProvider" ) +
+            prepareAuthRequest:function( oidProvider ){
+                var openIdURL = LoginHelper.openIdURL + "openId/services/authRequest/?provider=" + oidProvider +
                 "&replyMethod=" + this.get( 'replyMethod' );
-                var replyTo = this.get( 'replyToURL' );
+                var replyTo = window.location.href;
                 if ( Y.Lang.isValue( replyTo ) ) {
                     openIdURL = openIdURL + "&replyTo=" + escape( replyTo )
                 }
-                window.open( openIdURL,
-                    'openid_popup', 'width=790,height=580'
-                    );
-                this._set( 'loginState', 'Waiting4Provider' )
+
+                // load the form parameters from the littleId service
+                return new Y.Promise((function (resolve, reject) {
+                    Y.io(openIdURL, {
+                        method: "GET",
+                        on: {
+                            complete: function (id, ev) {
+                                log("login response");
+                                console.dir(ev);
+                                if (ev.status == 200) {
+                                    var openIdInfo = JSON.parse(ev.responseText);
+                                    log("openIdInfo: ");
+                                    console.dir(openIdInfo);
+
+                                    resolve(openIdInfo);
+                                } else {
+                                    reject(ev);
+                                }
+                            }
+                        }
+                    });
+                }).bind(this));
+
+                // populate and submit the form to the openId provider
+                //this._set( 'loginState', 'Waiting4Provider' )
             },
+
+            /**
+             * Construct a HTML form ready to submit to an openId provider
+             * 
+             * @method postToProvider
+             * @param openIdRequest {Object} request from prepareAuthRequest
+             * @return {Node} form node ready to append to DOM and submit
+             */
+            buildProviderForm: function (openIdRequest) {
+                var content = this.formTemplate(openIdRequest);
+                log("Building form with content: " + content);
+                return Y.Node.create(content);
+            },
+
             handleProviderCallback:function( callbackData ) {
                 if ( ! this.get( 'loginState' ) == 'Waiting4Provider' ) {
                     log( "Ignoring provider callback, not in waiting state: " + this.get( 'loginState'));
                 }
-                var ui = Y.one( this.get( "uiDivSelector" ) + " div.littleId_popupBody" )
-                ui.get( 'children' ).remove();
                 if( callbackData.authSuccess ) {
                     this._set( 'userCreds', callbackData.userCreds )
                     this._set( 'loginState', 'CredsReady')
-                    ui.append( "<p>Credentials available: <ul><li>openId: " + callbackData.userCreds.openId +
+                    log("<p>Credentials available: <ul><li>openId: " + callbackData.userCreds.openId +
                         "</li><li>email: " + callbackData.userCreds.email + "</li></ul></p>"
-                        )
-                    var head = Y.one( this.get( "uiDivSelector" ) + " div.littleId_popupHead" )
-                    head.get( 'children' ).remove();
-                    var closeLink = Y.Node.create( "<a href='.'>X Close</a>" )
-                    var node = Y.one( this.get( "uiDivSelector" ) )
-                    head.appendChild( closeLink )
-                    Y.on( 'click', function(ev) {
-                        ev.preventDefault();
-                        node.setStyle( 'display', 'none' );
-                    }, closeLink );
+                        );
                 } else {
                     this._set( 'loginState', 'FailedAuth')
-                    ui.append( "<p>Authentication Failed</p>" );
+                    log("<p>Authentication Failed</p>");
+                    console.dir(callbackData);
                 }
             }
         };
 
-        Y.extend(LoginProcess, Y.Base, LoginProcessMethods );
+        Y.extend(LoginHelper, Y.Base, LoginHelperMethods);
+
+        //--------------------- CallbackData data object -------------------
 
         /**
          * Pojo holds open-id callback data
@@ -233,42 +261,64 @@ YUI.add('littleware-littleId', function(Y) {
         }
 
         /**
-         * Static method to build callback data from GET parameters attached to a window -
-         *    Y.littleware.littleId.CallbackData.buildFromHref( window.location.href )
-         */
-        CallbackData.buildFromHref = function(href) {
-            var authMatch = /authSuccess=(\w+)/.exec( href )
-            var emailMatch = /email=([^&]+)/.exec( href )
-            var idMatch = /openId=([^&]+)/.exec( href )
-            var secretMatch = /verifySecret=([^&]+)/.exec( href )
+         * Static method runs a simple test on the given url to determine whether
+         * the url has query parameters suitable for CallbackData.buildFromURL
+         *
+         * @method isCallbackURL
+         * @static
+         * @param {string} url possibly with query parameters
+         * @return {boolean}
+         */ 
+        CallbackData.isCallbackURL = function(url) {
+            return url.match( /\?.*authSuccess/ );
+        }
 
-            var auth = false
-            var email = "unknown@unknown"
-            var openId = "https://frickjack"
-            var secret = "unknown"
+        /**
+         * Static method to build callback data from GET parameters attached to a window -
+         *    Y.littleware.auth.littleId.CallbackData.buildFromURL( window.location.href )
+         *
+         * @method buildFromURL
+         * @static
+         * @param {string} url possibly with query parameters
+         * @return {CallbackData} data extracted from given url's query parameters otherwise
+         *    populated with defaults: 
+         *          { auth: false, email: "unknown@unknown", secret: "unknown", openId:"https://unknown" }
+         */
+        CallbackData.buildFromURL = function(url) {
+            var authMatch = /authSuccess=(\w+)/.exec(url);
+            var emailMatch = /email=([^&]+)/.exec(url);
+            var idMatch = /openId=([^&]+)/.exec(url);
+            var secretMatch = /verifySecret=([^&]+)/.exec(url);
+
+            var auth = false;
+            var email = "unknown@unknown";
+            var openId = "https://unknown";
+            var secret = "unknown";
 
             if ( authMatch ) {
                 auth = (authMatch[1] == 'true');
             } else {
-                log( "Failed to extract auth from href " + href )
+                log("Failed to extract auth from url " + url);
             }
             if ( emailMatch ) {
-                email = unescape( emailMatch[1] )
+                email = unescape(emailMatch[1]);
             } else {
-                log( "Failed to extract email from href " + href )
+                log("Failed to extract email from url " + url);
             }
             if ( idMatch ) {
-                openId = unescape( idMatch[1] )
+                openId = unescape(idMatch[1]);
             } else {
-                log( "Failed to extract openId from href " + href )
+                log("Failed to extract openId from url " + url);
             }
             if ( secretMatch ) {
-                secret = unescape( secretMatch[1] )
+                secret = unescape(secretMatch[1]);
             } else {
-                log( "Failed to extract secret from href " + href )
+                log("Failed to extract secret from url " + href);
             }
-            return new CallbackData( auth, openId, email, secret )
+            return new CallbackData(auth, openId, email, secret);
         }
+
+        //------- TestSuite stuff ------------------------------------------
 
         /**
          * Return a test suite to test this submodule
@@ -278,29 +328,25 @@ YUI.add('littleware-littleId', function(Y) {
         var buildTestSuite = function() {
             var suite = new Y.Test.Suite( "littleware-littleId Test Suite");
             suite.add( new Y.Test.Case( {
-                name: "LoginProcess Test Case",
+                name: "LoginHelper Test Case",
                 testLPEvents: function() {
-                    var login = Y.littleware.littleId.LoginProcess
+                    var login = Y.littleware.auth.littleId.LoginHelper
                     var callback = false;
                     login.after( 'loginStateChange', function(ev) {
                         callback = true;
                     })
                     Y.Assert.isTrue( login.get( 'loginState' ) == "NotYetStarted",
-                        "LoginProcess initial state is as expected: " + login.get( 'loginState' )
+                        "LoginHelper initial state is as expected: " + login.get( 'loginState' )
                         );
                     login._set( 'loginState',  "CanceledByUser" );  // should trigger changed-attribute event
                     Y.Assert.isTrue( login.get( 'loginState' ) == "CanceledByUser", "Post-set loginState ok: " + login.get( 'loginState' ) );
                     Y.Assert.isTrue( callback, "attribute-change envent handled as expected" );
                     Y.Assert.isNull( Y.one( "#bogusNode" ), "Y.one(#bogusNode) is null")
                 },
-                testLoginPrompt: function() {
-                    var login = Y.littleware.littleId.LoginProcess
-                    login.promptUserForProvider()
-                },
                 testCallbackData:function() {
                     var dataArray = {
-                        basic: new Y.littleware.littleId.CalbackData( true, 'http://id', 'email@email', 'secret' ),
-                        href: Y.littleware.littleId.CalbackData.buildFromHref( 'http://bla?authSuccess=true&openId=http://id&email=email@email&verifySecret=secret' )
+                        basic: new CalbackData( true, 'http://id', 'email@email', 'secret' ),
+                        href: CalbackData.buildFromURL( 'http://bla?authSuccess=true&openId=http://id&email=email@email&verifySecret=secret' )
                     };
                     for( index in dataArray
                         ) {
@@ -315,10 +361,32 @@ YUI.add('littleware-littleId', function(Y) {
             ));
             return suite;
         };
+
+        //------------ module export stuff ----------------------------
+
+        // template for provider-submission form
+        var templatePath = "/littleware_apps/resources/templates/littleware/auth/providerForm.handlebars";
+        log("Loading template: " + templatePath);
+        var templatePromise = util.loadHandlebar(templatePath
+            ).then(
+                function (tplate) {
+                    log("Loaded template ...");
+                    return tplate;
+                },
+                function (err) {
+                    log("Failed to load template: " + err);
+                }
+            );
+
+
+        var helperSingleton = templatePromise.then( function(tpl) { return new LoginHelper( {}, tpl ); } );
+
         // expose an api
         return {
-            LoginProcess:new LoginProcess(),
-            CalbackData:CallbackData,
+            helperFactory: {
+                get: function() { return helperSingleton; }
+            },
+            CallbackData:CallbackData,
             buildTestSuite: buildTestSuite
         };
     })();

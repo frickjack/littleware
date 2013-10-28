@@ -1,0 +1,32 @@
+<div>
+  <h3>Contacting OpenId provider ...</h3>
+
+  <!--
+  
+     littleId form data:
+         {"request":{"id":"b9fa6de9-8c0d-433b-a013-98111e01dc07","provider":"Google","dateTime":"2013-10-23T12:00:59.229-05:00"},
+         "endpoint":"https://www.google.com/accounts/o8/ud",
+         "params":{
+              "openid.ext1.type.email":"http://axschema.org/contact/email",
+              "openid.mode":"checkid_setup",
+              "openid.claimed_id":"http://specs.openid.net/auth/2.0/identifier_select",
+              "openid.ext1.required":"email",
+              "openid.realm":"http://localhost:8080/littleware_services/openId/services/providerResponse/Google",
+              "openid.identity":"http://specs.openid.net/auth/2.0/identifier_select",
+              "openid.ns.ext1":"http://openid.net/srv/ax/1.0",
+              "openid.assoc_handle":"1.AMlYA9VQSxSAXTlZT9IbPhaNkdDmsezwNTb9w_WGl-4ZaxoGk8eMVW49PR9okKW-cNrJw8EsvZH-Iw",
+              "openid.ns":"http://specs.openid.net/auth/2.0",
+              "openid.return_to":"http://localhost:8080/littleware_services/openId/services/providerResponse/Google",
+              "openid.ext1.mode":"fetch_request"
+              },"littleStatus":200}
+
+   -->
+
+  <form name="openIdForm"
+        action="{{endpoint}}" method="post"
+        accept-charset="UTF-8">
+    {{#each params}}
+        <input type="hidden" name="{{@key}}" value="{{this}}"/>
+    {{/each}}
+  </form>
+</div>

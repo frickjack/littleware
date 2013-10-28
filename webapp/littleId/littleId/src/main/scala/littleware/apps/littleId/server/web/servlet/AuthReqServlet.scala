@@ -65,7 +65,6 @@ import AuthReqServlet._
 class AuthReqServlet extends HttpServlet {
   private val log = Logger.getLogger( getClass.getName )
 
-
   private var tools:Tools = null
 
   @Inject
@@ -99,14 +98,18 @@ class AuthReqServlet extends HttpServlet {
         case "yahoo" => OIdProvider.Yahoo
         case _ => OIdProvider.Google
       }
-      tools.requestFactory.get.openIdProvider( provider ).build() 
+      tools.requestFactory.get.openIdProvider( provider 
+        ).replyToURL( new java.net.URL( req.getParameter( "replyTo" ) ) 
+        ).build() 
     }
     
     val dataForProvider = tools.openIdTool.startOpenIdAuth( authRequest )
     
     // set a cookie with the AuthResponse state
     val state = model.AuthState.Running( dataForProvider.request )
-    val cookie = new Cookie( controller.OpenIdTool.stateCookieName, tools.gsonTool.toJson( state, classOf[model.AuthState]) )
+    val cookie = new Cookie( controller.OpenIdTool.stateCookieName, 
+                            tools.gsonTool.toJson( state, classOf[model.AuthState]) 
+      )
     cookie.setMaxAge( 300 ) // 5 minutes
     cookie.setPath( Option( req.getContextPath ).filter( _.nonEmpty ).getOrElse( "/" ) )
     resp.addCookie( cookie )

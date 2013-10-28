@@ -113,6 +113,10 @@ class SimpleOidTool @inject.Inject() (
     }
   }
   
-  def credsToToken( creds:common.model.OIdUserCreds ):String =
-    tokenFoundry.makeToken( gsonTool.toJsonTree( creds, classOf[common.model.OIdUserCreds] ).getAsJsonObject )
+  def credsToToken( creds:common.model.OIdUserCreds ):String = {
+    val js = gsonTool.toJsonTree( creds, classOf[common.model.OIdUserCreds] ).getAsJsonObject
+    val token = tokenFoundry.makeToken( js )
+    log.log( Level.FINE, "Creating token for creds: " + js + " yields: " + token )
+    token
+  }
 }

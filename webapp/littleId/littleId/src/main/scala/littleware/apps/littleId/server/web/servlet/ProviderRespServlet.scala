@@ -13,6 +13,7 @@ package littleware.apps.littleId.server.web.servlet
 import com.google.gson
 import com.google.inject.{Inject,Provider}
 import java.net.URL
+import java.net.URLEncoder
 import java.util.logging.Level
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
@@ -104,7 +105,7 @@ class ProviderRespServlet extends HttpServlet {
       state.request
     }
     
-    val response:model.AuthState = tools.openIdTool.processProviderResponse(
+    val authState:model.AuthState = tools.openIdTool.processProviderResponse(
       oidProvider, new URL( req.getRequestURL.toString ),
       req.getParameterMap.entrySet.map( (entry) => (entry.getKey -> entry.getValue)
       ).toMap
@@ -116,12 +117,25 @@ class ProviderRespServlet extends HttpServlet {
     // client to close the login popup (javascript API puts user in
     // a popup for OpenId provider (Google, Yahoo, whatever) )
     // 
-    val jsStr = tools.gsonTool.toJson( response, classOf[model.AuthState] )
+    val jsStr = tools.gsonTool.toJson( authState, classOf[model.AuthState] )
     val cookie = new javax.servlet.http.Cookie( controller.OpenIdTool.stateCookieName, jsStr )
     cookie.setMaxAge( 300 )
     cookie.setPath( Option( req.getContextPath ).filter( _.nonEmpty ).getOrElse( "/" ) )
     resp.addCookie( cookie )
     
+    //
+    // redirect to replyTo page with openId parameters added to the url string -
+    // maybe add getCreds call later that just returns the cookie contents ?
+    // 
+    val urlStr = authState match {
+      case model.AuthState.Failure(_) => authRequest.replyToURL.toString + "?authSuccess=false"
+      case success:model.AuthState.Success =>
+        authRequest.replyToURL.toString + "?authSuccess=true" +
+          "&email=" + URLEncoder.encode( success.userInfo.email, "UTF8" ) +
+          "&openId=" + URLEncoder.encode( success.userInfo.openId.toString, "UTF8" ) +
+          "&verifySecret=" + URLEncoder.encode( success.verifySecret, "UTF8" )
+    }
+    resp.sendRedirect( resp.encodeRedirectURL( urlStr ) );
   }
 
   @throws(classOf[ServletException])

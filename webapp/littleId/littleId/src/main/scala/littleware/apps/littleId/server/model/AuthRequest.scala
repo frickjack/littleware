@@ -22,7 +22,8 @@ import org.joda.{time => jtime}
 case class AuthRequest private[model](
   id:UUID, 
   openIdProvider:OIdProvider.Value,
-  dateTime:jtime.DateTime
+  dateTime:jtime.DateTime,
+  replyToURL:java.net.URL
  ) {}
   
 
@@ -31,11 +32,11 @@ object AuthRequest {
     val id = new NotNullProperty[UUID]( UUID.randomUUID ).name( "id" )
     val openIdProvider = new NotNullProperty[OIdProvider.Value]( OIdProvider.Google ).name( "openIdProvider" )
     val dateTime = new NotNullProperty[jtime.DateTime]( jtime.DateTime.now() ).name( "dateTime" )
-    //val replyToURL = new NotNullProperty[java.net.URL]().name( "replyToURL" )
+    val replyToURL = new NotNullProperty[java.net.URL]().name( "replyToURL" )
     
     def build():AuthRequest = {
       this.assertSanity
-      AuthRequest( id(), openIdProvider(), dateTime() )
+      AuthRequest( id(), openIdProvider(), dateTime(), replyToURL() )
     }
   }
 }

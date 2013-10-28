@@ -32,7 +32,7 @@ class OIdToolTester @inject.Inject()(
     import server.model.AuthState._
     
     for( provider <- common.model.OIdProvider.values ) {
-      val request = requestFactory.get.openIdProvider( provider ).build() 
+      val request = requestFactory.get.openIdProvider( provider ).replyToURL( new java.net.URL( "http://bla/bla" ) ).build() 
       val providerData = tool.startOpenIdAuth( request )
       assertTrue( "OpenId auth starts in Running state", providerData.request == request )
     }

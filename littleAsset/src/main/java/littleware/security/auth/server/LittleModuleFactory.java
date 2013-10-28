@@ -13,12 +13,12 @@ import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.bootstrap.AppBootstrap.AppProfile;
+import littleware.security.auth.server.internal.SimpleSessionManager;
 
 
 /**
- * Littleware server-bootstrap module takes care of injecting dependencies
- * into the LittleLoginModule.  This call is registered with littleware bootstrap
- * via META-INF/services/...ServerModuleFactory
+ * Bootstrap configuration for authentication component of
+ * littleware server.
  */
 public class LittleModuleFactory implements ServerModuleFactory {
 
@@ -30,9 +30,16 @@ public class LittleModuleFactory implements ServerModuleFactory {
         @Override
         public void configure(Binder binder) {
             binder.bind( ServerConfigFactory.class ).in( Scopes.SINGLETON );
-        }
-        
-        
+            //
+            // TODO - do something smarter than this to support
+            //   bootstrap specification of an administrator user
+            //   ready to authenticate with whatever JAAS config
+            //   the server is being deployed under
+            //
+            binder.bind( SimpleSessionManager.RuntimeConfig.class ).toInstance(
+                    new SimpleSessionManager.RuntimeConfig( "reuben@frickjack.com" )
+                    );
+        }     
     }
     
     @Override

@@ -21,10 +21,15 @@ import com.google.inject.Module;
 import com.google.inject.Provider;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -120,8 +125,21 @@ public class FishApp implements Callable
                 if ( null == meta ) {
                     throw new RuntimeException( "Unable to access resource: " + resourcePath );
                 }
+                
+                if ( "gzip".equalsIgnoreCase( meta.getContentEncoding() ) ) {
+                    // need to unzip the war ...
+                    final File temp = new File( destFile.getParentFile(), destFile.getName() + ".gz" );
+                    temp.delete();
+                    destFile.renameTo( temp );
+                    try (
+                        final InputStream gzin = new java.util.zip.GZIPInputStream( new FileInputStream( temp ) );
+                            ) {
+                        Files.copy( gzin, destFile.toPath() );
+                    }
+                }
+
                 return destFile;
-            } catch (URISyntaxException ex) {
+            } catch (URISyntaxException|IOException ex) {
                 throw new RuntimeException( "Failed parsing: " + resourcePath, ex );
             }
         } else {
@@ -152,9 +170,10 @@ public class FishApp implements Callable
         try { // deploy war file
             final GlassFish gf = fishFactory.get();
             final Deployer deployer = gf.getDeployer();
+            log.log( Level.INFO, "Deploying .war: " + warFile.getCanonicalPath() );
             deployer.deploy( warFile, "--force=true", "--contextroot", config.CONTEXT_ROOT  );
             return gf;
-        } catch (GlassFishException ex) {
+        } catch (GlassFishException|IOException ex) {
             throw new RuntimeException( "Failed war deployment", ex);
         }
     }
@@ -164,6 +183,7 @@ public class FishApp implements Callable
      */
     public static enum Flag {
         S3_KEY, S3_SECRET, S3_CREDSFILE,
+        PORT,
         DATABASE_URL, WAR_URI, CONTEXT_ROOT, LOGIN_URI;
     }
 
@@ -174,6 +194,7 @@ public class FishApp implements Callable
             "\nS3_SECRET" +
             "\nS3_CREDSFILE  - either both S3_KEY and S3_SECRET or S3_CREDSFILE must be defined" +
             "\nWAR_URI - required - either an s3:// URI otherwise treated as local file path" +
+            "\nPORT - optional - defaults to 8080 if not otherwise specified" +
             "\nLOGIN_URI - optional - JAAS login.conf location either and s3:// URI otherwise treated as local file path" +
             "\nCONTEXT_ROOT - required - glassfish deploy context root for war" +
             "\nDATABASE_URL - required - ex: postgres://user:password@host:port/database\n";
@@ -198,6 +219,7 @@ public class FishApp implements Callable
     {
         final Map<String,String> configMap = new HashMap<>();
 
+        configMap.put( Flag.PORT.toString(), "8080" );
         for( Flag key : Flag.values() ) {  // scan environment
             configMap.put( key.toString(), System.getenv(key.toString()));
         }
@@ -216,7 +238,7 @@ public class FishApp implements Callable
 
         log.log( Level.INFO, "Setting up runtime environment: " );
         for( String key : configMap.keySet() ) {
-            log.log( Level.INFO, key + "=" + configMap.get(key) );
+            log.log( Level.INFO, key + "='" + configMap.get(key) + "'" );
         }
         
         try {
@@ -253,21 +275,29 @@ public class FishApp implements Callable
                     configMap.get( Flag.LOGIN_URI.toString() )
                     );
 
+            final int port = Integer.parseInt( configMap.get( Flag.PORT.toString()) );
             final Injector ij = Guice.createInjector( 
                     new AppModule( config ),
                     new FishModule( s3Key, s3Secret,
-                        new java.net.URI( configMap.get( Flag.DATABASE_URL.toString() ) )
+                        new java.net.URI( configMap.get( Flag.DATABASE_URL.toString() ) ),
+                        port
                         )
                     );
             
             final FishApp app = ij.getInstance( FishApp.class );
             final GlassFish gf = app.call();
             
-            System.out.println( "Enter 'quit' to shutdown server:\n> " );
+            System.out.print( "Enter 'quit' to shutdown server:\n> " );
+            System.out.flush();
             final BufferedReader reader = new BufferedReader( new InputStreamReader( System.in ) );
             while( true ) {
                 final String input = reader.readLine();
-                System.out.println( "\n> " );
+                System.out.print( "\n> " );
+                System.out.flush();
+                if ( null == input ) {
+                    log.log( Level.INFO, "stdin closed - assuming daemon environment - leaving interactive thread");
+                    break;
+                }
                 if ( input.equals( "quit" ) ) {
                     log.log( Level.INFO, "Shutting down ..." );
                     gf.stop();

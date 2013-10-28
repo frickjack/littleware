@@ -36,18 +36,25 @@ public class PackageTest extends TestSuite {
     @Inject
     public PackageTest( Provider<FishCase> fishTestFactory ) {
         super( PackageTest.class.getName() );
-        this.addTest( fishTestFactory.get() );
         
-        this.addTest( new TestCase() {
-            @Override public void runTest() {
-                try {
-                    while( true ) {
-                        log.log( Level.INFO, "Looping to prevent test exit - try to connect to test URL now ...");
-                        Thread.sleep( 25000 );
-                    }
-                } catch ( Exception ex ) {}
-            }
-        } );
+        if ( false ) {
+            // enable for local testing only - assumes local .war file - see PackageTest.properties
+            this.addTest( fishTestFactory.get() );
+        }
+        
+        if ( false ) { 
+            // enable this for local testing only - otherwise hangs mvn package in heroku ...
+            this.addTest( new TestCase() {
+                @Override public void runTest() {
+                    try {
+                        while( true ) {
+                            log.log( Level.INFO, "Looping to prevent test exit - try to connect to test URL now ...");
+                            Thread.sleep( 25000 );
+                        }
+                    } catch ( Exception ex ) {}
+                }
+            } );
+        }
     }
 
     /**
@@ -73,7 +80,7 @@ public class PackageTest extends TestSuite {
             final AWSCredentials creds = new PropertiesCredentials( new java.io.File( props.getProperty("test.s3creds")) );
             final Injector ij = Guice.createInjector( 
                     new FishModule( creds.getAWSAccessKeyId(), creds.getAWSSecretKey(), 
-                        new java.net.URI( props.getProperty( "test.dbURI" )) 
+                        new java.net.URI( props.getProperty( "test.dbURI" )), 8080
                     ),
                     new Module() {
                         @Override

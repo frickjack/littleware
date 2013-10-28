@@ -28,7 +28,7 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk</artifactId>
-      <version>1.5.7</version>
+      <version>1.6.2</version>
     </dependency>
     <dependency>
         <groupId>com.google.inject</groupId>
@@ -79,6 +79,13 @@
                 ${project.build.directory}
             </outputDirectory>
           </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals><goal>copy-dependencies</goal></goals>
+                    </execution>
+                </executions>
         </plugin>
       </plugins>
   </build>

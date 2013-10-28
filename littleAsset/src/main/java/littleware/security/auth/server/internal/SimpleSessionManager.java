@@ -7,6 +7,7 @@
  */
 package littleware.security.auth.server.internal;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.rmi.*;
@@ -50,6 +51,23 @@ import org.joda.time.DateTime;
  * for RMI access.
  */
 public class SimpleSessionManager extends LittleRemoteObject implements RemoteSessionManager {
+    /**
+     * Little helper class to simplify injection of some
+     * runtime properties at construction time.
+     * Currently just tracks a bootstrap user to auto-add to the admin group -
+     * that admin can then handle adding other admins to the admin group or whatever.
+     */
+    public static class RuntimeConfig {
+        public final Option<String> optAdminUser;
+        
+        public RuntimeConfig( String adminUser ) {
+            this.optAdminUser = Options.some( adminUser );
+        }
+        
+        public RuntimeConfig() {
+            this.optAdminUser = Options.NONE;
+        }
+    }
 
     private static final Logger log = Logger.getLogger(SimpleSessionManager.class.getName());
     private static final long serialVersionUID = 8144056326046717141L;
@@ -66,9 +84,12 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
     private final LittleContext.ContextFactory contextFactory;
     private final ServerScannerFactory scannerFactory;
     private final Provider<Configuration> loginConfigProvider;
+    private final RuntimeConfig runtimeConfig;
 
+    
     @Inject
-    public SimpleSessionManager(ServerAssetManager assetMgr,
+    public SimpleSessionManager(
+            ServerAssetManager assetMgr,
             ServerSearchManager search,
             Provider<UserTreeBuilder> provideUserTree,
             Provider<GenericAsset.GenericBuilder> provideGenerics,
@@ -77,7 +98,9 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             Provider<LittleSession.Builder> sessionProvider,
             LittleContext.ContextFactory contextFactory,
             ServerScannerFactory scannerFactory,
-            ServerConfigFactory loginConfigProvider) throws RemoteException {
+            ServerConfigFactory loginConfigProvider,
+            RuntimeConfig     runtimeConfig
+            ) throws RemoteException {
         this.assetMgr = assetMgr;
         this.search = search;
         if (isSingletonUp) {
@@ -92,6 +115,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
         this.contextFactory = contextFactory;
         this.scannerFactory = scannerFactory;
         this.loginConfigProvider = loginConfigProvider;
+        this.runtimeConfig = runtimeConfig;
     }
 
     /**
@@ -168,7 +192,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             final LittleHome littleHome = search.getByName(adminCtx, "littleware.home", LittleHome.HOME_TYPE).get().narrow(LittleHome.class);
             final LittleUser user;
             {
-                Option<? extends Asset> maybeUser = search.getByName(adminCtx, name, LittleUser.USER_TYPE);
+                final Option<? extends Asset> maybeUser = search.getByName(adminCtx, name, LittleUser.USER_TYPE);
                 if (!maybeUser.isSet()) {
                     // Create the user
                     for (AssetTreeTemplate.AssetInfo assetInfo : userTreeBuilder.get().user(name).build().scan(littleHome, scannerFactory.build(adminCtx))) {
@@ -182,6 +206,23 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
                     user = maybeUser.get().narrow();
                 }
             }
+            
+            //
+            // auto-add the user to the admin group if configuration says this user is an admin
+            // and not already in group.  Funny place to do this, but saves us from having
+            // to hard-code a password for littleware.administrator someplace or whatever at
+            // bootstrap time ...
+            //
+            if( runtimeConfig.optAdminUser.isSet() && runtimeConfig.optAdminUser.get().equals( user.getName() ) ) {
+                final LittleGroup adminGroup = search.getAsset(adminCtx, 
+                      AccountManager.UUID_ADMIN_GROUP, -1
+                    ).getAsset().get().narrow();
+                
+                if ( ! adminGroup.isMember(user) ) {
+                    assetMgr.saveAsset(adminCtx, adminGroup.copy().add( user ).build(), "Add new user: " + user.getName() );
+                }
+            }
+            
             // ok - user authenticated ok by here - setup user session
             final LittleSession session;
             {
@@ -196,7 +237,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
                     throw new AssertionFailedException("Owner mismatch");
                 }
             }
-            // Create the session asset as the admin user - session has null from-id
+            // Create the session asset as the admin user 
             return setupSession(adminCtx, session, sessionComment);
         } finally {
             adminCtx.getTransaction().endDbAccess();

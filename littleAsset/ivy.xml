@@ -31,7 +31,7 @@
         <!-- AWS and its apache httpclient dependencies ...
            See http://stackoverflow.com/questions/7104364/how-are-maven-scopes-mapped-to-ivy-configurations-by-ivy
         --> 
-        <dependency org="com.amazonaws" name="aws-java-sdk" rev="1.5.7" conf="compile,with_aws->master" />
+        <dependency org="com.amazonaws" name="aws-java-sdk" rev="1.6.2" conf="compile,with_aws->master" />
         <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.2.1" conf="compile,with_aws,with_http->master" />
         <dependency org="org.apache.httpcomponents" name="httpclient-cache" rev="4.2.1" conf="compile,with_aws,with_http->master" />
         <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.2.2" conf="compile,with_aws,with_http->master" />

@@ -54,13 +54,6 @@ YUI.add('littleware-littleId', function(Y) {
                 value:undefined,
                 readOnly:true
             },
-            oidProvider: {
-                value:'google'
-            },
-            uiDivSelector: {
-                value:'#littleIdUI',
-                readOnly:true
-            },
             replyToURL: {
                 value:undefined
             },
@@ -74,86 +67,6 @@ YUI.add('littleware-littleId', function(Y) {
 
         // Define methods here, so NetBeans IDE navigator picks them up
         var LoginHelperMethods = {
-            // Prototype methods for your new class
-            /**
-             * Move into the 'Started' state, and prompt the user to select a provider
-             *
-             * @method promptUserForProvider
-             */
-            promptUserForProvider:function(){
-                var selector = this.get( 'uiDivSelector')
-                var node = Y.one( selector )
-                if ( Y.Lang.isNull( node ) ) {
-                    throw new Error( "No such node: " + divId )
-                }
-                {
-                    var state = this.get( 'loginState' )
-
-                    if( (state == 'Started') || (state == 'Waiting4Provider') ) {
-                        throw new Error( "LoginHelper in invalid state for action: " + state)
-                    }
-                }
-                node.setStyle( "height", "0px" );
-                node.setStyle( "width", "0px" );
-                node.setStyle( "display", "block" );
-                node.get( 'children' ).remove();
-
-                var loginProcess = this
-                var closeLink = Y.Node.create( "<a href=''>X Cancel Login</a>" );
-                Y.on( 'click', function(ev) {
-                    ev.preventDefault();
-                    node.setStyle( 'display', 'none' );
-                    loginProcess._set( 'loginState', 'CanceledByUser');
-                }, closeLink
-                );
-
-                var yahooLink = Y.Node.create( "<a href='#'>Sign in with <br /> <img src='" + LoginHelper.openIdURL + "resources/img/yahoo.png' /></a>")
-                Y.on( 'click', function(ev) {
-                    ev.preventDefault();
-                    loginProcess.set( 'oidProvider', 'yahoo' )
-                    loginProcess.authenticateWithProvider()
-                },
-                yahooLink
-                )
-
-                var googleLink = Y.Node.create( "<a href='#'>Sign in with <br /> <img src='" + LoginHelper.openIdURL + "resources/img/google.png' /></a>" )
-                Y.on( 'click', function(ev) {
-                    ev.preventDefault();
-                    loginProcess.set( 'oidProvider', 'google' )
-                    loginProcess.authenticateWithProvider()
-                },
-                googleLink
-                )
-
-                var headNode = Y.Node.create( "<div class='littleId_popupHead'></div>" );
-                headNode.appendChild( closeLink );
-                var bodyNode = Y.Node.create( "<div class='littleId_popupBody'></div>" );
-                var providers = Array(googleLink,yahooLink)
-                for( var index in providers ) {
-                    var p = Y.Node.create( "<p></p>" )
-                    p.appendChild( providers[index] )
-                    bodyNode.appendChild( p )
-                }
-                var footNode = Y.Node.create( "<div class='littleId_popupFoot'><a href='#'>frickjack.com/openId services</a></div>" );
-                var myAnim = new Y.Anim({
-                    node: selector,
-                    to: {
-                        width: 350,
-                        height: 240
-                    },
-                    duration: 0.5
-                });
-                this._set( 'loginState', 'Started' )
-                this._set( 'userCreds', undefined );
-                myAnim.on( 'end', function() {
-                    node.appendChild( headNode )
-                    node.appendChild( bodyNode );
-                    node.appendChild( footNode )
-                }
-                );
-                myAnim.run();
-            },
-
             /**
              * Retrieve the endpoint information to post to an openId provider
              * to carry out openId authentication via the littleId service.
@@ -210,9 +123,7 @@ YUI.add('littleware-littleId', function(Y) {
             },
 
             handleProviderCallback:function( callbackData ) {
-                if ( ! this.get( 'loginState' ) == 'Waiting4Provider' ) {
-                    log( "Ignoring provider callback, not in waiting state: " + this.get( 'loginState'));
-                }
+                this._set('loginState', 'handlingCallback');
                 if( callbackData.authSuccess ) {
                     this._set( 'userCreds', callbackData.userCreds )
                     this._set( 'loginState', 'CredsReady')
@@ -330,23 +241,34 @@ YUI.add('littleware-littleId', function(Y) {
             suite.add( new Y.Test.Case( {
                 name: "LoginHelper Test Case",
                 testLPEvents: function() {
-                    var login = Y.littleware.auth.littleId.LoginHelper
-                    var callback = false;
-                    login.after( 'loginStateChange', function(ev) {
-                        callback = true;
-                    })
-                    Y.Assert.isTrue( login.get( 'loginState' ) == "NotYetStarted",
-                        "LoginHelper initial state is as expected: " + login.get( 'loginState' )
-                        );
-                    login._set( 'loginState',  "CanceledByUser" );  // should trigger changed-attribute event
-                    Y.Assert.isTrue( login.get( 'loginState' ) == "CanceledByUser", "Post-set loginState ok: " + login.get( 'loginState' ) );
-                    Y.Assert.isTrue( callback, "attribute-change envent handled as expected" );
-                    Y.Assert.isNull( Y.one( "#bogusNode" ), "Y.one(#bogusNode) is null")
+                    Y.littleware.auth.littleId.helperFactory.get().then(
+                        function (helper) {
+                            this.resume(function () {
+                                var callback = false;
+                                helper.after('loginStateChange', function (ev) {
+                                    callback = true;
+                                })
+                                Y.Assert.isTrue(helper.get('loginState') == "NotYetStarted",
+                                    "LoginHelper initial state is as expected: " + helper.get('loginState')
+                                    );
+                                helper._set('loginState', "CanceledByUser");  // should trigger changed-attribute event
+                                Y.Assert.isTrue(helper.get('loginState') == "CanceledByUser", "Post-set loginState ok: " + helper.get('loginState'));
+                                Y.Assert.isTrue(callback, "attribute-change envent handled as expected");
+                            });
+                        }.bind(this),
+                        function (err) {
+                            this.resume(function () {
+                                log.log("testLPEvents failed to load helper");
+                                console.dir(err);
+                                Y.Assert.fail("Failed to load LoginHeler");
+                            });
+                        }.bind(this) );
+                    this.wait(2000);
                 },
                 testCallbackData:function() {
                     var dataArray = {
-                        basic: new CalbackData( true, 'http://id', 'email@email', 'secret' ),
-                        href: CalbackData.buildFromURL( 'http://bla?authSuccess=true&openId=http://id&email=email@email&verifySecret=secret' )
+                        basic: new CallbackData( true, 'http://id', 'email@email', 'secret' ),
+                        href: CallbackData.buildFromURL( 'http://bla?authSuccess=true&openId=http://id&email=email@email&verifySecret=secret' )
                     };
                     for( index in dataArray
                         ) {

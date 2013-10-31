@@ -76,11 +76,24 @@
 
     -->
     
+    <!--  ... guava 15 includes beans.xml, but newer versions of guava probably won't,
+         see https://code.google.com/p/guava-libraries/issues/detail?id=1433
+         ...
     <target name="-post-compile" depends="ivy_build_rules.-post-compile">
         <jar update="true" keepcompression="true" 
                 destfile="${build.web.dir}/WEB-INF/lib/guava-14.0.1-bundle.jar"
                 >
             <fileset dir="src/java" />
+        </jar>
+    </target>
+    -->
+
+    <target name="heroku" depends="dist">
+        <copy file="${dist.dir}/appsWeb.war" tofile="${dist.dir}/heroku.war"/>
+        <jar update="true" keepcompression="true" 
+                destfile="${dist.dir}/heroku.war"
+                >
+            <fileset dir="deploy/littleware.herokuapp.com" />
         </jar>
     </target>
         

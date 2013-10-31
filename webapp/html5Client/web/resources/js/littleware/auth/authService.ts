@@ -294,13 +294,13 @@ export module littleware.auth.authService {
                         mgr.logout().then(
                             (sinfo: SessionInfo) => {
                                 Y.Assert.isTrue(!sinfo.getCreds(), "logout() works");
-                                return mgr.authenticate("testUser", "testSecret");
+                                return mgr.authenticate("littleware.test_user", "testSecret");
                             }
                         ).then(
                           (sinfo: SessionInfo) => {
                                 log.log("auth result:");
                                 console.dir(sinfo);
-                                Y.Assert.isTrue(sinfo.getCreds() && (sinfo.getCreds().getUser() == "testUser"),
+                                Y.Assert.isTrue(sinfo.getCreds() && (sinfo.getCreds().getUser() == "littleware.test_user"),
                                     "authentication looks ok"
                                     );
                                 return mgr.getSessionInfo();
@@ -311,7 +311,7 @@ export module littleware.auth.authService {
                               console.dir(sinfo);
 
                                 this.resume(() => {
-                                    Y.Assert.isTrue(sinfo.getCreds() && (sinfo.getCreds().getUser() == "testUser"),
+                                    Y.Assert.isTrue(sinfo.getCreds() && (sinfo.getCreds().getUser() == "littleware.test_user"),
                                         "auth chain looks ok"
                                         );
                                 });

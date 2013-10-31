@@ -1,14 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<!--
-Copyright 2011 
-
-The contents of this file are subject to the terms of the Lesser GNU
-General Public License Version 2.1 only ("LGPL").
-http://www.gnu.org/licenses/lgpl-2.1.html
-
--->
-
 <!DOCTYPE html>
 
 <html>
@@ -64,8 +53,11 @@ http://www.gnu.org/licenses/lgpl-2.1.html
                 'littleware-auth-authService', 'littleware-littleId', 'test',
                 function (Y) {
                     var logSrc = "testSuite.html";
-                    littleware.littleId = Y.littleware.littleId;
-                    littleware.littleId.LoginProcess.set( 'replyMethod', 'GET' );
+                    littleware.auth = littleware.auth || {};
+                    littleware.auth.littleId = Y.littleware.auth.littleId;
+
+                    //var helper = Y.littleware.auth.littleId.helperFactory.get();
+                    //helper.set('replyMethod', 'GET');
 
                     Y.Test.Runner.subscribe(Y.Test.Runner.COMPLETE_EVENT, 
                         function () {
@@ -78,52 +70,16 @@ http://www.gnu.org/licenses/lgpl-2.1.html
                         Y.Test.Runner.subscribe(Y.Test.Runner.COMPLETE_EVENT, window.callPhantom);
                     }
 
-                    if (false) { // old code - remove later when new code isr eady ...
-                        // ex: http://localhost:8080/openId/resources/js/littleware/testSuite.html?authSuccess=true&openId=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3DAItOawm-Y4hQri5D3YqT9SZvewbiawLVcBf-X5o&email=reuben.pasquini512%40gmail.com&verifySecret=9bcf160b-cfe6-4833-8adc-13ffd7117a8d
-                        var authMatch = /authSuccess=(\w+)/.exec(window.location.href)
-                        var emailMatch = /email=([^&]+)/.exec(window.location.href)
-                        var idMatch = /openId=([^&]+)/.exec(window.location.href)
-                        var secretMatch = /verifySecret=([^&]+)/.exec(window.location.href)
-
-                        if (authMatch && emailMatch && idMatch && secretMatch) {
-                            if (Y.Lang.isValue(window.opener)
-                                && Y.Lang.isValue(window.parent.littleware)
-                                && Y.Lang.isValue(window.parent.littleware.littleId)
-                                && Y.Lang.isValue(window.parent.littleware.littleId.LoginProcess)
-                        ) {
-                                //alert( "This looks like a callback ..." );
-                                var loginData = Y.littleware.littleId.CalbackData.buildFromHref(window.location.href)
-                                window.opener.littleware.littleId.LoginProcess.handleProviderCallback(loginData);
-                                window.close();
-                            } else {
-                                alert("URL looks like openID response, but window parent does not look like a popup launcher");
-                            }
-                        }
-                        new Y.Console({ newestOnTop: false }).render();
-                    }
-
                     Y.log( "We're up and running!", "info", logSrc );
                     var suite = new Y.Test.Suite( "littleware Test Suite" );
                     Y.log( "Test suite defined ok ..." );
                     //suite.add( Y.littleware.littleUtil.buildTestSuite() );
-                    //suite.add( Y.littleware.littleId.buildTestSuite() );
+                    suite.add( Y.littleware.auth.littleId.buildTestSuite() );
                     suite.add(Y.littleware.auth.authService.buildTestSuite());
                     Y.Test.Runner.add( suite );
                     Y.Test.Runner.run();
-
-                    /*
-                    var statusNode = Y.one( '#pageStatus' );
-                    statusNode.get( 'children' ).remove();
-                    statusNode.appendChild( Y.Node.create( "<p>Test Complete</p>" ) );
-                    var login = Y.littleware.littleId.LoginProcess
-                    login.after('loginStateChange', function (ev) {
-                        Y.log("Login state changed! : " + login.get('loginState'))
-                    });
-                    */
-
                 }
             );
-            // ]]>
         </script>
     </div></div></div>
     </body>

@@ -47,7 +47,7 @@
         <script>
 
             littleware.littleYUI.bootstrap( {/*  classNamePrefix: 'pure'  */ } ).use( 
-                'transition', 'littleware-littleId', 'littleware-littleUtil',
+                'transition', 'littleware-auth-littleId', 'littleware-littleUtil',
                 function (Y) {
                     var util = Y.littleware.littleUtil;
                     var log = new util.Logger("openIdPop.html");
@@ -95,8 +95,18 @@
                                 
                                 // if running as a popup - than call out to parent window, and close this popup
                                 if (window.opener) {
-                                    window.opener.littleware.auth.littleId.LoginProcess.handleProviderCallback( callbackData );
-                                    window.close();
+                                    log.log("Notifying parent window of openId callback ..." );
+                                    window.opener.littleware.auth.littleId.providerCallback(callbackData).then(
+                                        function () {
+                                            log.log("Parent window callback ok");
+                                            window.close();
+                                        },
+                                        function (err) {
+                                            alert("Failed parent window callback");
+                                            log.log("Failed parent window callback");
+                                            console.dir(err);
+                                        }
+                                      );
                                 }
                             }
                         }

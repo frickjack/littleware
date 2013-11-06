@@ -144,12 +144,12 @@ export module littleware.eventTrack.littleApp {
         class ManagerState extends LittleEnum {
 
             constructor(name) {
-                super( ManagerState.values.push( this ), name);
+                super(ManagerState.values.push(this), name);
             }
 
-            static values:ManagerState[] = [];
+            static values: ManagerState[] = [];
             static NEW = new ManagerState("NEW");
-            static ACTIVE = new ManagerState( "ACTIVE" );
+            static ACTIVE = new ManagerState("ACTIVE");
         }
 
         /**
@@ -162,7 +162,7 @@ export module littleware.eventTrack.littleApp {
             constructor(name) {
                 super(ViewMode.values.push(this), name);
             }
-            
+
             static values: ViewMode[] = [];
 
             /**
@@ -240,7 +240,7 @@ export module littleware.eventTrack.littleApp {
                 panel: LittlePanel,
                 baseName: string,
                 listener: (PanelStatus) => void
-                ):void;
+                ): void;
 
             /**
              * Register panels along with id of its parent, and a baseFilter
@@ -257,11 +257,11 @@ export module littleware.eventTrack.littleApp {
              * @param listener {Function} to notify when path changes on route associated with this panel
              */
             registerPanel(
-                    panel: LittlePanel,
-                    parentId: string,
-                    routeFilter: (string) => boolean,
-                    listener: (PanelStatus) => void
-                ):void;
+                panel: LittlePanel,
+                parentId: string,
+                routeFilter: (string) => boolean,
+                listener: (PanelStatus) => void
+                ): void;
 
             /**
              * By default the manager does not re-render a panel when it
@@ -271,7 +271,7 @@ export module littleware.eventTrack.littleApp {
              *
              * @method markPanelDirty
              */
-            markPanelDirty(panelId: string):void;
+            markPanelDirty(panelId: string): void;
 
             /**
              * Little utilty - lookup the panels associated with the given route path if any
@@ -299,6 +299,57 @@ export module littleware.eventTrack.littleApp {
 
         }
 
+
+        /**
+         * Do-nothing Mock Manager implementation to simplify testing of classes
+         * that depend on Manager injection.
+         *
+         * @class MockManager
+         */
+        export class MockManager implements Manager {
+            name: string = "Mock";
+
+            public container: Y.Node = Y.Node.create("<div></div>");
+
+            homePage: Y.View = new Y.View();
+            router: Y.Router = new Y.Router();
+
+            routeIndex: string[] = [];
+
+            private panelIdIndex: {
+                [id: string]: LittlePanel;
+            } = {};
+            
+            registerRootPanel(
+                panel: LittlePanel,
+                baseName: string,
+                listener: (PanelStatus) => void
+                ): void {
+                this.panelIdIndex[panel.id] = panel;
+            }
+
+            registerPanel(
+                panel: LittlePanel,
+                parentId: string,
+                routeFilter: (string) => boolean,
+                listener: (PanelStatus) => void
+                ): void {
+                this.panelIdIndex[panel.id] = panel;
+            }
+
+            markPanelDirty(panelId: string): void { }
+
+            lookupPanels(route: string): LittlePanel[] {
+                return [];
+            }
+
+            lookupPanelById(id: string): LittlePanel {
+                return this.panelIdIndex[id];
+            }
+
+            show() { }
+
+        }
 
         export interface Factory {
             /**

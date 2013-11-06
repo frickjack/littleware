@@ -418,40 +418,49 @@ export module littleware.eventTrack.toDoAPI {
         }
 
 
+        // avoid running simultaneous cleanArchive operations under the same id
+        private cleanLocks: { [id: string]: Y.Promise<number> } = {};
+
         cleanArchive(id: string, optDeleteAll?: boolean): Y.Promise<number> {
             var deleteAll: boolean = Y.Lang.isUndefined(optDeleteAll) ? false : optDeleteAll;
-            return this.loadToDo(id).then(
-                (todo: ToDoSummary) => {
-                    return this.axTool.loadSubpath(todo.getId(), "archive");
-                }
-                ).then(
-                (archiveRef: axMgr.AssetRef) => {
-                    if (archiveRef.isDefined()) {
-                        return this.axTool.listChildren(archiveRef.getAsset().getId());
-                    } else {
-                        return Y.when(new axMgr.NameIdListRef([]));
+            if (!this.cleanLocks[id]) {
+                this.cleanLocks[id] = this.loadToDo(id).then(
+                    (todo: ToDoSummary) => {
+                        return this.axTool.loadSubpath(todo.getId(), "archive");
                     }
-                }
-                ).then(
-                (nameIdList: axMgr.NameIdListRef) => {
-                    var monthString: string = this._monthString(new Date());
-                    var oldArchives: axMgr.NameIdPair[] = nameIdList.filter((it: axMgr.NameIdPair) => {
-                        return (deleteAll || (it.getName() < monthString));
-                    });
-                    var promises: Y.Promise<number>[] = Y.Array.map(oldArchives,
-                        (it: axMgr.NameIdPair) => { return this._deleteRecursive(it.getId()); }
-                        );
-                    if (promises.length > 0) {
-                        return Y.batch.apply(Y, promises);
-                    } else {
-                        return Y.when([]);
+                    ).then(
+                    (archiveRef: axMgr.AssetRef) => {
+                        if (archiveRef.isDefined()) {
+                            return this.axTool.listChildren(archiveRef.getAsset().getId());
+                        } else {
+                            return Y.when(new axMgr.NameIdListRef([]));
+                        }
                     }
-                }
-                ).then(
-                (batch: any[]) => {
-                    return batch.length;
-                }
-                );
+                    ).then(
+                    (nameIdList: axMgr.NameIdListRef) => {
+                        var monthString: string = this._monthString(new Date());
+                        var oldArchives: axMgr.NameIdPair[] = nameIdList.filter((it: axMgr.NameIdPair) => {
+                            return ((it.getName() < monthString) || deleteAll);
+                        });
+                        var promises: Y.Promise<number>[] = Y.Array.map(oldArchives,
+                            (it: axMgr.NameIdPair) => { return this._deleteRecursive(it.getId()); }
+                            );
+                        if (promises.length > 0) {
+                            return Y.batch.apply(Y, promises);
+                        } else {
+                            return Y.when([]);
+                        }
+                    }
+                    ).then(
+                    // be sure to cleanup locks
+                    (batch: any[]) => {
+                        delete this.cleanLocks[id];
+                        return batch.length;
+                    },
+                    (err) => { delete this.cleanLocks[id]; }
+                    );
+            }
+            return this.cleanLocks[id];
         }
 
         createToDo(parentId: string, name: string, description: string): Y.Promise<ToDoSummary> {

@@ -1,0 +1,17 @@
+{{!--
+  Template used by auth.authView to display login information and offer login/logout user controls
+--}}
+
+<div class="little-auth-panel">
+  
+  {{#if creds}}
+     <h2>Logged in as: {{creds.user}}</h2>
+
+    <a class="little-tools pure-button" data-action="logout" href="/logout">Logout</a>
+  {{else}}
+     <h2>Not logged in</h2>
+
+     <a class="little-tools pure-button" data-action="login" href="/login">Login with openId</a>
+  {{/if}}
+
+</div>

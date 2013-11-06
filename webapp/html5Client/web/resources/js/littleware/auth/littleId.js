@@ -16,7 +16,7 @@
  * @module littleware.auth.littleId
  * @namespace littleware.auth.littleId
  */
-YUI.add('littleware-littleId', function(Y) {
+YUI.add('littleware-auth-littleId', function(Y) {
     Y.namespace('littleware.auth');
     Y.littleware.auth.littleId = (function() {
         function log( msg, level ) {
@@ -42,7 +42,9 @@ YUI.add('littleware-littleId', function(Y) {
         }
 
         LoginHelper.NAME = "LoginHelper"
-        LoginHelper.openIdURL = "http://localhost:8080/littleware_services/"
+        // TODO - setup an injection mechanism for this url ... ugh.
+        LoginHelper.openIdURL = "https://littleware.herokuapp.com/littleware_services/";
+        //LoginHelper.openIdURL = "http://localhost:8080/littleware_services/"
         LoginHelper.STATES = [ "NotYetStarted", "Started", "CanceledByUser", "Waiting4Provider", "CredsReady", "FailedAuth"];
 
         LoginHelper.ATTRS = {
@@ -87,6 +89,7 @@ YUI.add('littleware-littleId', function(Y) {
                 return new Y.Promise((function (resolve, reject) {
                     Y.io(openIdURL, {
                         method: "GET",
+                        xdr: { credentials: true },
                         on: {
                             complete: function (id, ev) {
                                 log("login response");
@@ -303,14 +306,36 @@ YUI.add('littleware-littleId', function(Y) {
 
         var helperSingleton = templatePromise.then( function(tpl) { return new LoginHelper( {}, tpl ); } );
 
-        // expose an api
-        return {
+        var moduleExports = {
+            /**
+             * @class HelperFactory
+             */
             helperFactory: {
-                get: function() { return helperSingleton; }
+                /**
+                 * @method get
+                 * @static
+                 * @return littleId auth helper singleton
+                 */
+                get: function () { return helperSingleton; }
             },
-            CallbackData:CallbackData,
+
+            /**
+             * @method providerCallback
+             * @for littleId
+             * @return {Y.Promise}
+             */
+            providerCallback: function( data ) { return helperSingleton.then( function(helper){ helper.handleProviderCallback( data ); } ); },
+            CallbackData: CallbackData,
             buildTestSuite: buildTestSuite
         };
+
+        // make the api global to allow for user callbacks
+        littleware = littleware || {};
+        littleware.auth = littleware.auth || {};
+        littleware.auth.littleId = littleware.auth.littleId || moduleExports;
+
+        // expose an api
+        return moduleExports;
     })();
 }, '0.1.1' /* module version */, {
     requires: [ 'anim', 'base', 'node-base']

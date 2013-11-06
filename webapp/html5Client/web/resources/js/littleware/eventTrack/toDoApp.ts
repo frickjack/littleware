@@ -27,6 +27,11 @@ import importToDoView = require("toDoView");
 importToDoView;
 import toDoView = importToDoView.littleware.eventTrack.toDoView;
 
+import importAuthView = require("../auth/authView");
+importAuthView;
+import authView = importAuthView.littleware.auth.authView;
+
+
 import importLittleApp = require("littleApp");
 importLittleApp;
 import littleApp = importLittleApp.littleware.eventTrack.littleApp;
@@ -249,7 +254,19 @@ export module littleware.eventTrack.toDoApp {
             log.log("Archiving ToDos: " + ids.join(","));
             Y.Array.each( ids,
                 (id) => {
-                    this.todoTool.updateToDo(id, { state: toDo.ToDoItem.STATE.COMPLETE });
+                    this.todoTool.updateToDo(id, { state: toDo.ToDoItem.STATE.COMPLETE }
+                        ).then(
+                            (ok) => {
+                                //alert("update ok");
+                            },
+                            (err) => {
+                                var msg = "unknown err";
+                                try {
+                                    msg = JSON.stringify(err);
+                                } catch (ex) { }
+                                alert("update failed: " + msg );
+                            }
+                        );
                 }
               );
         }
@@ -298,8 +315,9 @@ export module littleware.eventTrack.toDoApp {
         var config = config || new Config();
         var versionInfo = Y.Node.create(
             "<div id='app-info'><span class='app-title'>Little To Do</span><br/>" +
-            "<a href='http://blog.frickjack.com/2013/09/little-to-do.html' target='_blank'>Version 0.0.2013.09.14</a><br/ > " +
-            "<img src='/littleware_apps/resources/img/checkbox.svg' width='25' alt='checkbox icon' />" +
+            "<ul><li><a href='http://blog.frickjack.com/2013/09/little-to-do.html' target='_blank'>Version 0.1.0 2013/11/06</a></li> " +
+            "<li><a href='http://blog.frickjack.com/2013/09/little-to-do.html' target='_blank'>Version 0.0.2013.09.14</a></li > " +
+            "</ul><img src='/littleware_apps/resources/img/checkbox.svg' width='25' alt='checkbox icon' />" +
             "</div>"
             );
         var homePage:Y.View = new Y.View();
@@ -320,7 +338,7 @@ export module littleware.eventTrack.toDoApp {
         var todoMgr = toDo.getToDoManager();
         return todoMgr.getUserDataFolder().then(
             (ref) => {
-                return todoMgr.loadActiveToDos(ref.getAsset().getId()).then(
+                return todoMgr.loadActiveToDos( ref.getAsset().getId() ).then(
                     (todos: toDo.ToDoSummary[]) => {
                         if (todos.length < 1) {
                             //
@@ -350,7 +368,7 @@ export module littleware.eventTrack.toDoApp {
                 for (var i = 0; i < maxToDoDepth; ++i) {
                     views.push(toDoView.PageViewFactory.newView());
                 }
-                // register the todo root
+                
                 return Y.batch.apply( Y, views );
             }
         ).then(
@@ -360,7 +378,10 @@ export module littleware.eventTrack.toDoApp {
                 var assetMgr = axMgr.getAssetManager();
                 var controller = new AppController(todoMgr, app, assetMgr );
                 var navListener = controller.viewListener.bind(controller);
-                app.registerRootPanel(rootPanel, "ToDo", navListener );
+
+                // register the todo root
+                app.registerRootPanel(rootPanel, "ToDo", navListener);
+                // register the todo sub-panels
                 var panels: littleApp.LittlePanel[] = [rootPanel];
                 var i = 0;
 
@@ -382,6 +403,10 @@ export module littleware.eventTrack.toDoApp {
                 // register listener for model changes
                 assetMgr.addListener(controller.assetListener.bind(controller));
                 return app;
+            }
+          ).then(
+            (app) => { 
+                return authView.decorateApp(app); // add the login root
             },
             (err) => {
                 log.log("Failed setup: " + err);

@@ -86,13 +86,25 @@ export module littleware.auth.authService {
      */
     export interface AuthManager {
         /**
-         * Get the currently active session.
+         * Attributes delegate with "sessionInfo" attribute auto-updated by manager
+         *
+         * @property attrs
+         */
+        attrs: Y.Base;
+
+        /**
+         * Shortcut for attrs.get( "sessionInfo" )
+         * @method getSessionInfo
+         */
+        getSessionInfo(): SessionInfo;
+
+        /**
+         * Refresh the currently active session from the authentication service.
          * May return cached credentials if optForceCheck is not set true.
          * @method getCreds
-         * @param optForceCheck {boolean}
          * @return {Promise{SessionInfo}} promise delivers session info
          */
-        getSessionInfo(optForceCheck?: boolean): Y.Promise<SessionInfo>;
+        refreshSessionInfo(): Y.Promise<SessionInfo>;
 
         /**
          * Authenticate as the given user verified by the given secret
@@ -112,7 +124,8 @@ export module littleware.auth.authService {
     }
 
     // TODO - inject this at startup/configuration time
-    var authServiceRoot = "http://localhost:8080/littleware_services/";
+    var authServiceRoot = "https://littleware.herokuapp.com/littleware_services";
+    //var authServiceRoot = "http://localhost:8080/littleware_services/";
 
     /**
      * Get the base url hosting the auth service
@@ -128,132 +141,186 @@ export module littleware.auth.authService {
     export function setServiceRoot(root: string): void {
     }
 
+    /**
+     * Internal class for AuthManager attributes modeling -
+     * extended with Y.Base below.
+     */
+    class AuthMgrAttrs {
+        static NAME = "AuthMgrAttrs";
+        static ATTRS = {
+            sessionInfo: {
+                readOnly: true,
+                value: new SessionInfo( "unknown", null )
+            }
+        };
 
-    class SimpleAuthManager {
+        constructor() {
+            // Y.Base initialization hook
+            (<any> AuthMgrAttrs).superclass.constructor.apply(this, {});
+        }
+    }
+
+    Y.extend(AuthMgrAttrs, Y.Base, {});
+
+    class SimpleAuthManager implements AuthManager {
 
         private sessionInfoPromise: Y.Promise<SessionInfo> = null;
-
-        getSessionInfo(optForceCheck?: boolean): Y.Promise<SessionInfo> {
-            if ( this.sessionInfoPromise) {
-                return this.sessionInfoPromise;
-            }
-
-            this.sessionInfoPromise = new Y.Promise(
-                (resolve, reject) => {
-                    Y.io(authServiceRoot + "/auth/login", {
-                        method: "GET",
-                        on: {
-                            complete: function (id, ev) {
-                                log.log("sessionInfo response");
-                                console.dir(ev);
-                                this.sessionInfoPromise = null;
-
-                                if (ev.status == 200) {
-                                    var json = JSON.parse(ev.responseText);
-                                    var creds: Creds = null;
-
-                                    if (json.authToken) {
-                                        creds = new Creds( json.user || "user", json.authToken, new Date( json.authExpires ) );
-                                    }
-
-                                    var session: SessionInfo = new SessionInfo(json.id, creds);
-                                    resolve(session);
-                                } else {
-                                    reject(ev);
-                                }
-                            }
-                        }
-                    });
-                }
-              );
-
-
-            return this.sessionInfoPromise;
-        }
-
-
         private loginPromise: Y.Promise<SessionInfo> = null;
-
-        authenticate(user: string, secret: string): Y.Promise<SessionInfo> {
-            if (this.loginPromise) {
-                return this.loginPromise;
-            }
-            var url = authServiceRoot + "/auth/login?action=login&user=" +
-                encodeURIComponent(user) +
-                "&password=" + encodeURIComponent(secret);
-            this.loginPromise = new Y.Promise(
-                (resolve, reject) => {
-                    Y.io( url, {
-                        method: "GET",
-                        on: {
-                            complete: function (id, ev) {
-                                log.log("login response");
-                                console.dir(ev);
-                                if (ev.status == 200) {
-                                    var json = JSON.parse(ev.responseText);
-                                    var creds: Creds = null;
-                                    if (json.authToken) {
-                                        creds = new Creds( json.user || "user", json.authToken, new Date(json.authExpires));
-                                    }
-
-                                    var session: SessionInfo = new SessionInfo(json.id, creds);
-                                    log.log("login session: ");
-                                    console.dir(session);
-
-                                    resolve(session);
-                                } else {
-                                    reject(ev);
-                                }
-                            }
-                        }
-                    });
-                }
-                );
-
-
-            return this.loginPromise;
-        }
-
-
-
         private logoutPromise: Y.Promise<SessionInfo> = null;
 
-        logout(): Y.Promise<SessionInfo> {
-            if (this.logoutPromise) {
-                return this.logoutPromise;
+        /**
+         * Internal helper to help serialize auth requests
+         * @method promises
+         */
+        private promises(): Y.Promise<void> {
+            var promises = Y.Array.filter([this.sessionInfoPromise, this.loginPromise, this.logoutPromise], (x) => {
+                return x;
+            });
+
+            var voidPromise = new Y.Promise((resolve, reject) => {
+                resolve(true);
+            });
+            if (promises.length > 0) {
+                return Y.batch.apply(Y, promises);
+            } else {
+                return voidPromise;
             }
+        }
 
-            this.logoutPromise = new Y.Promise(
-                (resolve, reject) => {
-                    Y.io(authServiceRoot + "/auth/login?action=logout", {
-                        method: "GET",
-                        on: {
-                            complete: function (id, ev) {
-                                log.log("logout response");
-                                console.dir(ev);
-                                if (ev.status == 200) {
-                                    var json = JSON.parse(ev.responseText);
-                                    var creds: Creds = null;
+        public attrs: Y.Base = <Y.Base> new AuthMgrAttrs();
 
-                                    var session: SessionInfo = new SessionInfo(json.id, creds);
-                                    resolve(session);
-                                } else {
-                                    reject(ev);
+        getSessionInfo(): SessionInfo {
+            return <SessionInfo> this.attrs.get( "sessionInfo" );
+        }
+
+        refreshSessionInfo(): Y.Promise<SessionInfo> {
+            return this.promises().then(() => {
+                this.sessionInfoPromise = new Y.Promise(
+                    (resolve, reject) => {
+                        Y.io(authServiceRoot + "/auth/login", {
+                            method: "GET",
+                            xdr: { credentials: true },
+                            on: {
+                                complete: (id, ev) => {
+                                    log.log("sessionInfo response");
+                                    console.dir(ev);
+                                    this.sessionInfoPromise = null;
+
+                                    if (ev.status == 200) {
+                                        var json = JSON.parse(ev.responseText);
+                                        var creds: Creds = null;
+
+                                        if (json.authToken) {
+                                            creds = new Creds(json.user || "user", json.authToken, new Date(json.authExpires));
+                                        }
+
+                                        var session: SessionInfo = new SessionInfo(json.id, creds);
+                                        this.attrs._set("sessionInfo", session);
+                                        resolve(session);
+                                    } else {
+                                        reject(ev);
+                                    }
                                 }
                             }
-                        }
-                    });
-                }
-                );
+                        });
+                    }
+                    );
+
+                return this.sessionInfoPromise;
+            });
+        }
 
 
-            return this.logoutPromise;
+        
+
+        authenticate(user: string, secret: string): Y.Promise<SessionInfo> {
+            return this.promises().then(() => {
+                var url = authServiceRoot + "/auth/login?action=login&user=" +
+                    encodeURIComponent(user) +
+                    "&password=" + encodeURIComponent(secret);
+                this.loginPromise = new Y.Promise(
+                    (resolve, reject) => {
+                        Y.io(url, {
+                            method: "GET",
+                            xdr: { credentials: true },
+                            on: {
+                                complete: (id, ev) => {
+                                    log.log("login response");
+                                    console.dir(ev);
+                                    if (ev.status == 200) {
+                                        var json = JSON.parse(ev.responseText);
+                                        var creds: Creds = null;
+                                        if (json.authToken) {
+                                            creds = new Creds(json.user || "user", json.authToken, new Date(json.authExpires));
+                                        }
+
+                                        var session: SessionInfo = new SessionInfo(json.id, creds);
+                                        log.log("login session: ");
+                                        console.dir(session);
+
+                                        this.attrs._set("sessionInfo", session);
+                                        resolve(session);
+                                    } else {
+                                        reject(ev);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    );
+
+
+                return this.loginPromise;
+            });
+        }
+
+
+
+        logout(): Y.Promise<SessionInfo> {
+            return this.promises().then(() => {
+                this.logoutPromise = new Y.Promise(
+                    (resolve, reject) => {
+                        Y.io(authServiceRoot + "/auth/login?action=logout", {
+                            method: "GET",
+                            xdr: { credentials: true },
+                            on: {
+                                complete: (id, ev) => {
+                                    log.log("logout response");
+                                    console.dir(ev);
+                                    if (ev.status == 200) {
+                                        var json = JSON.parse(ev.responseText);
+                                        var creds: Creds = null;
+
+                                        var session: SessionInfo = new SessionInfo(json.id, creds);
+                                        this.attrs._set("sessionInfo", session);
+                                        resolve(session);
+                                    } else {
+                                        reject(ev);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    );
+
+                return this.logoutPromise;
+            });
         }
 
     }
 
 
     var mgrSingleton: AuthManager = new SimpleAuthManager();
+    // go ahead and initialize the session info with real data (bogus data set in constructor)
+    mgrSingleton.refreshSessionInfo().then(() => { },
+        /* auto-retry a few times - heroku might have shut down the dyno since we're just beta testing ... */
+        (err) => {
+            mgrSingleton.refreshSessionInfo().then(
+                () => { }, (err) => { mgrSingleton.refreshSessionInfo() }
+                );
+        }
+     );
+
 
     /**
      * Factory for PageView instances - maries YUI class inheritance with Typescript type system
@@ -293,7 +360,12 @@ export module littleware.auth.authService {
 
                         mgr.logout().then(
                             (sinfo: SessionInfo) => {
+                                log.log("logout result: ");
+                                console.dir(sinfo);
+                                log.log("post logout session info: ");
+                                console.dir(mgr.getSessionInfo());
                                 Y.Assert.isTrue(!sinfo.getCreds(), "logout() works");
+                                Y.Assert.isTrue(sinfo.getId() == mgr.getSessionInfo().getId(), "sessionInfo updated after logout");
                                 return mgr.authenticate("littleware.test_user", "testSecret");
                             }
                         ).then(
@@ -303,7 +375,8 @@ export module littleware.auth.authService {
                                 Y.Assert.isTrue(sinfo.getCreds() && (sinfo.getCreds().getUser() == "littleware.test_user"),
                                     "authentication looks ok"
                                     );
-                                return mgr.getSessionInfo();
+                                Y.Assert.isTrue(sinfo.getId() == mgr.getSessionInfo().getId(), "sessionInfo updated after authentication");
+                              return mgr.refreshSessionInfo();
                             }
                         ).then( 
                           (sinfo: SessionInfo) => {

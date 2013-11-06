@@ -54,9 +54,17 @@ littleware.littleYUI = (function() {
                 },
                 'littleware-auth-authService': {
                     path: "auth/authService.js",
-                    requires: [ "io", "promise", "littleware-littleUtil", "test" ]
+                    requires: [ "base", "io", "promise", "littleware-littleUtil", "test" ]
                 },
-                'littleware-littleId': {
+                'littleware-auth-authView': {
+                    path: "auth/authView.js",
+                    requires: [
+                        "littleware-auth-authService", "littleware-auth-littleId",
+                        "littleware-eventTrack-littleApp", "littleware-littleUtil",
+                        "view", "test"
+                    ]
+                },
+                'littleware-auth-littleId': {
                     path: "auth/littleId.js",
                     requires: ['anim', 'base', 'littleware-littleUtil', 'node-base', 'node']
                 },
@@ -107,6 +115,7 @@ littleware.littleYUI = (function() {
                 "littleware-eventTrack-toDoApp": {
                         path: "eventTrack/toDoApp.js",
                         requires: ['littleware-eventTrack-toDoView', "littleware-eventTrack-littleApp",
+                            'littleware-auth-authView',
                             "event-key", "node-event-delegate", "router"
                         ]
                 }

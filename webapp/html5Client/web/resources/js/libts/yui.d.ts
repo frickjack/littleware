@@ -34,7 +34,8 @@ export declare module Y {
             function error(msg: string, e: Error, src: any): YUI;
             function error(msg: string, e: string, src: any): YUI;
             function each(o: any, f: Function, c: any, proto: boolean): YUI;
-            function extend(r: Function, s: Function, px: any, sx: any): any;
+            function extend(r: any, s: any, px: any, sx: any): any;
+            function extend(r: any, s: any, px: any ): any;
             function dump(o: any, d: number): string;
             function delegate(type: string, fn: Function, el: string, filter: string, context: any, args: any): EventHandle;
             function delegate(type: string, fn: Function, el: string, filter: Function, context: any, args: any): EventHandle;
@@ -2902,6 +2903,7 @@ export declare module Y {
             getAttrs(attrs: any[]): any;
             getAttrs(attrs: boolean): any;
             set(name: string, value: any): any;
+            _set(name: string, value: any): any;
             setAttrs(attrs: any): any;
         }
     

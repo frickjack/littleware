@@ -244,7 +244,7 @@ export module littleware.eventTrack.toDoView {
                             },
                             (err) => {
                                 this.resume(() => {
-                                    Y.Assert.fail("Failed to initiialize view: " + err);
+                                    Y.Assert.fail("Failed to initialize view: " + err);
                                 });
                             }
                             );

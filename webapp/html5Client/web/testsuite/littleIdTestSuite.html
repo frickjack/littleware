@@ -50,7 +50,7 @@
 
         <script>
             littleware.littleYUI.bootstrap().use(
-                'littleware-auth-authService', 'littleware-littleId', 'test',
+                'littleware-auth-authService', 'littleware-auth-authView', 'littleware-auth-littleId', 'test',
                 function (Y) {
                     var logSrc = "testSuite.html";
                     littleware.auth = littleware.auth || {};
@@ -76,6 +76,7 @@
                     //suite.add( Y.littleware.littleUtil.buildTestSuite() );
                     suite.add( Y.littleware.auth.littleId.buildTestSuite() );
                     suite.add(Y.littleware.auth.authService.buildTestSuite());
+                    suite.add(Y.littleware.auth.authView.buildTestSuite());
                     Y.Test.Runner.add( suite );
                     Y.Test.Runner.run();
                 }

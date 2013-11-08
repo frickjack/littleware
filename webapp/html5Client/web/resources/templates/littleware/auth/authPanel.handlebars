@@ -5,11 +5,17 @@
 <div class="little-auth-panel">
   
   {{#if creds}}
-     <h2>Logged in as: {{creds.user}}</h2>
+         <h2>
+      <a class="little-route" data-panel-path="{{path}}" href="..">
+        <img alt="back" src="/littleware_apps/resources/img/glyphicons/png/glyphicons_216_circle_arrow_left.png"/>
+      </a>Logged in as: {{creds.user}}</h2>
 
     <a class="little-tools pure-button" data-action="logout" href="/logout">Logout</a>
   {{else}}
-     <h2>Not logged in</h2>
+         <h2>
+      <a class="little-route" data-panel-path="{{path}}" href="..">
+        <img alt="back" src="/littleware_apps/resources/img/glyphicons/png/glyphicons_216_circle_arrow_left.png"/>
+      </a>Not logged in</h2>
 
      <a class="little-tools pure-button" data-action="login" href="/login">Login with openId</a>
   {{/if}}

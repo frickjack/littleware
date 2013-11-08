@@ -139,6 +139,7 @@ export module littleware.auth.authService {
      * @param root
      */
     export function setServiceRoot(root: string): void {
+        authServiceRoot = root;
     }
 
     /**
@@ -311,14 +312,27 @@ export module littleware.auth.authService {
 
 
     var mgrSingleton: AuthManager = new SimpleAuthManager();
+
     // go ahead and initialize the session info with real data (bogus data set in constructor)
-    mgrSingleton.refreshSessionInfo().then(() => { },
+    mgrSingleton.refreshSessionInfo().then(
+        () => { },
         /* auto-retry a few times - heroku might have shut down the dyno since we're just beta testing ... */
         (err) => {
-            mgrSingleton.refreshSessionInfo().then(
-                () => { }, (err) => { mgrSingleton.refreshSessionInfo() }
+            // back off 10 seconds on err
+            Y.later(10000, mgrSingleton,
+                () => {
+                    mgrSingleton.refreshSessionInfo().then(
+                        () => { },
+                        // back off 20 seconds on err
+                        (err) => {
+                            Y.later(20000, mgrSingleton, () => {
+                                mgrSingleton.refreshSessionInfo();
+                            }, {}, false);
+                        }
+                        );
+                }, {}, false
                 );
-        }
+         }
      );
 
 

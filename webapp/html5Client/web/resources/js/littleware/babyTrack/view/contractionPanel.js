@@ -115,7 +115,7 @@ YUI.add( 'littleware-babyTrack-view-contractionPanel', function(Y) {
                 
                 this.chart = new Y.Chart( {
                     dataProvider: this.buildChartModel(),
-                    //render: "#graph"
+                    //render: "#graph",
                     type: "combo",
                     showAreaFill:true,
                     categoryKey:"time", 

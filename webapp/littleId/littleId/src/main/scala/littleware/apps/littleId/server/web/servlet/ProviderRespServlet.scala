@@ -122,7 +122,8 @@ class ProviderRespServlet extends HttpServlet {
     cookie.setMaxAge( 300 )
     cookie.setPath( Option( req.getContextPath ).filter( _.nonEmpty ).getOrElse( "/" ) )
     resp.addCookie( cookie )
-    
+    resp.setHeader( "Cache-Control", "no-cache, no-store" );
+
     //
     // redirect to replyTo page with openId parameters added to the url string -
     // maybe add getCreds call later that just returns the cookie contents ?

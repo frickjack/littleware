@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletResponse
 import littleware.apps.littleId.common.model.OIdProvider
 import littleware.apps.littleId.server._
 import java.util.logging.{Level,Logger}
-import littleware.scala.LittleHelper
 import littleware.web.beans.GuiceBean
 import littleware.web.servlet.WebBootstrap
 import littleware.web.servlet.helper.JsonResponse
@@ -64,7 +63,6 @@ import AuthReqServlet._
  */
 class AuthReqServlet extends HttpServlet {
   private val log = Logger.getLogger( getClass.getName )
-
   private var tools:Tools = null
 
   @Inject
@@ -118,7 +116,6 @@ class AuthReqServlet extends HttpServlet {
       tools.gsonTool.toJsonTree( dataForProvider, classOf[model.DataForProvider] ).getAsJsonObject
     ).build();
     tools.helper.write( resp, jsonResponse )
-    
   }
 
   @throws(classOf[ServletException])

@@ -9,17 +9,17 @@
 
 package littleware.asset.server;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
+import littleware.asset.AssetInfo;
 import littleware.asset.AssetType;
-import littleware.asset.IdWithClock;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
@@ -42,8 +42,17 @@ public interface ServerSearchManager {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException some other failure condition
      */
-    public RemoteSearchManager.AssetResult getAsset( LittleContext context, UUID assetId, long clientCacheTStamp ) throws BaseException,
+    public RemoteSearchManager.AssetResult getAsset( LittleContext context, UUID assetId, 
+            long clientCacheTStamp ) throws BaseException,
             GeneralSecurityException;
+    
+    /**
+     * Shortcut for getAsset( ..., -1L )
+     */
+    public Option<Asset> getAsset( LittleContext context, UUID assetId
+             ) throws BaseException,
+            GeneralSecurityException;
+    
 
     /**
      * Get as many of the assets in the given collection of ids as possible.
@@ -58,13 +67,13 @@ public interface ServerSearchManager {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException if some other failure condition
      */
-    public Map<UUID,RemoteSearchManager.AssetResult> getAssets( LittleContext context, Map<UUID,Long> id2ClientTStamp ) throws BaseException, AssetException,
+    public ImmutableMap<UUID,RemoteSearchManager.AssetResult> getAssets( LittleContext context, Map<UUID,Long> id2ClientTStamp ) throws BaseException, AssetException,
             GeneralSecurityException;
 
     /**
      * Convenience method for clients without a cache
      */
-    public Map<UUID,RemoteSearchManager.AssetResult> getAssets( LittleContext context, Collection<UUID> idSet ) throws BaseException, AssetException,
+    public ImmutableMap<UUID,RemoteSearchManager.AssetResult> getAssets( LittleContext context, Collection<UUID> idSet ) throws BaseException, AssetException,
             GeneralSecurityException;
     
     /**
@@ -75,19 +84,44 @@ public interface ServerSearchManager {
      * @throws DataAccessException on database access/interaction failure
      * @throws AccessDeniedException if caller is not an administrator
      */
-    public Map<String, UUID> getHomeAssetIds( LittleContext context ) throws BaseException, AssetException,
+    public RemoteSearchManager.InfoMapResult getHomeAssetIds( LittleContext context,
+            long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
             GeneralSecurityException;
 
 
-    public Map<String, UUID> getAssetIdsFrom( 
+    /**
+     * Shortcut for getHomeAssetIds( ..., -1L, 0 )
+     */
+    public ImmutableMap<String,AssetInfo> getHomeAssetIds( LittleContext context
+             ) throws BaseException, AssetException,
+            GeneralSecurityException;
+
+    public RemoteSearchManager.InfoMapResult getAssetIdsFrom( 
             LittleContext context,
-            UUID fromId,
-            AssetType type) throws BaseException, AssetException,
+            UUID fromId, AssetType type,
+            long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
+            GeneralSecurityException;
+
+    /**
+     * Shortcut for getAssetIdsFrom( ..., 1L, 0 )
+     */
+    public ImmutableMap<String,AssetInfo> getAssetIdsFrom( 
+            LittleContext context,
+            UUID fromId, AssetType type
+            ) throws BaseException, AssetException,
             GeneralSecurityException;
 
 
+    public RemoteSearchManager.InfoMapResult getAssetIdsFrom( 
+            LittleContext context,
+            UUID fromId, long cacheTimestamp, int sizeInCache
+            ) throws BaseException, AssetException,
+            GeneralSecurityException;
 
-    public Map<String, UUID> getAssetIdsFrom( 
+    /**
+     * Shortcut for getAssetIdsFrom( ..., -1L, 0 )
+     */
+    public ImmutableMap<String,AssetInfo> getAssetIdsFrom( 
             LittleContext context,
             UUID fromId
             ) throws BaseException, AssetException,
@@ -105,9 +139,19 @@ public interface ServerSearchManager {
      * @return the asset or null if none found
      * @throws InavlidAssetTypeException if n_type is not name-unique
      */
-    public  Option<Asset> getByName( LittleContext context, String name, AssetType type) throws BaseException, AssetException,
+    public  RemoteSearchManager.AssetResult getByName( LittleContext context, String name, 
+            AssetType type, long cacheTimestamp
+            ) throws BaseException, AssetException,
             GeneralSecurityException;
 
+    
+    /**
+     * Shortcut for getByName( ..., -1L )
+     */
+    public  Option<Asset> getByName( LittleContext context, String name, 
+            AssetType type
+            ) throws BaseException, AssetException,
+            GeneralSecurityException;
 
 
     /**
@@ -121,7 +165,7 @@ public interface ServerSearchManager {
      * @throws AccessDeniedException if do not CURRENTLY have read-access to the asset
      * @throws DataAccessException on database access/interaction failure
      */
-    public List<Asset> getAssetHistory( LittleContext context, UUID assetId,  Date start,  Date end)
+    public ImmutableList<Asset> getAssetHistory( LittleContext context, UUID assetId,  Date start,  Date end )
             throws BaseException, AssetException,
             GeneralSecurityException;
 
@@ -133,30 +177,19 @@ public interface ServerSearchManager {
      * @param name of result asset
      * @throws NoSuchThingException if requested asset does not exist
      */
-    public Option<Asset> getAssetFrom( LittleContext context, UUID parentId,  String name) throws BaseException, AssetException,
+    public RemoteSearchManager.AssetResult getAssetFrom( 
+            LittleContext context, UUID parentId,  String name, long cacheTimestamp 
+            ) throws BaseException, AssetException,
             GeneralSecurityException;
 
-
     /**
-     * Method for a client to verify the transaction-counts
-     * the client has in cache for a set of assets
-     *
-     * @param checkMap mapping from asset id to transaction count to verify
-     * @return subset of v_check that is incorrect with correct mapping
-     *              from id to transaction-count, or mapping from id
-     *              to null if the specified id has been deleted from the asset repository
+     * Shortcut for getAssetFrom( ..., -1L )
      */
-    public Map<UUID, Long> checkTransactionCount( LittleContext context, Map<UUID, Long> checkMap ) throws BaseException;
+    public Option<Asset> getAssetFrom( 
+            LittleContext context, UUID parentId,  String name
+            ) throws BaseException, AssetException,
+            GeneralSecurityException;
 
-
-    /**
-     * Return the assets modified by the 100 most recent transaction after lMin
-     *
-     * @param homeId to restrict to
-     * @param minTransaction
-     * @return list of (transaction,asset-id) info in transaction order
-     */
-    public List<IdWithClock> checkTransactionLog( LittleContext context, UUID homeId, long minTransaction ) throws BaseException;
 
     /**
      * Get the links (assets with a_to as their TO-asset)
@@ -172,8 +205,16 @@ public interface ServerSearchManager {
      * @throws IllegalArgumentExcetion if limit is out of bounds
      * @throws AssetException if limit is too large
      */
-    public Set<UUID> getAssetIdsTo( LittleContext context, UUID toId,
-             AssetType type) throws BaseException, AssetException,
+    public RemoteSearchManager.InfoMapResult getAssetIdsTo( LittleContext context, UUID toId,
+             AssetType type, long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
+            GeneralSecurityException;
+
+    /**
+     * Shortcut for getAssetIdsTo( ..., -1L, 0 )
+     */
+    public ImmutableMap<String,AssetInfo> getAssetIdsTo( LittleContext context, UUID toId,
+             AssetType type
+            ) throws BaseException, AssetException,
             GeneralSecurityException;
 
 }

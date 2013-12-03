@@ -7,6 +7,8 @@
  */
 package littleware.asset.client.internal;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
@@ -32,49 +34,51 @@ public class InMemorySearchMgrProxy implements RemoteSearchMgrProxy {
         this.delegate = delegate;
     }
 
-    @Override
-    public Option<Asset> getByName(UUID sessionId, String name, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return delegate.getByName(sessionId, name, type);
-    }
 
     @Override
-    public List<Asset> getAssetHistory(UUID sessionId, UUID assetId, Date start, Date end) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableList<Asset> getAssetHistory(UUID sessionId, UUID assetId, Date start, Date end) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return delegate.getAssetHistory(sessionId, assetId, start, end);
     }
 
-    @Override
-    public Option<Asset> getAssetFrom(UUID sessionId, UUID parentId, String name) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return delegate.getAssetFrom(sessionId, parentId, name);
-    }
-
-
-    @Override
-    public Set<UUID> getAssetIdsTo(UUID sessionId, UUID toId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return delegate.getAssetIdsTo(sessionId, toId, type);
-    }
 
     @Override
     public AssetResult getAsset(UUID sessionId, UUID assetId, long cacheTimestamp) throws BaseException, GeneralSecurityException, RemoteException {
         return delegate.getAsset(sessionId, assetId, cacheTimestamp);
     }
 
+
     @Override
-    public Map<UUID, AssetResult> getAssets(UUID sessionId, Map<UUID, Long> idToCacheTStamp) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return delegate.getAssets(sessionId, idToCacheTStamp);
+    public ImmutableMap<UUID, AssetResult> getAssets(UUID sessionId, Map<UUID, Long> idToCacheTStamp) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return delegate.getAssets( sessionId, idToCacheTStamp );
     }
 
     @Override
-    public Map<String, UUID> getHomeAssetIds(UUID sessionId) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return delegate.getHomeAssetIds(sessionId);
+    public InfoMapResult getHomeAssetIds(UUID sessionId, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return delegate.getHomeAssetIds( sessionId, cacheTimestamp, sizeInCache );
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID sessionId, UUID fromId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return delegate.getAssetIdsFrom(sessionId, fromId, type);
+    public InfoMapResult getAssetIdsFrom(UUID sessionId, UUID fromId, AssetType type, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return delegate.getAssetIdsFrom( sessionId, fromId, type, cacheTimestamp, sizeInCache );
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID sessionId, UUID fromId) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return delegate.getAssetIdsFrom(sessionId, fromId);
+    public InfoMapResult getAssetIdsFrom(UUID sessionId, UUID fromId, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return delegate.getAssetIdsFrom( sessionId, fromId, cacheTimestamp, sizeInCache );
+    }
+
+    @Override
+    public AssetResult getByName(UUID sessionId, String name, AssetType type, long cacheTimestamp) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return delegate.getByName( sessionId, name, type, cacheTimestamp );
+    }
+
+    @Override
+    public AssetResult getAssetFrom(UUID sessionId, UUID parentId, String name, long cacheTimestamp) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return delegate.getAssetFrom( sessionId, parentId, name, cacheTimestamp );
+    }
+
+    @Override
+    public InfoMapResult getAssetIdsTo(UUID sessionId, UUID toId, AssetType type, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return getAssetIdsTo( sessionId, toId, type, cacheTimestamp, sizeInCache );
     }
 }

@@ -7,6 +7,8 @@
  */
 package littleware.asset.client;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
@@ -14,6 +16,7 @@ import java.rmi.Remote;
 import javax.naming.LinkLoopException;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
+import littleware.asset.AssetInfo;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
 
@@ -58,7 +61,7 @@ public interface AssetSearchManager extends Remote {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException if some other failure condition
      */
-    public Map<UUID,AssetRef> getAssets(Collection<UUID> idSet) throws BaseException, AssetException,
+    public ImmutableMap<UUID,AssetRef> getAssets(Collection<UUID> idSet) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -69,15 +72,15 @@ public interface AssetSearchManager extends Remote {
      * @throws DataAccessException on database access/interaction failure
      * @throws AccessDeniedException if caller is not an administrator
      */
-    public Map<String, UUID> getHomeAssetIds() throws BaseException, AssetException,
+    public ImmutableMap<String, AssetInfo> getHomeAssetIds() throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 
-    public Map<String, UUID> getAssetIdsFrom(UUID fromId,
+    public ImmutableMap<String, AssetInfo> getAssetIdsFrom(UUID fromId,
             AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
-    public Map<String, UUID> getAssetIdsFrom(UUID fromId) throws BaseException, AssetException,
+    public ImmutableMap<String, AssetInfo> getAssetIdsFrom(UUID fromId) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
     /**
@@ -139,14 +142,14 @@ public interface AssetSearchManager extends Remote {
      * Get the history of changes on the specified asset going back to the specified date.
      * Asset must be local to this server's database.
      *
-     * @param u_id of asset to get history for
-     * @param t_start earliest date to go back to in history search
-     * @param t_end most recent date to go up to in history search
+     * @param id of asset to get history for
+     * @param startDate earliest date to go back to in history search
+     * @param endDate most recent date to go up to in history search
      * @throws NoSuchThingException if the given asset does not exist in the database
      * @throws AccessDeniedException if do not CURRENTLY have read-access to the asset
      * @throws DataAccessException on database access/interaction failure
      */
-    public List<Asset> getAssetHistory(UUID u_id, Date t_start, Date t_end)
+    public ImmutableList<Asset> getAssetHistory(UUID id, Date startDate, Date endDate)
             throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
@@ -167,16 +170,16 @@ public interface AssetSearchManager extends Remote {
      * out of the given asset-id of the given type.
      * Caller must have READ-access to the a_to asset.
      *
-     * @param u_to asset - result&apos;s TO-asset
-     * @param n_type to limit search to - may NOT be null
-     * @return ids of children of type n_type linking TO a_to
+     * @param toId asset - result&apos;s TO-asset
+     * @param type to limit search to - may NOT be null
+     * @return ids of children of type type linking TO toId
      * @throws AccessDeniedException if caller does not have read access
-     *                to a_source
+     *                to toId's asset
      * @throws DataAccessException on database access/interaction failure
      * @throws IllegalArgumentExcetion if limit is out of bounds
      * @throws AssetException if limit is too large 
      */
-    public Set<UUID> getAssetIdsTo(UUID toId,
+    public ImmutableMap<String,AssetInfo> getAssetIdsTo(UUID toId,
             AssetType type) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 }

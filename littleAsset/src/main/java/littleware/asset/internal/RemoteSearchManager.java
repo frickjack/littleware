@@ -8,6 +8,9 @@
 
 package littleware.asset.internal;
 
+import com.google.common.collect.ImmutableList;
+import littleware.asset.AssetInfo;
+import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
@@ -26,37 +29,49 @@ import littleware.security.AccessDeniedException;
 
 /**
  * Asset-search interface.  Searches the local server database only.
- * Does not extends Remote so we have the option of
- * sending cilents serializable proxies, but every method
- * does throw RemoteException so this interface is
- * ready for a Remote mixin.
  */
 public interface RemoteSearchManager extends Remote {
-    public static class AssetResult implements java.io.Serializable {
-        private State state;
-        private Option<Asset> asset;
+    
+    public static abstract class TStampResult<T> implements java.io.Serializable {
+        private State          state;
+        private T              data;
         
         public static enum State { 
-            NO_SUCH_ASSET, 
+            NO_DATA, 
             USE_YOUR_CACHE, 
-            ASSET_IN_RESULT,
+            DATA_IN_RESULT,
             ACCESS_DENIED
         };
         
-        private AssetResult( State state, Option<Asset> asset ) {
+        protected TStampResult( State state, T data ) {
             this.state = state;
-            this.asset = asset;
+            this.data = data;
+        }
+
+        /** For serializable */
+        protected TStampResult(){}
+        
+        public State getState() { return state; }
+        public T getData() { return data; }
+    }
+    
+    
+    public static class AssetResult extends TStampResult<Option<Asset>> {
+        
+        
+        private AssetResult( TStampResult.State state, Option<Asset> optAsset ) {
+            super( state, optAsset );
         }
         
         /** For Serializable contract */
         private AssetResult() {}
         
-        public State getState() { return state; }
-        public Option<Asset> getAsset() { return asset; }
+
+        public Option<Asset> getAsset() { return getData(); }
         
         // ----
-        private static AssetResult useCache = new AssetResult( State.USE_YOUR_CACHE, Options.NONE );
-        private static AssetResult noAsset = new AssetResult( State.NO_SUCH_ASSET, Options.NONE );
+        private static final AssetResult useCache = new AssetResult( TStampResult.State.USE_YOUR_CACHE, Options.NONE );
+        private static final AssetResult noAsset = new AssetResult( TStampResult.State.NO_DATA, Options.NONE );
 
         
         public static AssetResult useCache() {
@@ -68,9 +83,58 @@ public interface RemoteSearchManager extends Remote {
         
         
         public static AssetResult build( Asset asset ) {
-            return new AssetResult( State.ASSET_IN_RESULT, Options.some(asset));
+            return new AssetResult( TStampResult.State.DATA_IN_RESULT, Options.some(asset));
         }
     }
+    
+    //----------------------------------
+
+    /**
+     * Result for listChildren, etc returns asset info in a name-keyed map
+     * (to simplify name-based asset-path resolution - which is very common).     
+     */
+    public static class InfoMapResult extends TStampResult<ImmutableMap<String,AssetInfo>> {
+        private long newestTimestamp = -1L;
+        
+        private InfoMapResult( TStampResult.State state, ImmutableMap<String,AssetInfo> data ) {
+            super( state, data );
+            for ( AssetInfo info : data.values() ) {
+                if ( info.getTimestamp() > newestTimestamp ) {
+                    newestTimestamp = info.getTimestamp();
+                }
+            }
+        }
+        
+        /** For Serializable contract */
+        private InfoMapResult() {}
+        
+        /**
+         * Shortcut for optInfo.values.map( _.getTimestamp ).max
+         */
+        public long getNewestTimestamp() { return newestTimestamp; }
+        
+
+        
+        // ----
+        private static final ImmutableMap<String,AssetInfo> emptyMap = ImmutableMap.of();
+        private static final InfoMapResult useCache = new InfoMapResult( TStampResult.State.USE_YOUR_CACHE, emptyMap );
+        private static final InfoMapResult noData = new InfoMapResult( TStampResult.State.NO_DATA, emptyMap );
+
+        
+        public static InfoMapResult useCache() {
+            return useCache;
+        }
+        public static InfoMapResult noData() {
+            return noData;
+        }
+        
+        
+        public static InfoMapResult build( ImmutableMap<String,AssetInfo> infoMap ) {
+            return new InfoMapResult( TStampResult.State.DATA_IN_RESULT, infoMap );
+        }
+    }
+    
+    //----------------------------------
 
     /**
      * Get the asset with the specified id.
@@ -97,29 +161,32 @@ public interface RemoteSearchManager extends Remote {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException if some other failure condition
      */
-    public Map<UUID,AssetResult> getAssets( UUID sessionId, Map<UUID,Long> idToCacheTStamp ) throws BaseException, AssetException,
+    public ImmutableMap<UUID,AssetResult> getAssets( UUID sessionId, Map<UUID,Long> idToCacheTStamp ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
     
 
     /**
-     * Get the Home assets this server has access to
-     * for open-ended searches.
+     * Get the Home assets this server has access to.
      *
+     * @param cacheTimestamp newest timestamp of entries in client's cached value - -1L if client does not have a valid cache entry
+     * @param sizeInCache the number of entries in the value cached by the client if any 
      * @return mapping from home name to UUID.
      * @throws DataAccessException on database access/interaction failure
      * @throws AccessDeniedException if caller is not an administrator
      */
-    public Map<String, UUID> getHomeAssetIds( UUID sessionId ) throws BaseException, AssetException,
+    public InfoMapResult getHomeAssetIds( UUID sessionId, long cacheTimestamp, int sizeInCache 
+            ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 
-    public Map<String, UUID> getAssetIdsFrom( UUID sessionId, UUID fromId,
-            AssetType type) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+    public InfoMapResult getAssetIdsFrom( UUID sessionId, UUID fromId,
+            AssetType type, long cacheTimestamp, int sizeInCache
+            ) throws BaseException, AssetException, GeneralSecurityException, RemoteException;
 
 
 
-    public Map<String, UUID> getAssetIdsFrom( UUID sessionId, UUID fromId
+    public InfoMapResult getAssetIdsFrom( UUID sessionId, UUID fromId,
+            long cacheTimestamp, int sizeInCache
             ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
@@ -134,7 +201,8 @@ public interface RemoteSearchManager extends Remote {
      * @return the asset or null if none found    
      * @throws InavlidAssetTypeException if n_type is not name-unique
      */
-    public  Option<Asset> getByName( UUID sessionId, String name, AssetType type) throws BaseException, AssetException,
+    public  AssetResult getByName( UUID sessionId, String name, 
+            AssetType type, long cacheTimestamp ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 
@@ -150,7 +218,7 @@ public interface RemoteSearchManager extends Remote {
      * @throws AccessDeniedException if do not CURRENTLY have read-access to the asset
      * @throws DataAccessException on database access/interaction failure
      */
-    public List<Asset> getAssetHistory( UUID sessionId, UUID assetId,  Date start,  Date end)
+    public ImmutableList<Asset> getAssetHistory( UUID sessionId, UUID assetId,  Date start,  Date end)
             throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
@@ -162,7 +230,9 @@ public interface RemoteSearchManager extends Remote {
      * @param name of result asset
      * @throws NoSuchThingException if requested asset does not exist
      */
-    public Option<Asset> getAssetFrom( UUID sessionId, UUID parentId,  String name) throws BaseException, AssetException,
+    public AssetResult getAssetFrom( UUID sessionId, 
+            UUID parentId,  
+            String name, long cacheTimestamp ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
 
@@ -180,9 +250,10 @@ public interface RemoteSearchManager extends Remote {
      * @throws IllegalArgumentExcetion if limit is out of bounds
      * @throws AssetException if limit is too large 
      */
-    public Set<UUID> getAssetIdsTo( UUID sessionId, UUID toId,
-             AssetType type) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException;
+    public InfoMapResult getAssetIdsTo( UUID sessionId, UUID toId,
+             AssetType type, long cacheTimestamp, int sizeInCache
+            ) throws BaseException, AssetException,
+                    GeneralSecurityException, RemoteException;
 
     /**
      * Position in JNDI or RMI directory to bind/lookup this service

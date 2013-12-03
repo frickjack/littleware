@@ -7,6 +7,7 @@
  */
 package littleware.security.server.internal;
 
+import com.google.common.collect.ImmutableMap;
 import littleware.asset.server.NullAssetSpecializer;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -84,10 +85,10 @@ public class SimpleAccountManager extends NullAssetSpecializer {
 
         // It's a GROUP - need to populate it
         final LittleGroup.Builder groupBuilder = asset.copy().narrow();
-        final Map<String, UUID> groupLinks = search.getAssetIdsFrom(ctx, groupBuilder.getId(),
+        final ImmutableMap<String, AssetInfo> groupLinks = search.getAssetIdsFrom(ctx, groupBuilder.getId(),
                 LittleGroupMember.GROUP_MEMBER_TYPE);
-
-        final Collection<AssetResult> linkAssets = search.getAssets(ctx, groupLinks.values()).values();
+        final Collection<UUID>   linkIds = AssetInfo.mapIds(groupLinks.values() );
+        final Collection<AssetResult> linkAssets = search.getAssets(ctx, linkIds).values();
 
         /** 
          * This check not true after a member group/user has been deleted.
@@ -182,13 +183,15 @@ public class SimpleAccountManager extends NullAssetSpecializer {
             throw new IllegalArgumentException("May not modify the everybody group");
         }
         if (LittleGroup.GROUP_TYPE.equals(asset.getAssetType()) || LittleUser.USER_TYPE.equals(asset.getAssetType())) {
-            Set<UUID> vChildren = new HashSet<UUID>();
-            vChildren.addAll(
+            final Set<UUID> vChildren = new HashSet<>();
+            vChildren.addAll( AssetInfo.mapIds(
                     search.getAssetIdsFrom(ctx, asset.getId(),
-                    LittleGroupMember.GROUP_MEMBER_TYPE).values());
-            vChildren.addAll(
+                    LittleGroupMember.GROUP_MEMBER_TYPE).values())
+                    );
+            vChildren.addAll( AssetInfo.mapIds(
                     search.getAssetIdsTo(ctx, asset.getId(),
-                    LittleGroupMember.GROUP_MEMBER_TYPE));
+                    LittleGroupMember.GROUP_MEMBER_TYPE).values()) 
+                    );
 
             final Collection<AssetResult> linkResults = search.getAssets(ctx, vChildren).values();
             for (AssetResult maybeLink : linkResults) {
@@ -221,35 +224,32 @@ public class SimpleAccountManager extends NullAssetSpecializer {
                 v_before.addAll(preUpdate.narrow(LittleGroup.class).getMembers());
             }
 
-            final List<LittlePrincipal> v_add = new ArrayList<LittlePrincipal>();
-            final Set<UUID> memberSet = new HashSet<UUID>();
+            final List<LittlePrincipal> addPrincipals = new ArrayList<LittlePrincipal>();
+            final Set<UUID> memberSet = new HashSet<>();
 
             // Get the list of new group members that need added
             for (LittlePrincipal member : group.getMembers()) {
                 memberSet.add(member.getId());
                 if (!v_before.remove(member)) {
-                    v_add.add(member);
+                    addPrincipals.add(member);
                 }
             }
 
             {
                 // Get the collection of assets linking the group-asset
                 // to the group-members, and delete the unneeded ones
-                final Map<String, UUID> childrenMap = search.getAssetIdsFrom(ctx, group.getId(),
+                final ImmutableMap<String, AssetInfo> childrenMap = search.getAssetIdsFrom(ctx, group.getId(),
                         LittleGroupMember.GROUP_MEMBER_TYPE);
-                final Collection<AssetResult> linkResults = search.getAssets(ctx, childrenMap.values()).values();
-                for (AssetResult maybeLink : linkResults) {
-                    if (maybeLink.getAsset().isSet()) {
-                        final LittleGroupMember member = maybeLink.getAsset().get().narrow();
+                for (AssetInfo linkInfo : childrenMap.values()) {
+                        final LittleGroupMember member = search.getAsset( ctx, linkInfo.getId() ).get().narrow();
                         if (!memberSet.contains(member.getMemberId())) {
                             assetMgr.deleteAsset(ctx, member.getId(), "member no longer in group");
                         }
-                    }
                 }
             }
 
             // Add the new members to the group
-            for (LittlePrincipal member : v_add) {
+            for (LittlePrincipal member : addPrincipals) {
                 log.log(Level.FINE, "Adding {0} to group {1}", new Object[]{member.getName(), group.getName()});
                 addMemberToGroup(ctx, group, member, assetMgr);
             }

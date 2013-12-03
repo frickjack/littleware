@@ -7,8 +7,10 @@
  */
 package littleware.asset.server.internal;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -16,7 +18,9 @@ import java.security.GeneralSecurityException;
 import java.sql.*;
 
 import littleware.asset.*;
+import littleware.asset.internal.RemoteSearchManager;
 import static littleware.asset.internal.RemoteSearchManager.AssetResult;
+import littleware.asset.internal.RemoteSearchManager.InfoMapResult;
 import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleTransaction;
@@ -30,31 +34,90 @@ import littleware.security.LittleGroup;
 import littleware.security.LittleGroupMember;
 import littleware.security.LittlePermission;
 import littleware.security.LittleUser;
-import littleware.security.auth.LittleSession;
 
 /**
- * Simple implementation of Asset-search interface.  
+ * Simple implementation of Asset-search interface. 
+ * TODO - refactor DbManager to better support AssetInfo methods
  */
 public class SimpleSearchManager implements ServerSearchManager {
 
     private static final Logger log = Logger.getLogger(SimpleSearchManager.class.getName());
     private final DbAssetManager dbMgr;
     private final AssetSpecializerRegistry specialRegistry;
+    private final Provider<AssetInfo.Builder> infoFactory;
 
     /**
      * Constructor stashes DataSource, DbManager, and CacheManager
      */
     @Inject
     public SimpleSearchManager(DbAssetManager dbMgr,
-            AssetSpecializerRegistry specialRegistry
+            AssetSpecializerRegistry specialRegistry,
+            Provider<AssetInfo.Builder> infoFactory
             ) {
         this.dbMgr = dbMgr;
         this.specialRegistry = specialRegistry;
+        this.infoFactory = infoFactory;
     }
 
+    /**
+     * Internal helper to convert an unspecialized/secured asset
+     * to a result suitable to return to a client
+     * 
+     * @param optUnspecialized
+     * @param clientTimestamp
+     */
+    private AssetResult buildResult( LittleContext ctx, Option<Asset> optUnspecialized, 
+            long clientTimestamp 
+            ) throws BaseException, AssetException, GeneralSecurityException {
+        if ( optUnspecialized.isEmpty()) {
+            return AssetResult.noSuchAsset();
+        }
+
+        final Asset unspecial = optUnspecialized.get();
+        // sanity check
+        Whatever.get().check("Got a valid id", unspecial.getId() != null);
+        
+        final Map<UUID,Asset> accessCache = ctx.getTransaction().getCache();
+
+        if ( unspecial.getTimestamp() <= clientTimestamp ) {
+            return AssetResult.useCache();
+        }
+        
+        final Asset special = this.secureAndSpecialize( ctx, unspecial);
+        return AssetResult.build( special );
+    }
+    
+    
+    private InfoMapResult buildIMapResult( LittleContext ctx, Collection<UUID> assetIds, long clientTimestamp, int clientSize ) throws BaseException {
+        if ( assetIds.isEmpty() ) {
+            return InfoMapResult.noData();
+        }
+        final ImmutableMap.Builder<String,AssetInfo> mapBuilder = ImmutableMap.builder();
+        ctx.getTransaction().startDbAccess();
+        try {
+            for( UUID id: assetIds ) {
+                // getAssetOrNullInsecure updates transaction accessCache
+                final Asset unspecial = this.getAssetOrNullInsecure(ctx, id);
+                final AssetInfo info = infoFactory.get().copyFromAsset( unspecial ).build();
+                mapBuilder.put( info.getName(), info );
+            }
+        } finally {
+            ctx.getTransaction().endDbAccess();
+        }
+        final InfoMapResult dataResult = InfoMapResult.build( mapBuilder.build() );
+        if ( (dataResult.getNewestTimestamp() == clientTimestamp) && (dataResult.getData().size() == clientSize)) {
+            return InfoMapResult.useCache();
+        }
+        return dataResult;
+    }
+    
+    
     @Override
-    public Option<Asset> getByName(LittleContext ctx, String name, AssetType type) throws BaseException, AssetException,
-            GeneralSecurityException {
+    public  AssetResult getByName( LittleContext ctx, String name, 
+            AssetType type, long cacheTimestamp
+            ) throws BaseException, AssetException,
+            GeneralSecurityException 
+    {
         if (!type.isNameUnique()) {
             throw new InvalidAssetTypeException("getByName requires name-unique type: " + type);
         }
@@ -73,91 +136,53 @@ public class SimpleSearchManager implements ServerSearchManager {
                 throw new DataAccessException("Failed query: " + ex);
             }
 
-            if (loadedAssets.isEmpty()) {
-                return Options.empty();
-            }
-            final Asset asset = loadedAssets.iterator().next();
-            accessCache.put(asset.getId(), asset);
-            return Options.some(secureAndSpecialize(ctx, asset));
+            return this.buildResult(ctx, loadedAssets, cacheTimestamp);
         } finally {
             trans.endDbAccess(accessCache);
         }
     }
 
     @Override
-    public List<Asset> getAssetHistory(LittleContext ctx, UUID id, java.util.Date start, java.util.Date end)
+    public ImmutableList<Asset> getAssetHistory(LittleContext ctx, UUID id, java.util.Date start, java.util.Date end)
             throws BaseException, AssetException,
             GeneralSecurityException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Option<Asset> getAssetFrom(LittleContext ctx, UUID parentId, String name) throws BaseException, AssetException,
+    public AssetResult getAssetFrom(LittleContext ctx, UUID parentId, String name, long cacheTimestamp ) throws BaseException, AssetException,
             GeneralSecurityException {
-        Option<Asset> result = Options.empty();
+        Option<Asset> optResult = Options.empty();
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
         try {
             try {
                 final DbReader<Option<Asset>, String> reader = dbMgr.makeDbAssetByParentLoader(trans, name, parentId );
 
-                result = reader.loadObject(null);
+                optResult = reader.loadObject(null);
             } catch (SQLException ex) {
                 log.log(Level.SEVERE, "Failed query", ex);
                 throw new DataAccessException("Failed query: " + ex);
             }
 
-            if (result.isEmpty()) {
-                return Options.empty();
-            }
-            final Asset asset = result.iterator().next();
-            accessCache.put(asset.getId(), asset);
-            return Options.some(secureAndSpecialize(ctx, asset));
+            return buildResult( ctx, optResult, cacheTimestamp );
         } finally {
             trans.endDbAccess(accessCache);
         }
     }
 
-    /** Need to code this guy up */
-    @Override
-    public Map<UUID, Long> checkTransactionCount(LittleContext ctx, Map<UUID, Long> checkMap) throws BaseException {
-        final LittleTransaction trans = ctx.getTransaction();
-        final Map<UUID, Asset> accessCache = trans.startDbAccess();
-        final Map<UUID, Long> result = new HashMap<UUID, Long>();
-
-        try {
-            for (Map.Entry<UUID, Long> entry_x : checkMap.entrySet()) {
-                Asset a_check = getAssetOrNullInsecure(ctx, entry_x.getKey());
-                if (null != a_check) {
-                    // asset exists
-                    if (a_check.getTimestamp()
-                            > entry_x.getValue()) {
-                        // client is out of date
-                        result.put(a_check.getId(),
-                                a_check.getTimestamp());
-                        log.log(Level.FINE, "Transaction count missync for: {0}", a_check);
-                    } else {
-                        log.log(Level.FINE, "Transaction count ok for: {0}", a_check);
-                    }
-                } else { // asset does not exist
-                    result.put(entry_x.getKey(), null);
-                }
-            }
-        } finally {
-            trans.endDbAccess(accessCache);
-        }
-        return result;
-    }
 
     @Override
-    public Set<UUID> getAssetIdsTo(LittleContext ctx, UUID toId,
-            AssetType type) throws BaseException, AssetException,
+    public InfoMapResult getAssetIdsTo(LittleContext ctx, UUID toId,
+            AssetType type, long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
             GeneralSecurityException {
         final LittleTransaction trans = ctx.getTransaction();
         trans.startDbAccess();
         try {
+            // first - make sure the caller has read-access to the "to" asset
+            getAsset( ctx, toId );
             final DbReader<Set<UUID>, String> reader = dbMgr.makeDbAssetIdsToLoader(trans, toId, Options.some(type));
-            return reader.loadObject(null);
+            return this.buildIMapResult(ctx, reader.loadObject(null), cacheTimestamp, sizeInCache);
         } catch (SQLException ex) {
             log.log(Level.INFO, "Failed call", ex);
             throw new DataAccessException("Caught unexpected: " + ex);
@@ -166,21 +191,6 @@ public class SimpleSearchManager implements ServerSearchManager {
         }
     }
 
-    @Override
-    public List<IdWithClock> checkTransactionLog(LittleContext ctx, UUID homeId, long minTransaction) throws BaseException {
-        final LittleTransaction trans = ctx.getTransaction();
-        final Map<UUID, Asset> accessCache = trans.startDbAccess();
-
-        try {
-            final DbReader<List<IdWithClock>, Long> sql_reader = dbMgr.makeLogLoader(trans, homeId);
-            return sql_reader.loadObject(minTransaction);
-        } catch (SQLException ex) {
-            log.log(Level.INFO, "Failed call", ex);
-            throw new DataAccessException("Data access error: " + ex);
-        } finally {
-            trans.endDbAccess(accessCache);
-        }
-    }
 
     @Override
     public AssetResult getAsset(LittleContext ctx, UUID id, long clientCacheTStamp) throws BaseException, AssetException,
@@ -193,57 +203,8 @@ public class SimpleSearchManager implements ServerSearchManager {
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
 
         try {
-            {
-                final Asset result = accessCache.get(id);
-
-                if (null != result) {
-                    return AssetResult.build(result);
-                }
-            }
-            
             final Asset result = getAssetOrNullInsecure(ctx, id);
-            /*
-            {  // Fetch the raw asset from the database
-                Asset lookup = null;
-
-                if ((dbMgr instanceof littleware.asset.server.db.aws.AwsDbAssetManager) ) {
-                        //&& (clientCacheTStamp > 0)) {
-                    // Try to avoid doing a consistent database read if possible.
-                    // Check database with a possibly inconsisten read if we're running on AWS
-                    // when the client gives us its in-cache timestamp.
-                    // This is a really hacky way to do this ..., but it's easy for now
-                    try {
-                        lookup = ((littleware.asset.server.db.aws.DbAssetLoader) dbMgr.makeDbAssetLoader(trans)).withConsistentRead(false).loadObject(id);
-                        log.log(Level.FINE, "Checking AWS with inconsistent read ..., hit: {0}", null != lookup );
-                    } catch (SQLException ex) {
-                        log.log(Level.INFO, "Ignoring unexpected exception on cache-check: ", ex);
-                    }
-                    if ((null != lookup) ) { // && lookup.getAssetType().isTStampCache()) {
-                        accessCache.put(lookup.getId(), lookup);
-                    } else {
-                        lookup = getAssetOrNullInsecure(ctx, id);
-                    }
-                } else {
-                    lookup = getAssetOrNullInsecure(ctx, id);
-                }
-                result = lookup;
-            }
-             * 
-             */
-
-            if (null == result) {
-                return AssetResult.noSuchAsset();
-            }
-            // No need to secure if referencing client cache
-            if ((result.getTimestamp() <= clientCacheTStamp)
-                    && result.getAssetType().isTStampCache()) {
-                return AssetResult.useCache();
-            }
-
-            // Specialize the asset
-            littleware.base.Whatever.get().check("Got a valid id", result.getId() != null);
-            final Asset secure = secureAndSpecialize(ctx, result);
-            return AssetResult.build(secure);
+            return this.buildResult( ctx, Options.some(result), clientCacheTStamp );
         } finally {
             trans.endDbAccess(accessCache);
         }
@@ -254,60 +215,73 @@ public class SimpleSearchManager implements ServerSearchManager {
      * Internal method - shared with SimpleAssetSearchManager - to specialize,
      * and verify access-permissions on the given newly-loaded asset.
      *
-     * @param loaded just loaded asset
+     * @param unspecial just loaded asset
      * @return specialized asset whose access permission for the active user has been verified
      */
-     <T extends Asset> T secureAndSpecialize(LittleContext ctx, T loaded) throws BaseException, AssetException,
+     <T extends Asset> T secureAndSpecialize(LittleContext ctx, T unspecial) throws BaseException, AssetException,
             GeneralSecurityException {
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
 
-        try {
-            final T result = specialRegistry.getService(loaded.getAssetType()).narrow(ctx, loaded);
+        { // check transaction cache first
+            final Asset result = accessCache.get( unspecial.getId() );
+            if ( null != result ) {
+                return (T) result;
+            }
+        }
+        
+        //
+        // avoid mess where specialize calls something like getAssetIdsFrom that
+        //    in turn calls getAsset as a security check ... ugh!
+        // will update cache with specialized asset once it's available, or
+        // clean the unspecialized asset out of the cache if specialization fails ...
+        //
+        accessCache.put( unspecial.getId(), unspecial);
+        boolean mustCleanCache = true;
+        
+        try {    
+            final T special = specialRegistry.getService(unspecial.getAssetType()).narrow(ctx, unspecial);
             // update cycle cache
-            accessCache.put(result.getId(), result);
-            if (result.getAssetType().equals(LittleUser.USER_TYPE) || result.getAssetType().equals(LittleGroup.GROUP_TYPE) || result.getAssetType().equals(LittleGroupMember.GROUP_MEMBER_TYPE) || ( // acl-entry may be protected by its own ACL
-                    result.getAssetType().equals(LittleAclEntry.ACL_ENTRY) && (null != result.getAclId()) && result.getAclId().equals(((LittleAclEntry) result).getOwningAclId()) && accessCache.containsKey(result.getAclId()))) {
+            accessCache.put(special.getId(), special);
+            if (special.getAssetType().equals(LittleUser.USER_TYPE) || special.getAssetType().equals(LittleGroup.GROUP_TYPE) || special.getAssetType().equals(LittleGroupMember.GROUP_MEMBER_TYPE) || ( // acl-entry may be protected by its own ACL
+                    special.getAssetType().equals(LittleAclEntry.ACL_ENTRY) && (null != special.getAclId()) && special.getAclId().equals(((LittleAclEntry) special).getOwningAclId()) && accessCache.containsKey(special.getAclId()))) {
                 /**
                  * No access limitation on USER, GROUP -
                  * chicken/egg problem since need these guys to implement security.
                  */
-                return result;
+                mustCleanCache = false;
+                return special;
             }
 
             final LittleUser caller = ctx.getCaller();
 
             if (null == caller) {
-                /** ... I don't think this is necessary any more ... ?
-                if (result.getAssetType().equals(LittleSession.SESSION_TYPE)) {
-                    
-                     * Loophole to let unauthenticated session get session
-                     * info to simplify session setup
-                   
-                    return result;
-                }
-                 *   */
                 throw new AccessDeniedException("Unauthenticated caller");
             }
 
-            if (caller.getId().equals(result.getOwnerId()) || ctx.isAdmin()) {
+            if (caller.getId().equals(special.getOwnerId()) || ctx.isAdmin()) {
                 // Owner can read his own freakin' asset
-                return result;
+                mustCleanCache = false;
+                return special;
             }
             // Need to check ACL
-            if (!ctx.checkPermission(LittlePermission.READ, result.getAclId())) {
+            if (!ctx.checkPermission(LittlePermission.READ, special.getAclId())) {
                 throw new AccessDeniedException("Caller " + caller.getName() + 
                         " does not have permission to access asset "
-                        + result.getName() + "(" + result.getAssetType() + 
-                        ", " + result.getId() + ")"
+                        + special.getName() + "(" + special.getAssetType() + 
+                        ", " + special.getId() + ")"
                         );
             }
 
-            return result;
+            mustCleanCache = false;
+            return special;
         } catch (NoSuchThingException e) {
-            throw new DataAccessException("Failure to specialize " + loaded.getAssetType() + " type asset: " + loaded.getName()
+            throw new DataAccessException("Failure to specialize " + unspecial.getAssetType() + " type asset: " + unspecial.getName()
                     + ", caught: " + e, e);
         } finally {
+            if ( mustCleanCache ) {
+                accessCache.remove( unspecial.getId() );
+            }
             trans.endDbAccess(accessCache);
         }
     }
@@ -338,8 +312,6 @@ public class SimpleSearchManager implements ServerSearchManager {
                 throw new DataAccessException("Caught unexpected: " + ex);
             }
 
-            accessCache.put(id, result);
-
             return result;
         } finally {
             trans.endDbAccess(accessCache);
@@ -347,7 +319,7 @@ public class SimpleSearchManager implements ServerSearchManager {
     }
 
     @Override
-    public Map<UUID, AssetResult> getAssets(LittleContext ctx, Collection<UUID> idSet) throws BaseException, AssetException,
+    public ImmutableMap<UUID, AssetResult> getAssets(LittleContext ctx, Collection<UUID> idSet) throws BaseException, AssetException,
             GeneralSecurityException {
         final ImmutableMap.Builder<UUID, Long> builder = ImmutableMap.builder();
         for (UUID id : idSet) {
@@ -357,7 +329,7 @@ public class SimpleSearchManager implements ServerSearchManager {
     }
 
     @Override
-    public Map<UUID, AssetResult> getAssets(LittleContext ctx, Map<UUID, Long> id2Timestamp) throws BaseException, AssetException,
+    public ImmutableMap<UUID, AssetResult> getAssets(LittleContext ctx, Map<UUID, Long> id2Timestamp) throws BaseException, AssetException,
             GeneralSecurityException {
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
@@ -378,14 +350,15 @@ public class SimpleSearchManager implements ServerSearchManager {
     }
 
     @Override
-    public Map<String, UUID> getHomeAssetIds(LittleContext ctx) throws BaseException, AssetException,
+    public RemoteSearchManager.InfoMapResult getHomeAssetIds( LittleContext ctx,
+            long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
             GeneralSecurityException {
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
 
         try {
             final DbReader<Map<String, UUID>, String> reader = dbMgr.makeDbHomeIdLoader(trans);
-            return reader.loadObject(null);
+            return this.buildIMapResult(ctx, reader.loadObject(null).values(), cacheTimestamp, sizeInCache);
         } catch (SQLException ex) {
             log.log(Level.INFO, "Caught unexpected: ", ex);
             throw new DataAccessException("Caught unexpected: " + ex);
@@ -395,15 +368,20 @@ public class SimpleSearchManager implements ServerSearchManager {
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(LittleContext ctx, UUID sourceId,
-            AssetType assetType) throws BaseException, AssetException,
-            GeneralSecurityException {
+    public RemoteSearchManager.InfoMapResult getAssetIdsFrom( 
+            LittleContext ctx,
+            UUID fromId, AssetType assetType,
+            long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
+            GeneralSecurityException 
+    {
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
 
         try {
-            final DbReader<Map<String, UUID>, String> reader = dbMgr.makeDbAssetIdsFromLoader(trans, sourceId, Options.some((AssetType) assetType), Options.NONE);
-            return reader.loadObject(null);
+            // first - verify that the caller has access to the parent asset
+            getAsset( ctx, fromId );
+            final DbReader<Map<String, UUID>, String> reader = dbMgr.makeDbAssetIdsFromLoader(trans, fromId, Options.some((AssetType) assetType), Options.NONE);
+            return buildIMapResult( ctx, reader.loadObject(null).values(), cacheTimestamp, sizeInCache );
         } catch (SQLException ex) {
             // do not throw cause e - may not be serializable
             log.log(Level.INFO, "Failed call", ex);
@@ -413,24 +391,49 @@ public class SimpleSearchManager implements ServerSearchManager {
         }
     }
 
-    public Map<String, UUID> getAssetIdsFrom(LittleContext ctx, UUID parentId, AssetType assetType, int i_state) throws BaseException, AssetException, GeneralSecurityException {
-        final LittleTransaction trans = ctx.getTransaction();
-        final Map<UUID, Asset> accessCache = trans.startDbAccess();
 
-        try {
-            final DbReader<Map<String, UUID>, String> sql_reader = dbMgr.makeDbAssetIdsFromLoader(trans, parentId, Options.some((AssetType) assetType), Options.some(i_state));
-            return sql_reader.loadObject(null);
-        } catch (SQLException ex) {
-            // do not throw cause - may not be serializable
-            log.log(Level.INFO, "Failed call", ex);
-            throw new DataAccessException("Caught unexpected: " + ex);
-        } finally {
-            trans.endDbAccess(accessCache);
-        }
+    @Override
+    public RemoteSearchManager.InfoMapResult getAssetIdsFrom( 
+            LittleContext ctx,
+            UUID fromId, long cacheTimestamp, int sizeInCache
+            ) throws BaseException, AssetException,
+            GeneralSecurityException {
+
+        return getAssetIdsFrom(ctx, fromId, null, cacheTimestamp, sizeInCache );
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(LittleContext ctx, UUID parentId) throws BaseException, AssetException, GeneralSecurityException {
-        return getAssetIdsFrom(ctx, parentId, null);
+    public Option<Asset> getAsset(LittleContext context, UUID assetId) throws BaseException, GeneralSecurityException {
+        return getAsset( context, assetId, -1L ).getAsset();
+    }
+
+    @Override
+    public ImmutableMap<String, AssetInfo> getHomeAssetIds(LittleContext context) throws BaseException, AssetException, GeneralSecurityException {
+        return getHomeAssetIds( context, -1L, 0 ).getData();
+    }
+
+    @Override
+    public ImmutableMap<String, AssetInfo> getAssetIdsFrom(LittleContext context, UUID fromId, AssetType type) throws BaseException, AssetException, GeneralSecurityException {
+        return getAssetIdsFrom( context, fromId, type, -1L, 0 ).getData();
+    }
+
+    @Override
+    public ImmutableMap<String, AssetInfo> getAssetIdsFrom(LittleContext context, UUID fromId) throws BaseException, AssetException, GeneralSecurityException {
+        return getAssetIdsFrom( context, fromId, -1L, 0 ).getData();
+    }
+
+    @Override
+    public Option<Asset> getByName(LittleContext context, String name, AssetType type) throws BaseException, AssetException, GeneralSecurityException {
+        return getByName( context, name, type, -1L ).getData();
+    }
+
+    @Override
+    public Option<Asset> getAssetFrom(LittleContext context, UUID parentId, String name) throws BaseException, AssetException, GeneralSecurityException {
+        return getAssetFrom( context, parentId, name, -1L ).getData();
+    }
+
+    @Override
+    public ImmutableMap<String, AssetInfo> getAssetIdsTo(LittleContext context, UUID toId, AssetType type) throws BaseException, AssetException, GeneralSecurityException {
+        return getAssetIdsTo( context, toId, type, -1L, 0 ).getData();
     }
 }

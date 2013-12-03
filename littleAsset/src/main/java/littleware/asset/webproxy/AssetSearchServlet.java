@@ -28,7 +28,6 @@ import littleware.asset.Asset;
 import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.asset.internal.RemoteSearchManager.AssetResult;
-import littleware.asset.server.LittleContext;
 import littleware.base.Options;
 import littleware.base.UUIDFactory;
 import littleware.bootstrap.SessionInjector;
@@ -36,6 +35,8 @@ import littleware.security.AccessDeniedException;
 
 /**
  * RemoteSearchManager REST service
+ * 
+ * @deprecated building out service in littleWeb package instead ...
  */
 public class AssetSearchServlet extends HttpServlet {
 
@@ -103,6 +104,7 @@ public class AssetSearchServlet extends HttpServlet {
         final String arguments = matcher.group(2);
         final UUID sessionId;
         final long vtInClientCache;
+        final int  sizeInClientCache;
         {
             final String sessionIdStr = request.getParameter("sessionId");
             if (null == sessionIdStr) {
@@ -138,7 +140,7 @@ public class AssetSearchServlet extends HttpServlet {
                 return;
             }
             switch (result.getState()) {
-                case NO_SUCH_ASSET: {
+                case NO_DATA: {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 }
                 break;
@@ -158,18 +160,6 @@ public class AssetSearchServlet extends HttpServlet {
                     response.getWriter().write(gson.toJson(result.getAsset().get(), Asset.class));
                 }
                 break;
-            }
-            return;
-        } else if (method.equals("roots")) {
-            try {
-                final Map<String, UUID> name2IdMap = tools.search.getHomeAssetIds(sessionId);
-                response.setContentType("application/json");
-                response.getWriter().write(gson.toJson(name2IdMap, name2IdToken.getType()));
-            } catch (Exception ex) {
-                // TODO!!!
-                log.log(Level.WARNING, "Unexpected exception", ex);
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.toString());
-                return;
             }
         } else {
             response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);

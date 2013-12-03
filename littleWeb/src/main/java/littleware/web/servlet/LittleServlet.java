@@ -17,14 +17,17 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Interface for servlet delegate tied to a particular
- * user's littleware session via Guice injection.
- * A normal HttpServlet will usually allocate or delegate a
- * doGet or doPost call to a LittleServlet depending on
- * the user attached to the current HTTP session.
+ * user's littleware session via Guice injection by the
+ * LittleDispatcher servlet.
  * A LittleServlet may be used directly in an embedded
  * environment too.
+ * 
+ * @see littleware.web.servlet.LittleDispatcher
  */
 public interface LittleServlet {
+    /**
+     * Universal handler for GET, POST, PUT, and DELETE too.
+     */
     void  doGetOrPostOrPut( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException;
         
 }

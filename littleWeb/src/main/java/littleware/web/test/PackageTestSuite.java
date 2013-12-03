@@ -34,7 +34,8 @@ public class PackageTestSuite extends TestSuite {
     @Inject
     public PackageTestSuite ( 
             Provider<LoginTester> provideLoginTester,
-            Provider<JwtTester> provideJwtTester
+            Provider<JwtTester> provideJwtTester,
+            Provider<AssetTester> provideAssetTester
             ) {
         super( PackageTestSuite.class.getName() );
 
@@ -49,6 +50,9 @@ public class PackageTestSuite extends TestSuite {
         if ( runTest ) {
             this.addTest( provideJwtTester.get() );
         }        
+        if ( runTest ) {
+            this.addTest( provideAssetTester.get() );
+        }
         log.log(Level.INFO, "PackageTestSuite.suite () returning ok ...");
     }
 

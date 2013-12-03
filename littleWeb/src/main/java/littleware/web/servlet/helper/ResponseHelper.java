@@ -29,7 +29,7 @@ public class ResponseHelper {
   
   
   /**
-   * Shortcut sets response status, content-type, writes
+   * Shortcut sets response status, content-type, cache-control, writes
    * js to output in UTF8, and flushes output
    * 
    * @param resp
@@ -37,6 +37,7 @@ public class ResponseHelper {
    */
   public void write( HttpServletResponse resp, JsonResponse jsr ) throws IOException {
     resp.setContentType( "application/json" );
+    resp.setHeader( "Cache-Control", "private, max-age=30, must-revalidate" ); //  "no-cache, no-store" );
     resp.setStatus( jsr.getStatus() );
     utf8Writer( resp ).append( gsonTool.toJson( jsr.getContent() )).flush();
   }

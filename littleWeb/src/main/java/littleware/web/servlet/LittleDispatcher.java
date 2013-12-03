@@ -107,5 +107,10 @@ public class LittleDispatcher extends HttpServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGetOrPostOrPut(request, response);
     }
-    
+
+    @Override
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGetOrPostOrPut(request, response);
+    }
+
 }

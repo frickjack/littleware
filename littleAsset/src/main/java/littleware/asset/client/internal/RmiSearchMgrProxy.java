@@ -7,21 +7,20 @@
  */
 package littleware.asset.client.internal;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
-import littleware.base.Option;
 import littleware.net.RemoteRetryHelper;
 
 /**
@@ -35,10 +34,10 @@ public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> im
     }
 
     @Override
-    public Option<Asset> getByName(UUID sessionId, String name, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public AssetResult getByName(UUID sessionId, String name, AssetType type, long cacheTimestamp) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getByName( sessionId, name, type );
+                return getLazy().getByName( sessionId, name, type, cacheTimestamp );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
@@ -48,7 +47,7 @@ public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> im
     }
 
     @Override
-    public List<Asset> getAssetHistory(UUID sessionId, UUID assetId, Date start, Date end) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableList<Asset> getAssetHistory(UUID sessionId, UUID assetId, Date start, Date end) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
                 return getLazy().getAssetHistory( sessionId, assetId, start, end );
@@ -61,10 +60,10 @@ public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> im
     }
 
     @Override
-    public Option<Asset> getAssetFrom(UUID sessionId, UUID parentId, String name) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public AssetResult getAssetFrom(UUID sessionId, UUID parentId, String name, long cacheTimestamp) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getAssetFrom( sessionId, parentId, name );
+                return getLazy().getAssetFrom( sessionId, parentId, name, cacheTimestamp );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
@@ -75,10 +74,10 @@ public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> im
 
 
     @Override
-    public Set<UUID> getAssetIdsTo(UUID sessionId, UUID toId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        public InfoMapResult getAssetIdsTo(UUID sessionId, UUID toId, AssetType type, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getAssetIdsTo( sessionId, toId, type );
+                return getLazy().getAssetIdsTo( sessionId, toId, type, cacheTimestamp, sizeInCache );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
@@ -103,7 +102,7 @@ public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> im
     }
 
     @Override
-    public Map<UUID,AssetResult> getAssets(UUID sessionId, Map<UUID,Long> idTStampMap ) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<UUID,AssetResult> getAssets(UUID sessionId, Map<UUID,Long> idTStampMap ) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
                 return getLazy().getAssets( sessionId, idTStampMap );
@@ -116,10 +115,10 @@ public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> im
     }
 
     @Override
-    public Map<String, UUID> getHomeAssetIds(UUID sessionId) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public InfoMapResult getHomeAssetIds(UUID sessionId, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getHomeAssetIds( sessionId );
+                return getLazy().getHomeAssetIds( sessionId, cacheTimestamp, sizeInCache );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
@@ -129,10 +128,10 @@ public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> im
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID sessionId, UUID fromId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public InfoMapResult getAssetIdsFrom(UUID sessionId, UUID fromId, AssetType type, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getAssetIdsFrom( sessionId, fromId, type );
+                return getLazy().getAssetIdsFrom( sessionId, fromId, type, cacheTimestamp, sizeInCache );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {
@@ -142,10 +141,10 @@ public class RmiSearchMgrProxy extends RemoteRetryHelper<RemoteSearchManager> im
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID sessionId, UUID fromId) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public InfoMapResult getAssetIdsFrom(UUID sessionId, UUID fromId, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
-                return getLazy().getAssetIdsFrom( sessionId, fromId );
+                return getLazy().getAssetIdsFrom( sessionId, fromId, cacheTimestamp, sizeInCache );
             } catch (RemoteException ex) {
                 handle(ex);
             } catch (NullPointerException ex) {

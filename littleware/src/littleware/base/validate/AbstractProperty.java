@@ -8,7 +8,6 @@
 package littleware.base.validate;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * We setup a lot of Builder POJOs that just provide a bunch of properties and a

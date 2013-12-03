@@ -7,8 +7,10 @@
  */
 package littleware.asset.client.internal;
 
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import littleware.asset.client.spi.AssetLoadEvent;
@@ -22,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
@@ -41,8 +42,10 @@ import littleware.asset.TreeParent;
 import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.spi.LittleServiceBus;
+import littleware.asset.AssetInfo;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.asset.internal.RemoteSearchManager.AssetResult;
+import littleware.asset.internal.RemoteSearchManager.InfoMapResult;
 import littleware.asset.spi.AbstractAsset;
 import littleware.base.BaseException;
 import littleware.base.cache.Cache;
@@ -54,6 +57,8 @@ import littleware.security.auth.client.KeyChain;
 
 /**
  * Smart proxy for AssetSearchManager
+ * 
+ * TODO - rework cacheing code - it's a mess, and the server has a new API
  */
 public class SimpleSearchService implements AssetSearchManager {
     private static final Logger log = Logger.getLogger( SimpleSearchService.class.getName() );
@@ -68,11 +73,18 @@ public class SimpleSearchService implements AssetSearchManager {
     private final Everybody everybody;
     private final PersonalCache personalCache;
     
-    // personal asset cache
+    /**
+     * Internal asset cache stashes the results of various types of queries
+     * that return lists of asset ids, then use that data to retrieve the
+     * result from the clientCache (which has different ejection criteria).
+     * For example - getAssetByName stashes an entry for its result pairing
+     * the asset-name with its id, then uses that stashed entry to retrieve
+     * the asset from the clientCache - verifying 
+     */
     @Singleton
     public static class PersonalCache {
-        private final Map<UUID,Asset>   personalCache = (new MapMaker()).softValues().concurrencyLevel(4).makeMap();  
-        private final Map<String,UUID>  nameIdCache = (new MapMaker()).softValues().concurrencyLevel(4).makeMap();  
+        private final com.google.common.cache.Cache<UUID,Asset>   personalCache = CacheBuilder.newBuilder().softValues().concurrencyLevel(4).build();  
+        private final com.google.common.cache.Cache<String,UUID>  nameIdCache = CacheBuilder.newBuilder().softValues().concurrencyLevel(4).build();  
         
         private String key( AssetType type, String name ) {
             return type.toString() + "/" + name;            
@@ -82,19 +94,19 @@ public class SimpleSearchService implements AssetSearchManager {
             return UUIDFactory.makeCleanString(parentId) + "/" + childName;
         }
         
-        public Asset get( UUID id ) { return personalCache.get( id ); }
+        public Asset get( UUID id ) { return personalCache.getIfPresent( id ); }
         public UUID get( AssetType type, String name ) {
-            return nameIdCache.get( key( type, name ) );
+            return nameIdCache.getIfPresent( key( type, name ) );
         }
         public void remove( AssetType type, String name ) {
-            nameIdCache.remove( key( type, name ) );
+            nameIdCache.invalidate( key( type, name ) );
         }
         
         public UUID get( UUID parentId, String childName ) {
-            return nameIdCache.get( key( parentId, childName ) );
+            return nameIdCache.getIfPresent( key( parentId, childName ) );
         }
         public void remove( UUID parentId, String childName ) {
-            nameIdCache.remove( key( parentId, childName ) );
+            nameIdCache.invalidate( key( parentId, childName ) );
         }
         
         public void put( Asset node ) {
@@ -107,10 +119,11 @@ public class SimpleSearchService implements AssetSearchManager {
             }
         }
         public void remove( UUID node ) {
-            personalCache.remove( node );
+            personalCache.invalidate( node );
         }
     }
     
+    //----------------------------------------
     
     /**
      * Inject the server that does not implement LittleService event support
@@ -153,11 +166,12 @@ public class SimpleSearchService implements AssetSearchManager {
         }
         
         final UUID sessionId = keychain.getDefaultSessionId().get();
-        final Option<Asset> result = server.getByName(sessionId, name, assetType);
-        if (result.isSet()) {
-            personalCache.put( result.get() );
-            eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
-            return library.syncAsset(result.get());
+        final AssetResult result = server.getByName(sessionId, name, assetType, -1L );
+        if (result.getAsset().isSet()) {
+            final Asset asset = result.getAsset().get();
+            personalCache.put( asset );
+            eventBus.fireEvent(new AssetLoadEvent(this, asset ));
+            return library.syncAsset(asset);
         }
         return AssetRef.EMPTY;
     }
@@ -218,7 +232,7 @@ public class SimpleSearchService implements AssetSearchManager {
     }
 
     @Override
-    public List<Asset> getAssetHistory(UUID id, Date start,
+    public ImmutableList<Asset> getAssetHistory(UUID id, Date start,
             Date end) throws BaseException,
             AssetException,
             GeneralSecurityException,
@@ -253,7 +267,8 @@ public class SimpleSearchService implements AssetSearchManager {
             }
         }
         final UUID sessionId = keychain.getDefaultSessionId().get();
-        result = server.getAssetFrom(sessionId, parentId, name);
+        final AssetResult serverResult = server.getAssetFrom(sessionId, parentId, name, -1 );
+        result = server.getAssetFrom(sessionId, parentId, name, -1 ).getAsset();
         if (result.isSet()) {
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             // result gets indexed multiple ways - ugh!
@@ -266,20 +281,21 @@ public class SimpleSearchService implements AssetSearchManager {
 
 
     @Override
-    public Set<UUID> getAssetIdsTo(UUID toId, AssetType assetType)
+    public ImmutableMap<String,AssetInfo> getAssetIdsTo(UUID toId, AssetType assetType)
             throws BaseException,
             AssetException,
             GeneralSecurityException,
             RemoteException {
         final Cache<String, Object> cache = clientCache.getCache();
         final String sKey = toId.toString() + "idsTo" + assetType;
-        Set<UUID> setResult = (Set<UUID>) cache.get(sKey);
-        if (null == setResult) {
+        ImmutableMap<String,AssetInfo> result = (ImmutableMap<String,AssetInfo>) cache.get(sKey);
+        if (null == result) {
             final UUID sessionId = keychain.getDefaultSessionId().get();
-            setResult = server.getAssetIdsTo(sessionId, toId, assetType);
-            cache.put(sKey, setResult);
+            final InfoMapResult serverResult = server.getAssetIdsTo(sessionId, toId, assetType, -1, 0 );
+            result = serverResult.getData();
+            cache.put(sKey, result);
         }
-        return setResult;
+        return result;
     }
 
     @Override
@@ -324,7 +340,7 @@ public class SimpleSearchService implements AssetSearchManager {
     }
 
     @Override
-    public Map<UUID,AssetRef> getAssets(Collection<UUID> idList) throws BaseException,
+    public ImmutableMap<UUID,AssetRef> getAssets(Collection<UUID> idList) throws BaseException,
             AssetException,
             GeneralSecurityException,
             RemoteException {
@@ -376,33 +392,34 @@ public class SimpleSearchService implements AssetSearchManager {
     }
 
     @Override
-    public Map<String, UUID> getHomeAssetIds() throws BaseException,
+    public ImmutableMap<String, AssetInfo> getHomeAssetIds() throws BaseException,
             AssetException,
             GeneralSecurityException,
             RemoteException {
         final UUID sessionId = keychain.getDefaultSessionId().get();
-        return server.getHomeAssetIds(sessionId);
+        return server.getHomeAssetIds(sessionId, -1, 0 ).getData();
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID parentId, AssetType assetType)
+    public ImmutableMap<String, AssetInfo> getAssetIdsFrom(UUID parentId, AssetType assetType)
             throws BaseException,
             AssetException,
             GeneralSecurityException,
             RemoteException {
         final String key = parentId.toString() + assetType;
         final Cache<String, Object> cache = clientCache.getCache();
-        Map<String, UUID> mapResult = (Map<String, UUID>) cache.get(key);
+        ImmutableMap<String, AssetInfo> mapResult = (ImmutableMap<String, AssetInfo>) cache.get(key);
         if (null == mapResult) {
             final UUID sessionId = keychain.getDefaultSessionId().get();
-            mapResult = server.getAssetIdsFrom(sessionId, parentId, assetType);
+            final InfoMapResult serverResult = server.getAssetIdsFrom(sessionId, parentId, assetType, -1, 0 );
+            mapResult = serverResult.getData();
             cache.put(key, mapResult);
         }
         return mapResult;
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID parentId) throws BaseException,
+    public ImmutableMap<String, AssetInfo> getAssetIdsFrom(UUID parentId) throws BaseException,
             AssetException,
             GeneralSecurityException,
             RemoteException {

@@ -7,6 +7,7 @@
  */
 package littleware.asset.client.test;
 
+import com.google.common.collect.ImmutableMap;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
@@ -113,7 +114,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
      */
     public void testLoad() {
         try {
-            final Map<String, UUID> homeIds = search.getHomeAssetIds();
+            final ImmutableMap<String, AssetInfo> homeIds = search.getHomeAssetIds();
             assertTrue("Home-asset set is not empty", !homeIds.isEmpty());
             for (String homeName : homeIds.keySet()) {
                 log.log(Level.INFO, "getHomeAssetIds found home: " + homeName);
@@ -128,8 +129,8 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
             assertTrue()
              */
 
-            for( Map.Entry<String,UUID> entry : homeIds.entrySet() ) {
-                final AssetRef maybe = search.getAsset( entry.getValue() );
+            for( Map.Entry<String,AssetInfo> entry : homeIds.entrySet() ) {
+                final AssetRef maybe = search.getAsset( entry.getValue().getId() );
                 assertTrue("Able to retrieve home: " + entry.getKey(),
                     maybe.isSet()
                     );

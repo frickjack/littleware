@@ -7,12 +7,11 @@
  */
 package littleware.asset.client.internal;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.UUID;
-import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -43,8 +42,8 @@ public class SimpleAssetLibrary
         implements AssetLibrary {
 
     private static final Logger log = Logger.getLogger(SimpleAssetLibrary.class.getName());
-    private final Map<UUID, SimpleAssetRef> cache = (new MapMaker()).softValues().makeMap();
-    private final Map<String, UUID> nameMap = (new MapMaker()).softValues().makeMap();
+    private final com.google.common.cache.Cache<UUID, SimpleAssetRef> cache = CacheBuilder.newBuilder().softValues().build();
+    private final com.google.common.cache.Cache<String, UUID> nameMap = CacheBuilder.newBuilder().softValues().build();
 
     @Inject
     public SimpleAssetLibrary( LittleServiceBus eventBus ) {
@@ -56,7 +55,7 @@ public class SimpleAssetLibrary
         if (!atype.isNameUnique()) {
             throw new InvalidAssetTypeException("Asset type not name-unique: " + atype);
         }
-        final UUID id = nameMap.get(atype.toString() + "/" + name);
+        final UUID id = nameMap.getIfPresent(atype.toString() + "/" + name);
         if (null == id) {
             return AssetRef.EMPTY;
         }
@@ -68,7 +67,7 @@ public class SimpleAssetLibrary
         if (null == asset) {
             return AssetRef.EMPTY;
         }
-        SimpleAssetRef ref = cache.get(asset.getId());
+        SimpleAssetRef ref = cache.getIfPresent(asset.getId());
 
         if (null == ref) {
             ref = new SimpleAssetRef(asset, this);
@@ -87,8 +86,8 @@ public class SimpleAssetLibrary
 
     @Override
     public void assetDeleted(UUID deleteId) {
-        final SimpleAssetRef deletedRef = cache.remove(deleteId);
-
+        final SimpleAssetRef deletedRef = cache.getIfPresent(deleteId);
+        cache.invalidate(deleteId);
         if (null != deletedRef) {
             final Asset asset = deletedRef.get();
 
@@ -96,7 +95,7 @@ public class SimpleAssetLibrary
                 for (AssetType atype = asset.getAssetType();
                         (atype != null) && atype.isNameUnique();
                         atype = (AssetType) atype.getSuperType().getOr(null)) {
-                    nameMap.remove(atype.toString() + "/" + asset.getName());
+                    nameMap.invalidate(atype.toString() + "/" + asset.getName());
                 }
             }
 
@@ -119,7 +118,7 @@ public class SimpleAssetLibrary
         alreadyNotified.add( asset.getId() );
         if ( (null != asset.getFromId()) && (! alreadyNotified.contains( asset.getFromId() ))) {
             alreadyNotified.add(asset.getFromId());
-            final SimpleAssetRef parent = cache.get(asset.getFromId());
+            final SimpleAssetRef parent = cache.getIfPresent(asset.getFromId());
             if (null != parent) {
                 parent.fireLittleEvent(
                         new AssetActionEvent(parent,
@@ -127,7 +126,7 @@ public class SimpleAssetLibrary
                         parentEvent));
             }
         }
-        final Set<UUID> neighbors = new HashSet<UUID>();
+        final Set<UUID> neighbors = new HashSet<>();
         if( null != asset.getToId() ) {
             neighbors.add( asset.getToId() );
         }
@@ -138,7 +137,7 @@ public class SimpleAssetLibrary
             if ( (null != neighborId) && (! alreadyNotified.contains( neighborId ) ) ) {
                 alreadyNotified.add( neighborId );
             }
-            final SimpleAssetRef neighbor = cache.get(neighborId);
+            final SimpleAssetRef neighbor = cache.getIfPresent(neighborId);
             if (null != neighbor) {
                 neighbor.fireLittleEvent(
                         new AssetActionEvent(neighbor,
@@ -154,7 +153,7 @@ public class SimpleAssetLibrary
         if (null == id) {
             return AssetRef.EMPTY;
         }
-        final AssetRef ref = cache.get(id);
+        final AssetRef ref = cache.getIfPresent(id);
         if (null == ref) {
             return AssetRef.EMPTY;
         }
@@ -212,7 +211,7 @@ public class SimpleAssetLibrary
             asset = Options.some(newAsset );
 
             if ( ! oldAsset.getName().equals( newAsset.getName() )) {
-                library.nameMap.remove( library.nameKey( oldAsset ) );
+                library.nameMap.invalidate( library.nameKey( oldAsset ) );
                 if ( newAsset.getAssetType().isNameUnique() ) {
                     library.nameMap.put( library.nameKey( newAsset ), newAsset.getId() );
                 }

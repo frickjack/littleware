@@ -9,18 +9,18 @@
 
 package littleware.asset.server.test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
+import littleware.asset.AssetInfo;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
 import littleware.asset.client.AssetRef;
@@ -55,7 +55,7 @@ public class MockSearchManager implements AssetSearchManager {
     }
 
     @Override
-    public Map<UUID,AssetRef> getAssets(Collection<UUID> idSet) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<UUID,AssetRef> getAssets(Collection<UUID> idSet) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final ImmutableMap.Builder<UUID,Long> idBuilder = ImmutableMap.builder();
         for( UUID id : idSet ) {
             idBuilder.put( id, -1L );
@@ -69,17 +69,17 @@ public class MockSearchManager implements AssetSearchManager {
     }
 
     @Override
-    public Map<String, UUID> getHomeAssetIds() throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<String, AssetInfo> getHomeAssetIds() throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return search.getHomeAssetIds(ctx);
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID fromId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<String,AssetInfo> getAssetIdsFrom(UUID fromId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return search.getAssetIdsFrom(ctx, fromId, type );
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID fromId) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<String,AssetInfo> getAssetIdsFrom(UUID fromId) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return search.getAssetIdsFrom(ctx, fromId);
     }
 
@@ -109,7 +109,7 @@ public class MockSearchManager implements AssetSearchManager {
     }
 
     @Override
-    public List<Asset> getAssetHistory(UUID u_id, Date t_start, Date t_end) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableList<Asset> getAssetHistory(UUID u_id, Date t_start, Date t_end) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -120,7 +120,7 @@ public class MockSearchManager implements AssetSearchManager {
 
 
     @Override
-    public Set<UUID> getAssetIdsTo(UUID toId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<String,AssetInfo> getAssetIdsTo(UUID toId, AssetType type) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return search.getAssetIdsTo(ctx, toId, type);
     }
 

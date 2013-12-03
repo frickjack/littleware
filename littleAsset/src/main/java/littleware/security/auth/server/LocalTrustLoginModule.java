@@ -7,7 +7,8 @@
  */
 package littleware.security.auth.server;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.security.auth.Subject;
@@ -32,14 +33,14 @@ import littleware.base.Whatever;
 public class LocalTrustLoginModule implements LoginModule {
     private static final Logger log = Logger.getLogger( LocalTrustLoginModule.class.getName() );
     
-    private static Map<String,String> secretsMap = (new MapMaker()).softValues().makeMap();
+    private static Cache<String,String> secretsCache = CacheBuilder.newBuilder().softValues().build();
     
     /**
      * Register a secret that will be tested against the supplied password the next
      * time the user tries to authenticate.
      */
     public static void addSecret( String userName, String secret ) {
-        secretsMap.put(userName, secret);
+        secretsCache.put(userName, secret);
     }
     
     private Subject subject = null;
@@ -90,7 +91,8 @@ public class LocalTrustLoginModule implements LoginModule {
             throw new FailedLoginException( "Invalid user name" );
         }
         
-        final String secret = secretsMap.remove( userName );
+        final String secret = secretsCache.getIfPresent( userName );
+        secretsCache.invalidate( secret );
         if( (null != secret) && secret.equals( password ) &&
                 ((! userMustExist) || LittleLoginModule.lookupUser(userName).isSet())
                 ) {

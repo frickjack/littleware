@@ -7,6 +7,7 @@
  */
 package littleware.security.server.internal;
 
+import com.google.common.collect.ImmutableMap;
 import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.logging.Level;
@@ -30,14 +31,14 @@ public class SimpleQuotaUtil implements QuotaUtil {
     @Override
     public Quota getQuota(LittleContext ctx, LittleUser user, ServerSearchManager search) throws BaseException,
             GeneralSecurityException {
-        final Map<String, UUID> v_quotas = search.getAssetIdsFrom(ctx, user.getId(),
+        final ImmutableMap<String, AssetInfo> v_quotas = search.getAssetIdsFrom(ctx, user.getId(),
                 Quota.QUOTA_TYPE);
-        final UUID childId = v_quotas.get("littleware_quota");
-        if (null == childId) {
+        final AssetInfo childInfo = v_quotas.get("littleware_quota");
+        if (null == childInfo) {
             return null;
         }
 
-        return (Quota) search.getAsset(ctx, childId, -1L).getAsset().getOr(null);
+        return (Quota) search.getAsset(ctx, childInfo.getId()).getOr(null);
     }
 
     @Override
@@ -47,7 +48,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
             GeneralSecurityException {
 
         int i_ops_left = -1;  // quota ops left
-        final List<Quota.Builder> v_chain = new ArrayList<Quota.Builder>();
+        final List<Quota.Builder> v_chain = new ArrayList<>();
         final Date now = new Date();
         final LittleTransaction trans = ctx.getTransaction();
         trans.startDbAccess();

@@ -7,17 +7,16 @@
  */
 package littleware.asset.client.test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
+import littleware.asset.AssetInfo;
 import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
@@ -84,17 +83,17 @@ public class AssetTreeToolTester extends AbstractAssetTest {
                         "Setup test"));
             }
             final TreeNode parentNode = maybeRoot.get().narrow();
-            final Map<String, UUID> mapChildren = search.getAssetIdsFrom(parentNode.getId(), null);
+            final ImmutableMap<String, AssetInfo> mapChildren = search.getAssetIdsFrom(parentNode.getId(), null);
             for (int i = 0; i < 3; ++i) {
                 final String sChild = "Child" + i;
-                final Option<UUID> maybeChildId = Options.some(mapChildren.get(sChild));
+                final Option<AssetInfo> maybeChildId = Options.some(mapChildren.get(sChild));
                 final TreeNode childNode;
-                final Map<String, UUID> mapBrat;
+                final ImmutableMap<String, AssetInfo> mapBrat;
                 if (!maybeChildId.isSet()) {
                     childNode = manager.saveAsset(nodeProvider.get().name(sChild).parent(parentNode).build(), "Setup test");
-                    mapBrat = Collections.emptyMap();
+                    mapBrat = ImmutableMap.of();
                 } else {
-                    childNode = search.getAsset(maybeChildId.get()).get().narrow();
+                    childNode = search.getAsset(maybeChildId.get().getId()).get().narrow();
                     mapBrat = search.getAssetIdsFrom(childNode.getId(), null);
                 }
                 for (int j = 0; j <= i; ++j) {

@@ -8,7 +8,10 @@
 
 package littleware.asset.server.internal;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.util.*;
 import java.rmi.Remote;
@@ -34,7 +37,7 @@ public class RmiSearchManager extends LittleRemoteObject implements RemoteSearch
     private static final long serialVersionUID = 3426911488683486233L;
 
     private final ServerSearchManager search;
-    private final Map<UUID,ServerSearchManager> sessionCache = (new MapMaker()).softValues().makeMap();
+    private final Cache<UUID,ServerSearchManager> sessionCache = CacheBuilder.newBuilder().softValues().build();
     private final ContextFactory contextFactory;
     
     @Inject
@@ -47,13 +50,13 @@ public class RmiSearchManager extends LittleRemoteObject implements RemoteSearch
     }
 
     @Override
-    public Option<Asset> getByName(UUID sessionId, String name, AssetType type) throws BaseException, AssetException,
+    public AssetResult getByName(UUID sessionId, String name, AssetType type, long cacheTimestamp ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return search.getByName( contextFactory.build( sessionId ), name, type);
+        return search.getByName( contextFactory.build( sessionId ), name, type, cacheTimestamp );
     }
 
     @Override
-    public List<Asset> getAssetHistory(UUID sessionId, UUID u_id, Date t_start, Date t_end)
+    public ImmutableList<Asset> getAssetHistory(UUID sessionId, UUID u_id, Date t_start, Date t_end)
             throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return search.getAssetHistory( contextFactory.build( sessionId ), u_id, t_start, t_end);
@@ -67,45 +70,51 @@ public class RmiSearchManager extends LittleRemoteObject implements RemoteSearch
 
 
     @Override
-    public Map<UUID,AssetResult> getAssets(UUID sessionId, Map<UUID,Long> id2TStamp) throws BaseException, AssetException,
+    public ImmutableMap<UUID,AssetResult> getAssets(UUID sessionId, Map<UUID,Long> id2TStamp) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return search.getAssets( contextFactory.build( sessionId ), id2TStamp);
     }
 
     @Override
-    public Map<String, UUID> getHomeAssetIds(UUID sessionId) throws BaseException, AssetException,
+    public InfoMapResult getHomeAssetIds(UUID sessionId, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return search.getHomeAssetIds( contextFactory.build( sessionId ) );
+        return search.getHomeAssetIds( contextFactory.build( sessionId ), cacheTimestamp, sizeInCache );
     }
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID sessionId, UUID u_from,
-            AssetType n_type) throws BaseException, AssetException,
+    public InfoMapResult getAssetIdsFrom(UUID sessionId, UUID u_from,
+            AssetType n_type, long cacheTimestamp, int sizeInCache
+            ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return search.getAssetIdsFrom( contextFactory.build( sessionId ), u_from, n_type);
-    }
-
-
-
-    @Override
-    public Option<Asset> getAssetFrom(UUID sessionId, UUID u_from, String s_name) throws BaseException, AssetException,
-            GeneralSecurityException, RemoteException {
-        return search.getAssetFrom( contextFactory.build( sessionId ), u_from, s_name);
+        return search.getAssetIdsFrom( contextFactory.build( sessionId ), u_from, n_type, cacheTimestamp, sizeInCache );
     }
 
 
 
     @Override
-    public Set<UUID> getAssetIdsTo(UUID sessionId, UUID u_to,
-            AssetType n_type) throws BaseException, AssetException,
+    public AssetResult getAssetFrom(UUID sessionId, UUID u_from, String s_name, long cacheTimestamp ) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
-        return search.getAssetIdsTo( contextFactory.build( sessionId ), u_to, n_type);
+        return search.getAssetFrom( contextFactory.build( sessionId ), u_from, s_name, cacheTimestamp );
+    }
+
+
+
+    @Override
+    public InfoMapResult getAssetIdsTo(UUID sessionId, UUID u_to,
+            AssetType n_type, long cacheTimestamp, int sizeInCache 
+            ) throws BaseException, AssetException,
+            GeneralSecurityException, RemoteException {
+        return search.getAssetIdsTo( contextFactory.build( sessionId ), u_to, n_type, cacheTimestamp, sizeInCache );
     }
 
 
     @Override
-    public Map<String, UUID> getAssetIdsFrom(UUID sessionId, UUID u_from) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return search.getAssetIdsFrom( contextFactory.build( sessionId ), u_from );
+    public InfoMapResult getAssetIdsFrom(UUID sessionId, UUID u_from,
+        long cacheTimestamp, int sizeInCache
+            ) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+        return search.getAssetIdsFrom( contextFactory.build( sessionId ), u_from,
+                cacheTimestamp, sizeInCache
+                );
     }
 
 }

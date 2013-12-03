@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
+import littleware.asset.AssetInfo;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.AssetTreeTool;
@@ -44,14 +45,17 @@ public class SimpleAssetTreeTool implements AssetTreeTool {
 
     @Override
     public List<Asset> loadBreadthFirst(UUID uRoot, Feedback feedback, int iMaxDepth) throws BaseException, GeneralSecurityException, RemoteException {
-        final List<UUID> scanList = new ArrayList<UUID>();
+        final List<UUID> scanList = new ArrayList<>();
 
         scanList.add(uRoot);
         feedback.setProgress(0);
         feedback.info("Scanning node tree under " + uRoot);
         for (int i = 0; i < scanList.size(); ++i) {
             final UUID uScan = scanList.get(i);
-            scanList.addAll(search.getAssetIdsFrom(uScan, null).values());
+            for( AssetInfo info : search.getAssetIdsFrom( uScan, null ).values() ) {
+                scanList.add( info.getId() );
+            }
+
             feedback.setProgress(i, scanList.size());
 
             if ( scanList.size() > MaxAsset ) {

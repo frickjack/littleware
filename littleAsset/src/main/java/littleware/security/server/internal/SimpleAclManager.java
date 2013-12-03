@@ -7,6 +7,7 @@
  */
 package littleware.security.server.internal;
 
+import com.google.common.collect.ImmutableMap;
 import littleware.asset.server.NullAssetSpecializer;
 import com.google.inject.Inject;
 import java.util.*;
@@ -58,10 +59,12 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
         // LittleAcl
         final LittleAcl.Builder aclBuilder = assetIn.copy().narrow();
 
-        final Map<String, UUID> linkMap = search.getAssetIdsFrom(ctx, aclBuilder.getId(),
+        final ImmutableMap<String, AssetInfo> linkMap = search.getAssetIdsFrom(ctx, aclBuilder.getId(),
                 LittleAclEntry.ACL_ENTRY);
 
-        final Collection<AssetResult> linkAssets = search.getAssets(ctx, linkMap.values()).values();
+        final Collection<AssetResult> linkAssets = search.getAssets(ctx, 
+                AssetInfo.mapIds(linkMap.values() )
+                ).values();
 
         for (AssetResult ref : linkAssets) {
             if (ref.getAsset().isSet()) {
@@ -104,7 +107,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
     public Set<Asset> postUpdateCallback(LittleContext ctx, Asset preUpdate, Asset postUpdate) throws BaseException, AssetException,
             GeneralSecurityException {
         if (LittleAcl.ACL_TYPE.equals(postUpdate.getAssetType())) {
-            final Set<UUID> postUpdateEntries = new HashSet<UUID>();
+            final Set<UUID> postUpdateEntries = new HashSet<>();
 
             for (Enumeration<LittleAclEntry> entries = ((LittleAcl) postUpdate).entries();
                     entries.hasMoreElements();) {

@@ -7,12 +7,12 @@
  */
 package littleware.asset.client.test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import littleware.asset.AssetInfo;
 import littleware.asset.client.internal.RestSearchMgrProxy;
 import littleware.security.auth.LittleSession;
 
@@ -37,7 +37,7 @@ public class RestClientTester extends littleware.test.LittleTest {
     public void testRestSearch() {
         try {
             final LittleSession session = sessionProvider.get();
-            final Map<String,UUID> homeMap = searchClient.getHomeAssetIds( session.getId() );
+            final ImmutableMap<String,AssetInfo> homeMap = searchClient.getHomeAssetIds( session.getId(), -1L, 0 ).getData();
             assertTrue( "Found some home ids", ! homeMap.isEmpty() );
             assertTrue( "littleware.home in home id map", homeMap.containsKey("littleware.home" ) );
         } catch ( Exception ex ) {

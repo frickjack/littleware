@@ -10,6 +10,7 @@ package littleware.asset.client.internal;
 import littleware.asset.client.spi.ClientCache;
 import littleware.asset.client.spi.AssetLoadEvent;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.util.Date;
 import java.util.Map;
@@ -120,19 +121,23 @@ public class SimpleClientCache implements LittleListener, ClientCache {
     private long timestamp = -1;
 
     /**
-     * Default constructor self-injects a SimpleCache
-     * with a SimpleCache.MIN_AGEOUT_SECONDS age-out
-     * and 20000 max size.
+     * Default constructor injects a cache builder factory
+     * with which SimpleClientCache allocates its internal "short" and "long"
+     * caches.
      *
-     * @param helper to register this as a listener with, and to retrieve session from
+     * @param cacheFactory to build internal caches with
+     * @param eventBus constructor self-registers as a listener - should move this
+     *                out to a module-startup handler or something - ugh
      */
     @Inject
     public SimpleClientCache( 
-            InMemoryCacheBuilder cacheBuilder,
+            Provider<InMemoryCacheBuilder> cacheFactory,
             LittleServiceBus  eventBus
             ) {
-        cacheLong = cacheBuilder.maxAgeSecs( 900 ).maxSize( 20000 ).build();
-        cacheShort = cacheBuilder.maxAgeSecs( 30 ).maxSize( 20000 ).build();
+        cacheLong = cacheFactory.get().maxAgeSecs( 900 ).maxSize( 20000 ).build();
+        cacheShort = cacheFactory.get().maxAgeSecs( 30 ).maxSize( 20000 ).build();
+        
+        // ugh - should refactor this, but put up with it for now ...
         eventBus.addLittleListener(this);
     }
 

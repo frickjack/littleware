@@ -61,6 +61,16 @@ public class FishFactory implements Provider<GlassFish> {
             }
         }
 
+        { // enable gzip compression while we're at it
+            final CommandResult commandResult = commandRunner.run(
+                    "set",
+                    "configs.config.server-config.network-config.protocols.protocol.http-listener.http.compression=on"
+                    );
+            if (commandResult.getExitStatus().equals(CommandResult.ExitStatus.FAILURE)) {
+                throw new RuntimeException("Failed to configure gzip compression", commandResult.getFailureCause());
+            }
+        }
+
     }
 
     @Inject

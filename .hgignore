@@ -46,6 +46,7 @@ EclipseWorkspace/\.metadata/
 EclipseWorkspace/\.project/
 EclipseWorkspace/\.settings/
 EclipseWorkspace/RemoteSystemTempFiles/
+sun-appserv-samples/
 .rpc$
 .swp$
 /GwtDemo/

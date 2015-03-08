@@ -8,6 +8,7 @@
 
 package littleware.asset.internal;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.security.GeneralSecurityException;
 import java.rmi.Remote;
@@ -68,7 +69,7 @@ public interface RemoteAssetManager extends Remote {
      * @throws IllegalArgumentException if supplied asset does not have a valid name
      * @throws AlreadyExistsException if asset save violates some uniqueness constraint
      */
-    public Map<UUID,Asset> saveAsset( UUID sessionId, Asset asset,
+    public ImmutableMap<UUID,Asset> saveAsset( UUID sessionId, Asset asset,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 
@@ -80,7 +81,7 @@ public interface RemoteAssetManager extends Remote {
      * @param updateComment applied to all assets
      * @return updated assets
      */
-    public Map<UUID,Asset> saveAssetsInOrder( UUID sessionId, Collection<Asset> assetList,
+    public ImmutableMap<UUID,Asset> saveAssetsInOrder( UUID sessionId, Collection<Asset> assetList,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
 

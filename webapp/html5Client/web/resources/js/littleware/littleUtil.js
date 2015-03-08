@@ -59,16 +59,28 @@ YUI.add('littleware-littleUtil', function(Y) {
                 if ( level > Logger.level ) {
                     Y.log( msg, cat, this.loggerName );
                 }
-            };
+        };
+
+        /** 
+         * Shortcut for log( msg, 'warn' )
+         * @method warn
+         */
+        Logger.prototype.warn = function (msg) {
+            this.log(msg, 'warn');
+        };
+
             
         /** 
          * Shortcut for log( msg, 'info' )
+         * @method info
          */
         Logger.prototype.info = function( msg ) {
             this.log( msg, 'info' );
         };
+
         /**
          * Shortcut for log( msg, 'fine' )
+         * @method fine
          */
         Logger.prototype.fine = function( msg ) {
             this.log( msg, 'fine' );

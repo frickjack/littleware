@@ -171,33 +171,34 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
         if ( ! isDbUpdating() ) {
             throw new IllegalStateException( "Not updating" );
         }
-        final MySavePoint  savept = savePointStack.remove( savePointStack.size() - 1 );
-
-        if ( callCounter != savept.getLevel () ) {
-            throw new IllegalStateException ( "Transaction " + getId () +
-                                              " level mismatch: " + callCounter +
-                                              " != " + savept.getLevel ()
-                                              );
-        }
-
-        if (rollback) {
-            log.log(Level.FINE, "Clearing cycle cache before rollback");
-            if (0 == savept.getDeferSize()) {
-                deferredActions.clear();
-            } else {
-                for (int i = deferredActions.size() - 1;
-                        i >= savept.getDeferSize(); --i) {
-                    deferredActions.remove(i);
-                }
-            }
-            assetCache.clear();
-        }
-
         // Upcall to subtype
         try {
-            endDbUpdate( rollback, savePointStack.size() );
 
-            if ( savePointStack.isEmpty() && (! rollback) ) {
+            final MySavePoint  savept = savePointStack.get( savePointStack.size() - 1 );
+
+            if ( callCounter != savept.getLevel () ) {
+                throw new IllegalStateException ( "Transaction " + getId () +
+                                                  " level mismatch: " + callCounter +
+                                                  " != " + savept.getLevel ()
+                                                  );
+            }
+
+            if (rollback) {
+                log.log(Level.FINE, "Clearing cycle cache before rollback");
+                if (0 == savept.getDeferSize()) {
+                    deferredActions.clear();
+                } else {
+                    for (int i = deferredActions.size() - 1;
+                            i >= savept.getDeferSize(); --i) {
+                        deferredActions.remove(i);
+                    }
+                }
+                assetCache.clear();
+            }
+
+            endDbUpdate( rollback, savePointStack.size() - 1 );
+
+            if ( (savePointStack.size() == 1) && (! rollback) ) {
                 runningDeffered = true;
                 for (Runnable run_now : deferredActions) {
                     try {
@@ -210,11 +211,13 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
                 deferredActions.clear();
             }
         } finally {
+            savePointStack.remove( savePointStack.size() - 1 );
+            endDbAccess ();
+            
             if ( savePointStack.isEmpty () ) {
                 deferredActions.clear ();
             }
 
-            endDbAccess ();
         }
     }
 

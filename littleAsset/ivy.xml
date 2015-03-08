@@ -26,7 +26,7 @@
         </dependency>
 
         <dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" conf="with_jetty->*,!sources,!javadoc" />
-        <dependency org="com.google.code.gson" name="gson" rev="2.1" conf="*->*,!sources,!javadoc" />
+        <dependency org="com.google.code.gson" name="gson" rev="2.2.4" conf="*->*,!sources,!javadoc" />
                 
         <!-- AWS and its apache httpclient dependencies ...
            See http://stackoverflow.com/questions/7104364/how-are-maven-scopes-mapped-to-ivy-configurations-by-ivy

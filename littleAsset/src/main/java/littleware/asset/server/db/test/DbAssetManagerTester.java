@@ -130,7 +130,7 @@ public class DbAssetManagerTester extends LittleTest {
             assertTrue( "attr1 removed on reload", dbMgr.makeDbAssetLoader( trans ).loadObject( testSave.getId()).narrow( GenericAsset.class ).getAttribute("attr1" ).isEmpty() );
             
             // Test from-loader
-            final Map<String, UUID> mapChildren = dbMgr.makeDbAssetIdsFromLoader( trans, testHomeId, Options.some((AssetType) TreeNode.TREE_NODE_TYPE ), Options.NONE).loadObject("");
+            final Map<String, UUID> mapChildren = (Map<String, UUID>) dbMgr.makeDbAssetIdsFromLoader( trans, testHomeId, Options.some((AssetType) TreeNode.TREE_NODE_TYPE ), Options.NONE).loadObject("");
             assertTrue("Able to load children using a parent asset type", !mapChildren.isEmpty());
             
             // Test transaction nonsense

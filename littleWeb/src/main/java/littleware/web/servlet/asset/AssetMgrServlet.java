@@ -8,14 +8,17 @@
 package littleware.web.servlet.asset;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonWriter;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.UUID;
@@ -127,11 +130,11 @@ public class AssetMgrServlet implements LittleServlet {
 
         switch (result.getState()) {
             case NO_DATA: {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "{ 'littleStatus': " + HttpServletResponse.SC_NOT_FOUND + " }" );
             }
             break;
             case ACCESS_DENIED: {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "littleware refuses access" );
             }
             break;
             case USE_YOUR_CACHE: {
@@ -221,27 +224,40 @@ public class AssetMgrServlet implements LittleServlet {
                     response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
                 }
             } else if ( method.equals( "withid" ) ) { // POST, PUT, DELETE
-                final UUID id = UUIDFactory.parseUUID(args.get(0));
                 final Gson gson = gsonFactory.getBuilder().setPrettyPrinting().create(); 
-                final JsonObject json = gson.fromJson(
-                            new InputStreamReader( request.getInputStream(), Whatever.UTF8 ),
-                            JsonElement.class
-                            ).getAsJsonObject();
-                final String comment = json.get( "comment" ).getAsString();
                 
                 if ( request.getMethod().equals( "DELETE" ) ) {
-                    assetMgr.deleteAsset( userSession.getId(), id, comment );
+                    final UUID id = UUIDFactory.parseUUID(args.get(0));
+                    assetMgr.deleteAsset( userSession.getId(), id, "web delete" );
                 } else { // PUT or POST    
+                    final JsonObject json = gson.fromJson(
+                                new InputStreamReader( request.getInputStream(), Whatever.UTF8 ),
+                                JsonElement.class
+                                ).getAsJsonObject();
+                    final String comment = json.get( "comment" ).getAsString();
+
                     final Asset asset = gson.fromJson( json.get( "asset" ), Asset.class );
-                    assetMgr.saveAsset( userSession.getId(), asset, comment );
+                    final ImmutableMap<UUID,Asset> result = assetMgr.saveAsset( userSession.getId(), asset, comment );
+                    
+                    try ( 
+                            final JsonWriter  jwriter = new JsonWriter( new OutputStreamWriter( response.getOutputStream(), Whatever.UTF8 )) 
+                            ) {
+                        jwriter.beginArray();
+                        for( Asset it : result.values() ) {
+                            gson.toJson( it, Asset.class, jwriter );
+                        }
+                        jwriter.endArray();
+                    }                    
                 }
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);
             }
         } catch (AccessDeniedException ex) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            log.log( Level.FINE, "Access denied exception", ex );
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, ex.toString() );
         } catch (GeneralSecurityException ex) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            log.log( Level.FINE, "General security exception", ex );
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, ex.toString() );
         } catch (Exception ex) {
             // TODO!!!
             log.log(Level.WARNING, "Unexpected exception", ex);

@@ -7,11 +7,14 @@
  */
 package littleware.web.servlet.login.controller;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import java.util.UUID;
 import javax.security.auth.login.LoginException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import littleware.base.Option;
 import littleware.web.servlet.login.model.*;
 
 
@@ -79,4 +82,36 @@ public interface SessionMgr {
    * @return the json object set in the cookie
    */
    JsonObject addSessionCookie( HttpServletRequest req, HttpServletResponse resp, SessionInfo activeSession );  
+
+   
+    /**
+     * Result container for authorizeRequest() below
+     */
+    public static class AuthKey {
+        public final boolean authenticated;
+        public final SessionInfo info;
+        public final boolean addCookie;
+        
+        public AuthKey( boolean authenticated, SessionInfo info, boolean addCookie ) {
+            this.authenticated = authenticated;
+            this.info = info;
+            this.addCookie = addCookie;
+        }
+    }
+
+    /**
+     * Authorize a request to access the resource this filter defends
+     * based on the request's littleCookie or little-sessionId header.
+     * Note that the request header actively assigned by the client takes precedence
+     * over a cookie value - which may be stale.
+     * 
+     * @param cookies attached to the HTTP request - scanned for littleCookie
+     * @param optLittleSessionIdHeader - "littleware-sessionId" header attached to request if any
+     * @return AuthKey that either authorizes or denies access
+     */
+    public AuthKey authorizeRequest(
+            ImmutableList<Cookie> cookies,
+            Option<String> optLittleSessionIdHeader
+    );
+
 }

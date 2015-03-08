@@ -93,9 +93,9 @@ export declare module Y {
             getViewInfo(view: View): any;
             getViewInfo(view: string): any;
             navigate(url: string, options?: any): any;
-            render(): App_Base;
-            showView(view: string, config?: any, options?: any, callback?: (view: View) => any): App_Base;
-            showView(view: View, config?: any, options?: any, callback?: (view: View) => any): App_Base;
+            render(): View;
+            showView(view: string, config?: any, options?: any, callback?: (view: View) => any): any;
+            showView(view: View, config?: any, options?: any, callback?: (view: View) => any): any;
         }
     
         class Array { 
@@ -170,7 +170,7 @@ export declare module Y {
             (config: any);
             
             
-            destroy(): Base;
+            destroy(): any;
             init(config: any): Base;
         }
     
@@ -179,7 +179,7 @@ export declare module Y {
             
             name: string;
             
-            destroy(): BaseCore;
+            destroy(): any;
             init(cfg: any): BaseCore;
             toString(): string;
         }
@@ -733,8 +733,8 @@ export declare module Y {
             isModified(): boolean;
             isNew(): boolean;
             parse(response: any): any;
-            set(name: string, value: any, options?: any): Model;
-            setAttrs(attributes: any, options?: any): Model;
+            set(name: string, value: any, options?: any): any;
+            setAttrs(attributes: any, options?: any): any;
             toJSON(): any;
             sync(action: string, options?: any, callback?: (err: Error, response?: any) => any): any;
             undo(attrNames?: any[], options?: any): Model;
@@ -1463,7 +1463,7 @@ export declare module Y {
             create(container?: HTMLElement): Node;
             create(container?: Node): Node;
             create(container?: string): Node;
-            destroy(options?: any): View;
+            destroy(): any;
             detachEvents(): View;
             remove(): View;
             render(): View;
@@ -2847,9 +2847,7 @@ export declare module Y {
     
 
     
-        interface App_Content {
-            
-            route: any[];
+        interface App_Content {           
             
             showContent(content: HTMLElement, options?: any, callback?: (view: View) => any): any;
             showContent(content: Node, options?: any, callback?: (view: View) => any): any;
@@ -2861,8 +2859,8 @@ export declare module Y {
             FX: any;
             transitions: any;
             
-            showView(view: string, config?: any, options?: any, callback?: (view: View) => any): App_Transitions;
-            showView(view: View, config?: any, options?: any, callback?: (view: View) => any): App_Transitions;
+            showView(view: string, config?: any, options?: any, callback?: (view: View) => any): any;
+            showView(view: View, config?: any, options?: any, callback?: (view: View) => any): any;
         }
     
         interface App_TransitionsNative {

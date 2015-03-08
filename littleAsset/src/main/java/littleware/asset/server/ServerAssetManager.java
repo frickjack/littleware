@@ -9,10 +9,9 @@
 
 package littleware.asset.server;
 
+import com.google.common.collect.ImmutableMap;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -65,7 +64,7 @@ public interface ServerAssetManager {
      * @throws IllegalArgumentException if supplied asset does not have a valid name
      * @throws AlreadyExistsException if asset save violates some uniqueness constraint
      */
-    public Map<UUID,Asset> saveAsset( LittleContext ctx, Asset asset,
+    public ImmutableMap<UUID,Asset> saveAsset( LittleContext ctx, Asset asset,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException;
 
@@ -77,7 +76,7 @@ public interface ServerAssetManager {
      * @param updateComment applied to all assets
      * @return updated assets
      */
-    public Map<UUID,Asset> saveAssetsInOrder( LittleContext ctx, Collection<Asset> assetList,
+    public ImmutableMap<UUID,Asset> saveAssetsInOrder( LittleContext ctx, Collection<Asset> assetList,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException;
 

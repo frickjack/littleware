@@ -36,6 +36,7 @@ import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
 import littleware.asset.gson.GsonAssetAdapter;
 import littleware.asset.gson.LittleGsonFactory;
+import org.joda.time.DateTime;
 
 /**
  * Register serializers for core types with GsonBuilder
@@ -75,7 +76,7 @@ public class GsonProvider implements LittleGsonFactory {
                 new JsonSerializer<Date>() {
                     @Override
                     public JsonElement serialize(Date t, Type type, JsonSerializationContext jsc) {
-                        return new JsonPrimitive( dateFormat.format(t) );
+                        return new JsonPrimitive( new DateTime(t).toString() );
                     }
                 });
         gsonBuilder.registerTypeAdapter(AssetPath.class,
@@ -156,7 +157,7 @@ public class GsonProvider implements LittleGsonFactory {
         @Override
         public Asset deserialize(JsonElement je, Type type, JsonDeserializationContext jdc) throws JsonParseException {
             final JsonObject json = je.getAsJsonObject();
-            final String typeString = json.get( "type" ).getAsString();
+            final String typeString = json.get( "assetType" ).getAsJsonObject().get( "name" ).getAsString();
             final GsonAssetAdapter adapter = typeMap.get( typeString );
             if ( null == adapter ) {
                 throw new IllegalArgumentException( "No asset adapter registered to deserialize asset of type: " + typeString );
@@ -165,7 +166,7 @@ public class GsonProvider implements LittleGsonFactory {
         }
     }
 
-    public final static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    //public final static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static class HelpSerializer implements JsonSerializer<LgoHelp> {
 
         @Override

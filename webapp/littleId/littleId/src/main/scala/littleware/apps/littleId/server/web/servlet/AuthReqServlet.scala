@@ -78,6 +78,7 @@ class AuthReqServlet extends HttpServlet {
   @throws(classOf[ServletException])
   override def init():Unit = try {
     val gbean:GuiceBean = getServletContext.getAttribute( WebBootstrap.littleGuice ).asInstanceOf[GuiceBean]
+    assert( gbean != null, "Able to acquire Guice bean from app environment" )
     gbean.injectMembers(this)
   } catch {
     case ex:Exception => {

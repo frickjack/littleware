@@ -53,4 +53,9 @@ public class SessionCreds {
     hash = 37 * hash + Objects.hashCode(this.sessionId);
     return hash;
   }
+  
+  @Override
+  public String toString() {
+      return "SessionCreds(" + this.sessionId + ")";
+  }
 }

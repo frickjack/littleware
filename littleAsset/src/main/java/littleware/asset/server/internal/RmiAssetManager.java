@@ -8,6 +8,7 @@
 
 package littleware.asset.server.internal;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.util.*;
 import java.security.*;
@@ -44,14 +45,14 @@ public class RmiAssetManager extends LittleRemoteObject implements RemoteAssetMa
     }
 
     @Override
-    public Map<UUID,Asset> saveAsset(UUID sessionId, Asset asset,
+    public ImmutableMap<UUID,Asset> saveAsset(UUID sessionId, Asset asset,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return assetMgr.saveAsset( ctxFactory.build(sessionId), asset, updateComment);
     }
 
     @Override
-    public Map<UUID,Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assets,
+    public ImmutableMap<UUID,Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assets,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException {
         return assetMgr.saveAssetsInOrder( ctxFactory.build(sessionId), assets, updateComment);

@@ -90,6 +90,9 @@ public class LittleDispatcher extends HttpServlet {
           helper.write(response, respBuilder.build() );
           return;
         }
+        log.log( Level.FINE, "Dispatching {0} {1} to {2}", 
+                new Object[]{request.getPathInfo(), request.getMethod(), optHandler.get().getClass()}
+        );
         optHandler.get().doGetOrPostOrPut(request, response);
     }
 

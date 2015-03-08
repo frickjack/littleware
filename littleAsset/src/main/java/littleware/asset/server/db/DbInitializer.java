@@ -88,7 +88,11 @@ public class DbInitializer {
         try { // Go on to setup initial freakin' repository nodes ...
             if (null == mgr.makeDbAssetLoader(trans).loadObject(Config.getTestHomeId())) {
                 // Note: need to initialize everything as we're bypassing a couple layers of API
-                final LittleHome testHome = homeFactory.get().homeId(Config.getTestHomeId()).id(Config.getTestHomeId()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(Config.getTestUserId()).aclId(LittleAcl.UUID_EVERYBODY_READ).name(Config.getTestHome()).comment("Tree for test-case nodes").lastUpdate("auto-created by AwsModule domain setup").timestamp(trans.getTimestamp()).build().narrow();
+                final LittleHome testHome = homeFactory.get().homeId(Config.getTestHomeId()
+                    ).id(Config.getTestHomeId()).creatorId(AccountManager.UUID_ADMIN
+                    ).lastUpdaterId(AccountManager.UUID_ADMIN
+                    ).ownerId(Config.getTestUserId()
+                    ).aclId(LittleAcl.UUID_EVERYBODY_READ).name(Config.getTestHome()).comment("Tree for test-case nodes").lastUpdate("auto-created by AwsModule domain setup").timestamp(trans.getTimestamp()).build().narrow();
                 mgr.makeDbAssetSaver(trans).saveObject(testHome);
             }
             LittleHome littleHome = (LittleHome) mgr.makeDbAssetLoader(trans).loadObject(LittleHome.LITTLE_HOME_ID);

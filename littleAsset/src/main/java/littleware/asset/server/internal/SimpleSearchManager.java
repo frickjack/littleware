@@ -222,24 +222,25 @@ public class SimpleSearchManager implements ServerSearchManager {
             GeneralSecurityException {
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
-
-        { // check transaction cache first
-            final Asset result = accessCache.get( unspecial.getId() );
-            if ( null != result ) {
-                return (T) result;
-            }
-        }
-        
-        //
-        // avoid mess where specialize calls something like getAssetIdsFrom that
-        //    in turn calls getAsset as a security check ... ugh!
-        // will update cache with specialized asset once it's available, or
-        // clean the unspecialized asset out of the cache if specialization fails ...
-        //
-        accessCache.put( unspecial.getId(), unspecial);
-        boolean mustCleanCache = true;
+        boolean mustCleanCache = false;  // little state flag - see below
         
         try {    
+            { // check transaction cache first
+                final Asset result = accessCache.get( unspecial.getId() );
+                if ( null != result ) {
+                    return (T) result;
+                }
+            }
+
+            //
+            // avoid mess where specialize calls something like getAssetIdsFrom that
+            //    in turn calls getAsset as a security check ... ugh!
+            // will update cache with specialized asset once it's available, or
+            // clean the unspecialized asset out of the cache if specialization fails ...
+            //
+            accessCache.put( unspecial.getId(), unspecial);
+            mustCleanCache = true;
+
             final T special = specialRegistry.getService(unspecial.getAssetType()).narrow(ctx, unspecial);
             // update cycle cache
             accessCache.put(special.getId(), special);

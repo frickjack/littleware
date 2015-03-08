@@ -11,6 +11,8 @@ import littleware.web.servlet.login.controller.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import java.util.UUID;
@@ -24,8 +26,12 @@ import javax.security.auth.login.LoginException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import littleware.base.Option;
+import littleware.base.Options;
+import littleware.base.UUIDFactory;
 import littleware.base.login.LoginCallbackHandler;
 import littleware.bootstrap.AppBootstrap;
+import static littleware.web.servlet.login.LoginFilter.littleCookie;
 import littleware.web.servlet.login.model.*;
 import org.joda.time.DateTime;
 
@@ -67,6 +73,7 @@ public class SimpleSessionMgr implements SessionMgr {
       final LoginContext ctx = new LoginContext("littleware", new Subject(), new LoginCallbackHandler(user, authKey),
               loginConfig);
       ctx.login();
+      // side effect of successful littleware-client JAAS authentication updates session creds
       return session;
     } else if (session.getActiveUser().get().getName().equals(user)) { // already logged in as user
       return session;
@@ -107,11 +114,21 @@ public class SimpleSessionMgr implements SessionMgr {
     if (creds.getLoginCreds().isEmpty()) {
       return session;
     }
+    
+    // support auto-authentication if login creds included
     final LoginCreds lcreds = creds.getLoginCreds().get();
     if (lcreds.equals(session.getCredentials())) {
       // cached session authenticated with same user
       return session;
     }
+    
+    //
+    // little hack here - the authToken assigned by
+    // the LoginServlet is a littleware sessionId UUID,
+    // and the client login-module recognizes UUID user-names
+    // as littleware sessionId (ignoring the password, since
+    // the sessionId is a sufficient secret to access littleware API's).
+    // 
     return login(session, lcreds.authToken, lcreds.authToken);
   }
 
@@ -156,5 +173,80 @@ public class SimpleSessionMgr implements SessionMgr {
     resp.addCookie(cookie);    
     return js;
   }
-  
+
+   
+    
+   @Override
+    public AuthKey authorizeRequest(
+            ImmutableList<Cookie> cookies,
+            Option<String> optLittleSessionIdHeader
+    ) {
+        final Option<SessionCreds> optCookieCreds;
+        final Option<SessionCreds> optHeaderCreds;
+        
+        // flag - should the filter add an littleCookie to the response ?
+        boolean addCookie = false;
+        
+        // check cookies then headers for credentials
+        {
+            JsonObject json = null;
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(littleCookie)) {
+                    json = gsonTool.fromJson(cookie.getValue(), JsonElement.class).getAsJsonObject();
+                    break;
+                }
+            }
+            if ( null != json ) {
+                optCookieCreds = Options.some( fromJson(json) );
+            } else optCookieCreds = Options.empty();
+        }
+            
+        if ( optLittleSessionIdHeader.isSet() ) {
+            final UUID headerKey = UUIDFactory.parseUUID( optLittleSessionIdHeader.get() );
+            // note - just assign bogus end-date here - 
+            //    littleware session's expiration date is accessed upon successful
+            //    authentication.  Ugh - too much magic.
+            //
+            final SessionCreds headerCreds = new LoginCreds(UUID.randomUUID(), UUIDFactory.makeCleanString(headerKey), DateTime.now().plusDays(1));
+
+            addCookie = true;  // header auth info supercedes cookie creds
+            if ( optCookieCreds.isSet() && optCookieCreds.get().getLoginCreds().isSet() ) {
+                final UUID cookieKey = UUIDFactory.parseUUID( optCookieCreds.get().getLoginCreds().get().authToken );
+                if ( headerKey.equals( cookieKey ) ) {
+                    // then continue using the previously established session-id in the cookie
+                    optHeaderCreds = optCookieCreds;
+                    addCookie = false;
+                } else optHeaderCreds = Options.some( headerCreds );
+            } else optHeaderCreds = Options.some( headerCreds );
+        } else optHeaderCreds = Options.empty();
+        
+        // which creds to use - cookie or header ?  
+        final SessionCreds selectedCreds;
+        
+        if ( optHeaderCreds.isSet() ) {
+            selectedCreds = optHeaderCreds.get();
+        } else if ( optCookieCreds.isSet() ) {
+            selectedCreds = optCookieCreds.get();
+        } else {
+            // setup an unauthenticated session
+            selectedCreds = new SessionCreds( UUID.randomUUID() );
+            addCookie = true;
+        }
+        
+        SessionInfo sinfo;
+        try {
+            sinfo = loadSession( selectedCreds );
+        } catch ( LoginException ex ) {
+            log.log( Level.WARNING, "Failed to authenticate session with creds: " + selectedCreds );
+            // setup an unauthenticated session
+            addCookie = true;
+            sinfo = loadSession( UUID.randomUUID() );
+        }
+        
+        final boolean authenticated = sinfo.getCredentials().getLoginCreds().isSet()
+                        && sinfo.getCredentials().getLoginCreds().get().expiration.isAfter(DateTime.now());
+        return new AuthKey( authenticated, sinfo, addCookie );
+        
+    }
+
 }

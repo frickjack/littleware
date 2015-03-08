@@ -222,7 +222,6 @@ public class SimpleSearchService implements AssetSearchManager {
             result = getAsset(((AbstractAsset) result.get()).getToId());
         }
 
-
         if (result.isSet()) {
             cache.put(key, result.get());
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));

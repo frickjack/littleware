@@ -9,7 +9,6 @@ if ( null == exports ) {
 import importY = require("../../libts/yui");
 importY; // workaround for typescript bug: https://typescript.codeplex.com/workitem/1531
 import Y = importY.Y;
-Y = exports;
 
 var lw: any = exports.littleware;
 
@@ -32,6 +31,19 @@ export module littleware.asset {
         id: string;
         timestamp: number;
     }
+
+
+    /**
+     * Clean id strings - 
+     * @for littleware.asset
+     * @static
+     * @method cleanId
+     * @return {String} clean id value.replace(/\W+/g, "").toUpperCase()
+     */
+    export function cleanId(id: string): string {
+        return (id ? id.replace(/\W+/g, "").toUpperCase() : null);
+    }
+
 
     var _typeIndex: {
         [id: string]: AssetType;
@@ -59,13 +71,24 @@ export module littleware.asset {
         }
 
         /**
-         * Lookup an asset type by id
+         * Lookup an asset type by id - auto-register new type if not found in index
          * @member lookup
          * @static
+         * @param id {string} UUID associated with type
+         * @param optName {string} name to associate with auto-register if
+         *             type not already registered
          * @return {AssetType} undefined if none present
          */
-        static lookup(id: string): AssetType {
-            return _typeIndex[id];
+        static lookup(id: string, optName?:string ): AssetType {
+            var cleanId = id.replace(/\W+/g, "").toUpperCase();
+            var lookup = _typeIndex[cleanId];
+            if (lookup) {
+                return lookup;
+            }
+            var name = optName ? optName : "unknown-" + cleanId;
+            lookup = new AssetType(cleanId, -1, name );
+            AssetType.register(lookup);
+            return lookup;
         }
 
         /**
@@ -117,16 +140,20 @@ export module littleware.asset {
         private assetType: AssetType;
         private timestamp: number;
         private name: string;
+        private creatorId: string;
         private dateCreated: Date;
+        private updaterId: string;
         private dateUpdated: Date;
         private startDate: Date;
         private endDate: Date;
+        private homeId: string;
         private fromId: string;
         private toId: string;
         private aclId: string;
         private ownerId: string;
         private otherProps: StringProps;
         private comment: string;
+        private updateComment: string;
         private data: string;
         private state: number;
         private value: number;
@@ -143,25 +170,31 @@ export module littleware.asset {
             this.assetType = builder.getAssetType();
             this.timestamp = builder.timestamp;
             this.name = builder.name;
+            this.creatorId = builder.creatorId;
             this.dateCreated = builder.dateCreated;
+            this.updaterId = builder.updaterId;
             this.dateUpdated = builder.dateUpdated;
             this.startDate = builder.startDate;
             this.endDate = builder.endDate;
+            this.homeId = builder.homeId;
             this.fromId = builder.fromId;
             this.toId = builder.toId;
             this.aclId = builder.aclId;
             this.ownerId = builder.ownerId;
             this.otherProps = new StringProps( builder.otherProps );
             this.comment = builder.comment;
+            this.updateComment = builder.updateComment;
             this.data = builder.data;
             this.state = Math.floor(builder.state);
             this.value = builder.value;
 
-            Y.assert( 
-                this.id && this.assetType && this.name && 
-                ((this.assetType.id == HomeAsset.HOME_TYPE.id) || (this.fromId && (this.id != this.fromId))), 
-                "asset passes basic validation"
-                );
+            var isValid = this.assetType && this.name &&
+                ((this.assetType.id == HomeAsset.HOME_TYPE.id) || (this.homeId && this.fromId && (this.id != this.fromId)));
+            if (!isValid) {
+                log.info("Asset constructor fails validity check");
+                console.dir(this);
+            }
+            Y.assert( isValid,"asset passes basic validation");
         }
 
         /**
@@ -190,14 +223,27 @@ export module littleware.asset {
          * @return {string}
          */
         getName(): string { return this.name; }
+        getCreatorId(): string {
+            return this.creatorId;
+        }
         getDateCreated(): Date { return this.dateCreated; }
+        getUpdaterId(): string {
+            return this.updaterId;
+        }
         getDateUpdated(): Date { return this.dateUpdated; }
         getStartDate(): Date { return this.startDate; }
         getEndDate(): Date { return this.endDate; }
+        getHomeId(): string {
+            return this.homeId;
+        }
+
         getFromId(): string { return this.fromId; }
         getToId(): string { return this.toId; }
         getAclId(): string { return this.aclId; }
         getOwnerId(): string { return this.ownerId; }
+        getUpdateComment(): string {
+            return this.updateComment;
+        }
         getComment(): string { return this.comment; }
 
         /**
@@ -251,8 +297,13 @@ export module littleware.asset {
      * @class IdFactories
      */
     export class IdFactories {
+        private static counter: number = 0;
+
         private static _idFactory: IdFactory = {
-            get: function () { return "" + (new Date()).getTime() + "-" + Math.floor( 100 * Math.random() ); }
+            get: function () {
+                IdFactories.counter += 1;
+                return cleanId( "" + (new Date()).getTime() + Math.floor(100 * Math.random()) + IdFactories.counter );
+            }
         };
 
         /**
@@ -279,24 +330,43 @@ export module littleware.asset {
         getAssetType(): AssetType { return this.assetType; }
 
         /**
-         * Unique id - default value initialized via IdFactories.get().get()
+         * Id of the "home" asset that roots the tree this asset is under.
+         * Must be non-null for all non-home assets.
+         * @property homeId
+         */
+        homeId: string = null;
+        /** 
+         * Chainable homeId setter with cleanId filter
+         * @method withHomeId
+         * @chainable
+         */
+        withHomeId(value: string): AssetBuilder {
+            this.homeId = cleanId(value); return this;
+        }
+
+        /**
+         * Unique id - default value null - then assigned by AssetMgr.saveAsset
          * @property id
          * @type string
          */
-        id: string = IdFactories.get().get();
+        id: string = null;  // IdFactories.get().get();
         /**
-         * Chainable id setter
+         * Chainable id setter with cleanId filter
          * @method withId
          * @chainable
          */
-        withId(value: string): AssetBuilder { this.id = value; return this; }
+        withId(value: string): AssetBuilder { this.id = cleanId(value); return this; }
         /**
          * Chainable id setter - assigned new random id - useful for copying an asset as a template ...
          * @method withNewId
          * @chainable
          */
-        withNewId(): AssetBuilder { this.id = IdFactories.get().get(); return this; }
+        withNewId(): AssetBuilder { this.id = cleanId(IdFactories.get().get()); return this; }
         
+        /**
+         * @property timestamp
+         * @type number
+         */
         timestamp: number = -1;
         /**
          * @method withTimestamp
@@ -304,39 +374,140 @@ export module littleware.asset {
          */
         withTimestamp(value: number): AssetBuilder { this.timestamp = value; return this; }
 
+        /**
+         * @property name
+         * @type string
+         */
         name: string = null;
+
+        /**
+         * @method withName
+         * @chainable
+         */
         withName(value: string): AssetBuilder { this.name = value; return this; }
 
+        /**
+         * @property creatorId
+         * @type string
+         */
+        creatorId: string = null;
+        /**
+         * @method withCreatorId
+         * @chainable
+         */
+        withCreatorId(value: string): AssetBuilder {
+            this.creatorId = cleanId(value); return this;
+        }
+
+        /**
+         * @property dateCreated
+         * @type Date
+         */
         dateCreated: Date = new Date();
+        /**
+         * @method withDateCreated
+         * @chainable
+         */
         withDateCreated(value: Date): AssetBuilder { this.dateCreated = value; return this; }
 
+        /**
+         * @property updaterId
+         * @type string
+         */
+        updaterId: string = null;
+        /**
+         * @method withUpdaterId
+         * @chainable
+         */
+        withUpdaterId(value: string): AssetBuilder {
+            this.updaterId = cleanId(value); return this;
+        }
+
+        /**
+         * @property dateUpdated
+         * @type Date
+         */
         dateUpdated: Date = new Date();
+        /**
+         * @method withDateUpdated
+         * @chainable
+         */
         withDateUpdated(value: Date): AssetBuilder { this.dateUpdated = value; return this; }
 
+        /**
+         * @property startDate
+         * @type Date
+         */
         startDate: Date = null;
+        /**
+         * @method withStartDate
+         * @chainable
+         */
         withStartDate(value: Date): AssetBuilder { this.startDate = value; return this; }
 
+        /**
+         * @property endDate
+         * @type Date
+         */
         endDate: Date = null;
+        /**
+         * @method withEndDate
+         * @chainable
+         */
         withEndDate(value: Date): AssetBuilder { this.endDate = value; return this; }
 
+        /**
+         * @property fromId
+         * @type string
+         */
         fromId: string = null;
-        withFromId(value: string): AssetBuilder { this.fromId = value; return this; }
+        /**
+         * @method withFromId
+         * @chainable
+         */
+        withFromId(value: string): AssetBuilder { this.fromId = cleanId(value); return this; }
 
+        /**
+         * @property toId
+         * @type string
+         */
         toId: string = null;
-        withToId(value: string): AssetBuilder { this.toId = value; return this; }
+        /**
+         * @method withToId
+         * @chainable
+         */
+        withToId(value: string): AssetBuilder { this.toId = cleanId(value); return this; }
 
+        /**
+         * @property aclId
+         * @type string
+         */
         aclId: string = null;
-        withAclId(value: string): AssetBuilder { this.aclId = value; return this; }
+        /**
+         * @method withAclId
+         * @chainable
+         */
+        withAclId(value: string): AssetBuilder { this.aclId = cleanId(value); return this; }
 
+        /**
+         * @property ownerId
+         * @type string
+         */
         ownerId: string = null;
-        withOwnerId(value: string): AssetBuilder { this.ownerId = value; return this; }
+        /**
+         * @method withOwnerId
+         * @chainable
+         */
+        withOwnerId(value: string): AssetBuilder { this.ownerId = cleanId(value); return this; }
 
         /**
          * Convenience method - shortcut for:
          *    withFromId( parent.getId() ).withAclId( parent.getAclId() )
+         * @method withParent
+         * @chainable
          */
         withParent(parent: Asset): AssetBuilder {
-            return this.withFromId(parent.getId()).withAclId(parent.getAclId());
+            return this.withFromId(parent.getId()).withHomeId( parent.getHomeId() ).withAclId(parent.getAclId());
         }
 
         otherProps: { [key: string]: string; } = {};
@@ -349,16 +520,61 @@ export module littleware.asset {
             return this;
         }
 
+        /**
+         * @property updateComment
+         * @type string
+         */
+        updateComment: string = "";
+        /**
+         * @method withUpdateComment
+         * @chainable
+         */
+        withUpdateComment(value: string): AssetBuilder {
+            this.updateComment = value; return this;
+        }
+
+        /**
+         * @property comment
+         * @type string
+         */
         comment: string = "";
+        /**
+         * @method withComment
+         * @chainable
+         */
         withComment(value: string): AssetBuilder { this.comment = value; return this; }
 
+        /**
+         * @property data
+         * @type string
+         */
         data: string = "";
+        /**
+         * @method withData
+         * @chainable
+         */
         withData(value: string): AssetBuilder { this.data = value; return this; }
 
+        /**
+         * @property state
+         * @type number
+         */
         state: number = 0;
+        /**
+         * @method withState
+         * @chainable
+         */
         withState(value: number): AssetBuilder { this.state = Math.floor(value); return this; }
 
+        /**
+         * @property value
+         * @type number
+         */
         value: number = 0;
+        /**
+         * @method withValue
+         * @chainable
+         */
         withValue(value: number): AssetBuilder { this.value = value; return this; }
 
         /**
@@ -368,9 +584,14 @@ export module littleware.asset {
          * @chainable
          */
         extractRaw(raw: any): AssetBuilder {
+            var props = raw.otherProps;
+            if (props.props) { // asset's StringProps serialize via Json.stringify with private 'props' property
+                props = props.props;
+            }
             this.withId( raw.id
                             ).withName( raw.name
-                            ).withTimestamp( typeof( raw.timestamp ) == 'number' ? raw.timestamp : -1
+                            ).withTimestamp(typeof (raw.timestamp) == 'number' ? raw.timestamp : -1
+                            ).withHomeId(raw.homeId 
                             ).withFromId(raw.fromId
                             ).withToId(raw.toId
                             ).withAclId(raw.aclId
@@ -378,7 +599,10 @@ export module littleware.asset {
                             ).withState(raw.state
                             ).withValue( raw.value
                             ).withData(raw.data
-                            ).addProps( new StringProps( raw.otherProps || {} )
+                            ).addProps(new StringProps(props || {})
+                            ).withCreatorId(raw.creatorId
+                            ).withUpdaterId(raw.updaterId
+                            ).withUpdateComment( raw.updateComment
                             ).withDateCreated(raw.dateCreated
                             ).withDateUpdated(raw.dateUpdated
                             ).withStartDate(raw.startDate
@@ -414,6 +638,8 @@ export module littleware.asset {
     GenericAsset.GENERIC_TYPE.newBuilder = function () {
         var builder = new AssetBuilder(GenericAsset.GENERIC_TYPE);
         builder.build = function () {
+            log.info("Building Generic asset: ");
+            console.dir(builder);
             return new GenericAsset(builder);
         };
 
@@ -439,6 +665,7 @@ export module littleware.asset {
         var builder = new AssetBuilder(HomeAsset.HOME_TYPE);
         builder.build = function () {
             builder.fromId = null;  // home assets don't have parents
+            builder.homeId = builder.id;
             return new HomeAsset(builder);
         };
 

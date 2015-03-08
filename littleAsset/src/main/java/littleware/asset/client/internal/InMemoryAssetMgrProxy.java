@@ -7,15 +7,14 @@
  */
 package littleware.asset.client.internal;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
-import littleware.asset.client.internal.RemoteAssetMgrProxy;
 import littleware.asset.internal.RemoteAssetManager;
 import littleware.base.BaseException;
 
@@ -35,12 +34,12 @@ public class InMemoryAssetMgrProxy implements RemoteAssetMgrProxy {
     }
 
     @Override
-    public Map<UUID, Asset> saveAsset(UUID sessionId, Asset asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<UUID, Asset> saveAsset(UUID sessionId, Asset asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return delegate.saveAsset(sessionId, asset, updateComment);
     }
 
     @Override
-    public Map<UUID, Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<UUID, Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         return delegate.saveAssetsInOrder(sessionId, assetList, updateComment);
     }
     

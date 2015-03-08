@@ -7,15 +7,12 @@
  */
 package littleware.web.servlet.login;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.io.IOException;
-import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.Filter;
@@ -28,142 +25,113 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.Whatever;
 import littleware.web.beans.GuiceBean;
 import littleware.web.servlet.WebBootstrap;
 import littleware.web.servlet.helper.*;
 import littleware.web.servlet.login.controller.*;
-import littleware.web.servlet.login.model.*;
-import org.joda.time.DateTime;
 
 /**
- * Works in conjunction with LoginServlet to setup authenticated (or not) littleware
- * environment that servlets or whatever can access via session.getAttribute(
- * "guiceBean" ).  This filter assumes javascript clients that will respond properly
- * to json response indicating that authentication is required.
+ * Works in conjunction with LoginServlet to setup authenticated (or not)
+ * littleware environment that servlets or whatever can access via
+ * session.getAttribute( "guiceBean" ). This filter assumes javascript clients
+ * that will respond properly to json response indicating that authentication is
+ * required.
  */
 public class LoginFilter implements Filter {
 
-  public static final String guiceBean = WebBootstrap.littleGuice;
-  public static final String littleCookie = SessionMgr.littleCookieName;
-  private static final Logger log = Logger.getLogger(LoginFilter.class.getName());
+    public static final String guiceBean = WebBootstrap.littleGuice;
+    public static final String littleCookie = SessionMgr.littleCookieName;
+    private static final Logger log = Logger.getLogger(LoginFilter.class.getName());
 
-  @Singleton
-  public static class Tools {
+    @Singleton
+    public static class Tools {
 
-    final SessionMgr mgr;
-    final ResponseHelper helper;
-    final Provider<JsonResponse.Builder> respFactory;
+        final SessionMgr mgr;
+        final ResponseHelper helper;
+        final Provider<JsonResponse.Builder> respFactory;
 
+        @Inject()
+        public Tools(SessionMgr mgr, ResponseHelper helper, Provider<JsonResponse.Builder> respFactory) {
+            this.mgr = mgr;
+            this.helper = helper;
+            this.respFactory = respFactory;
+
+        }
+    }
+
+    private Tools tools;
+    private final Gson gsonTool = new Gson();
+    private final MimetypesFileTypeMap mimeMap = new MimetypesFileTypeMap();
+
+    /**
+     * Initialization parameter - whether the filter should require
+     * authenticated sessions, or also accept unauthenticated sessions.
+     */
+    public boolean authRequired = false;
+    
+    public LoginFilter() {}
+    
     @Inject()
-    public Tools(SessionMgr mgr, ResponseHelper helper, Provider<JsonResponse.Builder> respFactory) {
-      this.mgr = mgr;
-      this.helper = helper;
-      this.respFactory = respFactory;
-
-    }
-  }
-  
-  
-  private Tools tools;
-  private final Gson gsonTool = new Gson();
-  private final MimetypesFileTypeMap mimeMap = new MimetypesFileTypeMap();
-  
-  /** 
-   * Initialization parameter - whether the filter should require authenticated sessions,
-   * or also accept unauthenticated sessions.
-   */
-  private boolean  authRequired = false;
-  
-  
-  /**
-   * Sets up guice environment, and queries "authRequired" initialization parameter
-   * 
-   * @param fc
-   * @throws ServletException 
-   */
-  @Override
-  public void init(FilterConfig fc) throws ServletException {
-    // noop
-    final GuiceBean gbean = (GuiceBean) fc.getServletContext().getAttribute(WebBootstrap.littleGuice);
-    Whatever.get().check("Application scope guice bean initialized", gbean != null);
-    this.tools = gbean.getInstance(Tools.class);
-    
-    final String authStr = Options.some( fc.getInitParameter( "authRequired" ) ).getOr( "false" ).trim().toLowerCase();
-    authRequired = authStr.equals( "true" ) || authStr.equals("yes");
-  }
-
-  /**
-   * Just make sure the freakin' littleware session is initialized ...,
-   * refuse to allow unauthenticatd sessions to access resource if authRequired
-   * init parameter set, otherwise just auto-setup uninitialized sessions
-   * when needed.
-   */
-  @Override
-  public void doFilter(ServletRequest requestIn, ServletResponse responseIn, FilterChain chain) throws IOException, ServletException {
-    final HttpServletRequest req = (HttpServletRequest) requestIn;
-    final HttpServletResponse resp = (HttpServletResponse) responseIn;
-    final Option<JsonObject> optJsCreds;
-    {
-      JsonObject js = null;
-      final Cookie[] cookies = req.getCookies();
-      if ( null != cookies ) {
-        for (Cookie cookie : cookies) {
-          if (cookie.getName().equals(littleCookie)) {
-            js = gsonTool.fromJson(cookie.getValue(), JsonElement.class).getAsJsonObject();
-          }
-        }
-      }
-      optJsCreds = Options.some(js);
+    public LoginFilter( Tools tools ) {
+        this.tools = tools;
     }
 
-    boolean success = false;
+    /**
+     * Sets up guice environment, and queries "authRequired" initialization
+     * parameter
+     *
+     * @param fc
+     * @throws ServletException
+     */
+    @Override
+    public void init(FilterConfig fc) throws ServletException {
+        // noop
+        final GuiceBean gbean = (GuiceBean) fc.getServletContext().getAttribute(WebBootstrap.littleGuice);
+        Whatever.get().check("Application scope guice bean initialized", gbean != null);
+        this.tools = gbean.getInstance(Tools.class);
 
-    if (optJsCreds.nonEmpty()) {
-      try {
-        final SessionCreds creds = tools.mgr.fromJson(optJsCreds.get());
-        final SessionInfo sinfo = tools.mgr.loadSession(creds);
+        final String authStr = Options.some(fc.getInitParameter("authRequired")).getOr("false").trim().toLowerCase();
+        authRequired = authStr.equals("true") || authStr.equals("yes");
+    }
         
-        log.log( Level.FINE, "Processing credentials {0}", optJsCreds.get() );
-        if( sinfo.getCredentials().getLoginCreds().isSet() &&
-             sinfo.getCredentials().getLoginCreds().get().expiration.isAfter( DateTime.now() )
-            ) {
-          req.setAttribute(WebBootstrap.littleGuice, sinfo.getGBean());
-          success = true;
-        } else if ( authRequired ) { // session must be authenticated
-          // auth required, but creds either corrupt or expired
-          success = false;
-        } else { // authenticated session not required - re-use existing gbean
-          req.setAttribute(WebBootstrap.littleGuice, sinfo.getGBean());
-          success = true;          
+    
+    /**
+     * Just make sure the freakin' littleware session is initialized ..., refuse
+     * to allow unauthenticated sessions to access resource if authRequired init
+     * parameter set, otherwise just auto-setup uninitialized sessions when
+     * needed.
+     */
+    @Override
+    public void doFilter(ServletRequest requestIn, ServletResponse responseIn, FilterChain chain) throws IOException, ServletException {
+        final HttpServletRequest req = (HttpServletRequest) requestIn;
+        final HttpServletResponse resp = (HttpServletResponse) responseIn;
+        final ImmutableList<Cookie>  cookies;
+        
+        {
+            final Cookie[] temp = req.getCookies();
+            
+            if(null != temp) {
+                cookies = ImmutableList.copyOf( temp );
+            } else cookies = ImmutableList.of();
         }
         
-      } catch (Exception ex) {
-        log.log(Level.INFO, "Failed to establish session from cookie: " + optJsCreds.get(), ex);
-      }
-    } else {
-        log.log( Level.FINE, "No credentials cookie present in request" );
+        final SessionMgr.AuthKey key = tools.mgr.authorizeRequest( cookies, Options.some( req.getHeader( "little-sessionId")));
+        
+        if ( key.addCookie ) {
+            tools.mgr.addSessionCookie(req, resp, key.info);
+        }
+        if ( key.authenticated || (! authRequired) ) {
+            req.setAttribute(WebBootstrap.littleGuice, key.info.getGBean());
+            chain.doFilter(req, resp);
+        } else {
+            // Send the client some JSON telling them to authenticate
+            final JsonResponse jsr = tools.respFactory.get().status.set(HttpServletResponse.SC_UNAUTHORIZED).build();
+            tools.helper.write(resp, jsr);
+        }
     }
 
-    if ( (! success) && (! authRequired) ) {
-      // setup an unauthenticated session, and update the client's cookie
-      final SessionInfo sinfo = tools.mgr.loadSession( UUID.randomUUID() );
-      req.setAttribute(WebBootstrap.littleGuice, sinfo.getGBean());
-      tools.mgr.addSessionCookie(req, resp, sinfo);
-      success = true;
+    @Override
+    public void destroy() {
     }
-    
-    if (success) {
-      chain.doFilter(req, resp);
-    } else {
-      // Send the client some JSON telling them to authenticate
-      final JsonResponse jsr = tools.respFactory.get().status.set(HttpServletResponse.SC_UNAUTHORIZED).build();
-      tools.helper.write(resp, jsr);
-    }
-  }
-
-  @Override
-  public void destroy() {
-  }
 }

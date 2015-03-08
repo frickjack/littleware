@@ -28,8 +28,15 @@
     
     <dependencies>    
     
+        <!--
         <dependency org="javax" name="javaee-api" rev="6.0" conf="compile->*,!sources,!javadoc" />
-        <dependency org="javax.mail" name="mail" rev="1.4.3" conf="with_mail->*,!sources,!javadoc" />        
+        -->
+        <dependency org="javax" name="javaee-web-api" rev="7.0" />
+        
+        <!-- javax.mail artifacts - see: https://java.net/projects/javamail/pages/Home -->
+        <dependency org="javax.mail" name="javax.mail-api" rev="1.5.1" conf="compile->*,!sources,!javadoc" />  
+        <dependency org="com.sun.mail" name="javax.mail" rev="1.5.1" conf="with_mail->*,!sources,!javadoc" />  
+        
         <dependency org="com.google.inject" name="guice" rev="3.0" e:classifier="no_aop">
             <artifact name="guice" type="no_aop" ext="jar" />
         </dependency>
@@ -45,7 +52,7 @@
         <dependency org="com.google.guava" name="guava" rev="15.0" conf="*->*,!sources,!javadoc"/>
         <dependency org="com.google.code.findbugs" name="jsr305" rev="2.0.1" conf="*->*,!sources,!javadoc"/>
         
-        <dependency org="mysql" name="mysql-connector-java" rev="5.1.11" conf="compile,with_mysql->*,!sources,!javadoc" />
+        <dependency org="mysql" name="mysql-connector-java" rev="5.1.27" conf="compile,with_mysql->*,!sources,!javadoc" />
         <dependency org="org.apache.derby" name="derby" rev="10.9.1.+" conf="compile,with_derby->*,!sources,!javadoc" />
         <dependency org="org.apache.derby" name="derbyclient" rev="10.9.1.+" conf="compile,with_derby->*,!sources,!javadoc" />
         <dependency org="junit" name="junit" rev="3.8.+" conf="with_junit,compile->*,!sources,!javadoc" />
@@ -56,7 +63,8 @@
                 
         <dependency org="com.oracle" name="ojdbc6" rev="11gr2" conf="compile,with_oracle->*,!sources,!javadoc" />
            -->
-        <dependency org="postgresql" name="postgresql" rev="9.1-901-1.jdbc4" conf="compile,with_postgres->*,!sources,!javadoc" />
+        <dependency org="org.postgresql" name="postgresql" rev="9.3-1100-jdbc41" conf="compile,with_postgres->*,!sources,!javadoc" />
+        
     </dependencies>
 
 </ivy-module>

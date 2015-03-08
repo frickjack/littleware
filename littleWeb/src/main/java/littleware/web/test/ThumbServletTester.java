@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import littleware.asset.client.test.AbstractAssetTest;
@@ -42,6 +43,16 @@ public class ThumbServletTester extends AbstractAssetTest {
                         @Override
                         public void write(int b) throws IOException {
                         }
+
+                @Override
+                public boolean isReady() {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public void setWriteListener(WriteListener writeListener) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
                     });
             EasyMock.replay( mockRequest );
             EasyMock.replay( mockResponse );

@@ -92,7 +92,14 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     }
 
     /**
-     * Lookup the registered enum meber by UUID.
+     * Lookup the registered enum member by UUID.
+     */
+    public static <T extends DynamicEnum> Option<T> getOptMember(UUID id, Class<T> clazz ) {
+        throw new UnsupportedOperationException( "not yet implemented" );
+    }
+
+    /**
+     * Lookup the registered enum member by UUID.
      *
      * @throws NoSuchThingException if type not registered
      */
@@ -116,25 +123,33 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
 
     /**
      * Lookup the registered enum meber by UUID.
+     */
+    public static <T extends DynamicEnum> Option<T> getOptMember(String name, Class<T> clazz){
+        final SubtypeData<T> subtypeData;
+
+        synchronized (subtypesByName) {
+            subtypeData = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
+        }
+
+        T result = null;
+
+        if (null != subtypeData) {
+            result = subtypeData.getMember(name);
+        }
+        return Options.some(result);
+    }
+    
+    /**
+     * Lookup the registered enum meber by UUID.
      *
      * @throws NoSuchThingException if type not registered
      */
-    public static <T extends DynamicEnum> T getMember(String s_name, Class<T> c_class) throws NoSuchThingException {
-        SubtypeData<T> x_data = null;
-
-        synchronized (subtypesByName) {
-            x_data = (SubtypeData<T>) subtypesByName.get ( c_class.getName () );
+    public static <T extends DynamicEnum> T getMember(String name, Class<T> clazz) throws NoSuchThingException {
+        final Option<T> opt = getOptMember( name, clazz );
+        if ( opt.isEmpty() ) {
+            throw new NoSuchThingException( "No " + clazz.getName() + " with name: " + name );
         }
-
-        T n_result = null;
-
-        if (null != x_data) {
-            n_result = x_data.getMember(s_name);
-        }
-        if (null == n_result) {
-            throw new NoSuchThingException();
-        }
-        return n_result;
+        return opt.get();
     }
 
     /**

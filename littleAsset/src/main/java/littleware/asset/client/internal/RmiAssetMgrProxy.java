@@ -9,12 +9,12 @@
 
 package littleware.asset.client.internal;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -47,7 +47,7 @@ public class RmiAssetMgrProxy extends RemoteRetryHelper<RemoteAssetManager> impl
     }
 
     @Override
-    public Map<UUID,Asset> saveAsset(UUID sessionId, Asset asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<UUID,Asset> saveAsset(UUID sessionId, Asset asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
                 return getLazy().saveAsset( sessionId, asset, updateComment );
@@ -60,7 +60,7 @@ public class RmiAssetMgrProxy extends RemoteRetryHelper<RemoteAssetManager> impl
     }
 
     @Override
-    public Map<UUID,Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
+    public ImmutableMap<UUID,Asset> saveAssetsInOrder(UUID sessionId, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         while (true) {
             try {
                 return getLazy().saveAssetsInOrder( sessionId, assetList, updateComment );

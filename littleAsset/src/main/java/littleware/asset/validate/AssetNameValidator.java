@@ -21,7 +21,7 @@ import littleware.base.validate.Validator;
 public class AssetNameValidator {
 
     public boolean validate(String name) {
-        return name.matches("^\\w[\\w-#:\\.]*$");
+        return name.matches("^\\w[\\w-#:@\\.]*$");
     }
 
     public Validator build(final String assetName) {

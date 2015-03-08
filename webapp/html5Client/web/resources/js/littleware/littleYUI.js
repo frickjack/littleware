@@ -48,9 +48,17 @@ littleware.littleYUI = (function() {
                     path: "asset/assetMgr.js",
                     requires: ["littleware-asset-base" ]
                 },
+                'littleware-asset-localmgr': {
+                    path: "asset/internal/localAssetMgr.js",
+                    requires: ["littleware-asset-manager"]
+                },
+                'littleware-asset-netmgr': {
+                    path: "asset/internal/netAssetMgr.js",
+                    requires: ["littleware-asset-localmgr", "littleware-auth-authService"]
+                },
                 'littleware-asset-test': {
                     path: "asset/testSuite.js",
-                    requires: [ "littleware-asset-manager", "test" ]
+                    requires: [ "littleware-asset-netmgr", "test" ]
                 },
                 'littleware-auth-authService': {
                     path: "auth/authService.js",
@@ -104,7 +112,7 @@ littleware.littleYUI = (function() {
                 },
                 "littleware-eventTrack-toDoAPI": {
                     path: "eventTrack/toDoAPI.js",
-                    requires: ['littleware-asset-manager', 'littleware-littleUtil', 'test'
+                    requires: ['littleware-asset-localmgr', 'littleware-littleUtil', 'test'
                     ]
                 },
                 "littleware-eventTrack-toDoView": {
@@ -182,7 +190,8 @@ function define( argNames, moduleThunk ) {
   var name = null;
   // hacky way to get the YUI module name ...
   try { moduleThunk( null, null ); } catch ( v ) { name = v; }
-  YUI.add(name, function(Y) {
+  YUI.add(name, function (Y) {
+      Y.Y = Y;  // allows ts code to do: import Y = importY.Y;
     var thunkArgs = [];
     for( var i=0; i < argNames.length; ++i ) {
       thunkArgs.push( Y );

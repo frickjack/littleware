@@ -9,7 +9,6 @@ if ( null == exports ) {
 import importY = require("../../libts/yui");
 importY; // workaround for typescript bug: https://typescript.codeplex.com/workitem/1531
 import Y = importY.Y;
-Y = exports;
 
 import importAuth = require("authService");
 importAuth;

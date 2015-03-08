@@ -49,6 +49,11 @@ public class LoginCreds extends SessionCreds {
     }
     return false;
   }
+  
+  @Override
+  public String toString() {
+      return "LoginCreds(" + sessionId + "," + authToken + "," + this.expiration + ")";
+  }
 
   @Override
   public int hashCode() {

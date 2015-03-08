@@ -7,15 +7,12 @@
  */
 package littleware.asset.gson;
 
-import littleware.asset.gson.internal.GsonProvider;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.inject.Provider;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -29,6 +26,7 @@ import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.AssertionFailedException;
 import littleware.base.Options;
 import littleware.base.UUIDFactory;
+import org.joda.time.DateTime;
 
 /**
  * Base class for GSon asset adapters
@@ -43,12 +41,14 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         this.builderFactory = builderFactory;
     }
 
+    /*
     public DateFormat getDateFormat() {
         return GsonProvider.dateFormat;
     }
+    */
 
     public String toStringOrNull(Date in) {
-        return toStringOrNull(in, getDateFormat());
+        return new DateTime( in ).toString();
     }
 
     /**
@@ -62,16 +62,14 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         return ( (null == in) || in.isJsonNull() ) ? null : UUIDFactory.parseUUID(in.getAsString() );
     }
 
+    /*
     public String toStringOrNull(Date in, DateFormat format) {
         return (null == in) ? null : format.format(in);
     }
+    */
 
     public Date toDateOrNull(JsonElement in) {
-        try {
-            return (null == in  || in.isJsonNull()) ? null : getDateFormat().parse(in.getAsString());
-        } catch (ParseException ex) {
-            throw new AssertionFailedException("Failed to parse date: " + in, ex);
-        }
+        return (null == in  || in.isJsonNull()) ? null : DateTime.parse(in.getAsString()).toDate();
     }
     
     public String toStringOrEmpty( JsonElement in ) {
@@ -83,34 +81,37 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         JsonSerializationContext jsc
             ) {
         final JsonObject json = new JsonObject();
-        json.addProperty("type", assetIn.getAssetType().toString());
+        final JsonObject jsType = new JsonObject();
+        jsType.addProperty( "id", assetIn.getAssetType().getObjectId().toString() );
+        jsType.addProperty( "name", assetIn.getAssetType().getName() );
+        json.add("assetType", jsType );
         final AbstractAsset asset = (AbstractAsset) assetIn;
         json.addProperty("name", asset.getName());
         json.addProperty("id", toStringOrNull(asset.getId()));
-        json.addProperty("home", toStringOrNull(asset.getHomeId()));
-        json.addProperty("acl", toStringOrNull(asset.getAclId()));
-        json.addProperty("from", toStringOrNull(asset.getFromId()));
-        json.addProperty("to", toStringOrNull(asset.getToId()));
-        json.addProperty("owner", toStringOrNull(asset.getOwnerId()));
-        json.addProperty("creator", toStringOrNull(asset.getCreatorId()));
-        json.addProperty("createDate", toStringOrNull(asset.getCreateDate()));
-        json.addProperty("updater", toStringOrNull(asset.getLastUpdaterId()));
-        json.addProperty("updateDate", toStringOrNull(asset.getLastUpdateDate()));
+        json.addProperty("homeId", toStringOrNull(asset.getHomeId()));
+        json.addProperty("aclId", toStringOrNull(asset.getAclId()));
+        json.addProperty("fromId", toStringOrNull(asset.getFromId()));
+        json.addProperty("toId", toStringOrNull(asset.getToId()));
+        json.addProperty("ownerId", toStringOrNull(asset.getOwnerId()));
+        json.addProperty("creatorId", toStringOrNull(asset.getCreatorId()));
+        json.addProperty("dateCreated", toStringOrNull(asset.getCreateDate()));
+        json.addProperty("updaterId", toStringOrNull(asset.getLastUpdaterId()));
+        json.addProperty("dateUpdated", toStringOrNull(asset.getLastUpdateDate()));
         json.addProperty("updateComment", asset.getLastUpdate());
         json.addProperty("startDate", toStringOrNull(asset.getStartDate()));
         json.addProperty("endDate", toStringOrNull(asset.getEndDate()));
-        json.addProperty("timestamp", Long.toString(asset.getTimestamp()));
+        json.addProperty("timestamp", asset.getTimestamp() );
         json.addProperty("comment", asset.getComment());
         json.addProperty("value", asset.getValue());
         json.addProperty("state", asset.getState());
         json.addProperty("data", asset.getData());
-        final Iterator<String> itLabel = Arrays.asList("attrMap", "linkMap", "dateMap").iterator();
+        final Iterator<String> itLabel = Arrays.asList("otherProps", "linkMap", "dateMap").iterator();
         for (Map<String, ?> dataMap : Arrays.asList(asset.getAttributeMap(), asset.getLinkMap(), asset.getDateMap())) {
             final JsonObject obj = new JsonObject();
             for (Map.Entry<String, ?> entry : dataMap.entrySet()) {
                 obj.add(entry.getKey(), jsc.serialize(entry.getValue()));
             }
-            obj.add(itLabel.next(), obj);
+            json.add(itLabel.next(), obj);
         }
         return json;
     }
@@ -125,17 +126,22 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
           ) throws JsonParseException {
         final AbstractAssetBuilder builder = (AbstractAssetBuilder) builderFactory.get();
         builder.setName(json.get("name").getAsString());
-        builder.setId(toIdOrNull(json.get("id")));
+        {
+            final UUID jsonId = toIdOrNull( json.get("id" ) );
+            if ( null != jsonId ) {
+                builder.setId(jsonId);
+            } // else - leave randomly assigned builder id unchanged
+        }
         resolver.markInProcess( builder.getId() );
-        builder.setHomeId(toIdOrNull(json.get("home")));
-        builder.setAclId(toIdOrNull(json.get("acl")));
-        builder.setFromId(toIdOrNull(json.get("from")));
-        builder.setToId(toIdOrNull(json.get("to")));
-        builder.setOwnerId(toIdOrNull(json.get("owner")));
-        builder.setCreatorId(toIdOrNull(json.get("creator")));
-        builder.setLastUpdaterId(toIdOrNull(json.get("updater")));
-        builder.setCreateDate(toDateOrNull(json.get("createDate")));
-        builder.setLastUpdateDate(toDateOrNull(json.get("updateDate")));
+        builder.setHomeId(toIdOrNull(json.get("homeId")));
+        builder.setAclId(toIdOrNull(json.get("aclId")));
+        builder.setFromId(toIdOrNull(json.get("fromId")));
+        builder.setToId(toIdOrNull(json.get("toId")));
+        builder.setOwnerId(toIdOrNull(json.get("ownerId")));
+        builder.setCreatorId(toIdOrNull(json.get("creatorId")));
+        builder.setLastUpdaterId(toIdOrNull(json.get("updaterId")));
+        builder.setCreateDate(toDateOrNull(json.get("dateCreated")));
+        builder.setLastUpdateDate(toDateOrNull(json.get("dateUpdated")));
         builder.setLastUpdate( toStringOrEmpty( json.get("updateComment") ) );
         builder.setStartDate(toDateOrNull(json.get("startDate")));
         builder.setEndDate(toDateOrNull(json.get("endDate")));
@@ -146,11 +152,12 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         builder.setData( toStringOrEmpty( json.get("data") ) );
 
         final JsonObject empty = new JsonObject();
-        
+
         for (Map.Entry<String, JsonElement> entry : 
-                Options.some( json.getAsJsonObject("attrMap") ).getOr( empty ).entrySet()) {
+                Options.some( json.getAsJsonObject("otherProps") ).getOr( empty ).entrySet()) {
             builder.putAttribute(entry.getKey(), entry.getValue().getAsString());
         }
+        
         for (Map.Entry<String, JsonElement> entry : 
                 Options.some( json.getAsJsonObject("linkMap") ).getOr( empty ).entrySet()) {
             builder.putLink(entry.getKey(), UUIDFactory.parseUUID( entry.getValue().getAsString()) );
@@ -158,7 +165,7 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         for( Map.Entry<String, JsonElement> entry : 
                 Options.some( json.getAsJsonObject("dateMap") ).getOr( empty ).entrySet() ) {
             try {
-                builder.putDate( entry.getKey(), getDateFormat().parse( entry.getValue().getAsString() ) );
+                builder.putDate( entry.getKey(), toDateOrNull( entry.getValue() ) );
             } catch ( Exception ex ) {
                 throw new AssertionFailedException( "Failed to parse date attribute: " + entry.getValue().getAsString() );
             }

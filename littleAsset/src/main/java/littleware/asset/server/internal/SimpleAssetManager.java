@@ -86,27 +86,29 @@ public class SimpleAssetManager implements ServerAssetManager {
             trans.startDbAccess();
             try {
                 final LittlePrincipal caller = ctx.getCaller();
-                log.log( Level.FINE, "Deleting asset with id {0}", assetId );
+                log.log( Level.FINE, "Deleting asset with id {0} - trans level {1}", new Object[]{assetId, trans.getNestingLevel()});
                 // Get the asset for ourselves - make sure it's a valid asset
                 Asset asset = search.getAsset(ctx, assetId, -1L ).getAsset().get();
                 final AssetBuilder builder = asset.copy();
                 builder.setLastUpdateDate(new Date());
                 builder.setLastUpdaterId(caller.getId());
                 builder.setLastUpdate(updateComment);
-                boolean b_rollback = true;
+                
+                boolean rollback = true;
                 trans.startDbUpdate();
-
+                log.log( Level.FINE, "Trans level 2: {0}", trans.getNestingLevel());
                 try {
                     asset = saveAsset(ctx, builder.build(), updateComment).get( asset.getId() );
+                    log.log( Level.FINE, "Trans level 3: {0}", trans.getNestingLevel());
                     if ( null == asset ) { 
                         throw new AssertionFailedException( "pre-delete save result map does not include saved asset: " + asset.getId() );
                     }
-                    DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter(trans);
+                    final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter(trans);
                     sql_writer.saveObject(asset);
 
                     specializerReg.getService(asset.getAssetType()).postDeleteCallback(ctx, asset);
                     trans.getCache().remove(asset.getId());
-                    b_rollback = false;
+                    rollback = false;
                     //trans_delete.deferTillTransactionEnd(provideBucketCB.build(asset));
                     /*..
                     final AssetType type = builder.getAssetType();
@@ -117,7 +119,8 @@ public class SimpleAssetManager implements ServerAssetManager {
                      *
                      */
                 } finally {
-                    trans.endDbUpdate(b_rollback);
+                    log.log( Level.FINE, "Trans level 4: {0}", trans.getNestingLevel());
+                    trans.endDbUpdate(rollback);
                 }
             } finally {
                 trans.endDbAccess();
@@ -132,7 +135,7 @@ public class SimpleAssetManager implements ServerAssetManager {
     }
 
     @Override
-    public Map<UUID,Asset> saveAsset(LittleContext ctx, Asset asset,
+    public ImmutableMap<UUID,Asset> saveAsset(LittleContext ctx, Asset asset,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException {
         log.log(Level.FINE, "Check enter");
@@ -140,6 +143,7 @@ public class SimpleAssetManager implements ServerAssetManager {
         // Get the asset for ourselves - make sure it's a valid asset
         Asset oldAsset = null;
         final AssetBuilder builder = asset.copy();
+        builder.validate();  // sometimes implementations forget to validate() on build() ... doh!
         log.log(Level.FINE, "Check ready");
         if (null == asset.getName()) {
             throw new IllegalArgumentException("May not save an asset with a null name");
@@ -157,12 +161,14 @@ public class SimpleAssetManager implements ServerAssetManager {
 
         // Don't lookup the same asset more than once in this timestamp
         final LittleTransaction trans = ctx.getTransaction();
-        final Map<UUID, Asset> accessCache = trans.startDbAccess();
+        final int startTransLevel = trans.getNestingLevel();
+        
         // Don't save the same asset more than once in this timestamp
         final boolean bCallerIsAdmin = ctx.isAdmin();
         final boolean cycleSave;  // is this a save via a callback ?  - avoid infinite loops
         final Map<UUID,Asset>  resultBuilder = new HashMap<>();
         
+        final Map<UUID, Asset> accessCache = trans.startDbAccess();
         try {
             if (null == asset.getId()) {
                 builder.setId(uuidFactory.get());
@@ -216,9 +222,10 @@ public class SimpleAssetManager implements ServerAssetManager {
                             throw new AlreadyExistsException("Asset of type " + asset.getAssetType() + " with name " + asset.getName() + " already exists");
                         }
                     }
-                    if (!oldAsset.getCreatorId().equals(asset.getCreatorId())) {
-                        throw new AccessDeniedException("May not change asset creator");
-                    }
+
+                    builder.creatorId( oldAsset.getCreatorId() 
+                        ).createDate( oldAsset.getCreateDate() );
+                    
                     // 0 timestamp count allows client to ignore serialization
                     if ((asset.getTimestamp() > 0) && (oldAsset.getTimestamp() > asset.getTimestamp())) {
                         throw new AssetSyncException("Attempt to save asset not in sync with database backend: " + oldAsset
@@ -291,13 +298,15 @@ public class SimpleAssetManager implements ServerAssetManager {
 
                 boolean rollback = true;
                 trans.startDbUpdate();
-                builder.setTimestamp(trans.getTimestamp());
-                final Asset assetSave = builder.build();
-                final AssetSpecializer specializer = specializerReg.getService(assetSave.getAssetType());
-                for( String problem : specializer.validate( ctx, assetSave)) {
-                    throw new IllegalArgumentException( "Failed validation: " + problem );
-                }
+
+                final Asset assetSave;
                 try {
+                    assetSave = builder.timestamp(trans.getTimestamp()).build();
+                    final AssetSpecializer specializer = specializerReg.getService(assetSave.getAssetType());
+                    for( String problem : specializer.validate( ctx, assetSave)) {
+                        throw new IllegalArgumentException( "Failed validation: " + problem );
+                    }
+
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver(trans);
                     sql_writer.saveObject(assetSave);
                     ctx.savedAsset(assetSave);
@@ -321,15 +330,12 @@ public class SimpleAssetManager implements ServerAssetManager {
                     }
 
                     rollback = false;
-                    // retrieve clean asset-copy - asset might have been resaved by callback
-                    trans.endDbUpdate(rollback);
-                } catch (Throwable ex) {
+                } finally {
                     try {
                         trans.endDbUpdate(rollback);
                     } catch (Exception ex2) {
                         log.log(Level.INFO, "Eating rollback exception", ex2);
                     }
-                    throw ex;
                 }
                 { // this should hit the transaction access-cache
                     final Asset result = search.getAsset(ctx, assetSave.getId(), -1L ).getAsset().get();
@@ -351,11 +357,14 @@ public class SimpleAssetManager implements ServerAssetManager {
 
         } finally {
             trans.endDbAccess(accessCache);
+            Whatever.get().check( "Transaction level consistent: " + startTransLevel + " =? " + trans.getNestingLevel(),
+                    startTransLevel == trans.getNestingLevel()
+            );
         }
     }
 
     @Override
-    public Map<UUID,Asset> saveAssetsInOrder(LittleContext ctx, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException,
+    public ImmutableMap<UUID,Asset> saveAssetsInOrder(LittleContext ctx, Collection<Asset> assetList, String updateComment) throws BaseException, AssetException,
             GeneralSecurityException {
         final LittleTransaction trans = ctx.getTransaction();
         boolean rollback = true;

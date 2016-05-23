@@ -1,0 +1,11 @@
+/littleScala/nbproject/private/
+/littleScala/build/
+/littleScala/dist/
+ivy/
+build/
+dist/
+**/nbproject/private/
+target/
+*~
+*.old
+*.bak

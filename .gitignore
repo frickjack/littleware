@@ -6,6 +6,7 @@ build/
 dist/
 **/nbproject/private/
 target/
+.gradle/
 *~
 *.old
 *.bak

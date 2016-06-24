@@ -10,8 +10,6 @@ import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesGuice;
 import littleware.base.UUIDFactory;
 import littleware.base.ZipUtil;
-import littleware.base.cache.Cache;
-import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.base.internal.SimpleZipUtil;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
@@ -42,7 +40,6 @@ public class LittlePropsModule extends AbstractAppModule {
         try {
             log.log( Level.FINE, "Configuring LittlePropsModule ..." );
             PropertiesGuice.build().configure(binder);
-            binder.bind( Cache.Builder.class ).to( InMemoryCacheBuilder.class );
             binder.bind( ZipUtil.class ).to( SimpleZipUtil.class ).in( Scopes.SINGLETON );
             binder.bind( UUID.class ).toProvider( UUIDFactory.class );
             binder.bind( UUIDFactory.class ).in( Scopes.SINGLETON );

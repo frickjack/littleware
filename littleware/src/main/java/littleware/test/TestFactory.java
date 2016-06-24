@@ -9,8 +9,6 @@ package littleware.test;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import littleware.bootstrap.LittleBootstrap;
 
 
@@ -30,16 +28,18 @@ public class TestFactory {
      * environment that shuts down
      * the environment in the last test.
      */
-    public <T extends TestSuite> T build(final LittleBootstrap bootstrap,
+    public <T> T build(final LittleBootstrap bootstrap,
             final Class<T> testSuiteClass) {
         try {
             final T suite = bootstrap.bootstrap( testSuiteClass );
+            /*
             suite.addTest(new TestCase( "shutdownTest" ) {
                 @Override
                 public void runTest() {
                     bootstrap.shutdown();
                 }
             });
+            */
             log.log(Level.INFO, "Returning TestSuite");
             return suite;
         } catch (Exception ex) {

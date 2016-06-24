@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.db;
 
 import java.lang.reflect.Method;
@@ -164,7 +157,7 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
             //data.setMaximumActiveTime(60000);
             return new Handler(data,url);
         } else if (url.startsWith("jdbc:mysql:")) {
-            com.mysql.jdbc.jdbc2.optional.MysqlDataSource data = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
+            final com.mysql.jdbc.jdbc2.optional.MysqlDataSource data = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
             data.setURL(url);
             return new Handler(data,url);
         } else if (url.startsWith("jndi:")) {

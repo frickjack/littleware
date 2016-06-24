@@ -5,8 +5,15 @@ group="littleware"
 version="2.6.0-SNAPSHOT"
 
 dependencies {
-    compile "com.google.inject:guice:4.0:no_aop@jar"
-    testCompile "junit:junit:4.12"
+    compile "com.google.inject:guice:4.1.0:no_aop@jar"
+    compile "junit:junit:4.12"
+    compile 'com.google.guava:guava:19.0'
+    compile 'javax.mail:javax.mail-api:1.5.5'
+    compile 'javax:javaee-web-api:7.0'
+    compile 'org.apache.derby:derby:10.12.1.1'
+    compile 'org.apache.derby:derbyclient:10.12.1.1'
+    compile 'org.postgresql:postgresql:9.4.1208.jre7'
+    compile 'mysql:mysql-connector-java:5.1.39'
 }
 
 repositories {
@@ -19,4 +26,10 @@ task helloWorld << {
 
 task dude( dependsOn:helloWorld ) << {
     println "Dude!"
+}
+
+gradle.projectsEvaluated {
+   tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
 }

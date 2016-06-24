@@ -10,7 +10,6 @@
 package littleware.base.feedback;
 
 import com.google.inject.ProvidedBy;
-import com.google.inject.Provider;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
@@ -21,7 +20,7 @@ import javax.swing.JTextArea;
  * appropriate.
  */
 @ProvidedBy(littleware.base.feedback.internal.SwingFeedbackBuilder.class)
-public interface FeedbackBundle extends Provider<Feedback> {
+public interface FeedbackBundle extends com.google.inject.Provider<Feedback> {
 
     /**
      * Get progress bar feedback connects to

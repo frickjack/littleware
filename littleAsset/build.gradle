@@ -1,0 +1,30 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group="littleware"
+version="2.6.0-SNAPSHOT"
+
+dependencies {
+    compile "littleware:littleware:2.6.0-SNAPSHOT"
+    compile 'com.google.code.gson:gson:2.7'
+    compile 'org.apache.httpcomponents:httpclient:4.5.2'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+task helloWorld << {
+   println 'hello, world'
+}
+
+task dude( dependsOn:helloWorld ) << {
+    println "Dude!"
+}
+
+gradle.projectsEvaluated {
+   tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+}

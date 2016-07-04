@@ -11,3 +11,4 @@ target/
 *.old
 *.bak
 /littleware/.nb-gradle/
+/littleAsset/.nb-gradle/

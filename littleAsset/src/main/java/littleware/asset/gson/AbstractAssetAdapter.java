@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.gson;
 
 import com.google.gson.JsonDeserializationContext;
@@ -13,10 +6,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.inject.Provider;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
@@ -26,7 +22,7 @@ import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.AssertionFailedException;
 import littleware.base.Options;
 import littleware.base.UUIDFactory;
-import org.joda.time.DateTime;
+
 
 /**
  * Base class for GSon asset adapters
@@ -48,7 +44,7 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
     */
 
     public String toStringOrNull(Date in) {
-        return new DateTime( in ).toString();
+        return ZonedDateTime.ofInstant( in.toInstant(), ZoneOffset.systemDefault() ).toString();
     }
 
     /**
@@ -69,7 +65,7 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
     */
 
     public Date toDateOrNull(JsonElement in) {
-        return (null == in  || in.isJsonNull()) ? null : DateTime.parse(in.getAsString()).toDate();
+        return (null == in  || in.isJsonNull()) ? null : Date.from( ZonedDateTime.parse(in.getAsString()).toInstant() );
     }
     
     public String toStringOrEmpty( JsonElement in ) {
@@ -106,13 +102,15 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         json.addProperty("state", asset.getState());
         json.addProperty("data", asset.getData());
         final Iterator<String> itLabel = Arrays.asList("otherProps", "linkMap", "dateMap").iterator();
-        for (Map<String, ?> dataMap : Arrays.asList(asset.getAttributeMap(), asset.getLinkMap(), asset.getDateMap())) {
+        Arrays.asList(asset.getAttributeMap(), asset.getLinkMap(), asset.getDateMap()).stream().map((dataMap) -> {
             final JsonObject obj = new JsonObject();
-            for (Map.Entry<String, ?> entry : dataMap.entrySet()) {
+            dataMap.entrySet().stream().forEach((entry) -> {
                 obj.add(entry.getKey(), jsc.serialize(entry.getValue()));
-            }
+            });
+            return obj;
+        }).forEach((obj) -> {
             json.add(itLabel.next(), obj);
-        }
+        });
         return json;
     }
 
@@ -153,10 +151,13 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
 
         final JsonObject empty = new JsonObject();
 
-        for (Map.Entry<String, JsonElement> entry : 
-                Options.some( json.getAsJsonObject("otherProps") ).getOr( empty ).entrySet()) {
-            builder.putAttribute(entry.getKey(), entry.getValue().getAsString());
-        }
+        Optional.ofNullable( json.getAsJsonObject("otherProps") ).ifPresent( 
+                (obj) -> obj.entrySet().stream().forEach( 
+            (entry) -> {
+                builder.putAttribute(entry.getKey(), entry.getValue().getAsString());
+            }
+                )
+        );
         
         for (Map.Entry<String, JsonElement> entry : 
                 Options.some( json.getAsJsonObject("linkMap") ).getOr( empty ).entrySet()) {

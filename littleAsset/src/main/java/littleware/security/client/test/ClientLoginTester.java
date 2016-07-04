@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.client.test;
 
 import com.google.inject.Inject;
@@ -16,7 +9,6 @@ import java.util.logging.Logger;
 import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
-import junit.framework.Assert;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.test.AbstractAssetTest;
 import littleware.security.auth.LittleSession;

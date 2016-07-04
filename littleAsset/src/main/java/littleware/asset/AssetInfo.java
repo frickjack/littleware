@@ -55,9 +55,7 @@ public class AssetInfo implements java.io.Serializable {
      */
     public static ImmutableSet<UUID> mapIds( Collection<AssetInfo> infos ) {
         final ImmutableSet.Builder<UUID> builder = ImmutableSet.builder();
-        for( AssetInfo info : infos ) {
-            builder.add( info.getId() );
-        }
+        infos.stream().forEach( info -> builder.add( info.getId() ) );
         return builder.build();
     }
     

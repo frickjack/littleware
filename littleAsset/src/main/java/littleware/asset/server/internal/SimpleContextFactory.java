@@ -1,16 +1,10 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.internal;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.security.GeneralSecurityException;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,7 +27,7 @@ import littleware.security.LittlePermission;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.SessionExpiredException;
-import org.joda.time.DateTime;
+
 
 /**
  * Simple implementation of LittleContext.ContextFactory just
@@ -50,12 +44,12 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
     private final Provider<LittleUser.Builder> userBuilder;
     private final Provider<LittleTransaction> transactionProvider;
     private LittleGroup adminGroup = null;
-    private DateTime lastUpdate = new DateTime();
+    private ZonedDateTime lastUpdate = ZonedDateTime.now();
     private final LittleSession adminSession;
     private final LittleUser adminUser;
 
     private boolean isAdmin( LittleContext ctx, LittleUser user) {
-        final DateTime now = new DateTime();
+        final ZonedDateTime now = ZonedDateTime.now();
         if ((null == adminGroup) || lastUpdate.plusSeconds(10).isAfter(now)) {
             synchronized (this) {
                 try {

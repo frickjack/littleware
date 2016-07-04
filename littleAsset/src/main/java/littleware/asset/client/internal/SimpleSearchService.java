@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client.internal;
 
 
@@ -48,7 +41,6 @@ import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.internal.RemoteSearchManager.InfoMapResult;
 import littleware.asset.spi.AbstractAsset;
 import littleware.base.BaseException;
-import littleware.base.cache.Cache;
 import littleware.base.Options;
 import littleware.base.Option;
 import littleware.base.UUIDFactory;
@@ -178,10 +170,9 @@ public class SimpleSearchService implements AssetSearchManager {
 
     @Override
     public AssetRef getAssetAtPath(AssetPath path) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        final Cache<String, Object> cache = clientCache.getCache();
         final String key = "path:" + path;
         {
-            final Option<Asset> cacheEntry = Options.some((Asset) cache.get(key));
+            final Option<Asset> cacheEntry = Options.some( clientCache.get(key));
             if (cacheEntry.isSet()) {
                 return library.syncAsset(cacheEntry.get());
             }
@@ -190,7 +181,7 @@ public class SimpleSearchService implements AssetSearchManager {
         if (path.hasRootBacktrack()) {
             final AssetRef result = getAssetAtPath(normalizePath(path));
             if (result.isSet()) {
-                cache.put(key, result.getRef());
+                clientCache.put(key, result.getRef());
             }
             return result;
         }
@@ -223,7 +214,7 @@ public class SimpleSearchService implements AssetSearchManager {
         }
 
         if (result.isSet()) {
-            cache.put(key, result.get());
+            clientCache.put(key, result.get());
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             return library.syncAsset(result.get());
         }
@@ -247,9 +238,8 @@ public class SimpleSearchService implements AssetSearchManager {
             AssetException,
             GeneralSecurityException,
             RemoteException {
-        final Cache<String, Object> cache = clientCache.getCache();
         final String key = "from:" + UUIDFactory.makeCleanString(parentId) + name;
-        Option<Asset> result = Options.some((Asset) cache.get(key));
+        Option<Asset> result = Options.some( clientCache.get(key));
         if (result.isSet()) {
             return library.syncAsset(result.get());
         }
@@ -271,7 +261,7 @@ public class SimpleSearchService implements AssetSearchManager {
         if (result.isSet()) {
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             // result gets indexed multiple ways - ugh!
-            cache.put(key, result.get());
+            clientCache.put(key, result.get());
             personalCache.put( result.get() );
             return library.syncAsset(result.get());
         }
@@ -285,15 +275,10 @@ public class SimpleSearchService implements AssetSearchManager {
             AssetException,
             GeneralSecurityException,
             RemoteException {
-        final Cache<String, Object> cache = clientCache.getCache();
         final String sKey = toId.toString() + "idsTo" + assetType;
-        ImmutableMap<String,AssetInfo> result = (ImmutableMap<String,AssetInfo>) cache.get(sKey);
-        if (null == result) {
-            final UUID sessionId = keychain.getDefaultSessionId().get();
-            final InfoMapResult serverResult = server.getAssetIdsTo(sessionId, toId, assetType, -1, 0 );
-            result = serverResult.getData();
-            cache.put(sKey, result);
-        }
+        final UUID sessionId = keychain.getDefaultSessionId().get();
+        final InfoMapResult serverResult = server.getAssetIdsTo(sessionId, toId, assetType, -1, 0);
+        final ImmutableMap<String, AssetInfo> result = serverResult.getData();
         return result;
     }
 
@@ -406,7 +391,6 @@ public class SimpleSearchService implements AssetSearchManager {
             GeneralSecurityException,
             RemoteException {
         final String key = parentId.toString() + assetType;
-        final Cache<String, Object> cache = clientCache.getCache();
         ImmutableMap<String, AssetInfo> mapResult = (ImmutableMap<String, AssetInfo>) cache.get(key);
         if (null == mapResult) {
             final UUID sessionId = keychain.getDefaultSessionId().get();

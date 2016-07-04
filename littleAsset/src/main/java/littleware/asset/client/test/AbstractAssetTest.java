@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client.test;
 
 import java.rmi.RemoteException;
@@ -17,7 +10,6 @@ import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.LittleHome;
 import littleware.base.BaseException;
-import littleware.base.UUIDFactory;
 import littleware.test.LittleTest;
 
 /**

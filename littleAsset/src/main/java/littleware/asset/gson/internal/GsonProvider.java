@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.gson.internal;
 
 import com.google.gson.JsonDeserializationContext;
@@ -22,8 +15,8 @@ import com.google.gson.JsonSerializer;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,7 +29,7 @@ import littleware.asset.AssetPath;
 import littleware.asset.AssetType;
 import littleware.asset.gson.GsonAssetAdapter;
 import littleware.asset.gson.LittleGsonFactory;
-import org.joda.time.DateTime;
+
 
 /**
  * Register serializers for core types with GsonBuilder
@@ -45,7 +38,7 @@ import org.joda.time.DateTime;
 public class GsonProvider implements LittleGsonFactory {
     private static final Logger log = Logger.getLogger( GsonProvider.class.getName() );
 
-    private final Map<String, GsonAssetAdapter> typeMap = new HashMap<String, GsonAssetAdapter>();
+    private final Map<String, GsonAssetAdapter> typeMap = new HashMap<>();
     private final Provider<GsonBuilder> gsonBuilderFactory;
     
 
@@ -65,34 +58,10 @@ public class GsonProvider implements LittleGsonFactory {
     @Override
     public GsonBuilder getBuilder(LittleGsonResolver resolver) {
         final GsonBuilder gsonBuilder = gsonBuilderFactory.get();
-        gsonBuilder.registerTypeAdapter(UUID.class,
-                new JsonSerializer<UUID>() {
-                    @Override
-                    public JsonElement serialize(UUID t, Type type, JsonSerializationContext jsc) {
-                        return new JsonPrimitive(t.toString());
-                    }
-                });
-        gsonBuilder.registerTypeAdapter(Date.class,
-                new JsonSerializer<Date>() {
-                    @Override
-                    public JsonElement serialize(Date t, Type type, JsonSerializationContext jsc) {
-                        return new JsonPrimitive( new DateTime(t).toString() );
-                    }
-                });
-        gsonBuilder.registerTypeAdapter(AssetPath.class,
-                new JsonSerializer<AssetPath>() {
-                    @Override
-                    public JsonElement serialize(AssetPath t, Type type, JsonSerializationContext jsc) {
-                        return new JsonPrimitive(t.toString());
-                    }
-                });
-        gsonBuilder.registerTypeAdapter(AssetType.class,
-                new JsonSerializer<AssetType>() {
-                    @Override
-                    public JsonElement serialize(AssetType t, Type type, JsonSerializationContext jsc) {
-                        return new JsonPrimitive(t.toString());
-                    }
-                });
+        gsonBuilder.registerTypeAdapter(UUID.class, (JsonSerializer<UUID>) (UUID t, Type type, JsonSerializationContext jsc) -> new JsonPrimitive(t.toString()));
+        gsonBuilder.registerTypeAdapter(Date.class, (JsonSerializer<Date>) (Date t, Type type, JsonSerializationContext jsc) -> new JsonPrimitive( ZonedDateTime.ofInstant( t.toInstant(), ZoneOffset.ofHours(0) ).toString() ));
+        gsonBuilder.registerTypeAdapter(AssetPath.class, (JsonSerializer<AssetPath>) (AssetPath t, Type type, JsonSerializationContext jsc) -> new JsonPrimitive(t.toString()));
+        gsonBuilder.registerTypeAdapter(AssetType.class, (JsonSerializer<AssetType>) (AssetType t, Type type, JsonSerializationContext jsc) -> new JsonPrimitive(t.toString()));
         gsonBuilder.registerTypeAdapter(LgoHelp.class,
                 new HelpSerializer()
                 );
@@ -100,9 +69,9 @@ public class GsonProvider implements LittleGsonFactory {
         gsonBuilder.registerTypeAdapter(Asset.class,
                 new AssetDelegateSerializer( resolver )
                 );
-        for( AdapterPair adapter : this.customAdapterList ) {
+        this.customAdapterList.stream().forEach((adapter) -> {
             gsonBuilder.registerTypeAdapter( adapter.clazz, adapter.adapter);
-        }
+        });
         return gsonBuilder.serializeNulls();
     }
 
@@ -126,7 +95,7 @@ public class GsonProvider implements LittleGsonFactory {
         }
     }
     
-    private final List<AdapterPair> customAdapterList = new ArrayList<AdapterPair>();
+    private final List<AdapterPair> customAdapterList = new ArrayList<>();
     
     @Override
     public LittleGsonFactory registerTypeAdapter(Type clazz, Object adapter) {
@@ -177,10 +146,7 @@ public class GsonProvider implements LittleGsonFactory {
 
 
     public GsonProvider() {
-        this.gsonBuilderFactory = new Provider<GsonBuilder>() {
-            @Override
-            public GsonBuilder get() { return new GsonBuilder(); }
-        };
+        this.gsonBuilderFactory = () -> new GsonBuilder();
     }
     
 }

@@ -7,21 +7,19 @@
  */
 package littleware.asset.client.internal;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import littleware.asset.client.spi.ClientCache;
 import littleware.asset.client.spi.AssetLoadEvent;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.client.spi.LittleServiceBus;
-import littleware.base.cache.Cache;
-import littleware.base.cache.Cache.Policy;
-import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.base.event.LittleEvent;
 import littleware.base.event.LittleListener;
 import littleware.security.Everybody;
@@ -35,89 +33,10 @@ import littleware.security.LittlePrincipal;
 public class SimpleClientCache implements LittleListener, ClientCache {
 
     private static final Logger log = Logger.getLogger(SimpleClientCache.class.getName());
-    private final Cache<String, Object> cacheLong;
-    private final Cache<String, Object> cacheShort;
-    /** Extend cache to add some special asset handling */
-    private final Cache<String, Object> cacheManager = new Cache<String, Object>() {
-
-        @Override
-        public Policy getPolicy() {
-            return cacheShort.getPolicy();
-        }
-
-        @Override
-        public int getMaxSize() {
-            return cacheShort.getMaxSize();
-        }
-
-
-        @Override
-        public int getMaxEntryAgeSecs() {
-            return cacheShort.getMaxEntryAgeSecs();
-        }
-
-
-        @Override
-        public Object put(String key, Object value) {
-            final Object result = cacheShort.put(key, value);
-            if (value instanceof Asset) {
-                final Asset asset = (Asset) value;
-                if ((null != asset.getLastUpdateDate()) && (((new Date()).getTime() - 432000) > asset.getLastUpdateDate().getTime())) {
-                    // not modified in 5 days
-                    cacheLong.put(key, value);
-                }
-                if ( asset.getAssetType().isA(LittleGroup.GROUP_TYPE)
-                        && (! (asset instanceof Everybody))
-                        ) {
-                    // go ahead and harvest group members
-                    final LittleGroup group = asset.narrow();
-                    for ( LittlePrincipal member : group.getMembers() ) {
-                        if ( ! asset.equals( member ) ) {
-                            put(member.getId().toString(), member);  // recurse over nexted groups
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public Object get(String key) {
-            Object result = cacheShort.get(key);
-            if (null != result) {
-                return result;
-            }
-            // fall through to long cache
-            return cacheLong.get(key);
-        }
-
-        @Override
-        public Object remove(String key) {
-            cacheLong.remove(key);
-            return cacheShort.remove(key);
-        }
-
-        @Override
-        public void clear() {
-            cacheLong.clear();
-            cacheShort.clear();
-        }
-
-        @Override
-        public int size() {
-            return cacheShort.size();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return cacheShort.isEmpty();
-        }
-
-        @Override
-        public Map<String, Object> cacheContents() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-    };
+    private final Cache<String, Asset> cacheLong;
+    private final Cache<String, Asset> cacheShort;
+    
+    
     private long timestamp = -1;
 
     /**
@@ -125,61 +44,53 @@ public class SimpleClientCache implements LittleListener, ClientCache {
      * with which SimpleClientCache allocates its internal "short" and "long"
      * caches.
      *
-     * @param cacheFactory to build internal caches with
      * @param eventBus constructor self-registers as a listener - should move this
      *                out to a module-startup handler or something - ugh
      */
     @Inject
     public SimpleClientCache( 
-            Provider<InMemoryCacheBuilder> cacheFactory,
             LittleServiceBus  eventBus
             ) {
-        cacheLong = cacheFactory.get().maxAgeSecs( 900 ).maxSize( 20000 ).build();
-        cacheShort = cacheFactory.get().maxAgeSecs( 30 ).maxSize( 20000 ).build();
+        cacheLong = CacheBuilder.newBuilder().expireAfterWrite( 900, TimeUnit.SECONDS ).maximumSize( 20000 ).build();
+        cacheShort = CacheBuilder.newBuilder().expireAfterWrite( 30, TimeUnit.SECONDS ).maximumSize( 20000 ).build();
         
         // ugh - should refactor this, but put up with it for now ...
         eventBus.addLittleListener(this);
     }
 
-    /**
-     * Constructor enforces singleton,
-     * injects the cache to use,
-     * and the transaction-count.
-     * Probably want the cache to have a small timeout.
-     *
-     * @param lTransaction to init the cache to.
-     *           If the cache observes an asset load with
-     *           a transaction greater than lTransaction,
-     *           then the internal transaction property advances,
-     *           and the cache clears.
-     *
-    protected ClientCache( Cache<String,Object> cache, long lTransaction ) {
-    ocacheShort = cache;
-    olTransaction = lTransaction;
-    if ( null != osingleton ) {
-    throw new AssertionFailedException( "ClientCache not a singleton" );
-    }
-    osingleton = this;
-    }
-     */
+    
     @Override
     public long getTimestamp() {
         return timestamp;
     }
 
+    
     @Override
-    public Cache<String, Object> getCache() {
-        return cacheManager;
+    public void put(String key, Asset asset) {
+        cacheShort.put( key, asset );
+        if ((null != asset.getLastUpdateDate()) && (((new Date()).getTime() - 432000) > asset.getLastUpdateDate().getTime())) {
+            // not modified in 5 days
+            cacheLong.put( key, asset);
+        }
+        if (asset.getAssetType().isA(LittleGroup.GROUP_TYPE)
+                && (!(asset instanceof Everybody))) {
+            // go ahead and harvest group members
+            final LittleGroup group = asset.narrow();
+            for (LittlePrincipal member : group.getMembers()) {
+                if (!asset.equals(member)) {
+                    put(member);  // recurse over nexted groups
+                }
+            }
+        }
     }
 
     @Override
-    public Asset put(Asset asset) {
-        return (Asset) getCache().put(asset.getId().toString(), asset);
-    }
-
-    @Override
-    public Asset get(UUID id) {
-        return (Asset) getCache().get(id.toString());
+    public Asset get( String key ) {
+        final Asset shortEntry = cacheShort.getIfPresent( key );
+        if ( null != shortEntry ) {
+            return shortEntry;
+        }
+        return cacheLong.getIfPresent(key);
     }
 
     @Override
@@ -189,20 +100,27 @@ public class SimpleClientCache implements LittleListener, ClientCache {
             if (eventLoad.getAsset().getTimestamp() > getTimestamp()) {
                 log.log( Level.FINE, "Clearing cache on transaction advance" );
                 // very paranoid cache-flush policy
-                getCache().clear();
-                timestamp = getTimestamp();
+                cacheShort.invalidateAll();
+                cacheLong.invalidateAll();
+                timestamp = eventLoad.getAsset().getTimestamp();
             }
             put(eventLoad.getAsset());
         } else {
             log.log( Level.FINE, "Clearing cache on non-load service event" );
-            getCache().clear();
+            cacheShort.invalidateAll();
+            cacheLong.invalidateAll();
         }
     }
 
     @Override
-    public Object putLongTerm(String key, Object value) {
-        cacheShort.remove(key);
-        return cacheLong.put(key, value);
+    public void put(Asset asset) {
+        put( asset.getId().toString(), asset );
     }
+
+    @Override
+    public Asset get(UUID id) {
+        return get( id.toString() );
+    }
+
 
 }

@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db;
 
 import java.io.IOException;
@@ -13,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
-import littleware.asset.server.db.aws.AwsModule;
 import littleware.asset.server.db.jpa.HibernateModule;
 import littleware.asset.server.db.jpa.J2EEModule;
 import littleware.bootstrap.AppBootstrap.AppProfile;
@@ -55,7 +47,7 @@ public class LittleModuleFactory implements ServerModuleFactory {
     public ServerModule buildServerModule(AppProfile profile) {
         if ( dbDriver.equals( Driver.AWS ) ) {
             log.log( Level.FINE, "Configuring AWS backend" );
-            return new AwsModule( profile );
+            throw new UnsupportedOperationException( "AWS SimpleDB backend deprecated" );
         } else if ( dbDriver.equals( Driver.J2EE ) ) {
             log.log( Level.FINE, "Configuring J2EE JPA backend" );
             return new J2EEModule( profile );

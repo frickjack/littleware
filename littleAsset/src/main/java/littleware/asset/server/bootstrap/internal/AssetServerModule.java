@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.server.bootstrap.internal;
 
 import com.google.common.collect.ImmutableMap;
@@ -55,8 +47,6 @@ import littleware.asset.server.internal.RmiAssetManager;
 import littleware.asset.server.internal.RmiSearchManager;
 import littleware.asset.server.internal.SimpleContextFactory;
 import littleware.base.Option;
-import littleware.base.cache.Cache;
-import littleware.base.cache.InMemoryCacheBuilder;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleModule;
 import littleware.net.LittleRemoteObject;
@@ -87,7 +77,6 @@ public class AssetServerModule extends AbstractServerModule {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind(Cache.Builder.class).to(InMemoryCacheBuilder.class);
         binder.bind(ServerAssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
         binder.bind( ServerScannerFactory.class ).to( SimpleScannerFactory.class ).in( Scopes.SINGLETON );
         binder.bind(ServerSearchManager.class).to(SimpleSearchManager.class).in(Scopes.SINGLETON);

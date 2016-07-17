@@ -1,13 +1,5 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.auth.server.internal;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.rmi.*;
@@ -16,6 +8,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.security.*;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.security.auth.*;
 import javax.security.auth.login.Configuration;
 
@@ -41,7 +35,6 @@ import littleware.security.auth.*;
 import littleware.security.auth.LittleSession.Builder;
 import littleware.security.auth.internal.RemoteSessionManager;
 import littleware.security.auth.server.ServerConfigFactory;
-import org.joda.time.DateTime;
 
 /**
  * Simple implementation of SessionManager.
@@ -133,11 +126,11 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
                     "Setup v0.0 ServerVersion node");
         }
         // Let's create a date-hierarchy to store the user session under
-        final DateTime now = new DateTime();
-        final AssetPath path = pathFactory.get().createPath("/" + home.getName() + "/"
-                + Integer.toString(now.getYear()) + "/"
-                + now.toString("MM") + "/"
-                + now.toString("dd"));
+        final ZonedDateTime now = ZonedDateTime.now();
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "/yyyy/MM/dd" );
+        final AssetPath path = pathFactory.get().createPath("/" + home.getName() + 
+                now.format( formatter ));
+               
         final AssetTreeTemplate template = templateProvider.get().path(path).build();
         Asset parent = home;
         for (AssetInfo x : template.scan(home, scannerFactory.build(adminCtx))) {

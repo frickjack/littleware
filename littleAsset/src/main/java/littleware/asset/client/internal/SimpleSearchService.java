@@ -328,8 +328,8 @@ public class SimpleSearchService implements AssetSearchManager {
             AssetException,
             GeneralSecurityException,
             RemoteException {
-        final Map<UUID, Asset> assetMap = new HashMap<UUID, Asset>();
-        final Map<UUID,Long> missingIds = new HashMap<UUID,Long>();
+        final Map<UUID, Asset> assetMap = new HashMap<>();
+        final Map<UUID,Long> missingIds = new HashMap<>();
 
         // 1st - load as much as possible from cache
         for (UUID id : idList) {
@@ -391,14 +391,10 @@ public class SimpleSearchService implements AssetSearchManager {
             GeneralSecurityException,
             RemoteException {
         final String key = parentId.toString() + assetType;
-        ImmutableMap<String, AssetInfo> mapResult = (ImmutableMap<String, AssetInfo>) cache.get(key);
-        if (null == mapResult) {
-            final UUID sessionId = keychain.getDefaultSessionId().get();
-            final InfoMapResult serverResult = server.getAssetIdsFrom(sessionId, parentId, assetType, -1, 0 );
-            mapResult = serverResult.getData();
-            cache.put(key, mapResult);
-        }
-        return mapResult;
+        // TODO - re-introduce cache here
+        final UUID sessionId = keychain.getDefaultSessionId().get();
+        final InfoMapResult serverResult = server.getAssetIdsFrom(sessionId, parentId, assetType, -1, 0 );
+        return serverResult.getData();
     }
 
     @Override

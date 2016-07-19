@@ -1,0 +1,51 @@
+allprojects {
+    group="littleware"
+    version="2.6.0-SNAPSHOT"
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+
+    gradle.projectsEvaluated {
+       tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+
+    repositories {
+        //mavenLocal()
+        mavenCentral()
+    }
+}
+
+project( ':littleAsset' ) {
+    dependencies {
+        compile project( ':littleware' )
+        compile 'com.google.code.gson:gson:2.7'
+        compile 'org.apache.httpcomponents:httpclient:4.5.2'
+    }
+}
+
+project( ':littleware' ) {
+    dependencies {
+        compile "com.google.inject:guice:4.1.0:no_aop@jar"
+        compile "junit:junit:4.12"
+        compile 'com.google.guava:guava:19.0'
+        compile 'javax.mail:javax.mail-api:1.5.5'
+        compile 'javax:javaee-web-api:7.0'
+        compile 'org.apache.derby:derby:10.12.1.1'
+        compile 'org.apache.derby:derbyclient:10.12.1.1'
+        compile 'org.postgresql:postgresql:9.4.1208.jre7'
+        compile 'mysql:mysql-connector-java:5.1.39'
+    }
+}
+
+
+task helloWorld << {
+   println 'hello, world'
+}
+
+task dude( dependsOn:helloWorld ) << {
+    println "Dude!"
+}

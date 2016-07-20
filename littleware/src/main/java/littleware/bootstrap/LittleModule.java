@@ -1,15 +1,7 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.bootstrap;
 
 import com.google.inject.Module;
-import littleware.base.Option;
+import java.util.Optional;
 
 
 /**
@@ -42,5 +34,5 @@ public interface LittleModule extends Module {
      * have been configured, and shutDown() runs at LittleBootstrap.shutdown time.
      * Note the callback methods run inline with startup and shutdown
      */
-    Option<? extends Class<? extends LifecycleCallback>> getCallback();
+    Optional<? extends Class<? extends LifecycleCallback>> getCallback();
 }

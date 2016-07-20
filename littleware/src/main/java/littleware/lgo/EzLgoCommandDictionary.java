@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.lgo;
 
 import com.google.inject.Provider;
@@ -12,10 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.lgo.LgoCommand.LgoBuilder;
 
 /**
@@ -27,9 +19,9 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
 
     @Override
     public Collection<LgoCommand.LgoBuilder> guessCommand(String s_partial) {
-        final Option<LgoCommand.LgoBuilder> maybe = buildCommand(s_partial);
+        final Optional<LgoCommand.LgoBuilder> maybe = buildCommand(s_partial);
 
-        if ( maybe.isEmpty() ) {
+        if ( ! maybe.isPresent() ) {
             return Collections.EMPTY_LIST;
         } else {
             return Collections.singletonList( maybe.get() );
@@ -37,12 +29,12 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     }
 
     @Override
-    public Option<LgoCommand.LgoBuilder> buildCommand(String s_name) {
+    public Optional<LgoCommand.LgoBuilder> buildCommand(String s_name) {
         final Provider<LgoCommand.LgoBuilder> provider = commandMap.get(s_name);
         if ( null == provider ) {
-            return Options.empty();
+            return Optional.empty();
         } else {
-            return Options.some( provider.get() );
+            return Optional.ofNullable( provider.get() );
         }
     }
 
@@ -65,10 +57,10 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     }
 
     @Override
-    public Option<LgoHelp> setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand) {
+    public Optional<LgoHelp> setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand) {
         final LgoCommand.LgoBuilder command = provideCommand.get();
-        final Option<LgoHelp> help = mgrHelp.loadHelp( command.getName());
-        if ( help.isSet() ) {
+        final Optional<LgoHelp> help = mgrHelp.loadHelp( command.getName());
+        if ( help.isPresent() ) {
             this.setCommand(help.get(), provideCommand);
         } else {
             log.log(Level.FINE, "No help available for command: {0}", command.getName());
@@ -78,7 +70,7 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     }
 
     @Override
-    public Option<Provider<LgoCommand.LgoBuilder>> getProvider(String s_name) {
-        return Options.some(commandMap.get( s_name ));
+    public Optional<Provider<LgoCommand.LgoBuilder>> getProvider(String s_name) {
+        return Optional.ofNullable(commandMap.get( s_name ));
     }
 }

@@ -1,22 +1,11 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.lgo;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,8 +13,6 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.Whatever;
 
 import littleware.base.XmlResourceBundle;
@@ -71,7 +58,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
     }
     
     @Override
-    public Option<LgoHelp> loadHelp( String s_request, Locale locale) {
+    public Optional<LgoHelp> loadHelp( String s_request, Locale locale) {
         final String        basename = s_request.replaceAll( "\\.", "/" ) + "Help";
         final List<String>  pathList = XmlResourceBundle.getResourcePaths( basename, locale );
         final ClassLoader   cloader = XmlLgoHelpLoader.class.getClassLoader();
@@ -90,7 +77,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
         }
                 
         if ( null == istream ) {
-            return Options.empty();
+            return Optional.empty();
         }
         final XmlDataHandler saxHandler = new XmlDataHandler ( helpPath );
         try {
@@ -102,17 +89,17 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                     new InputSource( new InputStreamReader( istream, Whatever.UTF8 ) ),
                     saxHandler
                     );
-            return Options.some( saxHandler.getHelp () );
+            return Optional.ofNullable( saxHandler.getHelp () );
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception ex) {
             log.log( Level.WARNING, "Failure parsing resource: " + helpPath, ex );
         }
-        return Options.empty();
+        return Optional.empty();
     }
 
     @Override
-    public Option<LgoHelp> loadHelp( String s_basename ) {
+    public Optional<LgoHelp> loadHelp( String s_basename ) {
         return loadHelp( s_basename, Locale.getDefault () );
     }
     
@@ -122,13 +109,13 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
     private class XmlDataHandler extends DefaultHandler {
         private final static String  os_not_loaded = "none loaded";
         private String             os_full_name = os_not_loaded;
-        private final List<String> ov_short_names = new ArrayList<String>();
+        private final List<String> ov_short_names = new ArrayList<>();
         private String             os_synopsis = os_not_loaded;
         private String             os_description = os_not_loaded;
                 
         private String                 os_example_title = os_not_loaded;
-        private final List<LgoExample> ov_example = new ArrayList<LgoExample> ();
-        private StringBuilder   osb_buffer = new StringBuilder();
+        private final List<LgoExample> ov_example = new ArrayList<> ();
+        private final StringBuilder   osb_buffer = new StringBuilder();
         private final String filePath;
 
         /**

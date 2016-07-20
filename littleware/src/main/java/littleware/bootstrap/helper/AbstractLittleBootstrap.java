@@ -1,10 +1,3 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.bootstrap.helper;
 
 import com.google.common.collect.ImmutableList;
@@ -13,10 +6,9 @@ import com.google.inject.Injector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.AssertionFailedException;
-import littleware.base.Option;
 import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.LittleModule;
 import littleware.bootstrap.internal.SimpleAppFactory;
@@ -50,7 +42,7 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
             throw new IllegalStateException("bootstrapCore can only run once");
         }
         final SimpleAppFactory appFactory = SimpleAppFactory.getSingleton();
-        if ( appFactory.getActiveRuntime().nonEmpty() ) {
+        if ( appFactory.getActiveRuntime().isPresent() ) {
             throw new IllegalStateException( "Another littleware runtime is already active ..." );
         }
         bootstrapDone = true;
@@ -63,8 +55,8 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
 
         // Get Guice injected instances of the module lifecycle callbacks
         for (LittleModule module : moduleSet) {
-            final Option<? extends Class<? extends LittleModule.LifecycleCallback>> optCallback = module.getCallback();
-            if (optCallback.nonEmpty()) {
+            final Optional<? extends Class<? extends LittleModule.LifecycleCallback>> optCallback = module.getCallback();
+            if (optCallback.isPresent()) {
                 callbackList.add(
                         injector.getInstance(optCallback.get()));
             }
@@ -77,7 +69,7 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
             }
         } catch (Exception ex) {
             log.log(Level.SEVERE, "Core bootstrap failed", ex);
-            throw new AssertionFailedException("Failed to bootstrap core", ex);
+            throw new IllegalStateException("Failed to bootstrap core", ex);
         }
         appFactory.setActiveRuntime(injector);
         return injector;
@@ -105,7 +97,7 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
                 callback.startUp();
             } catch (Exception ex) {
                 log.log(Level.SEVERE, "Shutdown callback failed for: " + callback, ex);
-                throw new AssertionFailedException("Failed to bootstrap core", ex);
+                throw new IllegalStateException("Failed to bootstrap core", ex);
             }
         }
         final SimpleAppFactory appFactory = SimpleAppFactory.getSingleton();

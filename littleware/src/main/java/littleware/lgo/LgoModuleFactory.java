@@ -1,10 +1,3 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.lgo;
 
 import com.google.common.collect.ImmutableList;
@@ -12,10 +5,9 @@ import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Scopes;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.Option;
-import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModuleFactory;
@@ -80,8 +72,8 @@ public class LgoModuleFactory implements AppModuleFactory, SessionModuleFactory 
         }
 
         @Override
-        public Option<? extends Class<? extends Runnable>> getSessionStarter() {
-            return Options.some( SessionStarter.class );
+        public Optional<? extends Class<? extends Runnable>> getSessionStarter() {
+            return Optional.ofNullable( SessionStarter.class );
         }
 
         @Override

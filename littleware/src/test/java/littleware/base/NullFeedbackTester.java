@@ -1,14 +1,4 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-package littleware.base.test;
+package littleware.base;
 
 import com.google.inject.Inject;
 import java.beans.PropertyChangeEvent;
@@ -17,16 +7,18 @@ import java.util.logging.Logger;
 import junit.framework.TestCase;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
+import org.junit.Test;
 
-/**
- *
- * @author pasquini
- */
+
 public class NullFeedbackTester extends TestCase {
     private static final Logger log = Logger.getLogger( NullFeedbackTester.class.getName() );
 
     private final NullFeedback feedback;
 
+    public NullFeedbackTester() {
+        this( new NullFeedback() );
+    }
+    
     @Inject
     public NullFeedbackTester( NullFeedback feedback ) {
         super( "testFeedback" );
@@ -46,6 +38,7 @@ public class NullFeedbackTester extends TestCase {
         }
     }
 
+    @Test
     public void testFeedback() {
         final Listener listener = new Listener();
         feedback.addPropertyChangeListener(listener);

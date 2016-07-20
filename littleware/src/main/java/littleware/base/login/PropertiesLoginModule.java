@@ -1,22 +1,11 @@
-/*
- * Copyright 2012 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.base.login;
 
-import java.io.IOException;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.*;
 import javax.security.auth.login.LoginException;
-import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
-import littleware.base.AssertionFailedException;
 
 /**
  * LoginModule authenticates against user-name:password properties
@@ -31,7 +20,7 @@ public class PropertiesLoginModule implements LoginModule {
             loginProps = littleware.base.PropertiesLoader.get().loadProperties( PropertiesLoginModule.class );
         } catch ( RuntimeException ex ) { throw ex;
         } catch ( Exception ex ) { 
-            throw new littleware.base.AssertionFailedException( "Unexpected exception", ex );
+            throw new IllegalStateException( "Unexpected exception", ex );
         }
     }
     
@@ -69,7 +58,7 @@ public class PropertiesLoginModule implements LoginModule {
               } );
         } catch (RuntimeException ex) { throw ex;
         } catch (Exception ex) {
-            throw new AssertionFailedException( "Unexpected exception", ex );
+            throw new IllegalStateException( "Unexpected exception", ex );
         }
 
       final String name = nameCallback.getName();

@@ -5,19 +5,16 @@ import java.util.logging.Logger;
 import static org.junit.Assert.*;
 
 /**
- * Slight specialization of junit.framework.TestCase
- * adds putName method to allow simultaneously setting
- * a TestCase test-method name and register the test-case
- * with a suite:  suite.addTest ( provider.get().putName( "testWhatever" ) )
+ * Some utilities for tests
  */
-public abstract class LittleTest {
+public final class LittleTest {
     /** Every test wants a logger */
-    public final Logger log = Logger.getLogger( getClass().getName() );
+    public static final Logger log = Logger.getLogger( LittleTest.class.getName() );
     
     /**
      * Typical exception handler
      */
-     public void handle( Throwable ex ) {
+     public static void handle( Throwable ex ) {
          log.log( Level.WARNING, "Failed test", ex );
          fail( "Caught: " + ex );
      } 

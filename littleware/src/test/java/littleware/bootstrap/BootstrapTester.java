@@ -1,31 +1,18 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-package littleware.bootstrap.test;
+package littleware.bootstrap;
 
 import com.google.inject.Binder;
 import com.google.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import littleware.base.Option;
-import littleware.base.Options;
+import java.util.Optional;
 import littleware.bootstrap.AppBootstrap.AppProfile;
-import littleware.bootstrap.LittleBootstrap;
-import littleware.bootstrap.SessionBootstrap;
-import littleware.bootstrap.SessionModule;
-import littleware.bootstrap.SessionModuleFactory;
 import littleware.test.LittleTest;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
-public class BootstrapTester extends LittleTest {
+public class BootstrapTester {
     private final LittleBootstrap boot;
 
     @Inject
     public BootstrapTester(LittleBootstrap boot) {
-        setName("testModuleLoad");
         this.boot = boot;
     }
 
@@ -33,6 +20,7 @@ public class BootstrapTester extends LittleTest {
      * Just simple test to verify that ClientBootstrap
      * and ServerBootstrap load some modules
      */
+    @Test
     public void testModuleLoad() {
         try {
             assertTrue("Found an app module",
@@ -40,7 +28,7 @@ public class BootstrapTester extends LittleTest {
             assertTrue( "Boootstrap factory initialized",
                     LittleBootstrap.factory.getActiveRuntime().get() == boot
                     );
-        } catch (Exception ex) { handle(ex); }
+        } catch (Exception ex) { LittleTest.handle(ex); }
     }
 
     private SessionBootstrap buildSession(final String label) {
@@ -55,8 +43,8 @@ public class BootstrapTester extends LittleTest {
                 return new SessionModule() {
 
                     @Override
-                    public Option<? extends Class<Runnable>> getSessionStarter() {
-                        return Options.NONE;
+                    public Optional<? extends Class<Runnable>> getSessionStarter() {
+                        return Optional.empty();
                     }
 
                     @Override
@@ -78,6 +66,6 @@ public class BootstrapTester extends LittleTest {
             assertTrue("Got expected session 1 label: " + label1, "1".equals(label1));
             final String label2 = buildSession("2").startSession(String.class);
             assertTrue("Got expected session 2 label: " + label2, "2".equals(label2));
-        } catch (Exception ex) { handle(ex); }
+        } catch (Exception ex) { LittleTest.handle(ex); }
     }
 }

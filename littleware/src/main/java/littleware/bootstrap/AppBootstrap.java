@@ -1,23 +1,14 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.bootstrap;
 
 import littleware.bootstrap.internal.SimpleAppBuilder;
 import com.google.inject.Provider;
 import java.util.Collection;
-import littleware.base.Option;
 
 /**
  * Bootstrap manager for littleware applications.
  * Note that bootstrap actually boots up a new littleware session,
  * so bootstrap( myclass ) is equivalent to:
- *     newSessionBuilder().bootstrap( myclass )
+ *     LittleBootstrap.newSessionBuilder().bootstrap( myclass )
  * Therefore - it's ok to call bootstrap multiple times to start multiple sessions,
  * but shutdown shuts down the whole application, and should only run once.
  */

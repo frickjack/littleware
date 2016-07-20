@@ -1,10 +1,3 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.bootstrap.internal;
 
 import com.google.common.collect.ImmutableList;
@@ -92,10 +85,14 @@ public class SimpleAppBuilder implements AppBootstrap.AppBuilder {
             if ( null != appInjector ) {
                 return appInjector;
             }
-            final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
-            builder.addAll( this.moduleSet );
-            builder.add(new AppSetupModule(profile, this));
-            appInjector = super.bootstrapCore( builder.build());
+            synchronized(this) {
+                if ( null == appInjector ) {
+                    final ImmutableList.Builder<AppModule> builder = ImmutableList.builder();
+                    builder.addAll( this.moduleSet );
+                    builder.add(new AppSetupModule(profile, this));
+                    appInjector = super.bootstrapCore( builder.build());
+                }
+            }
             return appInjector;
         }
 

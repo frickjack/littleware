@@ -1,13 +1,3 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.base;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -43,15 +33,15 @@ public class PropertiesLoader {
     }
 
     private static final Logger log = Logger.getLogger( PropertiesLoader.class.getName() );
-    private static final Map<String, Properties> cache = new HashMap<String, Properties>();
+    private static final Map<String, Properties> cache = new HashMap<>();
     private static final String LITTLEHOME = "littleware.home";
     
-    private  final Option<File> maybeHome;
+    private  final Optional<File> maybeHome;
     private final Properties  defaultProperties;
 
 
     {
-        Option<File> maybe = Options.empty();
+        Optional<File> maybe = Optional.empty();
         try {
             String sHome = System.getProperty( LITTLEHOME );
             if ( null == sHome ) {
@@ -63,10 +53,10 @@ public class PropertiesLoader {
             if ( null != sHome ) {
                 File fh_home = new File( sHome );
                 if ( fh_home.isDirectory() && fh_home.canRead() ) {
-                    maybe = Options.some( fh_home );
+                    maybe = Optional.of( fh_home );
                 } else if ( ! fh_home.exists() ) {
                     fh_home.mkdirs();
-                    maybe = Options.some( fh_home );
+                    maybe = Optional.of( fh_home );
                 }
             }
         } catch ( Exception ex ) {
@@ -84,7 +74,7 @@ public class PropertiesLoader {
      * @return File referencing littleware home directory, or
      *           null if unable to locate and create
      */
-    public Option<File> getLittleHome () {
+    public Optional<File> getLittleHome () {
         return maybeHome;
     }
     
@@ -107,11 +97,8 @@ public class PropertiesLoader {
             parentDirectory.mkdirs();
         }
         final File tempFile = File.createTempFile( outputFile.getName(), null, parentDirectory );
-        final FileOutputStream ostream = new FileOutputStream( tempFile );
-        try {
+        try (FileOutputStream ostream = new FileOutputStream( tempFile )) {
             props.store(ostream, "update form littleware" );
-        } finally {
-            ostream.close ();
         }
         final File backupFile = new File( parentDirectory,
                           outputFile.getName() + "." + new Date().getTime()
@@ -129,7 +116,7 @@ public class PropertiesLoader {
      * and updates cache entry for that resource
      */
     public void safelySave( Properties props, Class<?> resource ) throws IOException {
-        if ( maybeHome.isEmpty() ) {
+        if ( ! maybeHome.isPresent() ) {
             throw new IOException( "littleware.home not set in current environment" );
         }
         final String name = classToResourcePath( resource );
@@ -168,7 +155,7 @@ public class PropertiesLoader {
                 singleton = new PropertiesLoader ();
                 return singleton;
             } catch ( IOException ex ) {
-                throw new AssertionFailedException( "Failed to initialize properties loader", ex );
+                throw new IllegalStateException( "Failed to initialize properties loader", ex );
             }
         }
     }
@@ -191,12 +178,9 @@ public class PropertiesLoader {
     private void loadPropsFromFile( Properties prop_target, File fh ) throws IOException {
         try {
             if ( fh.isFile() && fh.canRead() ) {
-                InputStream istream = new FileInputStream ( fh );
-                try {
+                try (InputStream istream = new FileInputStream ( fh )) {
                     prop_target.load( istream );
-                    log.log( Level.INFO, "Loading " + fh );
-                } finally {
-                    istream.close ();
+                    log.log(Level.INFO, "Loading {0}", fh);
                 }
             }
         } catch ( SecurityException ex ) {
@@ -233,43 +217,41 @@ public class PropertiesLoader {
      * @throws IOException if file exists, but load fails
      */
     public final synchronized Properties loadProperties(String name ) throws IOException {
-        Properties prop_filedata = cache.get(name);
+        Properties fileDataProps = cache.get(name);
 
-        log.log( Level.FINE, "Attempting to load properties for: " + name +
-                ", " + (null == prop_filedata)
-                );
-        if (null != prop_filedata) {
-            return (Properties) prop_filedata.clone ();
+        log.log(Level.FINE, "Attempting to load properties for: {0}, {1}", new Object[]{name, null == fileDataProps});
+        if (null != fileDataProps) {
+            return (Properties) fileDataProps.clone ();
         }
-        prop_filedata = new Properties();
-        cache.put( name, prop_filedata );
+        fileDataProps = new Properties();
+        cache.put( name, fileDataProps );
         {
             final InputStream istream = PropertiesLoader.class.getClassLoader().getResourceAsStream(name);
             if ( null != istream ) {
                 try {
-                    prop_filedata.load(istream);
+                    fileDataProps.load(istream);
                 } finally {
                     istream.close ();
                 }
-                log.log( Level.FINE, "Loaded props: " + prop_filedata.size() );
+                log.log(Level.FINE, "Loaded props: {0}", fileDataProps.size());
             } else {
-                log.log( Level.FINE, "Props not on classpath for: " + name );
+                log.log(Level.FINE, "Props not on classpath for: {0}", name);
             }
         }
 
-        if ( maybeHome.isSet() ) {
-            loadPropsFromFile( prop_filedata,  new File( maybeHome.get(), name ) );
+        if ( maybeHome.isPresent() ) {
+            loadPropsFromFile( fileDataProps,  new File( maybeHome.get(), name ) );
         }
         try {
             String s_path = System.getProperty(name);
             if ( null != s_path ) {
-                loadPropsFromFile( prop_filedata, new File( s_path ) );
+                loadPropsFromFile( fileDataProps, new File( s_path ) );
             } 
         } catch (SecurityException e) {
             log.log(Level.WARNING, "Insufficient privileges to access System property: " + name, e );
         }
 
-        return (Properties) prop_filedata.clone ();        
+        return (Properties) fileDataProps.clone ();        
     }
 
     @VisibleForTesting

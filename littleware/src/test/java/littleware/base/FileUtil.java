@@ -1,13 +1,4 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-package littleware.base.test;
+package littleware.base;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -18,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import littleware.base.Whatever;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Little utility to help setup, scan, and cleanup a directory tree for tests
@@ -44,11 +35,8 @@ public class FileUtil {
                 final File file = new File(parent, "ZipUtilTester" + count + ".txt");
                 count = count + 1;
                 if (!file.exists()) {
-                    final Writer writer = new FileWriter(file);
-                    try {
+                    try (Writer writer = new FileWriter(file)) {
                         writer.write("bla bla bla\n");
-                    } finally {
-                        writer.close();
                     }
                 }
             }
@@ -94,14 +82,12 @@ public class FileUtil {
      */
     public void deleteR(File root, int limit) throws IOException {
         // cleanup test
-        final List<File> deleteList = new ArrayList(lsR(root));
+        final List<File> deleteList = new ArrayList<>(lsR(root));
         Collections.reverse(deleteList);
-        Whatever.get().check("Should be fewer than 12 files to cleanup under " + root,
+        assertTrue("Should be fewer than 12 files to cleanup under " + root,
                 deleteList.size() < 12);
-        for (File scan : deleteList) {
+        deleteList.stream().forEach((scan) -> {
             scan.delete();
-        }
-
-
+        });
     }
 }

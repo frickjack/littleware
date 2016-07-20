@@ -2,8 +2,9 @@ package littleware.db;
 
 import com.google.inject.ImplementedBy;
 import java.lang.reflect.InvocationHandler;
+import java.util.Optional;
 import javax.sql.DataSource;
-import littleware.base.Option;
+
 
 /**
  * Dynamic-proxy handler for SQL DataSource allows
@@ -26,7 +27,7 @@ public interface DataSourceHandler extends InvocationHandler {
      * @param builder
      * @return old DataSource if reset, otherwise empty
      */
-    public Option<DataSource> resetIfNecessary( String newJdbcUrl, DSHBuilder builder );
+    public Optional<DataSource> resetIfNecessary( String newJdbcUrl, DSHBuilder builder );
 
     @ImplementedBy(GeneralDSHBuilder.class)
     public interface DSHBuilder {

@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.lgo;
 
 import com.google.common.collect.ImmutableMap;
@@ -16,9 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import littleware.base.AssertionFailedException;
+import java.util.Optional;
 import littleware.base.BaseException;
-import littleware.base.Option;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.LoggerFeedback;
 import littleware.bootstrap.LittleBootstrap;
@@ -66,14 +58,14 @@ public class LgoCommandLine {
      * @return command exit-status
      */
     public int processCommand(String sCommand, List<String> processArgs, String sArg, Feedback feedback) {
-        final Option<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(sCommand);
+        final Optional<LgoCommand.LgoBuilder> maybe = commandMgr.buildCommand(sCommand);
         try {
-            if (maybe.isEmpty() || sCommand.equalsIgnoreCase("help")) {
+            if ( (! maybe.isPresent()) || sCommand.equalsIgnoreCase("help")) {
                 System.out.println("Command use:");
                 System.out.println("     lgo [+profile cli|swing] command options");
                 System.out.println("        +profile [cli|swing] -- specify AppProfile to pass to AppModuleFactory modules at bootup time");
             }
-            if (maybe.isEmpty()) {
+            if (! maybe.isPresent()) {
                 final LgoCommand help = commandMgr.buildCommand("help").get().buildWithInput(sCommand);
                 System.out.print(help.runCommandLine(feedback));
                 return 1;
@@ -88,7 +80,7 @@ public class LgoCommandLine {
             try {
                 System.out.print(commandMgr.buildCommand("help").get().buildWithInput(sCommand).runCommandLine(feedback));
             } catch (Exception ex2) {
-                throw new AssertionFailedException("Help command should not fail", ex2);
+                throw new IllegalStateException("Help command should not fail", ex2);
             }
             return 1;
         }
@@ -112,7 +104,7 @@ public class LgoCommandLine {
                 return 1;
             }
             final String command = argsArray[0];
-            final List<String> cleanArgs = new ArrayList<String>();
+            final List<String> cleanArgs = new ArrayList<>();
             final StringBuilder sb = new StringBuilder();
 
             for (int i = 1; i < argsArray.length; ++i) {

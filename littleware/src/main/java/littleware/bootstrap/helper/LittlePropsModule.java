@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.AssertionFailedException;
 import littleware.base.PropertiesGuice;
 import littleware.base.UUIDFactory;
 import littleware.base.ZipUtil;
@@ -45,7 +44,7 @@ public class LittlePropsModule extends AbstractAppModule {
             binder.bind( UUIDFactory.class ).in( Scopes.SINGLETON );
             //binder.bind( SessionBootstrap.SessionBuilder.class ).to( SimpleSessionBuilder.class );
         } catch (IOException ex) {
-            throw new AssertionFailedException( "Unexpected failure loading littleware.properties", ex );
+            throw new IllegalStateException( "Unexpected failure loading littleware.properties", ex );
         }
     }
 }

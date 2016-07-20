@@ -7,7 +7,7 @@
  * License. You can obtain a copy of the License at
  * http://www.gnu.org/licenses/lgpl-2.1.html.
  */
-package littleware.base.test;
+package littleware.base;
 
 import com.google.inject.Inject;
 import java.io.File;

@@ -1,10 +1,3 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.bootstrap.helper;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -13,14 +6,13 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Scopes;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.Option;
-import littleware.base.Options;
 import littleware.base.feedback.TaskFactory;
 import littleware.base.feedback.internal.SimpleTaskFactory;
 import littleware.bootstrap.AppBootstrap;
@@ -100,7 +92,7 @@ public class ExecutorModule extends AbstractAppModule {
     }
 
     @Override
-    public Option<Class<ExecActivator>> getCallback() {
-        return Options.some(ExecActivator.class);
+    public Optional<Class<ExecActivator>> getCallback() {
+        return Optional.of(ExecActivator.class);
     }
 }

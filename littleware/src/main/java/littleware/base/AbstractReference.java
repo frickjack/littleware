@@ -1,12 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.base;
 
 import java.beans.PropertyChangeEvent;
@@ -25,8 +16,8 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
     private T        value = null;
     private final PropertyChangeSupport propertySupport = new PropertyChangeSupport( this );
 
-    public boolean isSet() { return (null != value); }
-    public boolean isEmpty() { return ! isSet(); }
+    public boolean isPresent() { return (null != value); }
+    public boolean isEmpty() { return ! isPresent(); }
 
     /** Construct an unset Maybe */
     protected AbstractReference () {}
@@ -44,7 +35,7 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
     }
 
     public T getOr( T alt ) {
-        if ( isSet() ) {
+        if ( isPresent() ) {
             return value;
         } else {
             return alt;
@@ -53,17 +44,17 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
 
 
     public T getOrCall( Callable<T> call ) throws Exception {
-        if ( isSet() ) {
+        if ( isPresent() ) {
             return value;
         } else {
             return call.call ();
         }
     }
 
-    public boolean nonEmpty() { return isSet(); }
+    public boolean nonEmpty() { return isPresent(); }
 
     public T get () {
-        if ( ! isSet() ) {
+        if ( ! isPresent() ) {
             if ( (null != errorMessage) && (errorMessage.length() > 0) ) {
                 throw new NoSuchElementException( errorMessage );
             }
@@ -100,19 +91,19 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
 
     @Override
     public boolean equals( final Object other ) {
-        if ( other instanceof Options ) {
-            final Option<?> maybe = (Option<?>) other;
-            return (isSet() == maybe.isSet()) &&
-                    (isSet() ? get().equals( maybe.get() ) : true);
+        if ( other instanceof LittleReference ) {
+            final LittleReference<?> maybe = (LittleReference<?>) other;
+            return (isPresent() == maybe.isPresent()) &&
+                    (isPresent() ? get().equals( maybe.get() ) : true);
         } else {
-            return isSet() && get().equals( other );
+            return isPresent() && get().equals( other );
         }
     }
 
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 37 * hash + (this.isSet() ? 1 : 0);
+        hash = 37 * hash + (this.isPresent() ? 1 : 0);
         hash = 37 * hash + (this.value != null ? this.value.hashCode() : 0);
         return hash;
     }
@@ -135,7 +126,7 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
 
     @Override
     public String toString () {
-        return isSet() ? get().toString() : "null";
+        return isPresent() ? get().toString() : "null";
     }
 
     @Override
@@ -145,7 +136,7 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
 
             @Override
             public boolean hasNext() {
-                return (0 == nextCount) && AbstractReference.this.isSet();
+                return (0 == nextCount) && AbstractReference.this.isPresent();
             }
 
             @Override

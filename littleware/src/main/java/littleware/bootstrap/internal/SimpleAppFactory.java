@@ -1,15 +1,7 @@
-/*
- * Copyright 2013 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.bootstrap.internal;
 
 import com.google.inject.Injector;
-import littleware.base.Option;
-import littleware.base.Options;
+import java.util.Optional;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleBootstrap;
 
@@ -20,7 +12,7 @@ import littleware.bootstrap.LittleBootstrap;
  */
 public class SimpleAppFactory implements LittleBootstrap.Factory {
 
-    private Option<Injector> optActive = Options.empty();
+    private Optional<Injector> optActive = Optional.empty();
     
     private SimpleAppFactory(){}
 
@@ -29,20 +21,20 @@ public class SimpleAppFactory implements LittleBootstrap.Factory {
      * @param injector application-scoped injector
      */
     public void setActiveRuntime(Injector value) {
-        this.optActive = Options.some(value);
+        this.optActive = Optional.ofNullable(value);
     }
 
     @Override
-    public Option<LittleBootstrap> getActiveRuntime() {
-        if (optActive.isEmpty()) {
-            return Options.empty();
+    public Optional<LittleBootstrap> getActiveRuntime() {
+        if (! optActive.isPresent()) {
+            return Optional.empty();
         }
-        return Options.some(lookup(LittleBootstrap.class));
+        return Optional.of(lookup(LittleBootstrap.class));
     }
 
     @Override
     public <T> T lookup(Class<T> clazz) {
-        if (optActive.isEmpty()) {
+        if (! optActive.isPresent()) {
             return AppBootstrap.appProvider.get().build().bootstrap(clazz);
         }
         return optActive.get().getInstance(clazz);

@@ -1,29 +1,17 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-package littleware.base.test;
+package littleware.base;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
-
-import junit.framework.TestCase;
-
-import littleware.base.*;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  * Just run UUIDFactory implementations through a simple test
  */
-public class DynamicEnumTester extends TestCase {
+public class DynamicEnumTester {
 
-    private static Logger olog_generic = Logger.getLogger("littleware.base.test.DynamicEnumTester");
+    private static final Logger log = Logger.getLogger( DynamicEnumTester.class.getName() );
 
     private static class TestEnum1 extends DynamicEnum<TestEnum1> {
 
@@ -67,17 +55,13 @@ public class DynamicEnumTester extends TestCase {
                 "MEMBER1");
     }
 
-    /**
-     * Constructor stashes name of test to run
-     */
-    public DynamicEnumTester(String s_name) {
-        super(s_name);
-    }
+    
 
     /**
      * Just create a couple UUID's, then go back and
      * forth to the string representation
      */
+    @Test
     public void testEnum() {
         try {
             assertTrue("Got 2 members of TestEnum1: " + TestEnum1.getMembers().size(),
@@ -92,11 +76,9 @@ public class DynamicEnumTester extends TestCase {
                     n_member2.equals(TestEnum2.MEMBER1));
 
         } catch (Exception e) {
-            olog_generic.log(Level.WARNING, "Caught unexpected: " + e);
+            log.log(Level.WARNING, "Caught unexpected: " + e);
             assertTrue("Caught unexpected: " + e, false);
         }
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

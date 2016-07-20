@@ -2,17 +2,17 @@ package littleware.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.base.Options;
-import littleware.base.Option;
+
 
 /**
  * sql.ResultSet iterator helper
  */
 public abstract class AbstractResultSetIterator<T> implements java.util.Iterator<T> {
 
-    private Option<Boolean> lastNext = Options.empty();
+    private Optional<Boolean> lastNext = Optional.empty();
     private int counter = 0;
     private final static Logger log = Logger.getLogger(AbstractResultSetIterator.class.getName());
     protected final ResultSet rset;
@@ -30,10 +30,10 @@ public abstract class AbstractResultSetIterator<T> implements java.util.Iterator
     @Override
     public final T next() {
         hasNext();
-        lastNext = Options.empty();
+        lastNext = Optional.empty();
         counter += 1;
         if (0 == counter % 10000) {
-            log.log(Level.FINE, "Retrieving row: " + counter);
+            log.log(Level.FINE, "Retrieving row: {0}", counter);
         }
         return extract();
     }
@@ -41,8 +41,8 @@ public abstract class AbstractResultSetIterator<T> implements java.util.Iterator
     @Override
     public final boolean hasNext() {
         try {
-            if (lastNext.isEmpty()) {
-                lastNext = Options.some(rset.next());
+            if ( ! lastNext.isPresent()) {
+                lastNext = Optional.of(rset.next());
             }
             return lastNext.get();
         } catch (SQLException ex) {

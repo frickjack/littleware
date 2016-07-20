@@ -1,16 +1,8 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.lgo;
 
 import com.google.inject.Provider;
 import java.util.Collection;
-import littleware.base.Option;
+import java.util.Optional;
 
 /**
  * Interface for command parsers.
@@ -29,14 +21,14 @@ public interface LgoCommandDictionary {
     /**
      * Build a command by name (full or short)
      */
-    public Option<LgoCommand.LgoBuilder> buildCommand( String name );
+    public Optional<LgoCommand.LgoBuilder> buildCommand( String name );
     
     /**
      * Get the provider of a command if any
      * 
      * @param name
      */
-    public Option<Provider<LgoCommand.LgoBuilder>> getProvider( String name );
+    public Optional<Provider<LgoCommand.LgoBuilder>> getProvider( String name );
      
     /**
      * Associate the given provider with the given command-name
@@ -64,7 +56,7 @@ public interface LgoCommandDictionary {
      * @param command to register
      * @return loaded help - may be empty if not found
      */
-    public Option<LgoHelp> setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand );
+    public Optional<LgoHelp> setCommand(LgoHelpLoader mgrHelp, Provider<? extends LgoCommand.LgoBuilder> provideCommand );
 
     /**
      * Get the collection of all the commands registered with

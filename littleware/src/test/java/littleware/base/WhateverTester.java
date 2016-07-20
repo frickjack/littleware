@@ -1,32 +1,22 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
+package littleware.base;
 
-package littleware.base.test;
+import java.util.Optional;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
-import littleware.base.Option;
-import littleware.base.Whatever;
-import littleware.test.LittleTest;
 
 /**
  * Test the Whatever utility methods
  */
-public class WhateverTester extends LittleTest {
-
-    public WhateverTester() {
-        setName( "testWhatever" );
-    }
+public class WhateverTester {
 
     public enum TestEnum { Uga, BooGa, GooGoo, Ga };
 
+    @Test
     public void testWhatever() {
-        final Option<TestEnum> maybe = Whatever.get().findEnumIgnoreCase("booga", TestEnum.values() );
-        assertTrue( "findEnumIgnoreCase ok", maybe.isSet() && maybe.get().equals( TestEnum.BooGa ) );
-        assertTrue( "findEnumIgnoreCase found empty", Whatever.get().findEnumIgnoreCase("frick", TestEnum.values() ).isEmpty() );
+        final Optional<TestEnum> maybe = Whatever.get().findEnumIgnoreCase("booga", TestEnum.values() );
+        assertTrue( "findEnumIgnoreCase ok", maybe.isPresent() && maybe.get().equals( TestEnum.BooGa ) );
+        assertTrue( "findEnumIgnoreCase found empty", ! Whatever.get().findEnumIgnoreCase("frick", TestEnum.values() ).isPresent() );
         assertTrue( "equalsSafe ok", Whatever.get().equalsSafe(null, null) && (! Whatever.get().equalsSafe( "bla", null ) ) );
         assertTrue( "empty test ok", Whatever.get().empty(null) && Whatever.get().empty( "" ) && (! Whatever.get().empty("foo")));
 

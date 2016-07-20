@@ -1,13 +1,12 @@
 package littleware.db;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.validate.ValidationException;
 import littleware.db.DataSourceHandler.DSHBuilder;
 // add this back in when we have good public source for the driver :import oracle.jdbc.pool.OracleDataSource;
@@ -85,12 +84,12 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
         }
 
         @Override
-        public Option<DataSource> resetIfNecessary(String newJdbcUrl, DSHBuilder builder) {
+        public Optional<DataSource> resetIfNecessary(String newJdbcUrl, DSHBuilder builder) {
             final String cleanUrl = newJdbcUrl.trim();
             if( cleanUrl.equalsIgnoreCase( getJdbcUrl() ) ) {
-                return Options.empty();
+                return Optional.empty();
             }
-            final Option<DataSource> result = Options.some( dsource );
+            final Optional<DataSource> result = Optional.ofNullable( dsource );
             setDataSource( builder.url( cleanUrl ).build().getDataSource(), cleanUrl );
             return result;
         }
@@ -107,13 +106,13 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
             final Pattern pattern = Pattern.compile("jdbc:derby://(\\w+):(\\d+)/(.+)$");
             final Matcher match = pattern.matcher(url);
             if (match.find()) {
-                final org.apache.derby.jdbc.ClientDataSource40 data = new org.apache.derby.jdbc.ClientDataSource40 ();
+                final org.apache.derby.jdbc.ClientDataSource data = new org.apache.derby.jdbc.ClientDataSource();
                 data.setServerName ( match.group(1) );
                 data.setPortNumber( Integer.parseInt( match.group(2) ) );
                 data.setDatabaseName ( match.group(3) );
                 return new Handler(data,url);
             } else {
-                org.apache.derby.jdbc.EmbeddedDataSource40 data = new org.apache.derby.jdbc.EmbeddedDataSource40();
+                org.apache.derby.jdbc.EmbeddedDataSource data = new org.apache.derby.jdbc.EmbeddedDataSource();
                 data.setDatabaseName(url.substring("jdbc:derby:".length()));
                 return new Handler(data, url);
             }

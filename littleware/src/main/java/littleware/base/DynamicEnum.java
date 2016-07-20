@@ -1,13 +1,3 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.base;
 
 import java.util.*;
@@ -32,27 +22,27 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      */
     private static class SubtypeData<T extends DynamicEnum> {
 
-        private Map<UUID, T> ov_id_map = new HashMap<UUID, T>();
-        private Map<String, T> ov_name_map = new HashMap<String, T>();
+        private final Map<UUID, T> idMap = new HashMap<>();
+        private final Map<String, T> nameMap = new HashMap<>();
 
         public SubtypeData() {
         }
 
         /** Return member if it exists, else null */
         public synchronized T getMember(String s_name) {
-            return ov_name_map.get(s_name);
+            return nameMap.get(s_name);
         }
 
         /** Return member if it exists, else null */
         public synchronized T getMember(UUID u_name) {
-            return ov_id_map.get(u_name);
+            return idMap.get(u_name);
         }
 
         /** Return set of all members registered */
         public synchronized Set<T> getMembers() {
-            Set<T> v_result = new HashSet<T>();
-            v_result.addAll(ov_id_map.values());
-            return v_result;
+            final Set<T> resultSet = new HashSet<>();
+            resultSet.addAll(idMap.values());
+            return resultSet;
         }
 
         /**
@@ -60,14 +50,16 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
          * object hasn't already been registered with the given UUID.
          */
         private synchronized void registerMemberIfNecessary(T member ) {
-            if (!ov_id_map.containsKey(member.getObjectId())) {
-                Whatever.get().check("DynamicEnums have unique names", !ov_name_map.containsKey(member.getName()));
-                ov_id_map.put(member.getObjectId(), member);
-                ov_name_map.put(member.getName(), member);
+            if (!idMap.containsKey(member.getObjectId())) {
+                if( nameMap.containsKey(member.getName())) {
+                    throw new IllegalArgumentException( "Dynamic enum member name not unique" + member.getName() );
+                }
+                idMap.put(member.getObjectId(), member);
+                nameMap.put(member.getName(), member);
             }
         }
     }
-    private static final Map<String, SubtypeData<? extends DynamicEnum>> subtypesByName = new HashMap<String, SubtypeData<? extends DynamicEnum>>();
+    private static final Map<String, SubtypeData<? extends DynamicEnum>> subtypesByName = new HashMap<>();
     private UUID id = null;
     private String name = null;
     private Class<T> clazz = null;
@@ -84,7 +76,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
 
             if (null == data) {
                 log.log(Level.FINE, "Registering new new DynamicEnum type: {0}", clazz.getName());
-                data = new SubtypeData<T>();
+                data = new SubtypeData<>();
                 subtypesByName.put(clazz.getName(), data);
             }
         }
@@ -94,7 +86,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Lookup the registered enum member by UUID.
      */
-    public static <T extends DynamicEnum> Option<T> getOptMember(UUID id, Class<T> clazz ) {
+    public static <T extends DynamicEnum> Optional<T> getOptMember(UUID id, Class<T> clazz ) {
         throw new UnsupportedOperationException( "not yet implemented" );
     }
 
@@ -104,39 +96,39 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * @throws NoSuchThingException if type not registered
      */
     public static <T extends DynamicEnum> T getMember(UUID id, Class<T> clazz) throws NoSuchThingException {
-        SubtypeData<T> x_data = null;
+        final SubtypeData<T> subTypeData;
 
         synchronized (subtypesByName) {
-            x_data = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
+            subTypeData = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
         }
 
-        T n_result = null;
+        final T result;
 
-        if (null != x_data) {
-            n_result = x_data.getMember(id);
-        }
-        if (null == n_result) {
+        if (null != subTypeData) {
+            result = subTypeData.getMember(id);
+        } else { result = null; }
+        if (null == result) {
             throw new NoSuchThingException( "No member with id: " + id );
         }
-        return n_result;
+        return result;
     }
 
     /**
      * Lookup the registered enum meber by UUID.
      */
-    public static <T extends DynamicEnum> Option<T> getOptMember(String name, Class<T> clazz){
+    public static <T extends DynamicEnum> Optional<T> getOptMember(String name, Class<T> clazz){
         final SubtypeData<T> subtypeData;
 
         synchronized (subtypesByName) {
             subtypeData = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
         }
 
-        T result = null;
+        final T result;
 
         if (null != subtypeData) {
             result = subtypeData.getMember(name);
-        }
-        return Options.some(result);
+        } else { result = null; }
+        return Optional.ofNullable(result);
     }
     
     /**
@@ -145,8 +137,8 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * @throws NoSuchThingException if type not registered
      */
     public static <T extends DynamicEnum> T getMember(String name, Class<T> clazz) throws NoSuchThingException {
-        final Option<T> opt = getOptMember( name, clazz );
-        if ( opt.isEmpty() ) {
+        final Optional<T> opt = getOptMember( name, clazz );
+        if ( ! opt.isPresent() ) {
             throw new NoSuchThingException( "No " + clazz.getName() + " with name: " + name );
         }
         return opt.get();
@@ -156,15 +148,15 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * Get the set of DynamicEnums that have been registered with the engine.
      */
     public static <T extends DynamicEnum> Set<T> getMembers(Class<T> c_class) {
-        SubtypeData x_data = null;
+        final SubtypeData subtypeData;
 
         synchronized (subtypesByName) {
-            x_data = subtypesByName.get(c_class.getName());
+            subtypeData = subtypesByName.get(c_class.getName());
         }
-        if (null == x_data) {
+        if (null == subtypeData) {
             return Collections.emptySet();
         }
-        return x_data.getMembers();
+        return subtypeData.getMembers();
     }
 
     /**
@@ -180,14 +172,16 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * @param id of the new member
      * @param name of the new member
      * @param clazz enum-type whose members this object is joining -
-     *           this must be an instanceof c_type
+     *           this must be an instanceof clazz
      */
     protected DynamicEnum(UUID id, String name, Class<T> clazz) {
         this.id = id;
         this.name = name;
         this.clazz = clazz;
 
-        Whatever.get().check("Only valid subtypes may join a DynamicEnum set", clazz.isInstance(this));
+        if ( ! clazz.isInstance(this)) {
+            throw new IllegalArgumentException( "Only valid subtypes may join a DynamicEnum set" );
+        }
         registerMemberIfNecessary(clazz);
     }
 

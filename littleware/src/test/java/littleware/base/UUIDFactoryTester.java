@@ -1,4 +1,4 @@
-package littleware.base.test;
+package littleware.base;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -7,11 +7,13 @@ import littleware.base.UUIDFactory;
 
 
 import littleware.test.LittleTest;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  * Just run UUIDFactory implementations through a simple test
  */
-public class UUIDFactoryTester extends LittleTest {
+public class UUIDFactoryTester {
 
     private final Provider<UUID> uuidFactory;
 
@@ -22,13 +24,13 @@ public class UUIDFactoryTester extends LittleTest {
     @Inject()
     public UUIDFactoryTester(Provider<UUID> uuidFactory) {
         this.uuidFactory = uuidFactory;
-        setName("testUUIDFactory");
     }
 
     /**
      * Just get a couple UUID's, then go back and forth to the string
      * representation
      */
+    @Test
     public void testUUIDFactory() {
         try {
             UUID u_test1 = uuidFactory.get();
@@ -41,7 +43,7 @@ public class UUIDFactoryTester extends LittleTest {
             assertTrue("Able to parse with no dashes: " + u_test1,
                     u_from_string.equals(u_test1));
         } catch (Exception ex) {
-            this.handle(ex);
+            LittleTest.handle(ex);
         }
     }
 }

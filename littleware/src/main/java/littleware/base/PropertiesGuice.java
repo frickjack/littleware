@@ -81,7 +81,7 @@ public class PropertiesGuice implements Module {
                 final URL url = new URL(clean);
                 binder.bind(URL.class).annotatedWith(Names.named(sKey)).toInstance(url);
             } catch (MalformedURLException ex) {
-                log.log(Level.WARNING, "Failed to parse URL-like value: " + clean);
+                log.log(Level.WARNING, "Failed to parse URL-like value: {0}", clean);
             }
         }
     }
@@ -104,7 +104,7 @@ public class PropertiesGuice implements Module {
                 final Provider<Session> provider = new Provider<Session>() {
 
                     private Session session = null;
-
+                  
                     @Override
                     public Session get() {
                         if (null != session) {
@@ -116,7 +116,7 @@ public class PropertiesGuice implements Module {
                                     try {
                                         session = (Session) (new InitialContext()).lookup(host.substring("jndi:".length()));
                                     } catch (Exception ex) {
-                                        throw new AssertionFailedException("Failed jndi lookup for smtp host: " + host);
+                                        throw new IllegalStateException("Failed jndi lookup for smtp host: " + host);
                                     }
                                 } else {
                                     session = Session.getInstance(properties, null);

@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.lgo;
 
 import com.google.inject.Inject;
@@ -13,10 +6,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import java.util.Set;
-import littleware.base.Option;
 import littleware.base.Whatever;
 import littleware.base.feedback.Feedback;
 
@@ -105,8 +98,8 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
         @Override
         public LgoHelp runCommand(Feedback feedback) {
             final String targetCommand = getInput();
-            final Option<LgoCommand.LgoBuilder> maybe = commandDictionary.buildCommand(targetCommand);
-            if (maybe.isEmpty()) {
+            final Optional<LgoCommand.LgoBuilder> maybe = commandDictionary.buildCommand(targetCommand);
+            if ( ! maybe.isPresent()) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append("No help found for command: ").append(targetCommand).append(", available commands:").
                         append(Whatever.NEWLINE);
@@ -118,7 +111,7 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
                     }
                     commandNames.add(comIndex.getName());
                     sb.append("    ").append(comIndex.getName());
-                    for( LgoHelp help : helpLoader.loadHelp(comIndex.getName()) ) {
+                    helpLoader.loadHelp(comIndex.getName()).map( (LgoHelp help) ->  {
                         sb.append(" [");
                         boolean bFirst = true;
                         for (String sAlias : help.getShortNames()) {
@@ -130,7 +123,8 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
                             sb.append(sAlias);
                         }
                         sb.append("] ").append(help.getSynopsis());
-                    }
+                        return sb;
+                    });
                     sb.append(Whatever.NEWLINE);
                 }
                 LgoHelp help = new EzLgoHelp("command.not.found",
@@ -141,7 +135,7 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
                 return help;
             } else {
                 final String name = maybe.get().getName();
-                return helpLoader.loadHelp(name, olocale).getOr(
+                return helpLoader.loadHelp(name, olocale).orElse(
                         new EzLgoHelp(name, emptyAliasList, "no help available for command", "", emptyExampleList)
                         );
             }

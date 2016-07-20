@@ -13,3 +13,4 @@ target/
 *.swp
 /littleware/.nb-gradle/
 /littleAsset/.nb-gradle/
+/.nb-gradle/

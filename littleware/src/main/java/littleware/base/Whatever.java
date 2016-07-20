@@ -1,12 +1,3 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.base;
 
 import java.io.File;
@@ -16,6 +7,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,17 +69,7 @@ public class Whatever {
         return (null == sIn) || sIn.trim().equals("");
     }
 
-    /**
-     * Throw a runtime AssetionFaledException if b_assert evaluates false.
-     *
-     * @param s_message associated with this check
-     * @param b_assert set true if all is ok, false if assertion failed
-     */
-    public void check(String s_message, boolean b_assert) {
-        if (!b_assert) {
-            throw new AssertionFailedException(s_message);
-        }
-    }
+    
 
     /**
      * Little null-aware equals method.
@@ -161,13 +143,13 @@ public class Whatever {
         return sb.toString();
     }
 
-    public <T extends Enum<T>> Option<T> findEnumIgnoreCase(String lookFor, T[] values) {
+    public <T extends Enum<T>> Optional<T> findEnumIgnoreCase(String lookFor, T[] values) {
         for (T scan : values) {
             if (lookFor.equalsIgnoreCase(scan.toString())) {
-                return Options.some(scan);
+                return Optional.of(scan);
             }
         }
-        return Options.empty();
+        return Optional.empty();
     }
 
     /**
@@ -187,23 +169,17 @@ public class Whatever {
             }
         }
         final IllegalStateException failure = new IllegalStateException( "Dispatch failed" );
-        final Promise<Object> barrier = new Promise<Object>();
-        SwingUtilities.invokeLater(
-                new Runnable() {
-
-            @Override
-            public void run() {
-                Object result = failure;
-                try {
-                    result = call.call();
-                } catch ( Exception ex ) {
-                    log.log( Level.WARNING, "Dispatcher call failed", ex );
-                } finally {
-                    barrier.publishEventData(result);
-                }
+        final Promise<Object> barrier = new Promise<>();
+        SwingUtilities.invokeLater(() -> {
+            Object result = failure;
+            try {
+                result = call.call();
+            } catch ( Exception ex ) {
+                log.log( Level.WARNING, "Dispatcher call failed", ex );
+            } finally {
+                barrier.publishEventData(result);
             }
-        }
-                );
+        });
         try {
             log.log( Level.FINE, "Waiting on barrier" );
             final Object result = barrier.waitForEventData();
@@ -256,7 +232,7 @@ public class Whatever {
             private final File folder = new File( System.getProperty( "user.home" ) );
             @Override
             public File getFolder() {
-                return PropertiesLoader.get().getLittleHome().getOr(folder);
+                return PropertiesLoader.get().getLittleHome().orElse(folder);
             }
         },
         Temp {

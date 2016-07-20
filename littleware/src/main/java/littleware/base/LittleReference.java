@@ -1,12 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.base;
 
 
@@ -23,7 +14,7 @@ import littleware.base.event.LittleBean;
  * a PropertyChangeEvent.
  */
 public interface LittleReference<T> extends LittleBean, Iterable<T> {
-    public boolean isSet();
+    public boolean isPresent();
     public boolean isEmpty();
     public boolean nonEmpty();
     public T getOr( T alt );

@@ -1,15 +1,7 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.bootstrap;
 
 import java.util.Collection;
-import littleware.base.Option;
+import java.util.Optional;
 import littleware.bootstrap.internal.SimpleAppFactory;
 
 /**
@@ -67,7 +59,7 @@ public interface LittleBootstrap {
          * Return the active app if littleware runtime has been bootstrap,
          * otherwise return false
          */
-        Option<LittleBootstrap> getActiveRuntime();
+        Optional<LittleBootstrap> getActiveRuntime();
         
         /**
          * Lookup the given class in the active littleware runtime.

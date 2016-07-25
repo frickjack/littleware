@@ -20,7 +20,7 @@ import littleware.base.feedback.Feedback;
  *
  * @TODO process args to set Locale property
  */
-public class EzHelpCommand extends AbstractLgoBuilder<String> {
+public final class EzHelpCommand extends AbstractLgoBuilder<String> {
 
     private final LgoHelpLoader helpLoader;
     private final LgoCommandDictionary commandDictionary;
@@ -34,7 +34,7 @@ public class EzHelpCommand extends AbstractLgoBuilder<String> {
     @Inject
     public EzHelpCommand(LgoHelpLoader helpLoader,
             LgoCommandDictionary commandDictionary) {
-        super(EzHelpCommand.class.getName());
+        super(EzHelpCommand.class.getName(), String.class );
         this.commandDictionary = commandDictionary;
         this.helpLoader = helpLoader;
     }

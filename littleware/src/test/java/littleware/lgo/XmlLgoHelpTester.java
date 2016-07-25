@@ -3,6 +3,7 @@ package littleware.lgo;
 import java.util.Optional;
 import java.util.logging.Logger;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 
 /**
@@ -15,6 +16,7 @@ public class XmlLgoHelpTester {
     /**
      * Test loading a well known help file
      */
+    @Test
     public void testHelpLoad () {
         final LgoHelpLoader   mgrHelp = new XmlLgoHelpLoader();
         final Optional<LgoHelp> help = mgrHelp.loadHelp( "littleware.lgo.EzHelpCommand" );

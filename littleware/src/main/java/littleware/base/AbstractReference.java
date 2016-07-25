@@ -119,9 +119,9 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
     protected final void setError( String value ) {
         putError( value );
     }
-    protected <T extends AbstractReference> T putError( String value ) {
+    protected AbstractReference putError( String value ) {
         errorMessage = value;
-        return (T) this;
+        return this;
     }
 
     @Override
@@ -131,7 +131,7 @@ public abstract class AbstractReference<T> implements java.io.Serializable, Iter
 
     @Override
     public Iterator<T> iterator() {
-        return new Iterator() {
+        return new Iterator<T>() {
           int nextCount = 0;
 
             @Override

@@ -40,7 +40,7 @@ public class LoggerFeedback extends NullFeedback {
             @Override
             public void receiveLittleEvent(LittleEvent event) {
                 if ( event instanceof UiMessageEvent ) {
-                    final UiMessageEvent message = event.narrow();
+                    final UiMessageEvent message = event.narrow(UiMessageEvent.class);
                     log.log( message.getLevel(), message.getMessage() );
                 }
             }

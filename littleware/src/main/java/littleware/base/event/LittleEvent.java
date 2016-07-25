@@ -25,9 +25,9 @@ public abstract class LittleEvent extends EventObject {
         super(source);
     }
 
-    public <T extends LittleEvent> T narrow() {
-        return (T) this;
-    }
+    /**
+     * Chainable clazz.cast 
+     */
     public <T extends LittleEvent> T narrow( Class<T> narrowClass ) {
         return narrowClass.cast(this );
     }

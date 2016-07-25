@@ -1,13 +1,3 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.lgo;
 
 import java.util.HashMap;
@@ -19,16 +9,18 @@ import java.util.logging.Logger;
 public abstract class AbstractLgoBuilder<InType> implements LgoCommand.LgoBuilder {
     private static final Logger log = Logger.getLogger( AbstractLgoBuilder.class.getName() );
     private final String name;
+    private final Class<InType> inputType;
 
-    public AbstractLgoBuilder( String name ) {
+    public AbstractLgoBuilder( String name, Class<InType> inputType ) {
         this.name = name;
+        this.inputType = inputType;
     }
     @Override
     public String getName() { return  name; }
 
     @Override
     public final LgoCommand buildWithInput( Object input ) {
-        return buildSafe( (InType) input );
+        return buildSafe( inputType.cast( input ) );
     }
 
     public abstract LgoCommand buildSafe( InType input );

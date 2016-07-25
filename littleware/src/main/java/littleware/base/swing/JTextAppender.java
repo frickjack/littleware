@@ -48,7 +48,7 @@ public class JTextAppender extends JPanel implements Appendable {
         GENERIC
     }
     private JTextArea ow_text = null;
-    private JComboBox ow_mode = null;
+    private JComboBox<Mode> ow_mode = null;
     private int oi_buffer_size = 0;
     private Mode on_mode = Mode.TAIL;
 
@@ -80,30 +80,19 @@ public class JTextAppender extends JPanel implements Appendable {
             w_controls.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
             w_controls.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-            ow_mode = new JComboBox(Mode.values());
+            ow_mode = new JComboBox<>(Mode.values());
             ow_mode.setSelectedIndex(on_mode.ordinal());
-            ow_mode.addActionListener(
-                    new ActionListener() {
-
-                        /** Listens to the combo box. */
-                @Override
-                        public void actionPerformed(ActionEvent e) {
-                            Mode n_mode = (Mode) ow_mode.getSelectedItem();
-                            setMode(n_mode);
-                        }
-                    });
+            ow_mode.addActionListener((ActionEvent ev) -> {
+                final Mode n_mode = (Mode) ow_mode.getSelectedItem();
+                setMode(n_mode);
+            } /** Listens to the combo box. */ );
             w_controls.add(ow_mode);
 
             /** Pull label from resource-bundle later */
             JButton w_button = new JButton("Clear");
-            w_button.addActionListener(
-                    new ActionListener() {
-
-                @Override
-                        public void actionPerformed(ActionEvent e) {
-                            JTextAppender.this.clear();
-                        }
-                    });
+            w_button.addActionListener((ActionEvent e) -> {
+                JTextAppender.this.clear();
+            });
             w_controls.add(w_button);
         }
 
@@ -165,20 +154,14 @@ public class JTextAppender extends JPanel implements Appendable {
         /** 
          * Need to wire in some thread awareness
          */
-        SwingUtilities.invokeLater(
-                new Runnable() {
-
-            @Override
-                    public void run() {
-                        ow_mode.setSelectedIndex(on_mode.ordinal());
-                        int i_length = ow_text.getDocument().getLength();
-
-                        if (on_mode.equals(Mode.GENERIC) && (ow_text.getCaretPosition() == i_length) && (i_length > 0)) {
-                            ow_text.setCaretPosition(i_length - 1);
-                        }
-
-                    }
-                });
+        SwingUtilities.invokeLater(() -> {
+            ow_mode.setSelectedIndex(on_mode.ordinal());
+            int i_length = ow_text.getDocument().getLength();
+            
+            if (on_mode.equals(Mode.GENERIC) && (ow_text.getCaretPosition() == i_length) && (i_length > 0)) {
+                ow_text.setCaretPosition(i_length - 1);
+            }
+        });
     }
 
 
@@ -236,14 +219,9 @@ public class JTextAppender extends JPanel implements Appendable {
      * Clear the contents of the display
      */
     public void clear() {
-        SwingUtilities.invokeLater(
-                new Runnable() {
-
-            @Override
-                    public void run() {
-                        ow_text.replaceRange("", 0, ow_text.getDocument().getLength());
-                    }
-                });
+        SwingUtilities.invokeLater(() -> {
+            ow_text.replaceRange("", 0, ow_text.getDocument().getLength());
+        });
     }
 
     /**
@@ -263,17 +241,12 @@ public class JTextAppender extends JPanel implements Appendable {
         final JFrame w_root = new JFrame("JTextAppender");
         Writer write_appender = new BufferedWriter(new AppenderWriter(w_appender));
         Runnable run_readerwriter = new ReaderWriter(new BufferedReader(new InputStreamReader(System.in)),
-                write_appender,
-                new Runnable() {
-
-            @Override
-                    public void run() {
-                        JOptionPane.showMessageDialog(w_root,
-                                "End of input reached",
-                                "end of stream",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    }
-                });
+                write_appender, () -> {
+                    JOptionPane.showMessageDialog(w_root,
+                            "End of input reached",
+                            "end of stream",
+                            JOptionPane.INFORMATION_MESSAGE);
+        });
 
         Thread thread_reader = new Thread(run_readerwriter);
         thread_reader.start();
@@ -289,11 +262,8 @@ public class JTextAppender extends JPanel implements Appendable {
      * a JTextAppender
      */
     public static void main(String[] v_argv) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                createAndShowGUI();
-            }
+        javax.swing.SwingUtilities.invokeLater( () -> {
+            JTextAppender.createAndShowGUI();
         });
     }
 }

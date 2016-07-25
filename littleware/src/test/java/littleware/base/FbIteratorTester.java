@@ -7,12 +7,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.FeedbackIterableBuilder;
+import littleware.test.LittleTestRunner;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Run FeedbackIterator through a simple exercise
  */
+@RunWith(LittleTestRunner.class)
 public class FbIteratorTester {
     private static final Logger log = Logger.getLogger( FbIteratorTester.class.getName() );
 

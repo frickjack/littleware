@@ -7,12 +7,15 @@ import littleware.base.UUIDFactory;
 
 
 import littleware.test.LittleTest;
+import littleware.test.LittleTestRunner;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Just run UUIDFactory implementations through a simple test
  */
+@RunWith(LittleTestRunner.class)
 public class UUIDFactoryTester {
 
     private final Provider<UUID> uuidFactory;

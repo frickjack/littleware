@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -169,26 +170,26 @@ public class Whatever {
             }
         }
         final IllegalStateException failure = new IllegalStateException( "Dispatch failed" );
-        final Promise<Object> barrier = new Promise<>();
+        final CompletableFuture<T> barrier = new CompletableFuture<>();
         SwingUtilities.invokeLater(() -> {
-            Object result = failure;
             try {
-                result = call.call();
-            } catch ( Exception ex ) {
+                barrier.complete( call.call() );
+            } catch ( Throwable ex ) {
                 log.log( Level.WARNING, "Dispatcher call failed", ex );
-            } finally {
-                barrier.publishEventData(result);
-            }
+                barrier.completeExceptionally(ex);
+            } 
         });
         try {
             log.log( Level.FINE, "Waiting on barrier" );
-            final Object result = barrier.waitForEventData();
+            final T result = barrier.get();
             if ( result == failure ) {
                 throw failure;
             }
             return (T) result;
-        } catch (InterruptedException ex) {
-            throw new IllegalStateException( "Swing dispatch interrupted", ex );
+        } catch (RuntimeException ex ) {
+            throw ex;
+        } catch ( Exception ex) {
+            throw new IllegalStateException( "Swing dispatch caught", ex );
         }
     }
 

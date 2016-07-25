@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.lgo.LgoCommand.LgoBuilder;
 
 /**
  * Simple implementation of LgoCommandDictionary
@@ -20,17 +19,19 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     @Override
     public Collection<LgoCommand.LgoBuilder> guessCommand(String s_partial) {
         final Optional<LgoCommand.LgoBuilder> maybe = buildCommand(s_partial);
+        final Collection<LgoCommand.LgoBuilder> result;
 
         if ( ! maybe.isPresent() ) {
-            return Collections.EMPTY_LIST;
+            result = Collections.emptyList();
         } else {
-            return Collections.singletonList( maybe.get() );
+            result = Collections.singletonList( maybe.get() );
         }
+        return result;
     }
 
     @Override
-    public Optional<LgoCommand.LgoBuilder> buildCommand(String s_name) {
-        final Provider<LgoCommand.LgoBuilder> provider = commandMap.get(s_name);
+    public Optional<LgoCommand.LgoBuilder> buildCommand(String name) {
+        final Provider<LgoCommand.LgoBuilder> provider = commandMap.get(name);
         if ( null == provider ) {
             return Optional.empty();
         } else {
@@ -39,8 +40,8 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     }
 
     @Override
-    public void setCommand(String s_name, Provider<? extends LgoCommand.LgoBuilder> provideCommand) {
-        commandMap.put(s_name, (Provider<LgoBuilder>) provideCommand);
+    public void setCommand(String name, Provider<? extends LgoCommand.LgoBuilder> provideCommand) {
+        commandMap.put(name, (Provider<LgoCommand.LgoBuilder>) provideCommand );
     }
 
     @Override
@@ -51,8 +52,8 @@ public class EzLgoCommandDictionary implements LgoCommandDictionary {
     @Override
     public void setCommand(LgoHelp help, Provider<? extends LgoCommand.LgoBuilder> provideCommand) {
         setCommand(help.getFullName(), provideCommand);
-        for (String sName : help.getShortNames()) {
-            setCommand(sName, provideCommand);
+        for (String name : help.getShortNames()) {
+            setCommand(name, provideCommand);
         }
     }
 

@@ -7,17 +7,17 @@ import java.util.logging.Logger;
 import junit.framework.TestCase;
 import littleware.base.feedback.Feedback;
 import littleware.base.feedback.NullFeedback;
+import littleware.test.LittleTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
+@RunWith(LittleTestRunner.class)
 public class NullFeedbackTester extends TestCase {
     private static final Logger log = Logger.getLogger( NullFeedbackTester.class.getName() );
 
     private final NullFeedback feedback;
 
-    public NullFeedbackTester() {
-        this( new NullFeedback() );
-    }
     
     @Inject
     public NullFeedbackTester( NullFeedback feedback ) {

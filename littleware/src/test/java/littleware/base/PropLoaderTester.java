@@ -3,15 +3,14 @@ package littleware.base;
 import java.util.Properties;
 import java.util.logging.Logger;
 import littleware.test.LittleTest;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-/**
- *
- * @author pasquini
- */
+
+
 public class PropLoaderTester {
-    private final Logger log = Logger.getLogger( PropLoaderTester.class.getName() );
+    private static final Logger log = Logger.getLogger( PropLoaderTester.class.getName() );
 
     
     @Test
@@ -19,8 +18,8 @@ public class PropLoaderTester {
         final PropertiesLoader loader = PropertiesLoader.get();
         try {
             final String path = loader.classToResourcePath(getClass() );
-            assertTrue( "Got expected resource path:" + path,
-                    path.equals( "littleware/base/test/PropLoaderTester.properties" )
+            assertEquals( "Got expected resource path",
+                    path, "littleware/base/PropLoaderTester.properties"
                     );
             final Properties props = loader.loadProperties( getClass() );
             assertTrue( "Test property set has one member", props.size() == 1 );

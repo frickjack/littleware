@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.logging.Level;
-
-import littleware.base.XmlResourceBundle;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  * Test fixture for XmlResourceBundle
@@ -19,7 +17,7 @@ public class XmlResourceBundleTester {
     
     
     
-    
+    @Test
     public void testBasicXmlBundle() {
         final List<String> pathList = XmlResourceBundle.getResourcePaths( "foo.Bar", 
                 new Locale( "en", "US" ) 
@@ -27,16 +25,16 @@ public class XmlResourceBundleTester {
         assertTrue( "XmlResourceBundle.getResourcePaths got some paths",
                 ! pathList.isEmpty()
                 );
-        final Set<String> expectedSet = new HashSet<String>(
+        final Set<String> expectedSet = new HashSet<>(
                 Arrays.asList( new String[]{
-                        "/foo/Bar", "/foo/Bar_en", "/foo/Bar_en_US"
+                        "foo/Bar", "foo/Bar_en", "foo/Bar_en_US"
                         }
         )
         );
         
-        for( String s_path : pathList ) {
-            assertTrue( "Path was expected: " + s_path,
-                    expectedSet.contains( s_path ) );
+        for( String path : pathList ) {
+            assertTrue( "Path was expected: " + path,
+                    expectedSet.contains( path ) );
         }
     }
 }

@@ -3,6 +3,7 @@ package littleware.base;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import littleware.test.LittleTest;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
@@ -68,16 +69,15 @@ public class DynamicEnumTester {
                     TestEnum1.getMembers().size() == 2);
             assertTrue("Got 1 member of TestEnum2: " + TestEnum2.getMembers().size(),
                     TestEnum2.getMembers().size() == 1);
-            TestEnum1 n_member1 = TestEnum1.getMember("MEMBER1");
+            final TestEnum1 n_member1 = TestEnum1.getMember("MEMBER1");
             assertTrue("testEnum1.getMember got expected member: " + n_member1,
                     n_member1.equals(TestEnum1.MEMBER1));
-            TestEnum2 n_member2 = TestEnum2.getMember("MEMBER1");
+            final TestEnum2 n_member2 = TestEnum2.getMember("MEMBER1");
             assertTrue("testEnum2.getMember got expected member: " + n_member2,
                     n_member2.equals(TestEnum2.MEMBER1));
 
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Caught unexpected: " + e);
-            assertTrue("Caught unexpected: " + e, false);
+        } catch (Exception ex) {
+            LittleTest.handle(ex);
         }
     }
 }

@@ -35,6 +35,11 @@ public class SimpleAppFactory implements LittleBootstrap.Factory {
     @Override
     public <T> T lookup(Class<T> clazz) {
         if (! optActive.isPresent()) {
+            //
+            // This bootup process loops back and invokes setActiveRuntime ...
+            // Ensures this singleton is properly wired even if the session
+            // boots up via another code path ... kind of a crazy handshake
+            //
             return AppBootstrap.appProvider.get().build().bootstrap(clazz);
         }
         return optActive.get().getInstance(clazz);

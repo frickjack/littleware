@@ -1,28 +1,24 @@
-/*
- * Copyright 2010 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.base;
 
 import com.google.inject.Inject;
 import java.io.File;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
-import littleware.base.ZipUtil;
-import littleware.base.Whatever;
+import static junit.framework.TestCase.assertEquals;
 import littleware.base.feedback.Feedback;
+import littleware.test.LittleTest;
+import littleware.test.LittleTestRunner;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * Zip and unzip some test data
  */
-public class ZipUtilTester extends TestCase {
+@RunWith(LittleTestRunner.class)
+public class ZipUtilTester {
 
     private static final Logger log = Logger.getLogger(ZipUtilTester.class.getName());
     private final ZipUtil zipUtil;
@@ -31,29 +27,28 @@ public class ZipUtilTester extends TestCase {
 
     @Inject
     public ZipUtilTester(ZipUtil zipUtil, FileUtil fileUtil, Feedback fb) {
-        super("testZip");
         this.zipUtil = zipUtil;
         this.fileUtil = fileUtil;
         this.feedback = fb;
     }
 
-    private File testDir = new File( Whatever.Folder.Temp.getFolder(), "ZipUtilTester");
+    private final File testDir = new File( Whatever.Folder.Temp.getFolder(), "ZipUtilTester");
 
 
     /**
      * Setup a test folder
      */
-    @Override
+    @Before
     public void setUp() {
         try {
             fileUtil.buildTestTree( testDir );
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Failed setup", ex);
-            fail("Caught exception: " + ex);
+            LittleTest.handle(ex);
         }
     }
 
 
+    @Test
     public void testZip() {
         try {
             final File testZip = new File("ZipUtilTester.zip");
@@ -61,8 +56,7 @@ public class ZipUtilTester extends TestCase {
                 testZip.delete();
             }
             final File info = zipUtil.zip(testDir, testZip, feedback);
-            assertTrue("Got expected zip file",
-                    info.equals(testZip));
+            assertEquals("Got expected zip file", info, testZip);
             assertTrue("Zip file is not empty",
                     info.exists() && (info.length() > 0));
             // time to unzip
@@ -95,8 +89,7 @@ public class ZipUtilTester extends TestCase {
                     endDirCount == startDirCount + 1 // +1 for parent directory
                     );
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Test failed", ex);
-            fail("Caught exception: " + ex);
+            LittleTest.handle( ex );
         }
     }
 }

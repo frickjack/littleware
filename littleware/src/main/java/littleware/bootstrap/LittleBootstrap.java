@@ -75,5 +75,5 @@ public interface LittleBootstrap {
     /**
      * Handle for global Factory singleton
      */
-    public static Factory factory = SimpleAppFactory.getSingleton();
+    public static final Factory factory = SimpleAppFactory.getSingleton();
 }

@@ -1,9 +1,11 @@
 package littleware.base;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.io.ObjectStreamException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -20,28 +22,29 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Little data-bucket for tracking information for each subtype
      */
-    private static class SubtypeData<T extends DynamicEnum> {
+    private static class SubtypeData {
 
-        private final Map<UUID, T> idMap = new HashMap<>();
-        private final Map<String, T> nameMap = new HashMap<>();
+        private final Map<UUID, DynamicEnum> idMap = new HashMap<>();
+        private final Map<String, DynamicEnum> nameMap = new HashMap<>();
+        private final Class<? extends DynamicEnum> clazz;
 
-        public SubtypeData() {
+        public SubtypeData( Class<? extends DynamicEnum> clazz ) {
+            this.clazz = clazz;
         }
 
         /** Return member if it exists, else null */
-        public synchronized T getMember(String s_name) {
-            return nameMap.get(s_name);
+        public synchronized DynamicEnum getMember(String name) {
+            return nameMap.get(name);
         }
 
         /** Return member if it exists, else null */
-        public synchronized T getMember(UUID u_name) {
-            return idMap.get(u_name);
+        public synchronized DynamicEnum getMember(UUID id) {
+            return idMap.get(id);
         }
 
         /** Return set of all members registered */
-        public synchronized Set<T> getMembers() {
-            final Set<T> resultSet = new HashSet<>();
-            resultSet.addAll(idMap.values());
+        public synchronized ImmutableSet<DynamicEnum> getMembers() {
+            final ImmutableSet<DynamicEnum> resultSet = ImmutableSet.copyOf( idMap.values() );
             return resultSet;
         }
 
@@ -49,17 +52,17 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
          * Add the given type-object to the typemap if another
          * object hasn't already been registered with the given UUID.
          */
-        private synchronized void registerMemberIfNecessary(T member ) {
+        private synchronized void registerMemberIfNecessary(DynamicEnum member ) {
             if (!idMap.containsKey(member.getObjectId())) {
                 if( nameMap.containsKey(member.getName())) {
                     throw new IllegalArgumentException( "Dynamic enum member name not unique" + member.getName() );
                 }
-                idMap.put(member.getObjectId(), member);
-                nameMap.put(member.getName(), member);
+                idMap.put(member.getObjectId(), clazz.cast( member ) );
+                nameMap.put(member.getName(), clazz.cast( member ) );
             }
         }
     }
-    private static final Map<String, SubtypeData<? extends DynamicEnum>> subtypesByName = new HashMap<>();
+    private static final Map<String, SubtypeData> subtypesByName = new HashMap<>();
     private UUID id = null;
     private String name = null;
     private Class<T> clazz = null;
@@ -69,18 +72,18 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * object hasn't already been registered with the given UUID.
      */
     private void registerMemberIfNecessary(Class<T> clazz) {
-        SubtypeData<T> data;
+        SubtypeData data;
 
         synchronized (subtypesByName) {
-            data = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
+            data = subtypesByName.get ( clazz.getName () );
 
             if (null == data) {
                 log.log(Level.FINE, "Registering new new DynamicEnum type: {0}", clazz.getName());
-                data = new SubtypeData<>();
+                data = new SubtypeData( clazz );
                 subtypesByName.put(clazz.getName(), data);
             }
         }
-        data.registerMemberIfNecessary((T) this);
+        data.registerMemberIfNecessary( this );
     }
 
     /**
@@ -96,16 +99,16 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * @throws NoSuchThingException if type not registered
      */
     public static <T extends DynamicEnum> T getMember(UUID id, Class<T> clazz) throws NoSuchThingException {
-        final SubtypeData<T> subTypeData;
+        final SubtypeData subTypeData;
 
         synchronized (subtypesByName) {
-            subTypeData = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
+            subTypeData = subtypesByName.get ( clazz.getName () );
         }
 
         final T result;
 
         if (null != subTypeData) {
-            result = subTypeData.getMember(id);
+            result = clazz.cast( subTypeData.getMember(id) );
         } else { result = null; }
         if (null == result) {
             throw new NoSuchThingException( "No member with id: " + id );
@@ -117,16 +120,16 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
      * Lookup the registered enum meber by UUID.
      */
     public static <T extends DynamicEnum> Optional<T> getOptMember(String name, Class<T> clazz){
-        final SubtypeData<T> subtypeData;
+        final SubtypeData subtypeData;
 
         synchronized (subtypesByName) {
-            subtypeData = (SubtypeData<T>) subtypesByName.get ( clazz.getName () );
+            subtypeData = subtypesByName.get ( clazz.getName () );
         }
 
         final T result;
 
         if (null != subtypeData) {
-            result = subtypeData.getMember(name);
+            result = clazz.cast( subtypeData.getMember(name) );
         } else { result = null; }
         return Optional.ofNullable(result);
     }
@@ -147,16 +150,15 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Get the set of DynamicEnums that have been registered with the engine.
      */
-    public static <T extends DynamicEnum> Set<T> getMembers(Class<T> c_class) {
+    public static <T extends DynamicEnum> Set<T> getMembers(Class<T> clazz) {
         final SubtypeData subtypeData;
-
         synchronized (subtypesByName) {
-            subtypeData = subtypesByName.get(c_class.getName());
+            subtypeData = subtypesByName.get(clazz.getName());
         }
         if (null == subtypeData) {
             return Collections.emptySet();
         }
-        return subtypeData.getMembers();
+        return subtypeData.getMembers().stream().map( (entry) -> { return clazz.cast(entry); } ).collect( Collectors.toSet() );
     }
 
     /**

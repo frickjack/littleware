@@ -1,10 +1,3 @@
-/*
- * Copyright 2012 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.base.feedback.internal;
 
 import com.google.common.base.Function;
@@ -63,13 +56,7 @@ public class SimpleTaskFactory implements TaskFactory {
     @Override
     public <T> TaskHandle<T> launchTask(final Function<Feedback, T> func) {
         final Feedback fb = fbFactory.get();
-        return new SimpleHandle(fb,
-                exec.submit(
-                new Callable<T>() {
-                    @Override
-                    public T call() {
-                        return func.apply(fb);
-                    }
-                }), func);
+        return new SimpleHandle<>(fb,
+                exec.submit(() -> func.apply(fb)), func);
     }
 }

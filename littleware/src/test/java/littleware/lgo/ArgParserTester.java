@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.lgo.AbstractLgoBuilder;
 import littleware.test.LittleTest;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  * Test AbstractLgoCommand.parseArg
@@ -17,6 +16,7 @@ public class ArgParserTester {
     private static final Logger log = Logger.getLogger(ArgParserTester.class.getName());
 
 
+    @Test
     public void testParser() {
         final Map<String, String> mapDefault = new HashMap<>();
         for (int i = 0; i < 10; ++i) {

@@ -1,13 +1,3 @@
-/*
- * Copyright 2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.base;
 
 
@@ -22,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -156,38 +147,37 @@ public class XmlResourceBundle extends ResourceBundle {
      * Caller probably needs to add an extention if looking for a file.
      * Ex: getResourcePaths( "foo.Bar", new Locale( "en", "US" ), "POSIX" );
      * returns:
-     *     [ "/foo/Bar_en_US_POSIX", "/foo/Bar_en_US", "/foo/Bar_en", "/foo/Bar" ]
+     *     [ "foo/Bar_en_US_POSIX", "foo/Bar_en_US", "foo/Bar_en", "foo/Bar" ]
      * 
-     * @param s_basename class to get search paths for
+     * @param baseName class to get search paths for
      * @param locale defaults to Locale.getDefault if null
-     * @param s_variant may be null
      * @return search paths
      */
-    public static List<String> getResourcePaths( String s_basename, Locale locale ) {
-        final List<String> v_result = new ArrayList<String> ();
+    public static List<String> getResourcePaths( String baseName, Locale locale ) {
+        final List<String> v_result = new ArrayList<> ();
         
         if ( null == locale ) {
             locale = Locale.getDefault();
         }
-        final String s_variant = locale.getVariant ();
-        final List<String> v_tokens = new ArrayList();
-        v_tokens.addAll (
+        final String variant = locale.getVariant ();
+        final List<String> tokenList = new ArrayList<>();
+        tokenList.addAll (
             Arrays.asList( new String[]{
-                s_basename, 
+                baseName.replaceAll("(\\.|/)+", "/" ), 
                 "_" + locale.getLanguage(), 
                 "_" + locale.getCountry()
             }
             )
             );
-        if ( null != s_variant ) {
-            v_tokens.add ( "_" + s_variant );
+        if ( null != variant && ! variant.isEmpty() ) {
+            tokenList.add ( "_" + variant );
         }
-        for( int i=0; i < v_tokens.size(); ++i ) {
-            String s_result = v_tokens.get( 0 );
-            for ( int j=1; j < v_tokens.size () - i; ++j ) {
-                s_result += v_tokens.get( j );                
+        for( int i=0; i < tokenList.size(); ++i ) {
+            String entryPath = tokenList.get( 0 );
+            for ( int j=1; j < tokenList.size () - i; ++j ) {
+                entryPath += tokenList.get( j );                
             }
-            v_result.add( s_result );
+            v_result.add( entryPath );
         }
         return v_result;
     }

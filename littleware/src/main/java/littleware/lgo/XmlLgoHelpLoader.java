@@ -155,7 +155,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                         os_full_name = s_full_name;                        
                     } else {
                         os_full_name = os_not_loaded;
-                        log.log( Level.WARNING, "XML help file does not have fullname attribute set on root help:help element: " + filePath );
+                        log.log(Level.WARNING, "XML help file does not have fullname attribute set on root help:help element: {0}", filePath);
                     }               
                 } else if ( s_simple.equals( XmlTag.example.toString() ) ) {
                     String s_title = v_attrs.getValue( "", "title" );
@@ -163,7 +163,7 @@ public class XmlLgoHelpLoader implements LgoHelpLoader {
                         os_example_title = s_title;
                     } else {
                         os_example_title = os_not_loaded;
-                        log.log( Level.WARNING, "XML help file does not have title attribute set on help:example element: " + filePath );
+                        log.log(Level.WARNING, "XML help file does not have title attribute set on help:example element: {0}", filePath);
                     }
                 }
             }            

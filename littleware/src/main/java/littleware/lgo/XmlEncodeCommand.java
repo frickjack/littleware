@@ -21,7 +21,7 @@ import littleware.base.feedback.Feedback;
 /**
  * XML encode/decode LgoCommand
  */
-public class XmlEncodeCommand extends AbstractLgoBuilder<String> {
+public final class XmlEncodeCommand extends AbstractLgoBuilder<String> {
 
     private static final Logger log = Logger.getLogger(XmlEncodeCommand.class.getName());
 
@@ -52,7 +52,7 @@ public class XmlEncodeCommand extends AbstractLgoBuilder<String> {
      * and the command-help property to the supplied help object.
      */
     public XmlEncodeCommand() {
-        super(XmlEncodeCommand.class.getName());
+        super(XmlEncodeCommand.class.getName(), String.class );
     }
 
 }

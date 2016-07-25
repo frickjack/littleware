@@ -5,9 +5,13 @@ import com.google.inject.Inject;
 import java.util.Optional;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.test.LittleTest;
+import littleware.test.LittleTestRunner;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+
+@RunWith(LittleTestRunner.class)
 public class BootstrapTester {
     private final LittleBootstrap boot;
 
@@ -60,6 +64,7 @@ public class BootstrapTester {
     /**
      * Verify semantics of child session builders ...
      */
+    @Test
     public void testSessionSemantics() {
         try {
             final String label1 = buildSession("1").startSession(String.class);

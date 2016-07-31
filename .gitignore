@@ -11,6 +11,7 @@ target/
 *.old
 *.bak
 *.swp
+*.log
 /littleware/.nb-gradle/
 /littleAsset/.nb-gradle/
 /.nb-gradle/

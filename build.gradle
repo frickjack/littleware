@@ -38,6 +38,7 @@ project( ':littleware' ) {
         compile 'org.apache.derby:derbyclient:10.12.1.1'
         compile 'org.postgresql:postgresql:9.4.1208.jre7'
         compile 'mysql:mysql-connector-java:5.1.39'
+        compile 'org.javasimon:javasimon-core:4.1.0'
     }
 }
 

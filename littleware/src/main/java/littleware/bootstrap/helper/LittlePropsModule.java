@@ -14,6 +14,7 @@ import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
+import littleware.db.DbGuice;
 
 /**
  * Module sets up PropertiesGuice() bindings from littleware.properties
@@ -38,7 +39,7 @@ public class LittlePropsModule extends AbstractAppModule {
     public void configure( Binder binder ) {
         try {
             log.log( Level.FINE, "Configuring LittlePropsModule ..." );
-            PropertiesGuice.build().configure(binder);
+            DbGuice.build().configure(binder);
             binder.bind( ZipUtil.class ).to( SimpleZipUtil.class ).in( Scopes.SINGLETON );
             binder.bind( UUID.class ).toProvider( UUIDFactory.class );
             binder.bind( UUIDFactory.class ).in( Scopes.SINGLETON );

@@ -75,6 +75,7 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            // TODO - inject JavaSimon monitoring
             return method.invoke(dsource, args);
         }
 
@@ -112,7 +113,8 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
                 data.setDatabaseName ( match.group(3) );
                 return new Handler(data,url);
             } else {
-                org.apache.derby.jdbc.EmbeddedDataSource data = new org.apache.derby.jdbc.EmbeddedDataSource();
+                // TODO: define derby.system.home: https://db.apache.org/derby/docs/10.0/manuals/develop/develop12.html#HDRSII-DEVELOP-13018
+                final org.apache.derby.jdbc.EmbeddedDataSource data = new org.apache.derby.jdbc.EmbeddedDataSource();
                 data.setDatabaseName(url.substring("jdbc:derby:".length()));
                 return new Handler(data, url);
             }

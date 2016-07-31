@@ -20,7 +20,7 @@ import org.junit.runner.RunWith;
 public class ConnectionFactoryTester {
 
     private static final Logger log = Logger.getLogger(ConnectionFactoryTester.class.getName());
-    private static final String TEST_QUERY = "SELECT 'hello' FROM asset";
+    private static final String TEST_QUERY = "SELECT 'hello', COUNT(*) FROM junitTestTable";
 
     private final DataSource dsource;
     private final DataSourceHandler proxyHandler;
@@ -48,6 +48,12 @@ public class ConnectionFactoryTester {
     public void testQuery() {
         try (Connection conn = dsource.getConnection()) {
             try (Statement stmt = conn.createStatement()) {
+                try {
+                    stmt.execute( "CREATE TABLE junitTestTable ( pk INTEGER )" );
+                } catch (SQLException ex ){
+                    // eat exception if table already exists
+                    log.log( Level.INFO, "Ignoring exception on test table creation", ex );
+                }
                 try (ResultSet rset = stmt.executeQuery(TEST_QUERY)) {
 
                     assertTrue("Resultset not empty from test query: " + TEST_QUERY,
@@ -56,7 +62,7 @@ public class ConnectionFactoryTester {
                             "Hello".equalsIgnoreCase(rset.getString(1))
                     );
                     log.log(Level.INFO, "Test query worked, got: {0}", rset.getString(1));
-                }
+                } 
             }
         } catch (Exception ex) {
             LittleTest.handle(ex);

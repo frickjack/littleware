@@ -1,22 +1,15 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client.internal;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
 import java.beans.PropertyChangeListener;
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.Optional;
+import java.util.function.Supplier;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetLibrary;
 
@@ -26,8 +19,6 @@ import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.spi.AbstractAsset;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.event.LittleEvent;
 import littleware.base.event.LittleListener;
 import littleware.base.event.helper.SimpleLittleTool;
@@ -94,7 +85,7 @@ public class SimpleAssetLibrary
             if (asset.getAssetType().isNameUnique()) {
                 for (AssetType atype = asset.getAssetType();
                         (atype != null) && atype.isNameUnique();
-                        atype = (AssetType) atype.getSuperType().getOr(null)) {
+                        atype = (AssetType) atype.getSuperType().orElse(null)) {
                     nameMap.invalidate(atype.toString() + "/" + asset.getName());
                 }
             }
@@ -130,21 +121,20 @@ public class SimpleAssetLibrary
         if( null != asset.getToId() ) {
             neighbors.add( asset.getToId() );
         }
-        for( UUID neighborId : asset.getLinkMap().values() ) {
+        asset.getLinkMap().values().stream().forEach((neighborId) -> {
             neighbors.add( neighborId );
-        }
-        for( UUID neighborId : neighbors ) {
+        });
+        neighbors.stream().map((neighborId) -> {
             if ( (null != neighborId) && (! alreadyNotified.contains( neighborId ) ) ) {
                 alreadyNotified.add( neighborId );
             }
-            final SimpleAssetRef neighbor = cache.getIfPresent(neighborId);
-            if (null != neighbor) {
-                neighbor.fireLittleEvent(
-                        new AssetActionEvent(neighbor,
-                        AssetRef.Operation.assetsLinkingTo,
-                        parentEvent));
-            }
-        }
+            return neighborId;
+        }).map((neighborId) -> cache.getIfPresent(neighborId)).filter((neighbor) -> (null != neighbor)).forEach((neighbor) -> {
+            neighbor.fireLittleEvent(
+                    new AssetActionEvent(neighbor,
+                            AssetRef.Operation.assetsLinkingTo,
+                            parentEvent));
+        });
         return alreadyNotified;
     }
 
@@ -168,9 +158,9 @@ public class SimpleAssetLibrary
     /**
      * Simple implementation of AssetRef interface
      */
-    private static class SimpleAssetRef implements AssetRef {
+    private static final class SimpleAssetRef implements AssetRef {
 
-        private Option<Asset> asset = Options.empty();
+        private Optional<Asset> asset = Optional.empty();
         private final SimpleLittleTool eventSupport = new SimpleLittleTool(this);
         private final SimpleAssetLibrary library;
 
@@ -178,7 +168,7 @@ public class SimpleAssetLibrary
          * Constructor associates an asset
          */
         public SimpleAssetRef(Asset asset, SimpleAssetLibrary library) {
-            this.asset = Options.some( asset );
+            this.asset = Optional.ofNullable( asset );
             this.library = library;
             ValidationException.validate( asset != null, "Must reference non-null asset");
         }
@@ -188,6 +178,8 @@ public class SimpleAssetLibrary
             return asset.get();
         }
 
+        @Override
+        public Optional<Asset> asOptional() { return asset; }
 
         /**
          * Call out to SimpleAssetLibrary.sycnAsset to
@@ -197,18 +189,19 @@ public class SimpleAssetLibrary
         public Asset syncAsset(Asset newAsset) {
             log.log(Level.FINE, "Syncing: {0}", newAsset);
 
-            if ((null == newAsset) || (asset.getOr(null) == newAsset)) {
+            if ((null == newAsset) || (asset.orElse(null) == newAsset)) {
                 return newAsset;
             }
-            if ( asset.isEmpty() ) {
-                asset = Options.some(newAsset);
+            if ( ! asset.isPresent() ) {
+                asset = Optional.of(newAsset);
             }
+            // Ignore the sync if we already have an asset with a newer timestamp
             if ( newAsset.getTimestamp() <= asset.get().getTimestamp() ) {
                 return asset.get();
             }
             // this call syncs a_new with oa_data
             final Asset oldAsset = asset.get();
-            asset = Options.some(newAsset );
+            asset = Optional.of(newAsset );
 
             if ( ! oldAsset.getName().equals( newAsset.getName() )) {
                 library.nameMap.invalidate( library.nameKey( oldAsset ) );
@@ -220,7 +213,7 @@ public class SimpleAssetLibrary
                     this, AssetRef.Operation.assetUpdated
                     );
             eventSupport.fireLittleEvent( event );
-            library.notifyNeighbors( (AbstractAsset) newAsset, event, new HashSet<UUID>() );
+            library.notifyNeighbors( (AbstractAsset) newAsset, event, new HashSet<>() );
             return asset.get();
         }
 
@@ -267,9 +260,8 @@ public class SimpleAssetLibrary
             return this;
         }
 
-        @Override
         public void clear() {
-            asset = Options.empty();
+            asset = Optional.empty();
             final AssetActionEvent event = new AssetActionEvent(
                     this, AssetRef.Operation.assetDeleted
                     );
@@ -298,7 +290,7 @@ public class SimpleAssetLibrary
 
 
         @Override
-        public boolean isSet() {
+        public boolean isPresent() {
             return true;
         }
 
@@ -308,40 +300,24 @@ public class SimpleAssetLibrary
         }
 
         @Override
-        public Asset getOr(Asset t) {
-            return asset.getOr( t );
+        public Asset orElse(Asset t) {
+            return asset.orElse( t );
         }
 
         @Override
-        public Asset getOrCall(Callable<Asset> clbl) throws Exception {
-            return asset.getOrCall( clbl );
+        public Asset orElseGet(Supplier<Asset> clbl) throws Exception {
+            return asset.orElseGet( clbl );
         }
 
 
-        @Override
         public Asset getRef() {
             return asset.get();
         }
 
         @Override
-        public Iterator<Asset> iterator() {
-            return asset.iterator();
+        public Asset orElseThrow( Supplier<? extends Throwable> re ) {
+          return asset.orElseThrow(re);
         }
-
-    @Override
-    public boolean nonEmpty() {
-      return ! isEmpty();
-    }
-
-    @Override
-    public Asset getOrThrow(RuntimeException re) {
-      return asset.getOrThrow(re);
-    }
-
-    @Override
-    public Asset getOrThrow(Exception excptn) throws Exception {
-      return asset.getOrThrow( excptn );
-    }
 
     }
 }

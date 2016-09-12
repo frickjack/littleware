@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
-import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 
 /**
@@ -35,7 +34,7 @@ public class RestSearchMgrProxy implements RemoteSearchMgrProxy {
         try {
             homeIdURL = new URL("http://" + host + ":1238/littleware/services/search/roots/all");
         } catch (MalformedURLException ex) {
-            throw new AssertionFailedException( "Failed to initialize REST URL", ex );
+            throw new IllegalStateException( "Failed to initialize REST URL", ex );
         }
     }
 

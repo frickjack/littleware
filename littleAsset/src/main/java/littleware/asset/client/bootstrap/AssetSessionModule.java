@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client.bootstrap;
 
 import com.google.inject.Binder;
@@ -13,6 +6,7 @@ import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,9 +25,6 @@ import littleware.asset.client.internal.SimpleSearchService;
 import littleware.asset.client.internal.SimpleServiceBus;
 import littleware.asset.client.spi.ClientCache;
 import littleware.asset.client.spi.LittleServiceBus;
-import littleware.base.AssertionFailedException;
-import littleware.base.Option;
-import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.SessionModule;
 import littleware.bootstrap.SessionModuleFactory;
@@ -64,10 +55,8 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
             final UUID id = chain.getDefaultSessionId().get();
             log.log(Level.FINE, "Loading session: {0}", id);
             return search.getAsset(chain.getDefaultSessionId().get()).get().narrow();
-        } catch (RuntimeException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new AssertionFailedException("Failed to load default session", ex);
+            throw new IllegalStateException("Failed to load default session", ex);
         }
     }
 
@@ -77,16 +66,14 @@ public class AssetSessionModule implements littleware.bootstrap.SessionModule {
     public LittleUser provideUser(Provider<LittleSession> sessionProvider, AssetSearchManager search) {
         try {
             return search.getAsset(sessionProvider.get().getOwnerId()).get().narrow();
-        } catch (RuntimeException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new AssertionFailedException("Failed to load session owner", ex);
+            throw new IllegalStateException("Failed to load session owner", ex);
         }
     }
 
     @Override
-    public Option<Class<Runnable>> getSessionStarter() {
-        return Options.empty();
+    public Optional<Class<Runnable>> getSessionStarter() {
+        return Optional.empty();
     }
 
     /*

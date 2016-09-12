@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client;
 
 import com.google.common.collect.ImmutableList;
@@ -26,11 +19,7 @@ import littleware.base.NoSuchThingException;
 import littleware.security.AccessDeniedException;
 
 /**
- * Asset-search interface.  Searches the local server database only.
- * Does not extends Remote so we have the option of
- * sending cilents serializable proxies, but every method
- * does throw RemoteException so this interface is
- * ready for a Remote mixin.
+ * Interface for read-only interactions with the distributed asset repository
  */
 public interface AssetSearchManager extends Remote {
 

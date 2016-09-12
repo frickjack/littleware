@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client.internal;
 
 import com.google.common.collect.ImmutableList;
@@ -13,9 +6,7 @@ import com.google.inject.Inject;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -23,7 +14,6 @@ import littleware.asset.AssetType;
 import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
-import littleware.base.Option;
 
 public class InMemorySearchMgrProxy implements RemoteSearchMgrProxy {
 
@@ -79,6 +69,6 @@ public class InMemorySearchMgrProxy implements RemoteSearchMgrProxy {
 
     @Override
     public InfoMapResult getAssetIdsTo(UUID sessionId, UUID toId, AssetType type, long cacheTimestamp, int sizeInCache) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
-        return getAssetIdsTo( sessionId, toId, type, cacheTimestamp, sizeInCache );
+        return delegate.getAssetIdsTo( sessionId, toId, type, cacheTimestamp, sizeInCache );
     }
 }

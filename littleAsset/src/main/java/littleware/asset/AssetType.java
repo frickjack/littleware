@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset;
 
 import java.util.*;
@@ -37,13 +30,13 @@ public class AssetType extends DynamicEnum<AssetType> {
 
     private static final long serialVersionUID = 1111142L;
     private static final Logger log = Logger.getLogger(AssetType.class.getName());
-    private static final Map<AssetType, Set<AssetType>> subtypeIndex = new HashMap<AssetType, Set<AssetType>>();
+    private static final Map<AssetType, Set<AssetType>> subtypeIndex = new HashMap<>();
 
     private static void updateSubtypes(AssetType newType) {
         synchronized (subtypeIndex) {
-            subtypeIndex.put(newType, new HashSet<AssetType>());
-            for (AssetType parent = newType.getSuperType().getOr(null); null != parent;
-                    parent = parent.getSuperType().getOr(null)) {
+            subtypeIndex.put(newType, new HashSet<>());
+            for (AssetType parent = newType.getSuperType().orElse(null); null != parent;
+                    parent = parent.getSuperType().orElse(null)) {
                 subtypeIndex.get(parent).add(newType);
             }
         }
@@ -61,7 +54,7 @@ public class AssetType extends DynamicEnum<AssetType> {
         }
     }
     
-    private Option<AssetType> superType = Options.empty();
+    private Optional<AssetType> superType = Optional.empty();
 
     /**
      * Do-nothing constructor intended for deserialization only.
@@ -83,7 +76,7 @@ public class AssetType extends DynamicEnum<AssetType> {
 
     public AssetType(UUID typeId, String typeName, AssetType superType) {
         super(typeId, typeName, AssetType.class);
-        this.superType = Options.some(superType);
+        this.superType = Optional.ofNullable(superType);
         updateSubtypes( this );
     }
 
@@ -114,7 +107,7 @@ public class AssetType extends DynamicEnum<AssetType> {
      *          set of assets of this type within a single littleware asset repository.
      */
     public boolean isNameUnique() {
-        return (getSuperType().isEmpty()) ? false : getSuperType().get().isNameUnique();
+        return (getSuperType().isPresent()) ? getSuperType().get().isNameUnique() : false;
     }
     
     /**
@@ -132,7 +125,7 @@ public class AssetType extends DynamicEnum<AssetType> {
      *
      * @return super-type, or null if no super-type (this implementation returns null)
      */
-    public final Option<AssetType> getSuperType() {
+    public final Optional<AssetType> getSuperType() {
         return superType;
     }
 
@@ -150,8 +143,8 @@ public class AssetType extends DynamicEnum<AssetType> {
         }
 
         // climb this assset's inheritance tree, cache the result
-        for (Option<AssetType> maybe = Options.some((AssetType) this);
-                maybe.isSet();
+        for (Optional<AssetType> maybe = Optional.of((AssetType) this);
+                maybe.isPresent();
                 maybe = maybe.get().getSuperType()) {
             if (maybe.get().equals(atype_other)) {
                 return true;
@@ -166,7 +159,7 @@ public class AssetType extends DynamicEnum<AssetType> {
      *         (null == getSuperType()) ? false : getSuperType ().isAdminToCreate ()
      */
     public boolean isAdminToCreate() {
-        return (getSuperType().isEmpty()) ? false : getSuperType().get().isAdminToCreate();
+        return (getSuperType().isPresent()) ? getSuperType().get().isAdminToCreate() : false;
     }
     /**
      * UNKNOWN asset-type - place holder for asset-types that we don't have a handler for.

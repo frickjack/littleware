@@ -1,14 +1,7 @@
-/*
- * Copyright 2011
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.spi;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -17,39 +10,35 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.cache.AbstractCacheableObject;
 import littleware.base.validate.ValidationException;
 
-public abstract class AbstractAsset extends AbstractCacheableObject implements Serializable {
+public abstract class AbstractAsset extends AbstractCacheableObject {
     private static final Logger log = Logger.getLogger( AbstractAsset.class.getName() );
     
-    private UUID homeId;
-    private UUID ownerId;
-    private UUID fromId;
-    private UUID toId;
-    private UUID aclId;
-    private String name;
-    private Integer state;
-    private Date createDate;
-    private Date endDate;
-    private Date startDate;
-    private UUID creatorId;
-    private String comment;
-    private Date lastUpdateDate;
-    private UUID lastUpdaterId;
-    private String lastUpdate;
-    private AssetType type;
-    private Float value;
-    private String data;
-    private Map<String, String> attributeMap;
-    private Map<String, Date> dateMap;
-    private Map<String, UUID> linkMap;
+    private final UUID homeId;
+    private final UUID ownerId;
+    private final UUID fromId;
+    private final UUID toId;
+    private final UUID aclId;
+    private final String name;
+    private final int state;
+    private final Date createDate;
+    private final Date endDate;
+    private final Date startDate;
+    private final UUID creatorId;
+    private final String comment;
+    private final Date lastUpdateDate;
+    private final UUID lastUpdaterId;
+    private final String lastUpdate;
+    private final AssetType type;
+    private final float value;
+    private final String data;
+    private final ImmutableMap<String, String> attributeMap;
+    private final ImmutableMap<String, Date> dateMap;
+    private final ImmutableMap<String, UUID> linkMap;
 
-    protected AbstractAsset() {
-    }
-
+    
     public AbstractAsset(AssetType type, UUID id, UUID homeId, UUID ownerId, UUID fromId, UUID toId, UUID aclId, long timestamp, String name, Integer state, Date createDate, UUID creatorId, String comment, Date lastUpdateDate, UUID lastUpdaterId, String lastUpdate, Date startDate, Date endDate, Float value, String data, ImmutableMap<String, String> attributeMap, ImmutableMap<String, Date> dateMap, ImmutableMap<String, UUID> linkMap) {
         super(id, timestamp);
         this.type = type;
@@ -231,24 +220,24 @@ public abstract class AbstractAsset extends AbstractCacheableObject implements S
         return linkMap;
     }
 
-    public Option<UUID> getLink(String key) {
-        return Options.some(linkMap.get(key));
+    public Optional<UUID> getLink(String key) {
+        return Optional.fromNullable(linkMap.get(key));
     }
 
     public Map<String, Date> getDateMap() {
         return dateMap;
     }
 
-    public Option<Date> getDate(String key) {
-        return Options.some(dateMap.get(key));
+    public Optional<Date> getDate(String key) {
+        return Optional.fromNullable(dateMap.get(key));
     }
 
-    public Map<String, String> getAttributeMap() {
+    public ImmutableMap<String, String> getAttributeMap() {
         return attributeMap;
     }
 
-    public Option<String> getAttribute(String key) {
-        return Options.some(attributeMap.get(key));
+    public Optional<String> getAttribute(String key) {
+        return Optional.fromNullable(attributeMap.get(key));
     }
 
     @Override

@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.client;
 
 import java.util.*;
@@ -22,9 +14,9 @@ import littleware.security.AccessDeniedException;
 
 
 /**
- * Interface for saving assets.
+ * Interface for interacting with the distributed asset repository.
  */
-public interface AssetManager extends Remote {
+public interface AssetManager extends AssetSearchManager {
 
     /**
      * Delete the specified asset 
@@ -78,4 +70,5 @@ public interface AssetManager extends Remote {
     public Collection<Asset> saveAssetsInOrder(Collection<Asset> v_assets,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException, RemoteException;
+    
 }

@@ -1,17 +1,9 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.UUIDFactory;
 
 /**
@@ -63,7 +55,7 @@ public interface GenericAsset extends TreeNode {
     /**
      * Shortcut for Options.emtpyIfNull( getLinks().get( name ) )
      */
-    public Option<UUID> getLink(String key);
+    public Optional<UUID> getLink(String key);
 
     /**
      * Index of supplemental date info associated with this node
@@ -73,7 +65,7 @@ public interface GenericAsset extends TreeNode {
     /**
      * Shortcut for Options.emtpyIfNull( getDates().get( name ) )
      */
-    public Option<Date> getDate(String key);
+    public Optional<Date> getDate(String key);
 
     /**
      * Get user-supplied attributes attached to this node
@@ -81,9 +73,9 @@ public interface GenericAsset extends TreeNode {
     public Map<String, String> getAttributeMap();
 
     /**
-     * Shortcut for Options.some( getUserAttributes().get( name ) )
+     * Shortcut for Optionals.some( getUserAttributes().get( name ) )
      */
-    public Option<String> getAttribute(String key);
+    public Optional<String> getAttribute(String key);
     
     @Override
     public GenericBuilder copy();

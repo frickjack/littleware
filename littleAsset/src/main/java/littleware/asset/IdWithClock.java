@@ -1,15 +1,8 @@
-/*
- * Copyright 2009 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset;
 
+import java.util.Optional;
 import java.util.UUID;
-import littleware.base.Option;
+
 
 /**
  * Little POJO returned by AssetSearchManager.checkTransactionLog
@@ -32,6 +25,6 @@ public interface IdWithClock {
      * A client that is not tracking id may still chose to load
      * id if the client is tracking id's parent.
      */
-    public Option<UUID> getParentId();
+    public Optional<UUID> getParentId();
     public long getTimestamp();
 }

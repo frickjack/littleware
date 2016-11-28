@@ -1,14 +1,13 @@
 package littleware.asset.client;
 
 
-
-import com.google.common.base.Supplier;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import littleware.asset.Asset;
 import littleware.base.LittleReference;
 import littleware.base.cache.CacheableObject;

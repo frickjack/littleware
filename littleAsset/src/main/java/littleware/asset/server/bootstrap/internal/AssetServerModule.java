@@ -15,6 +15,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.*;
@@ -38,18 +39,14 @@ import littleware.asset.server.internal.SimpleSearchManager;
 import littleware.security.server.internal.SimpleQuotaUtil;
 import littleware.asset.server.internal.SimpleSpecializerRegistry;
 import littleware.asset.server.db.DbAssetManager;
-import littleware.base.AssertionFailedException;
-import littleware.base.Options;
 import littleware.base.PropertiesGuice;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.asset.server.internal.RmiAssetManager;
 import littleware.asset.server.internal.RmiSearchManager;
 import littleware.asset.server.internal.SimpleContextFactory;
-import littleware.base.Option;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleModule;
-import littleware.net.LittleRemoteObject;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
 import littleware.security.LittleGroup;
@@ -90,15 +87,18 @@ public class AssetServerModule extends AbstractServerModule {
         try {
             PropertiesGuice.build().configure(binder);
         } catch (IOException ex) {
-            throw new AssertionFailedException("Failed to access littleware.properties file", ex);
+            throw new IllegalStateException("Failed to access littleware.properties file", ex);
         }
     }
 
+    /**
+     * Server lifecycle listener - should register/unregister with service registries ...
+     */
     public static class Activator implements LifecycleCallback {
 
         private final int registryPort;
         private boolean localRegistry = false;
-        private Option<Registry> maybeRegistry;
+        private Optional<Registry> maybeRegistry;
         private final RemoteSessionManager sessionMgr;
         private final RemoteAssetManager assetMgr;
         private final RemoteSearchManager searchMgr;
@@ -153,7 +153,7 @@ public class AssetServerModule extends AbstractServerModule {
                     Registry rmi_registry;
                     try {
                         log.log(Level.INFO, "Looking for RMI registry on port: {0}", port);
-                        rmi_registry = LocateRegistry.createRegistry(port, LittleRemoteObject.getClientSockFactory(), LittleRemoteObject.getServerSockFactory() );
+                        rmi_registry = null; //LocateRegistry.createRegistry(port, LittleRemoteObject.getClientSockFactory(), LittleRemoteObject.getServerSockFactory() );
                         localRegistry = true;
                     } catch (Exception ex) {
                         log.log(Level.SEVERE, "Failed to start RMI registry on port " + port
@@ -161,7 +161,7 @@ public class AssetServerModule extends AbstractServerModule {
 
                         rmi_registry = LocateRegistry.getRegistry(port);
                     }
-                    maybeRegistry = Options.some(rmi_registry);
+                    maybeRegistry = Optional.ofNullable(rmi_registry);
 
                     /**
                      * Need to wrap session manager with an invocation handler,
@@ -172,13 +172,14 @@ public class AssetServerModule extends AbstractServerModule {
                      * Publish the reference in the Naming Service using JNDI API
                      * Context jndi_context = new InitialContext();
                      * jndi_context.rebind("/littleware/SessionManager", om_session );
-                     */
+                     *
                     log.log( Level.INFO, "Binding " + RemoteSessionManager.LOOKUP_PATH );
                     rmi_registry.rebind( RemoteSessionManager.LOOKUP_PATH, sessionMgr);
                     log.log( Level.INFO, "Binding " + RemoteAssetManager.LOOKUP_PATH );
                     rmi_registry.rebind( RemoteAssetManager.LOOKUP_PATH, assetMgr );
                     log.log( Level.INFO, "Binding " + RemoteSearchManager.LOOKUP_PATH );
                     rmi_registry.rebind( RemoteSearchManager.LOOKUP_PATH, searchMgr );
+                    */
                 } else {
                     log.log(Level.INFO, "Not exporing RMI registry - port set to: {0}", port);
                 }
@@ -194,7 +195,7 @@ public class AssetServerModule extends AbstractServerModule {
 
         @Override
         public void shutDown(){
-            if (maybeRegistry.isSet()) {
+            if (maybeRegistry.isPresent()) {
                 try {
                     final Registry reg = maybeRegistry.get();
                     reg.unbind("littleware/SessionManager");
@@ -210,8 +211,8 @@ public class AssetServerModule extends AbstractServerModule {
     }
 
     @Override
-    public Option<Class<Activator>> getCallback() {
-        return Options.some( Activator.class );
+    public Optional<Class<Activator>> getCallback() {
+        return Optional.of( Activator.class );
     }
 
 

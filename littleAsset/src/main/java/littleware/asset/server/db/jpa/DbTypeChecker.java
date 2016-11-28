@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db.jpa;
 
 import com.google.common.collect.ImmutableList;
@@ -59,7 +52,7 @@ public class DbTypeChecker implements DbWriter<AssetType> {
                 }
             }
             // Finally, verify super type
-            if (assetType.getSuperType().isSet()) {
+            if (assetType.getSuperType().isPresent()) {
                 final ImmutableList.Builder<AssetTypeEntity> builder = ImmutableList.builder();
                 saveAssetType(assetType.getSuperType().get(),
                         builder.addAll(entity.getSubtypeList()).add(entity).build());

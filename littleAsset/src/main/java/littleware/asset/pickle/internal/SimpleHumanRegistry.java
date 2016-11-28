@@ -1,13 +1,3 @@
-/*
- * Copyright 2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.pickle.internal;
 
 import com.google.inject.Provider;
@@ -37,10 +27,10 @@ import littleware.base.BaseException;
 @Singleton
 public class SimpleHumanRegistry implements HumanPicklerProvider {
 
-    private final Map<AssetType,Provider<? extends AssetHumanPickler>> omapType2Provider =
-            new HashMap<AssetType,Provider<? extends AssetHumanPickler>>();
+    private final Map<AssetType,Provider<? extends AssetHumanPickler>> type2ProviderMap =
+            new HashMap<>();
 
-    private final Provider<? extends AssetHumanPickler> oprovideDefault;
+    private final Provider<? extends AssetHumanPickler> defaultProvider;
 
     /**
      * Inject a default pickler factory that handles every asset
@@ -49,10 +39,10 @@ public class SimpleHumanRegistry implements HumanPicklerProvider {
      * @param provideDefault
      */
     public SimpleHumanRegistry( Provider<? extends AssetHumanPickler> provideDefault ) {
-        oprovideDefault = provideDefault;
-        if ( oprovideDefault instanceof HumanPicklerProvider ) {
+        defaultProvider = provideDefault;
+        if ( defaultProvider instanceof HumanPicklerProvider ) {
             throw new IllegalArgumentException( "Invalid default provider has class: " +
-                    oprovideDefault.getClass() );
+                    defaultProvider.getClass() );
         }
     }
 
@@ -60,14 +50,7 @@ public class SimpleHumanRegistry implements HumanPicklerProvider {
      * Just set default pickle provider to supply SimpleHumanPickler
      */
     public SimpleHumanRegistry() {
-        oprovideDefault = new Provider<SimpleHumanPickler>() {
-
-            @Override
-            public SimpleHumanPickler get() {
-                return new SimpleHumanPickler();
-            }
-
-        };
+        defaultProvider = () -> new SimpleHumanPickler();
     }
     /**
      * Plugin a special pickler for a speicific asset type.
@@ -82,7 +65,7 @@ public class SimpleHumanRegistry implements HumanPicklerProvider {
             Provider<? extends AssetHumanPickler> provideSpecial
             )
     {
-        omapType2Provider.put(atype, provideSpecial );
+        type2ProviderMap.put(atype, provideSpecial );
     }
 
     /**
@@ -100,12 +83,12 @@ public class SimpleHumanRegistry implements HumanPicklerProvider {
             Provider<? extends AssetHumanPickler> provider = null;
             for ( AssetType atype = x.getAssetType();
                   (null == provider) && (atype != null);
-                  atype = atype.getSuperType().getOr(null)
+                  atype = atype.getSuperType().orElse(null)
                   ) {
-                provider = omapType2Provider.get( atype );
+                provider = type2ProviderMap.get( atype );
             }
             if ( null == provider ) {
-                provider = oprovideDefault;
+                provider = defaultProvider;
             }
             provider.get().pickle(x, writer);
         }

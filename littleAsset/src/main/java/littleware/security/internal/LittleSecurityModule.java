@@ -1,12 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.security.internal;
 
 import com.google.inject.Binder;
@@ -14,11 +5,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import java.util.Arrays;
+import java.util.Optional;
 import littleware.asset.gson.GsonAssetAdapter;
 import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.spi.AssetProviderRegistry;
-import littleware.base.Option;
-import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
@@ -31,7 +21,6 @@ import littleware.security.LittleGroupMember;
 import littleware.security.LittleUser;
 import littleware.security.Quota;
 import littleware.security.auth.LittleSession;
-import littleware.security.auth.client.internal.RetryRemoteSessionMgr;
 import littleware.security.auth.internal.SimpleSessionBuilder;
 
 
@@ -92,8 +81,8 @@ public class LittleSecurityModule extends AbstractAppModule {
     }
 
     @Override
-    public Option<Class<Activator>> getCallback() {
-        return Options.some( Activator.class );
+    public Optional<Class<Activator>> getCallback() {
+        return Optional.of( Activator.class );
     }
 
     @Override
@@ -105,7 +94,6 @@ public class LittleSecurityModule extends AbstractAppModule {
         binder.bind( LittleGroupMember.MemberBuilder.class ).to( GroupMemberBuilder.class );
         binder.bind( LittleSession.Builder.class ).to( SimpleSessionBuilder.class );
         binder.bind( LittleUser.Builder.class ).to( SimpleUserBuilder.class );
-        binder.bind( RetryRemoteSessionMgr.class ).in( Scopes.SINGLETON );
         binder.bind( Everybody.class ).toInstance( SimpleEverybody.singleton );
     }
 

@@ -1,14 +1,8 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server;
 
 import littleware.asset.*;
 import java.security.GeneralSecurityException;
+import java.util.Optional;
 import java.util.Set;
 
 import littleware.base.*;
@@ -45,7 +39,7 @@ public interface AssetSpecializer {
      * @param asset to check
      * @return empty if the asset is valid, otherwise a message describing the problem
      */
-    public Option<String> validate( LittleContext ctx, Asset asset ) throws BaseException, AssetException,
+    public Optional<String> validate( LittleContext ctx, Asset asset ) throws BaseException, AssetException,
             GeneralSecurityException;
     
     /**

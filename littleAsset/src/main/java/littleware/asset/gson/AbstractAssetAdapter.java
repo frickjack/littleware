@@ -19,8 +19,6 @@ import littleware.asset.AssetBuilder;
 import littleware.asset.AssetType;
 import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
-import littleware.base.AssertionFailedException;
-import littleware.base.Options;
 import littleware.base.UUIDFactory;
 
 
@@ -160,15 +158,15 @@ public abstract class AbstractAssetAdapter implements GsonAssetAdapter {
         );
         
         for (Map.Entry<String, JsonElement> entry : 
-                Options.some( json.getAsJsonObject("linkMap") ).getOr( empty ).entrySet()) {
+                Optional.ofNullable( json.getAsJsonObject("linkMap") ).orElse( empty ).entrySet()) {
             builder.putLink(entry.getKey(), UUIDFactory.parseUUID( entry.getValue().getAsString()) );
         }
         for( Map.Entry<String, JsonElement> entry : 
-                Options.some( json.getAsJsonObject("dateMap") ).getOr( empty ).entrySet() ) {
+                Optional.ofNullable( json.getAsJsonObject("dateMap") ).orElse( empty ).entrySet() ) {
             try {
                 builder.putDate( entry.getKey(), toDateOrNull( entry.getValue() ) );
             } catch ( Exception ex ) {
-                throw new AssertionFailedException( "Failed to parse date attribute: " + entry.getValue().getAsString() );
+                throw new IllegalArgumentException( "Failed to parse date attribute: " + entry.getValue().getAsString() );
             }
         }
 

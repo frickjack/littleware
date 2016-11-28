@@ -1,11 +1,4 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-package littleware.security.client.test;
+package littleware.security.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -25,11 +18,16 @@ import littleware.asset.client.test.AbstractAssetTest;
 import littleware.security.*;
 import littleware.base.BaseException;
 import littleware.security.LittleGroup.Builder;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * TestFixture runs SecurityMnaager implementations
  * through their paces.
  */
+@RunWith(littleware.test.LittleTestRunner.class)
 public class AccountManagerTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(AccountManagerTester.class.getName());
@@ -53,12 +51,12 @@ public class AccountManagerTester extends AbstractAssetTest {
         this.search = search;
         this.caller = caller;
         this.groupProvider = groupProvider;
-        setName("testGetPrincipals");
     }
 
     /**
      * Just retrieve some Principals - USER and GROUP
      */
+    @Test
     public void testGetPrincipals() {
         try {
             final LittleUser userAdmin = search.getByName(AccountManager.LITTLEWARE_ADMIN, LittleUser.USER_TYPE).get().narrow();
@@ -82,11 +80,12 @@ public class AccountManagerTester extends AbstractAssetTest {
     /**
      * Test group update
      */
+    @Test
     public void testGroupUpdate() {
         try {
             final String name = "group.littleware.test_user";
             final LittleHome home = getTestHome( search );
-            LittleGroup groupTest = (LittleGroup) search.getAssetFrom( home.getId(), name ).getOr(null);
+            LittleGroup groupTest = (LittleGroup) search.getAssetFrom( home.getId(), name ).orElse(null);
             if (null == groupTest) {
                 groupTest = assetMgr.saveAsset(
                         groupProvider.get().add(caller).name(name).parent( home ).

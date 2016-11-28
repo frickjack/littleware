@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.internal;
 
 import com.google.common.collect.ImmutableMap;
@@ -15,7 +8,6 @@ import java.util.Date;
 import java.util.UUID;
 import littleware.asset.LittleHome;
 import littleware.asset.spi.AbstractAsset;
-import littleware.base.AssertionFailedException;
 import littleware.security.AccountManager;
 import littleware.security.Everybody;
 import littleware.security.LittleGroup;
@@ -32,7 +24,7 @@ public class SimpleEverybody extends AbstractAsset implements Everybody {
         try {
             d1970 = (new SimpleDateFormat("yyyy")).parse("1970");
         } catch (Exception ex) {
-            throw new AssertionFailedException("Failed setup", ex);
+            throw new IllegalStateException("Failed setup", ex);
         }
     }
     private static final ImmutableMap<String, String> emptyAttributeMap = ImmutableMap.of();

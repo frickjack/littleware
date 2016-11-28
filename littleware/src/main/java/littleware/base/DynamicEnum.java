@@ -96,9 +96,9 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Lookup the registered enum member by UUID.
      *
-     * @throws NoSuchThingException if type not registered
+     * @throws NoSuchElementException if type not registered
      */
-    public static <T extends DynamicEnum> T getMember(UUID id, Class<T> clazz) throws NoSuchThingException {
+    public static <T extends DynamicEnum> T getMember(UUID id, Class<T> clazz) throws NoSuchElementException {
         final SubtypeData subTypeData;
 
         synchronized (subtypesByName) {
@@ -111,7 +111,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
             result = clazz.cast( subTypeData.getMember(id) );
         } else { result = null; }
         if (null == result) {
-            throw new NoSuchThingException( "No member with id: " + id );
+            throw new NoSuchElementException( "No member with id: " + id );
         }
         return result;
     }
@@ -137,12 +137,12 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
     /**
      * Lookup the registered enum meber by UUID.
      *
-     * @throws NoSuchThingException if type not registered
+     * @throws NoSuchElementException if type not registered
      */
-    public static <T extends DynamicEnum> T getMember(String name, Class<T> clazz) throws NoSuchThingException {
+    public static <T extends DynamicEnum> T getMember(String name, Class<T> clazz) {
         final Optional<T> opt = getOptMember( name, clazz );
         if ( ! opt.isPresent() ) {
-            throw new NoSuchThingException( "No " + clazz.getName() + " with name: " + name );
+            throw new NoSuchElementException( "No " + clazz.getName() + " with name: " + name );
         }
         return opt.get();
     }
@@ -246,7 +246,7 @@ public abstract class DynamicEnum<T extends DynamicEnum> implements java.io.Seri
         try {
             registerMemberIfNecessary(clazz);
             return getMember(this.getObjectId(), clazz);
-        } catch (NoSuchThingException ex) {
+        } catch (NoSuchElementException ex) {
             log.log(Level.WARNING, "Deserialization of asset-type: " + this, ex);
             return this;
         }

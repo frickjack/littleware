@@ -1,14 +1,8 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.auth.server;
 
 import com.google.inject.Inject;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.security.auth.Subject;
@@ -22,9 +16,6 @@ import javax.security.auth.spi.LoginModule;
 import littleware.asset.Asset;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.ServerSearchManager;
-import littleware.base.AssertionFailedException;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.Whatever;
 import littleware.security.LittleUser;
 
@@ -63,23 +54,23 @@ public class LittleLoginModule implements LoginModule {
      * 
      * @throws FailedLoginException on failure to access the repository
      */
-    static Option<LittleUser> lookupUser( String userName ) throws FailedLoginException {
+    static Optional<LittleUser> lookupUser( String userName ) throws FailedLoginException {
         if ( null == tools ) {
-            throw new AssertionFailedException( "Tools net yet initialized" );
+            throw new IllegalStateException( "Tools net yet initialized" );
         }
         final LittleContext ctx = tools.getCtxFactory().buildAdminContext();
         ctx.getTransaction().startDbAccess();
         
         try {
-            final Option<Asset> maybe = tools.search.getByName( ctx, userName, LittleUser.USER_TYPE );
-            if ( maybe.isEmpty() ) {
-                return Options.empty();
+            final Optional<Asset> maybe = tools.search.getByName( ctx, userName, LittleUser.USER_TYPE );
+            if ( ! maybe.isPresent() ) {
+                return Optional.empty();
             }
             final LittleUser user = maybe.get().narrow();
             if ( ! user.getStatus().equals( LittleUser.Status.ACTIVE ) ) {
-                return Options.empty();
+                return Optional.empty();
             }
-            return Options.some( user );
+            return Optional.ofNullable( user );
         } catch ( Exception ex ) {
             log.log( Level.WARNING, "Failed asset lookup", ex );
             throw new FailedLoginException( "Failed repository lookup" );
@@ -137,8 +128,8 @@ public class LittleLoginModule implements LoginModule {
         
         final LittleUser user;
         {
-            final Option<LittleUser> maybe = lookupUser( userName );
-            if ( maybe.isEmpty() ) {
+            final Optional<LittleUser> maybe = lookupUser( userName );
+            if ( ! maybe.isPresent() ) {
                 throw new FailedLoginException();
             }
             user = maybe.get();

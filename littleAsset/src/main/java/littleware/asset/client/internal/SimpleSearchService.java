@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
@@ -41,8 +42,6 @@ import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.internal.RemoteSearchManager.InfoMapResult;
 import littleware.asset.spi.AbstractAsset;
 import littleware.base.BaseException;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.security.Everybody;
 import littleware.security.auth.client.KeyChain;
@@ -149,7 +148,7 @@ public class SimpleSearchService implements AssetSearchManager {
           final UUID cacheId = personalCache.get( assetType, name );
           if ( null != cacheId ) {
               final AssetRef ref = getAsset( cacheId );
-              if ( ref.isSet() && ref.get().getName().equals( name ) && ref.get().getAssetType().isA( assetType ) ) {
+              if ( ref.isPresent() && ref.get().getName().equals( name ) && ref.get().getAssetType().isA( assetType ) ) {
                   return ref;
               } else {
                   personalCache.remove( assetType, name );
@@ -159,7 +158,7 @@ public class SimpleSearchService implements AssetSearchManager {
         
         final UUID sessionId = keychain.getDefaultSessionId().get();
         final AssetResult result = server.getByName(sessionId, name, assetType, -1L );
-        if (result.getAsset().isSet()) {
+        if (result.getAsset().isPresent()) {
             final Asset asset = result.getAsset().get();
             personalCache.put( asset );
             eventBus.fireEvent(new AssetLoadEvent(this, asset ));
@@ -172,16 +171,16 @@ public class SimpleSearchService implements AssetSearchManager {
     public AssetRef getAssetAtPath(AssetPath path) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final String key = "path:" + path;
         {
-            final Option<Asset> cacheEntry = Options.some( clientCache.get(key));
-            if (cacheEntry.isSet()) {
+            final Optional<Asset> cacheEntry = Optional.ofNullable( clientCache.get(key));
+            if (cacheEntry.isPresent()) {
                 return library.syncAsset(cacheEntry.get());
             }
         }
         final UUID sessionId = keychain.getDefaultSessionId().get();
         if (path.hasRootBacktrack()) {
             final AssetRef result = getAssetAtPath(normalizePath(path));
-            if (result.isSet()) {
-                clientCache.put(key, result.getRef());
+            if (result.isPresent()) {
+                clientCache.put(key, result.get());
             }
             return result;
         }
@@ -203,7 +202,7 @@ public class SimpleSearchService implements AssetSearchManager {
 
 
         for (int i_link_count = 0;
-                result.isSet()
+                result.isPresent()
                 && result.get().getAssetType().isA(LinkAsset.LINK_TYPE)
                 && (((AbstractAsset) result.get()).getToId() != null);
                 ++i_link_count) {
@@ -213,7 +212,7 @@ public class SimpleSearchService implements AssetSearchManager {
             result = getAsset(((AbstractAsset) result.get()).getToId());
         }
 
-        if (result.isSet()) {
+        if (result.isPresent()) {
             clientCache.put(key, result.get());
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             return library.syncAsset(result.get());
@@ -239,8 +238,8 @@ public class SimpleSearchService implements AssetSearchManager {
             GeneralSecurityException,
             RemoteException {
         final String key = "from:" + UUIDFactory.makeCleanString(parentId) + name;
-        Option<Asset> result = Options.some( clientCache.get(key));
-        if (result.isSet()) {
+        Optional<Asset> result = Optional.ofNullable( clientCache.get(key));
+        if (result.isPresent()) {
             return library.syncAsset(result.get());
         }
         
@@ -248,7 +247,7 @@ public class SimpleSearchService implements AssetSearchManager {
             final UUID id = personalCache.get( parentId, name);
             if ( null != id ) {
                 final AssetRef ref = getAsset( id );
-                if ( ref.isSet() && parentId.equals( ref.get().getFromId() ) && name.equals( ref.get().getName() ) ) {
+                if ( ref.isPresent() && parentId.equals( ref.get().getFromId() ) && name.equals( ref.get().getName() ) ) {
                     return ref;
                 } else {
                     personalCache.remove( parentId, name );
@@ -258,7 +257,7 @@ public class SimpleSearchService implements AssetSearchManager {
         final UUID sessionId = keychain.getDefaultSessionId().get();
         final AssetResult serverResult = server.getAssetFrom(sessionId, parentId, name, -1 );
         result = server.getAssetFrom(sessionId, parentId, name, -1 ).getAsset();
-        if (result.isSet()) {
+        if (result.isPresent()) {
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             // result gets indexed multiple ways - ugh!
             clientCache.put(key, result.get());
@@ -295,18 +294,18 @@ public class SimpleSearchService implements AssetSearchManager {
             return library.syncAsset( everybody );
         }
 
-        Option<Asset> result = Options.some(clientCache.get(id));
-        if (result.isSet()) {
+        Optional<Asset> result = Optional.ofNullable(clientCache.get(id));
+        if (result.isPresent()) {
             return library.syncAsset(result.get());
         }
-        result = Options.some( personalCache.get(id));
+        result = Optional.ofNullable( personalCache.get(id));
         final UUID sessionId = keychain.getDefaultSessionId().get();
-        final long timestamp = (result.isSet()) ? result.get().getTimestamp() : -1L;
+        final long timestamp = (result.isPresent()) ? result.get().getTimestamp() : -1L;
         {
             final AssetResult serverInfo = server.getAsset( sessionId, id, timestamp );
             if ( ! serverInfo.getState().equals( AssetResult.State.USE_YOUR_CACHE )) {
                 result = serverInfo.getAsset();
-                if( result.isSet() ) {
+                if( result.isPresent() ) {
                     personalCache.put(result.get() );
                 } else {
                     personalCache.remove(id);
@@ -316,7 +315,7 @@ public class SimpleSearchService implements AssetSearchManager {
             }
         } 
 
-        if (result.isSet()) {
+        if (result.isPresent()) {
             eventBus.fireEvent(new AssetLoadEvent(this, result.get()));
             return library.syncAsset(result.get());
         }
@@ -350,7 +349,7 @@ public class SimpleSearchService implements AssetSearchManager {
             final Map<UUID,AssetResult> newAssets = server.getAssets(sessionId, missingIds);
             for ( Map.Entry<UUID,AssetResult> entry  : newAssets.entrySet() ) {
                 final AssetResult lookupResult = entry.getValue();
-                if ( lookupResult.getAsset().isSet() ) {
+                if ( lookupResult.getAsset().isPresent() ) {
                     final Asset asset = lookupResult.getAsset().get();
                     assetMap.put(asset.getId(), asset);
                     personalCache.put( asset );
@@ -431,7 +430,7 @@ public class SimpleSearchService implements AssetSearchManager {
                 normalStr = normalStr.substring(3)) {
             TreeNode treeNode = rootAsset.narrow();
             final AssetRef maybeParent = getAsset(treeNode.getParentId());
-            if (!maybeParent.isSet()) {
+            if (!maybeParent.isPresent()) {
                 throw new IllegalArgumentException("Unable to normalize path for " + pathIn);
             }
             rootAsset = maybeParent.get();
@@ -444,14 +443,14 @@ public class SimpleSearchService implements AssetSearchManager {
             RemoteException {
         final AssetPath pathNormal = normalizePath(pathIn);
         final AssetRef maybeRoot = getRoot(pathNormal);
-        if ((!maybeRoot.isSet()) || ((!(maybeRoot.get() instanceof TreeParent))
+        if ((!maybeRoot.isPresent()) || ((!(maybeRoot.get() instanceof TreeParent))
                 && (!(maybeRoot.get() instanceof TreeChild)))) {
             return pathNormal;
         }
         final List<Asset> assetTrail = new ArrayList<Asset>();
         assetTrail.add(maybeRoot.get());
         for (AssetRef maybeParent = getAsset(maybeRoot.get().getFromId());
-                maybeParent.isSet();
+                maybeParent.isPresent();
                 maybeParent = getAsset(maybeParent.get().getFromId())) {
             assetTrail.add(maybeParent.get());
         }

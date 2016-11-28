@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.internal;
 
 import com.google.common.collect.ImmutableMap;
@@ -24,7 +17,6 @@ import littleware.asset.server.AssetSpecializerRegistry;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.ServerAssetManager;
-import littleware.asset.server.ServerSearchManager;
 import littleware.security.server.QuotaUtil;
 import littleware.asset.server.db.*;
 import littleware.base.*;
@@ -36,7 +28,7 @@ import littleware.security.*;
  * Accesses a single database data source by which the manager
  * may add/update/search assets.
  * Delegates id-based getAsset asset-retrieval to
- * a suplied AssetRetriever - or access the shared resources
+ * a supplied AssetRetriever - or access the shared resources
  * multi-source insecure and non-cacheing AssetRetriever
  * from AssetSharedResources.
  * SimpleAssetManager maintains (gets/puts/flushes) its own cache
@@ -49,11 +41,10 @@ import littleware.security.*;
  * if set*Manager is not invoked, then method invocation will
  * attempt to initialize those managers from the security ResourceBundle.
  */
-public class SimpleAssetManager implements ServerAssetManager {
+public class SimpleAssetManager extends SimpleSearchManager implements ServerAssetManager {
 
     private static final Logger log = Logger.getLogger(SimpleAssetManager.class.getName());
     private final DbAssetManager dbMgr;
-    private final ServerSearchManager search;
     private final Provider<UUID> uuidFactory;
     private final QuotaUtil quotaUtil;
     private final AssetSpecializerRegistry specializerReg;
@@ -63,12 +54,12 @@ public class SimpleAssetManager implements ServerAssetManager {
      */
     @Inject
     public SimpleAssetManager(
-            ServerSearchManager search,
             DbAssetManager dbMgr,
             QuotaUtil quotaUtil,
             AssetSpecializerRegistry specializerReg,
-            Provider<UUID> uuidFactory ) {
-        this.search = search;
+            Provider<UUID> uuidFactory,
+            Provider<AssetInfo.Builder> infoFactory ) {
+        super( dbMgr, specializerReg, infoFactory );
         this.dbMgr = dbMgr;
         this.quotaUtil = quotaUtil;
         this.specializerReg = specializerReg;
@@ -88,7 +79,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                 final LittlePrincipal caller = ctx.getCaller();
                 log.log( Level.FINE, "Deleting asset with id {0} - trans level {1}", new Object[]{assetId, trans.getNestingLevel()});
                 // Get the asset for ourselves - make sure it's a valid asset
-                Asset asset = search.getAsset(ctx, assetId, -1L ).getAsset().get();
+                Asset asset = this.getAsset(ctx, assetId, -1L ).getAsset().get();
                 final AssetBuilder builder = asset.copy();
                 builder.setLastUpdateDate(new Date());
                 builder.setLastUpdaterId(caller.getId());
@@ -101,7 +92,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                     asset = saveAsset(ctx, builder.build(), updateComment).get( asset.getId() );
                     log.log( Level.FINE, "Trans level 3: {0}", trans.getNestingLevel());
                     if ( null == asset ) { 
-                        throw new AssertionFailedException( "pre-delete save result map does not include saved asset: " + asset.getId() );
+                        throw new IllegalStateException( "pre-delete save result map does not include saved asset: " + asset.getId() );
                     }
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetDeleter(trans);
                     sql_writer.saveObject(asset);
@@ -177,20 +168,20 @@ public class SimpleAssetManager implements ServerAssetManager {
                     builder.setHomeId(asset.getId());
                 }
                 cycleSave = false;
-            } else if (ctx.checkIfSaved(asset.getId()).isSet()) {
+            } else if (ctx.checkIfSaved(asset.getId()).isPresent()) {
                 //log.log(Level.WARNING, "Save cycle detected - not saving " + asset);
                 //return asset;
                 oldAsset = ctx.checkIfSaved(asset.getId()).get();
                 cycleSave = true;
             } else {
-                oldAsset = search.getAsset(ctx, asset.getId(), -1L).getAsset().getOr(null);
+                oldAsset = this.getAsset(ctx, asset.getId(), -1L).getAsset().orElse(null);
                 cycleSave = false;
             }
 
             //olog_generic.log(Level.FINE, "Check pre-save");
             try {
                 if (null == oldAsset) {
-                    if (asset.getAssetType().isNameUnique() && search.getByName(ctx, asset.getName(), asset.getAssetType()).isSet()) {
+                    if (asset.getAssetType().isNameUnique() && this.getByName(ctx, asset.getName(), asset.getAssetType()).isPresent()) {
                         throw new AlreadyExistsException("Asset of type " + asset.getAssetType() + " with name " + asset.getName() + " already exists");
                     }
                     // Check name-unique asset types
@@ -218,7 +209,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                     }
                     if ((!asset.getName().equals(oldAsset.getName())) && asset.getAssetType().isNameUnique()) {
 
-                        if (search.getByName(ctx, asset.getName(), asset.getAssetType()).isSet()) {
+                        if (this.getByName(ctx, asset.getName(), asset.getAssetType()).isPresent()) {
                             throw new AlreadyExistsException("Asset of type " + asset.getAssetType() + " with name " + asset.getName() + " already exists");
                         }
                     }
@@ -255,7 +246,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                     builder.setHomeId(asset.getId());
                 } else {
                     log.log(Level.FINE, "Retrieving HOME");
-                    final Asset home = search.getAsset(ctx, asset.getHomeId(), -1L ).getAsset().get();
+                    final Asset home = this.getAsset(ctx, asset.getHomeId(), -1L ).getAsset().get();
                     log.log(Level.FINE, "Got HOME");
                     if (!home.getAssetType().isA(LittleHome.HOME_TYPE)) {
                         throw new IllegalArgumentException("Home id must link to HOME type asset");
@@ -272,7 +263,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                 if ((null != asset.getFromId()) && ((null == oldAsset) || (!asset.getFromId().equals(oldAsset.getFromId())))) {
                     log.log(Level.FINE, "Checking FROM-id access");
                     // Verify have WRITE access to from-asset, and under same HOME
-                    final Asset parent = search.getAsset(ctx, asset.getFromId(), -1L ).getAsset().get();
+                    final Asset parent = this.getAsset(ctx, asset.getFromId(), -1L ).getAsset().get();
 
                     if ((!parent.getOwnerId().equals(userCaller.getId())) && (!ctx.isAdmin())) {
                         if (!ctx.checkPermission(LittlePermission.WRITE, parent.getAclId())) {
@@ -287,7 +278,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                     if (parent.getAssetType().equals(LinkAsset.LINK_TYPE)) {
                         throw new IllegalArgumentException("May not link FROM an asset of type LinkAsset.LINK_TYPE");
                     }
-                    if ( search.getAssetIdsFrom( ctx, parent.getId() ).containsKey( asset.getName() ) ) {
+                    if ( this.getAssetIdsFrom( ctx, parent.getId() ).containsKey( asset.getName() ) ) {
                         throw new IllegalArgumentException( "Parent already has child with name: " + asset.getName() );
                     }
                 }
@@ -303,9 +294,9 @@ public class SimpleAssetManager implements ServerAssetManager {
                 try {
                     assetSave = builder.timestamp(trans.getTimestamp()).build();
                     final AssetSpecializer specializer = specializerReg.getService(assetSave.getAssetType());
-                    for( String problem : specializer.validate( ctx, assetSave)) {
+                    specializer.validate( ctx, assetSave).map( (problem) -> {
                         throw new IllegalArgumentException( "Failed validation: " + problem );
-                    }
+                    } );
 
                     final DbWriter<Asset> sql_writer = dbMgr.makeDbAssetSaver(trans);
                     sql_writer.saveObject(assetSave);
@@ -338,7 +329,7 @@ public class SimpleAssetManager implements ServerAssetManager {
                     }
                 }
                 { // this should hit the transaction access-cache
-                    final Asset result = search.getAsset(ctx, assetSave.getId(), -1L ).getAsset().get();
+                    final Asset result = this.getAsset(ctx, assetSave.getId(), -1L ).getAsset().get();
                     resultBuilder.put( result.getId(), result );
                     return ImmutableMap.copyOf(resultBuilder);
                 }
@@ -357,9 +348,9 @@ public class SimpleAssetManager implements ServerAssetManager {
 
         } finally {
             trans.endDbAccess(accessCache);
-            Whatever.get().check( "Transaction level consistent: " + startTransLevel + " =? " + trans.getNestingLevel(),
-                    startTransLevel == trans.getNestingLevel()
-            );
+            if ( startTransLevel != trans.getNestingLevel() ) {
+                throw new IllegalStateException( "Transaction level consistent: " + startTransLevel + " =? " + trans.getNestingLevel() );
+            } 
         }
     }
 

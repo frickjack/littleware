@@ -1,14 +1,5 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client;
 
-import littleware.asset.client.AssetSearchManager;
-import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;
@@ -18,10 +9,17 @@ import littleware.asset.*;
 import littleware.asset.LinkAsset.LinkBuilder;
 import littleware.asset.TreeNode.TreeNodeBuilder;
 import littleware.asset.client.test.AbstractAssetTest;
+import littleware.test.LittleTestRunner;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Test traversal of some asset paths.
  */
+@RunWith(LittleTestRunner.class)
 public class AssetPathTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(AssetPathTester.class.getName());
@@ -34,7 +32,6 @@ public class AssetPathTester extends AbstractAssetTest {
     /**
      * Stash AssetSearchManager instance to run tests against
      *
-     * @param s_test_name of test to run - pass to super class
      * @param search to test against
      * @param assetMgr to setup test assets with if necessary
      */
@@ -50,7 +47,6 @@ public class AssetPathTester extends AbstractAssetTest {
         this.pathFactory = pathFactory;
         this.nodeProvider = nodeProvider;
         this.linkProvider = linkProvider;
-        setName("testPathTraverse");
     }
 
     /**
@@ -59,11 +55,11 @@ public class AssetPathTester extends AbstractAssetTest {
      *
      * @TODO - switch over to mock-based test
      */
-    @Override
+    @Before
     public void setUp() {
         try {
             final LittleHome testHome = getTestHome(search);
-            TreeNode testFolder = (TreeNode) search.getAssetFrom(testHome.getId(), "AssetPathTester").getOr(null);
+            TreeNode testFolder = (TreeNode) search.getAssetFrom(testHome.getId(), "AssetPathTester").orElse(null);
             if (null == testFolder) {
                 testFolder = assetMgr.saveAsset(
                         nodeProvider.get().parent(testHome).
@@ -72,8 +68,8 @@ public class AssetPathTester extends AbstractAssetTest {
                         "Setting up AssetPathTester test area"
                         );
             }
-            TreeNode nodeA = (TreeNode) search.getAssetFrom(testFolder.getId(), "A").getOr(null);
-            LinkAsset pointer = (LinkAsset) search.getAssetFrom(testFolder.getId(), "Points2A").getOr(null);
+            TreeNode nodeA = (TreeNode) search.getAssetFrom(testFolder.getId(), "A").orElse(null);
+            LinkAsset pointer = (LinkAsset) search.getAssetFrom(testFolder.getId(), "Points2A").orElse(null);
             if (null == nodeA) {
                 nodeA = assetMgr.saveAsset(
                         nodeProvider.get().parent(testFolder).
@@ -97,7 +93,7 @@ public class AssetPathTester extends AbstractAssetTest {
             final TreeNode[] numberNodes = new TreeNode[3];
             for (int i = 1; i < 4; ++i) {
                 String numberName = Integer.toString(i);
-                TreeNode numberNode = (TreeNode) search.getAssetFrom(nodeA.getId(), numberName).getOr(null);
+                TreeNode numberNode = (TreeNode) search.getAssetFrom(nodeA.getId(), numberName).orElse(null);
                 if (null == numberNode) {
                     numberNode = assetMgr.saveAsset(
                             nodeProvider.get().
@@ -108,7 +104,7 @@ public class AssetPathTester extends AbstractAssetTest {
                 }
                 numberNodes[i - 1] = numberNode;
             }
-            LinkAsset smallestPointer = (LinkAsset) search.getAssetFrom(nodeA.getId(), "smallest").getOr(null);
+            LinkAsset smallestPointer = (LinkAsset) search.getAssetFrom(nodeA.getId(), "smallest").orElse(null);
             if (null == smallestPointer) {
                 smallestPointer = assetMgr.saveAsset(
                         linkProvider.get().
@@ -117,7 +113,7 @@ public class AssetPathTester extends AbstractAssetTest {
                         toId(numberNodes[0].getId()).
                         comment("link to smallest number").build(), "Setting up AssetPathTester");
             }
-            LinkAsset bigestPointer = (LinkAsset) search.getAssetFrom(nodeA.getId(), "biggest").getOr(null);
+            LinkAsset bigestPointer = (LinkAsset) search.getAssetFrom(nodeA.getId(), "biggest").orElse(null);
             if (null == bigestPointer) {
                 bigestPointer = assetMgr.saveAsset(
                         linkProvider.get().
@@ -139,8 +135,9 @@ public class AssetPathTester extends AbstractAssetTest {
      * Traverse some test assets under 
      *             /byname:littleware.test_home:type:littleware.HOME/AssetPathTester/bla
      */
+    @Test
     public void testPathTraverse() {
-        final List<AssetPath> testPaths = new ArrayList<AssetPath>();
+        final List<AssetPath> testPaths = new ArrayList<>();
 
         try {
             testPaths.add(pathFactory.createPath(getTestHome() + "/AssetPathTester/A/../A/1/../1"));
@@ -211,6 +208,7 @@ public class AssetPathTester extends AbstractAssetTest {
     /**
      * Check that path-lookup fails on path that does not exist
      */
+    @Test
     public void testBadLookup() {
         try {
             final AssetPath path = pathFactory.createPath("/" + getTestHome() + "/bogusFrickjack/bogus/ugh");

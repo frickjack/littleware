@@ -1,24 +1,14 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.internal;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.security.GeneralSecurityException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.base.AlreadyExistsException;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
-import littleware.base.NoSuchThingException;
 import littleware.security.AccessDeniedException;
 
 
@@ -29,7 +19,7 @@ import littleware.security.AccessDeniedException;
  * does throw RemoteException so this interface is
  * ready for a Remote mixin.
  */
-public interface RemoteAssetManager extends Remote {
+public interface RemoteAssetManager extends RemoteSearchManager {
 
     /**
      * Delete the specified asset 

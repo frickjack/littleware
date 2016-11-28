@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.internal;
 
 import com.google.common.collect.ImmutableList;
@@ -66,16 +59,18 @@ public class SimpleSearchManager implements ServerSearchManager {
      * @param optUnspecialized
      * @param clientTimestamp
      */
-    private AssetResult buildResult( LittleContext ctx, Option<Asset> optUnspecialized, 
+    private AssetResult buildResult( LittleContext ctx, Optional<Asset> optUnspecialized, 
             long clientTimestamp 
             ) throws BaseException, AssetException, GeneralSecurityException {
-        if ( optUnspecialized.isEmpty()) {
+        if ( ! optUnspecialized.isPresent()) {
             return AssetResult.noSuchAsset();
         }
 
         final Asset unspecial = optUnspecialized.get();
         // sanity check
-        Whatever.get().check("Got a valid id", unspecial.getId() != null);
+        if ( unspecial.getId() == null ) {
+            throw new IllegalArgumentException( "Unspecialized asset with NULL id" );
+        }
         
         final Map<UUID,Asset> accessCache = ctx.getTransaction().getCache();
 
@@ -123,12 +118,12 @@ public class SimpleSearchManager implements ServerSearchManager {
         }
 
         // cache miss
-        final Option<Asset> loadedAssets;
+        final Optional<Asset> loadedAssets;
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
         try {
             try {
-                final DbReader<Option<Asset>, String> reader = dbMgr.makeDbAssetsByNameLoader(trans, name, type);
+                final DbReader<Optional<Asset>, String> reader = dbMgr.makeDbAssetsByNameLoader(trans, name, type);
 
                 loadedAssets = reader.loadObject(null);
             } catch (SQLException ex) {
@@ -152,12 +147,12 @@ public class SimpleSearchManager implements ServerSearchManager {
     @Override
     public AssetResult getAssetFrom(LittleContext ctx, UUID parentId, String name, long cacheTimestamp ) throws BaseException, AssetException,
             GeneralSecurityException {
-        Option<Asset> optResult = Options.empty();
+        Optional<Asset> optResult = Optional.empty();
         final LittleTransaction trans = ctx.getTransaction();
         final Map<UUID, Asset> accessCache = trans.startDbAccess();
         try {
             try {
-                final DbReader<Option<Asset>, String> reader = dbMgr.makeDbAssetByParentLoader(trans, name, parentId );
+                final DbReader<Optional<Asset>, String> reader = dbMgr.makeDbAssetByParentLoader(trans, name, parentId );
 
                 optResult = reader.loadObject(null);
             } catch (SQLException ex) {
@@ -181,7 +176,7 @@ public class SimpleSearchManager implements ServerSearchManager {
         try {
             // first - make sure the caller has read-access to the "to" asset
             getAsset( ctx, toId );
-            final DbReader<Set<UUID>, String> reader = dbMgr.makeDbAssetIdsToLoader(trans, toId, Options.some(type));
+            final DbReader<Set<UUID>, String> reader = dbMgr.makeDbAssetIdsToLoader(trans, toId, Optional.ofNullable(type));
             return this.buildIMapResult(ctx, reader.loadObject(null), cacheTimestamp, sizeInCache);
         } catch (SQLException ex) {
             log.log(Level.INFO, "Failed call", ex);
@@ -204,7 +199,7 @@ public class SimpleSearchManager implements ServerSearchManager {
 
         try {
             final Asset result = getAssetOrNullInsecure(ctx, id);
-            return this.buildResult( ctx, Options.some(result), clientCacheTStamp );
+            return this.buildResult( ctx, Optional.ofNullable(result), clientCacheTStamp );
         } finally {
             trans.endDbAccess(accessCache);
         }
@@ -276,7 +271,7 @@ public class SimpleSearchManager implements ServerSearchManager {
 
             mustCleanCache = false;
             return special;
-        } catch (NoSuchThingException e) {
+        } catch (NoSuchElementException e) {
             throw new DataAccessException("Failure to specialize " + unspecial.getAssetType() + " type asset: " + unspecial.getName()
                     + ", caught: " + e, e);
         } finally {
@@ -381,7 +376,7 @@ public class SimpleSearchManager implements ServerSearchManager {
         try {
             // first - verify that the caller has access to the parent asset
             getAsset( ctx, fromId );
-            final DbReader<Map<String, UUID>, String> reader = dbMgr.makeDbAssetIdsFromLoader(trans, fromId, Options.some((AssetType) assetType), Options.NONE);
+            final DbReader<Map<String, UUID>, String> reader = dbMgr.makeDbAssetIdsFromLoader(trans, fromId, Optional.ofNullable((AssetType) assetType), Optional.empty() );
             return buildIMapResult( ctx, reader.loadObject(null).values(), cacheTimestamp, sizeInCache );
         } catch (SQLException ex) {
             // do not throw cause e - may not be serializable
@@ -404,7 +399,7 @@ public class SimpleSearchManager implements ServerSearchManager {
     }
 
     @Override
-    public Option<Asset> getAsset(LittleContext context, UUID assetId) throws BaseException, GeneralSecurityException {
+    public Optional<Asset> getAsset(LittleContext context, UUID assetId) throws BaseException, GeneralSecurityException {
         return getAsset( context, assetId, -1L ).getAsset();
     }
 
@@ -424,12 +419,12 @@ public class SimpleSearchManager implements ServerSearchManager {
     }
 
     @Override
-    public Option<Asset> getByName(LittleContext context, String name, AssetType type) throws BaseException, AssetException, GeneralSecurityException {
+    public Optional<Asset> getByName(LittleContext context, String name, AssetType type) throws BaseException, AssetException, GeneralSecurityException {
         return getByName( context, name, type, -1L ).getData();
     }
 
     @Override
-    public Option<Asset> getAssetFrom(LittleContext context, UUID parentId, String name) throws BaseException, AssetException, GeneralSecurityException {
+    public Optional<Asset> getAssetFrom(LittleContext context, UUID parentId, String name) throws BaseException, AssetException, GeneralSecurityException {
         return getAssetFrom( context, parentId, name, -1L ).getData();
     }
 

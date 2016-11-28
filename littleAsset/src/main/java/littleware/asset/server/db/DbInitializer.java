@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db;
 
 import com.google.inject.Inject;
@@ -17,10 +10,9 @@ import littleware.asset.LittleHome;
 import littleware.asset.LittleHome.HomeBuilder;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeNode.TreeNodeBuilder;
-import littleware.asset.client.test.Config;
+import littleware.asset.client.test.TestConfig;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.spi.AssetProviderRegistry;
-import littleware.base.AssertionFailedException;
 import littleware.security.AccountManager;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
@@ -86,13 +78,13 @@ public class DbInitializer {
         final LittleTransaction trans = transFactory.get();
         trans.startDbUpdate();
         try { // Go on to setup initial freakin' repository nodes ...
-            if (null == mgr.makeDbAssetLoader(trans).loadObject(Config.getTestHomeId())) {
+            if (null == mgr.makeDbAssetLoader(trans).loadObject(TestConfig.getTestHomeId())) {
                 // Note: need to initialize everything as we're bypassing a couple layers of API
-                final LittleHome testHome = homeFactory.get().homeId(Config.getTestHomeId()
-                    ).id(Config.getTestHomeId()).creatorId(AccountManager.UUID_ADMIN
+                final LittleHome testHome = homeFactory.get().homeId(TestConfig.getTestHomeId()
+                    ).id(TestConfig.getTestHomeId()).creatorId(AccountManager.UUID_ADMIN
                     ).lastUpdaterId(AccountManager.UUID_ADMIN
-                    ).ownerId(Config.getTestUserId()
-                    ).aclId(LittleAcl.UUID_EVERYBODY_READ).name(Config.getTestHome()).comment("Tree for test-case nodes").lastUpdate("auto-created by AwsModule domain setup").timestamp(trans.getTimestamp()).build().narrow();
+                    ).ownerId(TestConfig.getTestUserId()
+                    ).aclId(LittleAcl.UUID_EVERYBODY_READ).name(TestConfig.getTestHome()).comment("Tree for test-case nodes").lastUpdate("auto-created by AwsModule domain setup").timestamp(trans.getTimestamp()).build().narrow();
                 mgr.makeDbAssetSaver(trans).saveObject(testHome);
             }
             LittleHome littleHome = (LittleHome) mgr.makeDbAssetLoader(trans).loadObject(LittleHome.LITTLE_HOME_ID);
@@ -106,8 +98,8 @@ public class DbInitializer {
                 admin = this.userFactory.get().parent(littleHome).id(AccountManager.UUID_ADMIN).name(AccountManager.LITTLEWARE_ADMIN).aclId(null).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(AccountManager.UUID_ADMIN).comment("littleware admin user").lastUpdate("auto-created by AwsModule domain setup").build().narrow();
                 mgr.makeDbAssetSaver(trans).saveObject(admin);
             }
-            if (null == mgr.makeDbAssetLoader(trans).loadObject(Config.getTestUserId())) {
-                final LittleUser testUser = this.userFactory.get().parent(littleHome).id(Config.getTestUserId()).name(Config.getTestUserName()).aclId(null).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(Config.getTestUserId()).comment("littleware test user").lastUpdate("auto-created by AwsModule domain setup").build().narrow();
+            if (null == mgr.makeDbAssetLoader(trans).loadObject(TestConfig.getTestUserId())) {
+                final LittleUser testUser = this.userFactory.get().parent(littleHome).id(TestConfig.getTestUserId()).name(TestConfig.getTestUserName()).aclId(null).timestamp(trans.getTimestamp()).creatorId(AccountManager.UUID_ADMIN).lastUpdaterId(AccountManager.UUID_ADMIN).ownerId(TestConfig.getTestUserId()).comment("littleware test user").lastUpdate("auto-created by AwsModule domain setup").build().narrow();
                 mgr.makeDbAssetSaver(trans).saveObject(testUser);
             }
 
@@ -151,7 +143,7 @@ public class DbInitializer {
             }
         } catch (SQLException ex) {
             log.log(Level.WARNING, "Failed to initialize AWS domain", ex);
-            throw new AssertionFailedException("Failed to initialize AWS domain", ex);
+            throw new IllegalStateException("Failed to initialize AWS domain", ex);
         } finally {
             trans.endDbUpdate(false);
         }

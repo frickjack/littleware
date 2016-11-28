@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.server.internal;
 
 import com.google.common.collect.ImmutableMap;
@@ -78,9 +71,11 @@ public class SimpleAccountManager extends NullAssetSpecializer {
         if (asset.getId().equals(AccountManager.UUID_EVERYBODY_GROUP)) {
             return (T) everybody;
         }
-        Whatever.get().check("AccountManager is not the specializer for: "
-                + asset.getAssetType(),
-                asset.getAssetType().equals(LittleGroup.GROUP_TYPE));
+        if ( ! asset.getAssetType().equals(LittleGroup.GROUP_TYPE) ) {
+            throw new IllegalArgumentException("AccountManager is not the specializer for: "
+                + asset.getAssetType()
+                );
+        }
         log.log(Level.FINE, "Narrowing group: {0}", asset.getName());
 
         // It's a GROUP - need to populate it
@@ -101,9 +96,9 @@ public class SimpleAccountManager extends NullAssetSpecializer {
         log.log(Level.FINE, "Group: {0} found {1} children under {2} of type {3}", new Object[]{asset.getName(), linkAssets.size(), asset.getId(), LittleGroupMember.GROUP_MEMBER_TYPE});
 
 
-        final Set<UUID> memberIds = new HashSet<UUID>();
+        final Set<UUID> memberIds = new HashSet<>();
         for (AssetResult linkResult : linkAssets) {
-            if (linkResult.getAsset().isSet()) {
+            if (linkResult.getAsset().isPresent()) {
                 final LittleGroupMember member = linkResult.getAsset().get().narrow();
                 log.log(Level.FINE, "Got link UUID {0}", member.getMemberId());
                 memberIds.add(member.getMemberId());
@@ -114,7 +109,7 @@ public class SimpleAccountManager extends NullAssetSpecializer {
         final Collection<AssetResult> memberAssets = search.getAssets(ctx, memberIds).values();
 
         for (AssetResult memberResult : memberAssets) {
-            if (memberResult.getAsset().isSet()) {
+            if (memberResult.getAsset().isPresent()) {
                 final LittlePrincipal member = memberResult.getAsset().get().narrow();
                 log.log(Level.FINE, "adding {0} to {1}", new Object[]{member.getName(), groupBuilder.getName()});
                 groupBuilder.add(member);
@@ -195,7 +190,7 @@ public class SimpleAccountManager extends NullAssetSpecializer {
 
             final Collection<AssetResult> linkResults = search.getAssets(ctx, vChildren).values();
             for (AssetResult maybeLink : linkResults) {
-                if (maybeLink.getAsset().isSet()) {
+                if (maybeLink.getAsset().isPresent()) {
                     assetMgr.deleteAsset(ctx, maybeLink.getAsset().get().getId(), "cleaning up deleted principal");
                 }
             }
@@ -218,13 +213,13 @@ public class SimpleAccountManager extends NullAssetSpecializer {
                 throw new IllegalArgumentException("May not modify the everybody group");
             }
             log.log(Level.FINE, "Update callback running for {0}", group.getName());
-            final Set<Principal> v_before = new HashSet<Principal>();
+            final Set<Principal> v_before = new HashSet<>();
 
             if (null != preUpdate) {
                 v_before.addAll(preUpdate.narrow(LittleGroup.class).getMembers());
             }
 
-            final List<LittlePrincipal> addPrincipals = new ArrayList<LittlePrincipal>();
+            final List<LittlePrincipal> addPrincipals = new ArrayList<>();
             final Set<UUID> memberSet = new HashSet<>();
 
             // Get the list of new group members that need added

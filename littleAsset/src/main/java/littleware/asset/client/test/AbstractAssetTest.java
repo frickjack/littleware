@@ -10,7 +10,6 @@ import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.LittleHome;
 import littleware.base.BaseException;
-import littleware.test.LittleTest;
 
 /**
  * Slight specialization of junit.framework.TestCase
@@ -18,22 +17,22 @@ import littleware.test.LittleTest;
  * a TestCase test-method name and register the test-case
  * with a suite:  suite.addTest ( provider.get().putName( "testWhatever" ) )
  */
-public abstract class AbstractAssetTest extends LittleTest {
+public abstract class AbstractAssetTest {
     public static UUID  getTestUserId() {
-        return Config.getTestUserId();
+        return TestConfig.getTestUserId();
     }
     
     public static String getTestUserName() {
-        return Config.getTestUserName();
+        return TestConfig.getTestUserName();
     }
     
     public static UUID   getTestHomeId() {
-        return Config.getTestHomeId();
+        return TestConfig.getTestHomeId();
     }
     
     /** Lots of tests want to create test assets under littleware.test_home */
     public static String getTestHome() {
-        return Config.getTestHome();
+        return TestConfig.getTestHome();
     }
 
     /**

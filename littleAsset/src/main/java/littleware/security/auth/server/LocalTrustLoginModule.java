@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.auth.server;
 
 import com.google.common.cache.Cache;
@@ -33,7 +26,7 @@ import littleware.base.Whatever;
 public class LocalTrustLoginModule implements LoginModule {
     private static final Logger log = Logger.getLogger( LocalTrustLoginModule.class.getName() );
     
-    private static Cache<String,String> secretsCache = CacheBuilder.newBuilder().softValues().build();
+    private static final Cache<String,String> secretsCache = CacheBuilder.newBuilder().softValues().build();
     
     /**
      * Register a secret that will be tested against the supplied password the next
@@ -94,7 +87,7 @@ public class LocalTrustLoginModule implements LoginModule {
         final String secret = secretsCache.getIfPresent( userName );
         secretsCache.invalidate( secret );
         if( (null != secret) && secret.equals( password ) &&
-                ((! userMustExist) || LittleLoginModule.lookupUser(userName).isSet())
+                ((! userMustExist) || LittleLoginModule.lookupUser(userName).isPresent())
                 ) {
             return true;
         }

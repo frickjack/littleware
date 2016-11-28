@@ -15,7 +15,6 @@ import littleware.asset.AssetType;
 
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
-import littleware.base.NoSuchThingException;
 import littleware.security.AccessDeniedException;
 
 /**

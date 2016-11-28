@@ -1,26 +1,20 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.internal;
 
+import java.util.Optional;
 import java.util.UUID;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
 import littleware.asset.TemplateScanner;
-import littleware.base.Option;
+
 
 /**
  * Base class for client and server side TemplateScanner implementations
  */
 public abstract class AbstractTemplateScanner implements TemplateScanner {
 
-    protected abstract Option<TreeNode>  loadAsset( UUID parentId, String name );
+    protected abstract Optional<TreeNode>  loadAsset( UUID parentId, String name );
 
 
     public static class Info implements ExistInfo {
@@ -45,9 +39,9 @@ public abstract class AbstractTemplateScanner implements TemplateScanner {
     @Override
     public ExistInfo visit(TreeParent parent, AssetTreeTemplate template) {
         final TreeNode.TreeNodeBuilder builder = template.getBuilder();
-        final Option<TreeNode> maybeExists = loadAsset( parent.getId(), builder.getName());
+        final Optional<TreeNode> maybeExists = (null != parent) ? loadAsset( parent.getId(), builder.getName()) : Optional.empty();
         final TreeNode node;
-        if (maybeExists.isEmpty()) {
+        if ( ! maybeExists.isPresent()) {
             // This TreeNode does not yet exist!
             final UUID rememberAclId = builder.getAclId();
             if (null != parent) {

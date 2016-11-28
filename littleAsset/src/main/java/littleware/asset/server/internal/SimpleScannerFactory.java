@@ -1,15 +1,9 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.internal;
 
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import java.util.Optional;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.TemplateScanner;
@@ -18,14 +12,13 @@ import littleware.asset.internal.AbstractTemplateScanner;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.ServerScannerFactory;
 import littleware.asset.server.ServerSearchManager;
-import littleware.base.Options;
-import littleware.base.Option;
+
 
 @Singleton
 public class SimpleScannerFactory implements ServerScannerFactory {
 
 
-    private static final Option<TreeNode> emptyNode = Options.empty();
+    private static final Optional<TreeNode> emptyNode = Optional.empty();
     private final ServerSearchManager search;
 
     @Inject
@@ -50,11 +43,11 @@ public class SimpleScannerFactory implements ServerScannerFactory {
         }
 
         @Override
-        protected Option<TreeNode> loadAsset(UUID parentId, String name) {
+        protected Optional<TreeNode> loadAsset(UUID parentId, String name) {
             try {
-                final Option<Asset> maybe = search.getAssetFrom( ctx, parentId, name );
-                if ( maybe.isSet() ) {
-                    return Options.some( maybe.get().narrow( TreeNode.class ) );
+                final Optional<Asset> maybe = search.getAssetFrom( ctx, parentId, name );
+                if ( maybe.isPresent() ) {
+                    return Optional.ofNullable( maybe.get().narrow( TreeNode.class ) );
                 } else {
                     return emptyNode;
                 }

@@ -1,18 +1,10 @@
-/*
- * Copyright 2009 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.internal;
 
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.UUID;
 import littleware.asset.IdWithClock;
-import littleware.base.Options;
-import littleware.base.Option;
+
 
 /**
  * Basic implementation of IdWithClock.Builder
@@ -22,7 +14,7 @@ public class IdWithClockBuilder implements IdWithClock.Builder {
     private static class Data implements IdWithClock, Serializable {
         private UUID   id;
         private long   transaction;
-        private Option<UUID> maybeFrom = Options.empty();
+        private Optional<UUID> maybeFrom = Optional.empty();
 
 
         /** Empty constructor for serialization */
@@ -32,7 +24,7 @@ public class IdWithClockBuilder implements IdWithClock.Builder {
         public Data( UUID id, UUID from, long transaction ) {
             this.id = id;
             this.transaction = transaction;
-            this.maybeFrom = Options.some( from );
+            this.maybeFrom = Optional.ofNullable( from );
         }
 
         @Override
@@ -41,7 +33,7 @@ public class IdWithClockBuilder implements IdWithClock.Builder {
         }
 
         @Override
-        public Option<UUID> getParentId() {
+        public Optional<UUID> getParentId() {
             return maybeFrom;
         }
 

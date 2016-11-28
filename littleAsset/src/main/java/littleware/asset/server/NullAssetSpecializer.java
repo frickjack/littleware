@@ -4,10 +4,9 @@ import com.google.inject.Singleton;
 import littleware.asset.*;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import littleware.base.BaseException;
-import littleware.base.Options;
-import littleware.base.Option;
 
 
 
@@ -43,8 +42,8 @@ public class NullAssetSpecializer implements AssetSpecializer {
     }
 
     @Override
-    public Option<String> validate( LittleContext ctx, Asset asset) throws BaseException, AssetException, GeneralSecurityException {
-        return Options.empty();
+    public Optional<String> validate( LittleContext ctx, Asset asset) throws BaseException, AssetException, GeneralSecurityException {
+        return Optional.empty();
     }
 }
 

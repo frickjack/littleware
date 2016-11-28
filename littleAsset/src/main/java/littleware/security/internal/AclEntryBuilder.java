@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.internal;
 
 import littleware.asset.spi.AbstractAsset;
@@ -37,7 +30,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
     private static final Logger log = Logger.getLogger( AclEntryBuilder.class.getName() );
 
 
-    private Set<Permission> permissionSet = new HashSet<Permission>();
+    private Set<Permission> permissionSet = new HashSet<>();
     private LittlePrincipal principal = null;
 
     @Override
@@ -64,11 +57,8 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
     private static class EntryAsset extends AbstractAsset implements LittleAclEntry {
 
         private static final long serialVersionUID = -5342316532664742997L;
-        private LittlePrincipal principal;
-        private Set<Permission> permissionSet;
-
-        /** For serialization */
-        private EntryAsset() {}
+        private final LittlePrincipal principal;
+        private final Set<Permission> permissionSet;
 
         public EntryAsset(AclEntryBuilder builder, LittlePrincipal principal,
                 Set<Permission> permissionSet) {
@@ -239,7 +229,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
                     ov_parse_perms.add(LittlePermission.getMember(u_perm));
                 } catch (IllegalArgumentException e) {
                     throw new SAXException("Invalid UUID: " + s_uuid, e);
-                } catch (NoSuchThingException e) {
+                } catch (NoSuchElementException e) {
                     throw new SAXException("Invalid UUID: " + s_uuid, e);
                 }
             }

@@ -1,16 +1,10 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db.jpa;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,15 +14,13 @@ import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.base.BaseException;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
 
 /**
  * Load name-unique assets with the given name
  */
-class DbByNameLoader implements DbReader<Option<Asset>, String> {
+class DbByNameLoader implements DbReader<Optional<Asset>, String> {
     private static final Logger log = Logger.getLogger( DbByNameLoader.class.getName() );
 
     private final String osName;
@@ -46,7 +38,7 @@ class DbByNameLoader implements DbReader<Option<Asset>, String> {
     }
 
     @Override
-    public Option<Asset> loadObject(String sIgnore) throws SQLException {
+    public Optional<Asset> loadObject(String sIgnore) throws SQLException {
         final EntityManager entMgr = trans.getEntityManager();
         final String sQuery = "SELECT x FROM Asset x WHERE x.name=:name AND x.typeId=:typeId";
         final List<AssetEntity> vInfo = new ArrayList<AssetEntity>();
@@ -66,13 +58,12 @@ class DbByNameLoader implements DbReader<Option<Asset>, String> {
             }
         }
         try {
-            final Set<Asset> result = new HashSet<Asset>();
             for (AssetEntity ent : vInfo) {
                 final AssetType assetType = AssetType.getMember(UUIDFactory.parseUUID(ent.getTypeId()));
                 log.log( Level.FINE, "Building asset from entity with type: {0}", assetType);
-                return Options.some(ent.buildAsset(assetRegistry.getService(assetType).get()));
+                return Optional.ofNullable(ent.buildAsset(assetRegistry.getService(assetType).get()));
             }
-            return Options.empty();
+            return Optional.empty();
         } catch (BaseException ex) {
             throw new SQLException("Failed to resolve entity to asset", ex);
         }

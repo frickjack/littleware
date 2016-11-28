@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server;
 
 import com.google.inject.Binder;
@@ -14,7 +7,6 @@ import littleware.asset.client.test.AbstractAssetTest;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
-import littleware.base.AssertionFailedException;
 import littleware.bootstrap.AppBootstrap;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.internal.RemoteSessionManager;
@@ -39,7 +31,7 @@ public class MockModuleFactory implements ServerModuleFactory {
             } catch (RuntimeException ex) {
                 throw ex;
             } catch (Exception ex) {
-                throw new AssertionFailedException("Failed to setup test session", ex);
+                throw new IllegalStateException("Failed to setup test session", ex);
             }
         }
 

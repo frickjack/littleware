@@ -1,18 +1,9 @@
-/*
- * Copyright 2013 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db.jpa;
 
 import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
-import littleware.base.Whatever;
-import littleware.bootstrap.LittleBootstrap;
 
 
 /**
@@ -33,7 +24,9 @@ public class LittleDriver implements Driver {
     
     @Override
     public Connection connect(String string, Properties prprts) throws SQLException {
-        Whatever.get().check( "LittleDriver requires data source injection",  null != dataSource );
+        if ( null == dataSource ) {
+            throw new IllegalStateException( "LittleDriver requires data source injection" );
+        }
         return dataSource.getConnection();
     }
 

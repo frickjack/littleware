@@ -86,12 +86,12 @@ public class AssetType extends DynamicEnum<AssetType> {
     }
 
     /** Shortcut to DynamicEnum.getMember */
-    public static AssetType getMember(UUID id) throws NoSuchThingException {
+    public static AssetType getMember(UUID id) {
         return getMember(id, AssetType.class);
     }
 
     /** Shortcut to DynamicEnum.getMember */
-    public static AssetType getMember(String name) throws NoSuchThingException {
+    public static AssetType getMember(String name) {
         return getMember(name, AssetType.class);
     }
 

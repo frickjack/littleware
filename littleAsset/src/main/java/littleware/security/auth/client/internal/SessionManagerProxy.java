@@ -1,10 +1,3 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.auth.client.internal;
 
 import com.google.inject.Inject;
@@ -14,6 +7,7 @@ import java.util.logging.Logger;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.util.Collections;
+import java.util.Optional;
 import javax.security.auth.Subject;
 import littleware.asset.AssetException;
 import littleware.asset.client.AssetSearchManager;
@@ -22,8 +16,6 @@ import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.client.KeyChain;
@@ -84,18 +76,18 @@ public class SessionManagerProxy implements SessionManager {
         return remote.getServerVersion();
     }
 
-    private static final Option<Credentials> emptyCreds = Options.empty();
+    private static final Optional<Credentials> emptyCreds = Optional.empty();
 
     @Override
-    public Option<Credentials> getCredentials() {
-        final Option<UUID> key = keychain.getDefaultSessionId();
-        if ( key.isEmpty() ) {
+    public Optional<Credentials> getCredentials() {
+        final Optional<UUID> key = keychain.getDefaultSessionId();
+        if ( ! key.isPresent() ) {
             return emptyCreds;
         }
         try {
             final LittleSession session = search.getAsset( key.get() ).get().narrow();
             final LittleUser    user = search.getAsset( session.getOwnerId() ).get().narrow();
-            return Options.some( (Credentials) new Creds( session, user ) );
+            return Optional.ofNullable( (Credentials) new Creds( session, user ) );
         } catch ( RuntimeException ex ) {
             throw ex;
         } catch ( Exception ex ) {

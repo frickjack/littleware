@@ -1,4 +1,4 @@
-package littleware.security.client.test;
+package littleware.security.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -15,10 +15,15 @@ import littleware.security.auth.LittleSession;
 import littleware.base.login.LoginCallbackHandler;
 import littleware.security.LittleUser;
 import littleware.security.auth.client.KeyChain;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Test ClientLoginModule
  */
+@RunWith(littleware.test.LittleTestRunner.class)
 public class ClientLoginTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(ClientLoginTester.class.getName());
@@ -30,7 +35,6 @@ public class ClientLoginTester extends AbstractAssetTest {
     @Inject
     public ClientLoginTester(Provider<Configuration> configProvider, KeyChain keychain,
             Provider<LittleUser.Builder> userFactory, AssetSearchManager search) {
-        setName("testClientLogin");
         this.configProvider = configProvider;
         this.keychain = keychain;
         this.userFactory = userFactory;
@@ -43,11 +47,12 @@ public class ClientLoginTester extends AbstractAssetTest {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            Assert.assertTrue("Got expected event: " + evt.getPropertyName(), evt.getPropertyName().equals("defaultSessionId"));
+            assertTrue("Got expected event: " + evt.getPropertyName(), evt.getPropertyName().equals("defaultSessionId"));
             eventFired = true;
         }
     }
 
+    @Test
     public void testClientLogin() {
         try {
             final LoginContext context = new LoginContext("littleware.login",
@@ -76,9 +81,9 @@ public class ClientLoginTester extends AbstractAssetTest {
     public void testUserPassword() {
         try {
             final LittleUser user = userFactory.get().parent(getTestHome(search)).name("bla").password("frickjack").build();
-            Assert.assertTrue( "User has expected password", user.testPassword( "frickjack" ) );
-            Assert.assertTrue( "User password is not bogus", ! user.testPassword( "FrickJack" ) );
-            Assert.assertTrue( "Password gets copied ok", user.copy().build().testPassword( "frickjack" ) );
+            assertTrue( "User has expected password", user.testPassword( "frickjack" ) );
+            assertTrue( "User password is not bogus", ! user.testPassword( "FrickJack" ) );
+            assertTrue( "Password gets copied ok", user.copy().build().testPassword( "frickjack" ) );
         } catch (Exception ex) {
             log.log(Level.WARNING, "Failed test", ex);
             fail("Caught exception: " + ex);

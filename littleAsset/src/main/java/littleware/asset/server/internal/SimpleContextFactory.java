@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,8 +19,6 @@ import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.ServerSearchManager;
 import littleware.base.BaseException;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.security.AccountManager;
 import littleware.security.LittleAcl;
 import littleware.security.LittleGroup;
@@ -113,7 +112,7 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
         private final LittleUser caller;
         private final LittleTransaction transaction;
         private final Map<UUID, Asset> lookupCache;
-        private final Map<UUID, Asset> savedCache = new HashMap<UUID, Asset>();
+        private final Map<UUID, Asset> savedCache = new HashMap<>();
         private final Subject subject;
         private final ServerSearchManager search;
         private final LittleContext adminCtx;
@@ -165,8 +164,8 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
         }
 
         @Override
-        public Option<Asset> checkCache(UUID id) {
-            return Options.some(lookupCache.get(id));
+        public Optional<Asset> checkCache(UUID id) {
+            return Optional.ofNullable(lookupCache.get(id));
         }
 
         @Override
@@ -180,15 +179,15 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
         }
 
         @Override
-        public Option<Asset> checkIfSaved(UUID id) {
-            return Options.some(savedCache.get(id));
+        public Optional<Asset> checkIfSaved(UUID id) {
+            return Optional.ofNullable(savedCache.get(id));
         }
 
         @Override
         public boolean isAdmin() {
             return isAdmin;
         }
-        private final Map<UUID, LittleAcl> aclCache = new HashMap<UUID, LittleAcl>();
+        private final Map<UUID, LittleAcl> aclCache = new HashMap<>();
 
         @Override
         public boolean checkPermission(LittlePermission permission, UUID aclId) throws BaseException, GeneralSecurityException {
@@ -200,8 +199,8 @@ public class SimpleContextFactory implements LittleContext.ContextFactory {
                 acl = aclCache.get(aclId);
             }
             if (null == acl) {
-                final Option<Asset> maybe = search.getAsset(this, aclId, -1L ).getAsset();
-                if ((!maybe.isSet())
+                final Optional<Asset> maybe = search.getAsset(this, aclId, -1L ).getAsset();
+                if ((!maybe.isPresent())
                         || (!maybe.get().getAssetType().equals(LittleAcl.ACL_TYPE))) {
                     return false;
                 }

@@ -1,14 +1,5 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.server.db;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.server.LittleTransaction;
-import littleware.base.AssertionFailedException;
 import littleware.base.UUIDFactory;
 
 /**
@@ -48,7 +38,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
              && (t_now.getTime () > transactionTimer.getTime () + 300000)
              ) {
             try {
-                throw new AssertionFailedException();
+                throw new IllegalStateException();
             } catch ( Exception ex ) {
                 log.log ( Level.WARNING, "Cyclecache not zeroed for over 5 minutes - probably missing a recycle() call", ex );
             }
@@ -96,7 +86,7 @@ public abstract class AbstractLittleTransaction implements LittleTransaction {
         if ( (null != transCache)
              && (transCache != assetCache)
              ) {
-            throw new AssertionFailedException ( "endDbAccess with wrong cache object" );
+            throw new IllegalArgumentException ( "endDbAccess with wrong cache object" );
         }
         if ( 0 == callCounter ) {
             throw new IllegalStateException ( "start/endDbAccess mismatch" );

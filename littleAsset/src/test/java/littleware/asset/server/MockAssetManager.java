@@ -10,9 +10,6 @@ import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.client.AssetManager;
-import littleware.asset.server.LittleContext;
-import littleware.asset.server.ServerAssetManager;
-import littleware.base.AssertionFailedException;
 import littleware.base.BaseException;
 
 /**
@@ -22,12 +19,13 @@ import littleware.base.BaseException;
  * like an AssetManager, so we can test the server-side
  * API with the client-side test cases.
  */
-public class MockAssetManager implements AssetManager {
+public class MockAssetManager extends MockSearchManager implements AssetManager {
     private final LittleContext ctx;
     private final ServerAssetManager mgr;
 
     @Inject
     public MockAssetManager( LittleContext ctx, ServerAssetManager mgr ) {
+        super( ctx, mgr );
         this.ctx = ctx;
         this.mgr = mgr;
     }
@@ -41,7 +39,7 @@ public class MockAssetManager implements AssetManager {
     public <T extends Asset> T saveAsset(T asset, String updateComment) throws BaseException, AssetException, GeneralSecurityException, RemoteException {
         final Asset result = mgr.saveAsset( ctx, asset, updateComment ).get( asset.getId() );
         if ( null == result ) {
-            throw new AssertionFailedException( "save-result does not include expected asset" );
+            throw new IllegalStateException( "save-result does not include expected asset" );
         }
         return (T) result;
     }

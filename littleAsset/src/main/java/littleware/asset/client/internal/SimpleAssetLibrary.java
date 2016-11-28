@@ -5,10 +5,13 @@ import com.google.inject.Inject;
 import java.beans.PropertyChangeListener;
 import java.util.UUID;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetLibrary;
@@ -67,7 +70,7 @@ public class SimpleAssetLibrary
                 this.nameMap.put( nameKey( asset ), asset.getId() );
             }
             final AssetActionEvent event = new AssetActionEvent( ref, AssetRef.Operation.assetUpdated );
-            notifyNeighbors( (AbstractAsset) asset,event, new HashSet<UUID>() );
+            notifyNeighbors( (AbstractAsset) asset,event, new HashSet<>() );
         } else {
             ref.syncAsset(asset);
         }
@@ -93,7 +96,7 @@ public class SimpleAssetLibrary
             final AssetActionEvent event = new AssetActionEvent(deletedRef,
                     AssetRef.Operation.assetDeleted);
             deletedRef.fireLittleEvent(event);
-            notifyNeighbors( (AbstractAsset) asset, event, new HashSet<UUID>() );
+            notifyNeighbors( (AbstractAsset) asset, event, new HashSet<>() );
         }
     }
 
@@ -180,12 +183,16 @@ public class SimpleAssetLibrary
 
         @Override
         public Optional<Asset> asOptional() { return asset; }
+        
+        @Override
+        public void ifPresent( Consumer<? super Asset> consumer ) {
+            asset.ifPresent( consumer );
+        }
 
         /**
          * Call out to SimpleAssetLibrary.sycnAsset to
          * fire AssetActionEvent on other affected asset-models.
          */
-        @Override
         public Asset syncAsset(Asset newAsset) {
             log.log(Level.FINE, "Syncing: {0}", newAsset);
 
@@ -254,7 +261,7 @@ public class SimpleAssetLibrary
             eventSupport.removeLittleListener(listen_remove);
         }
 
-        @Override
+
         public AssetRef updateRef(Asset value) {
             syncAsset( value );
             return this;
@@ -305,7 +312,7 @@ public class SimpleAssetLibrary
         }
 
         @Override
-        public Asset orElseGet(Supplier<Asset> clbl) throws Exception {
+        public Asset orElseGet(Supplier<? extends Asset> clbl) {
             return asset.orElseGet( clbl );
         }
 
@@ -314,9 +321,31 @@ public class SimpleAssetLibrary
             return asset.get();
         }
 
+        
+
+        
         @Override
-        public Asset orElseThrow( Supplier<? extends Throwable> re ) {
-          return asset.orElseThrow(re);
+        public Iterator<Asset> iterator() {
+            final Iterator<Asset> it = new Iterator<Asset>() {
+                private final Optional<Asset> copy = asset;
+                private boolean isDone = false;
+                
+                @Override
+                public boolean hasNext() {
+                    return copy.isPresent() && ! isDone;
+                }
+
+                @Override
+                public Asset next() {
+                    if ( isDone ) {
+                        throw new NoSuchElementException();
+                    }
+                    isDone = true;
+                    return copy.get();
+                }
+                
+            };
+            return it;
         }
 
     }

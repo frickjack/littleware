@@ -1,20 +1,12 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.server;
 
 import java.security.AccessController;
 import java.util.EventObject;
+import java.util.Optional;
 import java.util.UUID;
 import javax.security.auth.Subject;
 import littleware.asset.Asset;
-import littleware.base.Options;
-import littleware.base.Option;
+
 
 /**
  * Base class for generic server-side events.
@@ -28,20 +20,20 @@ public class LittleServerEvent extends EventObject {
     private final UUID  id = UUID.randomUUID();
     private final Asset assetSource;
     private final Subject subject;
-    private final Option<LittleServerEvent> maybeParent;
+    private final Optional<LittleServerEvent> maybeParent;
 
     public LittleServerEvent( Asset source ) {
         super( source );
         this.assetSource = source;
         this.subject = Subject.getSubject( AccessController.getContext() );
-        this.maybeParent = Options.empty();
+        this.maybeParent = Optional.empty();
     }
 
     public LittleServerEvent( Asset source, LittleServerEvent parentEvent ) {
         super( source );
         this.assetSource = source;
         this.subject = Subject.getSubject( AccessController.getContext() );
-        this.maybeParent = Options.some( parentEvent );
+        this.maybeParent = Optional.ofNullable( parentEvent );
     }
 
 
@@ -52,5 +44,5 @@ public class LittleServerEvent extends EventObject {
      * Get event id - helps avoid loops
      */
     public UUID    getId() { return id; }
-    public Option<LittleServerEvent>  getParent() { return maybeParent; }
+    public Optional<LittleServerEvent>  getParent() { return maybeParent; }
 }

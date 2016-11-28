@@ -1,9 +1,9 @@
 package littleware.asset.spi;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,6 +13,10 @@ import littleware.asset.AssetType;
 import littleware.base.cache.AbstractCacheableObject;
 import littleware.base.validate.ValidationException;
 
+/**
+ * Handy little base class for implementing asset types.
+ * Subtypes actually implement the Asset interface.
+ */
 public abstract class AbstractAsset extends AbstractCacheableObject {
     private static final Logger log = Logger.getLogger( AbstractAsset.class.getName() );
     
@@ -77,9 +81,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject {
         this(builder.getAssetType(), builder.getId(), builder.getHomeId(), builder.getOwnerId(), builder.getFromId(), builder.getToId(), builder.getAclId(), builder.getTimestamp(), builder.getName(), builder.getState(), builder.getCreateDate(), builder.getCreatorId(), builder.getComment(), builder.getLastUpdateDate(), builder.getLastUpdaterId(), builder.getLastUpdate(), builder.getStartDate(), builder.getEndDate(), builder.getValue(), builder.getData(), ImmutableMap.copyOf(builder.getAttributeMap()), ImmutableMap.copyOf(builder.getDateMap()), ImmutableMap.copyOf(builder.getLinkMap()));
     }
 
-    /**
-     * @return the homeId
-     */
+    
     public UUID getHomeId() {
         return homeId;
     }
@@ -221,7 +223,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject {
     }
 
     public Optional<UUID> getLink(String key) {
-        return Optional.fromNullable(linkMap.get(key));
+        return Optional.ofNullable(linkMap.get(key));
     }
 
     public Map<String, Date> getDateMap() {
@@ -229,7 +231,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject {
     }
 
     public Optional<Date> getDate(String key) {
-        return Optional.fromNullable(dateMap.get(key));
+        return Optional.ofNullable(dateMap.get(key));
     }
 
     public ImmutableMap<String, String> getAttributeMap() {
@@ -237,7 +239,7 @@ public abstract class AbstractAsset extends AbstractCacheableObject {
     }
 
     public Optional<String> getAttribute(String key) {
-        return Optional.fromNullable(attributeMap.get(key));
+        return Optional.ofNullable(attributeMap.get(key));
     }
 
     @Override

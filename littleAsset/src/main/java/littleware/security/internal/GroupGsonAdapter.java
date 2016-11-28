@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.internal;
 
 import com.google.gson.JsonArray;
@@ -57,9 +50,9 @@ public class GroupGsonAdapter extends AbstractAssetAdapter {
         try {
             for (JsonElement element : json.getAsJsonArray("members")) {
                 final UUID memberId = UUIDFactory.parseUUID(element.getAsString());
-                for( Asset a : resolver.getAsset(memberId) ) {
-                    builder.add( a.narrow( LittlePrincipal.class ) );
-                }
+                resolver.getAsset(memberId).map( (a) -> {
+                    return builder.add( a.narrow( LittlePrincipal.class ) );
+                });
             }
         } catch (Exception ex) {
             throw new JsonParseException("Failed to load member assets", ex);

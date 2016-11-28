@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.server.internal;
 
 import com.google.common.collect.ImmutableMap;
@@ -67,7 +60,7 @@ public class SimpleAclManager extends NullAssetSpecializer implements AclSpecial
                 ).values();
 
         for (AssetResult ref : linkAssets) {
-            if (ref.getAsset().isSet()) {
+            if (ref.getAsset().isPresent()) {
                 //final UUID principalId = link.getToId();
                 //final LittlePrincipal entry = retriever.getAsset(principalId).get().narrow(LittlePrincipal.class);
                 final LittleAclEntry aclEntry = ref.getAsset().get().narrow(LittleAclEntry.class);

@@ -1,16 +1,10 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db.jpa;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -20,7 +14,6 @@ import littleware.asset.IdWithClock;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.db.DbAssetManager;
 import littleware.asset.spi.AssetProviderRegistry;
-import littleware.base.Option;
 import littleware.db.DbReader;
 import littleware.db.DbWriter;
 
@@ -65,17 +58,17 @@ public class JpaDbAssetManager implements DbAssetManager {
     }
 
     @Override
-    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader( LittleTransaction trans, UUID fromId, Option<AssetType> maybeType, Option<Integer> maybeState) {
+    public DbReader<Map<String, UUID>, String> makeDbAssetIdsFromLoader( LittleTransaction trans, UUID fromId, Optional<AssetType> maybeType, Optional<Integer> maybeState) {
         return new DbIdsFromLoader( (JpaLittleTransaction) trans, fromId, maybeType, maybeState );
     }
 
     @Override
-    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(LittleTransaction trans, UUID toId, Option<AssetType> atype) {
-        return new DbIdsToLoader( (JpaLittleTransaction) trans, toId, atype.getOr( null ) );
+    public DbReader<Set<UUID>, String> makeDbAssetIdsToLoader(LittleTransaction trans, UUID toId, Optional<AssetType> atype) {
+        return new DbIdsToLoader( (JpaLittleTransaction) trans, toId, atype.orElse( null ) );
     }
 
     @Override
-    public DbReader<Option<Asset>, String> makeDbAssetsByNameLoader(LittleTransaction trans, String name, AssetType aType) {
+    public DbReader<Optional<Asset>, String> makeDbAssetsByNameLoader(LittleTransaction trans, String name, AssetType aType) {
         return new DbByNameLoader( (JpaLittleTransaction) trans, assetRegistry, name, aType);
     }
 
@@ -91,7 +84,7 @@ public class JpaDbAssetManager implements DbAssetManager {
     }
 
     @Override
-    public DbReader<Option<Asset>, String> makeDbAssetByParentLoader(LittleTransaction trans, String name, UUID parentId) {
+    public DbReader<Optional<Asset>, String> makeDbAssetByParentLoader(LittleTransaction trans, String name, UUID parentId) {
         return new DbByParentLoader( (JpaLittleTransaction) trans, assetRegistry, name, parentId );
     }
 }

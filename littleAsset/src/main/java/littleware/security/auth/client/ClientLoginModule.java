@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.auth.client;
 
 import java.io.File;
@@ -54,7 +47,7 @@ public class ClientLoginModule implements LoginModule {
     private CallbackHandler handler = null;
     private SessionManager sessionManager = null;
     private Subject subject = null;
-    private Set<String> aclNameList = new HashSet<String>();
+    private Set<String> aclNameList = new HashSet<>();
     private boolean useCache = false;
   private AssetManager assetSaver;
 
@@ -288,8 +281,8 @@ public class ClientLoginModule implements LoginModule {
     @Override
     public boolean logout() throws LoginException {
       // can only logout the user associated with this session
-      final Option<SessionManager.Credentials> optCreds = sessionManager.getCredentials();
-      if ( ! optCreds.isEmpty() ) {
+      final Optional<SessionManager.Credentials> optCreds = sessionManager.getCredentials();
+      if ( optCreds.isPresent() ) {
         // end the session
         final LittleSession ls = optCreds.get().getSession().copy().endDate( new Date() ).build();
         try {

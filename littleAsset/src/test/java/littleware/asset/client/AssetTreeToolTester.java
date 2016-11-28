@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client;
 
 import com.google.common.collect.ImmutableMap;
@@ -13,32 +6,34 @@ import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetInfo;
-import littleware.asset.client.AssetManager;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
-import littleware.asset.client.AssetSearchManager;
 import littleware.asset.AssetTreeTemplate;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
-import littleware.asset.client.AssetTreeTool;
 import littleware.asset.LittleHome;
 import littleware.asset.TemplateScanner;
 import littleware.asset.TemplateScanner.ExistInfo;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeNode.TreeNodeBuilder;
-import littleware.asset.client.AssetLibrary;
-import littleware.asset.client.AssetRef;
-import littleware.asset.client.ClientScannerFactory;
 import littleware.asset.client.test.AbstractAssetTest;
-import littleware.base.Options;
-import littleware.base.Option;
+import littleware.test.LittleTestRunner;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+
 
 /**
  * Simple AssetTreeTool tester
  */
+@RunWith(LittleTestRunner.class)
 public class AssetTreeToolTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(AssetTreeTool.class.getName());
@@ -66,18 +61,17 @@ public class AssetTreeToolTester extends AbstractAssetTest {
         this.pathFactory = pathFactory;
         this.treeBuilder = treeBuilder;
         this.nodeProvider = nodeProvider;
-        setName("testTreeTool");
         this.treeScanFactory = treeScanFactory;
         this.library = library;
     }
 
-    @Override
+    @Before
     public void setUp() {
         try {
             final LittleHome home = getTestHome(search);
             AssetRef maybeRoot = search.getAssetAtPath(
                     pathFactory.createPath(home.getId(), "TreeToolTester"));
-            if (!maybeRoot.isSet()) {
+            if (!maybeRoot.isPresent()) {
                 maybeRoot = library.syncAsset(
                         manager.saveAsset(
                         nodeProvider.get().name("TreeToolTester").parent(home).build(),
@@ -87,10 +81,10 @@ public class AssetTreeToolTester extends AbstractAssetTest {
             final ImmutableMap<String, AssetInfo> mapChildren = search.getAssetIdsFrom(parentNode.getId(), null);
             for (int i = 0; i < 3; ++i) {
                 final String sChild = "Child" + i;
-                final Option<AssetInfo> maybeChildId = Options.some(mapChildren.get(sChild));
+                final Optional<AssetInfo> maybeChildId = Optional.ofNullable(mapChildren.get(sChild));
                 final TreeNode childNode;
                 final ImmutableMap<String, AssetInfo> mapBrat;
-                if (!maybeChildId.isSet()) {
+                if (!maybeChildId.isPresent()) {
                     childNode = manager.saveAsset(nodeProvider.get().name(sChild).parent(parentNode).build(), "Setup test");
                     mapBrat = ImmutableMap.of();
                 } else {
@@ -114,6 +108,7 @@ public class AssetTreeToolTester extends AbstractAssetTest {
     /**
      * Just load a test tree
      */
+    @Test
     public void testTreeTool() {
         try {
             final AssetPath testFolderPath = pathFactory.createPath("/" + getTestHome() + "/" + "TreeToolTester");

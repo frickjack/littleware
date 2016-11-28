@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.server.internal;
 
 import com.google.common.collect.ImmutableMap;
@@ -38,7 +31,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
             return null;
         }
 
-        return (Quota) search.getAsset(ctx, childInfo.getId()).getOr(null);
+        return (Quota) search.getAsset(ctx, childInfo.getId()).orElse(null);
     }
 
     @Override
@@ -55,7 +48,7 @@ public class SimpleQuotaUtil implements QuotaUtil {
         try {
             for (Quota quota = getQuota(ctx, user, search);
                     null != quota;
-                    quota = (null != quota.getNextInChainId()) ? ((Quota) search.getAsset(ctx, quota.getNextInChainId(), -1L).getAsset().getOr(null))
+                    quota = (null != quota.getNextInChainId()) ? ((Quota) search.getAsset(ctx, quota.getNextInChainId(), -1L).getAsset().orElse(null))
                             : null) {
                 final Quota.Builder quotaBuilder = quota.copy().narrow();
                 v_chain.add(quotaBuilder);

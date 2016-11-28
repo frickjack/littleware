@@ -1,11 +1,4 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-package littleware.security.client.test;
+package littleware.security.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -18,10 +11,15 @@ import littleware.asset.client.AssetSearchManager;
 import littleware.asset.client.test.AbstractAssetTest;
 import littleware.security.*;
 import littleware.security.LittleUser.Builder;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Run ACL implementations through basic test.
  */
+@RunWith(littleware.test.LittleTestRunner.class)
 public class AclManagerTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(AclManagerTester.class.getName());
@@ -47,12 +45,12 @@ public class AclManagerTester extends AbstractAssetTest {
         this.userProvider = userProvider;
         this.aclProvider = aclProvider;
         this.aclEntryProvider = aclEntryProvider;
-        setName("testAclLoad");
     }
 
     /**
      * Just try to load an ACL
      */
+    @Test
     public void testAclLoad() {
         try {
             final LittleAcl aclEverybody = search.getAsset(LittleAcl.UUID_EVERYBODY_READ ).get().narrow();
@@ -65,6 +63,7 @@ public class AclManagerTester extends AbstractAssetTest {
     /**
      * Just run the ACL through some simple scenarios
      */
+    @Test
     public void testAcl() {
         log.log(Level.INFO, "testAcl starting with empty test ACL ok");
 
@@ -125,38 +124,38 @@ public class AclManagerTester extends AbstractAssetTest {
                         entry.getPermissions().equals( entry.copy().narrow( LittleAclEntry.Builder.class ).build().getPermissions() )
                         );
             }
-        } catch (Exception e) {
-            log.log(Level.INFO, "Failed test", e );
-            fail("Should not have caught: " + e);
+        } catch (Exception ex) {
+            log.log(Level.INFO, "Failed test", ex );
+            fail("Should not have caught: " + ex);
         }
     }
 
     /** Stupid little Acl permission for use in test cases */
     public static class BogusAclPermission extends LittlePermission {
 
-        private int oi_id;
+        private final int id;
 
         /** Constructor just gives integer id to this guy */
-        public BogusAclPermission(int i_id) {
-            oi_id = i_id;
+        public BogusAclPermission(int id) {
+            this.id = id;
         }
 
         /** Equal if same class and same id */
         @Override
         public boolean equals(Object x_other) {
-            return ((null != x_other) && (x_other instanceof AclManagerTester.BogusAclPermission) && (oi_id == ((BogusAclPermission) x_other).oi_id));
+            return ((null != x_other) && (x_other instanceof AclManagerTester.BogusAclPermission) && (id == ((BogusAclPermission) x_other).id));
         }
 
         /** Just return id number */
         @Override
         public String toString() {
-            return "BogusAclPermission id: " + oi_id;
+            return "BogusAclPermission id: " + id;
         }
 
         /** Return id as hash-code */
         @Override
         public int hashCode() {
-            return oi_id;
+            return id;
         }
     }
 

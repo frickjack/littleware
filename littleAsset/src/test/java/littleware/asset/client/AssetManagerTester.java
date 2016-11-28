@@ -1,14 +1,6 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client;
 
-import littleware.asset.client.AssetSearchManager;
-import littleware.asset.client.AssetManager;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;
@@ -19,12 +11,17 @@ import java.util.logging.Level;
 import littleware.asset.*;
 import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.security.*;
-import littleware.test.LittleTest;
+import littleware.test.LittleTestRunner;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Tester for implementations of the AssetManager interface 
  */
-public class AssetManagerTester extends LittleTest {
+@RunWith(LittleTestRunner.class)
+public class AssetManagerTester {
 
     private static final Logger log = Logger.getLogger(AssetManagerTester.class.getName());
     private final AssetManager assetMgr;
@@ -48,13 +45,13 @@ public class AssetManagerTester extends LittleTest {
         this.searchMgr = search;
         this.provideCaller = provideCaller;
         this.assetProvider = assetProvider;
-        setName("testAssetCreation");
     }
 
 
     /**
      * Just do some simple asset creationg/deletion/bla bla bla.
      */
+    @Test
     public void testAssetCreation() {
         try {
             final Asset home = searchMgr.getByName(MS_TEST_HOME, LittleHome.HOME_TYPE).get();
@@ -89,9 +86,9 @@ public class AssetManagerTester extends LittleTest {
                     (testAsset.getId() != null) && testAsset.getName().equals(name) && testAsset.getAssetType().equals(GenericAsset.GENERIC)
                     && t_now.getTime() < testAsset.getEndDate().getTime()
                     && (testAsset.getTimestamp() > 0)
-                    && testAsset.getDate("test").isSet()
-                    && testAsset.getAttribute( "test" ).getOr( "frick" ).equals( "test" )
-                    && testAsset.getLink("test" ).isSet()
+                    && testAsset.getDate("test").isPresent()
+                    && testAsset.getAttribute( "test" ).orElse( "frick" ).equals( "test" )
+                    && testAsset.getLink("test" ).isPresent()
                     );
 
             final GenericAsset assetClone = testAsset.copy().build().narrow();
@@ -134,9 +131,9 @@ public class AssetManagerTester extends LittleTest {
                     (savedAsset.getAttributeMap().size() == 1)
                     && (savedAsset.getLinkMap().size() == 1)
                     && (savedAsset.getDateMap().size() == 1)
-                    && savedAsset.getAttribute( "test2" ).isSet()
-                    && savedAsset.getLink( "test2" ).isSet()
-                    && savedAsset.getDate( "test2" ).isSet()
+                    && savedAsset.getAttribute( "test2" ).isPresent()
+                    && savedAsset.getLink( "test2" ).isPresent()
+                    && savedAsset.getDate( "test2" ).isPresent()
                     );
             final GenericAsset loadedAsset = searchMgr.getAsset(testAsset.getId()).get().narrow();
             assertTrue("Able to load new asset and data matches",
@@ -153,7 +150,7 @@ public class AssetManagerTester extends LittleTest {
             assetMgr.deleteAsset(assetClone.getId(), "Cleanup test case");
 
             assertTrue("No longer able to retrieve deleted asset: " + assetClone.getId(),
-                    !searchMgr.getAsset(testAsset.getId()).isSet()
+                    !searchMgr.getAsset(testAsset.getId()).isPresent()
                     );
         } catch (Exception ex) {
             log.log(Level.WARNING, "Test failed", ex );

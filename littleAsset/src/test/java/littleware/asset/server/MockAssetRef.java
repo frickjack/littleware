@@ -1,43 +1,27 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.asset.server;
 
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import littleware.asset.Asset;
 import littleware.asset.client.AssetRef;
-import littleware.base.Option;
 import littleware.base.event.LittleListener;
 
 /**
  * Mock reference for testing.
  */
 public class MockAssetRef implements AssetRef {
-    private final Option<Asset> ref;
+    private final Optional<Asset> ref;
 
-    public MockAssetRef( Option<Asset> ref ) {
+    public MockAssetRef( Optional<Asset> ref ) {
         this.ref = ref;
     }
 
-    @Override
-    public AssetRef updateRef(Asset value) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Asset syncAsset(Asset asset) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    
     @Override
     public UUID getId() {
         return ref.get().getId();
@@ -49,39 +33,29 @@ public class MockAssetRef implements AssetRef {
     }
 
     @Override
-    public boolean isSet() {
-        return ref.isSet();
+    public boolean isPresent() {
+        return ref.isPresent();
     }
 
     @Override
     public boolean isEmpty() {
-        return ref.isEmpty();
+        return ! ref.isPresent();
     }
 
     @Override
-    public Asset getOr(Asset t) {
-        return ref.getOr(t);
+    public Asset orElse(Asset t) {
+        return ref.orElse(t);
     }
 
-    @Override
-    public Asset getOrCall(Callable<Asset> clbl) throws Exception {
-        return ref.getOrCall(clbl);
-    }
+    
 
     @Override
     public Asset get() {
         return ref.get();
     }
 
-    @Override
-    public Asset getRef() {
-        return get();
-    }
+    
 
-    @Override
-    public void clear() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener pl) {
@@ -104,23 +78,39 @@ public class MockAssetRef implements AssetRef {
     }
 
     @Override
-    public Iterator<Asset> iterator() {
-        return ref.iterator();
+    public Optional<Asset> asOptional() {
+        return ref;
     }
 
-  @Override
-  public boolean nonEmpty() {
-    return ref.nonEmpty();
-  }
+    @Override
+    public Asset orElseGet(Supplier<? extends Asset> supplier) {
+        return ref.orElseGet(supplier);
+    }
 
-  @Override
-  public Asset getOrThrow(RuntimeException re) {
-    return ref.getOrThrow( re );
-  }
+    @Override
+    public void ifPresent(Consumer<? super Asset> consumer) {
+        ref.ifPresent(consumer);
+    }
 
-  @Override
-  public Asset getOrThrow(Exception excptn) throws Exception {
-    return ref.getOrThrow( excptn );
-  }
+    @Override
+    public Iterator<Asset> iterator() {
+        return new Iterator<Asset>(){
+            private boolean isFirstTime = true;
+            @Override
+            public boolean hasNext() {
+                return isFirstTime && ref.isPresent();
+            }
+
+            @Override
+            public Asset next() {
+                if ( hasNext() ) {
+                    return ref.get();
+                }
+                throw new NoSuchElementException();
+            }
+        };
+    }
+
+
 
 }

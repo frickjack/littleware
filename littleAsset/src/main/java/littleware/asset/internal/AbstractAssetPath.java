@@ -1,18 +1,12 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.internal;
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import littleware.asset.AssetException;
 import littleware.asset.AssetPath;
 import littleware.asset.AssetPathFactory;
+import littleware.base.ParseException;
 
-import littleware.base.AssertionFailedException;
 
 /**
  * Convenience baseclass for AssetPath implementations 
@@ -20,16 +14,10 @@ import littleware.base.AssertionFailedException;
 public abstract class AbstractAssetPath implements AssetPath {
 
     private static final Logger log = Logger.getLogger("littleware.asset.AbstractAssetPath");
-    private String os_subroot_path = null;
-    private String os_path = null;
-    private AssetPathFactory opathFactory;
-
-    /** 
-     * Do-nothing constructor required for java.io.Serializable
-     */
-    protected AbstractAssetPath() {
-    }
-
+    private final String subrootPath;
+    private final String path;
+    private final AssetPathFactory pathFactory;
+    
     /**
      * Constructor stashes the string path after processing
      * it through AssetFactory.cleanupPath
@@ -37,44 +25,45 @@ public abstract class AbstractAssetPath implements AssetPath {
      * @param path of form /ROOT/A/B/C or whatever
      */
     protected AbstractAssetPath(String path, AssetPathFactory pathFactory) {
-        os_path = pathFactory.cleanupPath(path);
-        int i_slash = os_path.indexOf("/", 1);
+        this.path = pathFactory.cleanupPath(path);
+        int i_slash = path.indexOf("/", 1);
         if (i_slash < 0) {
-            os_subroot_path = "";
+            subrootPath = "";
         } else {
-            os_subroot_path = os_path.substring(i_slash);
+            subrootPath = path.substring(i_slash);
         }
+        this.pathFactory = pathFactory;
     }
 
     @Override
     public boolean hasRootBacktrack() {
-        return os_subroot_path.startsWith("/..");
+        return subrootPath.startsWith("/..");
     }
 
     @Override
     public String getBasename() {
-        final int iSlash = os_path.lastIndexOf('/');
-        if (iSlash >= 0) {
-            if (iSlash + 1 < os_path.length()) {
-                return os_path.substring(iSlash + 1);
+        final int slashIndex = path.lastIndexOf('/');
+        if (slashIndex >= 0) {
+            if (slashIndex + 1 < path.length()) {
+                return path.substring(slashIndex + 1);
             } else {
                 return "";
             }
         } else {
-            return os_path;
+            return path;
         }
     }
 
 
     @Override
     public String getSubRootPath() {
-        return os_subroot_path;
+        return subrootPath;
     }
 
 
     @Override
     public boolean hasParent() {
-        return os_subroot_path.matches("^(/\\.\\.)*/.?[^\\.].*$");
+        return subrootPath.matches("^(/\\.\\.)*/.?[^\\.].*$");
     }
 
     /**
@@ -85,16 +74,10 @@ public abstract class AbstractAssetPath implements AssetPath {
     public AssetPath getParent() {
         if (hasParent()) {
             try {
-                AbstractAssetPath path_result = (AbstractAssetPath) this.clone();
-                path_result.os_subroot_path = os_subroot_path.substring(0,
-                        os_subroot_path.lastIndexOf("/"));
-                path_result.os_path = os_path.substring(0,
-                        os_path.lastIndexOf("/"));
-                return path_result;
-            } catch (StringIndexOutOfBoundsException e) {
-                log.log(Level.INFO, "Unexpected " + e + " processing " + os_path +
-                        ", " + os_subroot_path);
-                throw e;
+                return pathFactory.createPath( path.substring(0, path.lastIndexOf("/")) );
+            } catch (AssetException | ParseException ex) {
+                log.log(Level.SEVERE, "Internal error parsing parent path of " + path, ex);
+                throw new IllegalStateException( "Error parsing parent of " + path, ex );
             }
         } else {
             return this;
@@ -104,33 +87,24 @@ public abstract class AbstractAssetPath implements AssetPath {
     /** Just return constructor-supplied path string */
     @Override
     public String toString() {
-        return os_path;
+        return path;
     }
 
     /** Just hash on toString() */
     @Override
     public int hashCode() {
-        return os_path.hashCode();
+        return path.hashCode();
     }
 
     /** Just compare on toString () */
     @Override
-    public int compareTo(AssetPath path_other) {
-        return os_path.compareTo(path_other.toString());
+    public int compareTo(AssetPath other) {
+        return path.compareTo(other.toString());
     }
 
-    /** Just call through to super - subclass also needs to implement */
+    
     @Override
-    public AbstractAssetPath clone() {
-        try {
-            return (AbstractAssetPath) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionFailedException("Clone should be supported here", e);
-        }
-    }
-
-    @Override
-    public boolean equals(Object x_other) {
-        return ((x_other instanceof AbstractAssetPath) && x_other.toString().equals(this.toString()));
+    public boolean equals(Object other) {
+        return ((other instanceof AbstractAssetPath) && other.toString().equals(this.toString()));
     }
 }

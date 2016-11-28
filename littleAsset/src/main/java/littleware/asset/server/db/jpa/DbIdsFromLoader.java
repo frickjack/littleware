@@ -1,23 +1,16 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db.jpa;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import littleware.asset.AssetType;
-import littleware.base.Option;
 import littleware.base.UUIDFactory;
 import littleware.base.Whatever;
 import littleware.db.DbReader;
@@ -28,13 +21,13 @@ import littleware.db.DbReader;
 public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
 
     private static final Logger log = Logger.getLogger(DbIdsFromLoader.class.getName());
-    private final Option<AssetType> maybeType;
-    private final Option<Integer> maybeState;
+    private final Optional<AssetType> maybeType;
+    private final Optional<Integer> maybeState;
     private final UUID uFrom;
     private final JpaLittleTransaction trans;
 
     public DbIdsFromLoader(JpaLittleTransaction trans,
-            UUID uFrom, Option<AssetType> maybeType, Option<Integer> maybeState) {
+            UUID uFrom, Optional<AssetType> maybeType, Optional<Integer> maybeState) {
         this.maybeType = maybeType;
         this.uFrom = uFrom;
         this.maybeState = maybeState;
@@ -52,7 +45,7 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
     private List<NameIdType> loadInfo(UUID typeId) {
         final EntityManager entMgr = trans.getEntityManager();
 
-        if (maybeState.isEmpty()) {
+        if ( ! maybeState.isPresent()) {
             final String sQuery = "SELECT NEW littleware.asset.server.db.jpa.NameIdType( x.name, x.objectId, x.typeId ) " +
                     "FROM Asset x WHERE x.fromId=:fromId AND x.typeId=:typeId";
             final Query query = entMgr.createQuery(sQuery).
@@ -76,7 +69,7 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
         final String sQuery;
         final List<NameIdType> vInfo;
 
-        if (maybeType.isEmpty()) {
+        if ( ! maybeType.isPresent()) {
             sQuery = "SELECT NEW littleware.asset.server.db.jpa.NameIdType( x.name, x.objectId, x.typeId ) " +
                     "FROM Asset x WHERE x.fromId=:fromId";
 
@@ -86,14 +79,16 @@ public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
         } else {
             final AssetType type = maybeType.get();
             final AssetTypeEntity typeEnt = entMgr.find(AssetTypeEntity.class, UUIDFactory.makeCleanString(type.getObjectId()));
-            Whatever.get().check( "Found asset type in database: " + type, null != typeEnt );
+            if ( null == typeEnt ) {
+                throw new IllegalStateException( "Asset type not found in database: " + type );
+            }
             vInfo = loadInfo(type.getObjectId());
             for (AssetTypeEntity subtype : typeEnt.getSubtypeList()) {
                 vInfo.addAll(loadInfo(UUIDFactory.parseUUID(subtype.getObjectId())));
             }
         }
 
-        final Map<String, UUID> mapResult = new HashMap<String, UUID>();
+        final Map<String, UUID> mapResult = new HashMap<>();
         for (NameIdType info : vInfo) {
             mapResult.put(info.getName(), info.getId());
         }

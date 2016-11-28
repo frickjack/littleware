@@ -1,12 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.asset.server;
 
 import com.google.common.collect.ImmutableList;
@@ -26,8 +17,6 @@ import littleware.asset.AssetType;
 import littleware.asset.client.AssetRef;
 import littleware.asset.client.AssetSearchManager;
 import littleware.asset.internal.RemoteSearchManager.AssetResult;
-import littleware.asset.server.LittleContext;
-import littleware.asset.server.ServerSearchManager;
 import littleware.base.BaseException;
 
 /**
@@ -42,8 +31,9 @@ public class MockSearchManager implements AssetSearchManager {
     private final LittleContext ctx;
 
     @Inject
-    public MockSearchManager( ServerSearchManager search,
-            LittleContext ctx
+    public MockSearchManager( 
+                        LittleContext ctx,
+            ServerSearchManager search
             ) {
         this.search = search;
         this.ctx = ctx;

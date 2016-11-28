@@ -1,31 +1,29 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import littleware.asset.*;
 import littleware.asset.client.test.AbstractAssetTest;
 import littleware.asset.server.LittleTransaction;
-import littleware.asset.server.db.*;
 import littleware.db.*;
 import littleware.base.*;
 import littleware.test.LittleTest;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Tests for DbAssetManager implementations.
  * Gets registered with the littleware.asset.test.PackageTestSuite
  */
-public class DbAssetManagerTester extends LittleTest {
-
+@RunWith(littleware.test.LittleTestRunner.class)
+public class DbAssetManagerTester {
+    private static final Logger log = Logger.getLogger( DbAssetManagerTester.class.getName() );
     private static final UUID testHomeId = AbstractAssetTest.getTestHomeId();
     private static final UUID testCreateId = UUIDFactory.parseUUID("0443fe54-53c6-4d80-ba88-d09c7d96d809");
     private static final AssetType  testSuperType;
@@ -51,7 +49,6 @@ public class DbAssetManagerTester extends LittleTest {
             LittleTransaction trans,
             Provider<UUID> uuidFactory
             ) {
-        setName("testLoad");
         dbMgr = mgrDb;
         this.nodeProvider = nodeProvider;
         this.trans = trans;
@@ -61,6 +58,7 @@ public class DbAssetManagerTester extends LittleTest {
     /**
      * Test the load of a well-known test asset
      */
+    @Test
     public void testLoad() {
         trans.startDbAccess();
         try {
@@ -83,6 +81,7 @@ public class DbAssetManagerTester extends LittleTest {
     /**
      * Test the load of a well-known test asset
      */
+    @Test
     public void testCreateUpdateDelete() {
         try {
             trans.startDbUpdate();
@@ -117,7 +116,7 @@ public class DbAssetManagerTester extends LittleTest {
             dbMgr.makeDbAssetSaver( trans ).saveObject(testSave);
             final GenericAsset testLoad = dbMgr.makeDbAssetLoader( trans ).loadObject( testSave.getId()).narrow();
             assertTrue("From preserved on load", testLoad.getParentId().equals(aHome.getId()));
-            assertTrue( "attr1 preserved on load", "bla".equals( testLoad.getAttribute( "attr1" ).getOr( "Ugh!") ) );
+            assertTrue( "attr1 preserved on load", "bla".equals( testLoad.getAttribute( "attr1" ).orElse( "Ugh!") ) );
             assertTrue( "comment preserved on load", testLoad.getComment().equals( testSave.getComment() ) );
             assertTrue( "data preserved on load", testLoad.getData().equals( testSave.getData() ) );
             
@@ -127,10 +126,10 @@ public class DbAssetManagerTester extends LittleTest {
             assertTrue( "Ids are consistent", resave.getId().equals( testSave.getId() ) );
             assertTrue( "resave has no attributes", resave.getAttributeMap().isEmpty() );
             dbMgr.makeDbAssetSaver( trans ).saveObject( resave );
-            assertTrue( "attr1 removed on reload", dbMgr.makeDbAssetLoader( trans ).loadObject( testSave.getId()).narrow( GenericAsset.class ).getAttribute("attr1" ).isEmpty() );
+            assertTrue( "attr1 removed on reload", ! dbMgr.makeDbAssetLoader( trans ).loadObject( testSave.getId()).narrow( GenericAsset.class ).getAttribute("attr1" ).isPresent() );
             
             // Test from-loader
-            final Map<String, UUID> mapChildren = (Map<String, UUID>) dbMgr.makeDbAssetIdsFromLoader( trans, testHomeId, Options.some((AssetType) TreeNode.TREE_NODE_TYPE ), Options.NONE).loadObject("");
+            final Map<String, UUID> mapChildren = (Map<String, UUID>) dbMgr.makeDbAssetIdsFromLoader( trans, testHomeId, Optional.of((AssetType) TreeNode.TREE_NODE_TYPE ), Optional.empty()).loadObject("");
             assertTrue("Able to load children using a parent asset type", !mapChildren.isEmpty());
             
             // Test transaction nonsense
@@ -142,7 +141,7 @@ public class DbAssetManagerTester extends LittleTest {
             dbMgr.makeDbAssetDeleter( trans ).saveObject(testLoad);
             
         } catch (Exception ex ) {
-            handle(ex);
+            LittleTest.handle(ex);
             bRollback = true;
         } finally {
             try {
@@ -155,11 +154,12 @@ public class DbAssetManagerTester extends LittleTest {
     }
 
 
+    @Test
     public void testAssetTypeCheck() {
         trans.startDbAccess();
         try {
             dbMgr.makeTypeChecker(trans).saveObject(testSubType);
-        } catch ( Exception ex ) { handle(ex);
+        } catch ( Exception ex ) { LittleTest.handle(ex);
         } finally {
             trans.endDbAccess();
         }
@@ -168,13 +168,14 @@ public class DbAssetManagerTester extends LittleTest {
     /**
      * Just query for home ids
      */
+    @Test
     public void testHomeIdsQuery() {
         trans.startDbAccess();
         try {
             assertTrue( "Found some home ids",
                     ! dbMgr.makeDbHomeIdLoader(trans).loadObject("").isEmpty()
                     );
-        } catch ( Exception ex ) { handle(ex);
+        } catch ( Exception ex ) { LittleTest.handle(ex);
         } finally {
             trans.endDbAccess();
         }
@@ -183,13 +184,14 @@ public class DbAssetManagerTester extends LittleTest {
     /**
      * Query by name
      */
+    @Test
     public void testByNameQuery() {
         trans.startDbAccess();
         try {
             assertTrue( "Found the test home",
-                    ! dbMgr.makeDbAssetsByNameLoader(trans, AbstractAssetTest.getTestHome(), LittleHome.HOME_TYPE ).loadObject("").isEmpty()
+                    dbMgr.makeDbAssetsByNameLoader(trans, AbstractAssetTest.getTestHome(), LittleHome.HOME_TYPE ).loadObject("").isPresent()
                     );
-        } catch ( Exception ex ) { handle(ex);
+        } catch ( Exception ex ) { LittleTest.handle(ex);
         } finally {
             trans.endDbAccess();
         }        

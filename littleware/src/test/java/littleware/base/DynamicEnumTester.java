@@ -27,7 +27,7 @@ public class DynamicEnumTester {
             return DynamicEnum.getMembers(TestEnum1.class);
         }
 
-        public static TestEnum1 getMember(String s_name) throws NoSuchThingException {
+        public static TestEnum1 getMember(String s_name) {
             return DynamicEnum.getMember(s_name, TestEnum1.class);
         }
         public static TestEnum1 MEMBER1 = new TestEnum1(UUIDFactory.parseUUID("00000000000000000000000000000000"),
@@ -45,7 +45,7 @@ public class DynamicEnumTester {
             super(u_id, s_name, TestEnum2.class);
         }
 
-        public static TestEnum2 getMember(String s_name) throws NoSuchThingException {
+        public static TestEnum2 getMember(String s_name) {
             return DynamicEnum.getMember(s_name, TestEnum2.class);
         }
 

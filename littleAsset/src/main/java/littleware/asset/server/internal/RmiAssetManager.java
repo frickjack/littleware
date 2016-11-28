@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 catdogboy@yahoo.com
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.server.internal;
 
 import com.google.common.collect.ImmutableMap;
@@ -19,20 +11,20 @@ import littleware.asset.internal.RemoteAssetManager;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.ServerAssetManager;
 import littleware.base.*;
-import littleware.net.LittleRemoteObject;
 
 /**
  * RMI remote-ready wrapper around a real implementation.
  * Should usually wrap a SubjectInvocationHandler equiped DynamicProxy
  * of a base implementation class.
  */
-public class RmiAssetManager extends LittleRemoteObject implements RemoteAssetManager {
+public class RmiAssetManager extends RmiSearchManager implements RemoteAssetManager {
 
     private final ServerAssetManager assetMgr;
     private final LittleContext.ContextFactory ctxFactory;
 
     @Inject
     public RmiAssetManager(ServerAssetManager proxy, LittleContext.ContextFactory ctxFactory ) throws RemoteException {
+        super( proxy, ctxFactory );
         assetMgr = proxy;
         this.ctxFactory = ctxFactory;
     }

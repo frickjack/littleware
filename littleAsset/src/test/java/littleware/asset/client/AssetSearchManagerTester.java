@@ -1,15 +1,6 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client;
 
 import com.google.common.collect.ImmutableMap;
-import littleware.asset.client.AssetSearchManager;
-import littleware.asset.client.AssetManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.*;
@@ -17,15 +8,21 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import littleware.asset.*;
 import littleware.asset.TreeNode.TreeNodeBuilder;
-import littleware.asset.client.AssetRef;
 import littleware.asset.client.test.AbstractAssetTest;
 import littleware.security.LittleGroup;
 import littleware.security.LittleUser;
+import littleware.test.LittleTestRunner;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
  * Tester for implementations of the AssetSearchManager interface.
  * AssetPathTester also tests AssetSearchManager.
  */
+@RunWith(LittleTestRunner.class)
 public class AssetSearchManagerTester extends AbstractAssetTest {
 
     private static final Logger log = Logger.getLogger(AssetSearchManagerTester.class.getName());
@@ -47,22 +44,22 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
         this.assetMan = assetMan;
         this.nodeProvider = nodeProvider;
         this.pathFactory = pathFactory;
-        setName( "testSearch" );
     }
 
     /**
      * Just load some test assets.
      */
+    @Test
     public void testSearch() {
         try {
-            Asset a_lookup = search.getByName(AssetManagerTester.MS_TEST_HOME,
-                    LittleHome.HOME_TYPE).getOr(null);
-            assertTrue("Got some home-by-name data", null != a_lookup);
+            final Asset lookup = search.getByName(AssetManagerTester.MS_TEST_HOME,
+                    LittleHome.HOME_TYPE).orElse(null);
+            assertTrue("Got some home-by-name data", null != lookup);
 
             assertTrue("Searcher did not freak out on empty search",
-                    !search.getByName("frickityFrickjackFroo", LittleUser.USER_TYPE).isSet());
+                    !search.getByName("frickityFrickjackFroo", LittleUser.USER_TYPE).isPresent());
             assertTrue("Child search did not freak on empty search",
-                    (!search.getAssetFrom(a_lookup.getId(), "UgidyUgaUga").isSet()) && (!search.getAssetFrom(UUID.randomUUID(), "whatever").isSet()));
+                    (!search.getAssetFrom(lookup.getId(), "UgidyUgaUga").isPresent()) && (!search.getAssetFrom(UUID.randomUUID(), "whatever").isPresent()));
 
             // Test everybody group - which is a crazy special case
             final LittleGroup everybody = search.getAssetAtPath( pathFactory.createPath( "/littleware.home/group.littleware.everybody" ) ).get().narrow();
@@ -89,6 +86,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
      * Update a well known asset, then make sure
      * it shows up in the timestamp log
      */
+    @Test
     public void testTransactionLog() {
         try {
           final LittleHome home = getTestHome( search );
@@ -96,7 +94,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
           { // update the test asset
               final String name = "testTransactionLog";
               final AssetRef maybeTest = search.getAssetFrom( home.getId(), name);
-              if ( maybeTest.isSet() ) {
+              if ( maybeTest.isPresent() ) {
                   testNode = assetMan.saveAsset( maybeTest.get(), "force an update for testing" ).narrow();
               } else {
                   testNode = assetMan.saveAsset( nodeProvider.get().name( name ).parent( home ).build(),
@@ -113,6 +111,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
     /**
      * Just load some test assets.
      */
+    @Test
     public void testLoad() {
         try {
             final ImmutableMap<String, AssetInfo> homeIds = search.getHomeAssetIds();
@@ -133,7 +132,7 @@ public class AssetSearchManagerTester extends AbstractAssetTest {
             for( Map.Entry<String,AssetInfo> entry : homeIds.entrySet() ) {
                 final AssetRef maybe = search.getAsset( entry.getValue().getId() );
                 assertTrue("Able to retrieve home: " + entry.getKey(),
-                    maybe.isSet()
+                    maybe.isPresent()
                     );
             }
         } catch (Exception ex) {

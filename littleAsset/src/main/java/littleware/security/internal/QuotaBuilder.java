@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.internal;
 
 import littleware.asset.spi.AbstractAsset;
@@ -269,13 +262,9 @@ public class QuotaBuilder extends AbstractAssetBuilder<Quota.Builder> implements
     }
 
     private static class QuotaAsset extends AbstractAsset implements Quota {
-        private int limit;
+        private final int limit;
 
-        /**
-         * Constructor for serializable
-         */
-        private QuotaAsset(){}
-
+        
         public QuotaAsset( QuotaBuilder builder, int limit ) {
             super( builder );
             this.limit = limit;

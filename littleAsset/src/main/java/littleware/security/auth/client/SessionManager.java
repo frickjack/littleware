@@ -1,20 +1,13 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.auth.client;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
+import java.util.Optional;
 import java.util.UUID;
 import javax.security.auth.Subject;
 
 import littleware.base.BaseException;
-import littleware.base.Option;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
 
@@ -68,7 +61,7 @@ public interface SessionManager extends Remote {
      * Get the credentials associated with the current session.
      * The result is empty (no principals or credentials) until login is called.
      */
-    public Option<Credentials> getCredentials();
+    public Optional<Credentials> getCredentials();
 
     /**
      * Create a new session for this user to handoff to some other app or whatever

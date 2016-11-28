@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.server.bootstrap.internal;
 
 import littleware.asset.server.bootstrap.AbstractServerModule;
@@ -19,7 +11,6 @@ import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.server.bootstrap.ServerBootstrap;
-import littleware.base.AssertionFailedException;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.helper.AbstractLittleBootstrap;
 import littleware.bootstrap.LittleBootstrap;
@@ -46,13 +37,13 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
             serverFactoryList.add(moduleFactory);
         }
         if ( serverFactoryList.isEmpty() ) {
-            throw new AssertionFailedException( "Failed to find base server modules: " + ServerModuleFactory.class  );
+            throw new IllegalStateException( "Failed to find base server modules: " + ServerModuleFactory.class  );
         }
         for (AppModuleFactory moduleFactory : ServiceLoader.load(AppModuleFactory.class)) {
             appFactoryList.add(moduleFactory);
         }
         if ( appFactoryList.isEmpty() ) {
-            throw new AssertionFailedException( "Failed to find base app modules: " + AppModuleFactory.class  );
+            throw new IllegalStateException( "Failed to find base app modules: " + AppModuleFactory.class  );
         }
     }
 
@@ -153,7 +144,7 @@ public class SimpleServerBuilder implements ServerBootstrap.ServerBuilder {
             log.log( Level.FINE, "Attempting to bootstrap: {0}", bootClass.getName());
             final Injector child = newSessionBuilder().build().startSession(Injector.class);
             if ( child == appInjector ) {
-                throw new AssertionFailedException( "What? " );
+                throw new IllegalStateException( "What? " );
             }
             log.log( Level.FINE, "... injecting {0}", bootClass.getName());
             return child.getInstance( bootClass );

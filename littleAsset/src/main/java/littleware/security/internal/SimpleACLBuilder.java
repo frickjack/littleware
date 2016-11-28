@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.internal;
 
 import littleware.asset.spi.AbstractAsset;
@@ -18,14 +11,13 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import littleware.asset.*;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAcl.Builder;
 import littleware.security.LittleAclEntry;
@@ -49,15 +41,13 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
     }
 
     private static class AclAsset extends AbstractAsset implements LittleAcl {
-        private Map<LittlePrincipal, LittleAclEntry> positiveUserEntries;
-        private Map<LittlePrincipal, LittleAclEntry> negativeUserEntries;
-        private Map<LittleGroup, LittleAclEntry> positiveGroupEntries;
-        private Map<LittleGroup, LittleAclEntry> negativeGroupEntries;
-        private Collection<LittleAclEntry> entries;
+        private final Map<LittlePrincipal, LittleAclEntry> positiveUserEntries;
+        private final Map<LittlePrincipal, LittleAclEntry> negativeUserEntries;
+        private final Map<LittleGroup, LittleAclEntry> positiveGroupEntries;
+        private final Map<LittleGroup, LittleAclEntry> negativeGroupEntries;
+        private final Collection<LittleAclEntry> entries;
 
-        /** For serialization */
-        public AclAsset() {}
-
+        
         public AclAsset(SimpleACLBuilder builder,
                 Collection<LittleAclEntry> entries ) {
             super( builder );
@@ -199,9 +189,9 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
 
         
         @Override
-        public Option<LittleAclEntry> getEntry(LittlePrincipal principal, boolean negative) {
+        public Optional<LittleAclEntry> getEntry(LittlePrincipal principal, boolean negative) {
             final Map<? extends LittlePrincipal, LittleAclEntry> entryMap = getCacheForEntry(principal, negative);
-            return Options.some( (LittleAclEntry) entryMap.get(principal) );
+            return Optional.ofNullable((LittleAclEntry) entryMap.get(principal) );
         }
 
 

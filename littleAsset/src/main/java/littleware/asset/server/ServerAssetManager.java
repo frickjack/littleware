@@ -1,12 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.asset.server;
 
 import com.google.common.collect.ImmutableMap;
@@ -18,13 +9,12 @@ import littleware.asset.AssetException;
 import littleware.base.AlreadyExistsException;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
-import littleware.base.NoSuchThingException;
 import littleware.security.AccessDeniedException;
 
 /**
  * Server side AssetManager implementation interface
  */
-public interface ServerAssetManager {
+public interface ServerAssetManager extends ServerSearchManager {
 
     /**
      * Delete the specified asset

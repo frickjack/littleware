@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.server.internal;
 
 import com.google.common.cache.Cache;
@@ -14,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.util.*;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 
@@ -24,7 +15,6 @@ import littleware.asset.server.LittleContext;
 import littleware.asset.server.LittleContext.ContextFactory;
 import littleware.asset.server.ServerSearchManager;
 import littleware.base.*;
-import littleware.net.LittleRemoteObject;
 import static littleware.asset.internal.RemoteSearchManager.AssetResult;
 
 
@@ -33,7 +23,7 @@ import static littleware.asset.internal.RemoteSearchManager.AssetResult;
  * Should usually wrap a SubjectInvocationHandler equiped DynamicProxy
  * of a base implementation class.
  */
-public class RmiSearchManager extends LittleRemoteObject implements RemoteSearchManager, Remote {
+public class RmiSearchManager implements RemoteSearchManager {
     private static final long serialVersionUID = 3426911488683486233L;
 
     private final ServerSearchManager search;

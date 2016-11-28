@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.internal;
 
 import com.google.gson.JsonArray;
@@ -61,10 +54,13 @@ public class AclGsonAdapter extends AbstractAssetAdapter {
         try {
             for (JsonElement element : json.getAsJsonArray("entries")) {
                 final LittleAclEntry.Builder entryBuilder = this.entryAdapter.deserialize( element.getAsJsonObject(), jdc, resolver).narrow();
-                for (Asset a : resolver.getAsset( ((AbstractAssetBuilder) entryBuilder).getToId() )) {
-                    entryBuilder.setPrincipal(a.narrow(LittlePrincipal.class));
-                    builder.addEntry( entryBuilder.build() );
-                }
+                resolver.getAsset( ((AbstractAssetBuilder) entryBuilder).getToId() ).map(
+                        (Asset a) -> {
+                            entryBuilder.setPrincipal(a.narrow(LittlePrincipal.class));
+                            builder.addEntry( entryBuilder.build() );
+                            return builder;
+                        }
+                );
             }
         } catch (Exception ex) {
             throw new JsonParseException("Failed to load member assets", ex);

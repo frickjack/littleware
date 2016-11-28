@@ -8,8 +8,8 @@ import littleware.base.UUIDFactory;
  * Moved out from AbstractAssetTest to avoid runtime dependency on junit -
  * db-init code accesses these constants.
  */
-public final class Config {
-    private Config(){}
+public final class TestConfig {
+    private TestConfig(){}
     
     private static final UUID testUserId = UUIDFactory.parseUUID( "7AC5D21049254265B224B7512EFCF0D1");
     public static UUID  getTestUserId() {

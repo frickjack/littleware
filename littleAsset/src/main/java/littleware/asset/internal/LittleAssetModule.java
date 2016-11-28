@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.internal;
 
 import com.google.gson.Gson;
@@ -16,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
+import java.util.Optional;
 import java.util.Properties;
 import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetTreeTemplate;
@@ -26,8 +20,6 @@ import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
 import littleware.asset.client.internal.RemoteAssetMgrProxy;
 import littleware.asset.client.internal.RemoteSearchMgrProxy;
-import littleware.asset.client.internal.RmiAssetMgrProxy;
-import littleware.asset.client.internal.RmiSearchMgrProxy;
 import littleware.asset.gson.GsonAssetAdapter;
 import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.gson.internal.GenericAdapter;
@@ -41,15 +33,12 @@ import littleware.asset.pickle.internal.SimpleHumanRegistry;
 import littleware.asset.pickle.internal.SimpleXmlRegistry;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.asset.spi.internal.SimpleAssetRegistry;
-import littleware.base.Option;
-import littleware.base.Options;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.bootstrap.AppModule;
 import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.helper.AbstractAppModule;
 import littleware.security.auth.client.internal.InMemorySessionMgrProxy;
 import littleware.security.auth.client.internal.RemoteSessionMgrProxy;
-import littleware.security.auth.client.internal.RetryRemoteSessionMgr;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
@@ -81,10 +70,9 @@ public class LittleAssetModule extends AbstractAppModule {
          * running, otherwise RMI. REST is not yet fully implemented.
          */
         public enum RemoteMethod {
-
-            InMemory, RMI, REST
+            InMemory, REST
         }
-        private RemoteMethod mode = RemoteMethod.RMI;
+        private RemoteMethod mode = RemoteMethod.REST;
 
         public RemoteMethod getRemoteMethod() {
             return mode;
@@ -99,7 +87,7 @@ public class LittleAssetModule extends AbstractAppModule {
     }
     
     
-    private static ClientConfig clientConfig = new ClientConfig();
+    private static final ClientConfig clientConfig = new ClientConfig();
 
     public static ClientConfig getClientConfig() {
         return clientConfig;
@@ -143,8 +131,8 @@ public class LittleAssetModule extends AbstractAppModule {
     }
 
     @Override
-    public Option<Class<Activator>> getCallback() {
-        return Options.some( Activator.class );
+    public Optional<Class<Activator>> getCallback() {
+        return Optional.of( Activator.class );
     }
 
     public static class GsonBuilderFactory implements Provider<GsonBuilder> {
@@ -176,9 +164,7 @@ public class LittleAssetModule extends AbstractAppModule {
         binder.bind( Gson.class ).toProvider( LittleGsonFactory.class );
         binder.bind( GsonBuilder.class ).toProvider( GsonBuilderFactory.class );
         binder.bind( GsonBuilderFactory.class ).in( Scopes.SINGLETON );
-        binder.bind(RmiSearchMgrProxy.class).in(Scopes.SINGLETON);
-        binder.bind(RmiAssetMgrProxy.class).in(Scopes.SINGLETON);
-
+        
         try {  // Make sure all needed properties are set
             final Properties props = littleware.base.PropertiesLoader.get().loadProperties();
             if( null == props.getProperty( "littleware.rmi_host", null ) ) {
@@ -191,7 +177,7 @@ public class LittleAssetModule extends AbstractAppModule {
                 binder.bindConstant().annotatedWith( Names.named( "littleware.jndi.prefix" ) ).to( "//localhost:1239/" );
             }            
         } catch ( java.io.IOException ex ) {
-            throw new littleware.base.AssertionFailedException( "Failed accessing littleware.properties", ex );
+            throw new IllegalStateException( "Failed accessing littleware.properties", ex );
         }
 
         final ClientConnectionManager connectionMgr = new org.apache.http.impl.conn.PoolingClientConnectionManager();
@@ -210,12 +196,6 @@ public class LittleAssetModule extends AbstractAppModule {
                 
         // Bind client method of connecting with server
         switch (getClientConfig().getRemoteMethod()) {
-            case RMI: {
-                binder.bind(RemoteAssetMgrProxy.class).to(RmiAssetMgrProxy.class).in(Scopes.SINGLETON);
-                binder.bind(RemoteSearchMgrProxy.class).to(RmiSearchMgrProxy.class).in(Scopes.SINGLETON);
-                binder.bind(RemoteSessionMgrProxy.class).to(RetryRemoteSessionMgr.class).in(Scopes.SINGLETON);
-            }
-            break;
             case InMemory: {
                 binder.bind(RemoteAssetMgrProxy.class).to(InMemoryAssetMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSearchMgrProxy.class).to(InMemorySearchMgrProxy.class).in(Scopes.SINGLETON);

@@ -1,10 +1,3 @@
-/*
- * Copyright 2007-2009 http://code.google.com/p/littleware
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security.auth.internal;
 
 import littleware.asset.spi.AbstractAsset;
@@ -31,9 +24,7 @@ public class SimpleSessionBuilder extends AbstractAssetBuilder<LittleSession.Bui
 
     private static class SessionAsset extends AbstractAsset implements LittleSession {
 
-        /** For serialization */
-        public SessionAsset() {
-        }
+        
 
         public SessionAsset(SimpleSessionBuilder builder) {
             super(builder);

@@ -1,15 +1,9 @@
-/*
- * Copyright 2007-2009 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.internal;
 
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -20,8 +14,6 @@ import littleware.asset.AssetPathFactory;
 import littleware.asset.AssetType;
 import littleware.asset.InvalidAssetTypeException;
 import littleware.asset.LittleHome;
-
-import littleware.base.NoSuchThingException;
 import littleware.base.ParseException;
 import littleware.base.UUIDFactory;
 
@@ -89,8 +81,8 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
                 }
             }
             return createPath(assetName, assetType, subrootStr);
-        } catch (NoSuchThingException ex) {
-            throw new IllegalArgumentException("Invalid asset type in path: " + pathIn);
+        } catch (NoSuchElementException ex) {
+            throw new NoSuchElementException("Invalid asset type in path: " + pathIn);
         }
     }
 
@@ -114,7 +106,7 @@ public class SimpleAssetPathFactory implements AssetPathFactory {
 
     @Override
     public String cleanupPath(final String path) {
-        final List<String> v_parts = new ArrayList<String>();
+        final List<String> v_parts = new ArrayList<>();
         log.log(Level.FINE, "Processing path: {0}", path);
 
         for (StringTokenizer toker = new StringTokenizer(path, "/");

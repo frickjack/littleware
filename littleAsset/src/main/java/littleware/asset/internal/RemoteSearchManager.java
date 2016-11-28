@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.internal;
 
 import com.google.common.collect.ImmutableList;
@@ -14,23 +6,19 @@ import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.security.GeneralSecurityException;
 import java.rmi.RemoteException;
-import java.rmi.Remote;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
-import littleware.base.Options;
-import littleware.base.NoSuchThingException;
-import littleware.base.Option;
 import littleware.security.AccessDeniedException;
 
 
 /**
  * Asset-search interface.  Searches the local server database only.
  */
-public interface RemoteSearchManager extends Remote {
+public interface RemoteSearchManager {
     
     public static abstract class TStampResult<T> implements java.io.Serializable {
         private State          state;
@@ -56,10 +44,10 @@ public interface RemoteSearchManager extends Remote {
     }
     
     
-    public static class AssetResult extends TStampResult<Option<Asset>> {
+    public static class AssetResult extends TStampResult<Optional<Asset>> {
         
         
-        private AssetResult( TStampResult.State state, Option<Asset> optAsset ) {
+        private AssetResult( TStampResult.State state, Optional<Asset> optAsset ) {
             super( state, optAsset );
         }
         
@@ -67,12 +55,11 @@ public interface RemoteSearchManager extends Remote {
         private AssetResult() {}
         
 
-        public Option<Asset> getAsset() { return getData(); }
+        public Optional<Asset> getAsset() { return getData(); }
         
         // ----
-        private static final AssetResult useCache = new AssetResult( TStampResult.State.USE_YOUR_CACHE, Options.NONE );
-        private static final AssetResult noAsset = new AssetResult( TStampResult.State.NO_DATA, Options.NONE );
-
+        private static final AssetResult useCache = new AssetResult( TStampResult.State.USE_YOUR_CACHE, Optional.empty() );
+        private static final AssetResult noAsset = new AssetResult( TStampResult.State.NO_DATA, Optional.empty() );
         
         public static AssetResult useCache() {
             return useCache;
@@ -83,7 +70,7 @@ public interface RemoteSearchManager extends Remote {
         
         
         public static AssetResult build( Asset asset ) {
-            return new AssetResult( TStampResult.State.DATA_IN_RESULT, Options.some(asset));
+            return new AssetResult( TStampResult.State.DATA_IN_RESULT, Optional.ofNullable(asset));
         }
     }
     

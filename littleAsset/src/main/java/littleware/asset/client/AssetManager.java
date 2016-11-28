@@ -2,14 +2,12 @@ package littleware.asset.client;
 
 import java.util.*;
 import java.security.GeneralSecurityException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.base.AlreadyExistsException;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
-import littleware.base.NoSuchThingException;
 import littleware.security.AccessDeniedException;
 
 

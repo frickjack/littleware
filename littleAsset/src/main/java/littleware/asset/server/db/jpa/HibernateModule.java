@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db.jpa;
 
 import com.google.inject.Binder;
@@ -12,7 +5,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManagerFactory;
-import littleware.base.AssertionFailedException;
 import littleware.bootstrap.AppBootstrap;
 import littleware.db.DbGuice;
 
@@ -36,7 +28,7 @@ public class HibernateModule extends AbstractGuice {
         try {
             DbGuice.build("littleware_jdbc.properties").configure(binder);
         } catch (IOException ex) {
-            throw new AssertionFailedException("Failed to load littleware_jdbc.properties", ex);
+            throw new IllegalStateException("Failed to load littleware_jdbc.properties", ex);
         }
         binder.bind(EntityManagerFactory.class).toProvider(HibernateProvider.class);
     }

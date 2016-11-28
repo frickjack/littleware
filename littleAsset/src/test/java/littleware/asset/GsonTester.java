@@ -1,11 +1,4 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-package littleware.asset.test;
+package littleware.asset;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -15,37 +8,38 @@ import com.google.inject.Provider;
 import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import littleware.asset.Asset;
-import littleware.asset.GenericAsset;
-import littleware.asset.TreeNode;
 import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.gson.LittleGsonResolver;
 import littleware.base.BaseException;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
 import littleware.security.LittleGroup;
 import littleware.security.LittlePermission;
 import littleware.security.LittleUser;
-import littleware.test.LittleTest;
+import littleware.test.LittleTestRunner;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 
 /**
- *
- * @author pasquini
+ * Test json serialization
  */
-public class GsonTester extends LittleTest {
+@RunWith(LittleTestRunner.class)
+public class GsonTester {
 
     private static final Logger log = Logger.getLogger(GsonTester.class.getName());
     private final Map<UUID, Asset> testAssets;
     private final LittleGsonResolver mockResolver = new LittleGsonResolver() {
 
         @Override
-        public Option<Asset> getAsset(UUID id) throws BaseException, GeneralSecurityException, RemoteException {
-            return Options.some(testAssets.get(id));
+        public Optional<Asset> getAsset(UUID id) throws BaseException, GeneralSecurityException, RemoteException {
+            return Optional.ofNullable(testAssets.get(id));
         }
 
         @Override
@@ -53,9 +47,6 @@ public class GsonTester extends LittleTest {
         }
     };
 
-    {
-        setName("testGson");
-    }
     private final LittleGsonFactory gsonFactory;
 
     @Inject
@@ -85,6 +76,7 @@ public class GsonTester extends LittleTest {
         testAssets = testBuilder.build();
     }
 
+    @Test
     public void testGson() {
         try {
             final Gson gson = gsonFactory.get(mockResolver);

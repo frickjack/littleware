@@ -1,10 +1,3 @@
-/*
- * Copyright 2012 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client;
 
 import com.google.common.collect.ImmutableMap;
@@ -15,15 +8,23 @@ import java.util.logging.Logger;
 import littleware.asset.AssetInfo;
 import littleware.asset.client.internal.RestSearchMgrProxy;
 import littleware.security.auth.LittleSession;
+import littleware.test.LittleTestRunner;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class RestClientTester extends littleware.test.LittleTest {
+
+
+/**
+ * Simple RestClient tester
+ */
+@RunWith(LittleTestRunner.class)
+public class RestClientTester {
     private static final Logger log = Logger.getLogger( RestClientTester.class.getName() );
     private final RestSearchMgrProxy searchClient;
     private final Provider<LittleSession> sessionProvider;
-    
-    {
-        setName( "testRestSearch" );
-    }   
+     
     
     @Inject
     public RestClientTester( 
@@ -34,6 +35,7 @@ public class RestClientTester extends littleware.test.LittleTest {
         this.sessionProvider = sessionProvider;
     }
     
+    @Test
     public void testRestSearch() {
         try {
             final LittleSession session = sessionProvider.get();

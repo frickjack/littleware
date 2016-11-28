@@ -27,9 +27,6 @@ import littleware.asset.server.ServerSearchManager;
 import littleware.asset.spi.AbstractAssetBuilder;
 import littleware.base.*;
 import littleware.base.login.LoginCallbackHandler;
-import littleware.base.stat.Sampler;
-import littleware.base.stat.SimpleSampler;
-import littleware.net.LittleRemoteObject;
 import littleware.security.*;
 import littleware.security.auth.*;
 import littleware.security.auth.LittleSession.Builder;
@@ -43,7 +40,7 @@ import littleware.security.auth.server.ServerConfigFactory;
  * This class ought to be registered as a Singleton and exported
  * for RMI access.
  */
-public class SimpleSessionManager extends LittleRemoteObject implements RemoteSessionManager {
+public class SimpleSessionManager implements RemoteSessionManager {
     /**
      * Little helper class to simplify injection of some
      * runtime properties at construction time.
@@ -51,14 +48,14 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
      * that admin can then handle adding other admins to the admin group or whatever.
      */
     public static class RuntimeConfig {
-        public final Option<String> optAdminUser;
+        public final Optional<String> optAdminUser;
         
         public RuntimeConfig( String adminUser ) {
-            this.optAdminUser = Options.some( adminUser );
+            this.optAdminUser = Optional.ofNullable( adminUser );
         }
         
         public RuntimeConfig() {
-            this.optAdminUser = Options.NONE;
+            this.optAdminUser = Optional.empty();
         }
     }
 
@@ -68,7 +65,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
     private final ServerSearchManager search;
     private final ServerAssetManager assetMgr;
     private static boolean isSingletonUp = false;
-    private final Sampler statSampler = new SimpleSampler();
     private final Provider<UserTreeBuilder> userTreeBuilder;
     private final Provider<GenericBuilder> provideGenerics;
     private final Provider<TemplateBuilder> templateProvider;
@@ -119,7 +115,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
 
         // First - verify ServerVersion node exists -
         // TODO: find a better place to do this
-        if (search.getAssetFrom(adminCtx, home.getId(), serverVersionName).isEmpty()) {
+        if ( ! search.getAssetFrom(adminCtx, home.getId(), serverVersionName).isPresent()) {
             // Only administrator can creat child of littleware.home ...
             assetMgr.saveAsset(adminCtx,
                     provideGenerics.get().parent(home).name(serverVersionName).data("v0.0").build(),
@@ -185,8 +181,8 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             final LittleHome littleHome = search.getByName(adminCtx, "littleware.home", LittleHome.HOME_TYPE).get().narrow(LittleHome.class);
             final LittleUser user;
             {
-                final Option<? extends Asset> maybeUser = search.getByName(adminCtx, name, LittleUser.USER_TYPE);
-                if (!maybeUser.isSet()) {
+                final Optional<? extends Asset> maybeUser = search.getByName(adminCtx, name, LittleUser.USER_TYPE);
+                if (!maybeUser.isPresent()) {
                     // Create the user
                     for (AssetTreeTemplate.AssetInfo assetInfo : userTreeBuilder.get().user(name).build().scan(littleHome, scannerFactory.build(adminCtx))) {
                         final ExistInfo treeInfo = (ExistInfo) assetInfo;
@@ -206,7 +202,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
             // to hard-code a password for littleware.administrator someplace or whatever at
             // bootstrap time ...
             //
-            if( runtimeConfig.optAdminUser.isSet() && runtimeConfig.optAdminUser.get().equals( user.getName() ) ) {
+            if( runtimeConfig.optAdminUser.isPresent() && runtimeConfig.optAdminUser.get().equals( user.getName() ) ) {
                 final LittleGroup adminGroup = search.getAsset(adminCtx, 
                       AccountManager.UUID_ADMIN_GROUP, -1
                     ).getAsset().get().narrow();
@@ -227,7 +223,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
                 session = sessionBuilder.build();
 
                 if (session.getOwnerId() != user.getId()) {
-                    throw new AssertionFailedException("Owner mismatch");
+                    throw new IllegalStateException("Owner mismatch");
                 }
             }
             // Create the session asset as the admin user 
@@ -243,9 +239,9 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
         final LittleContext adminCtx = contextFactory.buildAdminContext();
         try {
             final Asset home = search.getByName(adminCtx, "littleware.home", LittleHome.HOME_TYPE).get();
-            final Option<Asset> maybe = search.getAssetFrom(adminCtx, home.getId(), serverVersionName);
+            final Optional<Asset> maybe = search.getAssetFrom(adminCtx, home.getId(), serverVersionName);
 
-            if (maybe.isSet()) {
+            if (maybe.isPresent()) {
                 return maybe.get().narrow(GenericAsset.class).getData();
             } else {
                 // Note: ServerVersionNode should be initialized in SessionManager if it doesn't exist
@@ -254,7 +250,7 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new AssertionFailedException("Unexpected exception: " + ex);
+            throw new IllegalStateException("Unexpected exception: " + ex);
         } finally {
             adminCtx.getTransaction().endDbAccess();
         }
@@ -277,8 +273,6 @@ public class SimpleSessionManager extends LittleRemoteObject implements RemoteSe
 
             // Create the session asset as the admin user - session has null from-id
             return setupSession(adminCtx, sessionBuilder.build(), sessionComment);
-        } catch (NoSuchThingException e) {
-            throw new AssertionFailedException("Caught: " + e, e);
         } finally {
             adminCtx.getTransaction().endDbAccess();
         }

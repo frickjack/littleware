@@ -1,20 +1,11 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.asset.server;
 
 import java.security.GeneralSecurityException;
+import java.util.Optional;
 import java.util.UUID;
 import javax.security.auth.Subject;
 import littleware.asset.Asset;
 import littleware.base.BaseException;
-import littleware.base.Option;
 import littleware.security.LittlePermission;
 import littleware.security.LittleUser;
 import littleware.security.auth.LittleSession;
@@ -42,7 +33,7 @@ public interface LittleContext {
     public Subject       getSubject();
     
     public LittleTransaction getTransaction();
-    public Option<Asset>     checkCache( UUID id );
+    public Optional<Asset>     checkCache( UUID id );
     public void              addToCache( Asset asset );
 
     /**
@@ -51,7 +42,7 @@ public interface LittleContext {
      * save the same asset.  Also adds asset to cache.
      */
     public void              savedAsset( Asset asset );
-    public Option<Asset>     checkIfSaved( UUID id );
+    public Optional<Asset>     checkIfSaved( UUID id );
 
     public boolean isAdmin();
     

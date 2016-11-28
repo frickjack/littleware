@@ -1,12 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.security.auth.client.internal;
 
 import com.google.common.collect.MapMaker;
@@ -14,9 +5,8 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import littleware.base.Options;
-import littleware.base.Option;
 import littleware.base.event.LittleListener;
 import littleware.base.event.helper.SimpleLittleTool;
 import littleware.security.auth.client.KeyChain;
@@ -34,7 +24,7 @@ public class SimpleKeyChain implements KeyChain {
     }
     
     @Override
-    public Option<UUID> getDefaultSessionId() {
+    public Optional<UUID> getDefaultSessionId() {
         return getHostSessionId( defaultHost );
     }
 
@@ -48,10 +38,10 @@ public class SimpleKeyChain implements KeyChain {
         return defaultHost;
     }
 
-    final Option<UUID> empty = Options.empty();
+    final Optional<UUID> empty = Optional.empty();
 
     
-    public Option<UUID> getHostSessionId(String host) {
+    public Optional<UUID> getHostSessionId(String host) {
         UUID id = keyMap.get( host );
         if( null == id ) {
             support.fireLittleEvent( new KeyChain.LoginRequestedEvent( this, "bla" ));
@@ -60,7 +50,7 @@ public class SimpleKeyChain implements KeyChain {
         if ( null == id ) {
             return empty;
         }
-        return Options.some( id );
+        return Optional.ofNullable( id );
     }
 
     

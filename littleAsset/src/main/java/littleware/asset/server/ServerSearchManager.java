@@ -1,12 +1,3 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.asset.server;
 
 import com.google.common.collect.ImmutableList;
@@ -15,6 +6,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -23,8 +15,6 @@ import littleware.asset.AssetType;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
 import littleware.base.DataAccessException;
-import littleware.base.NoSuchThingException;
-import littleware.base.Option;
 import littleware.security.AccessDeniedException;
 
 /**
@@ -49,7 +39,7 @@ public interface ServerSearchManager {
     /**
      * Shortcut for getAsset( ..., -1L )
      */
-    public Option<Asset> getAsset( LittleContext context, UUID assetId
+    public Optional<Asset> getAsset( LittleContext context, UUID assetId
              ) throws BaseException,
             GeneralSecurityException;
     
@@ -148,7 +138,7 @@ public interface ServerSearchManager {
     /**
      * Shortcut for getByName( ..., -1L )
      */
-    public  Option<Asset> getByName( LittleContext context, String name, 
+    public  Optional<Asset> getByName( LittleContext context, String name, 
             AssetType type
             ) throws BaseException, AssetException,
             GeneralSecurityException;
@@ -185,7 +175,7 @@ public interface ServerSearchManager {
     /**
      * Shortcut for getAssetFrom( ..., -1L )
      */
-    public Option<Asset> getAssetFrom( 
+    public Optional<Asset> getAssetFrom( 
             LittleContext context, UUID parentId,  String name
             ) throws BaseException, AssetException,
             GeneralSecurityException;

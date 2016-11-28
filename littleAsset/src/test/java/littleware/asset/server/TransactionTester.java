@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server;
 
 import com.google.inject.Inject;
@@ -16,14 +9,14 @@ import java.util.*;
 
 
 import littleware.asset.*;
-import littleware.asset.server.LittleTransaction;
-import littleware.asset.server.JdbcTransaction;
 import littleware.test.LittleTest;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  * Test littleware.asset.server.TransactionManager and supporting classes
  */
-public class TransactionTester extends LittleTest {
+public class TransactionTester {
     private final Provider<LittleTransaction> transactionProvider;
 
 
@@ -32,13 +25,13 @@ public class TransactionTester extends LittleTest {
      */
     @Inject
     public TransactionTester(Provider<LittleTransaction> provideTrans) {
-        setName("testTransactionManager");
         transactionProvider = provideTrans;
     }
 
     /**
      * Run TransactionManager through some basic tests
      */
+    @Test
     public void testTransactionManager() {
         try {
             final LittleTransaction trans_test = transactionProvider.get();
@@ -57,7 +50,7 @@ public class TransactionTester extends LittleTest {
             } catch (Exception e) {
             }
         } catch (Exception e) {
-            this.handle(e);
+            LittleTest.handle(e);
         }
     }
 
@@ -65,6 +58,7 @@ public class TransactionTester extends LittleTest {
      * Test the JDBC Savepoint management.
      * Assumes that TransactionManager.getTheThreadTransaction returns a JdbcTranaction.
      */
+    @Test
     public void testSavepoint() {
         JdbcTransaction trans_test = (JdbcTransaction) transactionProvider.get();
         try {
@@ -77,7 +71,7 @@ public class TransactionTester extends LittleTest {
                 trans_test.endDbUpdate(true);
             }
         } catch (SQLException e) {
-            handle(e);
+            LittleTest.handle(e);
         }
     }
 }

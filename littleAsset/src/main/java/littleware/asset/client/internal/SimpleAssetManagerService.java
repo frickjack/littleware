@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client.internal;
 
 import com.google.common.collect.ImmutableList;
@@ -18,17 +11,20 @@ import java.util.Map;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
+import littleware.asset.AssetPathFactory;
 import littleware.asset.client.AssetLibrary;
 import littleware.asset.client.AssetManager;
+import littleware.asset.client.spi.ClientCache;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.internal.RemoteAssetManager;
 import littleware.base.BaseException;
+import littleware.security.Everybody;
 import littleware.security.auth.client.KeyChain;
 
 /**
  * Simple implementation of AssetManagerService wrapper around AssetManager
  */
-public class SimpleAssetManagerService implements AssetManager {
+public class SimpleAssetManagerService extends SimpleSearchService implements AssetManager {
 
     private static final long serialVersionUID = 4377427321241771838L;
     private final RemoteAssetManager server;
@@ -43,9 +39,15 @@ public class SimpleAssetManagerService implements AssetManager {
      */
     @Inject
     public SimpleAssetManagerService( RemoteAssetMgrProxy server, 
-        LittleServiceBus eventBus, KeyChain keychain, AssetLibrary library,
-        SimpleSearchService.PersonalCache personalCache
-            ) {
+        LittleServiceBus eventBus,             
+        ClientCache cache,
+        AssetLibrary library,
+        AssetPathFactory pathFactory,
+        KeyChain keychain,
+        Everybody everybody,
+        PersonalCache personalCache
+        ) {
+        super( server, eventBus, cache, library, pathFactory, keychain, everybody, personalCache );
         this.server = server;
         this.eventBus = eventBus;
         this.keychain = keychain;

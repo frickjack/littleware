@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.security;
 
 
@@ -12,12 +5,12 @@ import java.security.acl.Permission;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.TreeNode;
 import littleware.asset.TreeParent;
-import littleware.base.Option;
 import littleware.base.UUIDFactory;
 
 /**
@@ -62,7 +55,7 @@ public interface LittleAcl extends TreeNode {
      * @param isNegative do we want the postive or negative entry ?
      * @return entry's entry or null if p_entry entry not in this Acl
      */
-    public Option<LittleAclEntry> getEntry(LittlePrincipal entry, boolean isNegative);
+    public Optional<LittleAclEntry> getEntry(LittlePrincipal entry, boolean isNegative);
     
     @Override
     public Builder copy();

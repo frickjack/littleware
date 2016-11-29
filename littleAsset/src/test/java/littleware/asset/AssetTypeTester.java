@@ -7,18 +7,20 @@ import littleware.security.LittleGroup;
 import littleware.security.LittlePrincipal;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.BlockJUnit4ClassRunner;
 
 
 /**
  * Test AssetType property methods
  */
+@RunWith( BlockJUnit4ClassRunner.class )
 public class AssetTypeTester {
     private static final Logger log = Logger.getLogger( AssetTypeTester.class.getName() );
 
     final AssetType BOGUS = new AssetType(
             UUIDFactory.parseUUID("7D7B573B-4BF5-4A2F-BDC1-A614935E56AD"),
             "littleware.BOGUS", LittlePrincipal.PRINCIPAL_TYPE ) {};
-
 
     /**
      * Just stick this test here rather than make a separate class.

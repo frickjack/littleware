@@ -18,8 +18,6 @@ import littleware.asset.IdWithClock;
 import littleware.asset.LinkAsset;
 import littleware.asset.LittleHome;
 import littleware.asset.TreeNode;
-import littleware.asset.client.internal.RemoteAssetMgrProxy;
-import littleware.asset.client.internal.RemoteSearchMgrProxy;
 import littleware.asset.gson.GsonAssetAdapter;
 import littleware.asset.gson.LittleGsonFactory;
 import littleware.asset.gson.internal.GenericAdapter;
@@ -197,8 +195,8 @@ public class LittleAssetModule extends AbstractAppModule {
         // Bind client method of connecting with server
         switch (getClientConfig().getRemoteMethod()) {
             case InMemory: {
-                binder.bind(RemoteAssetMgrProxy.class).to(InMemoryAssetMgrProxy.class).in(Scopes.SINGLETON);
-                binder.bind(RemoteSearchMgrProxy.class).to(InMemorySearchMgrProxy.class).in(Scopes.SINGLETON);
+                binder.bind(RemoteAssetManager.class).to(InMemoryAssetMgrProxy.class).in(Scopes.SINGLETON);
+                binder.bind(RemoteSearchManager.class).to(InMemorySearchMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSessionMgrProxy.class).to(InMemorySessionMgrProxy.class).in(Scopes.SINGLETON);
             }
               break;

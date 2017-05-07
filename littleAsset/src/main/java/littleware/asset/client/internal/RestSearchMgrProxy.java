@@ -17,12 +17,15 @@ import java.util.logging.Logger;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
+import littleware.asset.internal.RemoteSearchManager;
+import littleware.asset.internal.RemoteSearchManager.AssetResult;
+import littleware.asset.internal.RemoteSearchManager.InfoMapResult;
 import littleware.base.BaseException;
 
 /**
  * Client-side proxy interacts with server over REST inspired HTTP protocol
  */
-public class RestSearchMgrProxy implements RemoteSearchMgrProxy {
+public class RestSearchMgrProxy implements RemoteSearchManager {
 
     private static final Logger log = Logger.getLogger(RestSearchMgrProxy.class.getName());
     private final HttpHelper helper;

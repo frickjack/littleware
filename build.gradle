@@ -19,6 +19,25 @@ subprojects {
     }
 }
 
+project( ':littleScala' ) {
+    apply plugin: 'scala'
+
+    dependencies {
+        compile project( ':littleware' )
+        compile 'org.scala-lang:scala-library:2.12.2'
+    }
+}
+
+project( ':webapp:littleApps:s3Copy' ) {
+    apply plugin: 'scala'
+
+    dependencies {
+        compile project( ':littleScala' )
+        compile 'com.amazonaws:aws-java-sdk:1.11.126'
+    }
+}
+
+
 project( ':littleAsset' ) {
     dependencies {
         compile project( ':littleware' )

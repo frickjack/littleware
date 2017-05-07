@@ -123,7 +123,7 @@ public class SimpleSearchService implements AssetSearchManager {
      */
     @Inject
     public SimpleSearchService(
-            RemoteSearchMgrProxy server,
+            RemoteSearchManager server,
             LittleServiceBus eventBus,
             ClientCache cache,
             AssetLibrary library,

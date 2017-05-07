@@ -38,7 +38,7 @@ public class SimpleAssetManagerService extends SimpleSearchService implements As
      * Inject the server to wrap with LittleService event throwing support
      */
     @Inject
-    public SimpleAssetManagerService( RemoteAssetMgrProxy server, 
+    public SimpleAssetManagerService( RemoteAssetManager server, 
         LittleServiceBus eventBus,             
         ClientCache cache,
         AssetLibrary library,

@@ -13,7 +13,7 @@ import littleware.base.BaseException;
 
 
 
-public class InMemoryAssetMgrProxy extends InMemorySearchMgrProxy implements RemoteAssetMgrProxy {
+public class InMemoryAssetMgrProxy extends InMemorySearchMgrProxy implements RemoteAssetManager {
     private final RemoteAssetManager delegate;
 
     @Inject

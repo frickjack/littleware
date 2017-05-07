@@ -1,12 +1,3 @@
-/*
- * Copyright 2013 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.scala
 package test
 
@@ -16,8 +7,7 @@ import junit.framework.Assert._
 /**
  * Little tester of GetoptHelper
  */
-class GetoptTester extends littleware.scala.test.LittleTest {
-    setName( "testGetopt" )
+class GetoptTester {
     
   def testGetopt():Unit = try {
     val args = Array( "-alpha", "-beta", "a", "-gamma", "a", "b" )

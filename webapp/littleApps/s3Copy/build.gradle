@@ -1,0 +1,4 @@
+task helloWorld( dependsOn: ':helloWorld'  ) << {
+   println "    - hello from s3Copy";
+}
+

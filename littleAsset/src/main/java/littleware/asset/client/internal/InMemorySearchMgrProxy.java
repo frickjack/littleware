@@ -15,7 +15,7 @@ import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
 
-public class InMemorySearchMgrProxy implements RemoteSearchMgrProxy {
+public class InMemorySearchMgrProxy implements RemoteSearchManager {
 
     private final RemoteSearchManager delegate;
 

@@ -1,14 +1,4 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-package littleware.scala.test
+package littleware.scala
 
 import com.google.inject
 import java.util.concurrent.ExecutorService
@@ -18,8 +8,8 @@ import junit.framework.TestCase
 import littleware.base.feedback.Feedback
 import littleware.scala.LittleHelper._
 
+@RunWith( littleware.test.LittleTestRunner.class )
 class LittleHelperTester @inject.Inject() ( exec:ExecutorService, fbFactory:inject.Provider[Feedback] ) extends LittleTest {
-  setName( "testLittleHelper" )
 
   def testLittleHelper():Unit = try {
     assertTrue( "Empty check handled string of spaces", ! emptyCheck( "    " ).isDefined )

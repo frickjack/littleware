@@ -1,24 +1,15 @@
-/*
- * Copyright 2011 Reuben Pasquini All rights reserved.
- *
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.scala.test
 
+import littleware.test.LittleTest
 
 /**
  * Little specialization of littleware.test.LittleTest with
  * some scala friendliness
  */
-class LittleTest extends littleware.test.LittleTest {
+class LittleTest {
   val basicHandler:PartialFunction[Throwable,Unit] = {
-    case ex:Exception => handle(ex)
-    case ex:java.lang.AssertionError => handle(ex)
+    case ex:Exception => LittleTest.handle(ex)
+    case ex:java.lang.AssertionError => LittleTest.handle(ex)
     case ex => throw ex
   }
 }

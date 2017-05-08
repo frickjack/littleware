@@ -1,4 +1,8 @@
-task helloWorld( dependsOn: ':helloWorld'  ) << {
+task helloWorld( dependsOn: ':helloWorld'  ) doLast {
    println "    - hello from s3Copy";
 }
 
+task copyToLib(type: Copy) {
+    into "$buildDir/lib"
+    from configurations.runtime
+}

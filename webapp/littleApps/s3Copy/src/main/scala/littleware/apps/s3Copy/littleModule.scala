@@ -1,11 +1,3 @@
-/*
- * Copyright 2012 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.apps.s3Copy
 
 import com.amazonaws.services.s3
@@ -107,6 +99,7 @@ package littleModule {
       //binder.bind( classOf[model.ClientSession] ).toProvider( classOf[model.internal.LittleSessionProvider] ).in( inject.Scopes.SINGLETON );
       binder.bind( classOf[controller.ConfigMgr] ).to( classOf[controller.internal.SimpleConfigMgr]
         ).in( inject.Scopes.SINGLETON )
+      log.info( "Binding PathTool to simplePathTool.SimpleTool ..." );
       binder.bind( classOf[controller.PathTool] ).to( classOf[controller.internal.simplePathTool.SimpleTool]
         ).in( inject.Scopes.SINGLETON )
       
@@ -115,9 +108,8 @@ package littleModule {
       binder.bind( classOf[controller.UIEventHandler] ).to( classOf[controller.internal.SimpleEventHandler]).in( inject.Scopes.SINGLETON )
     }
     
-    type Opt[T] = littleware.base.Option[T]
-    import littleware.base.Options
-    override def  getSessionStarter():Opt[Class[SessionStarter]] = Options.some( classOf[SessionStarter] )
+    import java.util.Optional
+    override def  getSessionStarter():Optional[Class[SessionStarter]] = Optional.of( classOf[SessionStarter] )
   }
   
 

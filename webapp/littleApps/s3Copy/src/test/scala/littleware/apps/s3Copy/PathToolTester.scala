@@ -1,28 +1,22 @@
-/*
- * Copyright 2013 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.apps.s3Copy
-package test
 
 
 import com.google.inject
 import com.google.common.{io => gio}
 import java.{io => jio}
-import junit.framework.Assert._
+import java.util.logging.{Logger,Level}
+import org.junit.Assert._
+import org.junit.Test
 import littleware.scala.test.LittleTest
+import org.junit.runner.RunWith
 
+@RunWith( classOf[littleware.test.LittleTestRunner] )
 class PathToolTester @inject.Inject()(
   tool:controller.PathTool,
   mimeMap:javax.activation.MimetypesFileTypeMap
 ) extends LittleTest {
-  setName( "testPathLs" )
-  
+  private val log = Logger.getLogger( getClass().getName() )
+
   var s3TestFolder:java.net.URI = new java.net.URI( "s3://apps.frickjack.com/" )
   def withS3TestFolder( value:java.net.URI ):this.type = {
     s3TestFolder = value
@@ -45,6 +39,7 @@ class PathToolTester @inject.Inject()(
       }
   }
   
+  @Test()
   def testMimeTypes():Unit = try {
     Seq( "json" -> "application/json", "html" -> "text/html", 
         "js" -> "application/javascript", "png" -> "image/png",
@@ -59,6 +54,7 @@ class PathToolTester @inject.Inject()(
   } catch basicHandler
   
   
+  @Test()
   def testPathLs():Unit = try {
     Seq( new jio.File( "." ).toURI,
          s3TestFolder
@@ -85,6 +81,7 @@ class PathToolTester @inject.Inject()(
   } catch basicHandler
   
   
+  @Test()
   def testPathCopy():Unit = try {
     val testPath = new jio.File( "." ).toURI
     val destPaths = Seq(
@@ -115,7 +112,9 @@ class PathToolTester @inject.Inject()(
     })
   } catch basicHandler
   
+  @Test()
   def testPathParts():Unit = try {
+    log.info( "Running testPathParts!!!" );
     Map( new java.net.URI( "s3://server/a/b/c/" ) -> "c"
       ).foreach( _ match {
           case (path,expected) => {

@@ -62,10 +62,10 @@ project( ':littleware' ) {
 }
 
 
-task helloWorld << {
+task helloWorld doLast {
    println 'hello, world'
 }
 
-task dude( dependsOn:helloWorld ) << {
+task dude( dependsOn:helloWorld ) doLast {
     println "Dude!"
 }

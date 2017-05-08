@@ -1,11 +1,13 @@
 package littleware.scala
 
 
-import junit.framework.Assert._
+import org.junit.Assert._
+import org.junit.Test
 import java.util.logging.{Level,Logger}
 
-class PropertyBuilderTester {
+class PropertyBuilderTester extends test.LittleTest {
   
+  @Test
   def testPropBuilder():Unit = try {
     val builder = new PropertyBuilderTester.TestBuilder();
     {

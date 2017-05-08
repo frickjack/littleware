@@ -92,7 +92,7 @@ trait PropertyBuilder extends LittleValidator {
     */
    class NotNullProperty[T <: AnyRef]( _value:T, _test:(T) => Iterable[String] ) extends Property[T]( _value, _test ) {
      def this( v:T ) = this(v, 
-                       sanityCheck( nullCheck )
+                       PropertyBuilder.sanityCheck( nullCheck )
                        )
      def this() = this( null.asInstanceOf[T] )
    } 
@@ -102,7 +102,7 @@ trait PropertyBuilder extends LittleValidator {
     */
    class IntProperty( _value:Int, test:(Int) => Iterable[String] ) extends Property[Int]( _value, test ) {
      
-     def this( v:Int ) = this( v, sanityCheck( notNegativeInt ) )
+     def this( v:Int ) = this( v, PropertyBuilder.sanityCheck( notNegativeInt ) )
      /** Alias for constructor (-1, (i) => i > 0) */
      def this() = this( -1 ) 
    }   

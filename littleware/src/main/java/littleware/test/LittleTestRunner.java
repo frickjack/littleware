@@ -1,5 +1,6 @@
 package littleware.test;
 
+import com.google.inject.Injector;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +37,9 @@ public class LittleTestRunner extends BlockJUnit4ClassRunner {
         }
     }
 
+    private static final String lock = "lock";
+    private static volatile Injector injector;
+    
     /**
      * This is where littleware hooks in
      * 
@@ -43,9 +47,24 @@ public class LittleTestRunner extends BlockJUnit4ClassRunner {
      */
     @Override
     protected Object createTest() {
+        Injector injector = LittleTestRunner.injector;
+        if ( null == injector ) {
+            synchronized( lock ) {
+                injector = LittleTestRunner.injector;
+                if ( null == injector ) {
+                    try {
+                        final LittleBootstrap boot = LittleBootstrap.factory.lookup( LittleBootstrap.class );
+                        LittleTestRunner.injector = injector = boot.newSessionBuilder().build().startSession( Injector.class );
+                    } catch ( Throwable ex ) {
+                        log.log( Level.WARNING, "Failed container setup", ex );
+                        throw ex;
+                    }
+                }
+            }
+        }
         try {
-            return LittleBootstrap.factory.lookup(this.getTestClass().getJavaClass());
-        } catch ( RuntimeException ex ) {
+            return LittleTestRunner.injector.getInstance(this.getTestClass().getJavaClass());
+        } catch ( Throwable ex ) {
             log.log( Level.SEVERE, "Test class construction failed", ex );
             throw ex;
         }

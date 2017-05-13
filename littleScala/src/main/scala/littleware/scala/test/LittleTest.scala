@@ -1,6 +1,5 @@
 package littleware.scala.test
 
-import littleware.test.LittleTest
 
 /**
  * Little specialization of littleware.test.LittleTest with
@@ -8,8 +7,8 @@ import littleware.test.LittleTest
  */
 class LittleTest {
   val basicHandler:PartialFunction[Throwable,Unit] = {
-    case ex:Exception => LittleTest.handle(ex)
-    case ex:java.lang.AssertionError => LittleTest.handle(ex)
+    case ex:Exception => littleware.test.LittleTest.handle(ex)
+    case ex:java.lang.AssertionError => littleware.test.LittleTest.handle(ex)
     case ex => throw ex
   }
 }

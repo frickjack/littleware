@@ -1,13 +1,14 @@
 package littleware.scala
 
 import org.junit.Assert._
-
+import org.junit.Test
 
 /**
  * Little tester of GetoptHelper
  */
 class GetoptTester extends test.LittleTest {
     
+  @Test
   def testGetopt():Unit = try {
     val args = Array( "-alpha", "-beta", "a", "-gamma", "a", "b" )
     val argMap = GetoptHelper.extract( args )

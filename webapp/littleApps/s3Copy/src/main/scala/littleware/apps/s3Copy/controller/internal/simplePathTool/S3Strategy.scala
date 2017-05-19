@@ -1,11 +1,3 @@
-/*
- * Copyright 2013 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.apps.s3Copy
 package controller
 package internal
@@ -21,7 +13,7 @@ import java.util.logging.{Level,Logger}
 import java.util.zip
 import org.apache.commons.codec
 import org.joda.{time => jtime}
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.util.{Try,Success,Failure}
 
 /**
@@ -71,7 +63,7 @@ class S3Strategy ( val path:java.net.URI,
       ) #:: s3Listing.takeWhile( _.isTruncated ).map( (part) => s3Client.listNextBatchOfObjects( part ) )
 
     val folderBuilder = folderFactory.get.path( folder )
-    s3Listing.flatMap( _.getObjectSummaries ).filter( _.getETag != null ).foreach( 
+    s3Listing.flatMap( _.getObjectSummaries.asScala ).filter( _.getETag != null ).foreach( 
       (obj) => {
         folderBuilder.objects.add(
           decorate( 
@@ -79,7 +71,7 @@ class S3Strategy ( val path:java.net.URI,
             obj ).build
         )
       })
-    s3Listing.flatMap( _.getCommonPrefixes 
+    s3Listing.flatMap( _.getCommonPrefixes.asScala 
     ).filter( cleanPath(_) != cleanFolderPath ).foreach( (pre) => {
         folderBuilder.folders.add( PathTool.s3Path( s3Bucket, pre ))
       })
@@ -185,6 +177,7 @@ class S3Strategy ( val path:java.net.URI,
         val meta = new s3.model.ObjectMetadata()
         meta.setContentEncoding( "gzip" )
         meta.setContentType( mimeMap.getContentType( source ) )
+        meta.setCacheControl( "public, max-age=7200" )
         request.setMetadata( meta )
         s3Client.putObject(request)
         ls( path ).map( _.asInstanceOf[model.ObjectSummary])

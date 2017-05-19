@@ -61,7 +61,7 @@ package littleModule {
           configMgr.s3Config( s3ConfigFactory.get.credsFromResource( Config.awsKeysResource ).build )
         } catch {
           case ex:Throwable => {
-              log.log( Level.WARNING, "Failed to load aws creds from default resource: " + Config.awsKeysResource )
+              log.log( Level.WARNING, "Failed to load aws creds from default resource: " + Config.awsKeysResource, ex )
           }
       }
       

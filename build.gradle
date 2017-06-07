@@ -38,6 +38,14 @@ project( ':webapp:littleApps:s3Copy' ) {
 }
 
 
+project( ':webapp:littleApps:fishRunner' ) {
+    dependencies {
+        compile project( ':littleware' )
+        compile 'com.amazonaws:aws-java-sdk:1.11.126'
+        compile 'org.glassfish.main.extras:glassfish-embedded-web:4.1.2'
+    }
+}
+
 project( ':littleAsset' ) {
     dependencies {
         compile project( ':littleware' )

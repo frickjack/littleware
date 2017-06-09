@@ -1,28 +1,23 @@
-/*
- * Copyright 2013 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.apps.fishRunner.test;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
+import littleware.test.LittleTestRunner;
 import org.glassfish.embeddable.Deployer;
 import org.glassfish.embeddable.GlassFish;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Test the glassfish setup, etc.
  */
+@RunWith(LittleTestRunner.class)
 public class FishCase 
-    extends TestCase
 {
     private static final Logger log = Logger.getLogger( FishCase.class.getName() );
     private final GlassFish      gf;
@@ -49,7 +44,6 @@ public class FishCase
     @Inject
     public FishCase( GlassFish gf, TestConfig config )
     {
-        super( "testGlassFish" );
         this.gf = gf;
         this.config = config;
     }
@@ -58,6 +52,7 @@ public class FishCase
     /**
      * Just see if we can startup glassfish
      */
+    @Test
     public void testGlassFish()
     {
         try {

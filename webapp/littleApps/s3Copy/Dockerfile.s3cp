@@ -1,0 +1,13 @@
+FROM openjdk:9-jre
+
+# Add Tini https://github.com/krallin/tini
+#ENV TINI_VERSION v0.15.0
+#ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /opt/tini/tini
+#RUN chmod +x /opt/tini/tini
+
+ADD cli/s3cp.sh /opt/littleware/cli/
+ADD build /opt/littleware/build/
+
+
+#ENTRYPOINT [ "/opt/tini/tini", "--", "/bin/bash", "/opt/littleware/cli/s3cp.sh" ]
+ENTRYPOINT [ "/bin/bash", "/opt/littleware/cli/s3cp.sh" ]

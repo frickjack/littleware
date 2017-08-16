@@ -66,6 +66,7 @@ project( ':littleware' ) {
         compile 'org.postgresql:postgresql:9.4.1208.jre7'
         compile 'mysql:mysql-connector-java:5.1.39'
         compile 'org.javasimon:javasimon-core:4.1.0'
+        compile 'javax.activation:activation:1.1.1'
     }
 }
 

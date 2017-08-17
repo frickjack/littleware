@@ -7,7 +7,7 @@ if [ ! -z ${JAVA_HOME} ]; then
     JAVACMD="${JAVA_HOME}/bin/java"
 fi
 
-DEFAULT_OPTS="-Xmx1024m -Xms128m -XX:+UseG1GC -Dnetworkaddress.cache.ttl=60"
+DEFAULT_OPTS="-Xmx1024m -Xms128m -XX:+UseG1GC -Dnetworkaddress.cache.ttl=60 --add-modules java.xml.bind"
 
 folder=$(dirname $0)
 cd "$folder"

@@ -24,7 +24,7 @@ project( ':littleScala' ) {
 
     dependencies {
         compile project( ':littleware' )
-        compile 'org.scala-lang:scala-library:2.12.2'
+        compile 'org.scala-lang:scala-library:2.12.3'
     }
 }
 

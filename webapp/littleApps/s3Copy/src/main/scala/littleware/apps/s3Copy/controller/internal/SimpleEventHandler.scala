@@ -18,8 +18,9 @@ class SimpleEventHandler @inject.Inject() (
   
   def updateConfig( s3Config:model.config.S3Config ):Unit = {
     configMgr.s3Config( s3Config )
+    val homePath = propLoader.getLittleHome().get();
     propLoader.safelySave( model.config.S3Config.credsToProps(s3Config.creds), 
-                          new java.io.File( propLoader.getLittleHome.toString + "/" + littleModule.Config.awsKeysResource )
+                          new java.io.File( homePath + "/" + littleModule.Config.awsKeysResource )
     )
   }
   

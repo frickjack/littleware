@@ -5,9 +5,9 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.server.bootstrap.ServerModule;
-import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.asset.server.db.jpa.HibernateModule;
 import littleware.asset.server.db.jpa.J2EEModule;
+import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 
 /**
@@ -15,7 +15,7 @@ import littleware.bootstrap.AppBootstrap.AppProfile;
  * db.jpa.J2EEModule, or db.aws.AwsModule depending on the contents
  * of LittleModuleFactory.properties ...
  */
-public class LittleModuleFactory implements ServerModuleFactory {
+public class LittleModuleFactory implements AppModuleFactory {
     private static final Logger log = Logger.getLogger( LittleModuleFactory.class.getName() );
     
     public enum Driver { Hibernate, J2EE, AWS };
@@ -44,7 +44,7 @@ public class LittleModuleFactory implements ServerModuleFactory {
     }
     
     @Override
-    public ServerModule buildServerModule(AppProfile profile) {
+    public ServerModule build(AppProfile profile) {
         if ( dbDriver.equals( Driver.AWS ) ) {
             log.log( Level.FINE, "Configuring AWS backend" );
             throw new UnsupportedOperationException( "AWS SimpleDB backend deprecated" );

@@ -3,7 +3,7 @@ package littleware.asset.server;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Date;

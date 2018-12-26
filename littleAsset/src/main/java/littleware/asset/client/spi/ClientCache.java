@@ -1,6 +1,5 @@
 package littleware.asset.client.spi;
 
-import com.google.inject.ImplementedBy;
 import java.util.UUID;
 import littleware.asset.Asset;
 

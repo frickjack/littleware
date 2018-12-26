@@ -76,7 +76,7 @@ public class LittleAssetModule extends AbstractAppModule {
         public enum RemoteMethod {
             InMemory, REST
         }
-        private RemoteMethod mode = RemoteMethod.REST;
+        private RemoteMethod mode = RemoteMethod.InMemory;
 
         public RemoteMethod getRemoteMethod() {
             return mode;
@@ -210,9 +210,11 @@ public class LittleAssetModule extends AbstractAppModule {
         // Bind client method of connecting with server
         switch (getClientConfig().getRemoteMethod()) {
             case InMemory: {
+                /* ... no client-side binding necessary ...
                 binder.bind(RemoteAssetManager.class).to(InMemoryAssetMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSearchManager.class).to(InMemorySearchMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSessionMgrProxy.class).to(InMemorySessionMgrProxy.class).in(Scopes.SINGLETON);
+                */
             }
               break;
             case REST: {

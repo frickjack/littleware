@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.Optional;

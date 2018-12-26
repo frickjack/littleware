@@ -13,6 +13,7 @@ import littleware.base.validate.Validator;
  * Validate an AssetBuilder's link, data, and attribute maps
  * have legal keys and values
  */
+@SuppressWarnings("unchecked")
 public class AssetAttrValidator {
 
     public Validator build(final AssetBuilder builderIn) {

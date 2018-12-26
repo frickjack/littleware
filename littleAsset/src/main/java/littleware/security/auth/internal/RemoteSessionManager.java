@@ -10,7 +10,7 @@
 package littleware.security.auth.internal;
 
 import java.rmi.Remote;
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 import littleware.base.BaseException;

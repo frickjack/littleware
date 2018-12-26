@@ -54,7 +54,7 @@ public class DbAssetManager extends DbSearchManager implements ServerAssetManage
      */
     @Inject
     public DbAssetManager(
-            DbAssetManager dbMgr,
+            DbCommandManager dbMgr,
             QuotaUtil quotaUtil,
             AssetSpecializerRegistry specializerReg,
             Provider<UUID> uuidFactory,

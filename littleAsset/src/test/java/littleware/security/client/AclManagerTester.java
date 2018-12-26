@@ -103,18 +103,18 @@ public class AclManagerTester extends AbstractAssetTest {
             final LittleAcl acl = aclBuilder.build();
             // Ok, let's test a few ops
             for (int i = 10; i < 20; ++i) {
-                final LittleUser p_test = userProvider.get().name(Integer.toString(i)).build().narrow();
+                final LittleUser testUser = userProvider.get().name(Integer.toString(i)).build().narrow();
                 // Assign a couple permissions to the entry
                 for (int j = 0; j < 5; ++j) {
-                    java.security.acl.Permission x_permission = new BogusAclPermission(j);
-                    assertTrue("Principal " + p_test + " does not have permission " + x_permission,
-                            !acl.checkPermission(p_test, x_permission));
+                    final LittlePermission permission = new BogusAclPermission(j);
+                    assertTrue("Principal " + testUser + " does not have permission " + permission,
+                            !acl.checkPermission(testUser, permission));
                 }
                 // Remove few permissions
                 for (int j = 5; j < 8; ++j) {
-                    java.security.acl.Permission x_permission = new BogusAclPermission(j);
-                    assertTrue("Principal " + p_test + " does not have permission " + x_permission,
-                            !acl.checkPermission(p_test, x_permission));
+                    final LittlePermission permission = new BogusAclPermission(j);
+                    assertTrue("Principal " + testUser + " does not have permission " + permission,
+                            !acl.checkPermission(testUser, permission));
                 }
             }
             {

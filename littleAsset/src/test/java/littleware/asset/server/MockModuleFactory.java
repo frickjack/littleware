@@ -6,8 +6,8 @@ import com.google.inject.Singleton;
 import littleware.asset.client.test.AbstractAssetTest;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerModule;
-import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.bootstrap.AppBootstrap;
+import littleware.bootstrap.AppModuleFactory;
 import littleware.security.auth.LittleSession;
 import littleware.security.auth.internal.RemoteSessionManager;
 
@@ -15,7 +15,7 @@ import littleware.security.auth.internal.RemoteSessionManager;
  * Setup bindings for the Mock interfaces required to run
  * the client-side test cases directly against the server-side service implementations.
  */
-public class MockModuleFactory implements ServerModuleFactory {
+public class MockModuleFactory implements AppModuleFactory {
 
     public static class MockModule extends AbstractServerModule {
 
@@ -44,7 +44,7 @@ public class MockModuleFactory implements ServerModuleFactory {
     }
 
     @Override
-    public ServerModule buildServerModule(AppBootstrap.AppProfile profile) {
+    public ServerModule build(AppBootstrap.AppProfile profile) {
         return new MockModule(profile);
     }
 }

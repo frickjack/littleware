@@ -53,7 +53,6 @@ public class AuthTestRunner extends BlockJUnit4ClassRunner {
     @Override
     protected Object createTest() {
         try {
-            //ServerBootstrap.provider.get().build() ... ?
             final Injector sessionInjector = LittleBootstrap.factory.lookup(Injector.class);
 
             // Login as test user - go through SessionManager

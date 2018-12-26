@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -14,7 +13,7 @@ import javax.security.auth.spi.*;
 import javax.security.auth.login.*;
 import javax.security.auth.callback.*;
 import littleware.asset.client.AssetManager;
-
+import littleware.asset.client.RemoteException;
 
 import littleware.base.*;
 import littleware.security.auth.LittleSession;

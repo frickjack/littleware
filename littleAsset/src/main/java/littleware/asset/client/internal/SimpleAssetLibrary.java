@@ -163,6 +163,7 @@ public class SimpleAssetLibrary
      */
     private static final class SimpleAssetRef implements AssetRef {
 
+        private static final long serialVersionUID = 1L;
         private Optional<Asset> asset = Optional.empty();
         private final SimpleLittleTool eventSupport = new SimpleLittleTool(this);
         private final SimpleAssetLibrary library;

@@ -17,6 +17,7 @@ import littleware.base.validate.ValidationException;
  * Handy little base class for implementing asset types.
  * Subtypes actually implement the Asset interface.
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractAsset extends AbstractCacheableObject {
     private static final Logger log = Logger.getLogger( AbstractAsset.class.getName() );
     

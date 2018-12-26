@@ -11,7 +11,6 @@ import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
 import littleware.asset.client.RemoteException;
-import littleware.asset.internal.RemoteSearchManager.AssetResult;
 import littleware.asset.internal.RemoteSearchManager;
 import littleware.base.BaseException;
 

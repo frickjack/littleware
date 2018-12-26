@@ -23,7 +23,7 @@ public interface AssetTreeTool {
      *                 in list order or delete in reverse order
      * @throws littleware.base.BaseException
      * @throws java.security.GeneralSecurityException
-     * @throws java.rmi.RemoteException
+     * @throws littleware.asset.client.RemoteException
      */
     public List<Asset> loadBreadthFirst(UUID uRoot) throws BaseException,
             GeneralSecurityException, RemoteException, TooMuchDataException;
@@ -38,7 +38,7 @@ public interface AssetTreeTool {
      *                 in list order or delete in reverse order
      * @throws littleware.base.BaseException
      * @throws java.security.GeneralSecurityException
-     * @throws java.rmi.RemoteException
+     * @throws littleware.asset.client.RemoteException
      */
     public List<Asset> loadBreadthFirst(UUID uRoot, int iMaxDepth) throws BaseException,
             GeneralSecurityException, RemoteException, TooMuchDataException;
@@ -52,7 +52,7 @@ public interface AssetTreeTool {
      *                 in list order or delete in reverse order
      * @throws littleware.base.BaseException
      * @throws java.security.GeneralSecurityException
-     * @throws java.rmi.RemoteException
+     * @throws littleware.asset.client.RemoteException
      */
     public List<Asset> loadBreadthFirst(UUID uRoot, Feedback feedback) throws BaseException,
             GeneralSecurityException, RemoteException, TooMuchDataException;

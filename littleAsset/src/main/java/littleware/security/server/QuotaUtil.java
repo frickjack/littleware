@@ -1,7 +1,7 @@
 package littleware.security.server;
 
 
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.security.GeneralSecurityException;
 import littleware.asset.*;
 import littleware.asset.server.LittleContext;
@@ -30,7 +30,7 @@ public interface QuotaUtil {
      * @throws littleware.base.BaseException
      * @throws littleware.asset.AssetException
      * @throws java.security.GeneralSecurityException
-     * @throws java.rmi.RemoteException
+     * @throws littleware.asset.client.RemoteException
      */
     public int incrementQuotaCount( LittleContext ctx, LittleUser user, ServerAssetManager accountMgr,
             ServerSearchManager search

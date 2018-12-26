@@ -11,7 +11,7 @@ import com.google.inject.Binder;
 import com.google.inject.Scopes;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerModule;
-import littleware.asset.server.bootstrap.ServerModuleFactory;
+import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.AppBootstrap.AppProfile;
 import littleware.security.auth.server.internal.SimpleSessionManager;
 
@@ -20,7 +20,7 @@ import littleware.security.auth.server.internal.SimpleSessionManager;
  * Bootstrap configuration for authentication component of
  * littleware server.
  */
-public class LittleModuleFactory implements ServerModuleFactory {
+public class LittleModuleFactory implements AppModuleFactory {
 
     public static class StartupModule extends AbstractServerModule {
         public StartupModule( AppProfile profile ) {
@@ -43,7 +43,7 @@ public class LittleModuleFactory implements ServerModuleFactory {
     }
     
     @Override
-    public ServerModule buildServerModule(AppProfile profile) {
+    public ServerModule build(AppProfile profile) {
         return new StartupModule( profile );
     }
     

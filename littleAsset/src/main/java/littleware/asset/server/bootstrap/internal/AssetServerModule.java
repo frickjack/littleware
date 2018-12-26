@@ -5,13 +5,7 @@ import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-import com.google.inject.name.Named;
 import java.io.IOException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
@@ -31,19 +25,21 @@ import littleware.asset.server.ServerAssetManager;
 import littleware.asset.server.ServerScannerFactory;
 import littleware.asset.server.ServerSearchManager;
 import littleware.asset.server.bootstrap.AbstractServerModule;
-import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.security.server.QuotaUtil;
 import littleware.asset.server.internal.DbAssetManager;
 import littleware.asset.server.internal.SimpleScannerFactory;
 import littleware.asset.server.internal.DbSearchManager;
+import littleware.asset.server.internal.RmiAssetManager;
+import littleware.asset.server.internal.RmiSearchManager;
 import littleware.security.server.internal.SimpleQuotaUtil;
 import littleware.asset.server.internal.SimpleSpecializerRegistry;
 import littleware.asset.server.db.DbCommandManager;
 import littleware.base.PropertiesGuice;
 import littleware.asset.server.bootstrap.ServerModule;
-import littleware.asset.server.bootstrap.ServerModuleFactory;
 import littleware.asset.server.internal.SimpleContextFactory;
 import littleware.bootstrap.AppBootstrap;
+import littleware.bootstrap.AppModuleFactory;
+import littleware.bootstrap.LittleBootstrap;
 import littleware.bootstrap.LittleModule;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
@@ -94,26 +90,21 @@ public class AssetServerModule extends AbstractServerModule {
      */
     public static class Activator implements LifecycleCallback {
 
-        private final int registryPort;
-        private boolean localRegistry = false;
-        private Optional<Registry> maybeRegistry;
         private final RemoteSessionManager sessionMgr;
         private final RemoteAssetManager assetMgr;
         private final RemoteSearchManager searchMgr;
 
         @Inject
         public Activator(
-                ServerBootstrap bootstrap,
-                @Named("int.lw.rmi_port") int registryPort,
+                LittleBootstrap bootstrap,
                 AssetSpecializerRegistry assetRegistry,
                 RemoteSessionManager sessionMgr,
                 RemoteAssetManager   assetMgr,
                 RemoteSearchManager  searchMgr,
-                DbAssetManager dbManager,
+                DbCommandManager dbManager,
                 LittleContext.ContextFactory ctxProvider,
                 Injector injector
                 ) {
-            this.registryPort = registryPort;
             this.sessionMgr = sessionMgr;
             boolean rollback = true;
             // setup an overall transaction for the asset type auto-register code
@@ -143,67 +134,11 @@ public class AssetServerModule extends AbstractServerModule {
 
         @Override
         public void startUp() {
-            try {
-                // inject local SessionManager for colocated server-client situation
-                //SessionUtil.get().injectLocalManager(sessionMgr);
-                final int port = registryPort;
-                if (port > 0) {
-                    Registry rmi_registry;
-                    try {
-                        log.log(Level.INFO, "Looking for RMI registry on port: {0}", port);
-                        rmi_registry = null; //LocateRegistry.createRegistry(port, LittleRemoteObject.getClientSockFactory(), LittleRemoteObject.getServerSockFactory() );
-                        localRegistry = true;
-                    } catch (Exception ex) {
-                        log.log(Level.SEVERE, "Failed to start RMI registry on port " + port
-                                + " attempting to bind to already running registry", ex);
-
-                        rmi_registry = LocateRegistry.getRegistry(port);
-                    }
-                    maybeRegistry = Optional.ofNullable(rmi_registry);
-
-                    /**
-                     * Need to wrap session manager with an invocation handler,
-                     * because the RMI server thread inherits the ActivationContext
-                     * of the client thread.  Frick.
-                     */
-                    /**
-                     * Publish the reference in the Naming Service using JNDI API
-                     * Context jndi_context = new InitialContext();
-                     * jndi_context.rebind("/littleware/SessionManager", om_session );
-                     *
-                    log.log( Level.INFO, "Binding " + RemoteSessionManager.LOOKUP_PATH );
-                    rmi_registry.rebind( RemoteSessionManager.LOOKUP_PATH, sessionMgr);
-                    log.log( Level.INFO, "Binding " + RemoteAssetManager.LOOKUP_PATH );
-                    rmi_registry.rebind( RemoteAssetManager.LOOKUP_PATH, assetMgr );
-                    log.log( Level.INFO, "Binding " + RemoteSearchManager.LOOKUP_PATH );
-                    rmi_registry.rebind( RemoteSearchManager.LOOKUP_PATH, searchMgr );
-                    */
-                } else {
-                    log.log(Level.INFO, "Not exporing RMI registry - port set to: {0}", port);
-                }
-            } catch (Exception ex) {
-                //throw new AssertionFailedException("Failed to setup SessionManager, caught: " + e, e);
-                log.log(Level.SEVERE, "Failed to bind to RMI registry "
-                        + " running without exporting root SessionManager object to RMI universe",
-                        ex);
-
-            }
             log.log(Level.INFO, "littleware RMI and REST start ok");
         }
 
         @Override
         public void shutDown(){
-            if (maybeRegistry.isPresent()) {
-                try {
-                    final Registry reg = maybeRegistry.get();
-                    reg.unbind("littleware/SessionManager");
-                    if (localRegistry) {
-                        UnicastRemoteObject.unexportObject(maybeRegistry.get(), true);
-                    }
-                } catch (  RemoteException | NotBoundException ex) {
-                    log.log(Level.WARNING, "RMI registry shutdown cleanup failed", ex);
-                }
-            }
             log.log(Level.INFO, "littleware shutdown ok");
         }
     }
@@ -215,7 +150,7 @@ public class AssetServerModule extends AbstractServerModule {
 
 
 
-    public static class Factory implements ServerModuleFactory {
+    public static class Factory implements AppModuleFactory {
 
         private final Map<AssetType, Class<? extends AssetSpecializer>> typeMap;
 
@@ -240,7 +175,7 @@ public class AssetServerModule extends AbstractServerModule {
         }
 
         @Override
-        public ServerModule buildServerModule(AppBootstrap.AppProfile profile) {
+        public ServerModule build(AppBootstrap.AppProfile profile) {
             log.log( Level.FINE, "Flipping LittleAssetModule over to InMemory RemoteMethod" );
             littleware.asset.internal.LittleAssetModule.getClientConfig().setRemoteMethod(RemoteMethod.InMemory);
             return new AssetServerModule(profile, typeMap);

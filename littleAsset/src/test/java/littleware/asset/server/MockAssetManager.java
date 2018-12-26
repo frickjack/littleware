@@ -2,7 +2,7 @@ package littleware.asset.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Map;
@@ -19,6 +19,7 @@ import littleware.base.BaseException;
  * like an AssetManager, so we can test the server-side
  * API with the client-side test cases.
  */
+@SuppressWarnings("unchecked")
 public class MockAssetManager extends MockSearchManager implements AssetManager {
     private final LittleContext ctx;
     private final ServerAssetManager mgr;

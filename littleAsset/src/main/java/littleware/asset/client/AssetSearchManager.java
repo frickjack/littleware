@@ -34,7 +34,7 @@ public interface AssetSearchManager {
      * @throws AssetException some other failure condition
      */
     public AssetRef getAsset(UUID assetId) throws BaseException,
-            GeneralSecurityException;
+            GeneralSecurityException, RemoteException;
 
     /**
      * Get as many of the assets in the given collection of ids as possible.
@@ -113,7 +113,7 @@ public interface AssetSearchManager {
      * @return pathIn.getRoot().getFromId() != null ? new rooted bath : pathIn
      * @throws littleware.base.BaseException
      * @throws java.security.GeneralSecurityException
-     * @throws java.rmi.RemoteException
+     * @throws littleware.asset.client.RemoteException
      */
     public AssetPath toRootedPath ( AssetPath pathIn
                                     ) throws BaseException, GeneralSecurityException,

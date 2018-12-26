@@ -2,7 +2,6 @@ package littleware.security.auth.server.internal;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import java.rmi.*;
 //import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.logging.Level;
@@ -20,6 +19,7 @@ import littleware.asset.AssetTreeTemplate.AssetInfo;
 import littleware.asset.AssetTreeTemplate.TemplateBuilder;
 import littleware.asset.GenericAsset.GenericBuilder;
 import littleware.asset.TemplateScanner.ExistInfo;
+import littleware.asset.client.RemoteException;
 import littleware.asset.server.LittleContext;
 import littleware.asset.server.ServerAssetManager;
 import littleware.asset.server.ServerScannerFactory;

@@ -3,3 +3,12 @@
 littleware.asset.internal.LittleAssetModule$AppFactory
 littleware.security.internal.LittleSecurityModule$AppFactory
 #littleware.asset.webproxy.JettyModule$AppFactory
+#
+# ServerModules
+#
+# littleware ServerModule service providers
+#littleware.apps.filebucket.server.BucketServerModule$Factory
+#littleware.apps.tracker.server.TrackerServerModule$Factory
+littleware.asset.server.bootstrap.internal.AssetServerModule$Factory
+littleware.asset.server.db.LittleModuleFactory
+littleware.security.auth.server.LittleModuleFactory

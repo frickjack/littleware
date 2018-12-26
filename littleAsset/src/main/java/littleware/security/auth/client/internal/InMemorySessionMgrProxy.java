@@ -1,7 +1,7 @@
 package littleware.security.auth.client.internal;
 
 import com.google.inject.Inject;
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 import littleware.base.BaseException;

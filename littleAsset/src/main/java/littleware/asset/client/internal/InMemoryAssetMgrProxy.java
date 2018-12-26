@@ -2,12 +2,12 @@ package littleware.asset.client.internal;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.UUID;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
+import littleware.asset.client.RemoteException;
 import littleware.asset.internal.RemoteAssetManager;
 import littleware.base.BaseException;
 

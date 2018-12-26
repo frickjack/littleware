@@ -1,2 +1,2 @@
-include 'littleware', 'littleAsset', 'littleScala', 'webapp:littleApps:s3Copy', 'webapp:littleApps:fishRunner'
+include 'littleware', 'littleAsset', 'littleWeb', 'littleScala', 'webapp:littleApps:s3Copy', 'webapp:littleApps:fishRunner', 'webapp:littleApps:littleApps'
 

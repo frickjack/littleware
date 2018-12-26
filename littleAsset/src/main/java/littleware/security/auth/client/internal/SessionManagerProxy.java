@@ -2,7 +2,7 @@ package littleware.security.auth.client.internal;
 
 import com.google.inject.Inject;
 import java.util.UUID;
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.util.logging.Logger;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
@@ -11,7 +11,6 @@ import java.util.Optional;
 import javax.security.auth.Subject;
 import littleware.asset.AssetException;
 import littleware.asset.client.AssetSearchManager;
-import littleware.asset.client.internal.RemoteSearchMgrProxy;
 import littleware.asset.client.spi.AssetLoadEvent;
 import littleware.asset.client.spi.LittleServiceBus;
 import littleware.asset.internal.RemoteSearchManager;
@@ -40,7 +39,7 @@ public class SessionManagerProxy implements SessionManager {
      */
     @Inject
     public SessionManagerProxy(RemoteSessionMgrProxy remote,
-            RemoteSearchMgrProxy rsearch,
+            RemoteSearchManager rsearch,
             AssetSearchManager search,
             KeyChain keychain,
             LittleServiceBus eventBus ) {

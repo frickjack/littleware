@@ -5,7 +5,7 @@ import littleware.asset.AssetInfo;
 import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
 import littleware.asset.AssetType;
@@ -16,17 +16,17 @@ import littleware.security.AccessDeniedException;
 
 
 /**
- * Asset-search interface.  Searches the local server database only.
+ * Same as SearchManager, but replaces LittleContext with sessionId
  */
 public interface RemoteSearchManager {
     
-    public static abstract class TStampResult<T> implements java.io.Serializable {
+    public static abstract class TStampResult<T> {
         private State          state;
         private T              data;
         
         public static enum State { 
             NO_DATA, 
-            USE_YOUR_CACHE, 
+            USE_YOUR_CACHE,
             DATA_IN_RESULT,
             ACCESS_DENIED
         };

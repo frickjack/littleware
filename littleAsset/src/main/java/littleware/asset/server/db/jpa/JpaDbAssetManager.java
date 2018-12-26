@@ -12,7 +12,7 @@ import littleware.asset.Asset;
 import littleware.asset.AssetType;
 import littleware.asset.IdWithClock;
 import littleware.asset.server.LittleTransaction;
-import littleware.asset.server.db.DbAssetManager;
+import littleware.asset.server.db.DbCommandManager;
 import littleware.asset.spi.AssetProviderRegistry;
 import littleware.db.DbReader;
 import littleware.db.DbWriter;
@@ -20,7 +20,7 @@ import littleware.db.DbWriter;
 /**
  * JPA implementation of DbAssetManager
  */
-public class JpaDbAssetManager implements DbAssetManager {
+public class JpaDbAssetManager implements DbCommandManager {
 
     private static final Logger log = Logger.getLogger(JpaDbAssetManager.class.getName());
     private final AssetProviderRegistry assetRegistry;

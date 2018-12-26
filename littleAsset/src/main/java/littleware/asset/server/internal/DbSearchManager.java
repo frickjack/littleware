@@ -32,10 +32,11 @@ import littleware.security.LittleUser;
  * Simple implementation of Asset-search interface. 
  * TODO - refactor DbManager to better support AssetInfo methods
  */
-public class SimpleSearchManager implements ServerSearchManager {
+@SuppressWarnings("unchecked")
+public class DbSearchManager implements ServerSearchManager {
 
-    private static final Logger log = Logger.getLogger(SimpleSearchManager.class.getName());
-    private final DbAssetManager dbMgr;
+    private static final Logger log = Logger.getLogger(DbSearchManager.class.getName());
+    private final DbCommandManager dbMgr;
     private final AssetSpecializerRegistry specialRegistry;
     private final Provider<AssetInfo.Builder> infoFactory;
 
@@ -43,7 +44,7 @@ public class SimpleSearchManager implements ServerSearchManager {
      * Constructor stashes DataSource, DbManager, and CacheManager
      */
     @Inject
-    public SimpleSearchManager(DbAssetManager dbMgr,
+    public DbSearchManager(DbCommandManager dbMgr,
             AssetSpecializerRegistry specialRegistry,
             Provider<AssetInfo.Builder> infoFactory
             ) {
@@ -72,8 +73,6 @@ public class SimpleSearchManager implements ServerSearchManager {
             throw new IllegalArgumentException( "Unspecialized asset with NULL id" );
         }
         
-        final Map<UUID,Asset> accessCache = ctx.getTransaction().getCache();
-
         if ( unspecial.getTimestamp() <= clientTimestamp ) {
             return AssetResult.useCache();
         }

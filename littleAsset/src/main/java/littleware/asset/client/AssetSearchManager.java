@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.security.GeneralSecurityException;
-import java.rmi.RemoteException;
-import java.rmi.Remote;
 import javax.naming.LinkLoopException;
 import littleware.asset.Asset;
 import littleware.asset.AssetException;
@@ -20,7 +18,7 @@ import littleware.security.AccessDeniedException;
 /**
  * Interface for read-only interactions with the distributed asset repository
  */
-public interface AssetSearchManager extends Remote {
+public interface AssetSearchManager {
 
     /**
      * Get the asset with the specified id.
@@ -36,7 +34,7 @@ public interface AssetSearchManager extends Remote {
      * @throws AssetException some other failure condition
      */
     public AssetRef getAsset(UUID assetId) throws BaseException,
-            GeneralSecurityException, RemoteException;
+            GeneralSecurityException;
 
     /**
      * Get as many of the assets in the given collection of ids as possible.

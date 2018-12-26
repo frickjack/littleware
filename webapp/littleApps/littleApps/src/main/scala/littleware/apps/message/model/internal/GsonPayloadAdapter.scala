@@ -1,12 +1,3 @@
-/*
- * Copyright 2012 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.apps.message.model
 package internal
 
@@ -20,8 +11,7 @@ class GsonPayloadAdapter @inject.Inject() (
   registry:Payload.PickleRegistry
 ) extends gson.JsonSerializer[Payload] with gson.JsonDeserializer[Payload] {
   private val log = Logger.getLogger( getClass.getName )
-  
-  
+    
   override def serialize( src:Payload,
                          srcType:java.lang.reflect.Type,
                          ctx:gson.JsonSerializationContext

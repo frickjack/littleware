@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.server.db.jpa;
 
 import com.google.inject.Inject;
@@ -77,7 +69,7 @@ public class SimpleJpaTransaction extends AbstractLittleTransaction implements J
                 oentMgr = oprovideEntMgr.get();
             }
             oentMgr.getTransaction().begin();
-            final TransactionEntity trans = oentMgr.find(TransactionEntity.class, new Integer(1));
+            final TransactionEntity trans = oentMgr.find(TransactionEntity.class, 1);
             if ( null != trans ) {
                 transactionCounter = trans.getTimestamp() + 1;
                 trans.setTimestamp(transactionCounter);

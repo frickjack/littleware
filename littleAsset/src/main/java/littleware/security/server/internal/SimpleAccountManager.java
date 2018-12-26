@@ -24,6 +24,7 @@ import littleware.security.*;
 /**
  * Simple security-manager implementation
  */
+@SuppressWarnings("unchecked")
 public class SimpleAccountManager extends NullAssetSpecializer {
 
     private static final Logger log = Logger.getLogger(SimpleAccountManager.class.getName());

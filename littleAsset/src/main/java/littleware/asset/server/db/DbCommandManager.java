@@ -9,7 +9,7 @@ import littleware.db.*;
 /**
  * Factory interface for data storage CRUD handlers
  */
-public interface DbAssetManager {
+public interface DbCommandManager {
 
     /**
      * Create asset-creator handler

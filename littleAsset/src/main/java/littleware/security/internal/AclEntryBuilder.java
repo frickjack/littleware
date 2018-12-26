@@ -15,7 +15,6 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import java.io.StringReader;
 
-import java.security.acl.Permission;
 import littleware.base.*;
 import littleware.security.LittleAcl;
 import littleware.security.LittleAclEntry;
@@ -30,7 +29,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
     private static final Logger log = Logger.getLogger( AclEntryBuilder.class.getName() );
 
 
-    private Set<Permission> permissionSet = new HashSet<>();
+    private Set<LittlePermission> permissionSet = new HashSet<>();
     private LittlePrincipal principal = null;
 
     @Override
@@ -58,10 +57,10 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
 
         private static final long serialVersionUID = -5342316532664742997L;
         private final LittlePrincipal principal;
-        private final Set<Permission> permissionSet;
+        private final Set<LittlePermission> permissionSet;
 
         public EntryAsset(AclEntryBuilder builder, LittlePrincipal principal,
-                Set<Permission> permissionSet) {
+                Set<LittlePermission> permissionSet) {
             super(builder);
             this.principal = principal;
             this.permissionSet = ImmutableSet.copyOf(permissionSet);
@@ -89,16 +88,16 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
          * @return true if in entry, false otherwise
          */
         @Override
-        public boolean checkPermission(Permission permission) {
+        public boolean checkPermission(LittlePermission permission) {
             return permissionSet.contains(permission);
         }
 
         @Override
-        public Enumeration<Permission> permissions() {
+        public Enumeration<LittlePermission> permissions() {
             return Collections.enumeration(permissionSet);
         }
         @Override
-        public Collection<Permission> getPermissions() {
+        public Collection<LittlePermission> getPermissions() {
             return permissionSet;
         }
 
@@ -167,7 +166,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
     public String getData() {
         final StringBuilder sb = new StringBuilder();
         sb.append("<acl:permlist xmlns:acl=\"http://www.littleware.com/xml/namespace/2006/acl\">\n");
-        for (Permission permission : permissionSet) {
+        for (LittlePermission permission : permissionSet) {
             sb.append("<acl:perm>");
             sb.append(UUIDFactory.makeCleanString(((LittlePermission) permission).getObjectId()));
             sb.append("</acl:perm>\n");
@@ -185,7 +184,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
 
         private String os_data = "";
         private boolean ob_getdata = false;
-        private Set<Permission> ov_parse_perms = new HashSet<Permission>();
+        private Set<LittlePermission> ov_parse_perms = new HashSet<LittlePermission>();
 
         /**
          * Callback for XML start-tag
@@ -248,7 +247,7 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
          * Once parsing is complete - the set of permissions associated with this entry
          *   should be ready to go
          */
-        public Set<Permission> getPermissions() {
+        public Set<LittlePermission> getPermissions() {
             return ov_parse_perms;
         }
 
@@ -287,12 +286,12 @@ class AclEntryBuilder extends AbstractAssetBuilder<LittleAclEntry.Builder> imple
      * @return true if permission added, false if already in entry
      */
     @Override
-    public LittleAclEntry.Builder addPermission(Permission permission) {
+    public LittleAclEntry.Builder addPermission(LittlePermission permission) {
         permissionSet.add(permission);
         return this;
     }
     @Override
-    public LittleAclEntry.Builder removePermission( Permission permission ) {
+    public LittleAclEntry.Builder removePermission( LittlePermission permission ) {
         permissionSet.remove(permission);
         return this;
     }

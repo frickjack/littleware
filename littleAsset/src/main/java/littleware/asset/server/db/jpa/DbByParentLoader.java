@@ -21,6 +21,7 @@ import littleware.db.DbReader;
 /**
  * Load name-unique assets with the given name
  */
+@SuppressWarnings("unchecked")
 class DbByParentLoader implements DbReader<Optional<Asset>, String> {
     private static final Logger log = Logger.getLogger( DbByParentLoader.class.getName() );
 

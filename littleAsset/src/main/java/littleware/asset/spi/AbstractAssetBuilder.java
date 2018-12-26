@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.spi;
 
 import com.google.inject.Provider;
@@ -31,7 +23,8 @@ import littleware.base.*;
  * AssetBuilder structural base class.
  * Subtypes should implement an appropriate AssetBuilder interface.
  */
-public abstract class AbstractAssetBuilder<B extends AssetBuilder> extends AbstractValidator {
+@SuppressWarnings("unchecked")
+public abstract class AbstractAssetBuilder<B extends AssetBuilder> extends AbstractValidator implements AssetBuilder {
 
     private static final Provider<UUID> uuidFactory = UUIDFactory.getFactory();
     private static final Logger log = Logger.getLogger(AbstractAssetBuilder.class.getName());

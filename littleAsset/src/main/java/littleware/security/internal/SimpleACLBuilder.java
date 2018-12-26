@@ -4,7 +4,6 @@ import littleware.asset.spi.AbstractAsset;
 import littleware.asset.spi.AbstractAssetBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.security.acl.Permission;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -22,6 +21,7 @@ import littleware.security.LittleAcl;
 import littleware.security.LittleAcl.Builder;
 import littleware.security.LittleAclEntry;
 import littleware.security.LittleGroup;
+import littleware.security.LittlePermission;
 import littleware.security.LittlePrincipal;
 import littleware.security.LittleUser;
 
@@ -92,7 +92,7 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
         }
 
         @Override
-        public boolean checkPermission(LittlePrincipal user, Permission permission) {
+        public boolean checkPermission(LittlePrincipal user, LittlePermission permission) {
             if (negativeUserEntries.containsKey(user) && negativeUserEntries.get(user).checkPermission(permission) ) {
                 return false;
             } else if (positiveUserEntries.containsKey(user) && positiveUserEntries.get(user).checkPermission(permission)) {
@@ -124,8 +124,8 @@ public class SimpleACLBuilder extends AbstractAssetBuilder<LittleAcl.Builder> im
         }
 
         @Override
-        public Collection<Permission> getPermissions(LittlePrincipal principal) {
-            final Set<Permission> permissionSet = new HashSet<Permission>();
+        public Collection<LittlePermission> getPermissions(LittlePrincipal principal) {
+            final Set<LittlePermission> permissionSet = new HashSet<>();
             // Build up the list of positive group permissions for this principal
             for (LittleGroup group : positiveGroupEntries.keySet() ) {
                 if (group.isMember(principal)) {

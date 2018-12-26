@@ -67,6 +67,7 @@ public class HttpHelper {
             return result;
         }
 
+        @SuppressWarnings("unchecked")
         public <T> T getJsContent() {
             return (T) jsContent;
         }

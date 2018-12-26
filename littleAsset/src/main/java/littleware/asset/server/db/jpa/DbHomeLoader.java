@@ -20,9 +20,9 @@ import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
 
 /**
- *
- * @author pasquini
+ * Load home assets
  */
+@SuppressWarnings("unchecked")
 public class DbHomeLoader implements DbReader<Map<String, UUID>,String> {
     private final JpaLittleTransaction trans;
 

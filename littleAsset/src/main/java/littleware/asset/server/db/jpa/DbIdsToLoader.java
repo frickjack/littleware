@@ -1,11 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
 package littleware.asset.server.db.jpa;
 
 import java.sql.SQLException;
@@ -22,6 +14,7 @@ import littleware.db.DbReader;
 /**
  * JPA handler loads list of asset-ids linking to a given asset id
  */
+@SuppressWarnings("unchecked")
 public class DbIdsToLoader implements DbReader<Set<UUID>,String> {
     private final AssetType assetType;
     private final UUID toId;

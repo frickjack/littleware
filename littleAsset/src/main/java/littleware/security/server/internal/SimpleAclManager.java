@@ -19,6 +19,7 @@ import littleware.security.*;
 /**
  * Simple AclManager implementation.
  */
+@SuppressWarnings("unchecked")
 public class SimpleAclManager extends NullAssetSpecializer implements AclSpecializer {
 
     private static final Logger log = Logger.getLogger(SimpleAclManager.class.getName());

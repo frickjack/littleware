@@ -18,7 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import littleware.asset.server.LittleTransaction;
 import littleware.asset.server.bootstrap.AbstractServerModule;
-import littleware.asset.server.db.DbAssetManager;
+import littleware.asset.server.db.DbCommandManager;
 import littleware.asset.server.db.DbInitializer;
 import littleware.bootstrap.AppBootstrap;
 
@@ -60,10 +60,10 @@ public abstract class AbstractGuice extends AbstractServerModule {
     /**
      * Handler for initializing a JPA environment for littleware use.
      */
-    public static class SetupHandler implements Runnable, Provider<DbAssetManager> {
+    public static class SetupHandler implements Runnable, Provider<DbCommandManager> {
 
         private boolean isDomainInitialized = false;
-        private final DbAssetManager mgr;
+        private final DbCommandManager mgr;
         private final DbInitializer dbInit;
 
         @Inject
@@ -80,7 +80,7 @@ public abstract class AbstractGuice extends AbstractServerModule {
         }
 
         @Override
-        public DbAssetManager get() {
+        public DbCommandManager get() {
             if (!isDomainInitialized) {
                 this.run();
                 isDomainInitialized = true;
@@ -103,6 +103,6 @@ public abstract class AbstractGuice extends AbstractServerModule {
         //binder.bind( SimpleJpaTransaction.class ).toProvider(TransactionProvider.class);
         //binder.bind( TransactionProvider.class ).in( Scopes.SINGLETON );
         binder.bind( EntityManager.class ).toProvider( EntityManagerProvider.class );
-        binder.bind(DbAssetManager.class).toProvider(SetupHandler.class).in(Scopes.SINGLETON);
+        binder.bind(DbCommandManager.class).toProvider(SetupHandler.class).in(Scopes.SINGLETON);
     }
 }

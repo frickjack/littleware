@@ -1,10 +1,3 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.server.db.jpa;
 
 import java.sql.SQLException;
@@ -17,6 +10,7 @@ import littleware.asset.IdWithClock;
 import littleware.base.UUIDFactory;
 import littleware.db.DbReader;
 
+@SuppressWarnings("unchecked")
 class DbLogLoader implements DbReader<List<IdWithClock>, Long> {
 
     private final UUID homeId;
@@ -34,7 +28,7 @@ class DbLogLoader implements DbReader<List<IdWithClock>, Long> {
     @Override
     public List<IdWithClock> loadObject(Long minTransactionIn) throws SQLException {
         final EntityManager entMgr = trans.getEntityManager();
-        final TransactionEntity entity = entMgr.find( TransactionEntity.class, new Integer(1) );
+        final TransactionEntity entity = entMgr.find( TransactionEntity.class, 1 );
         final String sQuery = "SELECT NEW littleware.asset.server.db.jpa.ClockIdType( x.objectId, x.fromId, x.lastTransaction ) " +
                 "FROM Asset x " +
                 "WHERE x.homeId = :homeId AND x.lastTransaction > :minTransaction " +

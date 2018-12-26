@@ -77,8 +77,18 @@ public abstract class AbstractAsset extends AbstractCacheableObject {
         }
     }
 
-    public AbstractAsset( AbstractAssetBuilder builder) {
-        this(builder.getAssetType(), builder.getId(), builder.getHomeId(), builder.getOwnerId(), builder.getFromId(), builder.getToId(), builder.getAclId(), builder.getTimestamp(), builder.getName(), builder.getState(), builder.getCreateDate(), builder.getCreatorId(), builder.getComment(), builder.getLastUpdateDate(), builder.getLastUpdaterId(), builder.getLastUpdate(), builder.getStartDate(), builder.getEndDate(), builder.getValue(), builder.getData(), ImmutableMap.copyOf(builder.getAttributeMap()), ImmutableMap.copyOf(builder.getDateMap()), ImmutableMap.copyOf(builder.getLinkMap()));
+    public AbstractAsset( AbstractAssetBuilder<? extends AssetBuilder> builder) {
+        this(builder.getAssetType(), builder.getId(), builder.getHomeId(), 
+            builder.getOwnerId(), builder.getFromId(), builder.getToId(), 
+            builder.getAclId(), builder.getTimestamp(), builder.getName(), 
+            builder.getState(), builder.getCreateDate(), builder.getCreatorId(), 
+            builder.getComment(), builder.getLastUpdateDate(), builder.getLastUpdaterId(), 
+            builder.getLastUpdate(), builder.getStartDate(), builder.getEndDate(), 
+            builder.getValue(), builder.getData(), 
+            ImmutableMap.copyOf(builder.getAttributeMap()), 
+            ImmutableMap.copyOf(builder.getDateMap()), 
+            ImmutableMap.copyOf(builder.getLinkMap())
+            );
     }
 
     

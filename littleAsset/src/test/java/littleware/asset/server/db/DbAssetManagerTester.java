@@ -35,7 +35,7 @@ public class DbAssetManagerTester {
         testSuperType = new AssetType( superId, "testSuper" + now.getTime() ) {};
         testSubType = new AssetType( subId, "testSub" + now.getTime(), testSuperType ){};
     }
-    private final DbAssetManager dbMgr;
+    private final DbCommandManager dbMgr;
     private final Provider<GenericAsset.GenericBuilder> nodeProvider;
     private final LittleTransaction trans;
     private final Provider<UUID> uuidFactory;
@@ -44,7 +44,7 @@ public class DbAssetManagerTester {
      * Constructor stashes data to run tests against
      */
     @Inject
-    public DbAssetManagerTester(DbAssetManager mgrDb,
+    public DbAssetManagerTester(DbCommandManager mgrDb,
             Provider<GenericAsset.GenericBuilder> nodeProvider,
             LittleTransaction trans,
             Provider<UUID> uuidFactory

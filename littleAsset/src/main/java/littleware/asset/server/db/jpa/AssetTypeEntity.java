@@ -126,7 +126,7 @@ public class AssetTypeEntity implements Serializable {
         final AssetTypeEntity entity = new AssetTypeEntity();
         entity.setName( assetType.getName() );
         entity.setObjectId( UUIDFactory.makeCleanString(assetType.getObjectId() ) );
-        final List subtypeList = new ArrayList<AssetTypeEntity>();
+        final List<AssetTypeEntity> subtypeList = new ArrayList<AssetTypeEntity>();
         subtypeList.addAll( subType );
         entity.setSubtypeList( subtypeList );
         entity.setComment( "Auto created by app engine" );

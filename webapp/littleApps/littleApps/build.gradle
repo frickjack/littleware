@@ -1,5 +1,4 @@
-
 task helloWorld( dependsOn: ':helloWorld'  ) doLast {
-   println "    - hello from littleAsset";
+   println "    - hello from fishRunner";
 }
 

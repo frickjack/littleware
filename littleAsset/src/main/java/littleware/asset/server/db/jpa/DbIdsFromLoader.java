@@ -12,12 +12,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import littleware.asset.AssetType;
 import littleware.base.UUIDFactory;
-import littleware.base.Whatever;
 import littleware.db.DbReader;
 
 /**
  * IdsFrom database handler
  */
+@SuppressWarnings("unchecked")
 public class DbIdsFromLoader implements DbReader<Map<String, UUID>, String> {
 
     private static final Logger log = Logger.getLogger(DbIdsFromLoader.class.getName());

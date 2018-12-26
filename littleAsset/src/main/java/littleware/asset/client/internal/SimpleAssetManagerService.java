@@ -24,6 +24,7 @@ import littleware.security.auth.client.KeyChain;
 /**
  * Simple implementation of AssetManagerService wrapper around AssetManager
  */
+@SuppressWarnings("unchecked")
 public class SimpleAssetManagerService extends SimpleSearchService implements AssetManager {
 
     private static final long serialVersionUID = 4377427321241771838L;

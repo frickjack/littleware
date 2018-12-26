@@ -40,6 +40,7 @@ import littleware.security.auth.server.ServerConfigFactory;
  * This class ought to be registered as a Singleton and exported
  * for RMI access.
  */
+@SuppressWarnings("unchecked")
 public class SimpleSessionManager implements RemoteSessionManager {
     /**
      * Little helper class to simplify injection of some
@@ -60,7 +61,6 @@ public class SimpleSessionManager implements RemoteSessionManager {
     }
 
     private static final Logger log = Logger.getLogger(SimpleSessionManager.class.getName());
-    private static final long serialVersionUID = 8144056326046717141L;
     private static final String serverVersionName = "ServerVersion";
     private final ServerSearchManager search;
     private final ServerAssetManager assetMgr;
@@ -141,7 +141,7 @@ public class SimpleSessionManager implements RemoteSessionManager {
         }
 
         return assetMgr.saveAsset(adminCtx,
-                ((AbstractAssetBuilder) session.copy()).parentId(parent.getId()).homeId(parent.getHomeId()).build(),
+                ((AbstractAssetBuilder<? extends LittleSession>) session.copy()).parentId(parent.getId()).homeId(parent.getHomeId()).build(),
                 sessionComment).get(session.getId()).narrow();
     }
 

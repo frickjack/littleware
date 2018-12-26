@@ -1,6 +1,5 @@
 package littleware.security;
 
-import java.security.acl.Permission;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -31,11 +30,11 @@ public interface LittleAclEntry extends TreeChild, LinkAsset {
 
     public UUID getPrincipalId();
 
-    public boolean checkPermission(Permission permission);
+    public boolean checkPermission(LittlePermission permission);
 
-    public Collection<Permission> getPermissions();
+    public Collection<LittlePermission> getPermissions();
 
-    public Enumeration<Permission> permissions();
+    public Enumeration<LittlePermission> permissions();
 
     public boolean isNegative();
     
@@ -47,14 +46,16 @@ public interface LittleAclEntry extends TreeChild, LinkAsset {
     public static final AssetType ACL_ENTRY = new AssetType(
             UUIDFactory.parseUUID("D23EA8B5A55F4283AEF29DFA50C12C54"),
             "littleware.ACL_ENTRY") {
+
+        private static final long serialVersionUID = -646996931009773834L;
     };
 
     //-----------------------------------------------
     public interface Builder extends AssetBuilder {
 
-        public Builder addPermission(Permission permission);
+        public Builder addPermission(LittlePermission permission);
 
-        public Builder removePermission(Permission permission);
+        public Builder removePermission(LittlePermission permission);
 
         public void setNegative();
 

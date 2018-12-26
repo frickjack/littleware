@@ -1,6 +1,5 @@
 package littleware.asset.client.test;
 
-import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import littleware.asset.client.AssetManager;
 import littleware.asset.client.AssetSearchManager;
+import littleware.asset.client.RemoteException;
 import littleware.asset.LittleHome;
 import littleware.base.BaseException;
 

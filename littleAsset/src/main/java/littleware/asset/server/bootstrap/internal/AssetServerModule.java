@@ -33,17 +33,15 @@ import littleware.asset.server.ServerSearchManager;
 import littleware.asset.server.bootstrap.AbstractServerModule;
 import littleware.asset.server.bootstrap.ServerBootstrap;
 import littleware.security.server.QuotaUtil;
-import littleware.asset.server.internal.SimpleAssetManager;
+import littleware.asset.server.internal.DbAssetManager;
 import littleware.asset.server.internal.SimpleScannerFactory;
-import littleware.asset.server.internal.SimpleSearchManager;
+import littleware.asset.server.internal.DbSearchManager;
 import littleware.security.server.internal.SimpleQuotaUtil;
 import littleware.asset.server.internal.SimpleSpecializerRegistry;
-import littleware.asset.server.db.DbAssetManager;
+import littleware.asset.server.db.DbCommandManager;
 import littleware.base.PropertiesGuice;
 import littleware.asset.server.bootstrap.ServerModule;
 import littleware.asset.server.bootstrap.ServerModuleFactory;
-import littleware.asset.server.internal.RmiAssetManager;
-import littleware.asset.server.internal.RmiSearchManager;
 import littleware.asset.server.internal.SimpleContextFactory;
 import littleware.bootstrap.AppBootstrap;
 import littleware.bootstrap.LittleModule;
@@ -74,9 +72,9 @@ public class AssetServerModule extends AbstractServerModule {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind(ServerAssetManager.class).to(SimpleAssetManager.class).in(Scopes.SINGLETON);
+        binder.bind(ServerAssetManager.class).to(DbAssetManager.class).in(Scopes.SINGLETON);
         binder.bind( ServerScannerFactory.class ).to( SimpleScannerFactory.class ).in( Scopes.SINGLETON );
-        binder.bind(ServerSearchManager.class).to(SimpleSearchManager.class).in(Scopes.SINGLETON);
+        binder.bind(ServerSearchManager.class).to(DbSearchManager.class).in(Scopes.SINGLETON);
         binder.bind(QuotaUtil.class).to(SimpleQuotaUtil.class).in(Scopes.SINGLETON);
         binder.bind(AssetSpecializerRegistry.class).to(SimpleSpecializerRegistry.class).in(Scopes.SINGLETON);
         binder.bind( RemoteSessionManager.class).to(SimpleSessionManager.class).in(Scopes.SINGLETON);

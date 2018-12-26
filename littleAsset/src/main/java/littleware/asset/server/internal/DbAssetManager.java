@@ -41,10 +41,10 @@ import littleware.security.*;
  * if set*Manager is not invoked, then method invocation will
  * attempt to initialize those managers from the security ResourceBundle.
  */
-public class SimpleAssetManager extends SimpleSearchManager implements ServerAssetManager {
+public class DbAssetManager extends DbSearchManager implements ServerAssetManager {
 
-    private static final Logger log = Logger.getLogger(SimpleAssetManager.class.getName());
-    private final DbAssetManager dbMgr;
+    private static final Logger log = Logger.getLogger(DbAssetManager.class.getName());
+    private final DbCommandManager dbMgr;
     private final Provider<UUID> uuidFactory;
     private final QuotaUtil quotaUtil;
     private final AssetSpecializerRegistry specializerReg;
@@ -53,7 +53,7 @@ public class SimpleAssetManager extends SimpleSearchManager implements ServerAss
      * Constructor injects dependencies.
      */
     @Inject
-    public SimpleAssetManager(
+    public DbAssetManager(
             DbAssetManager dbMgr,
             QuotaUtil quotaUtil,
             AssetSpecializerRegistry specializerReg,

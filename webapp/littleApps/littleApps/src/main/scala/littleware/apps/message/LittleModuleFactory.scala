@@ -19,7 +19,7 @@ object LittleModuleFactory {
 
   /** 
    * Bundle activator registers at startup the default JAAS login configuration 
-   * for use by the littleware server code, registers new bullingdon asset types
+   * for use by the littleware server code, registers new asset types
    * with registry
    */
   class Activator @inject.Inject()( 

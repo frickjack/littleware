@@ -1,17 +1,10 @@
-/*
- * Copyright 2011 http://code.google.com/p/littleware/
- * 
- * The contents of this file are subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
 package littleware.asset.client;
 
-import java.rmi.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.UUID;
 import littleware.asset.Asset;
+import littleware.asset.client.RemoteException;
 import littleware.base.BaseException;
 import littleware.base.feedback.Feedback;
 import littleware.base.TooMuchDataException;

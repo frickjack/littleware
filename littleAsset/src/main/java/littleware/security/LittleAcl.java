@@ -1,7 +1,5 @@
 package littleware.security;
 
-
-import java.security.acl.Permission;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -44,8 +42,8 @@ public interface LittleAcl extends TreeNode {
     /**
      * Get the permissions associated with the given principal
      */
-    public Collection<Permission> getPermissions(LittlePrincipal principal);
-    public boolean checkPermission(LittlePrincipal user, Permission permission);
+    public Collection<LittlePermission> getPermissions(LittlePrincipal principal);
+    public boolean checkPermission(LittlePrincipal user, LittlePermission permission);
 
     /**
      * Little utility - get the entry associated with the given Principal,

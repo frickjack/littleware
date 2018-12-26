@@ -1,7 +1,6 @@
 package littleware.security.auth.client;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,7 +17,7 @@ import littleware.security.auth.LittleSession;
  * When a principal authenticates itself - 
  * a new session-type Asset gets setup for that principal.
  */
-public interface SessionManager extends Remote {
+public interface SessionManager {
 
     public interface Credentials {
         public LittleSession getSession();

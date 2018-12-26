@@ -28,6 +28,13 @@ project( ':littleScala' ) {
     }
 }
 
+project( ':littleWeb' ) {
+    dependencies {
+        compile project( ':littleAsset' )
+        compile 'com.nimbusds.nimbus-jose-jwt:2.15.0'
+    }
+}
+
 project( ':webapp:littleApps:s3Copy' ) {
     apply plugin: 'scala'
 
@@ -37,6 +44,13 @@ project( ':webapp:littleApps:s3Copy' ) {
     }
 }
 
+project( ':webapp:littleApps:littleApps' ) {
+    apply plugin: 'scala'
+
+    dependencies {
+        compile project( ':littleWeb' )
+    }
+}
 
 project( ':webapp:littleApps:fishRunner' ) {
     dependencies {

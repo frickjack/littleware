@@ -63,7 +63,7 @@ public class DbInitializer {
     }
 
 
-    public void initDB( DbAssetManager mgr ) {
+    public void initDB( DbCommandManager mgr ) {
         {
             // Hack here - register the asset-types being used here, because this
             // code may run before the OSGi activators that register the providers with

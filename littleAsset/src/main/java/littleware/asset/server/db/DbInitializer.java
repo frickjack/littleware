@@ -2,9 +2,24 @@ package littleware.asset.server.db;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.sql.DataSource;
+
 import littleware.asset.AssetType;
 import littleware.asset.LittleHome;
 import littleware.asset.LittleHome.HomeBuilder;
@@ -30,6 +45,7 @@ import littleware.security.LittleUser.Builder;
 public class DbInitializer {
     private static final Logger log = Logger.getLogger( DbInitializer.class.getName() );
     
+    private final DataSource dataSource;
     private final Provider<LittleTransaction> transFactory;
     private final Provider<HomeBuilder> homeFactory;
     private final Provider<TreeNodeBuilder> treeNodeFactory;
@@ -42,6 +58,7 @@ public class DbInitializer {
 
     @Inject
     public DbInitializer(
+            @Named("datasource.littleware") DataSource dataSource,
             Provider<LittleTransaction> transFactory,
             Provider<LittleHome.HomeBuilder> homeFactory,
             Provider<TreeNode.TreeNodeBuilder> treeNodeFactory,
@@ -51,6 +68,7 @@ public class DbInitializer {
             Provider<LittleAcl.Builder> aclFactory,
             Provider<LittleAclEntry.Builder> aclEntryFactory,
             AssetProviderRegistry assetRegistry) {
+        this.dataSource = dataSource;
         this.transFactory = transFactory;
         this.homeFactory = homeFactory;
         this.treeNodeFactory = treeNodeFactory;
@@ -61,7 +79,6 @@ public class DbInitializer {
         this.aclEntryFactory = aclEntryFactory;
         this.assetRegistry = assetRegistry;
     }
-
 
     public void initDB( DbCommandManager mgr ) {
         {
@@ -77,6 +94,7 @@ public class DbInitializer {
         }
         final LittleTransaction trans = transFactory.get();
         trans.startDbUpdate();
+        boolean rollback = false;
         try { // Go on to setup initial freakin' repository nodes ...
             if (null == mgr.makeDbAssetLoader(trans).loadObject(TestConfig.getTestHomeId())) {
                 // Note: need to initialize everything as we're bypassing a couple layers of API
@@ -142,10 +160,15 @@ public class DbInitializer {
                 mgr.makeTypeChecker(trans).saveObject(atype);
             }
         } catch (SQLException ex) {
-            log.log(Level.WARNING, "Failed to initialize AWS domain", ex);
-            throw new IllegalStateException("Failed to initialize AWS domain", ex);
+            rollback = true;
+            log.log(Level.WARNING, "Failed to initialize database tables", ex);
+            throw new IllegalStateException("Failed to initialize database tables", ex);
         } finally {
-            trans.endDbUpdate(false);
+            try {
+                trans.endDbUpdate(rollback);
+            } catch (Exception ex) {
+                log.warning("Ugh:" + ex);
+            }
         }
     }
 }

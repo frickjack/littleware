@@ -1,4 +1,4 @@
-package littleware.asset.server.db.jpa;
+package littleware.asset.server.db.memory;
 
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -90,8 +90,8 @@ public abstract class AbstractGuice extends AbstractServerModule {
     @Override
     public void configure( Binder binder ) {
         log.log( Level.FINE, "Configuring JPA database access" );
-        binder.bind( LittleTransaction.class ).to( JpaLittleTransaction.class );
-        binder.bind( JpaLittleTransaction.class ).to( SimpleJpaTransaction.class );
+        binder.bind( LittleTransaction.class ).to( InMemLittleTransaction.class );
+        binder.bind( InMemLittleTransaction.class ).to( SimpleJpaTransaction.class );
         //binder.bind( SimpleJpaTransaction.class ).toProvider(TransactionProvider.class);
         //binder.bind( TransactionProvider.class ).in( Scopes.SINGLETON );
         binder.bind( EntityManager.class ).toProvider( EntityManagerProvider.class );

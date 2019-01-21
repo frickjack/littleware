@@ -46,13 +46,13 @@ public class LittleModuleFactory implements AppModuleFactory {
     @Override
     public ServerModule build(AppProfile profile) {
         if ( dbDriver.equals( Driver.AWS ) ) {
-            log.log( Level.FINE, "Configuring AWS backend" );
+            log.log( Level.INFO, "Configuring AWS backend" );
             throw new UnsupportedOperationException( "AWS SimpleDB backend deprecated" );
         } else if ( dbDriver.equals( Driver.J2EE ) ) {
-            log.log( Level.FINE, "Configuring J2EE JPA backend" );
+            log.log( Level.INFO, "Configuring J2EE JPA backend" );
             return new J2EEModule( profile );
         } else {
-            log.log( Level.FINE, "Configuring Hibernate backend" );
+            log.log( Level.INFO, "Configuring Hibernate backend" );
             return new HibernateModule( profile );
         }
     }

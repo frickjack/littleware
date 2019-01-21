@@ -26,11 +26,11 @@
         
     <properties>
       <property name="eclipselink.ddl-generation" value="create-tables" />
-      <property name="hibernate.hbm2ddl.auto" value="create"/>
+      <property name="hibernate.hbm2ddl.auto" value="none"/>
         
         <!--
-      <property name="eclipselink.target-database" value="DERBY"/>
       <property name="hibernate.dialect" value="org.hibernate.dialect.DerbyDialect" />
+      <property name="eclipselink.target-database" value="DERBY"/>
       
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/>
       <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/littleware;create=true"/>

@@ -11,12 +11,12 @@ import littleware.asset.server.db.AbstractLittleTransaction;
  * Specialization of LittleTransaction gives access to a
  * transaction-managed entity manager.
  */
-public class InMemLittleTransaction extends AbstractLittleTransaction {
+public class InMemTransaction extends AbstractLittleTransaction {
     private final InMemDb db;
     private long timestamp = -1L;
     private ImmutableList.Builder<InMemDb.Edit> edListBuilder = ImmutableList.builder();
 
-    public InMemLittleTransaction(InMemDb db) {
+    public InMemTransaction(InMemDb db) {
         this.db = db;
     }
     

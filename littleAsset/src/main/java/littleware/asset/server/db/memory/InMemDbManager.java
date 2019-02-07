@@ -20,14 +20,14 @@ import littleware.db.DbWriter;
 /**
  * JPA implementation of DbAssetManager
  */
-public class InMemDbCommandManager implements DbCommandManager {
+public class InMemDbManager implements DbCommandManager {
 
-    private static final Logger log = Logger.getLogger(InMemDbCommandManager.class.getName());
+    private static final Logger log = Logger.getLogger(InMemDbManager.class.getName());
     private final AssetProviderRegistry assetRegistry;
     private final Provider<IdWithClock.Builder> clockBuilder;
 
     @Inject
-    public InMemDbCommandManager(
+    public InMemDbManager(
             AssetProviderRegistry assetRegistry,
             Provider<IdWithClock.Builder> clockBuilder
             )

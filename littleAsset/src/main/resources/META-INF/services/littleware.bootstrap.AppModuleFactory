@@ -9,6 +9,6 @@ littleware.security.internal.LittleSecurityModule$AppFactory
 # littleware ServerModule service providers
 #littleware.apps.filebucket.server.BucketServerModule$Factory
 #littleware.apps.tracker.server.TrackerServerModule$Factory
-littleware.asset.server.bootstrap.internal.AssetServerModule$Factory
-littleware.asset.server.db.LittleModuleFactory
+littleware.asset.bootstrap.internal.AssetServerModule$Factory
+littleware.asset.db.LittleModuleFactory
 littleware.security.auth.server.LittleModuleFactory

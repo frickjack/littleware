@@ -20,16 +20,13 @@ import littleware.base.cache.CacheableObject;
  * have multiple 'request' type asset children.
  */
 public interface Asset extends CacheableObject {
-
     public String getName();
 
     /** Id of user that created this asset */
-    public UUID getCreatorId();
+    public String getCreatorId();
 
     /** Id of user that last updated this asset */
-    public UUID getLastUpdaterId();
-
-    public UUID getAclId();
+    public String getLastUpdaterId();
 
     public AssetType getAssetType();
 
@@ -43,11 +40,6 @@ public interface Asset extends CacheableObject {
     public String getLastUpdate();
 
     /**
-     * Id of home-asset this asset is associated with - should never be null
-     */
-    public UUID getHomeId();
-
-    /**
      * Every asset (except home-type LittleHome) assets link from
      * some other asset in the node graph.
      * An asset subtype may alias the fromId property depending on
@@ -56,15 +48,6 @@ public interface Asset extends CacheableObject {
      * a subtype determine how the fromId gets set.
      */
     public UUID getFromId();
-
-    /**
-     * Id of Principal that owns this asset - may be null.
-     * Members of
-     * the littewlare.admin group are also implicit owners
-     * of every object.
-     */
-    public UUID getOwnerId();
-
 
     public Date getCreateDate();
 

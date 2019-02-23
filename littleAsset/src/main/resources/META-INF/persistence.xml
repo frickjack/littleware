@@ -17,12 +17,12 @@
         <jar-file>../lib/littleware-2.3-SNAPSHOT-jar.jar</jar-file>
         -->
         
-        <class>littleware.asset.server.db.jpa.AssetTypeEntity</class>
-        <class>littleware.asset.server.db.jpa.TransactionEntity</class>
-        <class>littleware.asset.server.db.jpa.AssetAttribute</class>
-        <class>littleware.asset.server.db.jpa.AssetDate</class>
-        <class>littleware.asset.server.db.jpa.AssetLink</class>
-        <class>littleware.asset.server.db.jpa.AssetEntity</class>
+        <class>littleware.asset.db.jpa.AssetTypeEntity</class>
+        <class>littleware.asset.db.jpa.TransactionEntity</class>
+        <class>littleware.asset.db.jpa.AssetAttribute</class>
+        <class>littleware.asset.db.jpa.AssetDate</class>
+        <class>littleware.asset.db.jpa.AssetLink</class>
+        <class>littleware.asset.db.jpa.AssetEntity</class>
         
     <properties>
       <property name="eclipselink.ddl-generation" value="create-tables" />
@@ -35,7 +35,7 @@
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/>
       <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/littleware;create=true"/>
       
-      <property name="javax.persistence.jdbc.driver" value="littleware.asset.server.db.jpa.LittleDriver"/>
+      <property name="javax.persistence.jdbc.driver" value="littleware.asset.db.jpa.LittleDriver"/>
       <property name="javax.persistence.jdbc.url" value="jdbc:littleware://ignore/this/stuff"/>
       <property name="javax.persistence.jdbc.user" value="APP"/>
       <property name="javax.persistence.jdbc.password" value="APP"/>

@@ -73,7 +73,7 @@ project( ':littleware' ) {
     dependencies {
         compile "com.google.inject:guice:4.1.0:no_aop@jar"
         compile "junit:junit:4.12"
-        compile 'com.google.guava:guava:19.0'
+        compile 'com.google.guava:guava:27.1-jre'
         compile 'javax.mail:javax.mail-api:1.5.5'
         compile 'javax:javaee-web-api:7.0'
         compile 'org.apache.derby:derby:10.12.1.1'

@@ -44,109 +44,79 @@ public interface SearchManager {
             }
             
             
-            public static class AssetResult extends TStampResult<Optional<Asset>> {
-                
-                
-                private AssetResult( TStampResult.State state, Optional<Asset> optAsset ) {
-                    super( state, optAsset );
-                }
-                
-                /** For Serializable contract */
-                private AssetResult() {}
-                
+    public static class AssetResult extends TStampResult<Optional<Asset>> {
         
-                public Optional<Asset> getAsset() { return getData(); }
-                
-                // ----
-                private static final AssetResult useCache = new AssetResult( TStampResult.State.USE_YOUR_CACHE, Optional.empty() );
-                private static final AssetResult noAsset = new AssetResult( TStampResult.State.NO_DATA, Optional.empty() );
-                
-                public static AssetResult useCache() {
-                    return useCache;
-                }
-                public static AssetResult noSuchAsset() {
-                    return noAsset;
-                }
-                
-                
-                public static AssetResult build( Asset asset ) {
-                    return new AssetResult( TStampResult.State.DATA_IN_RESULT, Optional.ofNullable(asset));
-                }
-            }
-            
-            //----------------------------------
         
-            /**
-             * Result for listChildren, etc returns asset info in a name-keyed map
-             * (to simplify name-based asset-path resolution - which is very common).     
-             */
-            public static class InfoMapResult extends TStampResult<ImmutableMap<String,AssetInfo>> {
-                private long newestTimestamp = -1L;
-                
-                private InfoMapResult( TStampResult.State state, ImmutableMap<String,AssetInfo> data ) {
-                    super( state, data );
-                    for ( AssetInfo info : data.values() ) {
-                        if ( info.getTimestamp() > newestTimestamp ) {
-                            newestTimestamp = info.getTimestamp();
-                        }
-                    }
-                }
-                
-                /** For Serializable contract */
-                private InfoMapResult() {}
-                
-                /**
-                 * Shortcut for optInfo.values.map( _.getTimestamp ).max
-                 */
-                public long getNewestTimestamp() { return newestTimestamp; }
-                
+        private AssetResult( TStampResult.State state, Optional<Asset> optAsset ) {
+            super( state, optAsset );
+        }
         
-                
-                // ----
-                private static final ImmutableMap<String,AssetInfo> emptyMap = ImmutableMap.of();
-                private static final InfoMapResult useCache = new InfoMapResult( TStampResult.State.USE_YOUR_CACHE, emptyMap );
-                private static final InfoMapResult noData = new InfoMapResult( TStampResult.State.NO_DATA, emptyMap );
+        /** For Serializable contract */
+        private AssetResult() {}
         
-                
-                public static InfoMapResult useCache() {
-                    return useCache;
-                }
-                public static InfoMapResult noData() {
-                    return noData;
-                }
-                
-                
-                public static InfoMapResult build( ImmutableMap<String,AssetInfo> infoMap ) {
-                    return new InfoMapResult( TStampResult.State.DATA_IN_RESULT, infoMap );
-                }
-            }
+
+        public Optional<Asset> getAsset() { return getData(); }
+        
+        // ----
+        private static final AssetResult useCache = new AssetResult( TStampResult.State.USE_YOUR_CACHE, Optional.empty() );
+        private static final AssetResult noAsset = new AssetResult( TStampResult.State.NO_DATA, Optional.empty() );
+        
+        public static AssetResult useCache() {
+            return useCache;
+        }
+        public static AssetResult noSuchAsset() {
+            return noAsset;
+        }
+        
+        
+        public static AssetResult build( Asset asset ) {
+            return new AssetResult( TStampResult.State.DATA_IN_RESULT, Optional.ofNullable(asset));
+        }
+    }
+
+    //---------------------------------
+    public static class PageResult {
+        public final String glob;
+        public final String last;
+
+        public PageResult(String glob, String last) {
+            this.glob = glob;
+            this.last = last;
+        }
+    }
+    
+    //----------------------------------
+
             
     /**
-     * Get the asset with the specified id.
+     * Get the asset at the specified path
      *
-     * @param assetId of asset to retrieve
-     * @return fully initialized asset.
+     * @param context
+     * @param path
+     * @param clientCacheTStamp
+     * @return AssetResult
      * @throws AccessDeniedException if caller does not have permission to read
      *                 the specified asset
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException some other failure condition
      */
-    public RemoteSearchManager.AssetResult getAsset( LittleContext context, UUID assetId, 
-            long clientCacheTStamp ) throws BaseException,
-            GeneralSecurityException;
+    AssetResult getAsset(LittleContext context, 
+                String path, 
+                long clientCacheTStamp
+                ) throws BaseException;
     
     /**
      * Shortcut for getAsset( ..., -1L )
      */
-    public Optional<Asset> getAsset( LittleContext context, UUID assetId
-             ) throws BaseException,
-            GeneralSecurityException;
+    Optional<Asset> getAsset( LittleContext context, String path
+             ) throws BaseException;
     
 
     /**
-     * Get as many of the assets in the given collection of ids as possible.
+     * Get assets below the given path
      *
-     * @param id2ClientTStamp set of asset ids to retrieve
+     * @param context
+     * @param glob
      * @return list of assets loaded in order - 2 entries
      *                with the same id may reference the same object,
      *                skips ids that do not exist
@@ -156,154 +126,9 @@ public interface SearchManager {
      * @throws DataAccessException on database access/interaction failure
      * @throws AssetException if some other failure condition
      */
-    public ImmutableMap<UUID,RemoteSearchManager.AssetResult> getAssets( LittleContext context, Map<UUID,Long> id2ClientTStamp ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-    /**
-     * Convenience method for clients without a cache
-     */
-    public ImmutableMap<UUID,RemoteSearchManager.AssetResult> getAssets( LittleContext context, Collection<UUID> idSet ) throws BaseException, AssetException,
-            GeneralSecurityException;
-    
-    /**
-     * Get the Home assets this server has access to
-     * for open-ended searches.
-     *
-     * @return mapping from home name to UUID.
-     * @throws DataAccessException on database access/interaction failure
-     * @throws AccessDeniedException if caller is not an administrator
-     */
-    public RemoteSearchManager.InfoMapResult getHomeAssetIds( LittleContext context,
-            long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-
-    /**
-     * Shortcut for getHomeAssetIds( ..., -1L, 0 )
-     */
-    public ImmutableMap<String,AssetInfo> getHomeAssetIds( LittleContext context
-             ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-    public RemoteSearchManager.InfoMapResult getAssetIdsFrom( 
-            LittleContext context,
-            UUID fromId, AssetType type,
-            long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-    /**
-     * Shortcut for getAssetIdsFrom( ..., 1L, 0 )
-     */
-    public ImmutableMap<String,AssetInfo> getAssetIdsFrom( 
-            LittleContext context,
-            UUID fromId, AssetType type
-            ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-
-    public RemoteSearchManager.InfoMapResult getAssetIdsFrom( 
-            LittleContext context,
-            UUID fromId, long cacheTimestamp, int sizeInCache
-            ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-    /**
-     * Shortcut for getAssetIdsFrom( ..., -1L, 0 )
-     */
-    public ImmutableMap<String,AssetInfo> getAssetIdsFrom( 
-            LittleContext context,
-            UUID fromId
-            ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-
-
-    /**
-     * Convenience method - equivalent to: <br />
-     *              getAssetsByName ( ... ).getIterator ().next () <br />
-     * Handy for asset-types that are name unique.
-     *
-     * @param name to retrieve
-     * @param type must be unique-name type
-     * @return the asset or null if none found
-     * @throws InavlidAssetTypeException if n_type is not name-unique
-     */
-    public  RemoteSearchManager.AssetResult getByName( LittleContext context, String name, 
-            AssetType type, long cacheTimestamp
-            ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-    
-    /**
-     * Shortcut for getByName( ..., -1L )
-     */
-    public  Optional<Asset> getByName( LittleContext context, String name, 
-            AssetType type
-            ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-
-    /**
-     * Get the history of changes on the specified asset going back to the specified date.
-     * Asset must be local to this server's database.
-     *
-     * @param assetId of asset to get history for
-     * @param start earliest date to go back to in history search
-     * @param end most recent date to go up to in history search
-     * @throws NoSuchThingException if the given asset does not exist in the database
-     * @throws AccessDeniedException if do not CURRENTLY have read-access to the asset
-     * @throws DataAccessException on database access/interaction failure
-     */
-    public ImmutableList<Asset> getAssetHistory( LittleContext context, UUID assetId,  Date start,  Date end )
-            throws BaseException, AssetException,
-            GeneralSecurityException;
-
-    /**
-     * Get the asset linking FROM the given parent asset and
-     * with the given name
-     *
-     * @param parentId result&apos;s FROM-asset id
-     * @param name of result asset
-     * @throws NoSuchThingException if requested asset does not exist
-     */
-    public RemoteSearchManager.AssetResult getAssetFrom( 
-            LittleContext context, UUID parentId,  String name, long cacheTimestamp 
-            ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-    /**
-     * Shortcut for getAssetFrom( ..., -1L )
-     */
-    public Optional<Asset> getAssetFrom( 
-            LittleContext context, UUID parentId,  String name
-            ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-
-    /**
-     * Get the links (assets with a_to as their TO-asset)
-     * out of the given asset-id of the given type.
-     * Caller must have READ-access to the a_to asset.
-     *
-     * @param toId asset - result&apos;s TO-asset
-     * @param n_type to limit search to - may NOT be null
-     * @return ids of children of type n_type linking TO a_to
-     * @throws AccessDeniedException if caller does not have read access
-     *                to a_source
-     * @throws DataAccessException on database access/interaction failure
-     * @throws IllegalArgumentExcetion if limit is out of bounds
-     * @throws AssetException if limit is too large
-     */
-    public RemoteSearchManager.InfoMapResult getAssetIdsTo( LittleContext context, UUID toId,
-             AssetType type, long cacheTimestamp, int sizeInCache ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
-    /**
-     * Shortcut for getAssetIdsTo( ..., -1L, 0 )
-     */
-    public ImmutableMap<String,AssetInfo> getAssetIdsTo( LittleContext context, UUID toId,
-             AssetType type
-            ) throws BaseException, AssetException,
-            GeneralSecurityException;
-
+    PageResult getAssets(
+        LittleContext context, 
+        String glob, int maxDepth,
+        int start, int size
+        ) throws BaseException, AssetException;
 }

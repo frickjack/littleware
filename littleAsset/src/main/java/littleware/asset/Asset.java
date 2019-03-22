@@ -39,16 +39,6 @@ public interface Asset extends CacheableObject {
      */
     public String getLastUpdate();
 
-    /**
-     * Every asset (except home-type LittleHome) assets link from
-     * some other asset in the node graph.
-     * An asset subtype may alias the fromId property depending on
-     * its application - ex: TreeNode's parentId property is an alias for fromId.
-     * Note that the AssetBuilder does not include the fromId property -
-     * a subtype determine how the fromId gets set.
-     */
-    public UUID getFromId();
-
     public Date getCreateDate();
 
     public Date getLastUpdateDate();

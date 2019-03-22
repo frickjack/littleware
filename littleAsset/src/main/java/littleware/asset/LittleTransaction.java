@@ -5,16 +5,10 @@ import java.util.UUID;
 /**
  * Interface implemented by db-access managers -
  * provides methods to mark begin/end of db access
- * and updates.
- *
- * TODO: might be able to get rid of this interface with
- * new LittleContext based server-side interfaces.
+ * and updates, and sharing a db session.
  */
 public interface LittleTransaction {
-        
-    /** Return the id associated with this transaction */
-    public UUID getId ();
-    
+    public ImmutableList<LittleAsset> getEditList();   
     
     /**
      * Get the transaction-count at the beginning of the current transaction

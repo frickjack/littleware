@@ -16,12 +16,10 @@ import littleware.asset.AssetSpecializer;
 import littleware.asset.AssetSpecializerRegistry;
 import littleware.asset.LittleContext;
 import littleware.asset.LittleTransaction;
-import littleware.asset.ServerAssetManager;
-import littleware.security.server.QuotaUtil;
 import littleware.asset.db.*;
 import littleware.base.*;
 import littleware.db.*;
-import littleware.security.*;
+
 
 /**
  * Simple implementation of AssetManager interface.
@@ -41,28 +39,23 @@ import littleware.security.*;
  * if set*Manager is not invoked, then method invocation will
  * attempt to initialize those managers from the security ResourceBundle.
  */
-public class DbAssetManager extends DbSearchManager implements ServerAssetManager {
+public class SimpleAssetManager extends SimpleSearchManager implements ServerAssetManager {
 
-    private static final Logger log = Logger.getLogger(DbAssetManager.class.getName());
+    private static final Logger log = Logger.getLogger(SimpleAssetManager.class.getName());
     private final DbCommandManager dbMgr;
     private final Provider<UUID> uuidFactory;
-    private final QuotaUtil quotaUtil;
-    private final AssetSpecializerRegistry specializerReg;
+
 
     /**
      * Constructor injects dependencies.
      */
     @Inject
-    public DbAssetManager(
+    public SimpleAssetManager(
             DbCommandManager dbMgr,
-            QuotaUtil quotaUtil,
-            AssetSpecializerRegistry specializerReg,
-            Provider<UUID> uuidFactory,
-            Provider<AssetInfo.Builder> infoFactory ) {
-        super( dbMgr, specializerReg, infoFactory );
+            Provider<UUID> uuidFactory
+            ) {
+        super(dbMgr);
         this.dbMgr = dbMgr;
-        this.quotaUtil = quotaUtil;
-        this.specializerReg = specializerReg;
         this.uuidFactory = uuidFactory;
     }
     

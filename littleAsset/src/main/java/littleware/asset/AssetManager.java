@@ -18,13 +18,13 @@ public interface AssetManager extends SearchManager {
     /**
      * Delete the specified asset
      *
-     * @param assetId id of asset to delete - must have WRITE permission
+     * @param path of asset to delete - must have WRITE permission
      * @param updateComment to attach to asset giving reason for deletion
      * @throws NoSuchThingException if the given asset does not exist in the database
      * @throws AccessDeniedException if do not have write-permission on the link source
      * @throws DataAccessException on database access/interaction failure
      */
-    public void deleteAsset( LittleContext ctx, UUID assetId,
+    public void deleteAsset( LittleContext ctx, String path,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException;
 
@@ -65,7 +65,7 @@ public interface AssetManager extends SearchManager {
      * @param updateComment applied to all assets
      * @return updated assets
      */
-    public ImmutableMap<UUID,Asset> saveAssetsInOrder( LittleContext ctx, Collection<Asset> assetList,
+    public ImmutableMap<UUID,Asset> saveAssets( LittleContext ctx, Collection<Asset> assetList,
             String updateComment) throws BaseException, AssetException,
             GeneralSecurityException;
 

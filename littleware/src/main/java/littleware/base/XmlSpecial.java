@@ -245,6 +245,3 @@ public enum XmlSpecial {
         }
     }
 }
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

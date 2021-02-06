@@ -4,7 +4,7 @@ import java.io.Writer;
 import java.io.IOException;
 
 /**
- * Little utility to facilitate abstracting the JTextAppender 
+ * Little utility to facilitate abstracting
  * and other Appendables via a Writer interface.
  */
 public class AppenderWriter extends Writer {
@@ -29,8 +29,4 @@ public class AppenderWriter extends Writer {
 		oappend_wrap.append ( new ArrayCharSequence ( v_char, i_start, i_len ) );
 	}
 }
-
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
 

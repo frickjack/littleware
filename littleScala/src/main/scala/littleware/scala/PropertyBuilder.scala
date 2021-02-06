@@ -76,7 +76,7 @@ trait PropertyBuilder extends LittleValidator {
        */
       def name( value:String ):this.type = { name = value; this }
       
-      override def toString():String = "" + name + "=" + value + " (" + checkSanity.mkString(",") + ")"
+      override def toString():String = "" + name + "=" + value + " (" + checkSanity().mkString(",") + ")"
    }
    
    /**
@@ -116,8 +116,8 @@ trait PropertyBuilder extends LittleValidator {
 
      def add( v:T ):BuilderType = { value += v; builder }
      def addAll( v:Iterable[T] ):BuilderType = { value ++= v; builder }
-     def clear():BuilderType = { value.clear; builder }
-   } 
+     def clear():BuilderType = { value.clear(); builder; }
+   }
   
 }
 

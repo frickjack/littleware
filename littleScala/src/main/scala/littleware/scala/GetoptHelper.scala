@@ -1,12 +1,3 @@
-/*
- * Copyright 2013 http://code.google.com/p/littleware
- * 
- * The contents of this file are available subject to the terms of the
- * Lesser GNU General Public License (LGPL) Version 2.1.
- * http://www.gnu.org/licenses/lgpl-2.1.html.
- */
-
-
 package littleware.scala
 
 /**
@@ -17,7 +8,7 @@ object GetoptHelper {
    * Group args according to "-+name" prefix group
    */
   def extract( args:Seq[String] ):Map[String,Seq[String]] = {
-    (( "", Map.empty[String,Seq[String]]) /: args)(
+    args.foldLeft( ("", Map.empty[String,Seq[String]]) )(
         (argGroup,arg) => argGroup match { 
             case (currentGroup,allGroups) => {
               val gname = if ( arg.startsWith( "-" ) ) arg.replaceAll( "^-+", "" ) else currentGroup

@@ -3,7 +3,6 @@ package littleware.scala
 
 import org.junit.Assert._
 import org.junit.Test
-import java.util.logging.{Level,Logger}
 
 class PropertyBuilderTester extends test.LittleTest {
   

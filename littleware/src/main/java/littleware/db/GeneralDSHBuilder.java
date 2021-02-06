@@ -2,8 +2,6 @@ package littleware.db;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -102,34 +100,8 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
             throw new ValidationException("Null URL");
         }
 
-        if (url.startsWith("jdbc:derby:")) {
-            // figure out if its an embedded or network datasource
-            final Pattern pattern = Pattern.compile("jdbc:derby://(\\w+):(\\d+)/(.+)$");
-            final Matcher match = pattern.matcher(url);
-            if (match.find()) {
-                final org.apache.derby.jdbc.ClientDataSource data = new org.apache.derby.jdbc.ClientDataSource();
-                data.setServerName ( match.group(1) );
-                data.setPortNumber( Integer.parseInt( match.group(2) ) );
-                data.setDatabaseName ( match.group(3) );
-                return new Handler(data,url);
-            } else {
-                // TODO: define derby.system.home: https://db.apache.org/derby/docs/10.0/manuals/develop/develop12.html#HDRSII-DEVELOP-13018
-                final org.apache.derby.jdbc.EmbeddedDataSource data = new org.apache.derby.jdbc.EmbeddedDataSource();
-                data.setDatabaseName(url.substring("jdbc:derby:".length()));
-                return new Handler(data, url);
-            }
-        } else if (url.startsWith("jdbc:oracle:")) {
-            try {
-              /*
-                final OracleDataSource data = new OracleDataSource();
-                data.setURL(url);
-                return new Handler(data, url);
-                */
-              throw new UnsupportedOperationException( "Orale support removed until Oracle publishes driver for maven access");
-            } catch (Exception ex) {
-                throw new IllegalArgumentException("Failed ORACLE setup " + url, ex);
-            }
-        } else if (url.startsWith("jdbc:postgresql:")) {
+        // TODO - switch this over to Apache dbcp
+        if (url.startsWith("jdbc:postgresql:")) {
             final org.postgresql.ds.PGSimpleDataSource data = new org.postgresql.ds.PGSimpleDataSource();
 
             String s_user = "littleware_user";
@@ -151,16 +123,14 @@ public class GeneralDSHBuilder implements DataSourceHandler.DSHBuilder {
             }
             data.setUser(s_user);
             data.setPassword(s_password);
-            data.setServerName( uri.getHost() );
-            data.setPortNumber( uri.getPort() );
+            data.setServerNames(new String[]{ uri.getHost() });
+            data.setPortNumbers(new int[]{ uri.getPort() });
             data.setDatabaseName( uri.getPath().replaceAll( "^/+", "" ));
             //data.setMaximumConnectionCount(10);
             //data.setMaximumActiveTime(60000);
             return new Handler(data,url);
         } else if (url.startsWith("jdbc:mysql:")) {
-            final com.mysql.jdbc.jdbc2.optional.MysqlDataSource data = new com.mysql.jdbc.jdbc2.optional.MysqlDataSource();
-            data.setURL(url);
-            return new Handler(data,url);
+            throw new IllegalArgumentException("MySQL not currently supported");
         } else if (url.startsWith("jndi:")) {
             try {
                 final DataSource data = (DataSource) new InitialContext().lookup(url.substring("jndi:".length()));

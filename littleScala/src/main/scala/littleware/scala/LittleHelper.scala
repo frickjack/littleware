@@ -6,7 +6,6 @@ import java.util.concurrent.Future
 import java.util.{ArrayList,Collection,List}
 import java.util.concurrent.Callable
 
-import scala.collection.JavaConversions._
 
 /**
  * Just a few little java-scala grease routines -
@@ -136,13 +135,13 @@ object LittleHelper {
             // launch stage1 on next chunk
             val nextStage1 = new Stage1( nextChunk, lastStage1.chunkNumber + 1 )
             // process last chunk through stage2 - stage1 and stage2 should be running concurrently now
-            lastStage1.launchStage2.foreach( (future) => resultBuilder += future.get )
+            lastStage1.launchStage2().foreach( (future) => resultBuilder += future.get )
             fb.setProgress( nextStage1.chunkNumber, chunks.size )
             nextStage1
           }
-        ).launchStage2.foreach( (future) => resultBuilder += future.get )
+        ).launchStage2().foreach( (future) => resultBuilder += future.get )
         fb.setProgress( 100 )
-        resultBuilder.result
+        resultBuilder.result()
       }
     }
 

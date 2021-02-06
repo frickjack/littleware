@@ -2,7 +2,6 @@ package littleware.scala
 
 import com.google.inject
 import java.util.concurrent.ExecutorService
-import java.util.logging.Level
 import org.junit.Assert._
 import org.junit.Test
 import org.junit.runner.RunWith

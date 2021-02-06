@@ -35,15 +35,15 @@ object LittleValidator {
 trait LittleValidator extends Validator {
   @throws(classOf[ValidationException])
   override def validate():Unit = {
-    val errors = checkSanity
+    val errors = checkSanity()
     if ( ! errors.isEmpty ) {
       throw new ValidationException(
-        ((new StringBuilder) /: errors)( (sb,error) => { sb.append( error ).append( littleware.base.Whatever.NEWLINE ) } ).toString
+        errors.foldLeft(new StringBuilder)( (sb,error) => { sb.append( error ).append( littleware.base.Whatever.NEWLINE ) } ).toString
       )
     }
   }
 
-  override def checkIfValid():ImmutableList[String] = (ImmutableList.builder[String]() /: checkSanity())( (builder,error) => builder.add( error ) ).build
+  override def checkIfValid():ImmutableList[String] = checkSanity().foldLeft(ImmutableList.builder[String]())( (builder,error) => builder.add( error ) ).build
 
   /**
    * Same as checkIfValid, just scala-friendly return type

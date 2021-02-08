@@ -20,3 +20,4 @@ target/
 /littleAsset/.nb-gradle/
 /.nb-gradle/
 ZipUtilTester.zip
+.vscode/

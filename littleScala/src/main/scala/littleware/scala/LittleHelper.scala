@@ -10,12 +10,10 @@ import java.util.concurrent.Callable
 /**
  * Just a few little java-scala grease routines -
  * extend scala.collections.JavaConversions with
- * more collection wrapping,
- * SwingUtilities.invokeLater sugar, etc.
+ * more collection wrapping, etc.
  */
 object LittleHelper {
   
-
   /**
    * Conversion of a null or s_check.trim().equals( "" ) string to None,
    * otherwise Some( s_check )
@@ -50,43 +48,6 @@ object LittleHelper {
    */
   def toJavaList[A]( pullFrom:Iterable[A] ):java.util.List[A] = addAll( new ArrayList[A](), pullFrom )
 
-
-
-  /**
-   * SwingUtilities.invokeLater sugar
-   */
-  def invokeLater( thunk:()=>Unit ):Unit = {
-    javax.swing.SwingUtilities.invokeLater (
-      new Runnable () {
-        def run() = thunk()
-      }
-    )
-  }
-
-  /**
-   * SwingUtilities.invokeAndwait sugar -
-   * just runs inline if already on dispatch thread
-   */
-  def invokeAndWait( thunk:()=>Unit ):Unit = {
-    if( javax.swing.SwingUtilities.isEventDispatchThread ) {
-      thunk()
-    } else {
-      try {
-        javax.swing.SwingUtilities.invokeAndWait (
-          new Runnable () {
-            def run() = thunk()
-          }
-        )
-      } catch {
-        case ex:InvocationTargetException => {
-            throw ex.getCause()
-          }
-        case ex:Throwable => {
-            throw ex
-          }
-      }
-    }
-  }
   
   /**
    * Simple 2-step pipeline overlaps stage-1 computation with stage-2 computation

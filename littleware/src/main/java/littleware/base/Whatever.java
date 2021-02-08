@@ -8,11 +8,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
+
 
 /**
  * Little utility class.  Implemented as singleton - retrieve with
@@ -153,45 +150,6 @@ public class Whatever {
         return Optional.empty();
     }
 
-    /**
-     * Call the given action on the Swing dispatch thread.
-     * Just invokes call directly if already on dispatch thread -
-     * otherwise dispatches with event barrier.
-     *
-     * @throws IllegalStateException of call throws exception
-     */
-    public <T> T callOnSwingDispatcher( final Callable<T> call ) {
-        if ( SwingUtilities.isEventDispatchThread() ) {
-            log.log( Level.FINE, "Running on dispatch thread" );
-            try {
-                return call.call();
-            } catch ( Exception ex ) {
-                throw new IllegalStateException( "Failed call", ex );
-            }
-        }
-        final IllegalStateException failure = new IllegalStateException( "Dispatch failed" );
-        final CompletableFuture<T> barrier = new CompletableFuture<>();
-        SwingUtilities.invokeLater(() -> {
-            try {
-                barrier.complete( call.call() );
-            } catch ( Throwable ex ) {
-                log.log( Level.WARNING, "Dispatcher call failed", ex );
-                barrier.completeExceptionally(ex);
-            } 
-        });
-        try {
-            log.log( Level.FINE, "Waiting on barrier" );
-            final T result = barrier.get();
-            if ( result == failure ) {
-                throw failure;
-            }
-            return (T) result;
-        } catch (RuntimeException ex ) {
-            throw ex;
-        } catch ( Exception ex) {
-            throw new IllegalStateException( "Swing dispatch caught", ex );
-        }
-    }
 
     /**
      * Commonly accessed folders:

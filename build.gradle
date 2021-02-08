@@ -22,6 +22,10 @@ subprojects {
 project( ':littleScala' ) {
     apply plugin: 'scala'
 
+    test {
+        systemProperty 'java.util.logging.manager', 'org.apache.logging.log4j.jul.LogManager'
+    }
+    
     dependencies {
         implementation project( ':littleware' )
         implementation 'com.google.inject:guice:4.2.3:no_aop@jar'
@@ -29,6 +33,9 @@ project( ':littleScala' ) {
         testImplementation 'junit:junit:4.12'
         implementation 'javax:javaee-web-api:8.0'
         implementation 'com.google.guava:guava:30.1-jre'
+        testRuntimeOnly 'org.apache.logging.log4j:log4j-layout-template-json:2.14.0'
+        testRuntimeOnly 'org.apache.logging.log4j:log4j-jul:2.14.0'
+        testRuntimeOnly 'org.apache.logging.log4j:log4j-core:2.14.0'
     }
 }
 

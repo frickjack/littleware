@@ -26,5 +26,13 @@ class GetoptTester extends test.LittleTest {
   @Test
   def testLogging():Unit = {
     log.log(Level.INFO, "verify json log format -");
+    log.log(Level.INFO, 
+      () => s"""{ "context": "whatever", "frickjack": "${"frickjack".replaceAll("\"", "")}" }"""
+    )
+    try {
+      throw new Exception("whatever")
+    } catch {
+      case ex:Exception => log.log(Level.INFO, ex, () => s"""{ "status": "failed" }""")
+    }
   }
 }

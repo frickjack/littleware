@@ -52,15 +52,17 @@ project(':littleAudit') {
     }
     
     dependencies {
-        implementation project( ':littleware' )
+        implementation project(':littleScala')
+        implementation project(':littleware')
         implementation 'com.google.inject:guice:4.2.3:no_aop@jar'
         implementation 'org.scala-lang:scala-library:2.13.4'
         testImplementation 'junit:junit:4.12'
         implementation 'javax:javaee-web-api:8.0'
         implementation 'com.google.guava:guava:30.1-jre'
-        testRuntimeOnly 'org.apache.logging.log4j:log4j-layout-template-json:2.14.0'
-        testRuntimeOnly 'org.apache.logging.log4j:log4j-jul:2.14.0'
-        testRuntimeOnly 'org.apache.logging.log4j:log4j-core:2.14.0'
+        implementation 'org.apache.avro:avro:1.10.1'
+        runtimeOnly 'org.apache.logging.log4j:log4j-layout-template-json:2.14.0'
+        runtimeOnly 'org.apache.logging.log4j:log4j-jul:2.14.0'
+        runtimeOnly 'org.apache.logging.log4j:log4j-core:2.14.0'
     }
 }
 

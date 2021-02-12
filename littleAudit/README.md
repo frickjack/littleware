@@ -15,6 +15,11 @@ The `testStuff/` folder has a docker-compose setup for running kafka.
 )
 ```
 
+```
+kafka-topics.sh --if-not-exists --bootstrap-server localhost:9092 --create --topic audittest --partitions 1 --config retention.ms=300000
+```
+
+
 ## References
 
 * kafka with docker - https://medium.com/big-data-engineering/hello-kafka-world-the-complete-guide-to-kafka-with-docker-and-python-f788e2588cfc

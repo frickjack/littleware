@@ -91,11 +91,21 @@ trait PropertyBuilder[B] extends LittleValidator {
     def add( v:T ):BuilderType = { value += v; builder }
     def addAll( v:Iterable[T] ):BuilderType = { value ++= v; builder }
     def clear():BuilderType = { value.clear(); builder; }
+  
+    def withMemberValidator(memberValidator:(T,String) => Option[String]):this.type =
+      withValidator(
+        (buff, propName) => buff.view.flatMap({ it => memberValidator(it, propName) }).headOption
+      )  
   }  
 
   class OptionProperty[T] extends Property[Option[T]](None) {
     def set(v:T):BuilderType = { value = Option(v); builder }
-  }  
+
+    def withMemberValidator(memberValidator:(T,String) => Option[String]):this.type =
+      withValidator(
+        (buff, propName) => buff.view.flatMap({ it => memberValidator(it, propName) }).headOption
+      )  
+  }
 }
 
 object PropertyBuilder {  

@@ -7,11 +7,8 @@ import java.util.logging.Level;
 import java.sql.*;
 import javax.sql.DataSource;
 import littleware.test.LittleTest;
-import littleware.test.LittleTestRunner;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * Little test case for connection factory

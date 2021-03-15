@@ -1,6 +1,5 @@
 package littleware.asset;
 
-import java.util.UUID;
 import java.util.Date;
 import littleware.base.cache.CacheableObject;
 

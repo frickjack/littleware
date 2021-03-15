@@ -22,3 +22,8 @@ services:
       #KAFKA_CREATE_TOPICS: "test:1:1"
     #volumes:
     #  - /var/run/docker.sock:/var/run/docker.sock
+  cassandra:
+    image: cassandra:4.0
+    ports:
+      - "9042:9042"
+      - "9160:9160"

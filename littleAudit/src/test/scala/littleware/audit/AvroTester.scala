@@ -40,7 +40,7 @@ class AvroTester extends littleware.scala.test.LittleTest {
     /**
      * Post and consume messages to/from kafka topic
      */
-    @Test
+    //@Test
     def testKafkaMess():Unit = try {
         val topicName = "audittest"
         val properties = new java.util.Properties()

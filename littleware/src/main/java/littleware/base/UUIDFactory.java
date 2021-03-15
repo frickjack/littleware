@@ -10,8 +10,8 @@ import java.util.logging.Logger;
  * that are part of the official spec.
  */
 public final class UUIDFactory implements Provider<UUID>, java.io.Serializable {
-
-    private static final Logger log = Logger.getLogger( UUIDFactory.class.getName() );
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = Logger.getLogger(UUIDFactory.class.getName());
 
     /**
      * Add '-' to s_uuid if necessary, then call through to UUID.fromString

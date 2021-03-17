@@ -144,5 +144,6 @@ object PropertyBuilder {
     }
   }
 
+  def dnsValidator = rxValidator(raw"([\w-]+\.)*[\w-]+".r)(_, _)
 
 }

@@ -2,8 +2,7 @@ package littleware.authzmgr
 
 import java.util.UUID
 
-import littleware.cloudmgr.Project
-import littleware.cloudmgr.RequestContext
+import littleware.cloudutil.RequestContext
 
 trait PolicyDoc {}
 

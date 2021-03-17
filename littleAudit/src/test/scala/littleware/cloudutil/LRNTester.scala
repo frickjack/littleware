@@ -8,13 +8,18 @@ import org.junit.runner.RunWith
 
 
 @RunWith( classOf[littleware.test.LittleTestRunner] )
-class LRNTester @inject.Inject() (builderProvider: inject.Provider[LRN.Builder]) extends littleware.scala.test.LittleTest {
+class LRNTester @inject.Inject() (builderProvider: inject.Provider[LRN.LRPathBuilder]) extends littleware.scala.test.LittleTest {
 
     @Test
     def testLRNBuilder() = try {
-        val builder = builderProvider.get().api("testapi"
-        ).resourceType("testrt").resourcePath("*")
+        val builder = builderProvider.get(
+        ).cloud("test.cloud"
+        ).api("testapi"
+        ).projectId(LRN.zeroId
+        ).resourceType("testrt"
+        ).path("*")
+
         val lrn = builder.build()
-        assertTrue(s"api equal: ${lrn.api} ?= ${builder.api}", lrn.api == builder.api)
+        assertTrue(s"api equal: ${lrn.api} ?= ${builder.api()}", lrn.api == builder.api())
     } catch basicHandler
 }

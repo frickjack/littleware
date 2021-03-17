@@ -1,4 +1,4 @@
-package littleware.cloudmgr
+package littleware.cloudutil
 
 import java.net.{ URI, URL }
 import java.time
@@ -25,39 +25,47 @@ case class Session (
     isAdmin: Boolean,
     iat: Long,
     exp: Long,
-    lrn: java.net.URI
+    lrp: LRPath
 ) extends LittleResource {
     override val updateTime = this.iat
 }
 
 object Session {
-    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends PropertyBuilder[Session] {
-        val id = new Property(UUID.randomUUID()) withName "id" withValidator notNullValidator
-        val cloud = new Property(defaultCloud) withName "cloud" withValidator LRN.cloudValidator
+    val api = "little-api"
+    val resourceType = "session"
+
+    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Session](Session.api, Session.resourceType) {
         val cellId = new Property[UUID](null) withName "cellId" withValidator notNullValidator
         val subject = new Property("") withName "subject" withValidator LRN.subjectValidator
         val projectId = new Property[UUID](null) withName "projectId" withValidator notNullValidator
         val api = new Property("") withName "api" withValidator LRN.apiValidator
-        val iat = new Property(0L) withName "iat" withValidator positiveLongValidator
+        val iat = this.updateTime
         val exp = new OptionProperty[Long]() withName "exp" withMemberValidator positiveLongValidator
         val endpoint = new OptionProperty[URL]() withName "endpoint" withMemberValidator notNullValidator
         val isAdmin = new Property(false) withName "isAdmin"
         val authClient = new Property[String](null) withName "authClient" withValidator notNullValidator
 
-        def copy(v:Session): this.type = throw new UnsupportedOperationException("not yet implemented")
+        {
+            this.lrpBuilder.cloud(defaultCloud)
+        }
+
+        override def copy(v:Session): this.type = super.copy(v).cellId(v.cellId).subject(v.subject
+            ).projectId(v.projectId
+            ).api(v.api).exp.set(v.exp
+            ).endpoint.set(v.endpoint
+            ).isAdmin(v.isAdmin
+            ).authClient(v.authClient)
+
         def build():Session = {
             this.validate()
             Session(
                 id(), subject(), api(), projectId(), cellId(),
-                endpoint() getOrElse new java.net.URL(s"https://${cellId()}.${api()}.${cloud()}"),
+                endpoint() getOrElse new java.net.URL(s"https://${cellId()}.cells.${lrp().cloud}"),
                 authClient(),
                 isAdmin(),
-                iat(), exp() getOrElse (iat() + 3600),
-                LRN.lrnToURI(
-                    new LRN.Builder(defaultCloud).api(api()).projectId(projectId()
-                    ).resourceType("session").resourcePath(id().toString()
-                    ).cloud(cloud()).build()
-                )
+                iat(), 
+                exp() getOrElse (iat() + 3600),
+                lrp()
             )
         }
     }

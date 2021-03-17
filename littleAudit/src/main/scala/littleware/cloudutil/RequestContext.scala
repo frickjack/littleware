@@ -1,4 +1,7 @@
-package littleware.cloudmgr
+package littleware.cloudutil
+
+import java.util.UUID
+
 
 case class RequestContext(
     requestId: UUID,

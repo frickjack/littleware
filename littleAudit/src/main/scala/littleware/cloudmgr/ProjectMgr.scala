@@ -3,6 +3,8 @@ package littleware.cloudmgr
 import java.util.UUID
 import scala.util._
 
+import littleware.cloudutil.{ RequestContext, Session }
+
 
 /**
  * Manage projects, api's, cells

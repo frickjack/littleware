@@ -2,6 +2,9 @@
 
 Littleware provides a multi-tenant environment for delivering metered asynchronous API's.
 
+## Problem and Audience
+
+
 ## Requirements
 
 The littleware design attempts to balance several requirements and design decisions.
@@ -91,6 +94,21 @@ Handle authentication and authorization for API's provided by an application bui
 
 Mesh?  Event bus?
 
+### Asset management
+
+* versioning and tagging
+* comments
+* assigments
+* inputs and outputs, and i/o states
+* state change dates
+
+### CRM
+
+* customer accounts
+* customer assets and tasks
+* customer transaction history
+* customer scheduling
+
 ## Design
 
 ### Multi-tenant
@@ -109,28 +127,42 @@ is cleared on a bi-weekly basis.
 
 The "dev" cloud is an internal environment for dev, test, and quality assurance.
 
-Finally, the production cloud supports project API's with 
+A cloud supports API's with 
 a simple quota-reservation billing model.
-
 Each user that authenticates with the system can
 create one or more "projects".  The project
 provides a billing and authorization boundary
 for interacting with littleware API's.
+
+Each api manages one or more types of resource within
+a project.  Each resource has a type, a drawer,
+a path unique within the drawer, a
+globally unique read-only id, and a state.
+A "drawer" is partition key, so that an api can
+efficiently query across data within the same drawer,
+but the size of each drawer is limitted to
+ensure system performance.
+The states that a particular resource type might
+assume is managed by the api that owns the resource type.
 
 So the concept hierarchy is:
 * region
 * cloud - authentication boundary
 * project - authorization boundary
 * api
+* resource: (drawer, path, id, type, state, other properties)
 
 Operationally each cloud api is implemented by
 services running in one or more cell.
 A user begins interacting with an API by
 creating a session jwt that authenticates the
 api access for a period of time.  The session
-jwt specifies the `(user, api, project, cell, ttl)` tuple -
+jwt specifies the `(user, api, project, cell, ttl)` tuple
+that authenticates api requests -
 where the cell is endpoint to which the client
-posts requests.
+posts requests.  Our initial implementation will map each
+project to a cell that provides
+all the API's for the project.
 
 ### Asynchronous, decoupled authorization, observable
 
@@ -148,6 +180,14 @@ the API's cassandra cluster
 * a response processor harvests each response message into a cassandra table (with a ttl)
 * the client polls the cell's http proxy to retrieve responses
 * an auditing stream processor saves the request, command, and response streams for each project out to S3 in batches; or we may forward events to an archiver api that implements billing, monitoring, and reporting services for each project
+
+## Technology
+
+## AWS (lambda, eventbus, dynamodb) vs Open (ec2, kafka, cassandra)
+
+* low code / no code
+
+
 
 ## Core API's
 
@@ -168,8 +208,7 @@ The cloud manager includes internal API's for registering a cell for an API.  Th
 assigns a project to a cell at API activation time.
 A new cell should be introduced whenever the load on
 an existing cell reaches a level that requires the cell
-to scale up and out.  Different API's may each require
-a different mix of resources (kafka nodes, cassandra nodes, compute nodes, storage, etc).
+to scale up and out.
 
 Each API activated for a project has a robot account associated with it that gives the API the permissions it
 needs to interact with other API's (like IAM).
@@ -179,11 +218,6 @@ needs to interact with other API's (like IAM).
 The IAM service allows a project user to create robot accounts, user groups, access policies, and link access policies to users, groups, and robots.
 
 A user may download credentials for a robot account.
-
-
-## lambda eventbus vs ec2 kafka
-
-* low code / no code
 
 
 ## Roadmap

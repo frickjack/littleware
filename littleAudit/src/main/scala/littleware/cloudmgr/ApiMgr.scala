@@ -4,6 +4,8 @@ import java.util.UUID
 
 import scala.util._
 
+import littleware.cloudutil.{ RequestContext, Session }
+
 
 /**
  * Manage the sessions and cells associated with an API.

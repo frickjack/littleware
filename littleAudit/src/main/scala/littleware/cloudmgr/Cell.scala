@@ -19,6 +19,7 @@ case class Cell (
     endpoint: URL,
     updateTime: Long,
     state: String,
+    lastUpdater: String,
     lrp: LRPath
 ) extends LittleResource {}
 
@@ -43,6 +44,7 @@ object Cell {
                 new java.net.URL(s"https://${id()}.cells.${lrp().cloud}"),
                 updateTime(),
                 state(),
+                lastUpdater(),
                 lrp()
             )
         }

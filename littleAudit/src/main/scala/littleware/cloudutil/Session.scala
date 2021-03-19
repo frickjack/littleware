@@ -8,7 +8,7 @@ import scala.util._
 import com.google.inject
 import littleware.cloudutil.{ LittleResource, LRN }
 import littleware.scala.PropertyBuilder
-import littleware.scala.PropertyBuilder.{ notNullValidator, positiveLongValidator }
+import littleware.scala.PropertyBuilder.{ emailValidator, notNullValidator, positiveLongValidator }
 
 
 /**
@@ -29,6 +29,7 @@ case class Session (
     lrp: LRPath
 ) extends LittleResource {
     override val updateTime = this.iat
+    override val lastUpdater = this.subject
 }
 
 object Session {
@@ -37,7 +38,7 @@ object Session {
 
     class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Session](Session.api, Session.resourceType) {
         val cellId = new Property[UUID](null) withName "cellId" withValidator notNullValidator
-        val subject = new Property("") withName "subject" withValidator LRN.subjectValidator
+        val subject = new Property("") withName "subject" withValidator emailValidator
         val projectId = new Property[UUID](null) withName "projectId" withValidator notNullValidator
         val api = new Property("") withName "api" withValidator LRN.apiValidator
         val iat = this.updateTime

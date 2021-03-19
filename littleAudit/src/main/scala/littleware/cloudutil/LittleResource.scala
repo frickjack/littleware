@@ -3,7 +3,7 @@ package littleware.cloudutil
 import java.util.UUID
 
 import littleware.scala.PropertyBuilder
-import littleware.scala.PropertyBuilder.{ notNullValidator, positiveLongValidator }
+import littleware.scala.PropertyBuilder.{ emailValidator, notNullValidator, positiveLongValidator }
 
 
 trait LittleResource extends littleware.base.cache.CacheableObject {
@@ -11,7 +11,8 @@ trait LittleResource extends littleware.base.cache.CacheableObject {
     val updateTime:Long
     val lrp:LRPath
     val state:String
-    
+    val lastUpdater:String
+
     override def getTimestamp() = updateTime
     override def getId() = id
     override def hashCode() = id.hashCode()
@@ -56,6 +57,7 @@ object LittleResource {
         val id = new Property(UUID.randomUUID()) withName "id" withValidator notNullValidator
         val updateTime = new Property(java.time.Instant.now().toEpochMilli()) withName "updateTime" withValidator positiveLongValidator
         val state = new Property(defaultState) withName "state" withValidator stateValidator
+        val lastUpdater = new Property("") withName "lastUpdater" withValidator emailValidator
 
         /**
          * Call the given lambda with this as an argument,
@@ -68,22 +70,26 @@ object LittleResource {
 
 
         /**
+         * Copy project and updater info from given session.
          * Shortcut for:
          * 
          *    call(
          *      { builder => builder.lrpBuilder.cloud(other.cloud).projectId(other.projectId) }
-         *    )
+         *    ).lastUpdater(session.subject)
          */
-        def copyProject(other:LRN):this.type = this.call(
-            { builder => builder.lrpBuilder.cloud(other.cloud).projectId(other.projectId) }
-        )
+        def copySession(other:Session):this.type = this.call(
+            { builder => builder.lrpBuilder.cloud(other.lrp.cloud).projectId(other.lrp.projectId) }
+        ).lastUpdater(other.subject)
 
         /**
          * Shortcut for:
          * 
-         *    copyProject(other.lrp).lrp(other.lrp).id(other.id).updateTime(other.updateTime).state(other.state)
+         *    copyProject(other.lrp).lrp(other.lrp).id(other.id
+         *        ).updateTime(other.updateTime).state(other.state).lastUpdater()
          */
-        override def copy(other:T):this.type = lrp(other.lrp).id(other.id).updateTime(other.updateTime).state(other.state)
+        override def copy(other:T):this.type = lrp(other.lrp).id(other.id
+            ).updateTime(other.updateTime).state(other.state
+            ).lastUpdater(other.lastUpdater)
     }
 
 }

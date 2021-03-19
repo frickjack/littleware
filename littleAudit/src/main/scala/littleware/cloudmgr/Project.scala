@@ -6,7 +6,7 @@ import scala.util._
 import com.google.inject
 import littleware.cloudutil.{ LittleResource, LRN, LRPath }
 import littleware.scala.PropertyBuilder
-import littleware.scala.PropertyBuilder.{ notNullValidator, positiveLongValidator, rxValidator }
+import littleware.scala.PropertyBuilder.{ emailValidator, notNullValidator, positiveLongValidator, rxValidator }
 
 
 /**
@@ -19,6 +19,7 @@ case class Project (
     cellId: UUID,
     updateTime: Long,
     state: String,
+    lastUpdater: String,
     lrp: LRPath
 ) extends LittleResource {}
 
@@ -28,7 +29,7 @@ object Project {
 
     class Builder extends LittleResource.Builder[Project](Project.api, Project.resourceType) {
         val cellId = new Property[UUID](null) withName "cellId" withValidator notNullValidator
-        val owners = new BufferProperty[String]() withName "owners" withMemberValidator LRN.subjectValidator
+        val owners = new BufferProperty[String]() withName "owners" withMemberValidator emailValidator
         val client2Apis = new BufferProperty[(String, String)]() withName "client2Apis" withMemberValidator client2ApiValidator
 
         override def copy(v:Project):this.type = super.copy(v
@@ -54,6 +55,7 @@ object Project {
                     cellId(),
                     updateTime(),
                     state(),
+                    lastUpdater(),
                     lrp()
                 )
         }

@@ -105,7 +105,6 @@ object LRN {
         }
     }
     def resourceTypeValidator = rxValidator(raw"[a-z][a-z0-9-]+".r)(_, _)
-    def subjectValidator = rxValidator(raw"[a-z][a-z0-9_+-@.]+".r)(_, _)
 
     def lrnToURI(lrn:LRN):URI = {
         val (scheme, path) = lrn match {

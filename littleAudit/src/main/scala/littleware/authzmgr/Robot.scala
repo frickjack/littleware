@@ -17,6 +17,7 @@ case class Robot (
     id: UUID,
     updateTime: Long,
     state: String,
+    lastUpdater: String,
     lrp: LRPath
 ) extends LittleResource {}
 
@@ -31,6 +32,7 @@ object Robot {
                 id(),
                 updateTime(),
                 state(),
+                lastUpdater(),
                 lrp() 
             )
         }

@@ -16,6 +16,7 @@ import PropertyBuilder._
 case class Robot (
     id: UUID,
     updateTime: Long,
+    state: String,
     lrp: LRPath
 ) extends LittleResource {}
 
@@ -29,6 +30,7 @@ object Robot {
             Robot(
                 id(),
                 updateTime(),
+                state(),
                 lrp() 
             )
         }

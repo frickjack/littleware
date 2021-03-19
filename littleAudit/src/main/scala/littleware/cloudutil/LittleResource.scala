@@ -7,10 +7,11 @@ import littleware.scala.PropertyBuilder.{ notNullValidator, positiveLongValidato
 
 
 trait LittleResource extends littleware.base.cache.CacheableObject {
-    val id:java.util.UUID
+    val id:UUID
     val updateTime:Long
     val lrp:LRPath
-
+    val state:String
+    
     override def getTimestamp() = updateTime
     override def getId() = id
     override def hashCode() = id.hashCode()
@@ -19,11 +20,16 @@ trait LittleResource extends littleware.base.cache.CacheableObject {
 abstract class AbstractLittleResource
 
 object LittleResource {
+    val defaultStateSet = Set("available", "building", "unavailable")
     /**
      * @param expectedApi provided by subtypes, and verified by validate
      * @param expectedResourceType provided by subtypes, and verified by validate
+     * @param defaultState default value for state property is "available"
+     * @param stateSet set of valid states - defaults to defaultStateSet
      */
-    abstract class Builder[T <: LittleResource](expectedApi:String, expectedResourceType:String) extends PropertyBuilder[T] {
+    abstract class Builder[T <: LittleResource](expectedApi:String, expectedResourceType:String, defaultState:String, stateSet:Set[String]) extends PropertyBuilder[T] {
+        def this(expectedApi:String, expectedResourceType:String) = this(expectedApi, expectedResourceType, "available", defaultStateSet)
+        
         def lrpValidator(lrp:LRPath, name:String):Option[String] = if (null == lrp) {
                 Option(s"${name} is null")
             } else if (lrp.api != expectedApi) {
@@ -34,6 +40,14 @@ object LittleResource {
                 None
             }
 
+        def stateValidator(value:String, name:String):Option[String] = {
+            if (value != null && raw"[a-z0-9_-]{1,12}".r.matches(value) && stateSet.contains(value)) {
+                None
+            } else {
+                Some(s"Invalid ${name}: ${value}")
+            }
+        }
+
         /**
          * lrpBuilder helper initialized with expectedApi and expectedResourceType
          */
@@ -41,7 +55,7 @@ object LittleResource {
         val lrp = new Property[LRPath](null) withName "lrp" withValidator lrpValidator
         val id = new Property(UUID.randomUUID()) withName "id" withValidator notNullValidator
         val updateTime = new Property(java.time.Instant.now().toEpochMilli()) withName "updateTime" withValidator positiveLongValidator
-
+        val state = new Property(defaultState) withName "state" withValidator stateValidator
 
         /**
          * Call the given lambda with this as an argument,
@@ -67,9 +81,9 @@ object LittleResource {
         /**
          * Shortcut for:
          * 
-         *    copyProject(other.lrp).lrp(other.lrp).id(other.id).updateTime(other.updateTime)
+         *    copyProject(other.lrp).lrp(other.lrp).id(other.id).updateTime(other.updateTime).state(other.state)
          */
-        override def copy(other:T):this.type = copyProject(other.lrp).lrp(other.lrp).id(other.id).updateTime(other.updateTime)
+        override def copy(other:T):this.type = lrp(other.lrp).id(other.id).updateTime(other.updateTime).state(other.state)
     }
 
 }

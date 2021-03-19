@@ -25,6 +25,7 @@ case class Session (
     isAdmin: Boolean,
     iat: Long,
     exp: Long,
+    state: String,
     lrp: LRPath
 ) extends LittleResource {
     override val updateTime = this.iat
@@ -65,6 +66,7 @@ object Session {
                 isAdmin(),
                 iat(), 
                 exp() getOrElse (iat() + 3600),
+                state(),
                 lrp()
             )
         }

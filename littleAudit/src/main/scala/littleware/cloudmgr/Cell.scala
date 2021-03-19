@@ -10,34 +10,6 @@ import littleware.scala.PropertyBuilder
 import littleware.scala.PropertyBuilder.{ dnsValidator, notNullValidator, positiveLongValidator, rxValidator }
 
 
-sealed trait CellState {}
-
-
-object CellState {
-    case object Active extends CellState {
-        override def toString() = "active"
-    }
-
-    case object Inactive extends CellState {
-        override def toString() = "inactive"
-    }
-
-    case object Updating extends CellState {
-        override def toString() = "updating"
-    }
-
-
-    def fromString(value: String):Try[CellState] = Try(
-        {
-            value match {
-                case "active" => CellState.Active
-                case "inactive" => CellState.Inactive
-                case "updating" => CellState.Updating
-                case _ => throw new IllegalArgumentException("invalid state string: " + value)
-            }
-        }
-    )
-}
 
 /**
  * Cell is a container for API's in a littleware cloud
@@ -45,8 +17,8 @@ object CellState {
 case class Cell (
     id: UUID,
     endpoint: URL,
-    state: CellState,
     updateTime: Long,
+    state: String,
     lrp: LRPath
 ) extends LittleResource {}
 
@@ -60,19 +32,17 @@ object Cell {
                 case something:Some[String] => something
                 case _ => dnsValidator(lrp.path, "lrp path dns check")
             }
-
-        val state = new Property[CellState](CellState.Active) withName "state" withValidator notNullValidator
         
-        override def copy(v:Cell): this.type = super.copy(v).state(v.state)
+        override def copy(v:Cell): this.type = super.copy(v)
         
         def build():Cell = {
             this.validate()
 
             Cell(
-                this.id(),
+                id(),
                 new java.net.URL(s"https://${id()}.cells.${lrp().cloud}"),
-                this.state(),
                 updateTime(),
+                state(),
                 lrp()
             )
         }

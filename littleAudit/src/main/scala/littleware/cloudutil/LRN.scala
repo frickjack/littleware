@@ -6,7 +6,7 @@ import java.net.URI
 import java.util.UUID
 
 import littleware.scala.PropertyBuilder
-import littleware.scala.PropertyBuilder.{ dnsValidator, notNullValidator, rxValidator }
+import littleware.scala.PropertyBuilder.{ dnsValidator, notNullValidator, pathLikeValidator, rxValidator }
 
 /**
  * Little resource name URI:
@@ -19,6 +19,7 @@ trait LRN {
     val api: String
     val projectId: UUID
     val resourceType: String
+    val drawer: String
     val path: String
     // maybe add this later: tags: Set[(String,String)]
 }
@@ -31,6 +32,7 @@ case class LRPath(
     api: String,
     projectId: UUID,
     resourceType: String,
+    drawer: String,
     path: String
 ) extends LRN {
 }
@@ -45,6 +47,7 @@ case class LRId(
     resourceType: String,
     resourceId: UUID
 ) extends LRN {
+    override val drawer = ":"
     val path = resourceId.toString()
 }
 
@@ -56,7 +59,7 @@ object LRN {
         val api = new Property("") withName "api" withValidator LRN.apiValidator
         val projectId = new Property[UUID](null) withName "projectId" withValidator notNullValidator
         val resourceType = new Property("") withName "resourceType" withValidator LRN.resourceTypeValidator
-        val path = new Property("") withName "path" withValidator LRN.pathValidator
+        val path = new Property("") withName "path" withValidator pathValidator
 
         def copy(lrn:T):this.type = this.projectId(lrn.projectId).api(lrn.api
               ).cloud(lrn.cloud).resourceType(lrn.resourceType
@@ -69,9 +72,13 @@ object LRN {
     }
 
     class LRPathBuilder extends Builder[LRPath] {        
+        val drawer = new Property("") withName "drawer" withValidator drawerValidator
+
+        override def copy(other:LRPath) = super.copy(other).drawer(other.drawer)
+
         def build():LRPath = {
             validate()
-            LRPath(cloud(), api(), projectId(), resourceType(), path())
+            LRPath(cloud(), api(), projectId(), resourceType(), drawer(), path())
         }
     }
 
@@ -83,8 +90,21 @@ object LRN {
     }
 
     def apiValidator = rxValidator(raw"[a-z][a-z0-9-]+".r)(_, _)
+    def drawerValidator(value:String, name:String) = rxValidator(raw"([\w-_.*]+:)*[\w-_.*]+".r)(value, name) orElse {
+        if (value.length > 1000) {
+            Some(s"${name} is too long: ${value}")
+        } else {
+            None
+        }
+    }
+    def pathValidator(value:String, name:String) = pathLikeValidator(value, name) orElse {
+        if (value.length > 1000) {
+            Some(s"${name} is too long: ${value}")
+        } else {
+            None
+        }
+    }
     def resourceTypeValidator = rxValidator(raw"[a-z][a-z0-9-]+".r)(_, _)
-    def pathValidator = rxValidator(raw"([\w-:_.*]+/)*[\w-:_.*]+".r)(_, _)
     def subjectValidator = rxValidator(raw"[a-z][a-z0-9_+-@.]+".r)(_, _)
 
     def lrnToURI(lrn:LRN):URI = {
@@ -92,7 +112,7 @@ object LRN {
             case lrpath:LRPath => "lrp" -> lrpath.path
             case lrid:LRId => "lrid" -> lrid.resourceId.toString()
         }
-        new URI(s"${scheme}://${lrn.cloud}/${lrn.api}/${lrn.projectId}/${lrn.resourceType}/${path}")
+        new URI(s"${scheme}://${lrn.cloud}/${lrn.api}/${lrn.projectId}/${lrn.resourceType}/${lrn.drawer}/${path}")
     }
 
     def uriToLRN(uri:URI):LRN = {

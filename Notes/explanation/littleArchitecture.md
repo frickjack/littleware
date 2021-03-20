@@ -148,9 +148,22 @@ assume is managed by the api that owns the resource type.
 So the concept hierarchy is:
 * region
 * cloud - authentication boundary
+* cell (projects are mapped to cells)
 * project - authorization boundary
 * api
 * resource: (drawer, path, id, type, state, other properties)
+
+Within a cell a particular API might partition data like this:
+
+```
+primary_key = (partition_key, sort_key)
+partition_key = project+drawer+resourceType
+sort_key = path
+```
+or
+```
+partition_key = project + id
+```
 
 Operationally each cloud api is implemented by
 services running in one or more cell.

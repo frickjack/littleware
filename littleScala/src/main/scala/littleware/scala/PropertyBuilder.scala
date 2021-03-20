@@ -103,7 +103,7 @@ trait PropertyBuilder[B] extends LittleValidator {
 
     def withMemberValidator(memberValidator:(T,String) => Option[String]):this.type =
       withValidator(
-        (buff, propName) => buff.view.flatMap({ it => memberValidator(it, propName) }).headOption
+        (option, propName) => option.flatMap({ it => memberValidator(it, propName) })
       )  
   }
 }
@@ -144,6 +144,9 @@ object PropertyBuilder {
     }
   }
 
-  def dnsValidator = rxValidator(raw"([\w-]+\.)*[\w-]+".r)(_, _)
+  def dnsValidator = rxValidator(raw"([\w-]{1,40}\.){0,10}[\w-]{1,40}".r)(_, _)
+  def emailValidator = rxValidator(raw"[\w-_]{1,20}@\w[\w-.]{1,20}".r)(_, _)
+  def pathLikeValidator = rxValidator(raw"([\w-:_.*]{1,255}/){0,20}[\w-:_.*]{1,255}".r)(_, _)
+
 
 }

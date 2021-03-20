@@ -10,9 +10,7 @@ import littleware.scala.PropertyBuilder.{ dnsValidator, notNullValidator, pathLi
 
 /**
  * Little resource name URI:
- * ```
  * "lrn://${cloud}/${api}/${project}/${resourceType}/${path}?tag1=${userTag1}&tag2=${userTag2}"
- * ```
  */
 trait LRN {
     val cloud: String
@@ -104,7 +102,7 @@ object LRN {
             None
         }
     }
-    def resourceTypeValidator = rxValidator(raw"[a-z][a-z0-9-]+".r)(_, _)
+    def resourceTypeValidator = rxValidator(raw"[a-z][a-z0-9-]{1,20}".r)(_, _)
 
     def lrnToURI(lrn:LRN):URI = {
         val (scheme, path) = lrn match {

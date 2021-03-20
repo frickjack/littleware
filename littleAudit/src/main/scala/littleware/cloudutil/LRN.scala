@@ -60,8 +60,8 @@ object LRN {
         val path = new Property("") withName "path" withValidator pathValidator
 
         def copy(lrn:T):this.type = this.projectId(lrn.projectId).api(lrn.api
-              ).cloud(lrn.cloud).resourceType(lrn.resourceType
-              ).path(lrn.path)
+            ).cloud(lrn.cloud).resourceType(lrn.resourceType
+            ).path(lrn.path)
 
         def fromSession(session:Session): this.type = this.cloud(session.lrp.cloud
             ).api(session.api
@@ -95,6 +95,7 @@ object LRN {
             None
         }
     }
+    
     def pathValidator(value:String, name:String) = pathLikeValidator(value, name) orElse {
         if (value.length > 1000) {
             Some(s"${name} is too long: ${value}")
@@ -102,6 +103,7 @@ object LRN {
             None
         }
     }
+
     def resourceTypeValidator = rxValidator(raw"[a-z][a-z0-9-]{1,20}".r)(_, _)
 
     def lrnToURI(lrn:LRN):URI = {
@@ -131,4 +133,5 @@ object LRN {
             }
         }
     }
+    
 }

@@ -31,3 +31,26 @@ cat $XDG_RUNTIME_DIR/log.ndjson | jq -r 'select(.message[0:1] == "{") | .little_
 
 ## CICD
 
+## littleAudit
+
+```
+newkey() {
+    local kid=${1:-$(date +%Y%m)}
+    local secretsfolder=$HOME/Secrets/littleAudit
+    
+    (
+        cd $secretsFolder
+        openssl ecparam -genkey -name prime256v1 -noout -out ec256-key-${kid}.pem
+        openssl pkcs8 -topk8 -nocrypt -in ec256-key.pem -out ec256-pkcs8-key-${kid}.pem
+        openssl ec -in ec256-key.pem -pubout -out ec256-pubkey-${kid}.pem
+    )
+}
+
+exportkeys() {
+    kid=testkey
+    secretsfolder=$HOME/Secrets/littleAudit
+    export LITTLE_AUDIT_PUBKEY="$(cat /ec256-pubkey.pem)"
+    export LITTLE_AUDIT_PRIVKEY="$(cat $secretsfolder/ec256-pkcs8-key.pem)"
+}
+
+```

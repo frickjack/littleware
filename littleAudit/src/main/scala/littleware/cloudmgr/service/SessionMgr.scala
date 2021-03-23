@@ -1,41 +1,42 @@
-package littleware.cloudmgr
+package littleware.cloudmgr.service
 
 import java.util.UUID
 import scala.util.Try
 import io.jsonwebtoken
+import java.security.{ PublicKey, PrivateKey }
 
 import littleware.cloudutil.Session
 
 /**
- * Helper manages pickling of Session and JWT -
+ * Helper manages pickling of Session and JWS -
  * including signature generation and validation
  */
 trait SessionMgr {
     /**
      * Start a session for the given user, etc.
      *
-     * @param jwtIdToken authn credential - id token for either Cognito user or little-cloud robot
-     * @return session ready to encode as JWT
+     * @param jwsIdToken authn credential - id token for either Cognito user or little-cloud robot
+     * @return session ready to encode as JWS
      */
-    def startSession(jwtIdToken:String, projectId:UUID, api:String):Session
+    def startSession(jwsIdToken:String, projectId:UUID, api:String):Session
 
     /**
-     * @return subject string from validated jwt
+     * @return subject string from validated jws
      */
-    def validateIdToken(jwtIdToken:String):Try[String]
+    def validateIdToken(jwsIdToken:String):Try[String]
 
     /**
      * Serialize a session
      */
-    def sessionToJwt(session:Session):String
-    def jwsToSession(jwt:String):Try[Session]
+    def sessionToJws(session:Session):String
+    def jwsToSession(jws:String):Try[Session]
 
     /**
      * See ex: 
      *     https://cognito-idp.us-east-2.amazonaws.com/us-east-2_860PcgyKN/.well-known/jwks.json
      * Keys for signature verification.
      */
-    def publicKeys():Seq[SessionMgr.KeyInfo] = Nil
+    def publicKeys():Seq[SessionMgr.PublicKeyInfo]
 }
 
 
@@ -45,13 +46,28 @@ object SessionMgr {
      *
      * @param kid should be the kms asymmetric key id or alias,
      * @param alg should be ES256 or similar,
-     * @param n is the key
+     * @param x is the eliptic curve public key x
+     * @param y is the eliptic curve public key y
      */
-    case class KeyInfo(
+    case class PublicKeyInfo(
         kid: String,
+        //x: String,
+        //y: String,
         alg: String,
-        n: String
+        pubKey: PublicKey
     ) {
         val use = "sig"
+
+        override def hashCode() = kid.hashCode()
+    }
+
+    case class PrivateKeyInfo(
+        kid: String,
+        alg: String,
+        privKey: PrivateKey
+    ) {
+        val use = "sig"
+
+        override def hashCode() = kid.hashCode()
     }
 }

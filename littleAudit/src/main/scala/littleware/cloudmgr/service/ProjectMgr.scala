@@ -1,8 +1,9 @@
-package littleware.cloudmgr
+package littleware.cloudmgr.service
 
 import java.util.UUID
 import scala.util._
 
+import littleware.cloudmgr._
 import littleware.cloudutil.{ RequestContext, Session }
 
 

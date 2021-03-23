@@ -24,7 +24,7 @@ case class Project (
 ) extends LittleResource {}
 
 object Project {
-    val api = ApiMgr.api
+    val api = Cell.api
     val resourceType = "project"
 
     class Builder extends LittleResource.Builder[Project](Project.api, Project.resourceType) {

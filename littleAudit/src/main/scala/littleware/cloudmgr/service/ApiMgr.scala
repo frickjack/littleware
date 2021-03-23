@@ -1,9 +1,10 @@
-package littleware.cloudmgr
+package littleware.cloudmgr.service
 
 import java.util.UUID
 
 import scala.util._
 
+import littleware.cloudmgr._
 import littleware.cloudutil.{ RequestContext, Session }
 
 
@@ -16,8 +17,6 @@ import littleware.cloudutil.{ RequestContext, Session }
  * when serving pages for https://console.${cloud.domain}/${api}/
  */
 trait ApiMgr {
-    val api:String
-
     def createCell(cx:RequestContext, name:String, endpoint:String): Cell
     /**
      * New cells
@@ -42,5 +41,5 @@ trait ApiMgr {
 }
 
 object ApiMgr {
-    val api = "little-api"
+    val api = Cell.api
 }

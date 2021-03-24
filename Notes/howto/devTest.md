@@ -53,4 +53,10 @@ exportkeys() {
     export LITTLE_AUDIT_PRIVKEY="$(cat $secretsfolder/ec256-pkcs8-key.pem)"
 }
 
+repl() {
+    local replPath
+    replPath="$(gradle :littleAudit:printClasspath --quiet)" || return 1
+    scala -classpath "$replPath"
+}
+
 ```

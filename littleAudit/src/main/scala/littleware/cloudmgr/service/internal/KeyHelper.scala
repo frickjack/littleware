@@ -18,30 +18,33 @@ class KeyHelper @inject.Inject() (gs: gson.Gson, ecKeyFactory:KeyHelper.EcKeyFac
       pem.replaceAll(raw"-----[\w ]+-----", "").replaceAll("\\s+", "")
     }
 
-    def decodePemEnv(envKey:String): String = {
-      val pem = Option(java.lang.System.getenv(envKey)) getOrElse { throw new IllegalStateException("environment not set: " + envKey) }
-      decodePem(pem)
-    }
-
     /**
      * Load EC X509 pem key from environment variable with name LITTLE_CLOUD_PUBKEY_$kid
      */
-    def loadPublicKeyFromEnv(kid:String):SessionMgr.PublicKeyInfo = {
+    def loadPublicKeyFromEnv(kid:String, env:Map[String, String]):SessionMgr.PublicKeyInfo = {
       // Get the path to the key pair from the environment
       val envKey = s"LITTLE_AUDIT_PUBKEY_${kid}"
-      val pemStr = decodePemEnv(envKey)
-      val key = ecKeyFactory.generatePublic(pemStr)
+      val pemStr = env.get(envKey) getOrElse { throw new IllegalStateException("environment not set: " + envKey) }
+      loadPublicKey(kid, pemStr)
+    }
+
+    def loadPublicKey(kid:String, pemStr:String):SessionMgr.PublicKeyInfo = {
+      val key = ecKeyFactory.generatePublic(decodePem(pemStr))
       SessionMgr.PublicKeyInfo(kid, "ES256", key)
     }
 
     /**
      * Load EC X509 pem key from environment variable with name LITTLE_CLOUD_PUBKEY_$kid
      */
-    def loadPrivateKeyFromEnv(kid:String):SessionMgr.PrivateKeyInfo = {
+    def loadPrivateKeyFromEnv(kid:String, env:Map[String, String]):SessionMgr.PrivateKeyInfo = {
       // Get the path to the key pair from the environment
       val envKey = "LITTLE_AUDIT_PRIVKEY_${kid}"
-      val pemStr = decodePemEnv(envKey)
-      val key = ecKeyFactory.generatePrivate(pemStr)
+      val pemStr = env.get(envKey) getOrElse { throw new IllegalStateException("environment not set: " + envKey) }
+      loadPrivateKey(kid, pemStr)
+    }
+
+    def loadPrivateKey(kid:String, pemStr:String):SessionMgr.PrivateKeyInfo = {
+      val key = ecKeyFactory.generatePrivate(decodePem(pemStr))
       SessionMgr.PrivateKeyInfo(kid, "ES256", key)
     }
 
@@ -104,7 +107,7 @@ object KeyHelper {
      */
     class RsaKeyFactory {
         private val keyFactory = java.security.KeyFactory.getInstance("RSA")
-        private val b64Decoder = java.util.Base64.getDecoder()
+        private val b64Decoder = java.util.Base64.getUrlDecoder()
 
         def generatePublic(n:String, e:String):RSAPublicKey = {
             val modulus = new java.math.BigInteger(1, b64Decoder.decode(n))

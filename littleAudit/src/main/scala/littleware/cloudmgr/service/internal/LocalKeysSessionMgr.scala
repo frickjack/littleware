@@ -54,3 +54,9 @@ class LocalKeySessionMgr @inject.Inject() (
     }
 
 }
+
+object LocalKeySessionMgr {
+    class Provider @inject.Inject() (helper:KeyHelper) extends inject.Provider[LocalKeySessionMgr] {
+        def get():LocalKeySessionMgr = null
+    }
+}

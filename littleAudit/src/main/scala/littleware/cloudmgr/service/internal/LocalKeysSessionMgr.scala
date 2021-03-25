@@ -10,6 +10,7 @@ import java.util.UUID
 import scala.util.Try
 
 import littleware.cloudmgr.service.SessionMgr
+import littleware.cloudmgr.service.littleModule
 import littleware.cloudutil.Session
 
 /**
@@ -20,6 +21,8 @@ import littleware.cloudutil.Session
  * are retrieved from jwks endpoint - ex:
  *   https://cognito-idp.us-east-2.amazonaws.com/us-east-2_860PcgyKN/.well-known/jwks.json
  */
+@inject.ProvidedBy(classOf[LocalKeySessionMgr.Provider])
+@inject.Singleton()
 class LocalKeySessionMgr @inject.Inject() (
     signingKey: Option[SessionMgr.PrivateKeyInfo],
     sessionKeys: Set[SessionMgr.PublicKeyInfo],
@@ -47,16 +50,27 @@ class LocalKeySessionMgr @inject.Inject() (
         { throw new UnsupportedOperationException("not yet implemented") }
     )
 
-    def publicKeys():Seq[SessionMgr.PublicKeyInfo] = {
+    def publicKeys():Set[SessionMgr.PublicKeyInfo] = {
         // note: EC curve is "P-256"
         // see: https://auth0.com/docs/tokens/json-web-tokens/json-web-key-set-properties
-        Nil
+        sessionKeys
     }
 
 }
 
 object LocalKeySessionMgr {
-    class Provider @inject.Inject() (helper:KeyHelper) extends inject.Provider[LocalKeySessionMgr] {
-        def get():LocalKeySessionMgr = null
+    class Provider @inject.Inject() (helper:KeyHelper, config:littleModule.Config) extends inject.Provider[LocalKeySessionMgr] {
+        lazy val singleton:Option[LocalKeySessionMgr] =
+            Option(config.localSessionMgrConfig).map(
+                {
+                    lc => 
+                    val signingKey = lc.signingKey.map({ kid2pem => helper.loadPrivateKey(kid2pem.kid, kid2pem.pem) })
+                    val sessionKeys = lc.verifyKeys.map({ kid2pem => helper.loadPublicKey(kid2pem.kid, kid2pem.pem) }).toSet
+                    val oidcKeys = helper.loadJwksKeys(new java.net.URL(lc.oidcJwksUrl))
+                    new LocalKeySessionMgr(signingKey, sessionKeys, oidcKeys)
+                }
+            ) orElse Option(new LocalKeySessionMgr(None, Set.empty, Set.empty))
+
+        def get():LocalKeySessionMgr = singleton.get
     }
 }

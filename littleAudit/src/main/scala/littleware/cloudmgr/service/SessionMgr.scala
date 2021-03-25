@@ -36,7 +36,7 @@ trait SessionMgr {
      *     https://cognito-idp.us-east-2.amazonaws.com/us-east-2_860PcgyKN/.well-known/jwks.json
      * Keys for signature verification.
      */
-    def publicKeys():Seq[SessionMgr.PublicKeyInfo]
+    def publicKeys():Set[SessionMgr.PublicKeyInfo]
 }
 
 

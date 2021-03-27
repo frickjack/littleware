@@ -1,11 +1,13 @@
 package littleware.cloudmgr.service
 
 import java.util.UUID
+import scala.jdk.CollectionConverters._
 import scala.util.Try
-import io.jsonwebtoken
+
+import io.{ jsonwebtoken => jwt }
 import java.security.{ PublicKey, PrivateKey }
 
-import littleware.cloudutil.Session
+import littleware.cloudutil.{LRN, Session}
 
 /**
  * Helper manages pickling of Session and JWS -
@@ -21,14 +23,18 @@ trait SessionMgr {
     def startSession(jwsIdToken:String, projectId:UUID, api:String):Session
 
     /**
-     * @return subject string from validated jws
+     * @return claims from validated jws
      */
-    def validateIdToken(jwsIdToken:String):Try[String]
+    def jwsToClaims(jwsIdToken:String):Try[jwt.Claims]
 
+    
     /**
      * Serialize a session
      */
     def sessionToJws(session:Session):String
+    /**
+     * Deserialize a session
+     */
     def jwsToSession(jws:String):Try[Session]
 
     /**
@@ -41,6 +47,42 @@ trait SessionMgr {
 
 
 object SessionMgr {
+    class InvalidTokenException (msg:String) extends IllegalArgumentException(msg) {}
+
+    def claimsToSession(claims:jwt.Claims):Session = {
+        val cloud = claims.get("little_cloud", classOf[String])
+        val builder = new Session.Builder(cloud)
+        builder.subject(claims.get("email", classOf[String])
+        ).projectId(UUID.fromString(claims.get("little_projectid", classOf[String]))
+        ).api(claims.get("little_api", classOf[String])
+        ).id(UUID.fromString(claims.getId())
+        ).cellId(LRN.zeroId // hard code for now - don't have cells yet
+        ).iat(claims.getIssuedAt().getTime() / 1000L
+        ).exp.set(claims.getExpiration().getTime() / 1000L
+        ).isAdmin(claims.get("little_admin", classOf[String]) == "yes"
+        ).lrp(
+            // TODO - maybe break down path by date
+            builder.lrpBuilder.path(s"${builder.subject()}/${builder.id()}").build()
+        ).build()
+    }
+
+    def sessionToClaims(session:Session):jwt.Claims = {
+        jwt.Jwts.claims(
+            Map(
+                "email" -> session.subject,
+                "little_projectid" -> session.projectId.toString(),
+                "little_api" -> session.api,
+                "little_cloud" -> session.lrp.cloud,
+                "little_admin" -> (if (session.isAdmin) { "yes" } else { "no" })
+            ).asJava.asInstanceOf[java.util.Map[String,Object]]
+        ).setSubject(session.subject
+        ).setIssuer(session.lrp.cloud
+        ).setIssuedAt(new java.util.Date(session.iat * 1000L)
+        ).setExpiration(new java.util.Date(session.exp * 1000L)
+        ).setAudience(s"session@${session.lrp.cloud}"
+        ).setId(session.id.toString())
+    }
+    
     /**
      * key info
      *

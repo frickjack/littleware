@@ -10,7 +10,11 @@ import littleware.cloudmgr.service.SessionMgr
 import scala.jdk.CollectionConverters._
 
 
-class KeyHelper @inject.Inject() (gs: gson.Gson, ecKeyFactory:KeyHelper.EcKeyFactory, rsaKeyFactory:KeyHelper.RsaKeyFactory) {    
+class KeyHelper @inject.Inject() (
+  gs: gson.Gson, 
+  ecKeyFactory:KeyHelper.EcKeyFactory, 
+  rsaKeyFactory:KeyHelper.RsaKeyFactory
+  ) {    
     /**
      * @return pem input with pem file prefix/suffix and empty space removed
      */

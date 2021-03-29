@@ -36,22 +36,19 @@ object Session {
     val api = "little-api"
     val resourceType = "session"
 
-    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Session](Session.api, Session.resourceType) {
+    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Session](defaultCloud, Session.api, Session.resourceType) {
         val cellId = new Property[UUID](null) withName "cellId" withValidator notNullValidator
         val subject = new Property("") withName "subject" withValidator emailValidator
         val projectId = new Property[UUID](null) withName "projectId" withValidator notNullValidator
         val api = new Property("") withName "api" withValidator LRN.apiValidator
-        val iat = this.updateTime
+        val iat = new OptionProperty[Long]() withName "exp" withMemberValidator positiveLongValidator
         val exp = new OptionProperty[Long]() withName "exp" withMemberValidator positiveLongValidator
         val endpoint = new OptionProperty[URL]() withName "endpoint" withMemberValidator notNullValidator
         val isAdmin = new Property(false) withName "isAdmin"
-        val authClient = new Property[String](null) withName "authClient" withValidator notNullValidator
+        val authClient = new Property[String](s"sessions@${defaultCloud}") withName "authClient" withValidator emailValidator
 
-        {
-            this.lrpBuilder.cloud(defaultCloud)
-        }
-
-        override def copy(v:Session): this.type = super.copy(v).cellId(v.cellId).subject(v.subject
+        override def copy(v:Session): this.type = super.copy(v
+            ).cellId(v.cellId).subject(v.subject
             ).projectId(v.projectId
             ).api(v.api).exp.set(v.exp
             ).endpoint.set(v.endpoint
@@ -59,14 +56,20 @@ object Session {
             ).authClient(v.authClient)
 
         def build():Session = {
+            val now = java.time.ZonedDateTime.now(java.time.ZoneId.of("UTC"))
+            lrp(
+                lrpBuilder.projectId(LRN.zeroId).drawer(s"${projectId()}:${now.getYear()}").path(s"${now.getMonth()}/${subject()}/${id()}").build()
+            )
+            lastUpdater(subject())
             this.validate()
+            val iatSecs = iat() getOrElse java.time.Instant.now().getEpochSecond()
             Session(
                 id(), subject(), api(), projectId(), cellId(),
                 endpoint() getOrElse new java.net.URL(s"https://${cellId()}.cells.${lrp().cloud}"),
                 authClient(),
                 isAdmin(),
-                iat(), 
-                exp() getOrElse (iat() + 3600),
+                iatSecs,
+                exp() getOrElse (iatSecs + 3600),
                 state(),
                 lrp()
             )

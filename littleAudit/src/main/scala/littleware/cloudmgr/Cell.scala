@@ -27,7 +27,7 @@ object Cell {
     val api = "little-api"
     val resourceType = "cell"
 
-    class Builder extends LittleResource.Builder[Cell](Cell.api, Cell.resourceType) {
+    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Cell](defaultCloud, Cell.api, Cell.resourceType) {
         override def lrpValidator(lrp:LRPath, name:String):Option[String] = 
             super.lrpValidator(lrp, name) match {
                 case something:Some[String] => something

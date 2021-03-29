@@ -145,8 +145,8 @@ object PropertyBuilder {
   }
 
   def dnsValidator = rxValidator(raw"([\w-]{1,40}\.){0,10}[\w-]{1,40}".r)(_, _)
-  def emailValidator = rxValidator(raw"[\w-_]{1,20}@\w[\w-.]{1,20}".r)(_, _)
-  def pathLikeValidator = rxValidator(raw"([\w-:_.*]{1,255}/){0,20}[\w-:_.*]{1,255}".r)(_, _)
+  def emailValidator = rxValidator(raw"[\w-_]{1,20}@\w[\w-.]{1,200}".r)(_, _)
+  def pathLikeValidator = rxValidator(raw"([\w-:_.@*]{1,255}/){0,20}[\w-:_.@*]{1,255}".r)(_, _)
 
 
 }

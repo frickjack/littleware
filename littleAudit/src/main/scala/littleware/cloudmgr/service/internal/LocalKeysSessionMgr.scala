@@ -25,7 +25,8 @@ class LocalKeySessionMgr (
     signingKey: Option[SessionMgr.PrivateKeyInfo],
     sessionKeys: Set[SessionMgr.PublicKeyInfo],
     oidcKeys: Set[SessionMgr.PublicKeyInfo],
-    issuer:String
+    issuer:String,
+    sessionFactory:inject.Provider[Session.Builder]
     ) extends SessionMgr {
 
     val resolver = new jwt.SigningKeyResolverAdapter() {
@@ -51,7 +52,7 @@ class LocalKeySessionMgr (
 
     def startSession(jwsIdToken:String, projectId:UUID, api:String):Session = {
         val claims = jwsToClaims(jwsIdToken).get
-        val builder = new Session.Builder(issuer
+        val builder = sessionFactory.get(
             ).subject(claims.get("email", classOf[String])
             )
         if(claims.getIssuer() == issuer) {
@@ -68,11 +69,9 @@ class LocalKeySessionMgr (
         builder.projectId(projectId).api(api
         ).id(UUID.randomUUID()
         ).cellId(LRN.zeroId // hard code for now - don't have cells yet
-        ).iat(claims.getIssuedAt().getTime() / 1000L
+        ).iat.set(claims.getIssuedAt().getTime() / 1000L
         ).exp.set(claims.getExpiration().getTime() / 1000L
-        ).lrp(
-            // TODO - maybe break down path by date
-            builder.lrpBuilder.path(s"${builder.subject()}/${builder.id()}").build()
+        ).authClient(claims.getAudience
         ).build()
     }
 
@@ -87,7 +86,7 @@ class LocalKeySessionMgr (
     ).flatMap( claims => Try( {
                     Seq("email", jwt.Claims.EXPIRATION, jwt.Claims.ISSUER, jwt.Claims.ISSUED_AT, jwt.Claims.AUDIENCE).foreach({
                         key =>
-                        if(claims.get(key, classOf[String]) == null) {
+                        if(claims.get(key) == null) {
                             throw new InvalidTokenException(s"missing ${key} claim")
                         }
                     })
@@ -97,8 +96,8 @@ class LocalKeySessionMgr (
     ).flatMap(
         claims => Try(
             {
-                if (claims.getExpiration().after(new java.util.Date())) {
-                    throw new InvalidTokenException("auth token expired")
+                if (claims.getExpiration().before(new java.util.Date())) {
+                    throw new InvalidTokenException(s"auth token expired: ${claims.getExpiration()}")
                 }
                 claims
             }
@@ -132,7 +131,8 @@ object LocalKeySessionMgr {
     class Provider @inject.Inject() (
         helper:KeyHelper, 
         config:littleModule.Config,
-        @inject.name.Named("little.cloud.domain") cloud:String
+        @inject.name.Named("little.cloud.domain") cloud:String,
+        sessionFactory:inject.Provider[Session.Builder]
     ) extends inject.Provider[LocalKeySessionMgr] {
         lazy val singleton:Option[LocalKeySessionMgr] =
             Option(config.localSessionMgrConfig).map(
@@ -141,9 +141,9 @@ object LocalKeySessionMgr {
                     val signingKey = lc.signingKey.map({ kid2pem => helper.loadPrivateKey(kid2pem.kid, kid2pem.pem) })
                     val sessionKeys = lc.verifyKeys.map({ kid2pem => helper.loadPublicKey(kid2pem.kid, kid2pem.pem) }).toSet
                     val oidcKeys = helper.loadJwksKeys(new java.net.URL(lc.oidcJwksUrl))
-                    new LocalKeySessionMgr(signingKey, sessionKeys, oidcKeys, cloud)
+                    new LocalKeySessionMgr(signingKey, sessionKeys, oidcKeys, cloud, sessionFactory)
                 }
-            ) orElse Option(new LocalKeySessionMgr(None, Set.empty, Set.empty, cloud))
+            ) orElse Option(new LocalKeySessionMgr(None, Set.empty, Set.empty, cloud, sessionFactory))
 
         def get():LocalKeySessionMgr = singleton.get
     }

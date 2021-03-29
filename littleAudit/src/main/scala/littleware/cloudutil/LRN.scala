@@ -65,8 +65,7 @@ object LRN {
 
         def fromSession(session:Session): this.type = this.cloud(session.lrp.cloud
             ).api(session.api
-            ).projectId(session.projectId
-            )
+            ).projectId(session.projectId)
     }
 
     class LRPathBuilder extends Builder[LRPath] {        

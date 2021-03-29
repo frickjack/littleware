@@ -23,13 +23,14 @@ abstract class AbstractLittleResource
 object LittleResource {
     val defaultStateSet = Set("available", "building", "unavailable")
     /**
+     * @param defaultCloud
      * @param expectedApi provided by subtypes, and verified by validate
      * @param expectedResourceType provided by subtypes, and verified by validate
      * @param defaultState default value for state property is "available"
      * @param stateSet set of valid states - defaults to defaultStateSet
      */
-    abstract class Builder[T <: LittleResource](expectedApi:String, expectedResourceType:String, defaultState:String, stateSet:Set[String]) extends PropertyBuilder[T] {
-        def this(expectedApi:String, expectedResourceType:String) = this(expectedApi, expectedResourceType, "available", defaultStateSet)
+    abstract class Builder[T <: LittleResource](defaultCloud:String, expectedApi:String, expectedResourceType:String, defaultState:String, stateSet:Set[String]) extends PropertyBuilder[T] {
+        def this(defaultCloud:String, expectedApi:String, expectedResourceType:String) = this(defaultCloud, expectedApi, expectedResourceType, "available", defaultStateSet)
         
         def lrpValidator(lrp:LRPath, name:String):Option[String] = if (null == lrp) {
                 Option(s"${name} is null")
@@ -50,9 +51,16 @@ object LittleResource {
         }
 
         /**
-         * lrpBuilder helper initialized with expectedApi and expectedResourceType
+         * lrpBuilder factory returns builder copied from current lrp() value if set,
+         *   otherwise initialized with defaultCloud, expectedApi, and expectedResourceType
          */
-        val lrpBuilder = new LRN.LRPathBuilder().api(expectedApi).resourceType(expectedResourceType)
+        def lrpBuilder:LRN.LRPathBuilder = {
+            val builder = new LRN.LRPathBuilder().cloud(defaultCloud).api(expectedApi).resourceType(expectedResourceType)
+            Option(lrp()).foldLeft(builder){
+                (builder, lrp) => builder.copy(lrp)
+            }
+        }
+
         val lrp = new Property[LRPath](null) withName "lrp" withValidator lrpValidator
         val id = new Property(UUID.randomUUID()) withName "id" withValidator notNullValidator
         val updateTime = new Property(java.time.Instant.now().toEpochMilli()) withName "updateTime" withValidator positiveLongValidator
@@ -67,19 +75,6 @@ object LittleResource {
             lambda(this)
             this
         }
-
-
-        /**
-         * Copy project and updater info from given session.
-         * Shortcut for:
-         * 
-         *    call(
-         *      { builder => builder.lrpBuilder.cloud(other.cloud).projectId(other.projectId) }
-         *    ).lastUpdater(session.subject)
-         */
-        def copySession(other:Session):this.type = this.call(
-            { builder => builder.lrpBuilder.cloud(other.lrp.cloud).projectId(other.lrp.projectId) }
-        ).lastUpdater(other.subject)
 
         /**
          * Shortcut for:

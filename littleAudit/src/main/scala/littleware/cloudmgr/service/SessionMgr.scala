@@ -57,12 +57,10 @@ object SessionMgr {
         ).api(claims.get("little_api", classOf[String])
         ).id(UUID.fromString(claims.getId())
         ).cellId(LRN.zeroId // hard code for now - don't have cells yet
-        ).iat(claims.getIssuedAt().getTime() / 1000L
+        ).iat.set(claims.getIssuedAt().getTime() / 1000L
         ).exp.set(claims.getExpiration().getTime() / 1000L
         ).isAdmin(claims.get("little_admin", classOf[String]) == "yes"
-        ).lrp(
-            // TODO - maybe break down path by date
-            builder.lrpBuilder.path(s"${builder.subject()}/${builder.id()}").build()
+        ).authClient(claims.getAudience()
         ).build()
     }
 
@@ -73,14 +71,16 @@ object SessionMgr {
                 "little_projectid" -> session.projectId.toString(),
                 "little_api" -> session.api,
                 "little_cloud" -> session.lrp.cloud,
-                "little_admin" -> (if (session.isAdmin) { "yes" } else { "no" })
+                "little_admin" -> (if (session.isAdmin) { "yes" } else { "no" }),
+                "token_use" -> "little_session"
             ).asJava.asInstanceOf[java.util.Map[String,Object]]
         ).setSubject(session.subject
         ).setIssuer(session.lrp.cloud
         ).setIssuedAt(new java.util.Date(session.iat * 1000L)
         ).setExpiration(new java.util.Date(session.exp * 1000L)
         ).setAudience(s"session@${session.lrp.cloud}"
-        ).setId(session.id.toString())
+        ).setId(session.id.toString()
+        ).setAudience(session.authClient)
     }
     
     /**

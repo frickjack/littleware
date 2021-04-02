@@ -34,24 +34,26 @@ cat $XDG_RUNTIME_DIR/log.ndjson | jq -r 'select(.message[0:1] == "{") | .little_
 ## littleAudit
 
 ```
+#
+# Bash function to generate new ES256 key pair
+#
 newkey() {
     local kid=${1:-$(date +%Y%m)}
-    local secretsfolder=$HOME/Secrets/littleAudit
+    local secretsFolder=$HOME/Secrets/littleAudit
     
     (
-        cd $secretsFolder
-        openssl ecparam -genkey -name prime256v1 -noout -out ec256-key-${kid}.pem
-        openssl pkcs8 -topk8 -nocrypt -in ec256-key.pem -out ec256-pkcs8-key-${kid}.pem
-        openssl ec -in ec256-key.pem -pubout -out ec256-pubkey-${kid}.pem
+        mkdir -p "$secretsFolder"
+        cd "$secretsFolder" || return 1
+        if [[ ! -f ec256-key-${kid}.pem ]]; then
+          openssl ecparam -genkey -name prime256v1 -noout -out ec256-key-${kid}.pem
+        fi
+        # convert the key to pkcs8 format
+        openssl pkcs8 -topk8 -nocrypt -in ec256-key-${kid}.pem -out ec256-pkcs8-key-${kid}.pem
+        # extract the public key
+        openssl ec -in ec256-pkcs8-key-${kid}.pem -pubout -out ec256-pubkey-${kid}.pem
     )
 }
 
-exportkeys() {
-    kid=testkey
-    secretsfolder=$HOME/Secrets/littleAudit
-    export LITTLE_AUDIT_PUBKEY="$(cat /ec256-pubkey.pem)"
-    export LITTLE_AUDIT_PRIVKEY="$(cat $secretsfolder/ec256-pkcs8-key.pem)"
-}
 
 repl() {
     local replPath
@@ -59,4 +61,12 @@ repl() {
     scala -classpath "$replPath"
 }
 
+```
+
+## Docker lambda
+
+```
+docker build -t 'audit:frickjack' .
+docker run -it --name audit --rm -p 9000:8080 audit:frickjack
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
 ```

@@ -13,4 +13,4 @@ introduction to the different types of documentation (explanation, how-to, tutor
 * [littleware architecture](./Notes/explanation/littleArchitecture.md)
 * [cloud manager](./Notes/explanation/cloudmgr.md)
 * [authz design](./Notes/explanation/authz.md)
-
+* [working with session tokens](./Notes/explanation/signingJwts.md)

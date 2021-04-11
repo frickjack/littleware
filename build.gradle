@@ -42,15 +42,12 @@ project( ':littleScala' ) {
 project(':littleAudit') {
     apply plugin: 'scala'
     apply plugin: 'application'
+    mainClassName = 'littleware.audit.Cli' 
 
     test {
         systemProperty 'java.util.logging.manager', 'org.apache.logging.log4j.jul.LogManager'
     }
 
-    application {
-        mainClass = 'littleware.audit.Cli' 
-    }
-    
     dependencies {
         implementation project(':littleScala')
         implementation project(':littleware')

@@ -30,9 +30,6 @@ phases:
       - BUILD_TYPE="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ print $1 }')"
       - echo "BUILD_TYPE is $BUILD_TYPE"
       - |
-        CODEBUILD_SRC_DIR_HELPERS=$HOME/Code/misc-stuff
-        CODEBUILD_WEBHOOK_TRIGGER="tag/1.2.0"
-        BUILD_TYPE="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ print $1 }')"
         (
           little() {
               bash "$CODEBUILD_SRC_DIR_HELPERS/AWS/little.sh" "$@"

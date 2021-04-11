@@ -8,6 +8,7 @@ FROM openjdk:9-jre
 ADD cli/s3cp.sh /opt/littleware/cli/
 ADD build /opt/littleware/build/
 
+WORKDIR /opt/littleware
 
 #ENTRYPOINT [ "/opt/tini/tini", "--", "/bin/bash", "/opt/littleware/cli/s3cp.sh" ]
 ENTRYPOINT [ "/bin/bash", "/opt/littleware/cli/s3cp.sh" ]

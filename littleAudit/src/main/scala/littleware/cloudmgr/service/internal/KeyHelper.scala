@@ -52,6 +52,9 @@ class KeyHelper @inject.Inject() (
       SessionMgr.PrivateKeyInfo(kid, "ES256", key)
     }
 
+    /**
+     * Load jwks keys from a URL like: https://www.googleapis.com/oauth2/v3/certs
+     */
     def loadJwksKeys(jwksUrl:java.net.URL): Set[SessionMgr.PublicKeyInfo] = {
       val jwksStr = {
         val connection = jwksUrl.openConnection()

@@ -1,0 +1,86 @@
+# see https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-codebuild-devicefarm.html
+version: 0.2
+
+env:
+  variables:
+    LITTLE_INTERACTIVE: "false"
+  parameter-store:
+    NPM_TOKEN: "/aws/reference/secretsmanager/applications/cicd/cell0/dev/npmjs-token"
+phases:
+  install:
+    runtime-versions:
+      # see https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/standard/5.0/Dockerfile
+      java: corretto11
+    commands:
+      - echo "Entered the install phase - jq already installed ..."
+      #- apt-get update -y
+      #- apt-get install -y jq
+  pre_build:
+    commands:
+      - echo "HOME is $HOME, CODEBUILD_SRC_DIR is $CODEBUILD_SRC_DIR, CODEBUILD_SRC_DIR_HELPERS is $CODEBUILD_SRC_DIR_HELPERS, pwd is $(pwd)"
+      - mkdir -p "$HOME/.aws"; /bin/echo -e "[default]\nregion = ${AWS_REGION}\noutput = json\ncredential_source = Ec2InstanceMetadata\n" | tee "$HOME/.aws/config"
+      - pip install yq --upgrade
+  build:
+    commands:
+      - cd littleAudit && gradle build
+      - cd littleAudit && docker build -t codebuild:frickjack
+  post_build:
+    commands:
+      - GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+      - BUILD_TYPE="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ print $1 }')"
+      - echo "BUILD_TYPE is $BUILD_TYPE"
+      - |
+        CODEBUILD_SRC_DIR_HELPERS=$HOME/Code/misc-stuff
+        CODEBUILD_WEBHOOK_TRIGGER="tag/1.2.0"
+        BUILD_TYPE="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ print $1 }')"
+        (
+          little() {
+              bash "$CODEBUILD_SRC_DIR_HELPERS/AWS/little.sh" "$@"
+          }
+
+          scanresult=""
+          scan_in_progress() {
+              test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = IN_PROGRESS
+          }
+
+          TAGSUFFIX="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ suff=$2; gsub(/[ @/]+/, "_", suff); print suff }')"
+          LITTLE_REPO_NAME=little/session_mgr
+          LITTLE_DOCKER_REG="$(little ecr registry)" || exit 1
+          LITTLE_DOCKER_REPO="${LITTLE_DOCKER_REG}/${LITTLE_REPO_NAME}"
+          if test "$BUILD_TYPE" = pr; then
+            TAGNAME="${LITTLE_DOCKER_REPO}:gitpr_${TAGSUFFIX}"
+            docker tag codebuild:frickjack "$TAGNAME"
+            docker push "$TAGNAME"
+          elif test "$BUILD_TYPE" = branch; then
+            TAGNAME="${LITTLE_DOCKER_REPO}:gitbranch_${TAGSUFFIX}"
+            docker tag codebuild:frickjack "$TAGNAME"
+            docker push "$TAGNAME"
+          elif test "$BUILD_TYPE" = tag \
+            && (echo "$TAGSUFFIX" | grep -E '[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}' > /dev/null); then
+            # semver tag
+            TAGNAME="${LITTLE_DOCKER_REPO}:gitbranch_${TAGSUFFIX}"
+            docker tag codebuild:frickjack "$TAGSUFFIX"
+            # see https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_ImageScanStatus.html
+            docker push "$TAGNAME" || exit 1
+            count=0
+            sleep 10
+
+            while scan_in_progress && test "$count" -lt 50; do
+              echo "Waiting for security scan - sleep 10"
+              count=$((count + 1))
+              sleep 10
+            done
+            echo "Got image scan result: $scanresult"
+            if ! test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = COMPLETE \
+               || ! test "$(echo "$scanresult" | jq -e -r .imageScanFindingsSummary.findingSeverityCounts.HIGH)" = 0 \
+               || ! test "$(echo "$scanresult" | jq -e -r .imageScanFindingsSummary.findingSeverityCounts.CRITICAL)" = 0; then
+               echo "Image $TAGNAME failed security scan - bailing out"
+               exit 1
+            fi
+            SEMVER="${LITTLE_DOCKER_REPO}:${TAGSUFFIX}"
+            docker tag "$TAGNAME" "$SEMVER"
+            docker push "$SEMVER"
+          else
+            echo "No docker publish for build: $BUILD_TYPE $TAGSUFFIX"
+          fi
+        )

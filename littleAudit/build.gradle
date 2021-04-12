@@ -1,3 +1,14 @@
+plugins {
+    // see https://jeremylong.github.io/DependencyCheck/dependency-check-gradle/configuration.html
+    id "org.owasp.dependencycheck"
+}
+
+dependencyCheck {
+    failBuildOnCVSS = 8 // 10 is the maximum
+    //skipConfigurations = ['jmh']
+    suppressionFiles = [ 'gradle/dependencySuppression.xml' ]
+}
+
 // The classpath of this project and its dependencies
 def classpath = sourceSets.main.runtimeClasspath.asPath
 

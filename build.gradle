@@ -1,3 +1,8 @@
+plugins {
+    // see https://plugins.gradle.org/plugin/org.owasp.dependencycheck
+    id "org.owasp.dependencycheck" version "6.1.5" apply false
+}
+
 allprojects {
     group="littleware"
     version="2.6.0-SNAPSHOT"
@@ -42,6 +47,8 @@ project( ':littleScala' ) {
 project(':littleAudit') {
     apply plugin: 'scala'
     apply plugin: 'application'
+        
+    //apply from: "gradle/dependenciesCheck.gradle"
     mainClassName = 'littleware.audit.Cli' 
 
     test {
@@ -70,7 +77,7 @@ project(':littleAudit') {
 
         implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
         implementation 'com.amazonaws:aws-lambda-java-events:3.8.0'
-        implementation 'com.amazonaws:aws-java-sdk:1.11.986'
+        implementation 'com.amazonaws:aws-java-sdk-kms:1.11.996'
         implementation 'com.amazonaws:aws-lambda-java-runtime-interface-client:1.0.0'
     }
 }
@@ -87,7 +94,7 @@ project( ':webapp:littleApps:s3Copy' ) {
 
     dependencies {
         compile project( ':littleScala' )
-        implementation 'com.amazonaws:aws-java-sdk:1.11.986'
+        implementation 'com.amazonaws:aws-java-sdk:1.11.996'
     }
 }
 
@@ -102,7 +109,7 @@ project( ':webapp:littleApps:littleApps' ) {
 project( ':webapp:littleApps:fishRunner' ) {
     dependencies {
         compile project( ':littleware' )
-        implementation 'com.amazonaws:aws-java-sdk:1.11.986'
+        implementation 'com.amazonaws:aws-java-sdk:1.11.996'
         implementation 'org.glassfish.main.extras:glassfish-embedded-web:4.1.2'
     }
 }

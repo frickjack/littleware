@@ -23,8 +23,42 @@ Gradle 6.8.1
 * `gradle -i` - INFO level [logging](https://docs.gradle.org/current/userguide/logging.html)
 * `gradle cleanTest test --tests 'GetOpt*'` - run specific [tests](https://stackoverflow.com/questions/22505533/how-to-run-only-one-unit-test-class-using-gradle)
 
+## Audit dependencies
+
+We use the [OWASP gradle plugin](https://jeremylong.github.io/DependencyCheck/dependency-check-gradle/configuration.html) to check our dependencies against
+public vulnerability databases.
+
+```
+(cd littleAudit && gradle dependencyAnalyze)
+```
+
 ## JSON structured logs
 
+We use log4j to setup json structured logs.  Ex:
+
+```
+littleware$ cat littleAudit/src/main/resources/log4j2.xml 
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="DEBUG">
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- avoid duplicated logs with additivity=false 
+        <Logger name="com.mkyong" level="debug" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+        -->
+        <Root level="info">
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+    </Loggers>
+</Configuration>
+```
+
+We can analyze a log stream like this:
 ```
 cat $XDG_RUNTIME_DIR/log.ndjson | jq -r 'select(.message[0:1] == "{") | .little_info = (.message | fromjson)'
 ```

@@ -44,6 +44,8 @@ phases:
           LITTLE_REPO_NAME=little/session_mgr
           LITTLE_DOCKER_REG="$(little ecr registry)" || exit 1
           LITTLE_DOCKER_REPO="${LITTLE_DOCKER_REG}/${LITTLE_REPO_NAME}"
+          
+          little ecr login || exit 1
           if test "$BUILD_TYPE" = pr; then
             TAGNAME="${LITTLE_DOCKER_REPO}:gitpr_${TAGSUFFIX}"
             docker tag codebuild:frickjack "$TAGNAME"

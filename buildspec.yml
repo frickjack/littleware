@@ -23,7 +23,7 @@ phases:
   build:
     commands:
       - (cd littleAudit && gradle build)
-      - (cd littleAudit && docker build -t codebuild:frickjack)
+      - (cd littleAudit && docker build -t codebuild:frickjack .)
   post_build:
     commands:
       - GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"

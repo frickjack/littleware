@@ -28,7 +28,6 @@ phases:
       - docker build -t codebuild:frickjack .
   post_build:
     commands:
-      - GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
       - BUILD_TYPE="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ print $1 }')"
       - echo "BUILD_TYPE is $BUILD_TYPE"
       - |

@@ -322,3 +322,7 @@ case class AccessRule (
 * v1 - null authz - project-owner based api access
 
 
+## Reference
+
+* ABAC - https://en.wikipedia.org/wiki/Attribute-based_access_control
+* Claim based access control - https://www.microsoft.com/en-us/download/details.aspx?id=28362

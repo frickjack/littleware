@@ -1,5 +1,10 @@
+# TL;DR
+
 littleware asset module
-========================
+
+```
+clear; gradle test --info --tests 'littleware.asset.server.db.DbInitializerTester' 2>&1 | tee run.log
+```
 
 ## Overview
 

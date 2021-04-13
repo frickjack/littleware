@@ -1,6 +1,6 @@
 package littleware.asset.gson;
 
-import java.rmi.RemoteException;
+import littleware.asset.client.RemoteException;
 import java.security.GeneralSecurityException;
 import java.util.Optional;
 import java.util.UUID;

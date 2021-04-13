@@ -1,13 +1,53 @@
-littleware
-====================
+# TL;DR
 
-TL;DR
---------------
+A mono-repo with various java and scala projects.
 
-A set of java and scala projects developed by reuben@frickjack.com including:
+## littleware projects
 
-* littleware/ - extends guice with lifecycle hooks and bind-module detection
-* littleAsset/ - currently up on blocks, but a simple asset management framework
-* webapps/littleApps/s3cp - S3 copy command line tool with enhancements for webapps
-* webapps/littleApps/fishrunner - glassfish web-profile command-line WAR runner with simple S3 integration
+Active folders:
 
+* [./littleware/] - Stable - Guice based dependency injection, builder pattern support, misc utilities
+* [./littleScala/] - Stable - builder pattern support
+* [./littleAudit/] - Active Development - little cloud service framework
+
+These folders hold projects that have been suspended or deprecated, but
+we have not yet erased out of the repo.
+
+* [./littleAsset/] - Suspended/Deprecated - j2ee based asset management
+* [./littleTools/] - Suspended/Deprecated - client tools for littleAsset/
+* [./littleWeb/] - Suspended/Deprecated - littleAsset/ HTTP API bindings
+* [./littleDistro/] - Suspended/Deprecated - distribution package for littleAsset stuff
+* [./webapp/] - Suspended/Deprecated - holds various subtools including littleId/ (old openId authenticator), fishRunner/ (glassfish based servlet-runner cli), and s3Copy/ (publish web site files to S3 with compression and metadata)
+
+## Other repositories
+
+The littleware code base has branched out to other repositories over the years.
+
+* [misc-stuff](https://github.com/frickjack/misc-stuff) - infrastructure automation
+* [little-nodedev](https://github.com/frickjack/little-nodedev) - gulpjs based build tools for typescript and web projects
+* [little-elements](https://github.com/frickjack/little-elements) - typescript npm package supporting nodejs and web apps
+* [little-authn](https://github.com/frickjack/little-elements) - typescript nodejs OIDC (AWS Cognito) client wired to support expressjs or lambda API gateway deployment
+* [little-apps](https://github.com/frickjack/little-apps) - typescript and web resources that define https://apps.frickjack.com
+
+## Notes TOC
+
+The Notes/ folder holds a hierarchy of documentation.  
+[This site](https://documentation.divio.com/introduction/) for an 
+introduction to the different types of documentation (explanation, how-to, tutorial, reference).
+
+
+### How-to
+
+* [dev-test](./Notes/howto/devTest.md)
+
+### Explanation
+
+* [little-cloud architecture](./Notes/explanation/littleArchitecture.md) - WIP
+* [cloud manager](./Notes/explanation/cloudmgr.md) - WIP
+* [authz design](./Notes/explanation/authz.md) - WIP
+* [working with session tokens](./Notes/explanation/signingJwts.md)
+* [cicd](./Notes/explanation/cicd.md) with [codebuild](https://aws.amazon.com/codebuild)
+
+### Reference
+
+* [release notes](./Notes/reference/releaseNotes.md)

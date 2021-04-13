@@ -14,7 +14,6 @@ import javax.security.auth.login.LoginException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import littleware.base.Option;
 import littleware.web.servlet.login.model.*;
 
 

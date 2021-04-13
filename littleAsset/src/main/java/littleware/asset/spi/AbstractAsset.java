@@ -17,6 +17,7 @@ import littleware.base.validate.ValidationException;
  * Handy little base class for implementing asset types.
  * Subtypes actually implement the Asset interface.
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractAsset extends AbstractCacheableObject {
     private static final Logger log = Logger.getLogger( AbstractAsset.class.getName() );
     
@@ -77,8 +78,18 @@ public abstract class AbstractAsset extends AbstractCacheableObject {
         }
     }
 
-    public AbstractAsset( AbstractAssetBuilder builder) {
-        this(builder.getAssetType(), builder.getId(), builder.getHomeId(), builder.getOwnerId(), builder.getFromId(), builder.getToId(), builder.getAclId(), builder.getTimestamp(), builder.getName(), builder.getState(), builder.getCreateDate(), builder.getCreatorId(), builder.getComment(), builder.getLastUpdateDate(), builder.getLastUpdaterId(), builder.getLastUpdate(), builder.getStartDate(), builder.getEndDate(), builder.getValue(), builder.getData(), ImmutableMap.copyOf(builder.getAttributeMap()), ImmutableMap.copyOf(builder.getDateMap()), ImmutableMap.copyOf(builder.getLinkMap()));
+    public AbstractAsset( AbstractAssetBuilder<? extends AssetBuilder> builder) {
+        this(builder.getAssetType(), builder.getId(), builder.getHomeId(), 
+            builder.getOwnerId(), builder.getFromId(), builder.getToId(), 
+            builder.getAclId(), builder.getTimestamp(), builder.getName(), 
+            builder.getState(), builder.getCreateDate(), builder.getCreatorId(), 
+            builder.getComment(), builder.getLastUpdateDate(), builder.getLastUpdaterId(), 
+            builder.getLastUpdate(), builder.getStartDate(), builder.getEndDate(), 
+            builder.getValue(), builder.getData(), 
+            ImmutableMap.copyOf(builder.getAttributeMap()), 
+            ImmutableMap.copyOf(builder.getDateMap()), 
+            ImmutableMap.copyOf(builder.getLinkMap())
+            );
     }
 
     

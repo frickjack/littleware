@@ -1,0 +1,4 @@
+task helloWorld( dependsOn: ':helloWorld'  ) doLast {
+   println "    - hello from littleWeb";
+}
+

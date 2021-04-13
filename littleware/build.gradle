@@ -1,5 +1,5 @@
 
-task helloWorld( dependsOn: ':helloWorld'  ) << {
-   println "    - hello from littleAsset";
+task helloWorld( dependsOn: ':helloWorld'  ) doLast {
+   println "    - hello from littleware";
 }
 

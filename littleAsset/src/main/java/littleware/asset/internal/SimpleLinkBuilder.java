@@ -14,7 +14,9 @@ public class SimpleLinkBuilder extends AbstractAssetBuilder<LinkAsset.LinkBuilde
     }
 
     private static class SimpleLink extends AbstractAsset implements LinkAsset {
-        public SimpleLink( SimpleLinkBuilder builder ) {
+        private static final long serialVersionUID = 1L;
+
+        public SimpleLink(SimpleLinkBuilder builder) {
             super( builder );
         }
 

@@ -1,6 +1,6 @@
 package littleware.scala
 
-
+import scala.util.matching.Regex
 
 /**
  * Trait for setting up simple builders based on setting and validating a set
@@ -9,7 +9,7 @@ package littleware.scala
  * Ex:
  *    val a, b = new Property[Int]( this, -1, (v:Int) => if ( v < 0 ) Seq( "property must be >= 0" ) else Nil )
  */
-trait PropertyBuilder extends LittleValidator {
+trait PropertyBuilder[B] extends LittleValidator {
   builder =>
   import PropertyBuilder._
   type BuilderType = this.type
@@ -40,117 +40,113 @@ trait PropertyBuilder extends LittleValidator {
    */
   def assertSanity():Unit = {
     val errors = checkSanity()
-    assert( errors.isEmpty, "sanity check passed on " + this + ": " + errors.mkString( "," ))
+    assert(errors.isEmpty, "sanity check passed on " + this + ": " + errors.mkString(","))
   }
   
-  override def toString():String = props.mkString( "," )
-  
-  
+  override def toString():String = props.mkString(",")   
+
+  def copy(value:B):BuilderType
+  def build():B
+
   /**
    * Typical property, so build has things like
-   *     val a = new Property[Int]( -1, "a", (x:Int) => x > 0 )
-   * Provides constructors with defaults for name and checkSanity.
+   *     val a = new Property(-1) withName "a" withValidator { x => ... }
+   *
+   * Note: this type is intertwined with PropertyBuilder - don't
+   *    try to pull it out of a being a subclass - turns into a mess
    */
-   class Property[T]( 
-        protected var value:T,
-        sanityTest:(T) => Iterable[String]
-      ) extends LittleValidator {
-      def this( value:T ) = this( value, (_:T) => Nil )
-      
-      def apply():T = value
-      
-      var name:String = "prop" + builder.props.size
-      builder.props += this 
-      
-      /** Chainable assignment */
-      def apply( v:T ):BuilderType = { value = v; builder }
-      
-      /** 
-       * Does this property have a valid value for the parent Builder to access ?
-       * This implementation just returns true 
-       */
-      def checkSanity():Iterable[String] = sanityTest( value )
-      
-      /**
-       * Reset this property's name
-       */
-      def name( value:String ):this.type = { name = value; this }
-      
-      override def toString():String = "" + name + "=" + value + " (" + checkSanity.mkString(",") + ")"
-   }
-   
-   /**
-    * Option property initialized to None with extra chainable setter method, isValid = true
-    */
-   class OptionProperty[T] extends Property[Option[T]]( None ) {
-     def set( v:T ):BuilderType = apply( Option(v) )
-   } 
-   
-   /** 
-    * Convenience class for isReady = value != null,
-    * Includes no-arg constructor that initializes value=null 
-    */
-   class NotNullProperty[T <: AnyRef]( _value:T, _test:(T) => Iterable[String] ) extends Property[T]( _value, _test ) {
-     def this( v:T ) = this(v, 
-                       PropertyBuilder.sanityCheck( nullCheck )
-                       )
-     def this() = this( null.asInstanceOf[T] )
-   } 
-   
-   /**
-    * Convenience class tests Int Property.  Default test is value >= 0 
-    */
-   class IntProperty( _value:Int, test:(Int) => Iterable[String] ) extends Property[Int]( _value, test ) {
-     
-     def this( v:Int ) = this( v, PropertyBuilder.sanityCheck( notNegativeInt ) )
-     /** Alias for constructor (-1, (i) => i > 0) */
-     def this() = this( -1 ) 
-   }   
-   
-   /**
-    * Property accepts multiple values
-    */
-   class BufferProperty[T] ( _test:(Buffer[T]) => Iterable[String] 
-       ) extends Property[Buffer[T]]( Buffer.empty, _test ) {
-     def this() = this( (_) => Nil )
+  class Property[T](
+      var value:T
+    ) extends LittleValidator {    
+    type Validator = (T,String) => Option[String]
+    
+    def apply():T = value
+    
+    var name:String = "prop" + builder.props.size
+    var validator:Validator  = (_, _) => None
 
-     def add( v:T ):BuilderType = { value += v; builder }
-     def addAll( v:Iterable[T] ):BuilderType = { value ++= v; builder }
-     def clear():BuilderType = { value.clear; builder }
-   } 
+    override def checkSanity() = validator(this.value, this.name)
+    def withValidator(v:Validator):this.type = {
+      validator = v
+      this
+    }
+    
+    def withName(v:String):this.type = {
+      this.name = v
+      this
+    }
+    
+    override def toString():String = "" + name + "=" + value + " (" + checkSanity().mkString(",") + ")"
+
+    /** Chainable assignment */
+    def apply(v:T):BuilderType = { value = v; builder }
   
+    builder.props += this 
+  }
+
+  /**
+   * Property accepts multiple values
+   */
+  class BufferProperty[T] extends Property[Buffer[T]](Buffer.empty) {
+    def add( v:T ):BuilderType = { value += v; builder }
+    def addAll( v:Iterable[T] ):BuilderType = { value ++= v; builder }
+    def clear():BuilderType = { value.clear(); builder; }
+  
+    def withMemberValidator(memberValidator:(T,String) => Option[String]):this.type =
+      withValidator(
+        (buff, propName) => buff.view.flatMap({ it => memberValidator(it, propName) }).headOption
+      )  
+  }  
+
+  class OptionProperty[T] extends Property[Option[T]](None) {
+    def set(v:T):BuilderType = { value = Option(v); builder }
+
+    def withMemberValidator(memberValidator:(T,String) => Option[String]):this.type =
+      withValidator(
+        (option, propName) => option.flatMap({ it => memberValidator(it, propName) })
+      )  
+  }
 }
 
-object PropertyBuilder {
-  /**
-   * Compose series of boolean sanity checks into
-   * a single sanity-check function suitable for
-   * attaching as a Property validator.
-   */
-  def sanityCheck[T]( checks:Product2[String,(T)=>Boolean]* ):(T) => Iterable[String] = {
-    (v:T) => checks.filterNot( _ match { case (err,thunk) => thunk(v) } ).map( _._1 )
-  }
-  
+object PropertyBuilder {  
   /** littleware.scala.Messages resource bundle */
   val rb = java.util.ResourceBundle.getBundle( "littleware.scala.Messages" )
-  
-  /**
-   * Not-null check suitable for adding to sanityCheck
-   * 
-   * @return ( failure message, validation check ) pair
-   */
-  def nullCheck[T <: AnyRef]:(String,(T)=>Boolean) = {
-    def check( t:T ):Boolean = t != null
-    rb.getString( "ValidateNotNull") -> check
+
+  def rxValidator(rx:Regex)(value:String, name:String):Option[String] = {
+    if (null == value || !rx.matches(value)) {
+      Some(s"${name}: ${value} !~ ${rx}")
+    } else {
+      None
+    }
   }
 
-  /**
-   * Not-negative check suitable for adding to sanityCheck
-   * 
-   * @return ( failure message, validation check ) pair
-   */  
-  def notNegativeInt:(String,(Int) => Boolean) = {
-    def check( t:Int ):Boolean = t >= 0
-    rb.getString( "ValidateNonNegative") -> check
+  def notNullValidator(value:AnyRef, name:String):Option[String] = {
+    if (null == value) {
+      Some(s"${name}: is null")
+    } else {
+      None
+    }
   }
+
+  def positiveIntValidator(value:Int, name:String):Option[String] = {
+    if (value <= 0) {
+      Some(s"${name}: is not positive")
+    } else {
+      None
+    }
+  }
+
+  def positiveLongValidator(value:Long, name:String):Option[String] = {
+    if (value <= 0) {
+      Some(s"${name}: is not positive")
+    } else {
+      None
+    }
+  }
+
+  def dnsValidator = rxValidator(raw"([\w-]{1,40}\.){0,10}[\w-]{1,40}".r)(_, _)
+  def emailValidator = rxValidator(raw"[\w-_]{1,20}@\w[\w-.]{1,200}".r)(_, _)
+  def pathLikeValidator = rxValidator(raw"([\w-:_.@*]{1,255}/){0,20}[\w-:_.@*]{1,255}".r)(_, _)
+
+
 }

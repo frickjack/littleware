@@ -12,13 +12,13 @@ public abstract class BaseException extends Exception {
     }
 
     /** With message */
-    public BaseException ( String s_message ) {
-		super ( s_message );
+    public BaseException ( String message ) {
+		super ( message );
     }
     
 	/** Exception cascading */
-	public BaseException ( String s_message, Throwable e_cause ) {
-		super ( s_message, e_cause );
+	public BaseException ( String message, Throwable causedBy ) {
+		super ( message, causedBy );
 	}
     
     /**
@@ -31,12 +31,12 @@ public abstract class BaseException extends Exception {
 			PrintWriter  io_print = new PrintWriter ( io_string );
 			
 			e.printStackTrace ( io_print );
-			for ( Throwable e_cause = e.getCause ();
-				  null != e_cause;
-				  e_cause = e_cause.getCause ()
+			for ( Throwable causedBy = e.getCause ();
+				  null != causedBy;
+				  causedBy = causedBy.getCause ()
 				  ) {
 				io_print.println ( "... caused by: " );
-				e_cause.printStackTrace ( io_print );
+				causedBy.printStackTrace ( io_print );
 			}
             return io_string.toString ();
         } catch ( Exception e2 ) {
@@ -44,7 +44,3 @@ public abstract class BaseException extends Exception {
         }
      }
 }
-
-// littleware asset management system
-// Copyright (C) 2007 Reuben Pasquini http://littleware.frickjack.com
-

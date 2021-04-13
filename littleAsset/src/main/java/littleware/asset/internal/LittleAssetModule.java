@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
+
 import java.util.Optional;
 import java.util.Properties;
 import littleware.asset.AssetPathFactory;
@@ -37,11 +38,16 @@ import littleware.bootstrap.AppModuleFactory;
 import littleware.bootstrap.helper.AbstractAppModule;
 import littleware.security.auth.client.internal.InMemorySessionMgrProxy;
 import littleware.security.auth.client.internal.RemoteSessionMgrProxy;
+
+import org.apache.http.HttpHost;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DecompressingHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 
 /**
@@ -70,7 +76,7 @@ public class LittleAssetModule extends AbstractAppModule {
         public enum RemoteMethod {
             InMemory, REST
         }
-        private RemoteMethod mode = RemoteMethod.REST;
+        private RemoteMethod mode = RemoteMethod.InMemory;
 
         public RemoteMethod getRemoteMethod() {
             return mode;
@@ -178,28 +184,42 @@ public class LittleAssetModule extends AbstractAppModule {
             throw new IllegalStateException( "Failed accessing littleware.properties", ex );
         }
 
-        final ClientConnectionManager connectionMgr = new org.apache.http.impl.conn.PoolingClientConnectionManager();
-        final DefaultHttpClient defaultClient = new DefaultHttpClient( connectionMgr, new org.apache.http.params.SyncBasicHttpParams());
-        final DecompressingHttpClient httpclient = new DecompressingHttpClient(
-            defaultClient
-            );
+        final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+        // Increase max total connection to 200
+        cm.setMaxTotal(200);
+        // Increase default max connection per route to 20
+        cm.setDefaultMaxPerRoute(20);
+        // Increase max connections for localhost:80 to 50
+        HttpHost localhost = new HttpHost("locahost", 80);
+        cm.setMaxPerRoute(new HttpRoute(localhost), 50);
+        final CredentialsProvider credProvider = new BasicCredentialsProvider();
+        CloseableHttpClient httpClient = HttpClients.custom()
+        .setConnectionManager(cm)
+        .setDefaultCredentialsProvider(credProvider)
+        .build();
+
         //httpclient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         //httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, java.lang.Boolean.FALSE);
-        httpclient.getParams().setParameter(org.apache.http.client.params.ClientPNames.ALLOW_CIRCULAR_REDIRECTS, java.lang.Boolean.TRUE);
+        //httpclient.getParams().setParameter(org.apache.http.client.params.ClientPNames.ALLOW_CIRCULAR_REDIRECTS, java.lang.Boolean.TRUE);
 
-        binder.bind(ClientConnectionManager.class).toInstance(connectionMgr);
+        binder.bind(HttpClientConnectionManager.class).toInstance(cm);
         //binder.bind(DefaultHttpClient.class).toInstance(defaultClient);
-        binder.bind(CredentialsProvider.class).toInstance(defaultClient.getCredentialsProvider() );
-        binder.bind(HttpClient.class).toInstance(httpclient);              
+        binder.bind(CredentialsProvider.class).toInstance(credProvider);
+        binder.bind(HttpClient.class).toInstance(httpClient);              
                 
         // Bind client method of connecting with server
         switch (getClientConfig().getRemoteMethod()) {
             case InMemory: {
+                /* ... no client-side binding necessary ...
                 binder.bind(RemoteAssetManager.class).to(InMemoryAssetMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSearchManager.class).to(InMemorySearchMgrProxy.class).in(Scopes.SINGLETON);
                 binder.bind(RemoteSessionMgrProxy.class).to(InMemorySessionMgrProxy.class).in(Scopes.SINGLETON);
+                */
             }
               break;
+            case REST: {
+                throw new UnsupportedOperationException("REST client currently busted");
+            } 
         }
     }
 }

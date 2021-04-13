@@ -1,0 +1,9 @@
+{"namespace": "littleware",
+ "type": "record",
+ "name": "TestMess",
+ "fields": [
+     {"name": "name", "type": "string"},
+     {"name": "favorite_number",  "type": ["int", "null"]},
+     {"name": "favorite_color", "type": ["string", "null"]}
+ ]
+}

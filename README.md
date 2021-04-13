@@ -6,18 +6,18 @@ A mono-repo with various java and scala projects.
 
 Active folders:
 
-* [./littleware/] - Stable - Guice based dependency injection, builder pattern support, misc utilities
-* [./littleScala/] - Stable - builder pattern support
-* [./littleAudit/] - Active Development - little cloud service framework
+* [./littleware/](./littleware/) - Stable - Guice based dependency injection, builder pattern support, misc utilities
+* [./littleScala/](./littleScala/) - Stable - builder pattern support
+* [./littleAudit/](./littleAudit/) - Active Development - little cloud service framework
 
 These folders hold projects that have been suspended or deprecated, but
 we have not yet erased out of the repo.
 
-* [./littleAsset/] - Suspended/Deprecated - j2ee based asset management
-* [./littleTools/] - Suspended/Deprecated - client tools for littleAsset/
-* [./littleWeb/] - Suspended/Deprecated - littleAsset/ HTTP API bindings
-* [./littleDistro/] - Suspended/Deprecated - distribution package for littleAsset stuff
-* [./webapp/] - Suspended/Deprecated - holds various subtools including littleId/ (old openId authenticator), fishRunner/ (glassfish based servlet-runner cli), and s3Copy/ (publish web site files to S3 with compression and metadata)
+* [./littleAsset/](./littleAsset/) - Suspended/Deprecated - j2ee based asset management
+* [./littleTools/](./littleTools/) - Suspended/Deprecated - client tools for littleAsset/
+* [./littleWeb/](./littleWeb/) - Suspended/Deprecated - littleAsset/ HTTP API bindings
+* [./littleDistro/](./littleDistro/) - Suspended/Deprecated - distribution package for littleAsset stuff
+* [./webapp/](./webapp/) - Suspended/Deprecated - holds various subtools including littleId/ (old openId authenticator), fishRunner/ (glassfish based servlet-runner cli), and s3Copy/ (publish web site files to S3 with compression and metadata)
 
 ## Other repositories
 

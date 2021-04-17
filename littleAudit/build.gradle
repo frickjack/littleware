@@ -13,6 +13,15 @@ dependencyCheck {
 def classpath = sourceSets.main.runtimeClasspath.asPath
 
 // Prints the classpath needed to launch the REPL
-task printClasspath {
-    println "${classpath}"
+tasks.register('printClasspath') {
+    doLast {
+        println "${classpath}"
+    }
+}
+
+
+tasks.register('printVersion') {
+    doLast {
+        println "${version}"
+    }
 }

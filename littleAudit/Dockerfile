@@ -7,12 +7,13 @@ FROM public.ecr.aws/lambda/java:11
 RUN yum install tar -y
 
 # Copy function code and runtime dependencies from Gradle layout
-COPY build/distributions/littleAudit-2.6.0-SNAPSHOT.tar ${LAMBDA_TASK_ROOT}
+COPY build/distributions/ ${LAMBDA_TASK_ROOT}/
 RUN cd ${LAMBDA_TASK_ROOT} \
-    && tar xvf littleAudit-2.6.0-SNAPSHOT.tar \
-    && mv littleAudit-2.6.0-SNAPSHOT/* . \
-    && rmdir littleAudit-2.6.0-SNAPSHOT \
-    && rm littleAudit-2.6.0-SNAPSHOT.tar
+    && FOLDER="$(ls -t | grep -e '.tar$' | tail -1 | sed 's/.tar$//')" \
+    && tar xvf "${FOLDER}.tar" \
+    && mv ${FOLDER}/* . \
+    && rmdir ${FOLDER} \
+    && rm *.tar *.zip
 
 #
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)

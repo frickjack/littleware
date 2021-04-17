@@ -4,8 +4,6 @@ version: 0.2
 env:
   variables:
     LITTLE_INTERACTIVE: "false"
-  parameter-store:
-    NPM_TOKEN: "/aws/reference/secretsmanager/applications/cicd/cell0/dev/npmjs-token"
 phases:
   install:
     runtime-versions:
@@ -56,10 +54,13 @@ phases:
             docker tag codebuild:frickjack "$TAGNAME"
             docker push "$TAGNAME"
           elif test "$BUILD_TYPE" = tag \
-            && (echo "$TAGSUFFIX" | grep -E '[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}' > /dev/null); then
+            && (echo "$TAGSUFFIX" | grep -E '^[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$' > /dev/null); then
             # semver tag
             TAGNAME="${LITTLE_DOCKER_REPO}:gitbranch_${TAGSUFFIX}"
-            docker tag codebuild:frickjack "$TAGSUFFIX"
+            if ! docker tag codebuild:frickjack "$TAGNAME"; then
+              echo "ERROR: failed to tag image with $TAGNAME"
+              exit 1
+            fi
             # see https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_ImageScanStatus.html
             docker push "$TAGNAME" || exit 1
             count=0

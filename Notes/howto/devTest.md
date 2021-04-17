@@ -108,7 +108,7 @@ curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d
 ## Publish by git tag
 
 (
-  version="$(gradle --queit :littleAudit:printVersion)"
+  version="$(gradle --quiet :littleAudit:printVersion)"
   git tag -a "$version" -m "release details in Notes/reference/releaseNotes.md#$version"
   git push origin $version
 )

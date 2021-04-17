@@ -36,7 +36,18 @@ phases:
 
           scanresult=""
           scan_in_progress() {
-              test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = IN_PROGRESS
+            local image
+            image="$1"
+            if ! shift; then
+                echo "invalid scan image"
+                exit 1
+            fi
+            local tag
+            local repo
+            tag="$(awk -F : '{ print $2 }' <<< "$image")"
+            repo="$(awk -F : '{ print $1 }' <<< "$image" | cut -d / -f 2-)"
+            scanresult="$(little ecr scanreport "$repo" "$tag")"
+            test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = IN_PROGRESS
           }
 
           TAGSUFFIX="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ suff=$2; gsub(/[ @/]+/, "_", suff); print suff }')"
@@ -66,15 +77,15 @@ phases:
             count=0
             sleep 10
 
-            while scan_in_progress && test "$count" -lt 50; do
+            while scan_in_progress "$TAGNAME" && test "$count" -lt 50; do
               echo "Waiting for security scan - sleep 10"
               count=$((count + 1))
               sleep 10
             done
             echo "Got image scan result: $scanresult"
             if ! test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = COMPLETE \
-               || ! test "$(echo "$scanresult" | jq -e -r .imageScanFindingsSummary.findingSeverityCounts.HIGH)" = 0 \
-               || ! test "$(echo "$scanresult" | jq -e -r .imageScanFindingsSummary.findingSeverityCounts.CRITICAL)" = 0; then
+               || ! test "$(jq -e -r '.imageScanFindingsSummary.findingSeverityCounts.HIGH // 0' <<< "$scanresult")" = 0 \
+               || ! test "$(jq -e -r '.imageScanFindingsSummary.findingSeverityCounts.CRITICAL // 0' <<< "$scanresult")" = 0; then
                echo "Image $TAGNAME failed security scan - bailing out"
                exit 1
             fi

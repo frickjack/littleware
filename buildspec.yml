@@ -44,8 +44,8 @@ phases:
             fi
             local tag
             local repo
-            tag="$(awk -F : '{ print $2 }' <<< "$image")"
-            repo="$(awk -F : '{ print $1 }' <<< "$image" | cut -d / -f 2-)"
+            tag="$(echo "$image" | awk -F : '{ print $2 }')"
+            repo="$(echo "$image" | awk -F : '{ print $1 }' | cut -d / -f 2-)"
             scanresult="$(little ecr scanreport "$repo" "$tag")"
             test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = IN_PROGRESS
           }
@@ -84,8 +84,8 @@ phases:
             done
             echo "Got image scan result: $scanresult"
             if ! test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = COMPLETE \
-               || ! test "$(jq -e -r '.imageScanFindingsSummary.findingSeverityCounts.HIGH // 0' <<< "$scanresult")" = 0 \
-               || ! test "$(jq -e -r '.imageScanFindingsSummary.findingSeverityCounts.CRITICAL // 0' <<< "$scanresult")" = 0; then
+               || ! test "$(echo "$scanresult" | jq -e -r '.imageScanFindingsSummary.findingSeverityCounts.HIGH // 0')" = 0 \
+               || ! test "$(echo "$scanresult" | jq -e -r '.imageScanFindingsSummary.findingSeverityCounts.CRITICAL // 0')" = 0; then
                echo "Image $TAGNAME failed security scan - bailing out"
                exit 1
             fi

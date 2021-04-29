@@ -27,7 +27,7 @@ object Project {
     val api = Cell.api
     val resourceType = "project"
 
-    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Project](defaultCloud, Project.api, Project.resourceType) {
+    class Builder @inject.Inject() (@inject.name.Named("little.cloudmgr.domain") defaultCloud: String) extends LittleResource.Builder[Project](defaultCloud, Project.api, Project.resourceType) {
         val cellId = new Property[UUID](null) withName "cellId" withValidator notNullValidator
         val owners = new BufferProperty[String]() withName "owners" withMemberValidator emailValidator
         val client2Apis = new BufferProperty[(String, String)]() withName "client2Apis" withMemberValidator client2ApiValidator

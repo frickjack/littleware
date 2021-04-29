@@ -37,8 +37,8 @@ object Config {
    * Look for module config from environment.
    */
   class ConfigLoader @inject.Inject() (
-    gs: gson.Gson, 
-    @inject.name.Named("littleware.cloudmgr.service.littleModule.Config") configStr:String
+    gs: gson.Gson,
+    @inject.name.Named("little.cloudmgr.config") configStr:String
     ) extends inject.Provider[Config] {
 
     def fromJson(json:gson.JsonObject): Config = {

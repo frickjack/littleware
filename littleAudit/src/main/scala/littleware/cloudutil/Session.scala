@@ -36,7 +36,7 @@ object Session {
     val api = "little-api"
     val resourceType = "session"
 
-    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Session](defaultCloud, Session.api, Session.resourceType) {
+    class Builder @inject.Inject() (@inject.name.Named("little.cloudmgr.domain") defaultCloud: String) extends LittleResource.Builder[Session](defaultCloud, Session.api, Session.resourceType) {
         val cellId = new Property[UUID](null) withName "cellId" withValidator notNullValidator
         val subject = new Property("") withName "subject" withValidator emailValidator
         val projectId = new Property[UUID](null) withName "projectId" withValidator notNullValidator

@@ -1,15 +1,16 @@
-package littleware.cloudmgr
+import littleware.cloudutil
 
 import com.google.inject
 import java.net.{ URI, URL }
 import java.util.UUID
-import scala.util._
 
-import littleware.cloudutil.{ LittleResource, LRN, LRPath }
 import littleware.scala.PropertyBuilder
 import littleware.scala.PropertyBuilder.{ dnsValidator, notNullValidator, positiveLongValidator, rxValidator }
 
+import scala.util._
 
+
+package littleware.cloudmgr {
 
 /**
  * Cell is a container for API's in a littleware cloud
@@ -20,15 +21,15 @@ case class Cell (
     updateTime: Long,
     state: String,
     lastUpdater: String,
-    lrp: LRPath
-) extends LittleResource {}
+    lrp: cloudutil.LRPath
+) extends cloudutil.LittleResource {}
 
 object Cell {
     val api = "little-api"
     val resourceType = "cell"
 
-    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Cell](defaultCloud, Cell.api, Cell.resourceType) {
-        override def lrpValidator(lrp:LRPath, name:String):Option[String] = 
+    class Builder @inject.Inject() (@inject.name.Named("little.cloudmgr.domain") defaultCloud: String) extends cloudutil.LittleResource.Builder[Cell](defaultCloud, Cell.api, Cell.resourceType) {
+        override def lrpValidator(lrp:cloudutil.LRPath, name:String):Option[String] = 
             super.lrpValidator(lrp, name) match {
                 case something:Some[String] => something
                 case _ => dnsValidator(lrp.path, "lrp path dns check")
@@ -49,4 +50,6 @@ object Cell {
             )
         }
     }
+}
+
 }

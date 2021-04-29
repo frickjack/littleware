@@ -78,7 +78,6 @@ object SessionMgr {
         ).setIssuer(session.lrp.cloud
         ).setIssuedAt(new java.util.Date(session.iat * 1000L)
         ).setExpiration(new java.util.Date(session.exp * 1000L)
-        ).setAudience(s"session@${session.lrp.cloud}"
         ).setId(session.id.toString()
         ).setAudience(session.authClient)
     }

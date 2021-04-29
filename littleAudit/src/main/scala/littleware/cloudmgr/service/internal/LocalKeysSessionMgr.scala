@@ -25,7 +25,7 @@ class LocalKeySessionMgr (
     signingKey: Option[SessionMgr.PrivateKeyInfo],
     sessionKeys: Set[SessionMgr.PublicKeyInfo],
     oidcKeys: Set[SessionMgr.PublicKeyInfo],
-    issuer:String,
+    cloud:String,
     sessionFactory:inject.Provider[Session.Builder]
     ) extends SessionMgr {
 
@@ -34,7 +34,7 @@ class LocalKeySessionMgr (
             val kid = jwsHeader.getKeyId()
             (
                 {
-                    if (claims.getIssuer() == issuer) {
+                    if (claims.getIssuer() == cloud) {
                         sessionKeys
                     } else {
                         oidcKeys
@@ -55,8 +55,8 @@ class LocalKeySessionMgr (
         val builder = sessionFactory.get(
             ).subject(claims.get("email", classOf[String])
             )
-        if(claims.getIssuer() == issuer) {
-            if (claims.getAudience() != s"apikeys@${issuer}") {
+        if(claims.getIssuer() == cloud) {
+            if (claims.getAudience() != s"apikeys@${cloud}") {
                 throw new InvalidTokenException(s"non api key session request with session token from ${builder.subject()}")
             }
             val session = SessionMgr.claimsToSession(claims)
@@ -131,7 +131,7 @@ object LocalKeySessionMgr {
     class Provider @inject.Inject() (
         helper:KeyHelper, 
         config:littleModule.Config,
-        @inject.name.Named("little.cloud.domain") cloud:String,
+        @inject.name.Named("little.cloudmgr.domain") cloud:String,
         sessionFactory:inject.Provider[Session.Builder]
     ) extends inject.Provider[LocalKeySessionMgr] {
         lazy val singleton:Option[LocalKeySessionMgr] =

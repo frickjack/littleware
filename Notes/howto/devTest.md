@@ -2,11 +2,20 @@
 
 How to dev-test
 
+## Repository Management
+
+[Angular style](https://medium.com/@menuka/writing-meaningful-git-commit-messages-a62756b65c81) commit messages.
+
+[Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) branch management.  A short-lived branches should rebase (rather than merge) to sync up with the long-lived parent it branches off of.
+
 ## Toolchain
 
 ```
+# aws lambda currently has native runtime support for jdk11
 $ java --version
-openjdk 14.0.2 2020-07-14
+openjdk 11.0.10 2021-01-19
+OpenJDK Runtime Environment (build 11.0.10+9-Ubuntu-0ubuntu1.20.04)
+OpenJDK 64-Bit Server VM (build 11.0.10+9-Ubuntu-0ubuntu1.20.04, mixed mode, sharing)
 
 $ scala --version
 Scala code runner version 2.13.4 -- Copyright 2002-2020, LAMP/EPFL and Lightbend, Inc.
@@ -73,7 +82,7 @@ cat $XDG_RUNTIME_DIR/log.ndjson | jq -r 'select(.message[0:1] == "{") | .little_
 #
 newkey() {
     local kid=${1:-$(date +%Y%m)}
-    local secretsFolder=$HOME/Secrets/littleAudit
+    local secretsFolder=$HOME/Secrets/littleware/cloudmgr
     
     (
         mkdir -p "$secretsFolder"
@@ -104,6 +113,32 @@ docker build -t 'audit:frickjack' .
 docker run -it --name audit --rm -p 9000:8080 audit:frickjack
 curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
 ```
+
+## Configuration
+
+The `little.cloudmgr.domain` and `little.cloudmgr.sessionmgr.config`
+configuration keys may be set in either `littleware.properties` or
+the `LITTLE_CLOUDMGR` environment variable.
+
+```
+$ cat littleAudit/src/test/resources/littleware.properties 
+little.cloudmgr.domain = test-cloud.frickjack.com
+little.cloudmgr.sessionmgr.config = { \
+    "configSource": "this", \
+    "sessionMgr": "local", \
+    "localSessionConfig": { \
+        "signingKey": { "kid": "testkey", "pem": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----" }, \
+        "verifyKeys": [ \
+            { "kid": "testkey", "pem": "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----" } \
+        ], \
+        "oidcJwksUrl": "https://www.googleapis.com/oauth2/v3/certs" \
+    } \
+}
+# ...
+```
+
+The `jwks.json` enpoint for a cognito deployment is in its openid configuration - ex: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_860PcgyKN/.well-known/openid-configuration
+
 
 ## Publish by git tag
 

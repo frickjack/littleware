@@ -38,6 +38,7 @@ project( ':littleScala' ) {
         testImplementation 'junit:junit:4.12'
         implementation 'javax:javaee-web-api:8.0'
         implementation 'com.google.guava:guava:30.1-jre'
+        implementation 'com.google.code.gson:gson:2.8.6'
         testRuntimeOnly 'org.apache.logging.log4j:log4j-layout-template-json:2.14.0'
         testRuntimeOnly 'org.apache.logging.log4j:log4j-jul:2.14.0'
         testRuntimeOnly 'org.apache.logging.log4j:log4j-core:2.14.0'

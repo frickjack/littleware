@@ -1,0 +1,19 @@
+{
+    "little.cloudmgr.domain" : "test-cloud.frickjack.com",
+    "little.cloudmgr.sessionmgr.type": "local",
+    "little.cloudmgr.sessionmgr.localconfig": {
+        "signingKey": { "kid": "testkey", "pem": "-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgs02I2exqJsdAoHef\n54/cjmlRvww903MKp0AOPqlRRXqhRANCAATWdeIowEmJ5lxpm7gE8GtvBnB1FBTI\nlcZHdD1FPM90oeEAraGGtnluYYEdPiJP3r29n3qFcGTgvqDAE49bc4om\n-----END PRIVATE KEY-----" }, 
+        "verifyKeys": [ 
+            { "kid": "testkey", "pem": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1nXiKMBJieZcaZu4BPBrbwZwdRQU\nyJXGR3Q9RTzPdKHhAK2hhrZ5bmGBHT4iT969vZ96hXBk4L6gwBOPW3OKJg==\n-----END PUBLIC KEY-----" } 
+        ], 
+        "oidcJwksUrl": "https://www.googleapis.com/oauth2/v3/certs" 
+    }, 
+    "little.cloudmgr.sessionmgr.awsconfig": {
+        "kmsPublicKeys": [ 
+            "alias/littleware/api/api-frickjack-com/sessMgrSigningKey", 
+            "alias/littleware/api/api-frickjack-com/sessMgrOldKey" 
+        ], 
+        "kmsSigningKey": "alias/littleware/api/api-frickjack-com/sessMgrSigningKey", 
+        "oidcJwksUrl": "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_860PcgyKN/.well-known/jwks.json" 
+    } 
+}

@@ -37,6 +37,11 @@ class KeyHelper @inject.Inject() (
       SessionMgr.PublicKeyInfo(kid, "ES256", key)
     }
 
+    def loadPublicKey(kid:String, bytes:Array[Byte]):SessionMgr.PublicKeyInfo = {
+      val key = ecKeyFactory.generatePublic(bytes)
+      SessionMgr.PublicKeyInfo(kid, "ES256", key)
+    }
+
     /**
      * Load EC X509 pem key from environment variable with name LITTLE_CLOUD_PUBKEY_$kid
      */
@@ -93,8 +98,12 @@ object KeyHelper {
         val keyFactory = java.security.KeyFactory.getInstance("EC")
         val b64Decoder = java.util.Base64.getDecoder()
 
-        def generatePublic(base64:String):ECPublicKey = {
+        def generatePublic(base64: String):ECPublicKey = {
             val bytes = b64Decoder.decode(base64.getBytes(utf8))
+            generatePublic(bytes)
+        }
+
+        def generatePublic(bytes: Array[Byte]):ECPublicKey = {
             val spec = new X509EncodedKeySpec(bytes)
       
             keyFactory.generatePublic(spec).asInstanceOf[ECPublicKey]

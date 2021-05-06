@@ -16,28 +16,20 @@ class AppModuleFactory extends bootstrap.AppModuleFactory {
   
 object AppModuleFactory {
   val log = Logger.getLogger(classOf[AppModuleFactory].getName())
+  val CONFIG_KEY = "LITTLE_CLOUDMGR"
 
-  class AppModule ( profile:bootstrap.AppBootstrap.AppProfile ) extends bootstrap.helper.AbstractAppModule( profile ) {
-    
+  class AppModule ( profile:bootstrap.AppBootstrap.AppProfile ) extends bootstrap.helper.AbstractAppModule( profile ) {    
     /**
-     * load properties from the LITTLEWARE_CLOUDMGR environment
-     * if present, otherwise
-     * some other mechanism (ex: littleware.properties) 
-     * must bind the following:
-     * <ul>
-     * <li>little.cloudmgr.domain 
+     * load properties from the LITTLE_CLOUDMGR key
+     * via littleware.scala.JsonConfigLoader
      */
-    override def configure( binder:inject.Binder ):Unit = {
-      Option(System.getenv("LITTLEWARE_CLOUDMGR")) map {
-          lambdaConfigStr =>
-          val helper = new cloudutil.ConfigHelper.BindHelper(binder)
-          cloudutil.ConfigHelper.loadJsonMap(lambdaConfigStr).foreach(
-            kv => helper.bindKeyValue(kv._1, kv._2)
-          )
-        } getOrElse {
-          log.log(Level.WARNING, "LITTLEWARE_CLOUDMGR environment not defined - falls back to littleware.properties")
+    override def configure(binder: inject.Binder):Unit = {
+      littleware.scala.JsonConfigLoader.loadConfig(CONFIG_KEY).map(
+        {
+          jsConfig =>
+          littleware.scala.JsonConfigLoader.bindKeys(binder, jsConfig)
         }
-
+      )
       // so far able to get by with annotation based bindings
       //binder.bind(classOf[Config]).toProvider(classOf[ConfigLoader]).in(inject.Scopes.SINGLETON)
       //binder.bind( classOf[model.Response.Builder] ).to( classOf[model.internal.ResponseBuilder])

@@ -74,11 +74,15 @@ cat $XDG_RUNTIME_DIR/log.ndjson | jq -r 'select(.message[0:1] == "{") | .little_
 
 ## CICD
 
-## littleAudit
+## littleAudit cloudmgr
+
+Some bash helper functions.
+Modify to suit your environment, 
+and source these into your dev shell.
 
 ```
 #
-# Bash function to generate new ES256 key pair
+# Bash function to generate new ES256 local key pair
 #
 newkey() {
     local kid=${1:-$(date +%Y%m)}
@@ -106,12 +110,32 @@ repl() {
 
 ```
 
+The cloudmgr test suite accesses AWS KMS, so must be run
+with AWS credentials.  The `little` command (from https://github.com/frickjack/misc-stuff) will do that for you for local testing:
+```
+little gradle build
+```
+Otherwise you can do something like this:
+```
+(
+    export AWS_REGION=us-east-2
+    export AWS_SECRET_ACCESS_KEY=...
+    export AWS_ACCESS_KEY_ID=...
+    cd littleAudit
+    gradle build
+)
+```
+
 ## Docker lambda
 
 ```
-docker build -t 'audit:frickjack' .
-docker run -it --name audit --rm -p 9000:8080 audit:frickjack
-curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+(
+    cd littleAudit
+    little gradle build
+    docker build -t 'audit:frickjack' .
+    docker run -it --name audit --rm -p 9000:8080 audit:frickjack
+    curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+)
 ```
 
 ## Configuration

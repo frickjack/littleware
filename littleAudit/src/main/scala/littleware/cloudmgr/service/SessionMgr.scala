@@ -15,7 +15,6 @@ import littleware.cloudutil.{LRN, Session}
  * including signature generation and validation
  */
 @inject.ProvidedBy(classOf[SessionMgr.Provider])
-@inject.Singleton()
 trait SessionMgr {
     /**
      * Start a session for the given user, etc.
@@ -118,7 +117,7 @@ object SessionMgr {
     @inject.Singleton()
     class Provider @inject.Inject() (
         @inject.name.Named("little.cloudmgr.sessionmgr.type") implType:String,
-        awsProvider: inject.Provider[internal.AwsKeySessionMgr],
+        awsProvider: inject.Provider[internal.AwsSessionMgr],
         localProvider: inject.Provider[internal.LocalKeySessionMgr]
     ) extends inject.Provider[SessionMgr] {
         override def get():SessionMgr = implType match {

@@ -20,9 +20,9 @@ import littleware.cloudutil.{ LRN, Session }
  *
  * See https://www.altostra.com/blog/asymmetric-jwt-signing-using-aws-kms
  */
-@inject.ProvidedBy(classOf[AwsKeySessionMgr.Provider])
+@inject.ProvidedBy(classOf[AwsSessionMgr.Provider])
 @inject.Singleton()
-class AwsKeySessionMgr (
+class AwsSessionMgr (
     signingKeyId: Option[String],
     localMgr: LocalKeySessionMgr,
     kmsClient: kms.AWSKMS
@@ -36,11 +36,16 @@ class AwsKeySessionMgr (
         signingKeyId.map(
             {
                 kid =>
-                val jwtNoSig = jwt.Jwts.builder(
-                    ).setHeaderParam(jwt.JwsHeader.KEY_ID, kid
+                val b64Encoder = java.util.Base64.getUrlEncoder()
+                // build our own header, since jwt.compact 
+                // clears the header algorithm - ugh
+                val headerJs = new gson.JsonObject()
+                headerJs.addProperty(jwt.JwsHeader.KEY_ID, kid)
+                headerJs.addProperty(jwt.JwsHeader.ALGORITHM, "ES256")
+                val headerB64 = b64Encoder.encodeToString(headerJs.toString().getBytes("UTF-8")).replaceAll("=", "")
+                val jwtNoSig = headerB64 + "." + jwt.Jwts.builder(
                     ).setClaims(SessionMgr.sessionToClaims(session)
-                    ).compact().replaceAll(".$", "")
-                
+                    ).compact().replaceAll("\\.$", "").replaceAll("^.+\\.", "")
                 val req = new kms.model.SignRequest(
                             ).withKeyId(kid
                             ).withSigningAlgorithm(kms.model.SigningAlgorithmSpec.ECDSA_SHA_256
@@ -48,9 +53,9 @@ class AwsKeySessionMgr (
                 val signBuffer = kmsClient.sign(req).getSignature().asReadOnlyBuffer()
                 val signBytes = new Array[Byte](signBuffer.limit() - signBuffer.position())
                 signBuffer.get(signBytes)
-                val signBase64 = java.util.Base64.getUrlEncoder().encodeToString(signBytes)
-                jwtNoSig + "." + signBase64
-            }            
+                val signB64 = b64Encoder.encodeToString(signBytes).replaceAll("=", "")
+                jwtNoSig + "." + signB64
+            }
         ).getOrElse(
             { throw new IllegalStateException("no signing kid registered") }
         )
@@ -61,7 +66,7 @@ class AwsKeySessionMgr (
     def publicKeys():Set[SessionMgr.PublicKeyInfo] = localMgr.publicKeys()
 }
 
-object AwsKeySessionMgr {
+object AwsSessionMgr {
 
     @inject.Singleton()
     @inject.ProvidedBy(classOf[ConfigProvider])
@@ -94,8 +99,8 @@ object AwsKeySessionMgr {
         config: Config,
         @inject.name.Named("little.cloudmgr.domain") cloud:String,
         sessionFactory:inject.Provider[Session.Builder]
-    ) extends inject.Provider[AwsKeySessionMgr] {
-        lazy val singleton:AwsKeySessionMgr = {
+    ) extends inject.Provider[AwsSessionMgr] {
+        lazy val singleton:AwsSessionMgr = {
             val kmsClient = kms.AWSKMSClientBuilder.defaultClient()
             val sessionKeys = config.verifyKeys.map(
                     { kid => kmsClient.getPublicKey(new kms.model.GetPublicKeyRequest().withKeyId(kid)) }
@@ -106,16 +111,25 @@ object AwsKeySessionMgr {
                         val keyBuffer = kinfo.getPublicKey().asReadOnlyBuffer()
                         val keyBytes = new Array[Byte](keyBuffer.limit() - keyBuffer.position())
                         keyBuffer.get(keyBytes)
-                        helper.loadPublicKey(kinfo.getKeyId(), keyBytes) 
+                        helper.loadPublicKey(kinfo.getKeyId(), keyBytes)
                     }
                 ).toSet
             val oidcKeys = helper.loadJwksKeys(new java.net.URL(config.oidcJwksUrl))
             val localMgr = new LocalKeySessionMgr(None, sessionKeys, oidcKeys, cloud, sessionFactory)
-            new AwsKeySessionMgr(
-                config.signingKey, localMgr, kmsClient
+            // get the kid of the underlying key for the signing alias
+            val signingKey = config.signingKey.map(
+                {
+                    kid =>
+                    kmsClient.describeKey(new kms.model.DescribeKeyRequest().withKeyId(kid))
+                }
+            ).map(
+                kinfo => kinfo.getKeyMetadata().getArn()
+            )
+            new AwsSessionMgr(
+                signingKey, localMgr, kmsClient
                 )
         }
 
-        def get():AwsKeySessionMgr = singleton
+        def get():AwsSessionMgr = singleton
     }
 }

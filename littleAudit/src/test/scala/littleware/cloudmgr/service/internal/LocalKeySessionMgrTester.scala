@@ -12,7 +12,7 @@ import org.junit.runner.RunWith
 
 @RunWith(classOf[littleware.test.LittleTestRunner])
 class LocalKeySessionMgrTester @inject.Inject() (
-    mgr:LocalKeySessionMgr,
+    mgr:service.SessionMgr,
     sessionFactory:inject.Provider[Session.Builder]
     ) extends littleware.scala.test.LittleTest {
     val log = logging.Logger.getLogger(this.getClass().getName())

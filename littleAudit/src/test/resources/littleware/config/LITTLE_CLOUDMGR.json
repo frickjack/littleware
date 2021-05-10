@@ -15,5 +15,9 @@
         ], 
         "kmsSigningKey": "alias/littleware/api/api-frickjack-com/sessMgrSigningKey", 
         "oidcJwksUrl": "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_860PcgyKN/.well-known/jwks.json" 
-    } 
+    },
+    "little.cloudmgr.sessionmgr.lambdaconfig": {
+        "corsDomainWhiteList": [ ".frickjack.com" ],
+        "cookieDomain": ".frickjack.com"
+    }
 }

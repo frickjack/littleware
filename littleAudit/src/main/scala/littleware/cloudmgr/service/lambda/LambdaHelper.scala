@@ -27,9 +27,9 @@ object LambdaHelper {
             if (ttlSecs < 0) {
                 sb.append("; Expires=Thu, 01 Jan 1970 00:00:00 GMT")
             } else if (ttlSecs > 0) {
-                sb.append("; Max-Age=${ttlSecs}")
+                sb.append(s"; Max-Age=${ttlSecs}")
             }
-            domain.foreach(name => sb.append("; Domain=${name}"))
+            domain.foreach(name => sb.append(s"; Domain=${name}"))
             sb.toString()
         }
     }

@@ -130,11 +130,11 @@ Otherwise you can do something like this:
 
 ```
 (
-    cd littleAudit
-    little gradle build
-    docker build -t 'audit:frickjack' .
-    docker run -it --name audit --rm -p 9000:8080 audit:frickjack
-    curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+cd littleAudit
+little gradle build
+docker build -t 'audit:frickjack' .
+docker run -it --name audit --rm -p 9000:8080 audit:frickjack
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{ "httpMethod": "OPTIONS" }'
 )
 ```
 

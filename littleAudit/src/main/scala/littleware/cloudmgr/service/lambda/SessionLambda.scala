@@ -11,7 +11,7 @@ import com.google.gson
 import com.google.inject
 
 import java.util.UUID
-
+import java.util.logging.{ Logger, Level }
 import littleware.bootstrap.AppBootstrap
 import littleware.cloudmgr.service.SessionMgr
 import littleware.cloudutil.{ LRN, Session }
@@ -23,12 +23,11 @@ import scala.util.{ Try, Success, Failure }
 /**
  * Adapted from https://github.com/awsdocs/aws-lambda-developer-guide/blob/main/sample-apps/java-events/src/main/java/example/HandlerApiGateway.java
  */
-class SessionHandler extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent]{
-  import SessionHandler.tools
+class SessionLambda extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent]{
+  import SessionLambda.tools
+  import SessionLambda.log
 
-  override def handleRequest(event:APIGatewayProxyRequestEvent, context:Context):APIGatewayProxyResponseEvent = {
-    val logger = context.getLogger()
-      
+  override def handleRequest(event:APIGatewayProxyRequestEvent, cx:Context):APIGatewayProxyResponseEvent = {      
     // headers normalized with lowercase keys
     val reqHeads:Map[String, String] = Option(event.getHeaders()).toSeq.flatMap(
       { 
@@ -70,24 +69,24 @@ class SessionHandler extends RequestHandler[APIGatewayProxyRequestEvent, APIGate
         ).toMap
 
     val authToken:Option[String] = reqHeads.get(
-        SessionHandler.authHeaderName
+        SessionLambda.authHeaderName
       ).map(
         tok => tok.replaceAll(raw"^bearer\s+", "")
       ).orElse(
-        { cookies.get(SessionHandler.authCookieName) }
+        { cookies.get(SessionLambda.authCookieName) }
       )
 
     def sessionFromToken(projectId: UUID):Option[Session] = reqHeads.get(
-        SessionHandler.authHeaderName
+        SessionLambda.authHeaderName
       ).map(
         tok => tok.replaceAll(raw"^bearer\s+", "")
       ).orElse(
-        { cookies.get(SessionHandler.sessionCookieName(projectId.toString())) }
+        { cookies.get(SessionLambda.sessionCookieName(projectId.toString())) }
       ).flatMap(
         tok => tools.sessionMgr.jwsToSession(tok) match {
           case Success(session) => Some(session)
           case Failure(ex) => {
-            logger.log("Failed to parse token header")
+            log.log(Level.INFO, "Failed to parse token header")
             None
           }
         }
@@ -108,7 +107,7 @@ class SessionHandler extends RequestHandler[APIGatewayProxyRequestEvent, APIGate
         response.withStatusCode(200)
       }
       case method => event.getPath() match {
-        case SessionHandler.sessionPattern(projIdStr) => {
+        case SessionLambda.sessionPattern(projIdStr) => {
           Try({ UUID.fromString(projIdStr) }) match {
             case Success(projId) => {
               method match {
@@ -142,7 +141,7 @@ class SessionHandler extends RequestHandler[APIGatewayProxyRequestEvent, APIGate
                             )
                           } else {
                             val cookie = LambdaHelper.CookieInfo(
-                              SessionHandler.sessionCookieName(projId.toString()),
+                              SessionLambda.sessionCookieName(projId.toString()),
                               sessionToken,
                               Some(tools.config.cookieDomain),
                               3600
@@ -201,8 +200,11 @@ class SessionHandler extends RequestHandler[APIGatewayProxyRequestEvent, APIGate
   }
 }
 
-object SessionHandler {
+//----------------------
+
+object SessionLambda {
     val gs = new gson.GsonBuilder().setPrettyPrinting().create()
+    val log = Logger.getLogger(classOf[SessionLambda].getName())
 
     /**
      * Additional configuration for the lambda
@@ -241,13 +243,12 @@ object SessionHandler {
       val sessionMgr: SessionMgr
     ) {
       def logEnvironment(event:AnyRef, context:Context):Unit = {
-          val logger = context.getLogger()
           // log execution details
-          logger.log("ENVIRONMENT VARIABLES: " + gs.toJson(System.getenv()))
-          logger.log("CONTEXT: " + gs.toJson(context))
+          log.log(Level.INFO, "ENVIRONMENT VARIABLES: " + gs.toJson(System.getenv()))
+          log.log(Level.INFO, "CONTEXT: " + gs.toJson(context))
           // log event details
-          logger.log("EVENT: " + gs.toJson(event))
-          logger.log("EVENT TYPE: " + event.getClass().toString())
+          log.log(Level.INFO, "EVENT: " + gs.toJson(event))
+          log.log(Level.INFO, "EVENT TYPE: " + event.getClass().toString())
       }
     }
 
@@ -264,6 +265,6 @@ object SessionHandler {
     // check https://github.com/frickjack/misc-stuff
     // AWS/lib/cloudformation/cloud/api/authclient/sessionMgrOpenApi.json
     //
-    val sessionPattern = "session/([^/ ]+)$".r
+    val sessionPattern = ".*/session/([^/ ]+)$".r
 
 }

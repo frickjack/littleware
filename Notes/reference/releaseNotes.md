@@ -25,6 +25,15 @@ docker pull 027326493842.dkr.ecr.us-east-2.amazonaws.com/little/session_mgr:3.0.
 
 ### Notes
 
+## 3.0.0
+
+Initial build of the session manager under the cloud manager module.
+Refer to the explanatory docs for an overview of the role the session
+manager plays in the littleware cloud architecture.
+
+* AWS KMS implementation of SessionMgr interface
+* JsonConfigLoader and session manager configuration integration
+
 ## 2.6.1
 
 The codebuild process builds this docker image from littleAudit/Dockerfile

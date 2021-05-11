@@ -20,12 +20,15 @@ phases:
       - pip install yq --upgrade
   build:
     commands:
-      - |
-        little() {
-            bash "$CODEBUILD_SRC_DIR_HELPERS/AWS/little.sh" "$@"
-        }
       - cd littleAudit
-      - little gradle build
+      - |
+        (
+          little() {
+              bash "$CODEBUILD_SRC_DIR_HELPERS/AWS/little.sh" "$@"
+          }
+          
+          little gradle build
+        )
       - gradle dependencyCheckAnalyze
       - docker build -t codebuild:frickjack .
   post_build:

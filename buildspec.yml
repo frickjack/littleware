@@ -28,8 +28,10 @@ phases:
           }
           
           little gradle build
+          exitCode=$?
+          find build/test-results/ -name '*.xml' -print -exec cat '{}' ';'
+          exit $exitCode
         )
-      - find build/test-results/ -name '*.xml' -print -exec cat '{}' ';'
       - gradle dependencyCheckAnalyze
       - docker build -t codebuild:frickjack .
   post_build:

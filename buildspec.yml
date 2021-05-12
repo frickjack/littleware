@@ -29,6 +29,7 @@ phases:
           
           little gradle build
         )
+      - find build/test-results/ -name '*.xml' -print -exec cat '{}' ';'
       - gradle dependencyCheckAnalyze
       - docker build -t codebuild:frickjack .
   post_build:

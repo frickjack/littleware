@@ -44,7 +44,8 @@ class SessionLambda extends RequestHandler[APIGatewayProxyRequestEvent, APIGatew
       ).getOrElse(Map.empty)
 
     val commonHeaders = Map(
-        "Content-Type" -> "application/json"
+        "Content-Type" -> "application/json",
+        "Strict-Transport-Security" -> "max-age=31536000"
         )
 
     val corsHeaders:Map[String, String] =

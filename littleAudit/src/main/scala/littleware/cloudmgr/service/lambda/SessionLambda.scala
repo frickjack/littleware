@@ -23,9 +23,10 @@ import scala.util.{ Try, Success, Failure }
 /**
  * Adapted from https://github.com/awsdocs/aws-lambda-developer-guide/blob/main/sample-apps/java-events/src/main/java/example/HandlerApiGateway.java
  */
-class SessionLambda extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent]{
-  import SessionLambda.tools
+class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent]{
   import SessionLambda.log
+
+  def this() { this(SessionLambda.tools) }
 
   override def handleRequest(event:APIGatewayProxyRequestEvent, cx:Context):APIGatewayProxyResponseEvent = {      
     // headers normalized with lowercase keys
@@ -105,7 +106,9 @@ class SessionLambda extends RequestHandler[APIGatewayProxyRequestEvent, APIGatew
     
     event.getHttpMethod() match {
       case "OPTIONS" => {
-        response.withStatusCode(200)
+        response.withStatusCode(200
+        ).withBody(s"""{ "message": "options ok" }"""
+        )
       }
       case method => event.getPath() match {
         case SessionLambda.sessionPattern(projIdStr) => {
@@ -253,7 +256,10 @@ object SessionLambda {
       }
     }
 
-    val tools: Tools = {
+    /**
+     * Self-bootstrap in lambda environment
+     */
+    private lazy val tools: Tools = {
       val boot = AppBootstrap.appProvider.get().profile(AppBootstrap.AppProfile.WebApp).build()
       boot.bootstrap(classOf[Tools])
     }

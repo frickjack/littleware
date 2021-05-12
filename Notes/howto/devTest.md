@@ -133,7 +133,8 @@ Otherwise you can do something like this:
 cd littleAudit
 little gradle build
 docker build -t 'audit:frickjack' .
-docker run -it --name audit --rm -p 9000:8080 audit:frickjack
+LITTLE_CLOUDMGR="$(cat src/test/resources/littleware/config/LITTLE_CLOUDMGR.json)"
+docker run -it --name audit --rm -p 9000:8080 $(little env | grep -e ^AWS | awk '{ print "--env " $0 }') --env "LITTLE_CLOUDMGR=$LITTLE_CLOUDMGR" audit:frickjack
 curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{ "httpMethod": "OPTIONS" }'
 )
 ```

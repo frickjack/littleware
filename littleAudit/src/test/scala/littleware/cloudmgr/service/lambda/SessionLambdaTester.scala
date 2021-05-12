@@ -1,6 +1,7 @@
 package littleware.cloudmgr.service.lambda
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
+import com.google.inject
 
 import littleware.cloudmgr.service
 import littleware.cloudutil.LRN
@@ -9,9 +10,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 
-class SessionLambdaTester extends littleware.scala.test.LittleTest {
-    val lambda = new SessionLambda()
-
+@RunWith(classOf[littleware.test.LittleTestRunner])
+class SessionLambdaTester @inject.Inject() (lambda:SessionLambda) extends littleware.scala.test.LittleTest {
+    
     @Test
     def testOptions() = try {
         val request = new APIGatewayProxyRequestEvent().withHttpMethod("OPTIONS"

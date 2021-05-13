@@ -166,6 +166,7 @@ class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestH
                           }
                         }
                         case Failure(ex) => {
+                          log.log(Level.WARNING, "failed to setup session", ex)
                           response.withStatusCode(401
                           ).withBody(s"""{ "message": "invalid creds" }""".trim()
                           )

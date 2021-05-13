@@ -98,7 +98,11 @@ class LocalKeySessionMgr (
     ).flatMap(
         claims => Try(
             {
-                if (claims.getExpiration().before(new java.util.Date())) {
+                // give a 24 hour window
+                val yesterday = new java.util.Date(
+                    new java.util.Date().getTime() - 1000*60*60*24
+                    )
+                if (claims.getExpiration().before(yesterday)) {
                     throw new InvalidTokenException(s"auth token expired: ${claims.getExpiration()}")
                 }
                 claims

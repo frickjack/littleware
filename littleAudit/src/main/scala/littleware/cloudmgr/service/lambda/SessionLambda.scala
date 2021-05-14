@@ -191,7 +191,7 @@ class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestH
             }
           }
         }
-        case "/version" => {
+        case SessionLambda.versionPattern() => {
           response.withStatusCode(200
           ).withBody(s"""{ "message": "version info", "semver": "3.0.1" }""".trim()
           )
@@ -279,5 +279,6 @@ object SessionLambda {
     // AWS/lib/cloudformation/cloud/api/authclient/sessionMgrOpenApi.json
     //
     val sessionPattern = ".*/session/([^/ ]+)$".r
+    val versionPattern = ".*/version$".r
 
 }

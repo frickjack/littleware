@@ -68,7 +68,7 @@ class LocalKeySessionMgr (
             // get admin/robot settings, etc
             builder.isAdmin(session.isAdmin)
         }
-        val oneHourFromNow = new Date(new Date().getTime() + 60*1000)
+        val oneHourFromNow = new Date(new Date().getTime() + 60*60*1000)
         builder.projectId(projectId).api(api
         ).id(UUID.randomUUID()
         ).cellId(LRN.zeroId // hard code for now - don't have cells yet

@@ -4,7 +4,7 @@ import com.google.gson
 import com.google.inject
 import io.{jsonwebtoken => jwt}
 import java.security.{ Key, PublicKey }
-import java.util.UUID
+import java.util.{ Date, UUID }
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 

@@ -73,7 +73,6 @@ class LocalKeySessionMgr (
         ).cellId(LRN.zeroId // hard code for now - don't have cells yet
         ).iat.set(claims.getIssuedAt().getTime() / 1000L
         ).exp.set(claims.getExpiration().getTime() / 1000L
-        ).authClient(claims.getAudience
         ).build()
     }
 
@@ -81,6 +80,7 @@ class LocalKeySessionMgr (
         { 
             jwt.Jwts.parserBuilder(
             ).setSigningKeyResolver(resolver
+            ).setAllowedClockSkewSeconds(24*60*60 // allow 24 hours for now
             ).build(
             ).parseClaimsJws(jwsIdToken
             ).getBody()
@@ -95,19 +95,6 @@ class LocalKeySessionMgr (
                     claims
                 }
             )
-    ).flatMap(
-        claims => Try(
-            {
-                // give a 24 hour window
-                val yesterday = new java.util.Date(
-                    new java.util.Date().getTime() - 1000*60*60*24
-                    )
-                if (claims.getExpiration().before(yesterday)) {
-                    throw new InvalidTokenException(s"auth token expired: ${claims.getExpiration()}")
-                }
-                claims
-            }
-        )
     )
 
 

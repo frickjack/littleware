@@ -68,11 +68,12 @@ class LocalKeySessionMgr (
             // get admin/robot settings, etc
             builder.isAdmin(session.isAdmin)
         }
+        val oneHourFromNow = new Date(new Date().getTime() + 60*1000)
         builder.projectId(projectId).api(api
         ).id(UUID.randomUUID()
         ).cellId(LRN.zeroId // hard code for now - don't have cells yet
-        ).iat.set(claims.getIssuedAt().getTime() / 1000L
-        ).exp.set(claims.getExpiration().getTime() / 1000L
+        ).iat.set(new Date().getTime() / 1000L
+        ).exp.set(oneHourFromNow.getTime() / 1000L
         ).build()
     }
 

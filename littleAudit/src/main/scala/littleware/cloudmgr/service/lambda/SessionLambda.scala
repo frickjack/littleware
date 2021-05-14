@@ -26,7 +26,7 @@ import scala.util.{ Try, Success, Failure }
 class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent]{
   import SessionLambda.log
 
-  def this() { this(SessionLambda.tools) }
+  def this() = this(SessionLambda.tools)
 
   override def handleRequest(event:APIGatewayProxyRequestEvent, cx:Context):APIGatewayProxyResponseEvent = {      
     // headers normalized with lowercase keys
@@ -130,7 +130,7 @@ class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestH
                 case "POST" => projId match {
                   case LRN.zeroId => authToken match {
                     case Some(jwsToken) => {
-                      Try(tools.sessionMgr.startSession(jwsToken, projId, "*")) match {
+                      Try(tools.sessionMgr.startSession(jwsToken, projId, "little-wildcard")) match {
                         case Success(session) => {
                           val sessionToken = tools.sessionMgr.sessionToJws(session)
                           // either put the session in a cookie, or in the response
@@ -190,6 +190,11 @@ class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestH
                 )
             }
           }
+        }
+        case "/version" => {
+          response.withStatusCode(200
+          ).withBody(s"""{ "message": "version info", "semver": "3.0.1" }""".trim()
+          )
         }
         case other => {
           response.withStatusCode(400

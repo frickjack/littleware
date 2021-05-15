@@ -4,7 +4,7 @@ import java.util.UUID
 
 import scala.util._
 
-import littleware.cloudmgr._
+import littleware.cloudmgr.{ Cell, Operator }
 import littleware.cloudutil.{ RequestContext, Session }
 
 

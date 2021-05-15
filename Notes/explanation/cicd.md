@@ -119,6 +119,7 @@ align with the lifecycle rules on the repository
   post_build:
     commands:
       - BUILD_TYPE="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ print $1 }')"
+      - echo "BUILD_TYPE is $BUILD_TYPE"
       - |
         (
           little() {
@@ -127,7 +128,18 @@ align with the lifecycle rules on the repository
 
           scanresult=""
           scan_in_progress() {
-              test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = IN_PROGRESS
+            local image
+            image="$1"
+            if ! shift; then
+                echo "invalid scan image"
+                exit 1
+            fi
+            local tag
+            local repo
+            tag="$(echo "$image" | awk -F : '{ print $2 }')"
+            repo="$(echo "$image" | awk -F : '{ print $1 }' | cut -d / -f 2-)"
+            scanresult="$(little ecr scanreport "$repo" "$tag")"
+            test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = IN_PROGRESS
           }
 
           TAGSUFFIX="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ suff=$2; gsub(/[ @/]+/, "_", suff); print suff }')"
@@ -145,12 +157,13 @@ align with the lifecycle rules on the repository
             docker tag codebuild:frickjack "$TAGNAME"
             docker push "$TAGNAME"
           elif test "$BUILD_TYPE" = tag \
-            && (echo "$TAGSUFFIX" | grep -E '[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}' > /dev/null); then
+            && (echo "$TAGSUFFIX" | grep -E '^[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$' > /dev/null); then
             # semver tag
             TAGNAME="${LITTLE_DOCKER_REPO}:gitbranch_${TAGSUFFIX}"
-            docker tag codebuild:frickjack "$TAGSUFFIX"
-            # see https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_ImageScanStatus.html
-            docker push "$TAGNAME" || exit 1
+            if ! docker tag codebuild:frickjack "$TAGNAME"; then
+              echo "ERROR: failed to tag image with $TAGNAME"
+              exit 1
+            fi
             ...
 ```
 If the CI build was triggered by a semver git tag, then
@@ -159,24 +172,27 @@ tagging the docker image for production use:
 ```
        ...
           elif test "$BUILD_TYPE" = tag \
-            && (echo "$TAGSUFFIX" | grep -E '[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}' > /dev/null); then
+            && (echo "$TAGSUFFIX" | grep -E '^[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$' > /dev/null); then
             # semver tag
             TAGNAME="${LITTLE_DOCKER_REPO}:gitbranch_${TAGSUFFIX}"
-            docker tag codebuild:frickjack "$TAGSUFFIX"
+            if ! docker tag codebuild:frickjack "$TAGNAME"; then
+              echo "ERROR: failed to tag image with $TAGNAME"
+              exit 1
+            fi
             # see https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_ImageScanStatus.html
             docker push "$TAGNAME" || exit 1
             count=0
             sleep 10
 
-            while scan_in_progress && test "$count" -lt 50; do
+            while scan_in_progress "$TAGNAME" && test "$count" -lt 50; do
               echo "Waiting for security scan - sleep 10"
               count=$((count + 1))
               sleep 10
             done
             echo "Got image scan result: $scanresult"
             if ! test "$(echo "$scanresult" | jq -e -r .imageScanStatus.status)" = COMPLETE \
-               || ! test "$(echo "$scanresult" | jq -e -r .imageScanFindingsSummary.findingSeverityCounts.HIGH)" = 0 \
-               || ! test "$(echo "$scanresult" | jq -e -r .imageScanFindingsSummary.findingSeverityCounts.CRITICAL)" = 0; then
+               || ! test "$(echo "$scanresult" | jq -e -r '.imageScanFindingsSummary.findingSeverityCounts.HIGH // 0')" = 0 \
+               || ! test "$(echo "$scanresult" | jq -e -r '.imageScanFindingsSummary.findingSeverityCounts.CRITICAL // 0')" = 0; then
                echo "Image $TAGNAME failed security scan - bailing out"
                exit 1
             fi

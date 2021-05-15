@@ -1,9 +1,11 @@
 package littleware.cloudmgr.service.internal
 
+import com.google.gson
 import com.google.inject
 import io.{jsonwebtoken => jwt}
 import java.security.{ Key, PublicKey }
-import java.util.UUID
+import java.util.{ Date, UUID }
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 import littleware.cloudmgr.service.SessionMgr
@@ -25,7 +27,7 @@ class LocalKeySessionMgr (
     signingKey: Option[SessionMgr.PrivateKeyInfo],
     sessionKeys: Set[SessionMgr.PublicKeyInfo],
     oidcKeys: Set[SessionMgr.PublicKeyInfo],
-    issuer:String,
+    cloud:String,
     sessionFactory:inject.Provider[Session.Builder]
     ) extends SessionMgr {
 
@@ -34,7 +36,7 @@ class LocalKeySessionMgr (
             val kid = jwsHeader.getKeyId()
             (
                 {
-                    if (claims.getIssuer() == issuer) {
+                    if (claims.getIssuer() == cloud) {
                         sessionKeys
                     } else {
                         oidcKeys
@@ -55,8 +57,8 @@ class LocalKeySessionMgr (
         val builder = sessionFactory.get(
             ).subject(claims.get("email", classOf[String])
             )
-        if(claims.getIssuer() == issuer) {
-            if (claims.getAudience() != s"apikeys@${issuer}") {
+        if(claims.getIssuer() == cloud) {
+            if (claims.getAudience() != s"apikeys@${cloud}") {
                 throw new InvalidTokenException(s"non api key session request with session token from ${builder.subject()}")
             }
             val session = SessionMgr.claimsToSession(claims)
@@ -66,12 +68,12 @@ class LocalKeySessionMgr (
             // get admin/robot settings, etc
             builder.isAdmin(session.isAdmin)
         }
+        val oneHourFromNow = new Date(new Date().getTime() + 60*60*1000)
         builder.projectId(projectId).api(api
         ).id(UUID.randomUUID()
         ).cellId(LRN.zeroId // hard code for now - don't have cells yet
-        ).iat.set(claims.getIssuedAt().getTime() / 1000L
-        ).exp.set(claims.getExpiration().getTime() / 1000L
-        ).authClient(claims.getAudience
+        ).iat.set(new Date().getTime() / 1000L
+        ).exp.set(oneHourFromNow.getTime() / 1000L
         ).build()
     }
 
@@ -79,6 +81,7 @@ class LocalKeySessionMgr (
         { 
             jwt.Jwts.parserBuilder(
             ).setSigningKeyResolver(resolver
+            ).setAllowedClockSkewSeconds(24*60*60 // allow 24 hours for now
             ).build(
             ).parseClaimsJws(jwsIdToken
             ).getBody()
@@ -93,15 +96,6 @@ class LocalKeySessionMgr (
                     claims
                 }
             )
-    ).flatMap(
-        claims => Try(
-            {
-                if (claims.getExpiration().before(new java.util.Date())) {
-                    throw new InvalidTokenException(s"auth token expired: ${claims.getExpiration()}")
-                }
-                claims
-            }
-        )
     )
 
 
@@ -128,23 +122,53 @@ class LocalKeySessionMgr (
 }
 
 object LocalKeySessionMgr {
+    @inject.Singleton()
+    @inject.ProvidedBy(classOf[ConfigProvider])
+    case class Config (
+        oidcJwksUrl: String,
+        signingKey: Option[Kid2Pem],
+        verifyKeys: Set[Kid2Pem]
+    ) {}
+
+    case class Kid2Pem (kid:String, pem:String) {
+        def this(json:gson.JsonObject) = this(
+            json.getAsJsonPrimitive("kid").getAsString(),
+            json.getAsJsonPrimitive("pem").getAsString()
+        )
+
+        override def hashCode():Int = kid.hashCode()
+    }
+
+    @inject.Singleton()
+    class ConfigProvider @inject.Inject() (
+        @inject.name.Named("little.cloudmgr.sessionmgr.localconfig") configStr:String,
+        gs: gson.Gson
+    ) extends inject.Provider[Config] {
+        lazy val singleton: Config = {
+            val js = gs.fromJson(configStr, classOf[gson.JsonObject])
+            Config(
+              js.getAsJsonPrimitive("oidcJwksUrl").getAsString(),
+              Option(js.getAsJsonObject("signingKey")).map({ new Kid2Pem(_) }),
+              js.getAsJsonArray("verifyKeys").asScala.map({ jsIt => new Kid2Pem(jsIt.getAsJsonObject()) }).toSet
+            )
+        }
+
+        override def get():Config = singleton
+    }
+    
     class Provider @inject.Inject() (
         helper:KeyHelper, 
-        config:littleModule.Config,
-        @inject.name.Named("little.cloud.domain") cloud:String,
+        config:Config,
+        @inject.name.Named("little.cloudmgr.domain") cloud:String,
         sessionFactory:inject.Provider[Session.Builder]
     ) extends inject.Provider[LocalKeySessionMgr] {
-        lazy val singleton:Option[LocalKeySessionMgr] =
-            Option(config.localSessionMgrConfig).map(
-                {
-                    lc => 
-                    val signingKey = lc.signingKey.map({ kid2pem => helper.loadPrivateKey(kid2pem.kid, kid2pem.pem) })
-                    val sessionKeys = lc.verifyKeys.map({ kid2pem => helper.loadPublicKey(kid2pem.kid, kid2pem.pem) }).toSet
-                    val oidcKeys = helper.loadJwksKeys(new java.net.URL(lc.oidcJwksUrl))
-                    new LocalKeySessionMgr(signingKey, sessionKeys, oidcKeys, cloud, sessionFactory)
-                }
-            ) orElse Option(new LocalKeySessionMgr(None, Set.empty, Set.empty, cloud, sessionFactory))
+        lazy val singleton:LocalKeySessionMgr = {
+            val signingKey = config.signingKey.map({ kid2pem => helper.loadPrivateKey(kid2pem.kid, kid2pem.pem) })
+            val sessionKeys = config.verifyKeys.map({ kid2pem => helper.loadPublicKey(kid2pem.kid, kid2pem.pem) }).toSet
+            val oidcKeys = helper.loadJwksKeys(new java.net.URL(config.oidcJwksUrl))
+            new LocalKeySessionMgr(signingKey, sessionKeys, oidcKeys, cloud, sessionFactory)
+        }
 
-        def get():LocalKeySessionMgr = singleton.get
+        def get():LocalKeySessionMgr = singleton
     }
 }

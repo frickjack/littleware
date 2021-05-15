@@ -1,0 +1,24 @@
+{
+    "little.cloudmgr.domain" : "test-cloud.frickjack.com",
+    "little.cloudmgr.sessionmgr.type": "local",
+    "little.cloudmgr.sessionmgr.localconfig": {
+        "signingKey": { "kid": "testkey", "pem": "BOGUS" },
+        "verifyKeys": [ 
+            { "kid": "testkey", "pem": "BOGUS" }
+        ], 
+        "oidcJwksUrl": "https://www.googleapis.com/oauth2/v3/certs" 
+    }, 
+    "little.cloudmgr.sessionmgr.awsconfig": {
+        "kmsPublicKeys": [ 
+            "alias/littleware/api/api-frickjack-com/sessMgrSigningKey", 
+            "alias/littleware/api/api-frickjack-com/sessMgrOldKey" 
+        ], 
+        "kmsSigningKey": "alias/littleware/api/api-frickjack-com/sessMgrSigningKey", 
+        "oidcJwksUrl": "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_860PcgyKN/.well-known/jwks.json" 
+    },
+    "little.cloudmgr.sessionmgr.lambdaconfig": {
+        "corsDomainWhiteList": [ ".frickjack.com" ],
+        "cookieDomain": ".frickjack.com"
+    }
+}
+

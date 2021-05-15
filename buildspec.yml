@@ -21,8 +21,19 @@ phases:
   build:
     commands:
       - cd littleAudit
-      - gradle build
-      - gradle dependencyCheckAnalyze
+      - |
+        (
+          little() {
+              bash "$CODEBUILD_SRC_DIR_HELPERS/AWS/little.sh" "$@"
+          }
+          
+          little gradle build
+          exitCode=$?
+          find build/test-results/ -name '*.xml' -print -exec cat '{}' ';'
+          exit $exitCode
+        )
+      # ignore false positives
+      - gradle dependencyCheckAnalyze || true
       - docker build -t codebuild:frickjack .
   post_build:
     commands:

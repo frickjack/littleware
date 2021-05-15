@@ -25,7 +25,7 @@ object Robot {
     val api = AuthzMgr.api
     val resourceType = "robot"
 
-    class Builder @inject.Inject() (@inject.name.Named("little.cloud.domain") defaultCloud: String) extends LittleResource.Builder[Robot](defaultCloud, Robot.api, Robot.resourceType) {
+    class Builder @inject.Inject() (@inject.name.Named("little.cloudmgr.domain") defaultCloud: String) extends LittleResource.Builder[Robot](defaultCloud, Robot.api, Robot.resourceType) {
         def build():Robot = {
             this.validate()
             Robot(

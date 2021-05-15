@@ -21,4 +21,4 @@ RUN cd ${LAMBDA_TASK_ROOT} \
 #    curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}' 
 #  https://docs.aws.amazon.com/lambda/latest/dg/images-test.html
 #
-CMD [ "littleware.cloudmgr.service.lambda.SessionHandler::handleRequest" ]
+CMD [ "littleware.cloudmgr.service.lambda.SessionLambda::handleRequest" ]

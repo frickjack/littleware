@@ -1,5 +1,6 @@
 package littleware.cloudmgr.service
 
+import com.google.inject
 import java.util.UUID
 import scala.jdk.CollectionConverters._
 import scala.util.Try
@@ -13,6 +14,7 @@ import littleware.cloudutil.{LRN, Session}
  * Helper manages pickling of Session and JWS -
  * including signature generation and validation
  */
+@inject.ProvidedBy(classOf[SessionMgr.Provider])
 trait SessionMgr {
     /**
      * Start a session for the given user, etc.
@@ -50,17 +52,17 @@ object SessionMgr {
     class InvalidTokenException (msg:String) extends IllegalArgumentException(msg) {}
 
     def claimsToSession(claims:jwt.Claims):Session = {
-        val cloud = claims.get("little_cloud", classOf[String])
+        val cloud = claims.getAudience()
         val builder = new Session.Builder(cloud)
         builder.subject(claims.get("email", classOf[String])
-        ).projectId(UUID.fromString(claims.get("little_projectid", classOf[String]))
+        ).projectId(UUID.fromString(claims.get("scope", classOf[String]))
         ).api(claims.get("little_api", classOf[String])
         ).id(UUID.fromString(claims.getId())
         ).cellId(LRN.zeroId // hard code for now - don't have cells yet
         ).iat.set(claims.getIssuedAt().getTime() / 1000L
         ).exp.set(claims.getExpiration().getTime() / 1000L
         ).isAdmin(claims.get("little_admin", classOf[String]) == "yes"
-        ).authClient(claims.getAudience()
+        ).authClient(Option(claims.get("client_id", classOf[String])).getOrElse("unknown@littleware")
         ).build()
     }
 
@@ -68,19 +70,18 @@ object SessionMgr {
         jwt.Jwts.claims(
             Map(
                 "email" -> session.subject,
-                "little_projectid" -> session.projectId.toString(),
+                "scope" -> session.projectId.toString(),
                 "little_api" -> session.api,
-                "little_cloud" -> session.lrp.cloud,
                 "little_admin" -> (if (session.isAdmin) { "yes" } else { "no" }),
-                "token_use" -> "little_session"
+                "token_use" -> "little_session",
+                "client_id" -> session.authClient
             ).asJava.asInstanceOf[java.util.Map[String,Object]]
         ).setSubject(session.subject
         ).setIssuer(session.lrp.cloud
         ).setIssuedAt(new java.util.Date(session.iat * 1000L)
         ).setExpiration(new java.util.Date(session.exp * 1000L)
-        ).setAudience(s"session@${session.lrp.cloud}"
         ).setId(session.id.toString()
-        ).setAudience(session.authClient)
+        ).setAudience(session.lrp.cloud)
     }
     
     /**
@@ -111,5 +112,17 @@ object SessionMgr {
         val use = "sig"
 
         override def hashCode() = kid.hashCode()
+    }
+
+    @inject.Singleton()
+    class Provider @inject.Inject() (
+        @inject.name.Named("little.cloudmgr.sessionmgr.type") implType:String,
+        awsProvider: inject.Provider[internal.AwsSessionMgr],
+        localProvider: inject.Provider[internal.LocalKeySessionMgr]
+    ) extends inject.Provider[SessionMgr] {
+        override def get():SessionMgr = implType match {
+            case "local" => localProvider.get()
+            case "aws" => awsProvider.get()
+        }
     }
 }

@@ -3,6 +3,15 @@
 Some basic information on our tagged releases.
 Note - `git log tag1...tag2` shows the commit log between versions.
 
+## 3.0.1
+
+Pending next release.
+
+### Improvements
+
+* SessionLambda sets `Cache-Control` header to `no-store`
+
+
 ## 3.0.0
 
 The codebuild process builds this docker image from littleAudit/Dockerfile
@@ -11,10 +20,16 @@ The codebuild process builds this docker image from littleAudit/Dockerfile
 docker pull 027326493842.dkr.ecr.us-east-2.amazonaws.com/little/session_mgr:3.0.0
 ```
 
-#### Features
+Initial build of the session manager under the cloud manager module.
+Refer to the explanatory docs for an overview of the role the session
+manager plays in the littleware cloud architecture.
 
-* basic JWT session management with user provisioned keys (TODO - kms integration)
-* stub lambda api gateway RequestHandler
+### Features
+
+* AWS KMS implementation of SessionMgr interface
+* JsonConfigLoader and session manager configuration integration
+* basic JWT session management with user provisioned keys
+* lambda api gateway SessionLambda handler
 * Dockerfile wired for AWS lambda integration
 
 ### Improvements
@@ -25,14 +40,6 @@ docker pull 027326493842.dkr.ecr.us-east-2.amazonaws.com/little/session_mgr:3.0.
 
 ### Notes
 
-## 3.0.0
-
-Initial build of the session manager under the cloud manager module.
-Refer to the explanatory docs for an overview of the role the session
-manager plays in the littleware cloud architecture.
-
-* AWS KMS implementation of SessionMgr interface
-* JsonConfigLoader and session manager configuration integration
 
 ## 2.6.1
 

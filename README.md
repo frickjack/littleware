@@ -47,6 +47,7 @@ introduction to the different types of documentation (explanation, how-to, tutor
 * [authz design](./Notes/explanation/authz.md) - WIP
 * [working with session tokens](./Notes/explanation/signingJwts.md)
 * [cicd](./Notes/explanation/cicd.md) with [codebuild](https://aws.amazon.com/codebuild)
+* [configuration injection](./Notes/explanation/configInjection.md)
 
 ### Reference
 

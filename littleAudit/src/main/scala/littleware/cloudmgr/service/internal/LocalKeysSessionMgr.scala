@@ -32,7 +32,7 @@ class LocalKeySessionMgr (
     ) extends SessionMgr {
 
     val resolver = new jwt.SigningKeyResolverAdapter() {
-        override def resolveSigningKey(jwsHeader:jwt.JwsHeader[T] forSome { type T <: jwt.JwsHeader[T] }, claims:jwt.Claims):java.security.Key = {
+        override def resolveSigningKey(jwsHeader:jwt.JwsHeader[_], claims:jwt.Claims):java.security.Key = {
             val kid = jwsHeader.getKeyId()
             (
                 {

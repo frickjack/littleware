@@ -47,6 +47,9 @@ public abstract class AbstractLittleBootstrap<T extends LittleModule> implements
         }
         bootstrapDone = true;
 
+        // see https://github.com/google/guice/wiki/Guice501
+        System.setProperty("guice_bytecode_gen_option", "DISABLED");
+        
         for (T scan : moduleSet) {
             log.log(Level.FINE, "Check bootstrap module: {0}", scan.getClass().getName());
         }

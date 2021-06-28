@@ -46,7 +46,7 @@ class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestH
 
     val commonHeaders = Map(
         "Content-Type" -> "application/json",
-        "Strict-Transport-Security" -> "max-age=31536000"
+        "Strict-Transport-Security" -> "max-age=31536000",
         "Cache-Control" -> "no-store, max-age=0"
         )
 

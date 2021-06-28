@@ -74,8 +74,7 @@ class KeyHelper @inject.Inject() (
       }
 
       gs.fromJson(jwksStr, classOf[gson.JsonObject]).getAsJsonArray("keys").asScala.map(
-          { 
-            json:gson.JsonElement =>
+          (json:gson.JsonElement) => { 
             val jsKeyInfo = json.getAsJsonObject()
             val kid = jsKeyInfo.getAsJsonPrimitive("kid").getAsString()
             val n = jsKeyInfo.getAsJsonPrimitive("n").getAsString()

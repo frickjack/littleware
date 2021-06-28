@@ -17,13 +17,12 @@ openjdk 11.0.10 2021-01-19
 OpenJDK Runtime Environment (build 11.0.10+9-Ubuntu-0ubuntu1.20.04)
 OpenJDK 64-Bit Server VM (build 11.0.10+9-Ubuntu-0ubuntu1.20.04, mixed mode, sharing)
 
-$ scala --version
-Scala code runner version 2.13.4 -- Copyright 2002-2020, LAMP/EPFL and Lightbend, Inc.
+$ scala3-repl --version
+Scala code runner version 3.0.0 -- Copyright 2002-2021, LAMP/EPFL
 
-$ gradle -v
-
------------------------------
-Gradle 6.8.1
+$ sbt version
+[info] welcome to sbt 1.5.4 (Ubuntu Java 11.0.11)
+...
 
 ``` 
 
@@ -31,15 +30,6 @@ Gradle 6.8.1
 
 * `gradle -i` - INFO level [logging](https://docs.gradle.org/current/userguide/logging.html)
 * `gradle cleanTest test --tests 'GetOpt*'` - run specific [tests](https://stackoverflow.com/questions/22505533/how-to-run-only-one-unit-test-class-using-gradle)
-
-## Audit dependencies
-
-We use the [OWASP gradle plugin](https://jeremylong.github.io/DependencyCheck/dependency-check-gradle/configuration.html) to check our dependencies against
-public vulnerability databases.
-
-```
-(cd littleAudit && gradle dependencyAnalyze)
-```
 
 ## JSON structured logs
 
@@ -113,7 +103,7 @@ repl() {
 The cloudmgr test suite accesses AWS KMS, so must be run
 with AWS credentials.  The `little` command (from https://github.com/frickjack/misc-stuff) will do that for you for local testing:
 ```
-little gradle build
+little sbt littleware/test littleScala/test littleAudit/test
 ```
 Otherwise you can do something like this:
 ```
@@ -121,8 +111,7 @@ Otherwise you can do something like this:
     export AWS_REGION=us-east-2
     export AWS_SECRET_ACCESS_KEY=...
     export AWS_ACCESS_KEY_ID=...
-    cd littleAudit
-    gradle build
+    little sbt littleware/test littleScala/test littleAudit/test
 )
 ```
 
@@ -130,8 +119,8 @@ Otherwise you can do something like this:
 
 ```
 (
+little sbt littleware/test littleScala/test littleAudit/test
 cd littleAudit
-little gradle build
 docker build -t 'audit:frickjack' .
 LITTLE_CLOUDMGR="$(cat src/test/resources/littleware/config/LITTLE_CLOUDMGR.json)"
 docker run -it --name audit --rm -p 9000:8080 $(little env | grep -e ^AWS | awk '{ print "--env " $0 }') --env "LITTLE_CLOUDMGR=$LITTLE_CLOUDMGR" audit:frickjack

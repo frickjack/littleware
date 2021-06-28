@@ -101,7 +101,7 @@ repl() {
 ```
 
 The cloudmgr test suite accesses AWS KMS, so must be run
-with AWS credentials.  The `little` command (from https://github.com/frickjack/misc-stuff) will do that for you for local testing:
+with AWS credentials.  The `little` command (from https://github.com/frickjack/little-automation) will do that for you for local testing:
 ```
 little sbt littleware/test littleScala/test littleAudit/test
 ```

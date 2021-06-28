@@ -21,7 +21,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.{ Try, Success, Failure }
 
 /**
- * Adapted from https://github.com/awsdocs/aws-lambda-developer-guide/blob/main/sample-apps/java-events/src/main/java/example/HandlerApiGateway.java
+ * Adapted from https://github.com/awsdocs/aws-lambda-developer-guide/blob/master/sample-apps/java-events/src/main/java/example/HandlerApiGateway.java
  */
 class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent]{
   import SessionLambda.log
@@ -276,7 +276,7 @@ object SessionLambda {
 
     def sessionCookieName(projectId:String) = "__Secure-Session-" + projectId
 
-    // check https://github.com/frickjack/misc-stuff
+    // check https://github.com/frickjack/little-automation
     // AWS/lib/cloudformation/cloud/api/authclient/sessionMgrOpenApi.json
     //
     val sessionPattern = ".*/session/([^/ ]+)$".r

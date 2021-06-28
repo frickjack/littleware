@@ -9,17 +9,17 @@ then publishes versioned deployable artifacts (docker images)
 is a prerequisite for deploying stable software services in the cloud.
 There are a wide variety of good, inexpensive CI services available,
 but we decided to build littleware's CI system on [AWS codebuild](https://aws.amazon.com/codebuild), because it provides an easy to use serverless solution that supports the technology we build on (nodejs, java, scala, docker), and integrates well with AWS.
-It was straight forward for us to setup a [codebuild](https://aws.amazon.com/codebuild) CI process ([buildspec.yml](https://github.com/frickjack/misc-stuff/blob/master/buildspec.yml)) for our little [scala](https://scala-lang.org) project
-given the [tools](https://github.com/frickjack/misc-stuff/blob/master/AWS/doc/stack.md) we already have in place to deploy cloudformation stacks that define the codebuild project and [ecr](https://aws.amazon.com/ecr) docker repository.
+It was straight forward for us to setup a [codebuild](https://aws.amazon.com/codebuild) CI process ([buildspec.yml](https://github.com/frickjack/little-automation/blob/main/buildspec.yml)) for our little [scala](https://scala-lang.org) project
+given the [tools](https://github.com/frickjack/little-automation/blob/main/AWS/doc/stack.md) we already have in place to deploy cloudformation stacks that define the codebuild project and [ecr](https://aws.amazon.com/ecr) docker repository.
 
 ## Overview
 
-There were two steps to setting up our CI build: create the infrastructure, then debug and deploy the build script.  The first step was easy, since we already have cloudformation templates for [codebuild projects](https://github.com/frickjack/misc-stuff/blob/master/AWS/lib/cloudformation/cicd/nodeBuild.json) and [ecr repositories](https://github.com/frickjack/misc-stuff/blob/master/AWS/lib/cloudformation/cloud/ecr/ecr.json) that our [little stack](https://github.com/frickjack/misc-stuff/blob/master/AWS/doc/stack.md) tool can deploy.  For example, we deployed the
+There were two steps to setting up our CI build: create the infrastructure, then debug and deploy the build script.  The first step was easy, since we already have cloudformation templates for [codebuild projects](https://github.com/frickjack/little-automation/blob/main/AWS/lib/cloudformation/cicd/nodeBuild.json) and [ecr repositories](https://github.com/frickjack/little-automation/blob/main/AWS/lib/cloudformation/cloud/ecr/ecr.json) that our [little stack](https://github.com/frickjack/little-automation/blob/main/AWS/doc/stack.md) tool can deploy.  For example, we deployed the
 codebuild project to build the [littlware github repo](https://github.com/frickjack/littleware) by running:
 ```
 little stack create ./stackParams.json
 ```
-with [this](https://github.com/frickjack/misc-stuff/blob/master/AWS/db/cloudformation/frickjack/cloud/ecr/stackParams.json) parameters file (stackParams.json):
+with [this](https://github.com/frickjack/little-automation/blob/main/AWS/db/cloudformation/frickjack/cloud/ecr/stackParams.json) parameters file (stackParams.json):
 ```
 {
     "StackName": "build-littleware",
@@ -75,7 +75,7 @@ with [this](https://github.com/frickjack/misc-stuff/blob/master/AWS/db/cloudform
 
 ```
 
-With our infrastructure in place, we can add our [build script](https://github.com/frickjack/littleware/blob/master/buildspec.yml) to our github repository.
+With our infrastructure in place, we can add our [build script](https://github.com/frickjack/littleware/blob/main/buildspec.yml) to our github repository.
 There a few things to notice about our build script.  First, the littleware git repo holds multiple interrelated projects - java and scala libraries and 
 applications that build on top of them.  We are currently interested in building and packaging the `littleAudit/` folder (that will probably be renamed),
 so the build begins by moving to that folder:
@@ -93,7 +93,7 @@ so our build can start a docker daemon, and build docker images:
 phases:
   install:
     runtime-versions:
-      # see https://github.com/aws/aws-codebuild-docker-images/blob/master/ubuntu/standard/5.0/Dockerfile
+      # see https://github.com/aws/aws-codebuild-docker-images/blob/main/ubuntu/standard/5.0/Dockerfile
       java: corretto11
     commands:
       # see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codebuild-project-environment.html#cfn-codebuild-project-environment-privilegedmode
@@ -114,7 +114,7 @@ We use [gradle](https://gradle.org) to compile our code and run the unit test su
 Finally, our post-build command tags and pushes the docker image to
 an [ecr](https://aws.amazon.com/ecr) repository.  The tagging rules
 align with the lifecycle rules on the repository 
-(described [here](https://github.com/frickjack/misc-stuff/blob/master/Notes/explanation/ecrSetup.md) and [here](https://blog.frickjack.com/2021/04/setup-ecr-on-aws.html)).
+(described [here](https://github.com/frickjack/little-automation/blob/main/Notes/explanation/ecrSetup.md) and [here](https://blog.frickjack.com/2021/04/setup-ecr-on-aws.html)).
 ```
   post_build:
     commands:

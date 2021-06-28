@@ -118,7 +118,7 @@ object KeyHelper {
 
     /**
      * Little injectable key factory hard wired for RSA jwks decoding
-     * See: https://github.com/auth0/jwks-rsa-java/blob/master/src/main/java/com/auth0/jwk/Jwk.java
+     * See: https://github.com/auth0/jwks-rsa-java/blob/main/src/main/java/com/auth0/jwk/Jwk.java
      */
     class RsaKeyFactory {
         private val keyFactory = java.security.KeyFactory.getInstance("RSA")

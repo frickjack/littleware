@@ -23,7 +23,7 @@ we have not yet erased out of the repo.
 
 The littleware code base has branched out to other repositories over the years.
 
-* [misc-stuff](https://github.com/frickjack/misc-stuff) - infrastructure automation
+* [little-automation](https://github.com/frickjack/little-automation) - infrastructure automation
 * [little-nodedev](https://github.com/frickjack/little-nodedev) - gulpjs based build tools for typescript and web projects
 * [little-elements](https://github.com/frickjack/little-elements) - typescript npm package supporting nodejs and web apps
 * [little-authn](https://github.com/frickjack/little-elements) - typescript nodejs OIDC (AWS Cognito) client wired to support expressjs or lambda API gateway deployment

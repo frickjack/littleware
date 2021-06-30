@@ -77,6 +77,7 @@ lazy val littleScala = project
 lazy val littleAudit = project
   .in(file("littleAudit"))
   .dependsOn(littleScala)
+  .enablePlugins(PackPlugin)
   .settings(
     name := "littleAudit",
     libraryDependencies ++= Seq(avro, gson, junit % Test) ++

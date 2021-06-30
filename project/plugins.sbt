@@ -1,1 +1,2 @@
-addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.10")
+//addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "3.1.3")
+addSbtPlugin("org.xerial.sbt" % "sbt-pack" % "0.13")  

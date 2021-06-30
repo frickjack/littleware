@@ -5,12 +5,13 @@ Note - `git log tag1...tag2` shows the commit log between versions.
 
 ## 3.0.1
 
-Pending next release.
+Build changes.
 
 ### Improvements
 
 * SessionLambda sets `Cache-Control` header to `no-store`
-
+* scala3
+* sbt build
 
 ## 3.0.0
 

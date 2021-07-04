@@ -4,6 +4,10 @@ Setting up an [sbt](https://www.scala-sbt.org/) build to gain [scala 3](https://
 
 # Problem and Audience
 
+<audio controls src="https://apps.frickjack.com/assets/audio/podcasts/2021/ardourSbt20210704/ardourSbt20210704.mp3">
+Your browser does not support the <code>audio</code> element.
+</audio>
+
 [Scala 3](https://docs.scala-lang.org/scala3/new-in-scala3.html) is an overhaul of the guts of the scala language type system and compiler that was recently released (in mid 2021) for general use.  Unfortunately, the scala plugin for [gradle](https://gradle.org/) does not yet support the new scala-3 build chain, so we ported [littleware](https://github.com/frickjack/littleware) to scala's [sbt](https://www.scala-sbt.org/) build tool.
 
 Porting a gradle build to an sbt build is straight forward.  Both gradle and sbt define a graph of tasks for building projects, and they define the task library (types of tasks) via third-party plugins.  Both system's define the task instances in a project's build graph with a user-supplied build file written in a DSL that makes API calls against the runtime.  For example, the `littleware` sub-project in both gradle ([build.gradle](https://github.com/frickjack/littleware/blob/dev/build.gradle)) and sbt ([build.sbt](https://github.com/frickjack/littleware/blob/dev/build.sbt)) are similar to each other:

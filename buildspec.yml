@@ -18,8 +18,10 @@ phases:
       - echo "HOME is $HOME, CODEBUILD_SRC_DIR is $CODEBUILD_SRC_DIR, CODEBUILD_SRC_DIR_HELPERS is $CODEBUILD_SRC_DIR_HELPERS, pwd is $(pwd)"
       - mkdir -p "$HOME/.aws"; /bin/echo -e "[default]\nregion = ${AWS_REGION}\noutput = json\ncredential_source = Ec2InstanceMetadata\n" | tee "$HOME/.aws/config"
       - pip install yq --upgrade
+      # we need sbt 1.5+
       - |
         (
+          /bin/rm -rf /usr/local/bin/sbt
           if ! which sbt > /dev/null 2>&1; then
             echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
             echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list

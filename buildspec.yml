@@ -32,7 +32,6 @@ phases:
         )
   build:
     commands:
-      - cd littleAudit
       - |
         (
           little() {
@@ -41,12 +40,12 @@ phases:
           
           little sbt littleAudit/compile littleAudit/test littleAudit/pack
           exitCode=$?
-          find build/test-results/ -name '*.xml' -print -exec cat '{}' ';'
+          find littleAudit/target/test-reports/ -name '*.xml' -print -exec cat '{}' ';'
           exit $exitCode
         )
       # ignore false positives
       #- gradle dependencyCheckAnalyze || true
-      - docker build -t codebuild:frickjack .
+      - cd littleAudit && docker build -t codebuild:frickjack .
   post_build:
     commands:
       - BUILD_TYPE="$(echo "$CODEBUILD_WEBHOOK_TRIGGER" | awk -F / '{ print $1 }')"

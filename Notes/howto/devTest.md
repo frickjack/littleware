@@ -157,7 +157,7 @@ The `jwks.json` enpoint for a cognito deployment is in its openid configuration 
 ## Publish by git tag
 
 (
-  version="$(gradle --quiet :littleAudit:printVersion)"
+  version="$(sbt littleAudit/version | tail -1 | awk '{ print $2 }')"
   git tag -a "$version" -m "release details in Notes/reference/releaseNotes.md#$version"
   git push origin $version
 )

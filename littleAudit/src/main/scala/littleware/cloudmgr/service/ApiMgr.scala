@@ -12,7 +12,7 @@ import littleware.cloudutil.{ RequestContext, Session }
  * Manage the sessions and cells associated with an API.
  * The ApiMgr for each API is hosted at: https://${api}.${cloud.domain}.
  * The cells for each API are hosted at: https://${cellid}.${api}.${cloud.domain}
- * The root web console is at https://conosle.${cloud.domain} - it
+ * The root web console is at https://console.${cloud.domain} - it
  * loads content and configuration from https://console.${api}.${cloud.domain}
  * when serving pages for https://console.${cloud.domain}/${api}/
  */

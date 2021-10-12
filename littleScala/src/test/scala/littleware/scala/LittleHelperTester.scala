@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import littleware.base.feedback.Feedback
 import littleware.scala.LittleHelper._
 
-@RunWith( classOf[littleware.test.LittleTestRunner] )
+@RunWith(classOf[littleware.test.LittleTestRunner])
 class LittleHelperTester @inject.Inject() ( exec:ExecutorService, fbFactory:inject.Provider[Feedback] ) extends test.LittleTest {
 
   @Test

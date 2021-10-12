@@ -174,6 +174,11 @@ class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestH
                         }
                       }
                     }
+                    case None => {
+                      response.withStatusCode(401
+                      ).withBody(s"""{ "message": "no creds" }""".trim()
+                      )
+                    }
                   }
                   case otherId => {
                     response.withStatusCode(400

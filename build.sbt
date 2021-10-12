@@ -38,11 +38,14 @@ val jwtSet = Seq(
   "io.jsonwebtoken" % "jjwt-impl" % "0.11.2",
   "io.jsonwebtoken" % "jjwt-gson" % "0.11.2"
 )
+
+// https://mvnrepository.com/artifact/software.amazon.awssdk/dynamodb
 val awsSet = Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
   "com.amazonaws" % "aws-lambda-java-events" % "3.8.0",
-  "com.amazonaws" % "aws-java-sdk-kms" % "1.11.996",
-  "com.amazonaws" % "aws-lambda-java-runtime-interface-client" % "1.0.0"
+  "com.amazonaws" % "aws-lambda-java-runtime-interface-client" % "1.0.0",
+  "software.amazon.awssdk" % "dynamodb" % "2.16.104",
+  "software.amazon.awssdk" % "kms" % "2.16.104"
 )
 
 lazy val littleware = project

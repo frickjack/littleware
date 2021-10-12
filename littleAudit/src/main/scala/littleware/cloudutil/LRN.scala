@@ -57,6 +57,7 @@ object LRN {
         val api = new Property("") withName "api" withValidator LRN.apiValidator
         val projectId = new Property[UUID](null) withName "projectId" withValidator notNullValidator
         val resourceType = new Property("") withName "resourceType" withValidator LRN.resourceTypeValidator
+        val drawer = new Property("") withName "drawer" withValidator drawerValidator
         val path = new Property("") withName "path" withValidator pathValidator
 
         def copy(lrn:T):this.type = this.projectId(lrn.projectId).api(lrn.api
@@ -68,9 +69,7 @@ object LRN {
             ).projectId(session.projectId)
     }
 
-    class LRPathBuilder extends Builder[LRPath] {        
-        val drawer = new Property("") withName "drawer" withValidator drawerValidator
-
+    class LRPathBuilder extends Builder[LRPath] {
         override def copy(other:LRPath) = super.copy(other).drawer(other.drawer)
 
         def build():LRPath = {
@@ -79,12 +78,19 @@ object LRN {
         }
     }
 
+    def pathBuilder() = new LRPathBuilder()
+
+
     class LRIdBuilder extends Builder[LRId] {
+        override val drawer = new Property(":") withName "drawer" withValidator rxValidator(raw":".r)
+
         def build():LRId = {
             validate()
             LRId(cloud(), api(), projectId(), resourceType(), UUID.fromString(path()))
         }
     }
+
+    def idBuilder() = new LRIdBuilder()
 
     def apiValidator = rxValidator(raw"[a-z][a-z0-9-]+".r)(_, _)
     def drawerValidator(value:String, name:String) = rxValidator(raw"([\w-_.*]+:)*[\w-_.*]+".r)(value, name) orElse {
@@ -120,13 +126,14 @@ object LRN {
         }
         builder.cloud(uri.getHost())
 
-        val pathRx = raw"/([^/]+)/([^/]+)/([^/]+)/(\S+)".r
+        val pathRx = raw"/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(\S+)".r
 
         uri.getPath() match {
-            case pathRx(api, projectId, resourceType, path) => {
+            case pathRx(api, projectId, resourceType, drawer, path) => {
                 builder.api(api
                 ).projectId(littleware.base.UUIDFactory.parseUUID(projectId)
                 ).resourceType(resourceType
+                ).drawer(drawer
                 ).path(path
                 ).build()
             }

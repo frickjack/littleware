@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters._
  * </ul>
  */
 object JsonConfigLoader {
-  private val gs = new gson.Gson()
+  private val gs = GsonProvider.get()
   val utf8 = "UTF-8"
 
   val LITTLE_CONFIG_PATH = "LITTLE_CONFIG_PATH"
@@ -32,35 +32,36 @@ object JsonConfigLoader {
   ).toSeq.flatMap({ pathSpec => pathSpec.split(";") })
 
   /**
-   * Load the json file if any at ("littleware/config/" + key + ".json")
+   * Load the json file if any at (key + ".json")
    * on the classpath
    */
   def loadClasspathConfig(key:String): Option[gson.JsonObject] = {
-    Option(getClass().getClassLoader().getResourceAsStream("littleware/config/" + key + ".json")).map(
+    Option(getClass().getClassLoader().getResourceAsStream(key + ".json")).map(
       {
-        istream => {
+        istream =>
           val reader = new java.io.InputStreamReader(istream, utf8)
           try {
             gs.fromJson(reader, classOf[gson.JsonObject])
           } finally {
             reader.close()
           }
-        }
       }
     )
   }
 
   /**
-   * Load the first json file if any at (key + ".json")
+   * Load the first json file if any at (key.replaceAll("/", _).toUpperCase() + ".json")
    * in the search path
    * 
    * @param key to look up
    * @param searchPath list of folder paths to look in
    */
   def loadSearchpathConfig(
-      key:String,
+      fullKey:String,
       searchPath:Seq[String] = JsonConfigLoader.searchPath
-    ): Option[gson.JsonObject] =
+  ): Option[gson.JsonObject] = {
+    val key:String = fullKey.replaceAll("/", "_") + ".json"  
+    
     searchPath.map(
         { new java.io.File(_, key) }
       ).find(
@@ -78,17 +79,20 @@ object JsonConfigLoader {
           }
         }
       )
+  }
 
   /**
-   * Load the config if any from the key system property or
+   * Load the config if any from the key.replaceAll("/", "_") system property or
    * environment variable
    */
-  def loadEnvConfig(key:String): Option[gson.JsonObject] =
+  def loadEnvConfig(fullKey:String): Option[gson.JsonObject] = {
+    val key = fullKey.replaceAll("/", "_") + ".json"
     Option(
       System.getProperty(key, System.getenv(key))
     ).map(
       str => gs.fromJson(str, classOf[gson.JsonObject])
     )
+  }
 
   /**
    * Collect classpath, searchpath, and env config

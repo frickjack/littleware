@@ -1,4 +1,4 @@
-package littleware.cloudmgr.service.littleModule
+package littleware.cell.pubsub.littleModule
 
 import com.google.gson
 import com.google.inject
@@ -16,11 +16,11 @@ class AppModuleFactory extends bootstrap.AppModuleFactory {
   
 object AppModuleFactory {
   val log = Logger.getLogger(classOf[AppModuleFactory].getName())
-  val CONFIG_KEY = "littleware/cloudmgr/CLOUDMGR"
+  val CONFIG_KEY = "littleware/cloudmgr/LITTLE_PUBSUB"
 
-  class AppModule ( profile:bootstrap.AppBootstrap.AppProfile ) extends bootstrap.helper.AbstractAppModule( profile ) {    
+  class AppModule (profile:bootstrap.AppBootstrap.AppProfile) extends bootstrap.helper.AbstractAppModule( profile ) {    
     /**
-     * load properties from the LITTLE_CLOUDMGR key
+     * load properties from the LITTLE_CELL_PUBSUB key
      * via littleware.scala.JsonConfigLoader
      */
     override def configure(binder: inject.Binder):Unit = {
@@ -30,10 +30,6 @@ object AppModuleFactory {
           littleware.scala.JsonConfigLoader.bindKeys(binder, jsConfig)
         }
       )
-
-      // so far able to get by with annotation based bindings
-      //binder.bind(classOf[Config]).toProvider(classOf[ConfigLoader]).in(inject.Scopes.SINGLETON)
-      //binder.bind( classOf[model.Response.Builder] ).to( classOf[model.internal.ResponseBuilder])
     }
     
   }

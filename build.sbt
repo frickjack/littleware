@@ -27,7 +27,7 @@ val log4jJsonSet = Seq(
   "log4j-layout-template-json",
   "log4j-jul",
   "log4j-core"
-).map({ name => "org.apache.logging.log4j" % name % "2.14.1" % Test })
+).map({ name => "org.apache.logging.log4j" % name % "2.17.0" % Test })
 val kafkaSet = Seq(
   "org.apache.kafka" % "kafka-clients" % "2.7.0",
   "org.apache.kafka" % "kafka-streams" % "2.7.0",

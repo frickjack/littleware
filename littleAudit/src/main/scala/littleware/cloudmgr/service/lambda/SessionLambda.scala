@@ -129,6 +129,7 @@ class SessionLambda @inject.Inject()(tools:SessionLambda.Tools) extends RequestH
                   }
                 }
                 case "POST" => projId match {
+                  // we currently just have one project ...
                   case LRN.zeroId => authToken match {
                     case Some(jwsToken) => {
                       Try(tools.sessionMgr.startSession(jwsToken, projId, "little-wildcard")) match {

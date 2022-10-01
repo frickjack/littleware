@@ -1,0 +1,5 @@
+{
+    "little.cell.pubsub.awsconfig": {
+        "tableDomain": "scratch.test-cell.test-cloud.frickjack.com"
+    }
+}

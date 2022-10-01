@@ -13,8 +13,9 @@ final case class RequestContext(
     requestId: UUID,
     session: Session,
     startTimeMs: Long,
+    actor: String,
     // action to resources - for authz
-    actionPaths: Map[String, Seq[LRPath]],
+    actionPaths: Map[String, Seq[LRPath]]
 )  {}
 
 object RequestContext {
@@ -22,16 +23,18 @@ object RequestContext {
         val requestId = new Property(UUID.randomUUID()) withName "requestId" withValidator notNullValidator
         val session = new Property[Session](null) withName "session" withValidator notNullValidator
         val startTimeMs = new Property[Long](new java.util.Date().getTime()) withName "startTimeMs" withValidator positiveLongValidator
+        val actor = new Property[String]() withName "actor" withValidator notNullValidator
         val actionPaths = new Property[Map[String, Seq[LRPath]]](Map.empty) withName "actionPaths" withValidator notEmptyValidator
 
         override def copy(value:RequestContext):this.type = requestId(value.requestId
         ).session(value.session
         ).startTimeMs(value.startTimeMs
+        ).actor(value.actor
         ).actionPaths(value.actionPaths)
 
         override def build():RequestContext = {
             this.validate()
-            RequestContext(requestId(), session(), startTimeMs(), actionPaths())
+            RequestContext(requestId(), session(), startTimeMs(), actor(), actionPaths())
         }
     }
 
@@ -50,6 +53,9 @@ object RequestContext {
                     }
                     case "startTimeMs" => {
                         builder.startTimeMs(reader.nextLong())
+                    }
+                    case "actor" => {
+                        builder.actor(reader.nextString())
                     }
                     case "actionPaths" => {
                         builder.actionPaths(

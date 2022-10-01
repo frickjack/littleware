@@ -5,6 +5,7 @@ import math.Ordered.orderingToOrdered
 
 
 case class TimeId (id: UUID, timestamp:Long) extends Comparable[TimeId] {
+
     override def compareTo(other:TimeId): Int = {
         if (timestamp != other.timestamp) {
             java.lang.Long.compare(timestamp, other.timestamp)
@@ -21,6 +22,8 @@ case class TimeId (id: UUID, timestamp:Long) extends Comparable[TimeId] {
 object TimeId {
     val zeroId:UUID = new java.util.UUID(0,0)
     
+    def apply(timestamp: Long):TimeId = new TimeId(zeroId, timestamp)
+
     /**
      * Return a string that pads the given num to paddedLength characters
      * by prefixing zeros.  The paddedLength must be less than 20,

@@ -1,0 +1,85 @@
+{
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "PK",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "SK",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "Payload",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "Metadata",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "TxState",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "TxPayload",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "Version",
+            "AttributeType": "N"
+        },
+        {
+            "AttributeName": "Expiration",
+            "AttributeType": "N"
+        },
+        {
+            "AttributeName": "EditDate",
+            "AttributeType": "N"
+        },
+        {
+            "AttributeName": "Editor",
+            "AttributeType": "S"
+        }
+    ],
+    "TableName": "scratch.test-cell.test-cloud.frickjack.com",
+    "KeySchema": [
+        {
+            "AttributeName": "PK",
+            "KeyType": "HASH"
+        },
+        {
+            "AttributeName": "SK",
+            "KeyType": "RANGE"
+        }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "StreamSpecification": {
+        "StreamEnabled": false
+    },
+    "SSESpecification": {
+        "Enabled": true,
+        "SSEType": "AES256"
+    },
+    "Tags": [
+        {
+            "Key": "org",
+            "Value": "dev"
+        },
+        {
+            "Key": "project",
+            "Value": "cloud"
+        },
+        {
+            "Key": "stack",
+            "Value": "frickjack"
+        },
+        {
+            "Key": "stage",
+            "Value": "dev"
+        },
+        {
+            "Key": "role",
+            "Value": "database"
+        }
+    ]
+}

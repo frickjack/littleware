@@ -11,7 +11,8 @@ arun() {
 create() {
   (
     cd "$SCRIPT_FOLDER" \
-    && arun dynamodb create-table --cli-input-json "$(cat dynamoQueue.json)"
+    && arun dynamodb create-table --cli-input-json "$(cat dynamoTable.json)" \
+    && arun dynamodb update-time-to-live --cli-input-json "$(cat dynamoTableTtl.json)"
   )
 }
 

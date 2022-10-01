@@ -1,5 +1,6 @@
 package littleware.cloudutil
 
+import com.google.gson
 import com.google.inject
 
 import java.net.URI
@@ -25,6 +26,7 @@ trait LRN {
 /**
  * Path based sharing - denormalized data
  */
+@gson.annotations.JsonAdapter(classOf[LRN.GsonTypeAdapter])
 case class LRPath(
     cloud: String,
     api: String,
@@ -38,6 +40,7 @@ case class LRPath(
 /**
  * Id based sharing - normalized data
  */
+@gson.annotations.JsonAdapter(classOf[LRN.GsonTypeAdapter])
 case class LRId(
     cloud: String,
     api: String,
@@ -140,4 +143,17 @@ object LRN {
         }
     }
     
+
+    class GsonTypeAdapter extends gson.TypeAdapter[LRN]() {
+        override def read(reader:gson.stream.JsonReader):LRN = {
+            uriToLRN(new URI(reader.nextString()))
+        }
+        
+        override def write(writer:gson.stream.JsonWriter, src:LRN):Unit = {
+            writer.value(lrnToURI(src).toString())
+        }
+    }
+
+    val gsonTypeAdapter = new GsonTypeAdapter()
+
 }

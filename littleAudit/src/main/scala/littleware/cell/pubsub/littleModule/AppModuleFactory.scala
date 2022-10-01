@@ -5,8 +5,11 @@ import com.google.inject
 import java.util.logging.{Level,Logger}
 
 import littleware.bootstrap
+import littleware.cell.pubsub
 import littleware.cloudutil
 import scala.jdk.CollectionConverters._
+
+import software.amazon.awssdk.services.dynamodb
 
   
 class AppModuleFactory extends bootstrap.AppModuleFactory {
@@ -16,7 +19,7 @@ class AppModuleFactory extends bootstrap.AppModuleFactory {
   
 object AppModuleFactory {
   val log = Logger.getLogger(classOf[AppModuleFactory].getName())
-  val CONFIG_KEY = "littleware/cloudmgr/LITTLE_PUBSUB"
+  val CONFIG_KEY = "littleware/cell/pubsub/PUBSUB"
 
   class AppModule (profile:bootstrap.AppBootstrap.AppProfile) extends bootstrap.helper.AbstractAppModule( profile ) {    
     /**
@@ -30,6 +33,11 @@ object AppModuleFactory {
           littleware.scala.JsonConfigLoader.bindKeys(binder, jsConfig)
         }
       )
+      binder.bind(classOf[dynamodb.DynamoDbClient]).toInstance(
+        dynamodb.DynamoDbClient.create()
+      )
+      binder.bind(classOf[pubsub.service.PubSub]
+        ).to(classOf[pubsub.service.internal.DynamoPubSub])
     }
     
   }

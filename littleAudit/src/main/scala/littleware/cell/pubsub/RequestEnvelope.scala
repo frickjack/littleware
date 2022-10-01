@@ -1,11 +1,13 @@
 package littleware.cell.pubsub
 
+import com.google.gson
+import java.net.URI
 import littleware.cloudutil
 
-import com.google.gson
 
 case class RequestEnvelope (
     cx: cloudutil.RequestContext,
+    msgId: cloudutil.TimeId,
     msg: RequestEnvelope.Message
 ) {}
 
@@ -13,6 +15,7 @@ case class RequestEnvelope (
 object RequestEnvelope {
     case class Message(
         actionPaths: Map[String, Seq[cloudutil.LRPath]],
+        payloadSchema: URI,
         payload: gson.JsonObject
     ) {}
 }

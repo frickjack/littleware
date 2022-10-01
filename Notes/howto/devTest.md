@@ -18,7 +18,7 @@ OpenJDK Runtime Environment (build 11.0.10+9-Ubuntu-0ubuntu1.20.04)
 OpenJDK 64-Bit Server VM (build 11.0.10+9-Ubuntu-0ubuntu1.20.04, mixed mode, sharing)
 
 $ scala3-repl --version
-Scala code runner version 3.0.0 -- Copyright 2002-2021, LAMP/EPFL
+Scala code runner version 3.0.2 -- Copyright 2002-2021, LAMP/EPFL
 
 $ sbt version
 [info] welcome to sbt 1.5.4 (Ubuntu Java 11.0.11)

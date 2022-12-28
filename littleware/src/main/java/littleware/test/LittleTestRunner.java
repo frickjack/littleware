@@ -9,7 +9,7 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
 /**
- * JUnit4 test runner enabled with littleware.bootstrap Guice bootrap and
+ * JUnit4 test runner enabled with littleware.bootstrap Guice bootstrap and
  * injection. Imitation of SpringJunit4TestRunner:
  *
  */

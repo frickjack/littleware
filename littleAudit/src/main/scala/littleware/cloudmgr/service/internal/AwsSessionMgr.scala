@@ -57,7 +57,10 @@ class AwsSessionMgr (
                             ).signingAlgorithm(kms.model.SigningAlgorithmSpec.ECDSA_SHA_256
                             ).message(SdkBytes.fromByteArrayUnsafe(jwtNoSig.getBytes("UTF-8"))
                             ).build()
-                val signBytes = kmsClient.sign(req).signature().asByteArray()
+                // need to convert DER signature to JWS - see https://github.com/jwtk/jjwt/issues/125
+                val signBytes = io.jsonwebtoken.impl.crypto.EllipticCurveProvider.transcodeDERToConcat(
+                    kmsClient.sign(req).signature().asByteArray(), 64
+                )
                 val signB64 = b64Encoder.encodeToString(signBytes).replaceAll("=", "")
                 jwtNoSig + "." + signB64
             }

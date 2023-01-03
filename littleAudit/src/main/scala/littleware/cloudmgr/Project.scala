@@ -42,7 +42,7 @@ object Project {
 
             Project(
                     id(),
-                    Set() ++ this.owners(), 
+                    Set() ++ this.owners(),
                     client2Apis().toSet[(String,String)].groupMap(
                             _ match { 
                                 case (client -> api) => client

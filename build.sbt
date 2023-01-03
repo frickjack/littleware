@@ -4,6 +4,8 @@ val scala3Version = "3.0.0"
 ThisBuild / organization := "littleware"
 ThisBuild / scalaVersion := scala3Version
 ThisBuild / version      := littleVersion
+ThisBuild / scalacOptions ++= Seq("-release", "11")
+ThisBuild / javacOptions ++= Seq("-source", "11", "-target", "11")
 
 Compile / run / fork := true
 Test / run / fork := true

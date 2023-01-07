@@ -38,9 +38,12 @@ phases:
               bash "$CODEBUILD_SRC_DIR_HELPERS/AWS/little.sh" "$@"
           }
           
-          little sbt littleAudit/compile littleAudit/test littleAudit/pack
-          exitCode=$?
-          find littleAudit/target/test-reports/ -name '*.xml' -print -exec cat '{}' ';'
+          for package in littleAudit littleLogic; do
+            little sbt $package/compile $package/test $package/pack
+            exitCode=$?
+            find $package/target/test-reports/ -name '*.xml' -print -exec cat '{}' ';'
+            test $exitCode = 0 || exit $exitCode
+          done
           exit $exitCode
         )
       # ignore false positives

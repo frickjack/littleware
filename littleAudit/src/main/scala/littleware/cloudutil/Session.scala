@@ -6,6 +6,7 @@ import java.util.UUID
 import scala.util._
 
 import com.google.inject
+import com.google.gson
 import littleware.cloudutil.{ LittleResource, LRN }
 import littleware.scala.PropertyBuilder
 import littleware.scala.PropertyBuilder.{ emailValidator, notNullValidator, positiveLongValidator }
@@ -14,6 +15,7 @@ import littleware.scala.PropertyBuilder.{ emailValidator, notNullValidator, posi
 /**
  * Cell is a container for API's in a littleware cloud
  */
+@gson.annotations.JsonAdapter(classOf[Session.GsonTypeAdapter])
 case class Session (
     id: UUID,
     subject: String,
@@ -75,4 +77,45 @@ object Session {
             )
         }
     }
+
+
+    class GsonTypeAdapter extends gson.TypeAdapter[Session]() {
+        override def read(reader:gson.stream.JsonReader):Session = {
+            val builder = new Builder("")
+            reader.beginObject()
+            while(reader.hasNext()) {
+                (LittleResource.gsonReader(builder, reader) 
+                    orElse {
+                        case "subject" => builder.subject(reader.nextString())
+                        case "api" => builder.api(reader.nextString())
+                        case "projectId" => builder.projectId(UUID.fromString(reader.nextString()))
+                        case "cellId" => builder.cellId(UUID.fromString(reader.nextString()))
+                        case "endpoint" => builder.endpoint.set(new java.net.URL(reader.nextString()))
+                        case "authClient" => builder.authClient(reader.nextString())                        
+                        case "isAdmin" => builder.isAdmin(reader.nextBoolean())
+                        case "iat" => builder.iat.set(reader.nextLong())
+                        case "exp" => builder.exp.set(reader.nextLong())
+                    }
+                )(reader.nextName())
+            }
+            reader.endObject()
+            builder.build()
+        }
+        
+        override def write(writer:gson.stream.JsonWriter, src:Session):Unit = {
+            LittleResource.gsonWriter(src, writer.beginObject()
+            ).name("subject").value(src.subject
+            ).name("api").value(src.api
+            ).name("projectId").value(src.projectId.toString()
+            ).name("cellId").value(src.cellId.toString()
+            ).name("endpoint").value(src.endpoint.toString()
+            ).name("authClient").value(src.authClient
+            ).name("isAdmin").value(src.isAdmin
+            ).name("iat").value(src.iat
+            ).name("exp").value(src.exp
+            ).endObject()
+        }
+    }
+
+    val gsonTypeAdapter = new GsonTypeAdapter()
 }

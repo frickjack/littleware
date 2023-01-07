@@ -47,7 +47,7 @@ class HttpVerifyTool @Inject()(
     }
     
     log.log( Level.FINE, "Verify request to {0} got response http-status:{1} - {2}", 
-            Array[Object]( verifyURL, new Integer( httpCode ), verifyResponse ) 
+            Array[Object]( verifyURL, Integer.valueOf( httpCode ), verifyResponse ) 
     )
     
     if( httpCode >= 200 && httpCode <= 300 ) {

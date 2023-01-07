@@ -1,5 +1,6 @@
 package littleware.cloudutil
 
+import com.google.gson
 import java.util.UUID
 
 import littleware.scala.PropertyBuilder
@@ -18,7 +19,6 @@ trait LittleResource extends littleware.base.cache.CacheableObject {
     override def hashCode() = id.hashCode()
 }
 
-abstract class AbstractLittleResource
 
 object LittleResource {
     val defaultStateSet = Set("available", "building", "unavailable")
@@ -87,4 +87,25 @@ object LittleResource {
             ).lastUpdater(other.lastUpdater)
     }
 
+    /**
+     * Little helper for subtypes building gson TypeAdapters
+     */
+    def gsonReader(builder:Builder[?], reader:gson.stream.JsonReader):PartialFunction[String,Unit] = _ match {
+        case "lrp" => builder.lrp(LRN.uriToLRN(new java.net.URI(reader.nextString())).asInstanceOf[LRPath])
+        case "id" => builder.id(UUID.fromString(reader.nextString()))
+        case "updateTime" => builder.updateTime(reader.nextLong())
+        case "state" => builder.state(reader.nextString())
+        case "lastUpdater" => builder.lastUpdater(reader.nextString())
+    }
+
+    /**
+     * Little json TypeAdapter writer helper - 
+     * assumes caller handles beginObject/endObject
+     */
+    def gsonWriter(resource:LittleResource, writer:gson.stream.JsonWriter):gson.stream.JsonWriter =
+        writer.name("lrp").value(LRN.lrnToURI(resource.lrp).toString()
+            ).name("id").value(resource.id.toString()
+            ).name("updateTime").value(resource.updateTime
+            ).name("state").value(resource.state
+            ).name("lastUpdater").value(resource.lastUpdater)
 }

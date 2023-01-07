@@ -128,6 +128,22 @@ object PropertyBuilder {
     }
   }
 
+  def notEmptyValidator(value:String, name:String):Option[String] = {
+    if (null == value || value.isEmpty) {
+      Some(s"${name}: is empty")
+    } else {
+      None
+    }
+  }
+
+  def notEmptyValidator(value:Iterable[_], name:String):Option[String] = {
+    if (null == value || value.isEmpty) {
+      Some(s"${name}: is empty")
+    } else {
+      None
+    }
+  }
+
   def positiveIntValidator(value:Int, name:String):Option[String] = {
     if (value <= 0) {
       Some(s"${name}: is not positive")

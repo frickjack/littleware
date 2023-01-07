@@ -39,6 +39,8 @@ introduction to the different types of documentation (explanation, how-to, tutor
 ### How-to
 
 * [dev-test](./Notes/howto/devTest.md)
+* [coding patterns](./Notes/howto/codingPatterns.md)
+* [release process](./Notes/howto/releaseProcess.md)
 
 ### Explanation
 

@@ -11,11 +11,11 @@ How to dev-test
 ## Toolchain
 
 ```
-# aws lambda currently has native runtime support for jdk11
+# aws lambda currently has native runtime support for jdk17
 $ java --version
-openjdk 11.0.10 2021-01-19
-OpenJDK Runtime Environment (build 11.0.10+9-Ubuntu-0ubuntu1.20.04)
-OpenJDK 64-Bit Server VM (build 11.0.10+9-Ubuntu-0ubuntu1.20.04, mixed mode, sharing)
+openjdk 17.0.8.1 2023-08-24
+OpenJDK Runtime Environment (build 17.0.8.1+1-Ubuntu-0ubuntu122.04)
+OpenJDK 64-Bit Server VM (build 17.0.8.1+1-Ubuntu-0ubuntu122.04, mixed mode, sharing)
 
 $ scala3-repl --version
 Scala code runner version 3.0.2 -- Copyright 2002-2021, LAMP/EPFL
@@ -24,9 +24,12 @@ $ sbt version
 [info] welcome to sbt 1.5.4 (Ubuntu Java 11.0.11)
 ...
 
-``` 
+```
+
 
 ### Gradle Cheat Sheet
+
+Our build is now `sbt` based, but we used `gradle` before.
 
 * `gradle -i` - INFO level [logging](https://docs.gradle.org/current/userguide/logging.html)
 * `gradle cleanTest test --tests 'GetOpt*'` - run specific [tests](https://stackoverflow.com/questions/22505533/how-to-run-only-one-unit-test-class-using-gradle)
@@ -92,6 +95,9 @@ newkey() {
 }
 
 
+#
+# Just use "sbt console" now - we used to use gradle
+#
 repl() {
     local replPath
     replPath="$(gradle :littleAudit:printClasspath --quiet)" || return 1

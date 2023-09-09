@@ -40,17 +40,15 @@ trait Broker {
     postLoop(loop:LoopId):LoopId
     postLoop(loop:LoopId, childLoops:Set[String]):Map[String,LoopId]
     */
-
-
     
-    authorizeActivity(cx:cloudutil.RequestContext, id:UUID, isAuthorized:Boolean, message:String): UUID;
+    def authorizeActivity(cx:cloudutil.RequestContext, id:UUID, isAuthorized:Boolean, message:String): UUID
 
     /**
      * Return the set of listener activity ids that were signaled
      */
-    completeActivity(cx:cloudutil.RequestContext, activityId: UUID, payload: Broker.Payload): Set[UUID]
+    def completeActivity(cx:cloudutil.RequestContext, activityId: UUID, payload: Broker.Payload): Set[UUID]
 
-    postMessage(cx:cloudutil.RequestContext, activityId: UUID, payload: Broker.Payload): UUID
+    def postMessage(cx:cloudutil.RequestContext, activityId: UUID, payload: Broker.Payload): UUID
 
     /**
      * We want some race-condition safe way to schedule an activity
@@ -60,20 +58,20 @@ trait Broker {
      * activities it wants to listen to,
      * so build the tree from the bottom up ?
      */
-    scheduleActivity(cx:cloudutil.RequestContext, payload: Broker.Payload):UUID
+    def scheduleActivity(cx:cloudutil.RequestContext, payload: Broker.Payload):UUID
 
-    fetchLastMessage(cx:cloudutil.RequestContext, activityId:UUID, lastReceived:UUID): Optional[Broker.Payload];
+    def fetchLastMessage(cx:cloudutil.RequestContext, activityId:UUID, lastReceived:UUID): Option[Broker.Payload]
 
-    listMessages(cx:cloudutil.RequestContext, activityId:UUID):Map[String, UUID];
+    def listMessages(cx:cloudutil.RequestContext, activityId:UUID):Map[String, UUID]
     
-    fetchResult(cx:cloudutil.RequestContext, activityId:UUID): Optional[Broker.Payload]
+    def fetchResult(cx:cloudutil.RequestContext, activityId:UUID): Option[Broker.Payload]
 
-    getStatus(cx:cloudutil.RequestContext, activityId:UUID): Broker.Activity
+    def getStatus(cx:cloudutil.RequestContext, activityId:UUID): Broker.Activity
 }
 
 object Broker {
     trait Payload {
-        schema: URI
+        def schema: URI
     }
 
     case class Activity(

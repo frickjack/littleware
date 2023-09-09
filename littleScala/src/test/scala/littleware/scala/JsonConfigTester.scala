@@ -29,15 +29,18 @@ class JsonConfigTester extends test.LittleTest {
   } catch basicHandler 
 
 
+  @Test
   def testConfigLoad():Unit = {
-    System.setProperty("LITTLEWARE_SCALA_LITTLE_SCALA_CONFIGTEST", """{ "c": "C" }""")
+    System.setProperty("littleware_scala_LITTLE_SCALA_CONFIGTEST.json", """{ "c": "C" }""")
     val expected = Some(toJson(Map("LITTLE_SCALA_A" -> "a", "LITTLE_SCALA_B" -> "B", "c" -> "C")))
-    val result = JsonConfigLoader.loadConfig("littleware/scala/LITTLE_SCALA_CONFIGTEST")
+    val result = JsonConfigLoader.loadConfig("littleware/scala/LITTLE_SCALA_CONFIGTEST", getClass().getClassLoader())
     assertEquals("json config load works", expected, result)
   }
 
+  @Test
   def testConfigBinder():Unit = {
-    val obj = JsonConfigLoader.loadConfig("littleware/scala/LITTLE_SCALA_CONFIGTEST").get
+    System.setProperty("littleware_scala_LITTLE_SCALA_CONFIGTEST.json", "{}")
+    val obj = JsonConfigLoader.loadConfig("littleware/scala/LITTLE_SCALA_CONFIGTEST", getClass().getClassLoader()).get
     val expected = Set("LITTLE_SCALA_A", "LITTLE_SCALA_B")
     assertEquals("json binding looks ok", expected, JsonConfigLoader.bindKeys(null, obj))
   }

@@ -8,7 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 
-@RunWith( classOf[littleware.test.LittleTestRunner] )
+@RunWith(classOf[littleware.test.LittleTestRunner])
 class PubSubTester @inject.Inject() (
     mgr: PubSub
 ) extends littleware.scala.test.LittleTest {

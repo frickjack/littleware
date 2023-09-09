@@ -1,0 +1,9 @@
+# littleware AppModule service providers
+littleware.cloudmgr.service.littleModule.AppModuleFactory
+littleware.cell.pubsub.littleModule.AppModuleFactory
+littleware.cabinet.littleModule.AppModuleFactory
+#
+# Optional modules - apps can add explicitly if desired 
+#
+# littleware.lgo.LgoModuleFactory
+#

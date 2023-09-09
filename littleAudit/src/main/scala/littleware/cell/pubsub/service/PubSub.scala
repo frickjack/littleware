@@ -10,7 +10,14 @@ import littleware.cloudutil
  * Internal API for posting and polling for time-based messages to topics.
  * For example, this interface supports service provider responses to clients
  * where the backend service provider publishes messages to a topic that
- * a remote service client subscriber polls.
+ * a remote service client subscriber polls:
+ * - client establishes a session to post requests to, and gets
+ *       a topic for polling request status
+ * - client posts a request to its session - backend launches an
+ *       asynchronous job to process the request with the topic to
+ *       post data back to
+ * - async job posts status messages to the topic
+ * - client polls the topic for status as needed
  */
 trait PubSub {
     /**

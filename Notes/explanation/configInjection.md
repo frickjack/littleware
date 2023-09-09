@@ -19,7 +19,7 @@ The `JsonConfigLoader` also provides a `bindKeys` method that consumes a json ob
 
 So in the `Module.scala` (or `.java`) file described above, the module bootstrap code does something like [this](https://github.com/frickjack/littleware/blob/main/littleAudit/src/main/scala/littleware/cloudmgr/service/littleModule/AppModuleFactory.scala):
 ```
-littleware.scala.JsonConfigLoader.loadConfig(CONFIG_KEY).map(
+littleware.scala.JsonConfigLoader.loadConfig(CONFIG_KEY, getClass().getClassLoader()).map(
   {
     jsConfig =>
     littleware.scala.JsonConfigLoader.bindKeys(binder, jsConfig)

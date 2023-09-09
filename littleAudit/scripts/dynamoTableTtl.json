@@ -1,7 +1,7 @@
 {
-    "TableName": "scratch.test-cell.test-cloud.frickjack.com",
+    "TableName": "scratch-cabinet.test-cell.test-cloud.frickjack.com",
     "TimeToLiveSpecification": {
         "Enabled": true,
-        "AttributeName": "Expiration"
+        "AttributeName": "ExpirationEpochSecs"
     }
 }

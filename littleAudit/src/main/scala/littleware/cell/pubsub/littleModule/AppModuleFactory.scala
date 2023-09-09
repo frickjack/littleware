@@ -27,12 +27,19 @@ object AppModuleFactory {
      * via littleware.scala.JsonConfigLoader
      */
     override def configure(binder: inject.Binder):Unit = {
-      littleware.scala.JsonConfigLoader.loadConfig(CONFIG_KEY).map(
-        {
-          jsConfig =>
-          littleware.scala.JsonConfigLoader.bindKeys(binder, jsConfig)
-        }
-      )
+      val configKeys = littleware.scala.JsonConfigLoader.loadConfig(CONFIG_KEY, getClass().getClassLoader()).map(
+          {
+            jsConfig =>
+            littleware.scala.JsonConfigLoader.bindKeys(binder, jsConfig)
+          }
+        ).getOrElse(
+          Set.empty[String]
+        )
+
+      if (
+        !configKeys.contains("little.cell.pubsub.awsconfig")
+      ) throw new IllegalStateException("pubsub config not bound: " + CONFIG_KEY + ", " + configKeys)
+
       binder.bind(classOf[dynamodb.DynamoDbClient]).toInstance(
         dynamodb.DynamoDbClient.create()
       )

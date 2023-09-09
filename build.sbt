@@ -52,8 +52,8 @@ val awsSet = Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.2",
   "com.amazonaws" % "aws-lambda-java-events" % "3.11.0",
   "com.amazonaws" % "aws-lambda-java-runtime-interface-client" % "2.1.1",
-  "software.amazon.awssdk" % "dynamodb" % "2.16.104",
-  "software.amazon.awssdk" % "kms" % "2.16.104"
+  "software.amazon.awssdk" % "dynamodb" % "2.19.12",
+  "software.amazon.awssdk" % "kms" % "2.19.12"
 )
 
 lazy val littleware = project

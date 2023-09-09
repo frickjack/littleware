@@ -35,8 +35,8 @@ object JsonConfigLoader {
    * Load the json file if any at (key + ".json")
    * on the classpath
    */
-  def loadClasspathConfig(key:String): Option[gson.JsonObject] = {
-    Option(getClass().getClassLoader().getResourceAsStream(key + ".json")).map(
+  def loadClasspathConfig(key:String, classLoader:ClassLoader): Option[gson.JsonObject] = {
+    Option(classLoader.getResourceAsStream(key + ".json")).map(
       {
         istream =>
           val reader = new java.io.InputStreamReader(istream, utf8)
@@ -98,9 +98,9 @@ object JsonConfigLoader {
    * Collect classpath, searchpath, and env config
    * into a sequence
    */
-  def loadConfigs(key:String): Seq[gson.JsonObject] =
+  def loadConfigs(key:String, classLoader:ClassLoader): Seq[gson.JsonObject] =
     Seq(
-      loadClasspathConfig(key),
+      loadClasspathConfig(key, classLoader),
       loadSearchpathConfig(key, searchPath),
       loadEnvConfig(key)
     ).flatten
@@ -132,7 +132,7 @@ object JsonConfigLoader {
   /**
    * loadConfigs, and do a shallow json merge
    */
-  def loadConfig(key:String): Option[gson.JsonObject] = jsonMerge(loadConfigs(key))
+  def loadConfig(key:String, classLoader:ClassLoader): Option[gson.JsonObject] = jsonMerge(loadConfigs(key, classLoader))
 
 
   /**

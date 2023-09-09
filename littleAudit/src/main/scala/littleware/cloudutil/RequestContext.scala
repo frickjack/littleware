@@ -23,7 +23,7 @@ object RequestContext {
         val requestId = new Property(UUID.randomUUID()) withName "requestId" withValidator notNullValidator
         val session = new Property[Session](null) withName "session" withValidator notNullValidator
         val startTimeMs = new Property[Long](new java.util.Date().getTime()) withName "startTimeMs" withValidator positiveLongValidator
-        val actor = new Property[String]() withName "actor" withValidator notNullValidator
+        val actor = new Property[String](null) withName "actor" withValidator notNullValidator
         val actionPaths = new Property[Map[String, Seq[LRPath]]](Map.empty) withName "actionPaths" withValidator notEmptyValidator
 
         override def copy(value:RequestContext):this.type = requestId(value.requestId

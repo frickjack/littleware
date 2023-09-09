@@ -7,41 +7,9 @@
         {
             "AttributeName": "SK",
             "AttributeType": "S"
-        },
-        {
-            "AttributeName": "Payload",
-            "AttributeType": "S"
-        },
-        {
-            "AttributeName": "Metadata",
-            "AttributeType": "S"
-        },
-        {
-            "AttributeName": "TxState",
-            "AttributeType": "S"
-        },
-        {
-            "AttributeName": "TxPayload",
-            "AttributeType": "S"
-        },
-        {
-            "AttributeName": "Version",
-            "AttributeType": "N"
-        },
-        {
-            "AttributeName": "Expiration",
-            "AttributeType": "N"
-        },
-        {
-            "AttributeName": "EditDate",
-            "AttributeType": "N"
-        },
-        {
-            "AttributeName": "Editor",
-            "AttributeType": "S"
         }
     ],
-    "TableName": "scratch.test-cell.test-cloud.frickjack.com",
+    "TableName": "scratch-cabinet.test-cell.test-cloud.frickjack.com",
     "KeySchema": [
         {
             "AttributeName": "PK",

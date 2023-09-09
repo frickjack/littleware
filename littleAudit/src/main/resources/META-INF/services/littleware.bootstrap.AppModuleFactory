@@ -1,6 +1,13 @@
 # littleware AppModule service providers
 littleware.cloudmgr.service.littleModule.AppModuleFactory
-littleware.cell.pubsub.littleModule.AppModuleFactory
+
+#
+# TODO - the pubsub and cabinet dynamo stuff requires updates
+#   to the session manager's AWS role to access a dynamo table,
+#   and the dynamo table also needs provisioned by cloudformation
+#
+#littleware.cell.pubsub.littleModule.AppModuleFactory
+
 #
 # Optional modules - apps can add explicitly if desired 
 #

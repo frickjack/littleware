@@ -1,0 +1,6 @@
+{
+    "little.cabinet.dynamo.awsconfig": {
+        "tableDomain": "scratch-cabinet.test-cell.test-cloud.frickjack.com",
+        "endpointOverride": "http://localhost:8000"
+    }
+}

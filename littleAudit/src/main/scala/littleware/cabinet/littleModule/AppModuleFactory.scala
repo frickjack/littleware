@@ -1,12 +1,15 @@
-package littleware.cloudmgr.service.littleModule
+package littleware.cabinet.littleModule
 
 import com.google.gson
 import com.google.inject
 import java.util.logging.{Level,Logger}
 
 import littleware.bootstrap
+import littleware.cell.pubsub
 import littleware.cloudutil
 import scala.jdk.CollectionConverters._
+
+import software.amazon.awssdk.services.dynamodb
 
   
 class AppModuleFactory extends bootstrap.AppModuleFactory {
@@ -16,12 +19,11 @@ class AppModuleFactory extends bootstrap.AppModuleFactory {
   
 object AppModuleFactory {
   val log = Logger.getLogger(classOf[AppModuleFactory].getName())
-  val CONFIG_KEY = "littleware/cloudmgr/CLOUDMGR"
+  val CONFIG_KEY = "littleware/cabinet/CABINET"
 
-  class AppModule ( profile:bootstrap.AppBootstrap.AppProfile ) extends bootstrap.helper.AbstractAppModule( profile ) {    
+  class AppModule (profile:bootstrap.AppBootstrap.AppProfile) extends bootstrap.helper.AbstractAppModule( profile ) {    
     /**
-     * load properties from the LITTLE_CLOUDMGR key
-     * via littleware.scala.JsonConfigLoader
+     * load properties via littleware.scala.JsonConfigLoader
      */
     override def configure(binder: inject.Binder):Unit = {
       littleware.scala.JsonConfigLoader.loadConfig(CONFIG_KEY, getClass().getClassLoader()).map(
@@ -30,10 +32,6 @@ object AppModuleFactory {
           littleware.scala.JsonConfigLoader.bindKeys(binder, jsConfig)
         }
       )
-
-      // so far able to get by with annotation based bindings
-      //binder.bind(classOf[Config]).toProvider(classOf[ConfigLoader]).in(inject.Scopes.SINGLETON)
-      //binder.bind( classOf[model.Response.Builder] ).to( classOf[model.internal.ResponseBuilder])
     }
     
   }

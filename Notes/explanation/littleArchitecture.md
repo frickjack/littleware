@@ -135,12 +135,12 @@ provides a billing and authorization boundary
 for interacting with littleware API's.
 
 Each api manages one or more types of resource within
-a project.  Each resource has a type, a drawer,
-a path unique within the drawer, a
+a project.  Each resource has a type, a resourceGroup,
+a path unique within the resourceGroup, a
 globally unique read-only id, and a state.
-A "drawer" is partition key, so that an api can
-efficiently query across data within the same drawer,
-but the size of each drawer is limitted to
+A "resourceGroup" is partition key, so that an api can
+efficiently query across data within the same resourceGroup,
+but the size of each resourceGroup is limitted to
 ensure system performance.
 The states that a particular resource type might
 assume is managed by the api that owns the resource type.
@@ -151,13 +151,13 @@ So the concept hierarchy is:
 * cell (projects are mapped to cells)
 * project - authorization boundary
 * api
-* resource: (drawer, path, id, type, state, other properties)
+* resource: (resourceGroup, path, id, type, state, other properties)
 
 Within a cell a particular API might partition data like this:
 
 ```
 primary_key = (partition_key, sort_key)
-partition_key = project+drawer+resourceType
+partition_key = project+resourceGroup+resourceType
 sort_key = path
 ```
 or

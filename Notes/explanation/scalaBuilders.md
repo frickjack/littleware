@@ -14,14 +14,14 @@ The following are typical examples of an immutable `case class` in scala:
 ```
 /**
  * Little resource name URI:
- * "lrn://${cloud}/${api}/${project}/${resourceType}/${drawer}/${path}"
+ * "lrn://${cloud}/${api}/${project}/${resourceType}/${resourceGroup}/${path}"
  */
 trait LRN {
     val cloud: String
     val api: String
     val projectId: UUID
     val resourceType: String
-    val drawer: String
+    val resourceGroup: String
     val path: String
 }
 
@@ -33,7 +33,7 @@ case class LRPath(
     api: String,
     projectId: UUID,
     resourceType: String,
-    drawer: String,
+    resourceGroup: String,
     path: String
 ) extends LRN {
 }
@@ -48,7 +48,7 @@ case class LRId(
     resourceType: String,
     resourceId: UUID
 ) extends LRN {
-    override val drawer = ":"
+    override val resourceGroup = ":"
     val path = resourceId.toString()
 }
 ```
@@ -77,13 +77,13 @@ object LRN {
     }
 
     class LRPathBuilder extends Builder[LRPath] {        
-        val drawer = new Property("") withName "drawer" withValidator drawerValidator
+        val resourceGroup = new Property("") withName "resourceGroup" withValidator resourceGroupValidator
 
-        override def copy(other:LRPath) = super.copy(other).drawer(other.drawer)
+        override def copy(other:LRPath) = super.copy(other).resourceGroup(other.resourceGroup)
 
         def build():LRPath = {
             validate()
-            LRPath(cloud(), api(), projectId(), resourceType(), drawer(), path())
+            LRPath(cloud(), api(), projectId(), resourceType(), resourceGroup(), path())
         }
     }
 
@@ -96,7 +96,7 @@ object LRN {
 
     def apiValidator = rxValidator(raw"[a-z][a-z0-9-]+".r)(_, _)
     
-    def drawerValidator(value:String, name:String) = rxValidator(raw"([\w-_.*]+:)*[\w-_.*]+".r)(value, name) orElse {
+    def resourceGroupValidator(value:String, name:String) = rxValidator(raw"([\w-_.*]+:)*[\w-_.*]+".r)(value, name) orElse {
         if (value.length > 1000) {
             Some(s"${name} is too long: ${value}")
         } else {
@@ -130,7 +130,7 @@ and the setters on the nested property class return the parent `Builder` type, s
         val builder = builderProvider.get(
         ).cloud("test.cloud"
         ).api("testapi"
-        ).drawer("testdrawer"
+        ).resourceGroup("testresourceGroup"
         ).projectId(LRN.zeroId
         ).resourceType("testrt"
         ).path("*")

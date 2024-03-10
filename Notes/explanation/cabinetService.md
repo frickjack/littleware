@@ -4,10 +4,10 @@ The little cabinet service implements a simple hierarchical metadata store
 for storing and retrieving simple application state.
 
 - A project may have up to 10000 cabinets.
-- A cabinet may have up to 10000 drawers.
-- A drawer may have up to 10000 folders.
+- A cabinet may have up to 10000 resourceGroups.
+- A resourceGroup may have up to 10000 folders.
 - A folder may have up to 10000 documents.
-- A cabinet is just a hierarchy of documents up to 4 levels deep (cabinet, drawer, folder, document)
+- A cabinet is just a hierarchy of documents up to 4 levels deep (cabinet, resourceGroup, folder, document)
 - Each document may have up to a 10KB json details blob
 - Each document may have up to a 100KB json payload
 - Each document payload references a schema, but the API does not enforce compliance with the schema
@@ -21,7 +21,9 @@ mutual exclusion, counters, and leader election
 - A document supports a simple TTL where it self-deletes after the TTL expires
 - A version number is associated with the document that increases after each update to the document. The document-update API allows for a simple version-based consistency check, so a client can avoid updating a document that is not in an expected state.
 - A document may not be renamed
-- A document with children (at the cabinet, drawer, or folder level) may not be marked for delete (non-zero ttl)
+- A document with children (at the cabinet, resourceGroup, or folder level) may not be marked for delete (non-zero ttl), unless it has no children
+- A child may not be added under a document marked for delete (at the cabinet, resourceGroup, or folder level)
+- A client must first lock a document before adding a child under it
 - A document may not have more than 10000 children
 
 ### Transactions and Higher Level Operations

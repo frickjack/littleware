@@ -31,7 +31,7 @@ class RequestContextTester @inject.Inject() (
                     LRN.pathBuilder().cloud("test.cloud").api("testapi"
                     ).projectId(UUID.randomUUID()
                     ).resourceType("thing"
-                    ).drawer("drawer0"
+                    ).resourceGroup("resourceGroup0"
                     ).path("thing0"
                     ).build()
                 )

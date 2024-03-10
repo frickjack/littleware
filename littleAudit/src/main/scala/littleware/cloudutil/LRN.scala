@@ -12,8 +12,13 @@ import littleware.scala.PropertyBuilder.{ dnsValidator, notNullValidator, pathLi
 /**
  * Little resource name URI:
  * "lrn://${cloud}/${api}/${project}/${resourceType}/${path}?tag1=${userTag1}&tag2=${userTag2}"
+ *
+ * the idea is to emulate AWS arn -
+ *   https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html
+ *
+ * @param drawer tags related resources for billing and security rules
  */
-trait LRN {
+sealed trait LRN {
     val cloud: String
     val api: String
     val projectId: UUID
@@ -27,7 +32,7 @@ trait LRN {
  * Path based sharing - denormalized data
  */
 @gson.annotations.JsonAdapter(classOf[LRN.GsonTypeAdapter])
-case class LRPath(
+case class LRPath private[cloudutil] (
     cloud: String,
     api: String,
     projectId: UUID,
@@ -41,21 +46,21 @@ case class LRPath(
  * Id based sharing - normalized data
  */
 @gson.annotations.JsonAdapter(classOf[LRN.GsonTypeAdapter])
-case class LRId(
+case class LRId private[cloudutil] (
     cloud: String,
     api: String,
     projectId: UUID,
     resourceType: String,
     resourceId: UUID
 ) extends LRN {
-    override val drawer = ":"
+    override val drawer = "-"
     val path = resourceId.toString()
 }
 
 object LRN {
     val zeroId:UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
     
-    trait Builder[T <: LRN] extends PropertyBuilder[T] {
+    sealed trait Builder[T <: LRN] extends PropertyBuilder[T] {
         val cloud = new Property("") withName "cloud" withValidator dnsValidator
         val api = new Property("") withName "api" withValidator LRN.apiValidator
         val projectId = new Property[UUID](null) withName "projectId" withValidator notNullValidator
@@ -72,7 +77,7 @@ object LRN {
             ).projectId(session.projectId)
     }
 
-    class LRPathBuilder extends Builder[LRPath] {
+    private[cloudutil] class LRPathBuilder extends Builder[LRPath] {
         override def copy(other:LRPath) = super.copy(other).drawer(other.drawer)
 
         def build():LRPath = {
@@ -81,11 +86,11 @@ object LRN {
         }
     }
 
-    def pathBuilder() = new LRPathBuilder()
+    def pathBuilder():Builder[LRPath] = new LRPathBuilder()
 
 
-    class LRIdBuilder extends Builder[LRId] {
-        override val drawer = new Property(":") withName "drawer" withValidator rxValidator(raw":".r)
+    private[cloudutil] class LRIdBuilder extends Builder[LRId] {
+        override val drawer = new Property("-") withName "drawer" withValidator rxValidator(raw"-".r)
 
         def build():LRId = {
             validate()
@@ -93,10 +98,10 @@ object LRN {
         }
     }
 
-    def idBuilder() = new LRIdBuilder()
+    def idBuilder():Builder[LRId] = new LRIdBuilder()
 
     def apiValidator = rxValidator(raw"[a-z][a-z0-9-]+".r)(_, _)
-    def drawerValidator(value:String, name:String) = rxValidator(raw"([\w-_.*]+:)*[\w-_.*]+".r)(value, name) orElse {
+    def drawerValidator(value:String, name:String) = rxValidator(raw"[\w-_\.]+".r)(value, name) orElse {
         if (value.length > 1000) {
             Some(s"${name} is too long: ${value}")
         } else {
@@ -105,21 +110,17 @@ object LRN {
     }
     
     def pathValidator(value:String, name:String) = pathLikeValidator(value, name) orElse {
-        if (value.length > 1000) {
-            Some(s"${name} is too long: ${value}")
-        } else {
-            None
-        }
+        Option.when(value.length > 1000)(s"${name} is too long: ${value}")
     }
 
     def resourceTypeValidator = rxValidator(raw"[a-z][a-z0-9-]{1,20}".r)(_, _)
 
     def lrnToURI(lrn:LRN):URI = {
-        val (scheme, path) = lrn match {
-            case lrpath:LRPath => "lrp" -> lrpath.path
-            case lrid:LRId => "lrid" -> lrid.resourceId.toString()
+        val scheme = lrn match {
+            case lrpath:LRPath => "lrp"
+            case lrid:LRId => "lrid"
         }
-        new URI(s"${scheme}://${lrn.cloud}/${lrn.api}/${lrn.projectId}/${lrn.resourceType}/${lrn.drawer}/${path}")
+        new URI(s"${scheme}://${lrn.cloud}/${lrn.api}/${lrn.projectId}/${lrn.resourceType}/${lrn.drawer}/${lrn.path}")
     }
 
     def uriToLRN(uri:URI):LRN = {

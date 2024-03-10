@@ -17,7 +17,7 @@ class LRNTester @inject.Inject() (
     def buildTestLrn():LRPath = builderProvider.get(
         ).cloud("test.cloud"
         ).api("testapi"
-        ).drawer("testdrawer"
+        ).resourceGroup("testresourceGroup"
         ).projectId(LRN.zeroId
         ).resourceType("testrt"
         ).path("*").build()

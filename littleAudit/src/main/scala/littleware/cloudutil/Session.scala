@@ -60,7 +60,7 @@ object Session {
         def build():Session = {
             val now = java.time.ZonedDateTime.now(java.time.ZoneId.of("UTC"))
             lrp(
-                lrpBuilder.projectId(LRN.zeroId).drawer(s"${projectId()}:${now.getYear()}").path(s"${now.getMonth()}/${subject()}/${id()}").build()
+                lrpBuilder.projectId(LRN.zeroId).resourceGroup(s"${projectId()}:${now.getYear()}").path(s"${now.getMonth()}/${subject()}/${id()}").build()
             )
             lastUpdater(subject())
             this.validate()

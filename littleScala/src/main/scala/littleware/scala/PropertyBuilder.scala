@@ -99,11 +99,13 @@ trait PropertyBuilder[B] extends LittleValidator {
   }  
 
   class OptionProperty[T] extends Property[Option[T]](None) {
+    validator = notNullValidator
+
     def set(v:T):BuilderType = { value = Option(v); builder }
 
     def withMemberValidator(memberValidator:(T,String) => Option[String]):this.type =
       withValidator(
-        (option, propName) => option.flatMap({ it => memberValidator(it, propName) })
+        (option, propName) => notNullValidator(option, propName) orElse option.flatMap({ it => memberValidator(it, propName) })
       )  
   }
 }
@@ -127,6 +129,9 @@ object PropertyBuilder {
       None
     }
   }
+
+  def notEmptyBelowMaxValidator(maxSize:Int)(value:String, name:String) = notEmptyValidator(value, name) orElse 
+    Option.when(value.length() > maxSize)(s"${name} is exceeds max length: ${value.length()} > ${maxSize}")
 
   def notEmptyValidator(value:String, name:String):Option[String] = {
     if (null == value || value.isEmpty) {
@@ -163,6 +168,4 @@ object PropertyBuilder {
   def dnsValidator = rxValidator(raw"([\w-]{1,40}\.){0,10}[\w-]{1,40}".r)(_, _)
   def emailValidator = rxValidator(raw"[\w-_]{1,20}@\w[\w-.]{1,200}".r)(_, _)
   def pathLikeValidator = rxValidator(raw"([\w-:_.@*]{1,255}/){0,20}[\w-:_.@*]{1,255}".r)(_, _)
-
-
 }
